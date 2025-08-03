@@ -1,25 +1,20 @@
 # Fichier: Dockerfile
-# Version: 2.0 (Standardisé sur NPM)
+# Version: 2.1 (Finalisé pour la production avec Prisma)
 
 # === ÉTAPE 1: Image de Base ===
 # On part d'une image Node.js version 18, basée sur Alpine Linux (légère et sécurisée).
-# On la nomme "base\" pour pouvoir s'y référer plus tard.
+# On la nomme "base" pour pouvoir s'y référer plus tard.
 FROM node:18-alpine AS base
-
-# Installation d'OpenSSL pour Prisma
-RUN apk add --no-cache openssl libc6-compat gcompat libstdc++
+# On installe les dépendances système nécessaires pour Prisma
+RUN apk add --no-cache openssl
 
 
 # === ÉTAPE 2: Installation des Dépendances ===
 # On utilise l'image "base" pour cette étape et on la nomme "deps".
 FROM base AS deps
 WORKDIR /app
-
-# On copie uniquement les fichiers nécessaires pour installer les dépendances.
 COPY package.json package-lock.json* ./
-
-# [MODIFIÉ] On utilise 'npm ci\' qui est la commande standard et optimisée pour les déploiements.
-# Elle utilise le fichier package-lock.json pour garantir des installations fiables et rapides.
+# On installe TOUTES les dépendances, y compris les devDependencies, car nous en avons besoin pour le build.
 RUN npm ci
 
 
@@ -27,22 +22,16 @@ RUN npm ci
 # On repart de l'image "base" et on nomme cette étape "builder".
 FROM base AS builder
 WORKDIR /app
-
-# On copie les dépendances déjà installées depuis l'étape "deps".
+# On copie les dépendances et le package.json de l'étape précédente.
 COPY --from=deps /app/node_modules ./node_modules
-# On copie le package.json (nécessaire pour les scripts)
 COPY --from=deps /app/package.json ./package.json
-
-# On copie le schéma Prisma
+# On copie le schéma Prisma pour pouvoir générer le client.
 COPY prisma ./prisma/
-
-# [MODIFIÉ] On exécute le script prisma generate via 'npm'
+# On génère le client Prisma.
 RUN npx prisma generate
-
-# On copie le reste du code source de l'application
+# On copie le reste du code de l'application.
 COPY . .
-
-# [MODIFIÉ] On lance le script de build via 'npm'
+# On lance le build de Next.js.
 RUN npm run build
 
 
@@ -50,16 +39,25 @@ RUN npm run build
 # On repart d'une image "base" propre pour avoir une image finale légère.
 FROM base AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-# On copie les artefacts de build depuis l'étape "builder"
+# [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
+# pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
+COPY --from=builder /app/package.json /app/package-lock.json* ./
+RUN npm ci --omit=dev
+
+# On copie les artefacts de build depuis l'étape "builder".
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# [LA CORRECTION QUE VOUS ATTENDIEZ]
+# On copie le client Prisma généré ET le dossier prisma contenant le schéma.
+# Ces deux éléments sont nécessaires au runtime pour que Prisma fonctionne.
+COPY --from=builder /app/node_modules/.prisma ./.prisma
+COPY --from=builder /app/prisma ./prisma
+
 # On expose le port sur lequel le serveur Next.js écoute à l'intérieur du conteneur.
 EXPOSE 3000
-
 # La commande qui sera exécutée lorsque le conteneur démarrera.
 CMD ["node", "server.js"]

@@ -3,7 +3,7 @@
 
 **Date d'audit :** 2 août 2025
 **Version analysée :** v4.1
-**Auditeur :** GitHub Copilot
+**Auteur :** Alaeddine BEN RHOUMA
 
 ---
 
@@ -419,6 +419,6 @@ La vision du projet est excellente et l'exécution technique est sur la bonne vo
 
 ---
 
-*Audit réalisé le 2 août 2025 par GitHub Copilot*
+*Audit réalisé le 2 août 2025 par Alaeddine BEN RHOUMA*
 *Niveau de détail : Complet*
 *Fiabilité : 95%*

@@ -3,8 +3,7 @@
 ## 📋 STATUT : ✅ TOUS LES TESTS PASSENT AVEC SUCCÈS
 
 **Date de validation :** `$(date)`
-**Équipe :** bolt.new Development Team
-**Validation CTO :** APPROUVÉE ✅
+**Auteur :** Alaeddine BEN RHOUMA
 
 ---
 
@@ -140,5 +139,5 @@ Cette suite de tests constitue le **filet de sécurité** requis pour le déploi
 
 ---
 
-*Équipe bolt.new - Tests validés par CTO Nexus Réussite*
+*Équipe de développement - Tests validés par Alaeddine BEN RHOUMA*
 *Prêt pour la mise en production sécurisée* 🚀

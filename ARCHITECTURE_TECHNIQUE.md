@@ -1,9 +1,8 @@
 # Documentation Technique d'Architecture - Projet Nexus Réussite
 
-**Version :** 1.0  
-**Date :** Janvier 2025  
-**Équipe :** bolt.new Development Team  
-**Destinataire :** CTO Nexus Réussite
+**Version :** 1.0
+**Date :** Janvier 2025
+**Auteur :** Alaeddine BEN RHOUMA
 
 ---
 
@@ -167,22 +166,22 @@ session: {
    const parentUser = await tx.user.create({
      data: { email, password: hashedPassword, role: 'PARENT', ... }
    })
-   
+
    // 2. Création ParentProfile
    const parentProfile = await tx.parentProfile.create({
      data: { userId: parentUser.id }
    })
-   
+
    // 3. Création User élève
    const studentUser = await tx.user.create({
      data: { email: generatedEmail, role: 'ELEVE', ... }
    })
-   
+
    // 4. Création StudentProfile
    const studentProfile = await tx.studentProfile.create({
      data: { userId: studentUser.id, grade, school, ... }
    })
-   
+
    // 5. Création Student (entité métier)
    const student = await tx.student.create({
      data: { parentId: parentProfile.id, userId: studentUser.id, ... }
@@ -350,5 +349,5 @@ volumes:
 
 ---
 
-*Document généré par l'équipe bolt.new Development Team*  
+*Document généré par Alaeddine BEN RHOUMA*
 *Contact technique : Disponible pour clarifications et support déploiement*

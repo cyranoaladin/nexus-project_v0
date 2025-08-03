@@ -1,7 +1,6 @@
 # Bienvenue sur le Projet Nexus Réussite !
 
-**À :** Équipe de Développement `bolt.new`
-**De :** CTO, Nexus Réussite
+**Auteur :** Alaeddine BEN RHOUMA
 **Objet :** Guide Complet pour le Développement de la Plateforme Nexus Réussite
 
 ---
@@ -75,5 +74,3 @@ Ce projet est configuré pour un développement local robuste et cohérent via *
 Nous sommes convaincus que vous avez le talent et l'expertise pour transformer cette vision en une réalité exceptionnelle. Nous restons à votre disposition pour toute clarification, mais les documents du dossier `/feuille_route` doivent rester votre référence principale.
 
 Construisons ensemble une plateforme dont nous serons fiers.
-
-**Le CTO de Nexus Réussite**

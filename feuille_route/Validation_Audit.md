@@ -1,9 +1,6 @@
-
 ### ** Audit de la v4.1 & Plan d'Action Final et Priorisé pour la Livraison
 
-**À :** Chef de Projet et Équipe de Développement `bolt.new`
-
-**De :** CTO, Nexus Réussite
+**Auteur :** Alaeddine BEN RHOUMA
 
 ---
 
@@ -81,4 +78,4 @@ Veuillez nous soumettre un planning révisé basé sur ces nouvelles priorités.
 
 Cordialement,
 
-**Le CTO de Nexus Réussite**
+**Alaeddine BEN RHOUMA**
