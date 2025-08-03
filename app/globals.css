@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-poppins);
+  --color-bleu-nuit: #0F172A;
+  --color-bleu-primaire: #2563EB;
+  --color-bleu-secondaire: #EFF6FF;
+  --color-blanc-pur: #FFFFFF;
+  --color-rouge-corail: #EF4444;
+  --color-ligne-bordure: #E2E8F0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Styles globaux pour un meilleur centrage et apparence */
+.container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Cards améliorées */
+.card-enhanced {
+  @apply bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
+}
+
+.card-popular {
+  @apply border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-white shadow-xl;
+}
+
+.card-premium {
+  @apply border-2 border-gray-900 bg-gradient-to-br from-gray-50 to-white shadow-2xl;
+}
+
+/* Grilles responsive centrées */
+.grid-centered {
+  @apply grid place-items-center gap-6 md:gap-8;
+}
+
+.grid-cards-1 {
+  @apply grid-cols-1;
+}
+
+.grid-cards-2 {
+  @apply grid-cols-1 md:grid-cols-2;
+}
+
+.grid-cards-3 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.grid-cards-4 {
+  @apply grid-cols-1 md:grid-cols-2 xl:grid-cols-4;
+}
+
+/* Boutons améliorés */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl;
+}
+
+/* Badges améliorés */
+.badge-popular {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
+}
+
+.badge-premium {
+  @apply bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
+}
+
+/* Animations d'entrée */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Conteneurs centrés */
+.section-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16;
+}
+
+.content-centered {
+  @apply text-center max-w-4xl mx-auto;
+}
+
+/* Espacement harmonieux */
+.section-spacing {
+  @apply space-y-16;
+}
+
+.card-spacing {
+  @apply space-y-6;
+}
+
+/* Ombres personnalisées */
+.shadow-soft {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-medium {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-strong {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+}

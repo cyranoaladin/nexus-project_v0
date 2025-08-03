@@ -1,0 +1,76 @@
+version: '3.8'
+
+# Définition des variables qui seront lues depuis le fichier .env
+# Cela évite de les répéter pour chaque service
+x-environment: &environment
+  DATABASE_URL: ${DATABASE_URL}
+  NEXTAUTH_URL: ${NEXTAUTH_URL}
+  NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+  # Ensure NEXTAUTH_SECRET is properly set for authentication
+  OPENAI_API_KEY: ${OPENAI_API_KEY}
+  # ... (ajoutez ici TOUTES les autres variables de votre .env que l'application Next.js doit connaître)
+  # exemple :
+  NEXT_PUBLIC_KONNECT_API_KEY: ${NEXT_PUBLIC_KONNECT_API_KEY}
+  KONNECT_API_SECRET: ${KONNECT_API_SECRET}
+  NEXT_PUBLIC_WISE_BENEFICIARY_NAME: ${NEXT_PUBLIC_WISE_BENEFICIARY_NAME}
+  # etc...
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: nexus-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: nexususer # Un nom d'utilisateur plus spécifique
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD} # On lira un mot de passe dédié
+      POSTGRES_DB: nexusdb
+    volumes:
+      - nexus-postgres-data:/var/lib/postgresql/data
+    networks:
+      - nexus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexususer -d nexusdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  next-app:
+    build:
+      context: . # Votre code source doit être dans le même dossier
+      dockerfile: Dockerfile
+    container_name: nexus-next-app
+    restart: always
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      <<: *environment
+    ports:
+      - "3000:3000"
+    networks:
+      - nexus-network
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nexus-nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    networks:
+      - nexus-network
+    depends_on:
+      - next-app
+
+volumes:
+  nexus-postgres-data:
+  certbot-conf:
+  certbot-www:
+
+networks:
+  nexus-network:
+    driver: bridge
