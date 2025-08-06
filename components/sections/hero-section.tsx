@@ -57,13 +57,23 @@ function DIUTooltip() {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
-      {/* Arrière-plan Tech avec dégradé radial et motif */}
+      {/* Image d'arrière-plan */}
       <div className="absolute inset-0">
-        {/* Dégradé radial du centre vers les bords */}
-        <div className="absolute inset-0 bg-gradient-radial from-blue-50/50 via-blue-25/30 to-white"></div>
+        <Image
+          src="/images/hero-image.png"
+          alt="Nexus Réussite - Excellence éducative"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Overlay sombre pour la lisibilité */}
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        {/* Dégradé additionnel du centre vers les bords */}
+        <div className="absolute inset-0 bg-gradient-radial from-blue-900/20 via-blue-900/40 to-black/60"></div>
 
         {/* Motif de grille technologique très subtil */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="tech-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -98,10 +108,10 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h1 className="font-heading text-5xl md:text-6xl lg:text-8xl font-bold text-slate-900 mb-8 leading-tight">
-            <span className="block text-slate-900">La <span className="text-blue-600">Pédagogie Augmentée</span></span>
-            <span className="block text-slate-900">pour Réussir son Bac.</span>
-            <span className="block text-slate-900 font-medium text-4xl md:text-5xl lg:text-6xl">Sans Stress.</span>
+          <h1 className="font-heading text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl">
+            <span className="block text-white">La <span className="text-blue-300">Pédagogie Augmentée</span></span>
+            <span className="block text-white">pour Réussir son Bac.</span>
+            <span className="block text-white font-medium text-4xl md:text-5xl lg:text-6xl">Sans Stress.</span>
           </h1>
         </motion.div>
 
@@ -127,9 +137,9 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-xl md:text-2xl text-slate-900 mb-12 max-w-4xl mx-auto leading-relaxed"
+          className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
         >
-          Nous fusionnons l'expertise de <span className="text-blue-600 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-600 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-600 font-semibold">mention au Bac</span> et un <span className="text-blue-600 font-semibold">avenir choisi sur Parcoursup</span>.
+          Nous fusionnons l'expertise de <span className="text-blue-300 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-300 font-semibold">mention au Bac</span> et un <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.
         </motion.p>
 
         {/* Grille de fonctionnalités centrée */}

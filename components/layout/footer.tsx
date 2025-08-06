@@ -60,11 +60,11 @@ export function Footer() {
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-red-500" />
-                <span className="text-blue-300">contact@nexus-reussite.tn</span>
+                <span className="text-blue-300">contact@nexusreussite.academy</span>
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-red-500 mt-1" />
-                <span className="text-blue-300">Centre de Tunis<br />Tunisie</span>
+                <span className="text-blue-300">Centre Urbain Nord<br />Immeuble VENUS, Apt. C13<br />1082 – Tunis</span>
               </li>
             </ul>
           </div>

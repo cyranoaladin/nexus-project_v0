@@ -40,3 +40,12 @@ jest.mock('next-auth', () => ({
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NODE_ENV = 'test';
+
+// jest.setup.js
+// Polyfill IntersectionObserver pour Jest/jsdom (Node global)
+global.IntersectionObserver = global.IntersectionObserver || class {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

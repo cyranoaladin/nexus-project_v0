@@ -1,32 +1,31 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, Users, BookOpen, MessageCircle, User, LogOut, Loader2, Clock, CheckCircle } from "lucide-react"
-import { signOut } from "next-auth/react"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, Calendar, CheckCircle, Clock, Loader2, LogOut, MessageCircle, Users } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function DashboardCoach() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [coachData, setCoachData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [coachData, setCoachData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") return;
 
     if (!session || session.user.role !== 'COACH') {
-      router.push("/auth/signin")
-      return
+      router.push("/auth/signin");
+      return;
     }
 
     // Simulation de chargement des données coach
     setTimeout(() => {
       setCoachData({
-        pseudonym: "Hélios",
+        pseudonym: "Axiom",
         specialties: ["Mathématiques", "Maths Expertes"],
         todaySessions: [
           {
@@ -51,10 +50,10 @@ export default function DashboardCoach() {
           completedSessions: 8,
           upcomingSessions: 4
         }
-      })
-      setLoading(false)
-    }, 1000)
-  }, [session, status, router])
+      });
+      setLoading(false);
+    }, 1000);
+  }, [session, status, router]);
 
   if (status === "loading" || loading) {
     return (
@@ -64,7 +63,7 @@ export default function DashboardCoach() {
           <p className="text-gray-600">Chargement de votre espace coach...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -315,5 +314,5 @@ export default function DashboardCoach() {
         </Card>
       </main>
     </div>
-  )
+  );
 }

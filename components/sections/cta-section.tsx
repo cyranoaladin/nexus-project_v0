@@ -104,7 +104,7 @@ export function CTASection() {
             className="text-center"
           >
             <p className="text-white/80 text-lg font-medium">
-              Rejoignez les centaines de familles qui nous font déjà confiance
+              Prêt à construire l'avenir de votre enfant ? Commencez par un échange avec nos experts.
             </p>
             <div className="flex justify-center mt-4 space-x-1">
               {[...Array(5)].map((_, i) => (
