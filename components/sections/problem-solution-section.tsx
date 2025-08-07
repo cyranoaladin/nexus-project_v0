@@ -123,7 +123,7 @@ export function ProblemSolutionSection() {
                     <div>
                       <h4 className="font-semibold text-blue-900 mb-1">Des Experts, pas des Amateurs</h4>
                       <p className="text-blue-800 leading-relaxed">
-                        Une équipe d'Agrégés, de Certifiés et d'experts du réseau AEFE.
+                        Une équipe d'Agrégés, de Certifiés et d'experts de l'enseignement français.
                       </p>
                     </div>
                   </div>

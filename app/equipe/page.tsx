@@ -31,10 +31,10 @@ const TEAM_PROFILES = {
       tag: "🎯 Stratège",
       title: "Coach Certifié en Mathématiques",
       tagline: "Un problème de Bac est un jeu avec des règles précises. Je ne vous apprends pas seulement à jouer, je vous apprends à gagner en anticipant chaque coup.",
-      points: ["Professeur Certifié (CAPES) de Mathématiques", "Expert méthodologie des épreuves", "Expérience réseau AEFE"],
+      points: ["Professeur Certifié (CAPES) de Mathématiques", "Expert méthodologie des épreuves", "Expérience enseignement français à l'étranger"],
       summary: "Le Stratège des Épreuves. Une pédagogie bienveillante et encourageante, réputée pour redonner confiance aux élèves en difficulté.",
       expertise: "Professeur Certifié (CAPES) de Mathématiques, garant d'une solide formation pédagogique. Une pédagogie bienveillante et encourageante, réputée pour redonner confiance aux élèves en difficulté.",
-      philosophy: "Expert dans la méthodologie des épreuves, il excelle à décortiquer les attentes des examinateurs pour transformer le stress en performance maîtrisée. Longue et riche expérience au sein du réseau AEFE.",
+      philosophy: "Expert dans la méthodologie des épreuves, il excelle à décortiquer les attentes des examinateurs pour transformer le stress en performance maîtrisée. Riche expérience dans l'enseignement français à l'étranger.",
       nexusPlus: "Sa maîtrise parfaite des enjeux spécifiques à nos élèves et sa capacité à transformer le stress en concentration."
     }
   ],
