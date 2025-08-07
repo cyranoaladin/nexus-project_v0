@@ -160,7 +160,7 @@ export function HeroSection() {
           </div>
           <div className="flex flex-col items-center gap-3 p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <Network className="w-8 h-8 text-blue-600" />
-            <p className="text-slate-900 font-medium text-center">Expertise <span className="text-blue-600 font-semibold">Réseau AEFE</span></p>
+            <p className="text-slate-900 font-medium text-center">Expertise <span className="text-blue-600 font-semibold">Enseignement Français</span></p>
           </div>
           <div className="flex flex-col items-center gap-3 p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <Code2 className="w-8 h-8 text-blue-600" />

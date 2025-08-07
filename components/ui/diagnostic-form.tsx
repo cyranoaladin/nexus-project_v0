@@ -36,7 +36,7 @@ const DIAGNOSTIC_QUESTIONS = [
   {
     id: 'statut',
     question: 'Son statut est...',
-    options: ['Élève dans un établissement AEFE', 'Candidat Libre']
+    options: ['Élève dans un lycée français', 'Candidat Libre']
   },
   {
     id: 'priorite',
@@ -52,7 +52,7 @@ const DIAGNOSTIC_QUESTIONS = [
 ];
 
 const RECOMMENDATIONS: Record<string, Recommendation> = {
-  'Première-AEFE-Français': {
+  'Première-Lycée-Français': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
     academie: 'Académie du Français',
@@ -60,7 +60,7 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
     parcoursLink: '/offres#odyssee',
     academieLink: '/offres#academies'
   },
-  'Terminale-AEFE-Mention': {
+  'Terminale-Lycée-Mention': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
     academie: 'Académie de Février',
@@ -68,7 +68,7 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
     parcoursLink: '/offres#odyssee',
     academieLink: '/offres#academies'
   },
-  'Terminale-AEFE-Parcoursup': {
+  'Terminale-Lycée-Parcoursup': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
     academie: 'Académie Python',
@@ -76,7 +76,7 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
     parcoursLink: '/offres#odyssee',
     academieLink: '/offres#academies'
   },
-  'Première-AEFE-Controle': {
+  'Première-Lycée-Controle': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
     parcoursLink: '/offres#odyssee'
@@ -132,8 +132,8 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
       };
     }
 
-    // Pour les élèves AEFE, on utilise la classe
-    const key = `${formData.classe}-AEFE-${getPriorityKey(formData.priorite)}`;
+    // Pour les élèves en lycée français, on utilise la classe
+    const key = `${formData.classe}-Lycée-${getPriorityKey(formData.priorite)}`;
 
     return RECOMMENDATIONS[key] || {
       parcours: 'Consultation Personnalisée',

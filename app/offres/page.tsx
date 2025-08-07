@@ -460,7 +460,7 @@ export default function OffresPage() {
                       </div>
                       <div>
                         <CardTitle className="text-2xl font-bold text-bleu-nuit">
-                          L'Élève Scolarisé (AEFE)
+                          L'Élève Scolarisé (Lycée français)
                         </CardTitle>
                         <p className="text-gris-noble">Son besoin : L'OPTIMISATION</p>
                       </div>
