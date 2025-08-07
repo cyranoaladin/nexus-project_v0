@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/copy-public-assets.js",
+    "build:base": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --projects jest.config.unit.js jest.config.integration.js",
@@ -13,6 +14,7 @@
     "test:watch": "jest --projects jest.config.unit.js jest.config.integration.js --watch",
     "test:coverage": "jest --projects jest.config.unit.js jest.config.integration.js --coverage",
     "test:e2e": "playwright test",
+    "prepare:deploy": "./scripts/prepare-deployment.sh",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
@@ -53,6 +55,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",
     "recharts": "^3.1.0",
+    "sharp": "^0.33.5",
     "tsx": "^4.20.3",
     "zod": "^3.23.8"
   },
@@ -71,11 +74,11 @@
     "jest-environment-jsdom": "^29.7.0",
     "prisma": "^6.13.0",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "jest": {
-      "setupFiles": [
-        "<rootDir>/jest.setup.js"
-      ]
-    }
+    "typescript": "^5"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ]
   }
 }

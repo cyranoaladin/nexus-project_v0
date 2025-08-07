@@ -58,14 +58,15 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
       {/* Image d'arrière-plan */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero-image.png"
-          alt="Nexus Réussite - Excellence éducative"
-          fill
-          className="object-cover"
-          priority
-        />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "url('/images/hero-image.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat"
+        }}
+      >
         {/* Overlay sombre pour la lisibilité */}
         <div className="absolute inset-0 bg-black/40"></div>
 
