@@ -72,10 +72,6 @@
     "prisma": "^6.13.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "jest": {
-      "setupFiles": [
-        "<rootDir>/jest.setup.js"
-      ]
-    }
+    "typescript": "^5"
   }
 }
