@@ -4,71 +4,53 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar, CreditCard, MessageCircle, TrendingUp, UserPlus, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const STEPS = [
   {
     number: "01",
-    icon: UserPlus,
-    title: "Bilan Stratégique Gratuit",
-    description: "Créez votre compte et celui de votre enfant en quelques minutes. Notre équipe analyse le profil et vous contacte sous 24h.",
-    phase: "discovery"
+    iconPath: "/images/Icon_Etape1_Bilan.png",
+    title: "Bilan Stratégique",
+    shortTitle: "Bilan Gratuit"
   },
   {
     number: "02",
-    icon: CreditCard,
+    iconPath: "/images/Icon_Etape2_Formule.png",
     title: "Choisissez Votre Formule",
-    description: "Sélectionnez l'abonnement qui correspond à vos besoins. Chaque formule inclut un budget mensuel de crédits.",
-    phase: "discovery"
+    shortTitle: "Votre Formule"
   },
   {
     number: "03",
-    icon: Calendar,
+    iconPath: "/images/Icon_Etape3_Reservation.png",
     title: "Réservez Vos Sessions",
-    description: "Utilisez vos crédits pour réserver des cours particuliers, ateliers ou sessions de coaching selon vos disponibilités.",
-    phase: "action"
+    shortTitle: "Réservation"
   },
   {
     number: "04",
-    icon: Users,
+    iconPath: "/images/Icon_Etape4_Coaching.png",
     title: "Rencontrez Vos Coachs",
-    description: "Nos experts vous accompagnent avec des méthodes personnalisées, en ligne ou en présentiel selon vos préférences.",
-    phase: "action"
+    shortTitle: "Coaching"
   },
   {
     number: "05",
-    icon: MessageCircle,
+    iconPath: "/images/Icon_Etape5_ARIA.png",
     title: "ARIA, Votre IA 24/7",
-    description: "Posez vos questions à tout moment à ARIA, notre assistant IA entraîné sur nos contenus pédagogiques exclusifs.",
-    phase: "follow"
+    shortTitle: "IA ARIA"
   },
   {
     number: "06",
-    icon: TrendingUp,
+    iconPath: "/images/Icon_Etape6_Progres.png",
     title: "Suivez Vos Progrès",
-    description: "Tableau de bord complet, rapports détaillés, badges de progression et communication fluide avec vos coachs.",
-    phase: "follow"
+    shortTitle: "Progression"
   }
 ];
 
 export function HowItWorksSection() {
-  const getStepColor = (phase: string) => {
-    switch (phase) {
-      case 'discovery':
-        return 'text-blue-600';
-      case 'action':
-        return 'text-red-500';
-      case 'follow':
-        return 'text-slate-900';
-      default:
-        return 'text-blue-600';
-    }
-  };
-
   return (
     <section className="bg-gradient-to-br from-blue-50 to-indigo-50/50 py-24">
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* En-tête */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -90,78 +72,97 @@ export function HowItWorksSection() {
           </p>
         </motion.div>
 
-        {/* Timeline verticale */}
-        <div className="relative">
-          {/* Ligne de timeline */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-blue-200 via-red-200 to-slate-300"></div>
+        {/* Grille horizontale des étapes */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-16"
+        >
+          {STEPS.map((step, index) => (
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              {/* Icône */}
+              <div className="flex justify-center mb-4">
+                <Image
+                  src={step.iconPath}
+                  alt={step.title}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 hover:scale-110 transition-transform duration-300"
+                />
+              </div>
+              {/* Titre court */}
+              <h3 className="font-heading text-lg font-bold text-gray-900 mb-2">
+                {step.shortTitle}
+              </h3>
+              {/* Numéro d'étape */}
+              <span className="text-sm text-blue-600 font-semibold">
+                Étape {step.number}
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
 
-          {/* Étapes */}
-          <div className="space-y-16">
-            {STEPS.map((step, index) => {
-              const Icon = step.icon;
-              const isEven = index % 2 === 1;
-              const stepColor = getStepColor(step.phase);
-
-              return (
-                <motion.div
-                  key={step.number}
-                  initial={{ opacity: 0, x: isEven ? 50 : -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className={`relative flex items-center ${isEven ? 'flex-row-reverse' : ''}`}
-                >
-                  {/* Point d'étape (cercle + icône) */}
-                  <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
-                    <div className="bg-white border-2 border-slate-300 rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
-                      <span className={`text-xl font-bold ${stepColor}`}>
-                        {step.number}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Icône à côté du cercle */}
-                  <div className={`absolute left-1/2 transform -translate-x-1/2 z-10 ${isEven ? '-translate-x-20' : 'translate-x-20'}`}>
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${step.phase === 'discovery' ? 'bg-blue-100' :
-                        step.phase === 'action' ? 'bg-red-100' : 'bg-slate-100'
-                      }`}>
-                      <Icon className={`w-6 h-6 ${stepColor}`} />
-                    </div>
-                  </div>
-
-                  {/* Carte de contenu */}
-                  <div className={`w-5/12 ${isEven ? 'ml-auto pr-20' : 'mr-auto pl-20'}`}>
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 + 0.2 }}
-                      viewport={{ once: true }}
-                    >
-                      <Card className="bg-blue-50 border-none shadow-md rounded-xl hover:shadow-lg transition-all duration-300">
-                        <CardContent className="p-6">
-                          <h3 className="font-heading text-xl font-bold text-slate-900 mb-3 leading-tight">
-                            {step.title}
-                          </h3>
-                          <p className="text-slate-700 leading-relaxed">
-                            {step.description}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              );
-            })}
+        {/* Section Partenariat Familial */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="grid lg:grid-cols-2 gap-12 items-center mb-16"
+        >
+          {/* Image */}
+          <div className="order-2 lg:order-1">
+            <Image
+              src="/images/Image_PartenariatFamilial.png"
+              alt="Un Accompagnement Humain à Chaque Étape"
+              width={600}
+              height={400}
+              className="w-full h-auto rounded-2xl shadow-lg"
+            />
           </div>
-        </div>
+          {/* Contenu */}
+          <div className="order-1 lg:order-2">
+            <h3 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Un Accompagnement Humain à Chaque Étape
+            </h3>
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              Notre approche unique combine la puissance de la technologie avec la chaleur humaine.
+              À chaque étape de votre parcours, nos experts vous accompagnent personnellement pour
+              garantir votre réussite.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                <span className="text-gray-700">Suivi personnalisé par des experts</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                <span className="text-gray-700">Communication transparente avec les familles</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                <span className="text-gray-700">Adaptation continue selon vos besoins</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mt-20"
+          className="text-center"
         >
           <Card className="bg-white border border-slate-200 shadow-lg rounded-2xl p-12 max-w-4xl mx-auto">
             <CardContent className="p-0">
@@ -169,8 +170,7 @@ export function HowItWorksSection() {
                 Prêt à Commencer Votre Transformation ?
               </h3>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Rejoignez les centaines de familles qui nous font déjà confiance.
-                Votre bilan stratégique gratuit vous attend.
+                Faites le premier pas vers l'excellence. Votre bilan stratégique gratuit vous attend.
               </p>
               <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white h-16 px-8 text-lg font-semibold group">
                 <Link href="/bilan-gratuit">

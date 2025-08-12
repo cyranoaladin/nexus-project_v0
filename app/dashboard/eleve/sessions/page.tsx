@@ -379,7 +379,7 @@ export default function SessionsPage() {
                       <span className="text-green-600 font-semibold text-sm">H</span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Hélios</p>
+                      <p className="font-medium text-sm">Axiom</p>
                       <p className="text-xs text-gray-600">Mathématiques</p>
                     </div>
                   </div>
@@ -389,7 +389,7 @@ export default function SessionsPage() {
                       <span className="text-blue-600 font-semibold text-sm">T</span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Turing</p>
+                      <p className="font-medium text-sm">Recursiv</p>
                       <p className="text-xs text-gray-600">NSI</p>
                     </div>
                   </div>
@@ -399,7 +399,7 @@ export default function SessionsPage() {
                       <span className="text-purple-600 font-semibold text-sm">A</span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Athéna</p>
+                      <p className="font-medium text-sm">Scriptor</p>
                       <p className="text-xs text-gray-600">Français</p>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -72,12 +73,14 @@ export default function DashboardCoach() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard')
   const [isWeekDialogOpen, setIsWeekDialogOpen] = useState(false)
 
+
+
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") return;
 
     if (!session || session.user.role !== 'COACH') {
-      router.push("/auth/signin")
-      return
+      router.push("/auth/signin");
+      return;
     }
 
     const fetchDashboardData = async () => {
@@ -104,6 +107,7 @@ export default function DashboardCoach() {
     fetchDashboardData()
   }, [session, status, router])
 
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -112,7 +116,7 @@ export default function DashboardCoach() {
           <p className="text-gray-600">Chargement de votre espace coach...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -455,5 +459,5 @@ export default function DashboardCoach() {
         )}
       </main>
     </div>
-  )
+  );
 }
