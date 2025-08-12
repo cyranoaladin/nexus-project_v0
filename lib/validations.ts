@@ -1,5 +1,18 @@
-import { Subject } from '@prisma/client';
 import { z } from 'zod';
+
+// Define Subject enum locally to avoid client/server mismatch
+const Subject = {
+  MATHEMATIQUES: 'MATHEMATIQUES',
+  NSI: 'NSI',
+  FRANCAIS: 'FRANCAIS',
+  PHILOSOPHIE: 'PHILOSOPHIE',
+  HISTOIRE_GEO: 'HISTOIRE_GEO',
+  ANGLAIS: 'ANGLAIS',
+  ESPAGNOL: 'ESPAGNOL',
+  PHYSIQUE_CHIMIE: 'PHYSIQUE_CHIMIE',
+  SVT: 'SVT',
+  SES: 'SES'
+} as const;
 
 // Validation pour l'inscription (Bilan Gratuit)
 export const bilanGratuitSchema = z.object({
@@ -18,7 +31,7 @@ export const bilanGratuitSchema = z.object({
   studentBirthDate: z.string().optional(),
 
   // Besoins et objectifs
-  subjects: z.array(z.nativeEnum(Subject)).min(1, 'Sélectionnez au moins une matière'),
+  subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).min(1, 'Sélectionnez au moins une matière'),
   currentLevel: z.string().min(1, 'Veuillez indiquer le niveau actuel'),
   objectives: z.string().min(10, 'Décrivez vos objectifs (minimum 10 caractères)'),
   difficulties: z.string().optional(),
@@ -43,18 +56,26 @@ export const signinSchema = z.object({
 // Validation pour la réservation de session
 export const sessionBookingSchema = z.object({
   coachId: z.string().optional(),
-  subject: z.nativeEnum(Subject),
+  subject: z.enum(Object.values(Subject) as [string, ...string[]]),
   type: z.enum(['COURS_ONLINE', 'COURS_PRESENTIEL', 'ATELIER_GROUPE']),
-  scheduledAt: z.string().datetime(),
+  scheduledAt: z.string().min(1, 'Date et heure requises'),
   duration: z.number().min(30).max(180),
   title: z.string().min(1, 'Titre requis'),
   description: z.string().optional()
+}).refine((data) => {
+  const selectedDate = new Date(data.scheduledAt);
+  const now = new Date();
+  const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 hours from now
+  return selectedDate > twoHoursFromNow;
+}, {
+  message: "La session doit être programmée au minimum 2 heures à l'avance",
+  path: ["scheduledAt"]
 });
 
 // Validation pour les messages ARIA
 export const ariaMessageSchema = z.object({
   conversationId: z.string().optional(),
-  subject: z.nativeEnum(Subject),
+  subject: z.enum(Object.values(Subject) as [string, ...string[]]),
   content: z.string().min(1, 'Message requis').max(1000, 'Message trop long')
 });
 

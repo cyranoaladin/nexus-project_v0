@@ -320,19 +320,19 @@ export default function OffresPage() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="bg-gradient-to-br from-gray-50 to-blue-50/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
           {/* Section 1: Titre de la Page */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-12 md:mb-20"
           >
-            <h1 className="font-heading text-4xl md:text-6xl font-bold text-gray-900 mb-8 leading-tight">
+            <h1 className="font-heading text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-8 leading-tight">
               Des Formules Flexibles pour Chaque <span className="text-blue-600">Ambition</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
               Découvrez notre écosystème d'offres, de l'abonnement mensuel aux stages spécialisés, et construisez le parcours de réussite qui vous correspond.
             </p>
           </motion.div>
@@ -343,18 +343,18 @@ export default function OffresPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="mb-12 md:mb-20"
           >
-            <div className="text-center mb-16">
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
                 Nos Formules d'Abonnement : Votre Socle de Réussite
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
                 Un accompagnement régulier adapté à vos besoins avec nos coachs experts
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto auto-rows-fr">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto auto-rows-fr">
               {SUBSCRIPTION_PLANS.map((plan, index) => (
                 <motion.div
                   key={plan.name}
@@ -366,8 +366,8 @@ export default function OffresPage() {
                 >
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
-                        <Award className="w-4 h-4 mr-1 inline" />
+                      <div className="bg-red-500 text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-semibold shadow-md">
+                        <Award className="w-3 h-3 md:w-4 md:h-4 mr-1 inline" />
                         Le plus populaire
                       </div>
                     </div>
@@ -377,49 +377,49 @@ export default function OffresPage() {
                       ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
                       : 'bg-white border border-slate-200 shadow-lg'
                     }`}>
-                    <CardHeader className="text-center p-8">
-                      <CardTitle className="font-heading text-2xl font-bold text-gray-900 mb-4">
+                    <CardHeader className="text-center p-6 md:p-8">
+                      <CardTitle className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
                         {plan.name}
                       </CardTitle>
-                      <p className="text-gray-600 mb-6">{plan.description}</p>
+                      <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6">{plan.description}</p>
 
                       {/* Prix avec typographie hiérarchisée */}
-                      <div className="mb-6">
+                      <div className="mb-4 md:mb-6">
                         <div className="flex items-baseline justify-center">
-                          <span className="font-bold text-5xl md:text-6xl text-slate-900" style={{ fontFamily: 'Poppins' }}>
+                          <span className="font-bold text-3xl md:text-5xl lg:text-6xl text-slate-900" style={{ fontFamily: 'Poppins' }}>
                             {plan.price}
                           </span>
-                          <span className="font-medium text-xl text-blue-600 ml-2" style={{ fontFamily: 'Inter' }}>
+                          <span className="font-medium text-lg md:text-xl text-blue-600 ml-2" style={{ fontFamily: 'Inter' }}>
                             TND
                           </span>
-                          <span className="font-normal text-base text-slate-500 ml-1" style={{ fontFamily: 'Inter' }}>
+                          <span className="font-normal text-sm md:text-base text-slate-500 ml-1" style={{ fontFamily: 'Inter' }}>
                             /mois
                           </span>
                         </div>
                       </div>
 
                       {plan.credits > 0 && (
-                        <div className="mb-4">
-                          <Badge className="bg-blue-600 text-white font-medium" style={{ fontFamily: 'Inter' }}>
+                        <div className="mb-3 md:mb-4">
+                          <Badge className="bg-blue-600 text-white font-medium text-xs md:text-sm" style={{ fontFamily: 'Inter' }}>
                             {plan.credits} crédits inclus
                           </Badge>
                         </div>
                       )}
                     </CardHeader>
 
-                    <CardContent className="p-8 flex-1 flex flex-col">
-                      <ul className="space-y-5 mb-8 flex-1">
+                    <CardContent className="p-6 md:p-8 flex-1 flex flex-col">
+                      <ul className="space-y-3 md:space-y-5 mb-6 md:mb-8 flex-1">
                         {plan.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start space-x-4">
-                            <Check className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700 leading-relaxed">{feature}</span>
+                          <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                            <Check className="w-4 h-4 md:w-6 md:h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
                           </li>
                         ))}
                       </ul>
 
                       <Button
                         asChild
-                        className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${plan.popular
+                        className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold transition-all duration-300 ${plan.popular
                             ? 'bg-red-500 hover:bg-red-600 text-white'
                             : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
                           }`}
@@ -441,56 +441,56 @@ export default function OffresPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="mb-12 md:mb-20"
           >
-            <div className="text-center mb-16">
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
                 Notre Offre la Plus Complète : Le Pack Annuel
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
                 L'accompagnement intégral pour réussir votre Baccalauréat en candidat libre
               </p>
             </div>
 
             <div className="max-w-4xl mx-auto">
               <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-2xl">
-                <CardContent className="p-12">
-                  <div className="flex items-center justify-between mb-8">
+                <CardContent className="p-6 md:p-12">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 space-y-4 md:space-y-0">
                     <div>
-                      <Badge className="bg-blue-600 text-white mb-4">
+                      <Badge className="bg-blue-600 text-white mb-3 md:mb-4 text-xs md:text-sm">
                         {ANNUAL_PACK.badge}
                       </Badge>
-                      <h3 className="font-heading text-3xl font-bold text-gray-900 mb-4">
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
                         {ANNUAL_PACK.name}
                       </h3>
-                      <p className="text-lg text-gray-600 mb-6">
+                      <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6">
                         {ANNUAL_PACK.description}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg text-gray-500 line-through mb-2">
+                    <div className="text-center md:text-right">
+                      <div className="text-base md:text-lg text-gray-500 line-through mb-1 md:mb-2">
                         {formatPrice(ANNUAL_PACK.originalPrice)}
                       </div>
-                      <div className="text-4xl font-bold text-blue-600">
+                      <div className="text-3xl md:text-4xl font-bold text-blue-600">
                         {formatPrice(ANNUAL_PACK.price)}
                       </div>
-                      <div className="text-sm text-gray-600">pour l'année</div>
+                      <div className="text-xs md:text-sm text-gray-600">pour l'année</div>
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-6 md:mb-8">
                     {ANNUAL_PACK.features.map((feature, index) => (
                       <div key={index} className="flex items-start space-x-3">
-                        <Shield className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
+                        <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600 mt-1 flex-shrink-0" />
+                        <span className="text-sm md:text-base text-gray-700">{feature}</span>
                       </div>
                     ))}
                   </div>
 
-                  <Button asChild className="w-full h-16 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button asChild className="w-full h-12 md:h-16 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
                     <Link href="/bilan-gratuit">
                       Découvrir le Pack Candidat Libre
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                     </Link>
                   </Button>
                 </CardContent>
@@ -504,18 +504,18 @@ export default function OffresPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="mb-12 md:mb-20"
           >
-            <div className="text-center mb-16">
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
                 Nos Stages Intensifs : Accélérez vos Compétences
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
                 Des formations intensives pour acquérir rapidement des compétences clés
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
               {INTENSIVE_STAGES.map((stage, index) => (
                 <motion.div
                   key={stage.name}
@@ -525,39 +525,39 @@ export default function OffresPage() {
                   viewport={{ once: true }}
                 >
                   <Card className="h-full bg-white border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                    <CardHeader className="p-8">
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-red-500 text-white">
+                    <CardHeader className="p-6 md:p-8">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
+                        <Badge className="bg-red-500 text-white text-xs md:text-sm w-fit">
                           {stage.badge}
                         </Badge>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold text-blue-600">
+                        <div className="text-center sm:text-right">
+                          <div className="text-2xl md:text-3xl font-bold text-blue-600">
                             {formatPrice(stage.price)}
                           </div>
                         </div>
                       </div>
-                      <h3 className="font-heading text-2xl font-bold text-gray-900 mb-4">
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
                         {stage.name}
                       </h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                         {stage.description}
                       </p>
                     </CardHeader>
 
-                    <CardContent className="p-8 pt-0">
-                      <ul className="space-y-4 mb-8">
+                    <CardContent className="p-6 md:p-8 pt-0">
+                      <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                         {stage.features.map((feature, featureIndex) => {
                           const IconComponent = stage.icons?.[featureIndex] || Check;
                           return (
-                            <li key={featureIndex} className="flex items-start space-x-4">
-                              <IconComponent className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-700 leading-relaxed">{feature}</span>
+                            <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                              <IconComponent className="w-4 h-4 md:w-6 md:h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
                             </li>
                           );
                         })}
                       </ul>
 
-                      <Button asChild className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button asChild className="w-full h-12 md:h-14 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
                         <Link href="/bilan-gratuit">
                           {index === 0 ? "Je réserve ma place" : "S'inscrire au Bootcamp"}
                         </Link>
@@ -575,44 +575,44 @@ export default function OffresPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="mb-12 md:mb-20"
           >
-            <div className="text-center mb-16">
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
                 Nos Packs pour des Objectifs Ciblés
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
                 Des accompagnements spécialisés pour réussir des étapes clés de votre parcours
               </p>
             </div>
 
             <div className="max-w-4xl mx-auto">
-              <Accordion type="single" collapsible className="w-full space-y-4">
+              <Accordion type="single" collapsible className="w-full space-y-3 md:space-y-4">
                 {SPECIAL_PACKS.map((pack) => (
-                  <AccordionItem key={pack.name} value={pack.name} className="border border-gray-200 rounded-xl px-6">
-                    <AccordionTrigger className="text-left hover:no-underline py-6">
-                      <div className="flex justify-between items-center w-full mr-4">
+                  <AccordionItem key={pack.name} value={pack.name} className="border border-gray-200 rounded-xl px-4 md:px-6">
+                    <AccordionTrigger className="text-left hover:no-underline py-4 md:py-6">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full mr-4 space-y-2 sm:space-y-0">
                         <div>
-                          <h4 className="font-semibold text-xl text-gray-900">{pack.name}</h4>
-                          <p className="text-gray-600 mt-2">{pack.description}</p>
+                          <h4 className="font-semibold text-lg md:text-xl text-gray-900">{pack.name}</h4>
+                          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">{pack.description}</p>
                         </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-center sm:text-right">
+                          <div className="text-xl md:text-2xl font-bold text-blue-600">
                             {formatPrice(pack.price)}
                           </div>
                         </div>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-6">
-                      <div className="space-y-4 mb-6">
+                    <AccordionContent className="pb-4 md:pb-6">
+                      <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                         {pack.features.map((feature, index) => (
                           <div key={index} className="flex items-start space-x-3">
-                            <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                            <span className="text-gray-700">{feature}</span>
+                            <Check className="w-4 h-4 md:w-5 md:h-5 text-green-500 mt-1 flex-shrink-0" />
+                            <span className="text-sm md:text-base text-gray-700">{feature}</span>
                           </div>
                         ))}
                       </div>
-                      <Button asChild className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button asChild className="w-full h-10 md:h-12 bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base">
                         <Link href="/bilan-gratuit">
                           Réserver ce Pack
                         </Link>
@@ -630,7 +630,7 @@ export default function OffresPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.0 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="mb-12 md:mb-20"
           >
             <ARIAInteractiveModule />
           </motion.section>
