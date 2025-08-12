@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // Énumération des rôles utilisateur
@@ -51,9 +51,12 @@ enum Subject {
 // Énumération des statuts de session
 enum SessionStatus {
   SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
   COMPLETED
   CANCELLED
   NO_SHOW
+  RESCHEDULED
 }
 
 // Énumération des types de paiement
@@ -93,6 +96,19 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
+
+  // Coach specific relations
+  coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
+  coachSessions      SessionBooking[]    @relation("CoachSessions")
+  
+  // Student specific relations
+  studentSessions    SessionBooking[]    @relation("StudentSessions")
+  
+  // Parent specific relations
+  parentSessions     SessionBooking[]    @relation("ParentSessions")
+  
+  // Notification relations
+  notifications      SessionNotification[] @relation("UserNotifications")
 
   @@map("users")
 }
@@ -142,6 +158,11 @@ model Student {
   school    String?
   birthDate DateTime?
 
+  // Crédits et sessions
+  credits            Int @default(0)
+  totalSessions      Int @default(0)
+  completedSessions  Int @default(0)
+
   // Relations
   subscriptions    Subscription[]
   creditTransactions CreditTransaction[]
@@ -149,6 +170,7 @@ model Student {
   ariaConversations AriaConversation[]
   badges           StudentBadge[]
   reports          StudentReport[]
+  subscriptionRequests SubscriptionRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -420,4 +442,234 @@ model PedagogicalContent {
   updatedAt DateTime @updatedAt
 
   @@map("pedagogical_contents")
+}
+
+// Modèle pour les demandes de modification d'abonnement
+model SubscriptionRequest {
+  id              String   @id @default(cuid())
+  studentId       String
+  requestType     String   // PLAN_CHANGE, ARIA_ADDON, INVOICE_DETAILS
+  planName        String?
+  monthlyPrice    Float
+  reason          String?
+  status          String   // PENDING, APPROVED, REJECTED
+  requestedBy     String
+  requestedByEmail String
+  processedBy     String?
+  processedAt     DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("subscription_requests")
+}
+
+// Modèle pour les notifications système
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // ID de l'utilisateur qui reçoit la notification
+  userRole    UserRole // Rôle de l'utilisateur (ASSISTANTE, ADMIN, etc.)
+  type        String   // SUBSCRIPTION_REQUEST, CREDIT_REQUEST, etc.
+  title       String
+  message     String
+  data        String   // JSON string pour données supplémentaires
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+// Add these models to your existing schema
+
+// Coach Availability Management
+model CoachAvailability {
+  id          String   @id @default(cuid())
+  coachId     String
+  coach       User     @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
+  
+  // Day of week (0 = Sunday, 1 = Monday, etc.)
+  dayOfWeek   Int
+  startTime   String   // "09:00"
+  endTime     String   // "17:00"
+  
+  // For specific dates (holidays, special availability)
+  specificDate DateTime?
+  isAvailable Boolean  @default(true)
+  
+  // Recurring pattern
+  isRecurring Boolean  @default(true)
+  validFrom   DateTime @default(now())
+  validUntil  DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([coachId, dayOfWeek, startTime, endTime, specificDate])
+  @@index([coachId, dayOfWeek])
+  @@index([coachId, specificDate])
+}
+
+// Session Booking Management
+model SessionBooking {
+  id            String           @id @default(cuid())
+  
+  // Participants
+  studentId     String
+  student       User             @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  coachId       String
+  coach         User             @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        User?            @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
+  
+  // Session Details
+  subject       Subject
+  title         String
+  description   String?
+  
+  // Scheduling
+  scheduledDate DateTime
+  startTime     String           // "14:00"
+  endTime       String           // "15:00"
+  duration      Int              // Duration in minutes
+  
+  // Status Management
+  status        SessionStatus    @default(SCHEDULED)
+  
+  // Session Type
+  type          SessionType      @default(INDIVIDUAL)
+  modality      SessionModality  @default(ONLINE)
+  
+  // Location/Meeting Info
+  meetingUrl    String?
+  meetingId     String?
+  location      String?
+  
+  // Credits & Payment
+  creditsUsed   Int              @default(1)
+  
+  // Feedback & Notes
+  coachNotes    String?
+  studentNotes  String?
+  rating        Int?             // 1-5 stars
+  feedback      String?
+  
+  // Attendance
+  studentAttended Boolean?
+  coachAttended   Boolean        @default(true)
+  
+  // Timestamps
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+  
+  // Relations
+  notifications SessionNotification[]
+  reminders     SessionReminder[]
+  
+  @@index([studentId, scheduledDate])
+  @@index([coachId, scheduledDate])
+  @@index([status, scheduledDate])
+  @@index([scheduledDate])
+}
+
+// Notification System
+model SessionNotification {
+  id          String             @id @default(cuid())
+  sessionId   String
+  session     SessionBooking     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // Recipients
+  userId      String
+  user        User               @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Notification Details
+  type        NotificationType
+  title       String
+  message     String
+  
+  // Status
+  status      NotificationStatus @default(PENDING)
+  sentAt      DateTime?
+  readAt      DateTime?
+  
+  // Delivery Method
+  method      NotificationMethod @default(EMAIL)
+  
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  
+  @@index([userId, status])
+  @@index([sessionId])
+}
+
+// Reminder System
+model SessionReminder {
+  id          String         @id @default(cuid())
+  sessionId   String
+  session     SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // Reminder Timing
+  reminderType ReminderType
+  scheduledFor DateTime
+  
+  // Status
+  sent        Boolean        @default(false)
+  sentAt      DateTime?
+  
+  createdAt   DateTime       @default(now())
+  
+  @@index([scheduledFor, sent])
+  @@index([sessionId])
+}
+
+// Enums
+
+enum SessionType {
+  INDIVIDUAL
+  GROUP
+  MASTERCLASS
+}
+
+enum SessionModality {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum NotificationType {
+  SESSION_BOOKED
+  SESSION_CONFIRMED
+  SESSION_REMINDER
+  SESSION_CANCELLED
+  SESSION_RESCHEDULED
+  SESSION_COMPLETED
+  COACH_ASSIGNED
+  PAYMENT_REQUIRED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum NotificationMethod {
+  EMAIL
+  SMS
+  IN_APP
+  PUSH
+}
+
+enum ReminderType {
+  ONE_DAY_BEFORE
+  TWO_HOURS_BEFORE
+  THIRTY_MINUTES_BEFORE
+  SESSION_STARTING
 }

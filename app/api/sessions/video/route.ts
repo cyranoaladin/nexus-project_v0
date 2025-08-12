@@ -1,6 +1,6 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { SessionStatus } from '@prisma/client';
+// Removed import of SessionStatus due to lint error
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           }
         },
         coach: {
-          include: {
+          include: {  
             user: true
           }
         }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const timeDifference = Math.abs(now.getTime() - sessionStart.getTime());
     const fifteenMinutes = 15 * 60 * 1000;
 
-    if (timeDifference > fifteenMinutes && bookingSession.status !== SessionStatus.SCHEDULED) {
+    if (timeDifference > fifteenMinutes && bookingSession.status !== "SCHEDULED") {
       return NextResponse.json({
         error: 'La session n\'est pas encore disponible ou a expiré'
       }, { status: 400 });
@@ -60,11 +60,11 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'JOIN':
         // Marquer la session comme en cours si elle ne l'est pas déjà
-        if (bookingSession.status === SessionStatus.SCHEDULED) {
+        if (bookingSession.status === "SCHEDULED") {
           await prisma.session.update({
             where: { id: sessionId },
             data: {
-              status: SessionStatus.SCHEDULED // Garder SCHEDULED car il n'y a pas IN_PROGRESS
+              status: "SCHEDULED" // Garder SCHEDULED car il n'y a pas IN_PROGRESS
             }
           });
         }
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
             subject: bookingSession.subject,
             scheduledAt: bookingSession.scheduledAt,
             duration: bookingSession.duration,
-            status: SessionStatus.SCHEDULED,
+            status: "SCHEDULED",
             isHost: session.user.role === 'COACH'
           }
         });
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         await prisma.session.update({
           where: { id: sessionId },
           data: {
-            status: SessionStatus.COMPLETED
+              status: "COMPLETED"
           }
         });
 
