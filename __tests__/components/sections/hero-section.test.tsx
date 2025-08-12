@@ -74,7 +74,7 @@ describe('HeroSection', () => {
     // Vérifier la présence des piliers principaux
     expect(screen.getByText(/Coachs Agrégés/i)).toBeInTheDocument();
     expect(screen.getByText(/IA 24\/7/i)).toBeInTheDocument();
-    expect(screen.getByText(/Expertise AEFE/i)).toBeInTheDocument();
+    expect(screen.getByText(/Expertise Enseignement Français/i)).toBeInTheDocument();
     expect(screen.getByText(/Spécialiste NSI/i)).toBeInTheDocument();
   });
 

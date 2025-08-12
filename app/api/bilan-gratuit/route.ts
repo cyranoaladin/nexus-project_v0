@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { bilanGratuitSchema } from '@/lib/validations'
 import bcrypt from 'bcryptjs'
-import { UserRole } from '@prisma/client'
+import { UserRole } from '@/types/enums'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('Received request body:', body)
     
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body)
+    console.log('Validated data:', validatedData)
     
     // Vérifier si l'email parent existe déjà
     const existingUser = await prisma.user.findUnique({
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(validatedData.parentPassword, 12)
     
     // Transaction pour créer parent et élève
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Créer le compte parent
       const parentUser = await tx.user.create({
         data: {
@@ -36,7 +38,8 @@ export async function POST(request: NextRequest) {
           role: UserRole.PARENT,
           firstName: validatedData.parentFirstName,
           lastName: validatedData.parentLastName,
-          phone: validatedData.parentPhone
+          phone: validatedData.parentPhone,
+          isActive: true
         }
       })
       
@@ -53,7 +56,9 @@ export async function POST(request: NextRequest) {
           email: `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}@nexus-student.local`,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
-          lastName: validatedData.studentLastName
+          lastName: validatedData.studentLastName,
+          password: hashedPassword,
+          isActive: true
         }
       })
       
@@ -63,7 +68,8 @@ export async function POST(request: NextRequest) {
           userId: studentUser.id,
           grade: validatedData.studentGrade,
           school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null,
+          isActive: true
         }
       })
       
@@ -74,7 +80,8 @@ export async function POST(request: NextRequest) {
           userId: studentUser.id,
           grade: validatedData.studentGrade,
           school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null,
+          isActive: true
         }
       })
       
@@ -109,13 +116,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { error: 'Données invalides', details: error },
+        { error: 'Données invalides', details: error.message },
         { status: 400 }
       )
     }
     
     return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
+      { error: 'Erreur interne du serveur', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

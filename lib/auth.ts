@@ -5,8 +5,25 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
 
+// Generate a secure secret if not provided
+const generateSecret = () => {
+  if (process.env.NEXTAUTH_SECRET) {
+    return process.env.NEXTAUTH_SECRET;
+  }
+  
+  // Generate a random secret for development
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 32; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
+  secret: generateSecret(),
+  debug: process.env.NODE_ENV === 'development',
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -80,23 +97,43 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       // === LOG DE DÉBOGAGE N°5 ===
       console.log("--- [JWT CALLBACK] ---", { token, user });
-      if (user) {
-        token.role = user.role;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
+      try {
+        if (user) {
+          token.role = user.role;
+          token.firstName = user.firstName;
+          token.lastName = user.lastName;
+        }
+        return token;
+      } catch (error) {
+        console.error('JWT callback error:', error);
+        return token;
       }
-      return token;
     },
     async session({ session, token }) {
       // === LOG DE DÉBOGAGE N°6 ===
       console.log("--- [SESSION CALLBACK] ---", { session, token });
-      if (token) {
-        session.user.id = token.sub!;
-        session.user.role = token.role as UserRole;
-        session.user.firstName = token.firstName as string;
-        session.user.lastName = token.lastName as string;
+      try {
+        if (token) {
+          session.user.id = token.sub!;
+          session.user.role = token.role as UserRole;
+          session.user.firstName = token.firstName as string;
+          session.user.lastName = token.lastName as string;
+        }
+        return session;
+      } catch (error) {
+        console.error('Session callback error:', error);
+        // Return a basic session if there's an error
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: token?.sub || 'unknown',
+            role: 'PARENT' as UserRole,
+            firstName: token?.firstName as string || '',
+            lastName: token?.lastName as string || ''
+          }
+        };
       }
-      return session;
     }
   },
   pages: {

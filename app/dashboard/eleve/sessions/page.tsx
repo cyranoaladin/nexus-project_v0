@@ -40,7 +40,9 @@ export default function SessionsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableCredits, setAvailableCredits] = useState(4.5);
+  const [availableCredits, setAvailableCredits] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -53,7 +55,16 @@ export default function SessionsPage() {
   });
 
   const selectedType = watch('type');
-  const selectedCost = SERVICE_TYPES.find(t => t.value === selectedType)?.cost || 1;
+  const selectedDuration = watch('duration') || 60;
+  
+  // Calculate credit cost based on type and duration
+  const getCreditCost = () => {
+    const baseCost = SERVICE_TYPES.find(t => t.value === selectedType)?.cost || 1;
+    const durationMultiplier = selectedDuration / 60; // 60min = 1 session, 90min = 1.5 sessions, 120min = 2 sessions
+    return baseCost * durationMultiplier;
+  };
+  
+  const selectedCost = getCreditCost();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -62,6 +73,29 @@ export default function SessionsPage() {
       router.push("/auth/signin");
       return;
     }
+
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/student/credits');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch student data');
+        }
+        
+        const data = await response.json();
+        setAvailableCredits(data.balance);
+      } catch (err) {
+        console.error('Error fetching student data:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudentData();
   }, [session, status, router]);
 
   const onSubmit = async (data: any) => {
@@ -91,6 +125,35 @@ export default function SessionsPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
+          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -182,13 +245,17 @@ export default function SessionsPage() {
                         id="scheduledAt"
                         type="datetime-local"
                         {...register('scheduledAt')}
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                        placeholder="Sélectionnez une date et heure"
                       />
                       {errors.scheduledAt && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.scheduledAt.message as string}
                         </p>
                       )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        La session doit être programmée au minimum 2 heures à l'avance
+                      </p>
                     </div>
 
                     <div>
@@ -281,7 +348,10 @@ export default function SessionsPage() {
                     <div className="bg-blue-50 rounded-lg p-3">
                       <p className="text-sm text-blue-800">
                         <strong>Coût de cette session :</strong><br />
-                        {selectedCost} crédit{selectedCost > 1 ? 's' : ''}
+                        {selectedCost.toFixed(1)} crédit{selectedCost > 1 ? 's' : ''}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        {selectedDuration} minutes = {selectedDuration / 60} session{selectedDuration / 60 > 1 ? 's' : ''}
                       </p>
                       {selectedCost > availableCredits && (
                         <p className="text-red-600 text-xs mt-2 font-medium">
