@@ -111,7 +111,7 @@ KONNECT_WEBHOOK_SECRET="your-webhook-secret"
 NEXT_PUBLIC_WISE_BENEFICIARY_NAME="Nexus Réussite SARL"
 NEXT_PUBLIC_WISE_IBAN="TN59 1234 5678 9012 3456 7890 12"
 NEXT_PUBLIC_WISE_BIC="BANKTNTT"
-NEXT_PUBLIC_WISE_ADDRESS="123 Avenue Habib Bourguiba, Tunis 1000, Tunisie"
+NEXT_PUBLIC_WISE_ADDRESS="Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 – Tunis"
 NEXT_PUBLIC_WISE_BANK_NAME="Banque Internationale Arabe de Tunisie"
 
 # =============================================================================

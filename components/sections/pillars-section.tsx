@@ -1,67 +1,59 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Check, Compass, HelpCircle, Medal, ShieldCheck, X, Zap } from "lucide-react";
+import { Award, BrainCircuit, CheckCircle2, GitBranch, HelpCircle, ShieldCheck, Users, X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 const pillars = [
   {
-    icon: ShieldCheck,
+    icon: Users,
     title: "Des Coachs d'Exception",
+    category: "La Garantie Humaine",
     description: "Nous ne recrutons que l'élite. Chaque intervenant est rigoureusement sélectionné pour son expertise et son expérience du système éducatif français.",
     features: [
       "Professeurs **Agrégés & Certifiés** de l'Éducation Nationale française",
-      "Longue expérience dans le réseau **AEFE** à l'international",
+      "Riche expérience dans **l'enseignement français à l'étranger**",
       "Spécialistes NSI titulaires du **DIU NSI**",
       "Pédagogie active et suivi **bienveillant**"
-    ],
-    color: "primary",
-    category: "La Garantie Humaine",
-    style: "secondary"
+    ]
   },
   {
-    icon: Zap,
+    icon: BrainCircuit,
     title: "Une Technologie Qui Fait la Différence",
+    category: "Le Levier Technologique",
     description: "Nous avons développé des outils propriétaires qui vous donnent un avantage décisif, disponibles 24/7 pour ne jamais être bloqué.",
     features: [
       "**IA ARIA** entraînée sur nos contenus exclusifs",
       "Plateforme de suivi de progression **en temps réel**",
       "Visioconférence intégrée et **sécurisée**",
       "Ressources et quiz **interactifs**"
-    ],
-    color: "secondary",
-    category: "Le Levier Technologique",
-    style: "primary"
+    ]
   },
   {
-    icon: Compass,
+    icon: GitBranch,
     title: "Votre Parcours, Votre Stratégie",
+    category: "La Stratégie Personnalisée",
     description: "Il n'y a pas de solution unique pour la réussite. Nous construisons avec vous un plan d'action sur-mesure, du premier jour jusqu'à Parcoursup.",
     features: [
       "**Bilan Stratégique** initial complet et gratuit",
       "Constitution de groupes de travail **homogènes**",
       "**Flexibilité totale** grâce au système de crédits",
       "Accompagnement **dédié à l'orientation**"
-    ],
-    color: "primary",
-    category: "La Stratégie Personnalisée",
-    style: "secondary"
+    ]
   },
   {
-    icon: Medal,
+    icon: Award,
     title: "Des Résultats Concrets",
+    category: "Les Résultats Concrets",
     description: "Notre accompagnement ne s'arrête pas aux bonnes notes. Nous préparons activement vos enfants à leur avenir et nous nous engageons sur leurs résultats.",
     features: [
       "Préparation stratégique aux concours **post-bac**",
       "Accompagnement expert et intégré à **Parcoursup**",
       "Développement de **compétences transversales** pour le supérieur",
       "**Garantie \"Bac Obtenu ou Remboursé\"** sous conditions"
-    ],
-    color: "primary",
-    category: "Les Résultats Concrets",
-    style: "secondary"
+    ]
   }
 ];
 
@@ -120,14 +112,14 @@ function parseMarkdownText(text: string) {
       const content = part.slice(2, -2);
       if (content === 'DIU NSI') {
         return (
-          <span key={index} className="font-semibold text-blue-600">
+          <span key={index} className="font-semibold text-orange-600">
             {content}
             <DIUTooltip />
           </span>
         );
       }
       return (
-        <span key={index} className="font-semibold text-blue-600">
+        <span key={index} className="font-semibold text-orange-600">
           {content}
         </span>
       );
@@ -138,8 +130,8 @@ function parseMarkdownText(text: string) {
 
 export function PillarsSection() {
   return (
-    <section className="bg-blue-50 py-24">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="py-20 bg-slate-50">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* En-tête de section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -161,65 +153,92 @@ export function PillarsSection() {
           </p>
         </motion.div>
 
-        {/* Grille 2x2 équilibrée */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 auto-rows-fr">
+        {/* Structure en colonne unique avec cartes */}
+        <div className="flex flex-col space-y-8">
           {pillars.map((pillar, index) => {
             const Icon = pillar.icon;
-            const isMainCard = pillar.style === "primary";
 
             return (
               <motion.div
                 key={pillar.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="h-full"
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white border border-slate-200 shadow-md rounded-lg p-8"
               >
-                <Card className={`h-full hover:shadow-xl transition-all duration-300 ${isMainCard
-                    ? 'bg-white border-2 border-blue-600 shadow-2xl'
-                    : 'bg-white border border-slate-200 shadow-lg'
-                  }`}>
-                  <CardContent className="p-8 h-full flex flex-col">
-                    {/* Catégorie */}
-                    <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-6">
-                      {pillar.category}
+                {/* Structure en deux colonnes avec images pour tous les piliers */}
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                  {/* Colonne de gauche - Contenu */}
+                  <div>
+                    {/* En-tête du pilier */}
+                    <div className="flex items-center mb-6">
+                      <Icon className="h-10 w-10 text-orange-500 mr-4" />
+                      <div>
+                        <p className="text-sm font-semibold text-orange-600 uppercase tracking-wide mb-1">
+                          {pillar.category}
+                        </p>
+                        <h3 className="font-heading text-2xl font-bold text-gray-900">
+                          {pillar.title}
+                        </h3>
+                      </div>
                     </div>
 
-                    {/* Icône agrandie */}
-                    <div className={`flex items-center justify-center w-16 h-16 rounded-3xl mb-8 ${pillar.icon === Zap
-                        ? 'bg-red-50 text-red-500'
-                        : 'bg-blue-50 text-blue-600'
-                      }`}>
-                      <Icon className="w-10 h-10" />
-                    </div>
-
-                    {/* Titre */}
-                    <h3 className="font-heading text-2xl font-bold text-gray-900 mb-6 leading-tight">
-                      {pillar.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                    {/* Texte descriptif */}
+                    <p className="text-lg text-slate-600 mb-6 leading-relaxed">
                       {pillar.description}
                     </p>
 
-                    {/* Liste de preuves */}
-                    <div className="space-y-4 flex-1">
+                    {/* Liste à puces améliorée */}
+                    <div className="space-y-3">
                       {pillar.features.map((feature, featureIndex) => (
-                        <div
-                          key={featureIndex}
-                          className="flex items-start space-x-4"
-                        >
-                          <Check className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                        <div key={featureIndex} className="flex items-start">
+                          <CheckCircle2 className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
                           <span className="text-gray-700 leading-relaxed">
                             {parseMarkdownText(feature)}
                           </span>
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  {/* Colonne de droite - Image */}
+                  <div className="lg:order-last">
+                    {pillar.category === "La Garantie Humaine" ? (
+                      <Image
+                        src="/images/Image_AccompagnementBienveillant.png"
+                        alt="Accompagnement bienveillant par nos experts"
+                        width={500}
+                        height={400}
+                        className="w-full h-auto rounded-lg shadow-lg"
+                      />
+                    ) : pillar.category === "Le Levier Technologique" ? (
+                      <Image
+                        src="/images/aria_mascotte.png"
+                        alt="ARIA - Notre Intelligence Artificielle"
+                        width={500}
+                        height={400}
+                        className="w-full h-auto rounded-lg shadow-lg"
+                      />
+                    ) : pillar.category === "La Stratégie Personnalisée" ? (
+                      <Image
+                        src="/images/asisstante_parents.png"
+                        alt="Accompagnement personnalisé des familles"
+                        width={500}
+                        height={400}
+                        className="w-full h-auto rounded-lg shadow-lg"
+                      />
+                    ) : pillar.category === "Les Résultats Concrets" ? (
+                      <Image
+                        src="/images/coach_parcoursup.png"
+                        alt="Coaching Parcoursup et orientation"
+                        width={500}
+                        height={400}
+                        className="w-full h-auto rounded-lg shadow-lg"
+                      />
+                    ) : null}
+                  </div>
+                </div>
               </motion.div>
             );
           })}
