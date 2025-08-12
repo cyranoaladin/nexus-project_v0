@@ -36,7 +36,7 @@ Une pédagogie bienveillante et encourageante, réputée pour redonner confiance
 
 Expert dans la méthodologie des épreuves, il excelle à décortiquer les attentes des examinateurs pour transformer le stress en performance maîtrisée.
 
-Longue et riche expérience au sein du réseau AEFE, lui conférant une parfaite maîtrise des enjeux spécifiques à nos élèves.
+Riche expérience dans l'enseignement français à l'étranger, lui conférant une parfaite maîtrise des enjeux spécifiques à nos élèves.
 
 Pôle Sciences Physiques : La Vision Complémentaire
 1. L'Expérimentaliste

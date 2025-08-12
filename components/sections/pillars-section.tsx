@@ -14,7 +14,7 @@ const pillars = [
     description: "Nous ne recrutons que l'élite. Chaque intervenant est rigoureusement sélectionné pour son expertise et son expérience du système éducatif français.",
     features: [
       "Professeurs **Agrégés & Certifiés** de l'Éducation Nationale française",
-      "Longue expérience dans le réseau **AEFE** à l'international",
+      "Riche expérience dans **l'enseignement français à l'étranger**",
       "Spécialistes NSI titulaires du **DIU NSI**",
       "Pédagogie active et suivi **bienveillant**"
     ]

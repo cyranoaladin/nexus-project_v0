@@ -19,12 +19,14 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <PillarsSection />
+
         <ExpertsHighlightSection />
         <ProblemSolutionSection />
         <OffersPreviewSection />
         <HowItWorksSection />
         <GuaranteeSection />
         <CTASection />
+
       </main>
       <Footer />
       <AriaChat />
