@@ -1,9 +1,32 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  return NextResponse.json({
-    status: 'success',
-    message: 'API is working!',
-    timestamp: new Date().toISOString()
-  });
+  try {
+    // Test database connection
+    await prisma.$connect();
+    
+    // Test a simple query
+    const userCount = await prisma.user.count();
+    
+    return NextResponse.json({
+      status: 'success',
+      message: 'API and database are working!',
+      database: {
+        connected: true,
+        userCount
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    return NextResponse.json({
+      status: 'error',
+      message: 'Database connection failed',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
 }
