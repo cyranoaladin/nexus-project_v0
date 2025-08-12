@@ -23,12 +23,7 @@ export default function HomePage() {
         <ProblemSolutionSection />
         <ComparisonTableSection />
         <PillarsSection />
-        <BusinessModelSection />
         <HowItWorksSection />
-        <StagesIntensifsSection />
-        <CandidatLibreSection />
-        <GuaranteeSection />
-        <CTASection />
       </main>
       <Footer />
       <AriaChat />

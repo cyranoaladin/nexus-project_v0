@@ -65,12 +65,28 @@ const MOCK_RESOURCES = [
   }
 ]
 
+interface Resource {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  type: string;
+  fileUrl: string;
+  thumbnailUrl?: string;
+  downloads: number;
+  lastUpdated: string;
+  isDownloaded: boolean;
+}
+
 export default function RessourcesPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("all")
   const [selectedType, setSelectedType] = useState("all")
+  const [resources, setResources] = useState<Resource[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === "loading") return
@@ -79,9 +95,32 @@ export default function RessourcesPage() {
       router.push("/auth/signin")
       return
     }
+
+    const fetchResources = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const response = await fetch('/api/student/resources')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch resources')
+        }
+        
+        const data = await response.json()
+        setResources(data)
+      } catch (err) {
+        console.error('Error fetching resources:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchResources()
   }, [session, status, router])
 
-  const filteredResources = MOCK_RESOURCES.filter(resource => {
+  const filteredResources = resources.filter(resource => {
     const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          resource.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSubject = selectedSubject === "all" || resource.subject === selectedSubject
@@ -89,6 +128,35 @@ export default function RessourcesPage() {
     
     return matchesSearch && matchesSubject && matchesType
   })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600">⏳</div>
+          <p className="text-gray-600">Chargement des ressources...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
+          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -164,63 +232,72 @@ export default function RessourcesPage() {
 
         {/* Liste des ressources */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredResources.map((resource) => (
-            <Card key={resource.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <Badge variant="outline" className="mb-2">
-                    {SUBJECTS_OPTIONS.find(s => s.value === resource.subject)?.label}
-                  </Badge>
-                  <Badge variant="default">
-                    {resource.type}
-                  </Badge>
-                </div>
-                <CardTitle className="text-lg leading-tight">
-                  {resource.title}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <p className="text-gray-600 text-sm">
-                  {resource.description}
-                </p>
-                
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-3 h-3" />
-                    <span>{resource.lastUpdated}</span>
+          {filteredResources.length === 0 ? (
+            <div className="col-span-full">
+              <Card>
+                <CardContent className="text-center py-12">
+                  <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Aucune ressource trouvée
+                  </h3>
+                  <p className="text-gray-500">
+                    Essayez de modifier vos critères de recherche.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            filteredResources.map((resource) => (
+              <Card key={resource.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <Badge variant="outline" className="mb-2">
+                      {resource.subject}
+                    </Badge>
+                    <div className="flex space-x-1">
+                      <Badge variant="default">
+                        {resource.type}
+                      </Badge>
+                      {resource.isDownloaded && (
+                        <Badge variant="default" className="bg-green-100 text-green-800">
+                          Téléchargé
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <span>{resource.downloads} téléchargements</span>
-                </div>
+                  <CardTitle className="text-lg leading-tight">
+                    {resource.title}
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 text-sm">
+                    {resource.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{new Date(resource.lastUpdated).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                    <span>{resource.downloads} téléchargements</span>
+                  </div>
 
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="w-4 h-4 mr-1" />
-                    Voir
-                  </Button>
-                  <Button size="sm" className="flex-1">
-                    <Download className="w-4 h-4 mr-1" />
-                    Télécharger
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Eye className="w-4 h-4 mr-1" />
+                      Voir
+                    </Button>
+                    <Button size="sm" className="flex-1">
+                      <Download className="w-4 h-4 mr-1" />
+                      Télécharger
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
-
-        {filteredResources.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Aucune ressource trouvée
-              </h3>
-              <p className="text-gray-500">
-                Essayez de modifier vos critères de recherche.
-              </p>
-            </CardContent>
-          </Card>
-        )}
       </main>
     </div>
   )

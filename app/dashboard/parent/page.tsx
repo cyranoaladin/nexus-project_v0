@@ -7,15 +7,96 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, Settings, Plus } from "lucide-react"
+import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, Settings, Plus, AlertCircle, BookOpen, Target, Clock } from "lucide-react"
 import { signOut } from "next-auth/react"
+import AddChildDialog from "./add-child-dialog"
+import CreditPurchaseDialog from "./credit-purchase-dialog"
+import SubscriptionChangeDialog from "./subscription-change-dialog"
+import AriaAddonDialog from "./aria-addon-dialog"
+import InvoiceDetailsDialog from "./invoice-details-dialog"
+import SessionBooking from "@/components/ui/session-booking"
+import { Footer } from "@/components/layout/footer"
+
+interface ParentDashboardData {
+  parent: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  children: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    grade: string;
+    school: string;
+    credits: number;
+    subscription: string;
+    subscriptionDetails: {
+      planName: string;
+      monthlyPrice: number;
+      status: string;
+      startDate: string;
+      endDate: string;
+    } | null;
+    nextSession: {
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+    } | null;
+    progress: number;
+    subjectProgress: Record<string, number>;
+    sessions: Array<{
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+      duration: number;
+    }>;
+  }>;
+}
 
 export default function DashboardParent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [selectedChild, setSelectedChild] = useState<string>("")
-  const [parentData, setParentData] = useState<any>(null)
+  const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard')
+  const [showBookingDialog, setShowBookingDialog] = useState(false)
+
+  const refreshDashboardData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/parent/dashboard')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data')
+      }
+      
+      const data = await response.json()
+      setDashboardData(data)
+      
+      if (data.children.length > 0 && !selectedChild) {
+        setSelectedChild(data.children[0].id)
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
 
   useEffect(() => {
     if (status === "loading") return
@@ -25,28 +106,7 @@ export default function DashboardParent() {
       return
     }
 
-    // Simulation de chargement des données parent
-    setTimeout(() => {
-      const mockData = {
-        children: [
-          {
-            id: "1",
-            firstName: "Emma",
-            lastName: "Martin",
-            grade: "Terminale",
-            credits: 4.5,
-            subscription: "HYBRIDE",
-            nextSession: "Mathématiques - Demain 14h",
-            progress: 78
-          }
-        ]
-      }
-      setParentData(mockData)
-      if (mockData.children.length > 0) {
-        setSelectedChild(mockData.children[0].id)
-      }
-      setLoading(false)
-    }, 1000)
+    refreshDashboardData()
   }, [session, status, router])
 
   if (status === "loading" || loading) {
@@ -60,145 +120,202 @@ export default function DashboardParent() {
     )
   }
 
-  const currentChild = parentData?.children.find((child: any) => child.id === selectedChild)
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
+          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const currentChild = dashboardData?.children.find((child: any) => child.id === selectedChild)
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 sm:py-0 sm:h-16 gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 flex-shrink-0" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-gray-900 text-sm sm:text-base">
                     {session?.user.firstName} {session?.user.lastName}
                   </h1>
-                  <p className="text-sm text-gray-500">Espace Parent</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Espace Parent</p>
                 </div>
+              </div>
+              
+              {/* Navigation Tabs */}
+              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-4">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                    activeTab === 'dashboard'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Tableau de Bord
+                </button>
+                <button
+                  onClick={() => setActiveTab('booking')}
+                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                    activeTab === 'booking'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Réserver Session
+                </button>
               </div>
             </div>
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Déconnexion
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Déconnexion</span>
+              <span className="sm:hidden">Déco</span>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section avec Sélecteur d'Enfant */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-4 md:mb-0">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Tableau de Bord Parental 👨‍👩‍👧‍👦
-              </h2>
-              <p className="text-gray-600">
-                Suivez les progrès et gérez l'accompagnement de vos enfants.
-              </p>
-            </div>
-            
-            {/* Sélecteur Multi-Enfants */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="w-5 h-5 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Enfant :</span>
-              </div>
-              <Select value={selectedChild} onValueChange={setSelectedChild}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Sélectionner un enfant" />
-                </SelectTrigger>
-                <SelectContent>
-                  {parentData?.children.map((child: any) => (
-                    <SelectItem key={child.id} value={child.id}>
-                      {child.firstName} {child.lastName} ({child.grade})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter un Enfant
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {currentChild && (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {activeTab === 'dashboard' && (
           <>
+            {/* Welcome Section avec Sélecteur d'Enfants */}
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    Tableau de Bord Parental 👨‍👩‍👧‍👦
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    Suivez les progrès et gérez l'accompagnement de vos enfants.
+                  </p>
+                </div>
+                
+                {/* Sélecteur Multi-Enfants */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-700">Enfant :</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Select value={selectedChild} onValueChange={setSelectedChild}>
+                      <SelectTrigger className="w-full sm:w-48">
+                        <SelectValue placeholder="Sélectionner un enfant" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dashboardData?.children.map((child: any) => (
+                          <SelectItem key={child.id} value={child.id}>
+                            {child.firstName} {child.lastName} - {child.grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <AddChildDialog onChildAdded={refreshDashboardData} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Informations Enfant Sélectionné */}
-            <Card className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <Card className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="w-5 h-5 mr-2 text-blue-600" />
-                  {currentChild.firstName} {currentChild.lastName}
-                  <Badge variant="outline" className="ml-2">
-                    {currentChild.grade}
+                <CardTitle className="flex items-center flex-wrap gap-2">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <span className="text-lg sm:text-xl">
+                    {currentChild?.firstName} {currentChild?.lastName}
+                  </span>
+                  <Badge variant="outline" className="text-xs sm:text-sm">
+                    {currentChild?.grade}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {currentChild.credits}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="text-center space-y-1">
+                    <div className="text-xl sm:text-2xl font-bold text-blue-600">
+                      {currentChild?.credits}
                     </div>
-                    <p className="text-sm text-gray-600">Crédits disponibles</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Crédits disponibles</p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {currentChild.subscription}
+                  <div className="text-center space-y-1">
+                    <div className="text-xl sm:text-2xl font-bold text-green-600">
+                      {currentChild?.subscription}
                     </div>
-                    <p className="text-sm text-gray-600">Formule actuelle</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Formule actuelle</p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {currentChild.progress}%
+                  <div className="text-center space-y-1">
+                    <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                      {currentChild?.progress}%
                     </div>
-                    <p className="text-sm text-gray-600">Progression</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Progression</p>
                   </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-gray-900">
-                      {currentChild.nextSession}
+                  <div className="text-center space-y-1">
+                    <div className="text-xs sm:text-sm font-medium text-gray-900">
+                      {currentChild?.nextSession ? 
+                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` : 
+                        'Aucune session'
+                      }
                     </div>
-                    <p className="text-sm text-gray-600">Prochaine session</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Prochaine session</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
               {/* Agenda de l'Enfant */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                    Agenda de {currentChild.firstName}
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
+                    <span className="text-base sm:text-lg">Agenda de {currentChild?.firstName}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Mathématiques</p>
-                        <p className="text-sm text-gray-600">Demain à 14h00</p>
+                  <div className="space-y-3 sm:space-y-4">
+                    {currentChild?.sessions && currentChild?.sessions.length > 0 ? (
+                      currentChild?.sessions.map((session: any) => (
+                        <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 text-sm sm:text-base">{session.subject}</p>
+                            <p className="text-xs sm:text-sm text-gray-600">
+                              {new Date(session.scheduledAt).toLocaleDateString('fr-FR')} à {new Date(session.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            <p className="text-xs text-gray-500">Coach: {session.coachName}</p>
+                          </div>
+                          <Badge variant={session.type === 'COURS_ONLINE' ? 'default' : 'outline'} className="text-xs">
+                            {session.type === 'COURS_ONLINE' ? 'En ligne' : 'Présentiel'}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 sm:py-8">
+                        <p className="text-gray-500 text-sm sm:text-base">Aucune session programmée</p>
+                        <Button variant="outline" className="mt-2 text-xs sm:text-sm">
+                          Réserver une Session
+                        </Button>
                       </div>
-                      <Badge variant="default">En ligne</Badge>
-                    </div>
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">Aucune autre session programmée</p>
-                      <Button variant="outline" className="mt-2">
-                        Réserver une Session
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -207,101 +324,129 @@ export default function DashboardParent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                    Progression
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
+                    <span className="text-base sm:text-lg">Progression par Matière</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Mathématiques</span>
-                        <span>85%</span>
+                  <div className="space-y-3 sm:space-y-4">
+                    {currentChild?.subjectProgress && Object.keys(currentChild?.subjectProgress).length > 0 ? (
+                      Object.entries(currentChild?.subjectProgress).map(([subject, progress]) => (
+                        <div key={subject}>
+                          <div className="flex justify-between text-xs sm:text-sm mb-1">
+                            <span>{subject}</span>
+                            <span>{progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="h-2 rounded-full transition-all duration-300" 
+                              style={{ 
+                                width: `${progress}%`,
+                                backgroundColor: progress > 80 ? '#10B981' : progress > 60 ? '#3B82F6' : progress > 40 ? '#F59E0B' : '#EF4444'
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-500">Aucune progression disponible</p>
+                        <p className="text-xs text-gray-400 mt-1">Les données apparaîtront après les premières sessions</p>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '85%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Français</span>
-                        <span>72%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '72%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Physique-Chimie</span>
-                        <span>68%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-purple-600 h-2 rounded-full" style={{ width: '68%' }}></div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Section Abonnement et Facturation */}
-            <Card>
+            <Card className="mb-6 sm:mb-8">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <CreditCard className="w-5 h-5 mr-2 text-green-600" />
-                  Abonnement et Facturation
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
+                  <span className="text-base sm:text-lg">Abonnement et Facturation</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Abonnement Actuel */}
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Formule Actuelle</h3>
-                    <div className="text-2xl font-bold text-blue-600 mb-1">HYBRIDE</div>
-                    <p className="text-sm text-gray-600 mb-3">450 TND/mois</p>
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Modifier
-                    </Button>
+                  <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Formule Actuelle</h3>
+                    <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
+                      {currentChild?.subscriptionDetails?.planName || currentChild?.subscription}
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                      {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND/mois
+                    </p>
+                    <SubscriptionChangeDialog 
+                      studentId={currentChild?.id ?? ''}
+                      studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
+                      currentPlan={currentChild?.subscriptionDetails?.planName || currentChild?.subscription || 'Aucune formule'}
+                      onRequestComplete={refreshDashboardData}
+                    />
                   </div>
 
                   {/* Prochaine Facturation */}
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Prochaine Facturation</h3>
-                    <div className="text-2xl font-bold text-green-600 mb-1">15 Fév</div>
-                    <p className="text-sm text-gray-600 mb-3">450 TND</p>
-                    <Button variant="outline" size="sm">
-                      Voir Détails
-                    </Button>
+                  <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Prochaine Facturation</h3>
+                    <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
+                      {currentChild?.subscriptionDetails?.endDate ? 
+                        new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : 
+                        'N/A'
+                      }
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                      {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND
+                    </p>
+                    <InvoiceDetailsDialog 
+                      subscriptionDetails={currentChild?.subscriptionDetails || null}
+                      studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
+                    />
                   </div>
 
                   {/* Actions */}
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Actions</h3>
+                  <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Actions</h3>
                     <div className="space-y-2">
-                      <Button variant="outline" size="sm" className="w-full">
-                        Acheter des Crédits
-                      </Button>
-                      <Button variant="outline" size="sm" className="w-full">
-                        Ajouter ARIA+
-                      </Button>
+                      <CreditPurchaseDialog 
+                        studentId={currentChild?.id ?? ''}
+                        studentName={`${currentChild?.firstName ?? ''} ${currentChild?.lastName ?? ''}`}
+                        onPurchaseComplete={refreshDashboardData}
+                      />
+                      <AriaAddonDialog 
+                        studentId={currentChild?.id ?? ''}
+                        studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
+                        onRequestComplete={refreshDashboardData}
+                      />
                     </div>
                   </div>
                 </div>
 
                 {/* Note importante */}
-                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    <strong>Note :</strong> Les fonctionnalités de paiement et de modification d'abonnement 
-                    seront disponibles dans la prochaine mise à jour de la plateforme.
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-xs sm:text-sm text-yellow-800">
+                    <strong>Note :</strong> Les demandes d'achat de crédits sont envoyées à l'assistant pour approbation.
                   </p>
                 </div>
               </CardContent>
             </Card>
           </>
         )}
+
+        {activeTab === 'booking' && currentChild && (
+          <SessionBooking
+            studentId={currentChild?.id}
+            parentId={session?.user?.id}
+            userCredits={currentChild?.credits}
+            onBookingComplete={(sessionId) => {
+              console.log('Session booked:', sessionId);
+              refreshDashboardData();
+              setActiveTab('dashboard');
+            }}
+          />
+        )}
       </main>
+      <Footer />
     </div>
   )
 }

@@ -25,6 +25,7 @@ export default function MesSessions() {
   const router = useRouter();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -34,45 +35,42 @@ export default function MesSessions() {
       return;
     }
 
-    // Simulation de chargement des sessions
-    // En production, ceci serait un appel API réel
-    setTimeout(() => {
-      const mockSessions: Session[] = [
-        {
-          id: "sess_001",
-          studentName: `${session.user.firstName} ${session.user.lastName}`,
-          coachName: "Prof. Ahmed Ben Ali",
-          subject: "Mathématiques - Algèbre",
-          scheduledAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // Dans 30 min
-          duration: 60,
-          status: 'SCHEDULED',
-          canJoin: true
-        },
-        {
-          id: "sess_002",
-          studentName: `${session.user.firstName} ${session.user.lastName}`,
-          coachName: "Prof. Fatma Chaari",
-          subject: "Physique - Mécanique",
-          scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Demain
-          duration: 90,
-          status: 'SCHEDULED',
-          canJoin: false
-        },
-        {
-          id: "sess_003",
-          studentName: `${session.user.firstName} ${session.user.lastName}`,
-          coachName: "Prof. Ahmed Ben Ali",
-          subject: "Mathématiques - Géométrie",
-          scheduledAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Il y a 2h
-          duration: 60,
-          status: 'COMPLETED',
-          canJoin: false
+    const fetchSessions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/student/sessions');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch sessions');
         }
-      ];
+        
+        const data = await response.json();
+        
+        // Transform API data to match Session interface
+        const transformedSessions: Session[] = data.map((sessionData: any) => ({
+          id: sessionData.id,
+          studentName: `${session?.user.firstName} ${session?.user.lastName}`,
+          coachName: `${sessionData.coach.firstName} ${sessionData.coach.lastName}`,
+          subject: sessionData.title,
+          scheduledAt: sessionData.scheduledAt,
+          duration: sessionData.duration,
+          status: sessionData.status,
+          canJoin: sessionData.status === 'SCHEDULED' && 
+                   new Date(sessionData.scheduledAt) <= new Date(Date.now() + 15 * 60 * 1000) // Within 15 minutes
+        }));
+        
+        setSessions(transformedSessions);
+      } catch (err) {
+        console.error('Error fetching sessions:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setSessions(mockSessions);
-      setLoading(false);
-    }, 1000);
+    fetchSessions();
   }, [session, status, router]);
 
   const formatDate = (dateString: string) => {
@@ -140,6 +138,35 @@ export default function MesSessions() {
 
   const upcomingSessions = sessions.filter(s => s.status === 'SCHEDULED');
   const completedSessions = sessions.filter(s => s.status === 'COMPLETED');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600">⏳</div>
+          <p className="text-gray-600">Chargement de vos sessions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
+          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

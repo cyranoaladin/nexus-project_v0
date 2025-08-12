@@ -167,30 +167,30 @@ export default function EquipePage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="py-20">
+      <main className="py-12 md:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* En-tête */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-16"
           >
             <Badge variant="outline" className="mb-4">
               <Users className="w-4 h-4 mr-2" />
               Notre Équipe d'Excellence
             </Badge>
-            <h1 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
               Rencontrez Nos Experts
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
               Une équipe d'élite composée de professeurs agrégés, certifiés et de spécialistes 
               reconnus, tous unis par la passion de transmettre et de faire réussir.
             </p>
           </motion.div>
 
           {/* Grille des pôles */}
-          <div className="space-y-16">
+          <div className="space-y-12 md:space-y-16">
             {Object.entries(TEAM_PROFILES).map(([poleKey, profiles], poleIndex) => {
               const Icon = POLE_ICONS[poleKey as keyof typeof POLE_ICONS]
               
@@ -201,20 +201,20 @@ export default function EquipePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: poleIndex * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-white rounded-xl p-8 shadow-soft"
+                  className="bg-white rounded-xl p-6 md:p-8 shadow-soft"
                 >
                   {/* Titre du pôle */}
-                  <div className="flex items-center mb-8">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 text-primary-600 mr-4">
-                      <Icon className="w-6 h-6" />
+                  <div className="flex items-center mb-6 md:mb-8">
+                    <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary-100 text-primary-600 mr-3 md:mr-4">
+                      <Icon className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h2 className="font-heading text-2xl font-bold text-gray-900">
+                    <h2 className="font-heading text-xl md:text-2xl font-bold text-gray-900">
                       {POLE_TITLES[poleKey as keyof typeof POLE_TITLES]}
                     </h2>
                   </div>
 
                   {/* Cartes des profils */}
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {profiles.map((profile, profileIndex) => (
                       <motion.div
                         key={profile.id}
@@ -224,28 +224,28 @@ export default function EquipePage() {
                         viewport={{ once: true }}
                       >
                         <Card className="h-full hover:shadow-medium transition-all duration-300 cursor-pointer group">
-                          <CardHeader className="text-center pb-4">
-                            <div className="mb-4">
-                              <Badge variant="outline" className="mb-2">
+                          <CardHeader className="text-center pb-3 md:pb-4">
+                            <div className="mb-3 md:mb-4">
+                              <Badge variant="outline" className="mb-2 text-xs md:text-sm">
                                 {profile.tag}
                               </Badge>
                             </div>
-                            <CardTitle className="font-heading text-xl font-bold text-gray-900 mb-2">
+                            <CardTitle className="font-heading text-lg md:text-xl font-bold text-gray-900 mb-2">
                               {profile.pseudonym}
                             </CardTitle>
                           </CardHeader>
                           
                           <CardContent className="pt-0">
-                            <div className="space-y-3 mb-6">
+                            <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                               {profile.points.map((point, pointIndex) => (
-                                <div key={pointIndex} className="flex items-center space-x-2 text-sm text-gray-700">
-                                  <div className="w-2 h-2 rounded-full bg-primary-500" />
-                                  <span>{point}</span>
+                                <div key={pointIndex} className="flex items-center space-x-2 text-xs md:text-sm text-gray-700">
+                                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary-500" />
+                                  <span className="truncate">{point}</span>
                                 </div>
                               ))}
                             </div>
                             
-                            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                            <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">
                               {profile.summary}
                             </p>
                             
@@ -253,7 +253,7 @@ export default function EquipePage() {
                               <DialogTrigger asChild>
                                 <Button 
                                   variant="outline" 
-                                  className="w-full group-hover:bg-primary-500 group-hover:text-white transition-colors"
+                                  className="w-full group-hover:bg-primary-500 group-hover:text-white transition-colors text-xs md:text-sm"
                                   onClick={() => setSelectedProfile(profile)}
                                 >
                                   Découvrir le Profil
@@ -262,36 +262,36 @@ export default function EquipePage() {
                               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                                 <DialogHeader>
                                   <div className="text-center mb-4">
-                                    <Badge variant="outline" className="mb-2">
+                                    <Badge variant="outline" className="mb-2 text-xs md:text-sm">
                                       {profile.tag}
                                     </Badge>
-                                    <DialogTitle className="font-heading text-2xl font-bold text-gray-900">
+                                    <DialogTitle className="font-heading text-xl md:text-2xl font-bold text-gray-900">
                                       {profile.pseudonym}
                                     </DialogTitle>
-                                    <p className="text-gray-600 mt-2">{profile.title}</p>
+                                    <p className="text-sm md:text-base text-gray-600 mt-2">{profile.title}</p>
                                   </div>
                                 </DialogHeader>
                                 
-                                <div className="space-y-6">
-                                  <div className="bg-primary-50 p-4 rounded-lg border-l-4 border-primary-500">
-                                    <p className="text-primary-800 italic">
+                                <div className="space-y-4 md:space-y-6">
+                                  <div className="bg-primary-50 p-3 md:p-4 rounded-lg border-l-4 border-primary-500">
+                                    <p className="text-primary-800 italic text-sm md:text-base">
                                       "{profile.tagline}"
                                     </p>
                                   </div>
                                   
                                   <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">Parcours & Expertise</h4>
-                                    <p className="text-gray-600 leading-relaxed">{profile.expertise}</p>
+                                    <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base">Parcours & Expertise</h4>
+                                    <p className="text-gray-600 leading-relaxed text-sm md:text-base">{profile.expertise}</p>
                                   </div>
                                   
                                   <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">Philosophie Pédagogique</h4>
-                                    <p className="text-gray-600 leading-relaxed">{profile.philosophy}</p>
+                                    <h4 className="font-semibold text-gray-900 mb-2 text-sm md:text-base">Philosophie Pédagogique</h4>
+                                    <p className="text-gray-600 leading-relaxed text-sm md:text-base">{profile.philosophy}</p>
                                   </div>
                                   
-                                  <div className="bg-secondary-50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-secondary-800 mb-2">Le "Plus" Nexus</h4>
-                                    <p className="text-secondary-700 leading-relaxed">{profile.nexusPlus}</p>
+                                  <div className="bg-secondary-50 p-3 md:p-4 rounded-lg">
+                                    <h4 className="font-semibold text-secondary-800 mb-2 text-sm md:text-base">Le "Plus" Nexus</h4>
+                                    <p className="text-secondary-700 leading-relaxed text-sm md:text-base">{profile.nexusPlus}</p>
                                   </div>
                                 </div>
                               </DialogContent>
@@ -312,12 +312,12 @@ export default function EquipePage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mt-16 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-8 text-white"
+            className="text-center mt-12 md:mt-16 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-6 md:p-8 text-white"
           >
-            <h3 className="font-heading text-2xl font-bold mb-4">
+            <h3 className="font-heading text-xl md:text-2xl font-bold mb-3 md:mb-4">
               Prêt à Rejoindre l'Excellence ?
             </h3>
-            <p className="text-white/90 mb-6 max-w-2xl mx-auto">
+            <p className="text-white/90 mb-4 md:mb-6 max-w-2xl mx-auto text-sm md:text-base">
               Nos experts vous attendent pour transformer le potentiel de votre enfant 
               en réussite concrète. Commencez par un bilan gratuit.
             </p>
