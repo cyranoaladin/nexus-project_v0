@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { Badge } from "@/components/ui/badge"
-import { Mail, Phone, MapPin } from "lucide-react"
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { Badge } from "@/components/ui/badge";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      <main className="py-12 md:py-20">
+
+      <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Badge variant="outline" className="mb-4">
@@ -31,11 +31,12 @@ export default function ContactPage() {
                 </div>
                 <div className="flex items-center justify-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span className="text-sm md:text-base">contact@nexus-reussite.tn</span>
+
+                  <span>contact@nexusreussite.academy</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm md:text-base">Centre de Tunis, Tunisie</span>
+                  <span>Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 – Tunis</span>
                 </div>
               </div>
             </div>
@@ -45,5 +46,5 @@ export default function ContactPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

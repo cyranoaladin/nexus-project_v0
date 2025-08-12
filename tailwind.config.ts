@@ -11,11 +11,16 @@ const config: Config = {
       colors: {
         // Nouvelle palette Bleu-Blanc-Rouge
         'bleu-nuit': '#0F172A',
-        'bleu-primaire': '#2563EB', 
+        'bleu-primaire': '#2563EB',
         'bleu-secondaire': '#EFF6FF',
         'blanc-pur': '#FFFFFF',
         'rouge-corail': '#EF4444',
         'ligne-bordure': '#E2E8F0',
+        // Couleurs supplémentaires pour les offres
+        'or-stellaire': '#FFD700',
+        'or-stellaire-dark': '#E6C200',
+        'gris-noble': '#64748B',
+        'bleu-nuit-light': '#1E293B',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],

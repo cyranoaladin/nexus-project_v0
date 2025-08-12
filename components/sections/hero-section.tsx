@@ -57,13 +57,24 @@ function DIUTooltip() {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
-      {/* Arrière-plan Tech avec dégradé radial et motif */}
-      <div className="absolute inset-0">
-        {/* Dégradé radial du centre vers les bords */}
-        <div className="absolute inset-0 bg-gradient-radial from-blue-50/50 via-blue-25/30 to-white"></div>
+      {/* Image d'arrière-plan */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "url('/images/hero-image.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat"
+        }}
+      >
+        {/* Overlay sombre pour la lisibilité */}
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        {/* Dégradé additionnel du centre vers les bords */}
+        <div className="absolute inset-0 bg-gradient-radial from-blue-900/20 via-blue-900/40 to-black/60"></div>
 
         {/* Motif de grille technologique très subtil */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="tech-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -98,10 +109,12 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl xl:text-8xl font-bold text-slate-900 mb-6 md:mb-8 leading-tight">
-            <span className="block text-slate-900">La <span className="text-blue-600">Pédagogie Augmentée</span></span>
-            <span className="block text-slate-900">pour Réussir son Bac.</span>
-            <span className="block text-slate-900 font-medium text-2xl md:text-4xl lg:text-5xl xl:text-6xl">Sans Stress.</span>
+
+          <h1 className="font-heading text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl">
+            <span className="block text-white">La <span className="text-blue-300">Pédagogie Augmentée</span></span>
+            <span className="block text-white">pour Réussir son Bac.</span>
+            <span className="block text-white font-medium text-4xl md:text-5xl lg:text-6xl">Sans Stress.</span>
+
           </h1>
         </motion.div>
 
@@ -127,9 +140,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-lg md:text-xl lg:text-2xl text-slate-900 mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed px-4"
+
+          className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
+
         >
-          Nous fusionnons l'expertise de <span className="text-blue-600 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-600 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-600 font-semibold">mention au Bac</span> et un <span className="text-blue-600 font-semibold">avenir choisi sur Parcoursup</span>.
+          Nous fusionnons l'expertise de <span className="text-blue-300 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-300 font-semibold">mention au Bac</span> et un <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.
         </motion.p>
 
         {/* Grille de fonctionnalités centrée */}
@@ -151,11 +166,11 @@ export function HeroSection() {
               <span className="text-blue-600 font-semibold">IA ARIA</span> 24/7
             </p>
           </div>
-          <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
-            <Network className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
-            <p className="text-slate-900 font-medium text-center text-xs md:text-sm">
-              Expertise <span className="text-blue-600 font-semibold">Réseau AEFE</span>
-            </p>
+
+          <div className="flex flex-col items-center gap-3 p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
+            <Network className="w-8 h-8 text-blue-600" />
+            <p className="text-slate-900 font-medium text-center">Expertise <span className="text-blue-600 font-semibold">Enseignement Français</span></p>
+
           </div>
           <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <Code2 className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
