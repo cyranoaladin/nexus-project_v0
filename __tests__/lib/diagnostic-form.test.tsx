@@ -31,7 +31,7 @@ describe('DiagnosticForm', () => {
       expect(screen.getByText('Terminale')).toBeInTheDocument();
 
       // Question 2
-      expect(screen.getByText('Élève dans un établissement AEFE')).toBeInTheDocument();
+      expect(screen.getByText('Élève dans un lycée français')).toBeInTheDocument();
       expect(screen.getByText('Candidat Libre')).toBeInTheDocument();
 
       // Question 3
@@ -75,7 +75,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Première'));
 
       // Sélectionner AEFE
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
 
       // Sélectionner Français
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
@@ -94,9 +94,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Première-AEFE-Français', async () => {
+    it('affiche la bonne recommandation pour Première-Lycée-Français', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       // Cliquer sur le bouton de validation
@@ -108,9 +108,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Terminale-AEFE-Mention', async () => {
+    it('affiche la bonne recommandation pour Terminale-Lycée-Mention', async () => {
       fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Obtenir une Mention'));
 
       // Cliquer sur le bouton de validation
@@ -122,9 +122,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Terminale-AEFE-Parcoursup', async () => {
+    it('affiche la bonne recommandation pour Terminale-Lycée-Parcoursup', async () => {
       fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Construire un excellent dossier Parcoursup'));
 
       // Cliquer sur le bouton de validation
@@ -154,7 +154,7 @@ describe('DiagnosticForm', () => {
     beforeEach(async () => {
       // Remplir le formulaire pour afficher une recommandation
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       // Cliquer sur le bouton de validation
@@ -204,7 +204,7 @@ describe('DiagnosticForm', () => {
 
     it('les liens ont des attributs href appropriés', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
@@ -219,7 +219,7 @@ describe('DiagnosticForm', () => {
   describe('Boutons de validation et résumé', () => {
     it('affiche le bouton de validation quand le formulaire est complet', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
@@ -229,13 +229,13 @@ describe('DiagnosticForm', () => {
 
     it('affiche le résumé des choix avant validation', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
         expect(screen.getByText('Résumé de vos choix :')).toBeInTheDocument();
         expect(screen.getByText('Classe : Première')).toBeInTheDocument();
-        expect(screen.getByText('Statut : Élève dans un établissement AEFE')).toBeInTheDocument();
+        expect(screen.getByText('Statut : Élève dans un lycée français')).toBeInTheDocument();
         expect(screen.getByText('Priorité : Réussir ses épreuves de Français (pour 1ère)')).toBeInTheDocument();
       });
     });
@@ -243,7 +243,7 @@ describe('DiagnosticForm', () => {
     it('réinitialise la validation quand on change une option', async () => {
       // Remplir le formulaire
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       // Valider

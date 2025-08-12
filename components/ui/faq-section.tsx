@@ -9,7 +9,7 @@ import { Button } from './button';
 const faqs = [
   {
     question: "Quelle est la différence entre un élève scolarisé et un candidat libre ?",
-    answer: "Un élève scolarisé suit les cours dans un établissement AEFE et bénéficie du contrôle continu (40% de la note finale). Un candidat libre n'a pas d'établissement et passe uniquement les épreuves terminales (100% de la note finale). Nos programmes s'adaptent à ces deux profils."
+    answer: "Un élève scolarisé suit les cours dans un lycée français et bénéficie du contrôle continu (40% de la note finale). Un candidat libre n'a pas d'établissement et passe uniquement les épreuves terminales (100% de la note finale). Nos programmes s'adaptent à ces deux profils."
   },
   {
     question: "L'IA ARIA peut-elle remplacer un professeur ?",

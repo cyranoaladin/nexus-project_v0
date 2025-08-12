@@ -283,6 +283,7 @@ export default function OffresPage() {
     <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Header />
 
+
       <main>
         {/* Hero Section - Narrative Stratégique "Pilotez Votre Réussite" */}
         <section className="relative py-20 bg-[#F6F9FC] overflow-hidden">
@@ -417,6 +418,7 @@ export default function OffresPage() {
                 Découvrez nos offres adaptées à chaque profil d'élève. De l'accompagnement
                 personnalisé à la préparation intensive, nous vous proposons des solutions
                 sur mesure pour atteindre l'excellence académique.
+
               </p>
             </motion.div>
           </div>
@@ -460,7 +462,7 @@ export default function OffresPage() {
                       </div>
                       <div>
                         <CardTitle className="text-2xl font-bold text-bleu-nuit">
-                          L'Élève Scolarisé (AEFE)
+                          L'Élève Scolarisé (Lycée français)
                         </CardTitle>
                         <p className="text-gris-noble">Son besoin : L'OPTIMISATION</p>
                       </div>
@@ -560,8 +562,10 @@ export default function OffresPage() {
               </p>
             </motion.div>
 
+
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {UNIVERS_CORTEX.offers.map((offer, index) => (
+
                 <motion.div
                   key={offer.name}
                   initial={{ opacity: 0, y: 30 }}
@@ -570,95 +574,165 @@ export default function OffresPage() {
                   viewport={{ once: true }}
                   whileHover={{ y: -5 }}
                 >
-                  <Card className={`relative overflow-hidden border-0 shadow-strong h-full transition-all duration-300 hover:scale-105 ${offer.popular ? 'ring-2 ring-or-stellaire' : ''}`}>
-                    {offer.popular && (
-                      <motion.div
-                        className="absolute top-4 right-4"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.5 }}
-                      >
-                        <Badge className="bg-or-stellaire text-bleu-nuit font-bold">
-                          <Star className="w-4 h-4 mr-1" />
-                          Plus Populaire
-                        </Badge>
-                      </motion.div>
-                    )}
-                    <div className={`absolute inset-0 bg-gradient-to-r ${offer.color} opacity-5`}></div>
-                    <CardHeader className="relative">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${offer.color} flex items-center justify-center`}>
-                          <offer.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-2xl font-bold text-bleu-nuit">
-                            {offer.name}
-                          </CardTitle>
-                          <p className="text-gris-noble">{offer.subtitle}</p>
+
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                      <div className="bg-red-500 text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-semibold shadow-md">
+                        <Award className="w-3 h-3 md:w-4 md:h-4 mr-1 inline" />
+                        Le plus populaire
+                      </div>
+                    </div>
+                  )}
+
+                  <Card className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${plan.popular
+                      ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
+                      : 'bg-white border border-slate-200 shadow-lg'
+                    }`}>
+                    <CardHeader className="text-center p-6 md:p-8">
+                      <CardTitle className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
+                        {plan.name}
+                      </CardTitle>
+                      <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6">{plan.description}</p>
+
+                      {/* Prix avec typographie hiérarchisée */}
+                      <div className="mb-4 md:mb-6">
+                        <div className="flex items-baseline justify-center">
+                          <span className="font-bold text-3xl md:text-5xl lg:text-6xl text-slate-900" style={{ fontFamily: 'Poppins' }}>
+                            {plan.price}
+                          </span>
+                          <span className="font-medium text-lg md:text-xl text-blue-600 ml-2" style={{ fontFamily: 'Inter' }}>
+                            TND
+                          </span>
+                          <span className="font-normal text-sm md:text-base text-slate-500 ml-1" style={{ fontFamily: 'Inter' }}>
+                            /mois
+                          </span>
                         </div>
                       </div>
-                      <p className="text-lg text-gris-noble">
-                        {offer.description}
-                      </p>
+
+                      {plan.credits > 0 && (
+                        <div className="mb-3 md:mb-4">
+                          <Badge className="bg-blue-600 text-white font-medium text-xs md:text-sm" style={{ fontFamily: 'Inter' }}>
+                            {plan.credits} crédits inclus
+                          </Badge>
+                        </div>
+                      )}
                     </CardHeader>
-                    <CardContent className="relative">
-                      <div className="mb-6">
-                        <div className="text-3xl font-black text-bleu-nuit">
-                          {offer.price} {offer.period}
-                        </div>
-                      </div>
 
-                      <div className="space-y-3 mb-8">
-                        {offer.features.map((feature, idx) => (
-                          <motion.div
-                            key={idx}
-                            className="flex items-start gap-3"
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            viewport={{ once: true }}
-                          >
-                            <Check className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span className="text-gris-noble">{feature}</span>
-                          </motion.div>
+                    <CardContent className="p-6 md:p-8 flex-1 flex flex-col">
+                      <ul className="space-y-3 md:space-y-5 mb-6 md:mb-8 flex-1">
+                        {plan.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                            <Check className="w-4 h-4 md:w-6 md:h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
 
-                      <Button className="w-full bg-or-stellaire hover:bg-or-stellaire-dark text-bleu-nuit font-bold transition-all duration-200 hover:scale-105">
-                        {offer.cta}
+                      <Button
+                        asChild
+                        className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold transition-all duration-300 ${plan.popular
+                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                            : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
+                          }`}
+                      >
+                        <Link href="/bilan-gratuit">
+                          Commencer
+                        </Link>
+
                       </Button>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* Univers 2: Académies Nexus */}
-        <section id="academies" className="py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <Badge variant="outline" className="mb-4 bg-green-50 text-green-700 border-green-200">
-                <Rocket className="w-4 h-4 mr-2" />
-                {UNIVERS_ACADEMIES.title}
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-bleu-nuit mb-4">
-                {UNIVERS_ACADEMIES.subtitle}
+          </motion.section>
+
+          {/* Section 3: Le Pack Annuel "Réussite Candidat Libre" */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="mb-12 md:mb-20"
+          >
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
+                Notre Offre la Plus Complète : Le Pack Annuel
               </h2>
-              <p className="text-lg text-gris-noble max-w-3xl mx-auto">
-                {UNIVERS_ACADEMIES.description}
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+                L'accompagnement intégral pour réussir votre Baccalauréat en candidat libre
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-2xl">
+                <CardContent className="p-6 md:p-12">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 space-y-4 md:space-y-0">
+                    <div>
+                      <Badge className="bg-blue-600 text-white mb-3 md:mb-4 text-xs md:text-sm">
+                        {ANNUAL_PACK.badge}
+                      </Badge>
+                      <h3 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
+                        {ANNUAL_PACK.name}
+                      </h3>
+                      <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6">
+                        {ANNUAL_PACK.description}
+                      </p>
+                    </div>
+                    <div className="text-center md:text-right">
+                      <div className="text-base md:text-lg text-gray-500 line-through mb-1 md:mb-2">
+                        {formatPrice(ANNUAL_PACK.originalPrice)}
+                      </div>
+                      <div className="text-3xl md:text-4xl font-bold text-blue-600">
+                        {formatPrice(ANNUAL_PACK.price)}
+                      </div>
+                      <div className="text-xs md:text-sm text-gray-600">pour l'année</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-6 md:mb-8">
+                    {ANNUAL_PACK.features.map((feature, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600 mt-1 flex-shrink-0" />
+                        <span className="text-sm md:text-base text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button asChild className="w-full h-12 md:h-16 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                    <Link href="/bilan-gratuit">
+                      Découvrir le Pack Candidat Libre
+                      <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.section>
+
+          {/* Section 4: Les Stages Intensifs Spécialisés */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            viewport={{ once: true }}
+            className="mb-12 md:mb-20"
+          >
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
+                Nos Stages Intensifs : Accélérez vos Compétences
+              </h2>
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+                Des formations intensives pour acquérir rapidement des compétences clés
+
               </p>
             </motion.div>
 
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {UNIVERS_ACADEMIES.academies.map((academy, index) => (
+
                 <motion.div
                   key={academy.name}
                   initial={{ opacity: 0, y: 30 }}
@@ -666,13 +740,15 @@ export default function OffresPage() {
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -5 }}
-                >
+                
+
                   <Card className="relative overflow-hidden border-0 shadow-strong h-full transition-all duration-300 hover:scale-105">
                     <div className={`absolute inset-0 bg-gradient-to-r ${academy.color} opacity-5`}></div>
                     <CardHeader className="relative">
                       <div className="flex items-center gap-3 mb-4">
                         <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${academy.color} flex items-center justify-center`}>
                           <academy.icon className="w-5 h-5 text-white" />
+
                         </div>
                         <div>
                           <CardTitle className="text-lg font-bold text-bleu-nuit">
@@ -686,8 +762,10 @@ export default function OffresPage() {
                           {academy.target}
                         </Badge>
                       </div>
+
                       <p className="text-gris-noble text-sm">
                         {academy.description}
+
                       </p>
                     </CardHeader>
                     <CardContent className="relative">
@@ -714,14 +792,31 @@ export default function OffresPage() {
                         ))}
                       </div>
 
-                      <Button className="w-full bg-or-stellaire hover:bg-or-stellaire-dark text-bleu-nuit font-bold transition-all duration-200 hover:scale-105">
-                        Réserver ma Place
+                    <CardContent className="p-6 md:p-8 pt-0">
+                      <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
+                        {stage.features.map((feature, featureIndex) => {
+                          const IconComponent = stage.icons?.[featureIndex] || Check;
+                          return (
+                            <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                              <IconComponent className="w-4 h-4 md:w-6 md:h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+
+                      <Button asChild className="w-full h-12 md:h-14 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                        <Link href="/bilan-gratuit">
+                          {index === 0 ? "Je réserve ma place" : "S'inscrire au Bootcamp"}
+                        </Link>
+
                       </Button>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
+
           </div>
         </section>
 
@@ -734,7 +829,7 @@ export default function OffresPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-            >
+            
               <Badge variant="outline" className="mb-4 bg-amber-50 text-amber-700 border-amber-200">
                 <Crown className="w-4 h-4 mr-2" />
                 {UNIVERS_ODYSSEE.title}
@@ -744,8 +839,10 @@ export default function OffresPage() {
               </h2>
               <p className="text-lg text-gris-noble max-w-3xl mx-auto">
                 {UNIVERS_ODYSSEE.description}
+
               </p>
             </motion.div>
+
 
             <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
               {UNIVERS_ODYSSEE.programmes.map((programme, index) => (
@@ -756,7 +853,7 @@ export default function OffresPage() {
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -5 }}
-                >
+                
                   <Card className={`relative overflow-hidden border-0 shadow-strong h-full transition-all duration-300 hover:scale-105 ${programme.popular ? 'ring-2 ring-or-stellaire' : ''}`}>
                     {programme.popular && (
                       <motion.div
@@ -818,12 +915,14 @@ export default function OffresPage() {
 
                       <Button className="w-full bg-or-stellaire hover:bg-or-stellaire-dark text-bleu-nuit font-bold transition-all duration-200 hover:scale-105">
                         {programme.cta}
+
                       </Button>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
+
           </div>
         </section>
 

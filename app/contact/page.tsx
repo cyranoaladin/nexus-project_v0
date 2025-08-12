@@ -17,20 +17,21 @@ export default function ContactPage() {
               <Mail className="w-4 h-4 mr-2" />
               Contact
             </Badge>
-            <h1 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6">
               Contactez-Nous
             </h1>
-            <div className="bg-white rounded-xl p-12 shadow-soft max-w-2xl mx-auto">
-              <p className="text-xl text-gray-600 mb-8">
+            <div className="bg-white rounded-xl p-6 md:p-12 shadow-soft max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Page en construction
               </p>
-              <div className="space-y-4 text-gray-500">
+              <div className="space-y-3 md:space-y-4 text-gray-500">
                 <div className="flex items-center justify-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>+216 XX XXX XXX</span>
+                  <span className="text-sm md:text-base">+216 XX XXX XXX</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
                   <Mail className="w-4 h-4" />
+
                   <span>contact@nexusreussite.academy</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2">

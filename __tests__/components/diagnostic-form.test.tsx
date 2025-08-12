@@ -31,7 +31,7 @@ describe('DiagnosticForm', () => {
       expect(screen.getByText('Terminale')).toBeInTheDocument();
 
       // Question 2
-      expect(screen.getByText('Élève dans un établissement AEFE')).toBeInTheDocument();
+      expect(screen.getByText('Élève dans un lycée français')).toBeInTheDocument();
       expect(screen.getByText('Candidat Libre')).toBeInTheDocument();
 
       // Question 3
@@ -75,7 +75,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Première'));
 
       // Sélectionner AEFE
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
 
       // Sélectionner Français
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
@@ -85,9 +85,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Première-AEFE-Français', async () => {
+    it('affiche la bonne recommandation pour Première-Lycée-Français', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
@@ -96,9 +96,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Terminale-AEFE-Mention', async () => {
+    it('affiche la bonne recommandation pour Terminale-Lycée-Mention', async () => {
       fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Obtenir une Mention'));
 
       await waitFor(() => {
@@ -107,9 +107,9 @@ describe('DiagnosticForm', () => {
       });
     });
 
-    it('affiche la bonne recommandation pour Terminale-AEFE-Parcoursup', async () => {
+    it('affiche la bonne recommandation pour Terminale-Lycée-Parcoursup', async () => {
       fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Construire un excellent dossier Parcoursup'));
 
       await waitFor(() => {
@@ -133,7 +133,7 @@ describe('DiagnosticForm', () => {
     beforeEach(async () => {
       // Remplir le formulaire pour afficher une recommandation
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
@@ -180,7 +180,7 @@ describe('DiagnosticForm', () => {
 
     it('les liens ont des attributs href appropriés', async () => {
       fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un établissement AEFE'));
+      fireEvent.click(screen.getByText('Élève dans un lycée français'));
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {

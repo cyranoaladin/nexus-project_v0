@@ -13,7 +13,7 @@ export function ComparisonTableSection() {
     {
       criteria: "Connaissance du Programme",
       standard: "Maîtrise approximative des attentes.",
-      nexus: "Expérience avérée dans le réseau AEFE."
+      nexus: "Nos coachs ont enseigné dans des lycées français à l'étranger."
     },
     {
       criteria: "Expertise NSI",
@@ -132,9 +132,12 @@ export function ComparisonTableSection() {
               <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
                 Rejoignez les familles qui ont fait le choix de l'excellence et transformé le parcours scolaire de leur enfant.
               </p>
-              <button className="btn-primary bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300">
+              <a
+                href="/offres"
+                className="btn-primary bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 inline-block"
+              >
                 Découvrir Nos Offres
-              </button>
+              </a>
             </div>
           </motion.div>
         </motion.div>
