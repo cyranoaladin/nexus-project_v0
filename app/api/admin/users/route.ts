@@ -63,7 +63,6 @@ export async function GET(request: NextRequest) {
       lastName: user.lastName,
       role: user.role,
       createdAt: user.createdAt,
-      isActive: user.isActive,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
 
@@ -130,14 +129,13 @@ export async function POST(request: NextRequest) {
         lastName,
         role,
         password: hashedPassword,
-        isActive: true,
         ...(role === 'COACH' && profileData ? {
           coachProfile: {
             create: {
               pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-              subjects: profileData.subjects || [],
-              bio: profileData.bio || '',
-              hourlyRate: profileData.hourlyRate || 0
+              subjects: JSON.stringify(profileData.subjects || []),
+              description: profileData.description || '',
+              title: profileData.title || ''
             }
           }
         } : {}),
@@ -146,7 +144,9 @@ export async function POST(request: NextRequest) {
         } : {})
       },
       include: {
-        coachProfile: true
+        coachProfile: true,
+        studentProfile: true,
+        parentProfile: true
       }
     });
 
@@ -184,7 +184,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, email, firstName, lastName, role, isActive, profileData } = body;
+    const { id, email, firstName, lastName, role, profileData } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -201,28 +201,29 @@ export async function PUT(request: NextRequest) {
         firstName,
         lastName,
         role,
-        isActive,
         ...(role === 'COACH' && profileData ? {
           coachProfile: {
             upsert: {
               create: {
                 pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-                subjects: profileData.subjects || [],
-                bio: profileData.bio || '',
-                hourlyRate: profileData.hourlyRate || 0
+                subjects: JSON.stringify(profileData.subjects || []),
+                description: profileData.description || '',
+                title: profileData.title || ''
               },
               update: {
                 pseudonym: profileData.pseudonym,
-                subjects: profileData.subjects,
-                bio: profileData.bio,
-                hourlyRate: profileData.hourlyRate
+                subjects: JSON.stringify(profileData.subjects || []),
+                description: profileData.description,
+                title: profileData.title
               }
             }
           }
         } : {})
       },
       include: {
-        coachProfile: true
+        coachProfile: true,
+        studentProfile: true,
+        parentProfile: true
       }
     });
 
@@ -235,7 +236,6 @@ export async function PUT(request: NextRequest) {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         role: updatedUser.role,
-        isActive: updatedUser.isActive,
         profile: updatedUser.coachProfile
       }
     });

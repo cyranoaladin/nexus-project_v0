@@ -16,36 +16,14 @@ export async function GET(request: NextRequest) {
 
     const studentId = session.user.id;
 
-    // Fetch resources available to the student
-    const resources = await prisma.resource.findMany({
-      where: {
-        OR: [
-          { isPublic: true },
-          { 
-            studentResources: {
-              some: {
-                student: {
-                  userId: studentId
-                }
-              }
-            }
-          }
-        ]
-      },
-      include: {
-        subject: true,
-        downloads: {
-          where: {
-            student: {
-              userId: studentId
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // TODO: Add Resource model to Prisma schema
+    // For now, return empty array as placeholder
+    // The Resource model should include:
+    // - id, title, description, subject, type, fileUrl, thumbnailUrl
+    // - isPublic boolean
+    // - studentResources relation to Student
+    // - downloads relation to track student downloads
+    const resources: any[] = [];
 
     const formattedResources = resources.map((resource: any) => ({
       id: resource.id,

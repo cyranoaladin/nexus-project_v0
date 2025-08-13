@@ -2,9 +2,14 @@ import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { prisma } from './prisma';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Initialize OpenAI client only if API key is available
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not set');
+  }
+  return new OpenAI({ apiKey });
+};
 
 // Système de prompt pour ARIA
 const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
@@ -83,6 +88,7 @@ export async function generateAriaResponse(
     ];
 
     // Appel à OpenAI
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages,

@@ -81,7 +81,7 @@ export async function PUT(
     }
 
     // Update user and coach profile in a transaction
-    const result = await prisma.$transaction(async (tx: typeof prisma) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Update user
       const userData = {
         firstName: validatedData.firstName,
@@ -196,7 +196,7 @@ export async function DELETE(
     }
 
     // Delete coach profile and user in a transaction
-    await prisma.$transaction(async (tx: typeof prisma) => {
+    await prisma.$transaction(async (tx) => {
       // Delete coach profile first (due to foreign key constraints)
       await tx.coachProfile.delete({
         where: { userId: coachId }

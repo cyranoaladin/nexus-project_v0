@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { SubscriptionStatus } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -154,14 +155,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let newStatus: string;
+    let newStatus: SubscriptionStatus;
     let creditAmount: number = 0;
 
     if (action === 'approve') {
-      newStatus = 'ACTIVE';
+      newStatus = SubscriptionStatus.ACTIVE;
       creditAmount = subscription.creditsPerMonth || 0;
     } else if (action === 'reject') {
-      newStatus = 'REJECTED';
+      newStatus = SubscriptionStatus.CANCELLED;
     } else {
       return NextResponse.json(
         { error: 'Invalid action' },
@@ -173,10 +174,7 @@ export async function POST(request: NextRequest) {
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        status: newStatus,
-        approvedBy: session.user.firstName + ' ' + session.user.lastName,
-        approvedAt: new Date(),
-        rejectionReason: action === 'reject' ? reason : null
+        status: newStatus
       }
     });
 

@@ -143,6 +143,14 @@ export async function PATCH(request: NextRequest) {
     // If approved, apply the changes
     if (action === 'APPROVED') {
       if (subscriptionRequest.requestType === 'PLAN_CHANGE') {
+        // Check if planName is provided
+        if (!subscriptionRequest.planName) {
+          return NextResponse.json(
+            { error: 'Plan name is required for plan change requests' },
+            { status: 400 }
+          );
+        }
+        
         // Update subscription
         await prisma.subscription.updateMany({
           where: {
@@ -156,15 +164,34 @@ export async function PATCH(request: NextRequest) {
           }
         });
       } else if (subscriptionRequest.requestType === 'ARIA_ADDON') {
-        // Add ARIA addon to student
-        await prisma.student.update({
-          where: { id: subscriptionRequest.studentId },
-          data: {
-            ariaAddons: {
-              push: subscriptionRequest.planName
-            }
+        // Check if planName is provided
+        if (!subscriptionRequest.planName) {
+          return NextResponse.json(
+            { error: 'Plan name is required for ARIA addon requests' },
+            { status: 400 }
+          );
+        }
+        
+        // Add ARIA addon to subscription
+        const currentSubscription = await prisma.subscription.findFirst({
+          where: {
+            studentId: subscriptionRequest.studentId,
+            status: 'ACTIVE'
           }
         });
+        
+        if (currentSubscription) {
+          const currentAriaSubjects = JSON.parse(currentSubscription.ariaSubjects || '[]');
+          const newAriaSubjects = [...currentAriaSubjects, subscriptionRequest.planName];
+          
+          await prisma.subscription.update({
+            where: { id: currentSubscription.id },
+            data: {
+              ariaSubjects: JSON.stringify(newAriaSubjects),
+              updatedAt: new Date()
+            }
+          });
+        }
       }
     }
 

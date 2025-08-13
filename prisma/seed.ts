@@ -129,22 +129,13 @@ async function main() {
     ];
 
     for (const slot of availabilitySlots) {
-      await prisma.coachAvailability.upsert({
-        where: {
-          coachId_dayOfWeek_startTime_endTime_specificDate: {
-            coachId: coachUser.id,
-            dayOfWeek: slot.dayOfWeek,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            specificDate: null
-          }
-        },
-        update: {},
-        create: {
+      await prisma.coachAvailability.create({
+        data: {
           coachId: coachUser.id,
           dayOfWeek: slot.dayOfWeek,
           startTime: slot.startTime,
           endTime: slot.endTime,
+          specificDate: null,
           isAvailable: true,
           isRecurring: true,
           validFrom: new Date(),
@@ -187,9 +178,9 @@ async function main() {
     update: {},
     create: {
       userId: parentUser.id,
-      phone: '+216 12345678',
       address: '123 Rue de la Paix, Tunis',
-      children: JSON.stringify([])
+      city: 'Tunis',
+      country: 'Tunisie'
     },
   });
 
@@ -210,9 +201,8 @@ async function main() {
     update: {},
     create: {
       userId: studentUser.id,
-      level: 'TERMINALE',
-      school: 'Lycée Pilote',
-      interests: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'])
+      grade: 'TERMINALE',
+      school: 'Lycée Pilote'
     },
   });
 

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 // import { sendEmail } from '@/lib/email';
 
 export interface AvailableSlot {
@@ -113,7 +114,7 @@ export class SessionBookingService {
       
       // Check for specific date availability first
       const specificAvailability = availability.filter(
-        (av: { specificDate?: Date }) =>
+        (av: { specificDate: Date | null }) =>
           av.specificDate &&
           av.specificDate.toDateString() === currentDate.toDateString()
       );
@@ -175,21 +176,17 @@ export class SessionBookingService {
     startDate: Date,
     endDate: Date
   ): Promise<any[]> {
-    const coaches = await prisma.coachProfile.findMany({
+    const coaches = await prisma.user.findMany({
       where: {
-        subjects: {
-          contains: subject
+        role: 'COACH',
+        coachProfile: {
+          subjects: {
+            contains: subject
+          }
         }
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true
-          }
-        },
+        coachProfile: true,
         coachAvailabilities: {
           where: {
             isAvailable: true,
@@ -220,11 +217,11 @@ export class SessionBookingService {
     return coaches
       .filter((coach: { coachAvailabilities: any[] }) => coach.coachAvailabilities.length > 0)
       .map((coach: any) => ({
-        id: coach.user.id,
-        firstName: coach.user.firstName,
-        lastName: coach.user.lastName,
-        email: coach.user.email,
-        coachSubjects: JSON.parse(coach.subjects || '[]'),
+        id: coach.id,
+        firstName: coach.firstName,
+        lastName: coach.lastName,
+        email: coach.email,
+        coachSubjects: JSON.parse(coach.coachProfile?.subjects || '[]'),
         coachAvailabilities: coach.coachAvailabilities
       }));
   }
@@ -233,14 +230,14 @@ export class SessionBookingService {
    * Book a session with all validations and notifications
    */
   static async bookSession(data: SessionBookingData): Promise<any> {
-    return await prisma.$transaction(async (tx: typeof prisma) => {
+    return await prisma.$transaction(async (tx) => {
       // Validate availability
       const isAvailable = await this.validateAvailability(
         data.coachId,
         data.scheduledDate,
         data.startTime,
         data.endTime,
-        tx
+        tx as any
       );
       
       if (!isAvailable) {
@@ -400,7 +397,7 @@ export class SessionBookingService {
     date: Date,
     startTime: string,
     endTime: string,
-    tx: typeof prisma
+    tx: any
   ): Promise<boolean> {
     // Check availability
     const availability = await tx.coachAvailability.findFirst({
@@ -459,7 +456,7 @@ export class SessionBookingService {
   private static async validateCredits(
     studentId: string,
     creditsNeeded: number,
-    tx: typeof prisma
+    tx: any
   ): Promise<void> {
     const student = await tx.student.findFirst({
       where: { userId: studentId }
@@ -470,7 +467,7 @@ export class SessionBookingService {
     }
   }
 
-  private static async createSessionNotifications(session: any, tx: typeof prisma): Promise<void> {
+  private static async createSessionNotifications(session: any, tx: any): Promise<void> {
     const notifications = [];
 
     // Notify coach
@@ -504,7 +501,7 @@ export class SessionBookingService {
     });
   }
 
-  private static async createSessionReminders(session: any, tx: typeof prisma): Promise<void> {
+  private static async createSessionReminders(session: any, tx: any): Promise<void> {
     const sessionDateTime = new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`);
     
     const reminders = [
