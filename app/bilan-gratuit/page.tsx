@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { CheckCircle, GraduationCap, Loader2, Target, User } from "lucide-react";
+import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -231,323 +231,323 @@ export default function BilanGratuitPage() {
             </div>
           </div>
 
-            {/* Étape 1: Informations Parent */}
-            {currentStep === 1 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <Card className="border border-slate-200 shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-base md:text-lg">
-                      <User className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
-                      Étape 1 : Informations Parent
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 md:space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div>
-                        <Label htmlFor="parentFirstName" className="text-sm md:text-base">Prénom *</Label>
-                        <Input
-                          id="parentFirstName"
-                          type="text"
-                          value={formData.parentFirstName}
-                          onChange={(e) => handleInputChange('parentFirstName', e.target.value)}
-                          className={`mt-1 ${errors.parentFirstName ? 'border-red-500' : ''}`}
-                          placeholder="Votre prénom"
-                        />
-                        {errors.parentFirstName && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="parentLastName" className="text-sm md:text-base">Nom *</Label>
-                        <Input
-                          id="parentLastName"
-                          type="text"
-                          value={formData.parentLastName}
-                          onChange={(e) => handleInputChange('parentLastName', e.target.value)}
-                          className={`mt-1 ${errors.parentLastName ? 'border-red-500' : ''}`}
-                          placeholder="Votre nom"
-                        />
-                        {errors.parentLastName && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentLastName}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div>
-                        <Label htmlFor="parentEmail" className="text-sm md:text-base">Email *</Label>
-                        <Input
-                          id="parentEmail"
-                          type="email"
-                          value={formData.parentEmail}
-                          onChange={(e) => handleInputChange('parentEmail', e.target.value)}
-                          className={`mt-1 ${errors.parentEmail ? 'border-red-500' : ''}`}
-                          placeholder="votre@email.com"
-                        />
-                        {errors.parentEmail && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentEmail}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="parentPhone" className="text-sm md:text-base">Téléphone *</Label>
-                        <Input
-                          id="parentPhone"
-                          type="tel"
-                          value={formData.parentPhone}
-                          onChange={(e) => handleInputChange('parentPhone', e.target.value)}
-                          className={`mt-1 ${errors.parentPhone ? 'border-red-500' : ''}`}
-                          placeholder="+216 XX XXX XXX"
-                        />
-                        {errors.parentPhone && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPhone}</p>
-                        )}
-                      </div>
-                    </div>
-
+          {/* Étape 1: Informations Parent */}
+          {currentStep === 1 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <Card className="border border-slate-200 shadow-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-base md:text-lg">
+                    <User className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
+                    Étape 1 : Informations Parent
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 md:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="parentPassword" className="text-sm md:text-base">Mot de passe *</Label>
+                      <Label htmlFor="parentFirstName" className="text-sm md:text-base">Prénom *</Label>
                       <Input
-                        id="parentPassword"
-                        type="password"
-                        value={formData.parentPassword}
-                        onChange={(e) => handleInputChange('parentPassword', e.target.value)}
-                        className={`mt-1 ${errors.parentPassword ? 'border-red-500' : ''}`}
-                        placeholder="Minimum 8 caractères"
+                        id="parentFirstName"
+                        type="text"
+                        value={formData.parentFirstName}
+                        onChange={(e) => handleInputChange('parentFirstName', e.target.value)}
+                        className={`mt-1 ${errors.parentFirstName ? 'border-red-500' : ''}`}
+                        placeholder="Votre prénom"
                       />
-                      {errors.parentPassword && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPassword}</p>
+                      {errors.parentFirstName && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
                       )}
                     </div>
-
-                    <div className="flex justify-end pt-4">
-                      <Button
-                        onClick={nextStep}
-                        disabled={Object.keys(errors).length > 0}
-                        className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
-                      >
-                        Suivant
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Étape 2: Informations Élève */}
-            {currentStep === 2 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <Card className="border border-slate-200 shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-base md:text-lg">
-                      <GraduationCap className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
-                      Étape 2 : Informations Élève
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 md:space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div>
-                        <Label htmlFor="studentFirstName" className="text-sm md:text-base">Prénom de l'élève *</Label>
-                        <Input
-                          id="studentFirstName"
-                          type="text"
-                          value={formData.studentFirstName}
-                          onChange={(e) => handleInputChange('studentFirstName', e.target.value)}
-                          className={`mt-1 ${errors.studentFirstName ? 'border-red-500' : ''}`}
-                          placeholder="Prénom de l'élève"
-                        />
-                        {errors.studentFirstName && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="studentLastName" className="text-sm md:text-base">Nom de l'élève *</Label>
-                        <Input
-                          id="studentLastName"
-                          type="text"
-                          value={formData.studentLastName}
-                          onChange={(e) => handleInputChange('studentLastName', e.target.value)}
-                          className={`mt-1 ${errors.studentLastName ? 'border-red-500' : ''}`}
-                          placeholder="Nom de l'élève"
-                        />
-                        {errors.studentLastName && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentLastName}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div>
-                        <Label htmlFor="studentGrade" className="text-sm md:text-base">Niveau *</Label>
-                        <Select value={formData.studentGrade} onValueChange={(value) => handleInputChange('studentGrade', value)}>
-                          <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-red-500' : ''}`}>
-                            <SelectValue placeholder="Sélectionnez le niveau" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {GRADES_OPTIONS.map((grade) => (
-                              <SelectItem key={grade.value} value={grade.value}>
-                                {grade.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.studentGrade && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentGrade}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="studentSchool" className="text-sm md:text-base">Établissement</Label>
-                        <Input
-                          id="studentSchool"
-                          type="text"
-                          value={formData.studentSchool}
-                          onChange={(e) => handleInputChange('studentSchool', e.target.value)}
-                          className="mt-1"
-                          placeholder="Nom de l'établissement"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div>
-                        <Label htmlFor="currentLevel" className="text-sm md:text-base">Niveau actuel *</Label>
-                        <Select value={formData.currentLevel} onValueChange={(value) => handleInputChange('currentLevel', value)}>
-                          <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-red-500' : ''}`}>
-                            <SelectValue placeholder="Sélectionnez le niveau" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {LEVELS_OPTIONS.map((level) => (
-                              <SelectItem key={level.value} value={level.value}>
-                                {level.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.currentLevel && (
-                          <p className="text-red-500 text-xs md:text-sm mt-1">{errors.currentLevel}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="preferredModality" className="text-sm md:text-base">Modalité préférée</Label>
-                        <Select value={formData.preferredModality} onValueChange={(value) => handleInputChange('preferredModality', value)}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Sélectionnez la modalité" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {MODALITY_OPTIONS.map((modality) => (
-                              <SelectItem key={modality.value} value={modality.value}>
-                                {modality.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
                     <div>
-                      <Label htmlFor="objectives" className="text-sm md:text-base">Objectifs et motivations</Label>
-                      <Textarea
-                        id="objectives"
-                        value={formData.objectives}
-                        onChange={(e) => handleInputChange('objectives', e.target.value)}
-                        className="mt-1"
-                        placeholder="Décrivez les objectifs de votre enfant et vos motivations..."
-                        rows={3}
+                      <Label htmlFor="parentLastName" className="text-sm md:text-base">Nom *</Label>
+                      <Input
+                        id="parentLastName"
+                        type="text"
+                        value={formData.parentLastName}
+                        onChange={(e) => handleInputChange('parentLastName', e.target.value)}
+                        className={`mt-1 ${errors.parentLastName ? 'border-red-500' : ''}`}
+                        placeholder="Votre nom"
                       />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="availability" className="text-sm md:text-base">Disponibilités</Label>
-                      <Textarea
-                        id="availability"
-                        value={formData.availability}
-                        onChange={(e) => handleInputChange('availability', e.target.value)}
-                        className="mt-1"
-                        placeholder="Jours et horaires préférés pour les sessions..."
-                        rows={2}
-                      />
-                    </div>
-
-                    {/* Sélection des matières */}
-                    <div>
-                      <Label className="text-sm md:text-base block mb-3">Matières d'intérêt *</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-                        {SUBJECTS_OPTIONS.map((subject) => (
-                          <div key={subject.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={subject.value}
-                              checked={selectedSubjects.includes(subject.value)}
-                              onCheckedChange={() => toggleSubject(subject.value)}
-                            />
-                            <Label htmlFor={subject.value} className="text-xs md:text-sm cursor-pointer">
-                              {subject.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                      {selectedSubjects.length === 0 && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
+                      {errors.parentLastName && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentLastName}</p>
                       )}
                     </div>
+                  </div>
 
-                    {/* Conditions */}
-                    <div className="space-y-3 md:space-y-4">
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="acceptTerms"
-                          checked={formData.acceptTerms}
-                          onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
-                        />
-                        <Label htmlFor="acceptTerms" className="text-xs md:text-sm leading-relaxed cursor-pointer">
-                          J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales d'utilisation</a> *
-                        </Label>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="acceptNewsletter"
-                          checked={formData.acceptNewsletter}
-                          onCheckedChange={(checked) => handleInputChange('acceptNewsletter', checked)}
-                        />
-                        <Label htmlFor="acceptNewsletter" className="text-xs md:text-sm leading-relaxed cursor-pointer">
-                          J'accepte de recevoir des informations et offres de Nexus Réussite
-                        </Label>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div>
+                      <Label htmlFor="parentEmail" className="text-sm md:text-base">Email *</Label>
+                      <Input
+                        id="parentEmail"
+                        type="email"
+                        value={formData.parentEmail}
+                        onChange={(e) => handleInputChange('parentEmail', e.target.value)}
+                        className={`mt-1 ${errors.parentEmail ? 'border-red-500' : ''}`}
+                        placeholder="votre@email.com"
+                      />
+                      {errors.parentEmail && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentEmail}</p>
+                      )}
                     </div>
+                    <div>
+                      <Label htmlFor="parentPhone" className="text-sm md:text-base">Téléphone *</Label>
+                      <Input
+                        id="parentPhone"
+                        type="tel"
+                        value={formData.parentPhone}
+                        onChange={(e) => handleInputChange('parentPhone', e.target.value)}
+                        className={`mt-1 ${errors.parentPhone ? 'border-red-500' : ''}`}
+                        placeholder="+216 XX XXX XXX"
+                      />
+                      {errors.parentPhone && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPhone}</p>
+                      )}
+                    </div>
+                  </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
-                      <Button
-                        variant="outline"
-                        onClick={prevStep}
-                        className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
-                      >
-                        Précédent
-                      </Button>
-                      <Button
-                        onClick={onSubmit}
-                        disabled={isSubmitting || Object.keys(errors).length > 0 || selectedSubjects.length === 0 || !formData.acceptTerms}
-                        className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
-                            Création en cours...
-                          </>
-                        ) : (
-                          'Créer mon compte et commencer'
-                        )}
-                      </Button>
+                  <div>
+                    <Label htmlFor="parentPassword" className="text-sm md:text-base">Mot de passe *</Label>
+                    <Input
+                      id="parentPassword"
+                      type="password"
+                      value={formData.parentPassword}
+                      onChange={(e) => handleInputChange('parentPassword', e.target.value)}
+                      className={`mt-1 ${errors.parentPassword ? 'border-red-500' : ''}`}
+                      placeholder="Minimum 8 caractères"
+                    />
+                    {errors.parentPassword && (
+                      <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPassword}</p>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      onClick={nextStep}
+                      disabled={Object.keys(errors).length > 0}
+                      className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
+                    >
+                      Suivant
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Étape 2: Informations Élève */}
+          {currentStep === 2 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <Card className="border border-slate-200 shadow-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-base md:text-lg">
+                    <GraduationCap className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
+                    Étape 2 : Informations Élève
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 md:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div>
+                      <Label htmlFor="studentFirstName" className="text-sm md:text-base">Prénom de l'élève *</Label>
+                      <Input
+                        id="studentFirstName"
+                        type="text"
+                        value={formData.studentFirstName}
+                        onChange={(e) => handleInputChange('studentFirstName', e.target.value)}
+                        className={`mt-1 ${errors.studentFirstName ? 'border-red-500' : ''}`}
+                        placeholder="Prénom de l'élève"
+                      />
+                      {errors.studentFirstName && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+                    <div>
+                      <Label htmlFor="studentLastName" className="text-sm md:text-base">Nom de l'élève *</Label>
+                      <Input
+                        id="studentLastName"
+                        type="text"
+                        value={formData.studentLastName}
+                        onChange={(e) => handleInputChange('studentLastName', e.target.value)}
+                        className={`mt-1 ${errors.studentLastName ? 'border-red-500' : ''}`}
+                        placeholder="Nom de l'élève"
+                      />
+                      {errors.studentLastName && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentLastName}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div>
+                      <Label id="studentGradeLabel" htmlFor="studentGrade" className="text-sm md:text-base">Niveau *</Label>
+                      <Select aria-label="Niveau" aria-labelledby="studentGradeLabel" value={formData.studentGrade} onValueChange={(value) => handleInputChange('studentGrade', value)}>
+                        <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-red-500' : ''}`}>
+                          <SelectValue placeholder="Sélectionnez le niveau" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GRADES_OPTIONS.map((grade) => (
+                            <SelectItem key={grade.value} value={grade.value}>
+                              {grade.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.studentGrade && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentGrade}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="studentSchool" className="text-sm md:text-base">Établissement</Label>
+                      <Input
+                        id="studentSchool"
+                        type="text"
+                        value={formData.studentSchool}
+                        onChange={(e) => handleInputChange('studentSchool', e.target.value)}
+                        className="mt-1"
+                        placeholder="Nom de l'établissement"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div>
+                      <Label id="currentLevelLabel" htmlFor="currentLevel" className="text-sm md:text-base">Niveau actuel *</Label>
+                      <Select aria-label="Niveau actuel" aria-labelledby="currentLevelLabel" value={formData.currentLevel} onValueChange={(value) => handleInputChange('currentLevel', value)}>
+                        <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-red-500' : ''}`}>
+                          <SelectValue placeholder="Sélectionnez le niveau" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LEVELS_OPTIONS.map((level) => (
+                            <SelectItem key={level.value} value={level.value}>
+                              {level.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.currentLevel && (
+                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.currentLevel}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label id="preferredModalityLabel" htmlFor="preferredModality" className="text-sm md:text-base">Modalité préférée</Label>
+                      <Select aria-label="Modalité préférée" aria-labelledby="preferredModalityLabel" value={formData.preferredModality} onValueChange={(value) => handleInputChange('preferredModality', value)}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Sélectionnez la modalité" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MODALITY_OPTIONS.map((modality) => (
+                            <SelectItem key={modality.value} value={modality.value}>
+                              {modality.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="objectives" className="text-sm md:text-base">Objectifs et motivations</Label>
+                    <Textarea
+                      id="objectives"
+                      value={formData.objectives}
+                      onChange={(e) => handleInputChange('objectives', e.target.value)}
+                      className="mt-1"
+                      placeholder="Décrivez les objectifs de votre enfant et vos motivations..."
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="availability" className="text-sm md:text-base">Disponibilités</Label>
+                    <Textarea
+                      id="availability"
+                      value={formData.availability}
+                      onChange={(e) => handleInputChange('availability', e.target.value)}
+                      className="mt-1"
+                      placeholder="Jours et horaires préférés pour les sessions..."
+                      rows={2}
+                    />
+                  </div>
+
+                  {/* Sélection des matières */}
+                  <div>
+                    <Label className="text-sm md:text-base block mb-3">Matières d'intérêt *</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
+                      {SUBJECTS_OPTIONS.map((subject) => (
+                        <div key={subject.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={subject.value}
+                            checked={selectedSubjects.includes(subject.value)}
+                            onCheckedChange={() => toggleSubject(subject.value)}
+                          />
+                          <Label htmlFor={subject.value} className="text-xs md:text-sm cursor-pointer">
+                            {subject.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedSubjects.length === 0 && (
+                      <p className="text-red-500 text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
+                    )}
+                  </div>
+
+                  {/* Conditions */}
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptTerms"
+                        checked={formData.acceptTerms}
+                        onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
+                      />
+                      <Label htmlFor="acceptTerms" className="text-xs md:text-sm leading-relaxed cursor-pointer">
+                        J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales d'utilisation</a> *
+                      </Label>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptNewsletter"
+                        checked={formData.acceptNewsletter}
+                        onCheckedChange={(checked) => handleInputChange('acceptNewsletter', checked)}
+                      />
+                      <Label htmlFor="acceptNewsletter" className="text-xs md:text-sm leading-relaxed cursor-pointer">
+                        J'accepte de recevoir des informations et offres de Nexus Réussite
+                      </Label>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={prevStep}
+                      className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
+                    >
+                      Précédent
+                    </Button>
+                    <Button
+                      onClick={onSubmit}
+                      disabled={isSubmitting || Object.keys(errors).length > 0 || selectedSubjects.length === 0 || !formData.acceptTerms}
+                      className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                          Création en cours...
+                        </>
+                      ) : (
+                        'Créer mon compte et commencer'
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </div>
       </main>
 

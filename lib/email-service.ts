@@ -243,9 +243,9 @@ export async function sendScheduledReminders() {
       };
     };
 
-    const upcomingSessions = await prisma.session.findMany({
+    const upcomingSessions = await prisma.sessionBooking.findMany({
       where: {
-        scheduledAt: {
+        scheduledDate: {
           gte: fiveMinutesFromOneHour,
           lte: oneHourFromNow
         },
@@ -253,19 +253,7 @@ export async function sendScheduledReminders() {
         // reminderSent field needs to be added to the Prisma schema first
         // reminderSent: false
       },
-      include: {
-        student: {
-          include: {
-            user: true
-          }
-        },
-        coach: {
-          include: {
-            user: true
-          }
-        }
-      }
-    }) as SessionWithRelations[];
+    }) as any[];
 
     for (const session of upcomingSessions) {
       const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
@@ -278,7 +266,7 @@ export async function sendScheduledReminders() {
 
       // Marquer le rappel comme envoyé
       // Uncomment after adding reminderSent field to Prisma schema
-      await prisma.session.update({
+      await prisma.sessionBooking.update({
         where: { id: session.id },
         data: {
           // reminderSent: true

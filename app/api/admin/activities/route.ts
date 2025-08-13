@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -29,22 +29,18 @@ export async function GET(request: NextRequest) {
       subscriptions,
       creditTransactions
     ] = await Promise.all([
-      // Sessions
-      prisma.session.findMany({
+      // Sessions (SessionBooking)
+      prisma.sessionBooking.findMany({
         take: 50,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          student: { include: { user: true } },
-          coach: { include: { user: true } }
-        }
+        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
       }),
-      
+
       // Users
       prisma.user.findMany({
         take: 50,
         orderBy: { createdAt: 'desc' }
       }),
-      
+
       // Subscriptions
       prisma.subscription.findMany({
         take: 50,
@@ -53,7 +49,7 @@ export async function GET(request: NextRequest) {
           student: { include: { user: true } }
         }
       }),
-      
+
       // Credit transactions
       prisma.creditTransaction.findMany({
         take: 50,
@@ -67,23 +63,21 @@ export async function GET(request: NextRequest) {
     // Format all activities
     const allActivities = [
       // Format sessions
-      ...sessions.map((activity: any) => ({
-        id: activity.id,
+      ...sessions.map((a) => ({
+        id: a.id,
         type: 'session',
-        title: `Session ${activity.subject}`,
-        description: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'} avec ${activity.coach?.pseudonym || 'Unknown Coach'}`,
-        time: activity.createdAt,
-        status: activity.status,
-        studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
-        coachName: activity.coach?.pseudonym || 'Unknown Coach',
-        subject: activity.subject,
-        action: activity.status === 'COMPLETED' ? 'Session terminée' : 
-                activity.status === 'SCHEDULED' ? 'Session programmée' : 
-                activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
+        title: `Session ${a.subject}`,
+        description: '',
+        time: a.scheduledDate,
+        status: a.status,
+        studentName: '',
+        coachName: '',
+        subject: a.subject,
+        action: a.status
       })),
-      
+
       // Format new users
-      ...users.map((user: any) => ({
+      ...users.map((user) => ({
         id: user.id,
         type: 'user',
         title: `Nouvel utilisateur: ${user.firstName} ${user.lastName}`,
@@ -95,9 +89,9 @@ export async function GET(request: NextRequest) {
         subject: user.role,
         action: 'Utilisateur créé'
       })),
-      
+
       // Format new subscriptions
-      ...subscriptions.map((subscription: any) => ({
+      ...subscriptions.map((subscription) => ({
         id: subscription.id,
         type: 'subscription',
         title: `Nouvel abonnement: ${subscription.planName}`,
@@ -109,9 +103,9 @@ export async function GET(request: NextRequest) {
         subject: subscription.planName,
         action: 'Abonnement créé'
       })),
-      
+
       // Format credit transactions
-      ...creditTransactions.map((transaction: any) => ({
+      ...creditTransactions.map((transaction) => ({
         id: transaction.id,
         type: 'credit',
         title: `Transaction crédit: ${transaction.type}`,
@@ -126,17 +120,17 @@ export async function GET(request: NextRequest) {
     ];
 
     // Sort by time (most recent first)
-    const sortedActivities = allActivities.sort((a, b) => 
+    const sortedActivities = allActivities.sort((a, b) =>
       new Date(b.time).getTime() - new Date(a.time).getTime()
     );
 
     // Apply filters
     let filteredActivities = sortedActivities;
-    
+
     if (type !== 'ALL') {
       filteredActivities = filteredActivities.filter(activity => activity.type === type);
     }
-    
+
     if (search) {
       filteredActivities = filteredActivities.filter(activity =>
         activity.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -168,4 +162,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

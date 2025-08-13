@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth/next';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 // Validation schema for coach update
 const coachUpdateSchema = z.object({
@@ -23,11 +23,11 @@ const coachUpdateSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string; }; }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -81,7 +81,7 @@ export async function PUT(
     }
 
     // Update user and coach profile in a transaction
-    const result = await prisma.$transaction(async (tx: typeof prisma) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Update user
       const userData = {
         firstName: validatedData.firstName,
@@ -132,22 +132,22 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating coach:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: 'Données invalides',
-          details: error.errors 
+          details: error.errors
         },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error'
       },
       { status: 500 }
     );
@@ -156,11 +156,11 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string; }; }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -196,7 +196,7 @@ export async function DELETE(
     }
 
     // Delete coach profile and user in a transaction
-    await prisma.$transaction(async (tx: typeof prisma) => {
+    await prisma.$transaction(async (tx) => {
       // Delete coach profile first (due to foreign key constraints)
       await tx.coachProfile.delete({
         where: { userId: coachId }
@@ -216,11 +216,11 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting coach:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error'
       },
       { status: 500 }
     );
   }
-} 
+}

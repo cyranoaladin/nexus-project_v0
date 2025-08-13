@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ELEVE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -16,22 +16,14 @@ export async function GET(request: NextRequest) {
 
     const studentId = session.user.id;
 
-    const sessions = await prisma.session.findMany({
+    const sessions = await prisma.sessionBooking.findMany({
       where: {
-        student: {
-          userId: studentId
-        }
+        studentId: studentId
       },
-      include: {
-        coach: {
-          include: {
-            user: true
-          }
-        }
-      },
-      orderBy: {
-        scheduledAt: 'desc'
-      }
+      orderBy: [
+        { scheduledDate: 'desc' },
+        { startTime: 'desc' }
+      ]
     });
 
     const formattedSessions = sessions.map((session: any) => ({
@@ -39,16 +31,11 @@ export async function GET(request: NextRequest) {
       title: session.title,
       subject: session.subject,
       status: session.status,
-      scheduledAt: session.scheduledAt,
+      scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
       duration: session.duration,
-      creditCost: session.creditCost,
-      location: session.location,
-      coach: {
-        firstName: session.coach.user.firstName,
-        lastName: session.coach.user.lastName,
-        pseudonym: session.coach.pseudonym,
-        tag: session.coach.tag
-      }
+      creditsUsed: session.creditsUsed,
+      modality: session.modality,
+      type: session.type
     }));
 
     return NextResponse.json(formattedSessions);
@@ -60,4 +47,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

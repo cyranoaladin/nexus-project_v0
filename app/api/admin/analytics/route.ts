@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month'; // month, quarter, year
-    const type = searchParams.get('type') || 'all'; // all, revenue, users, sessions
+    const _type = searchParams.get('type') || 'all'; // all, revenue, users, sessions
 
     const now = new Date();
     let startDate: Date;
-    
+
     switch (period) {
       case 'month':
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // User growth analytics
       prisma.user.groupBy({
         by: ['createdAt', 'role'],
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Session analytics
       prisma.session.groupBy({
         by: ['scheduledAt', 'status'],
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Subscription analytics
       prisma.subscription.groupBy({
         by: ['createdAt', 'status'],
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Credit transaction analytics
       prisma.creditTransaction.groupBy({
         by: ['createdAt', 'type'],
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Recent activities (last 50)
       prisma.session.findMany({
         take: 50,
@@ -129,35 +129,35 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Format revenue data
-    const formattedRevenueData = revenueData.map((item: any) => ({
+    const formattedRevenueData = revenueData.map((item) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       amount: item._sum.amount || 0,
       count: item._count.id
     }));
 
     // Format user growth data
-    const formattedUserGrowthData = userGrowthData.map((item: any) => ({
+    const formattedUserGrowthData = userGrowthData.map((item) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       role: item.role,
       count: item._count.id
     }));
 
     // Format session data
-    const formattedSessionData = sessionData.map((item: any) => ({
+    const formattedSessionData = sessionData.map((item) => ({
       date: item.scheduledAt.toISOString().slice(0, 10),
       status: item.status,
       count: item._count.id
     }));
 
     // Format subscription data
-    const formattedSubscriptionData = subscriptionData.map((item: any) => ({
+    const formattedSubscriptionData = subscriptionData.map((item) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       status: item.status,
       count: item._count.id
     }));
 
     // Format credit transaction data
-    const formattedCreditData = creditTransactionData.map((item: any) => ({
+    const formattedCreditData = creditTransactionData.map((item) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       type: item.type,
       amount: item._sum.amount || 0,
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Format recent activities
-    const formattedRecentActivities = recentActivities.map((activity: any) => ({
+    const formattedRecentActivities = recentActivities.map((activity) => ({
       id: activity.id,
       type: 'session',
       title: `Session ${activity.subject}`,
@@ -175,16 +175,16 @@ export async function GET(request: NextRequest) {
       studentName: `${activity.student.user.firstName} ${activity.student.user.lastName}`,
       coachName: activity.coach.pseudonym,
       subject: activity.subject,
-      action: activity.status === 'COMPLETED' ? 'Session terminée' : 
-              activity.status === 'SCHEDULED' ? 'Session programmée' : 
-              activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
+      action: activity.status === 'COMPLETED' ? 'Session terminée' :
+        activity.status === 'SCHEDULED' ? 'Session programmée' :
+          activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
     }));
 
     // Calculate summary statistics
-    const totalRevenue = formattedRevenueData.reduce((sum: number, item: any) => sum + item.amount, 0);
-    const totalUsers = formattedUserGrowthData.reduce((sum: number, item: any) => sum + item.count, 0);
-    const totalSessions = formattedSessionData.reduce((sum: number, item: any) => sum + item.count, 0);
-    const totalSubscriptions = formattedSubscriptionData.reduce((sum: number, item: any) => sum + item.count, 0);
+    const totalRevenue = formattedRevenueData.reduce((sum: number, item) => sum + item.amount, 0);
+    const totalUsers = formattedUserGrowthData.reduce((sum: number, item) => sum + item.count, 0);
+    const totalSessions = formattedSessionData.reduce((sum: number, item) => sum + item.count, 0);
+    const totalSubscriptions = formattedSubscriptionData.reduce((sum: number, item) => sum + item.count, 0);
 
     const analyticsData = {
       period,
@@ -211,4 +211,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

@@ -2,13 +2,11 @@ import { calculateCreditCost, checkCreditBalance, debitCredits, refundCredits } 
 import { prisma } from '../../lib/prisma';
 import { ServiceType } from '../../types/enums';
 
-// Mock the prisma module
-jest.mock('../../lib/prisma');
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+// On utilise des spies typés au lieu de caster le client
 
 describe('Credits System', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('calculateCreditCost', () => {
@@ -41,11 +39,11 @@ describe('Credits System', () => {
         { amount: 3, expiresAt: new Date(Date.now() + 86400000) } // expires tomorrow
       ];
 
-      mockPrisma.creditTransaction.findMany.mockResolvedValue(mockTransactions as any);
+      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
 
       const result = await checkCreditBalance('student-123', 5);
       expect(result).toBe(true);
-      expect(mockPrisma.creditTransaction.findMany).toHaveBeenCalledWith({
+      expect(prisma.creditTransaction.findMany).toHaveBeenCalledWith({
         where: {
           studentId: 'student-123',
           OR: [
@@ -62,7 +60,7 @@ describe('Credits System', () => {
         { amount: -1, expiresAt: null }
       ];
 
-      mockPrisma.creditTransaction.findMany.mockResolvedValue(mockTransactions as any);
+      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
 
       const result = await checkCreditBalance('student-123', 5);
       expect(result).toBe(false);
@@ -74,7 +72,7 @@ describe('Credits System', () => {
         { amount: -2, expiresAt: null }
       ];
 
-      mockPrisma.creditTransaction.findMany.mockResolvedValue(mockTransactions as any);
+      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
 
       const result = await checkCreditBalance('student-123', 2);
       expect(result).toBe(true);
@@ -92,12 +90,12 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
-      mockPrisma.creditTransaction.create.mockResolvedValue(mockTransaction as any);
+      jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
 
       const result = await debitCredits('student-123', 1.25, 'session-123', 'Test session booking');
 
       expect(result).toEqual(mockTransaction);
-      expect(mockPrisma.creditTransaction.create).toHaveBeenCalledWith({
+      expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
           type: 'USAGE',
@@ -120,12 +118,12 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
-      mockPrisma.creditTransaction.create.mockResolvedValue(mockTransaction as any);
+      jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
 
       const result = await refundCredits('student-123', 1.25, 'session-123', 'Session cancellation refund');
 
       expect(result).toEqual(mockTransaction);
-      expect(mockPrisma.creditTransaction.create).toHaveBeenCalledWith({
+      expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
           type: 'REFUND',

@@ -10,13 +10,14 @@ const customJestConfig = {
   testMatch: [
     '**/__tests__/api/**/*.(test|spec).(js|ts)',
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.integration.js'],
   transformIgnorePatterns: [
     'node_modules/(?!(@auth/prisma-adapter|next-auth)/)',
   ],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
 };
 
 module.exports = createJestConfig(customJestConfig);

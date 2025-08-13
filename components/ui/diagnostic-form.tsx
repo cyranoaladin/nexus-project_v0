@@ -273,7 +273,7 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-6" aria-live="polite">
                     <div className="p-4 bg-white rounded-lg border border-green-200">
                       <h5 className="font-bold text-bleu-nuit mb-2 text-lg">
                         🚀 {recommendation.parcours}
@@ -295,15 +295,15 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mt-6">
-                    <Link href={recommendation.parcoursLink}>
+                  <div className="flex flex-wrap gap-3 mt-6" role="group" aria-label="Liens de recommandation">
+                    <Link href={recommendation.parcoursLink} aria-label="Découvrir ce parcours">
                       <Button size="lg" className="bg-gradient-to-r from-or-stellaire to-or-stellaire-dark hover:from-or-stellaire-dark hover:to-or-stellaire text-bleu-nuit font-bold transition-all duration-300 hover:scale-105">
                         Découvrir ce parcours
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                     </Link>
                     {recommendation.academieLink && (
-                      <Link href={recommendation.academieLink}>
+                      <Link href={recommendation.academieLink} aria-label="Voir cette académie">
                         <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300">
                           Voir cette académie
                         </Button>
