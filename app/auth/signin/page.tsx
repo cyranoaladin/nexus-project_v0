@@ -1,55 +1,55 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { LogIn, Loader2, Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
-import { motion } from "framer-motion"
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+// import { Badge } from "@/components/ui/badge"
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
+import Link from "next/link";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false
-      })
+      });
 
       if (result?.error) {
-        setError("Email ou mot de passe incorrect")
+        setError("Email ou mot de passe incorrect");
       } else {
-        router.push("/dashboard")
+        router.push("/dashboard");
       }
     } catch (error) {
-      setError("Une erreur est survenue lors de la connexion")
+      setError("Une erreur est survenue lors de la connexion");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <motion.div
@@ -65,7 +65,7 @@ export default function SignInPage() {
               Bon Retour sur Nexus Réussite
             </h1>
             <p className="text-slate-600">
-              Connectez-vous pour accéder à votre espace personnalisé et continuer 
+              Connectez-vous pour accéder à votre espace personnalisé et continuer
               votre parcours vers l'excellence.
             </p>
           </motion.div>
@@ -106,8 +106,8 @@ export default function SignInPage() {
                       <Label htmlFor="password" className="text-slate-900 font-medium">
                         Mot de Passe
                       </Label>
-                      <Link 
-                        href="/auth/mot-de-passe-oublie" 
+                      <Link
+                        href="/auth/mot-de-passe-oublie"
                         className="text-sm text-blue-600 hover:underline"
                       >
                         Mot de passe oublié ?
@@ -147,9 +147,9 @@ export default function SignInPage() {
                     </motion.div>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-semibold" 
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-semibold"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -195,5 +195,5 @@ export default function SignInPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

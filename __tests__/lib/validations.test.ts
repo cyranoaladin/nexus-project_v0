@@ -155,7 +155,10 @@ describe('Validation Schemas', () => {
     };
 
     it('should pass validation with valid session data', () => {
-      const result = sessionBookingSchema.safeParse(validSessionData);
+      // Pour éviter l'échec lié à la règle des 2h, décale la date de test dans le futur
+      const future = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+      const data = { ...validSessionData, scheduledAt: future };
+      const result = sessionBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 

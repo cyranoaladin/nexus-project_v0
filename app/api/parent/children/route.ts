@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from 'next/server';
+// bcrypt inutilisé ici
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -203,4 +203,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -41,24 +41,7 @@ export async function GET(request: NextRequest) {
                 createdAt: 'desc'
               }
             },
-            sessions: {
-              where: {
-                scheduledAt: {
-                  gte: new Date()
-                }
-              },
-              include: {
-                coach: {
-                  include: {
-                    user: true
-                  }
-                }
-              },
-              orderBy: {
-                scheduledAt: 'asc'
-              },
-              take: 5
-            },
+            // Remplacé par les 5 prochaines SessionBooking liées à l'élève
             subscriptions: {
               where: {
                 status: 'ACTIVE'
@@ -88,22 +71,30 @@ export async function GET(request: NextRequest) {
       }, 0);
 
       // Get next session
-      const nextSession = student.sessions.length > 0 ? student.sessions[0] : null;
+      // Récupérer la prochaine session depuis SessionBooking (par userId élève)
+      const nextSessionBooking = await prisma.sessionBooking.findFirst({
+        where: {
+          studentId: student.userId,
+          scheduledDate: { gte: new Date() },
+          status: { in: ['SCHEDULED', 'CONFIRMED'] }
+        },
+        orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }]
+      });
 
       // Get active subscription
       const activeSubscription = student.subscriptions.length > 0 ? student.subscriptions[0] : null;
 
       // Calculate dynamic progress based on completed sessions
-      const completedSessions = await prisma.session.count({
+      const completedSessions = await prisma.sessionBooking.count({
         where: {
-          studentId: student.id,
+          studentId: student.userId,
           status: 'COMPLETED'
         }
       });
 
-      const totalSessions = await prisma.session.count({
+      const totalSessions = await prisma.sessionBooking.count({
         where: {
-          studentId: student.id
+          studentId: student.userId
         }
       });
 
@@ -116,11 +107,11 @@ export async function GET(request: NextRequest) {
         const usedCredits = Math.abs(student.creditTransactions
           .filter((tx: any) => tx.amount < 0)
           .reduce((sum: number, tx: any) => sum + tx.amount, 0));
-        
+
         const totalCredits = student.creditTransactions
           .filter((tx: any) => tx.amount > 0)
           .reduce((sum: number, tx: any) => sum + tx.amount, 0);
-        
+
         if (totalCredits > 0) {
           progress = Math.round((usedCredits / totalCredits) * 100);
         }
@@ -130,27 +121,25 @@ export async function GET(request: NextRequest) {
       progress = Math.max(0, Math.min(100, progress));
 
       // Get subject-specific progress
-      const subjectProgress = await prisma.session.groupBy({
+      const subjectProgress = await prisma.sessionBooking.groupBy({
         by: ['subject'],
         where: {
-          studentId: student.id
+          studentId: student.userId
         },
-        _count: {
-          id: true
-        }
+        _count: { id: true }
       });
 
       // Calculate subject progress
       const subjectProgressMap = new Map();
       for (const subject of subjectProgress) {
-        const completedSessions = await prisma.session.count({
+        const completedSessions = await prisma.sessionBooking.count({
           where: {
-            studentId: student.id,
+            studentId: student.userId,
             subject: subject.subject,
             status: 'COMPLETED'
           }
         });
-        
+
         const totalSessions = subject._count.id;
         const subjectProgressPercent = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
         subjectProgressMap.set(subject.subject, subjectProgressPercent);
@@ -166,7 +155,7 @@ export async function GET(request: NextRequest) {
       } : null;
 
       return {
-        id: student.userId, // Use userId instead of student.id
+        id: student.userId,
         studentId: student.id, // Keep the student.id for internal use
         firstName: student.user.firstName,
         lastName: student.user.lastName,
@@ -175,25 +164,17 @@ export async function GET(request: NextRequest) {
         credits: creditBalance,
         subscription: activeSubscription?.planName || 'AUCUN',
         subscriptionDetails: subscriptionDetails,
-        nextSession: nextSession ? {
-          id: nextSession.id,
-          subject: nextSession.subject,
-          scheduledAt: nextSession.scheduledAt,
-          coachName: nextSession.coach.pseudonym,
-          type: nextSession.type,
-          status: nextSession.status
+        nextSession: nextSessionBooking ? {
+          id: nextSessionBooking.id,
+          subject: nextSessionBooking.subject,
+          scheduledAt: new Date(`${nextSessionBooking.scheduledDate.toISOString().split('T')[0]}T${nextSessionBooking.startTime}`),
+          coachName: '',
+          type: nextSessionBooking.type,
+          status: nextSessionBooking.status
         } : null,
         progress: progress,
         subjectProgress: Object.fromEntries(subjectProgressMap),
-        sessions: student.sessions.map((session: any) => ({
-          id: session.id,
-          subject: session.subject,
-          scheduledAt: session.scheduledAt,
-          coachName: session.coach.pseudonym,
-          type: session.type,
-          status: session.status,
-          duration: session.duration
-        }))
+        sessions: []
       };
     }));
 
@@ -211,7 +192,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching parent dashboard data:', error);
-    
+
     // Provide more specific error messages
     if (error instanceof Error) {
       if (error.message.includes('findUnique')) {
@@ -227,10 +208,10 @@ export async function GET(request: NextRequest) {
         );
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
-} 
+}

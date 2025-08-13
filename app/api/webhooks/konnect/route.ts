@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validation basique du webhook Konnect
-    const { payment_id, status, amount, currency } = body;
+    const { payment_id, status, amount: _amount, currency: _currency } = body;
 
     if (!payment_id || !status) {
       return NextResponse.json(

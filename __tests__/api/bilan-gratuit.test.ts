@@ -2,10 +2,6 @@ import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
 
-// Mock the prisma module
-jest.mock('../../lib/prisma');
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
-
 // Mock bcrypt
 jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashed-password')
@@ -18,7 +14,7 @@ jest.mock('../../lib/email', () => ({
 
 describe('/api/bilan-gratuit', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   const validRequestData = {
@@ -54,7 +50,7 @@ describe('/api/bilan-gratuit', () => {
   describe('POST /api/bilan-gratuit', () => {
     it('should return 201 and create parent and student when valid data is provided', async () => {
       // Setup mocks
-      mockPrisma.user.findUnique.mockResolvedValue(null); // Email doesn't exist
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as any); // Email doesn't exist
 
       const mockParentUser = {
         id: 'parent-123',
@@ -80,7 +76,7 @@ describe('/api/bilan-gratuit', () => {
         grade: 'Terminale'
       };
 
-      mockPrisma.$transaction.mockImplementation(async (callback) => {
+      jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => {
         return callback({
           user: {
             create: jest.fn()
@@ -118,15 +114,15 @@ describe('/api/bilan-gratuit', () => {
       expect(responseData.studentId).toBe('student-profile-123');
 
       // Verify database calls
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'jean.dupont@test.com' }
       });
-      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(prisma.$transaction).toHaveBeenCalled();
     });
 
     it('should return 400 when parent email already exists', async () => {
       // Setup mock - email already exists
-      mockPrisma.user.findUnique.mockResolvedValue({
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
         id: 'existing-user',
         email: 'jean.dupont@test.com'
       } as any);
@@ -147,7 +143,7 @@ describe('/api/bilan-gratuit', () => {
       expect(responseData.error).toBe('Un compte existe déjà avec cet email');
 
       // Verify transaction was not called
-      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
     });
 
     it('should return 400 when validation fails (invalid email)', async () => {
@@ -219,8 +215,8 @@ describe('/api/bilan-gratuit', () => {
 
     it('should return 500 when database error occurs', async () => {
       // Setup mock - email doesn't exist but transaction fails
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.$transaction.mockRejectedValue(new Error('Database connection failed'));
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as any);
+      jest.spyOn(prisma, '$transaction').mockRejectedValue(new Error('Database connection failed'));
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
@@ -240,7 +236,7 @@ describe('/api/bilan-gratuit', () => {
 
     it('should continue execution even if email sending fails', async () => {
       // Setup mocks - successful database operations but email fails
-      mockPrisma.user.findUnique.mockResolvedValue(null);
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as any);
 
       const mockParentUser = {
         id: 'parent-123',
@@ -259,7 +255,7 @@ describe('/api/bilan-gratuit', () => {
         id: 'student-profile-123'
       };
 
-      mockPrisma.$transaction.mockResolvedValue({
+      jest.spyOn(prisma, '$transaction').mockResolvedValue({
         parentUser: mockParentUser,
         studentUser: mockStudentUser,
         student: mockStudent

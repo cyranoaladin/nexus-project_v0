@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -25,11 +25,11 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const whereClause: any = {};
-    
+
     if (role && role !== 'ALL') {
       whereClause.role = role;
     }
-    
+
     if (search) {
       whereClause.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
@@ -63,7 +63,6 @@ export async function GET(request: NextRequest) {
       lastName: user.lastName,
       role: user.role,
       createdAt: user.createdAt,
-      isActive: user.isActive,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
 
@@ -89,7 +88,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -130,14 +129,11 @@ export async function POST(request: NextRequest) {
         lastName,
         role,
         password: hashedPassword,
-        isActive: true,
         ...(role === 'COACH' && profileData ? {
           coachProfile: {
             create: {
               pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-              subjects: profileData.subjects || [],
-              bio: profileData.bio || '',
-              hourlyRate: profileData.hourlyRate || 0
+              subjects: JSON.stringify(profileData.subjects || [])
             }
           }
         } : {}),
@@ -175,7 +171,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -184,7 +180,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, email, firstName, lastName, role, isActive, profileData } = body;
+    const { id, email, firstName, lastName, role, profileData } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -201,21 +197,16 @@ export async function PUT(request: NextRequest) {
         firstName,
         lastName,
         role,
-        isActive,
         ...(role === 'COACH' && profileData ? {
           coachProfile: {
             upsert: {
               create: {
                 pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-                subjects: profileData.subjects || [],
-                bio: profileData.bio || '',
-                hourlyRate: profileData.hourlyRate || 0
+                subjects: JSON.stringify(profileData.subjects || [])
               },
               update: {
                 pseudonym: profileData.pseudonym,
-                subjects: profileData.subjects,
-                bio: profileData.bio,
-                hourlyRate: profileData.hourlyRate
+                subjects: profileData.subjects ? JSON.stringify(profileData.subjects) : undefined
               }
             }
           }
@@ -235,7 +226,6 @@ export async function PUT(request: NextRequest) {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         role: updatedUser.role,
-        isActive: updatedUser.isActive,
         profile: updatedUser.coachProfile
       }
     });
@@ -252,7 +242,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -299,4 +289,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
