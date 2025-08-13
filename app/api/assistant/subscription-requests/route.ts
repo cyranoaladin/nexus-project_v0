@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -136,7 +136,7 @@ export async function PATCH(request: NextRequest) {
         status: action,
         processedBy: `${session.user.firstName} ${session.user.lastName}`,
         processedAt: new Date(),
-        rejectionReason: action === 'REJECTED' ? reason : null
+        ...(action === 'REJECTED' ? { rejectionReason: reason ?? '' } : {})
       }
     });
 
@@ -150,19 +150,18 @@ export async function PATCH(request: NextRequest) {
             status: 'ACTIVE'
           },
           data: {
-            planName: subscriptionRequest.planName,
-            monthlyPrice: subscriptionRequest.monthlyPrice,
+            ...(subscriptionRequest.planName != null && { planName: subscriptionRequest.planName }),
+            ...(subscriptionRequest.monthlyPrice != null && { monthlyPrice: subscriptionRequest.monthlyPrice }),
             updatedAt: new Date()
           }
         });
       } else if (subscriptionRequest.requestType === 'ARIA_ADDON') {
-        // Add ARIA addon to student
-        await prisma.student.update({
-          where: { id: subscriptionRequest.studentId },
+        // Add ARIA addon to active subscription (schema: Subscription.ariaSubjects/ariaCost)
+        await prisma.subscription.updateMany({
+          where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
           data: {
-            ariaAddons: {
-              push: subscriptionRequest.planName
-            }
+            ariaSubjects: subscriptionRequest.planName ? JSON.stringify([subscriptionRequest.planName]) : undefined,
+            ariaCost: subscriptionRequest.monthlyPrice ?? 0
           }
         });
       }
@@ -180,4 +179,4 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

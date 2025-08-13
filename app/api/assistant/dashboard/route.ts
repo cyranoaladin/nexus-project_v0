@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -30,19 +30,19 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       // Total students
       prisma.student.count(),
-      
+
       // Total coaches
       prisma.coachProfile.count(),
-      
-      // Total sessions this month
-      prisma.session.count({
+
+      // Total sessions this month (SessionBooking)
+      prisma.sessionBooking.count({
         where: {
-          scheduledAt: {
+          scheduledDate: {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
           }
         }
       }),
-      
+
       // Payment revenue this month
       prisma.payment.aggregate({
         where: {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
           amount: true
         }
       }),
-      
+
       // Subscription revenue this month
       prisma.subscription.aggregate({
         where: {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           monthlyPrice: true
         }
       }),
-      
+
       // Pending bilans (recent registrations)
       prisma.user.count({
         where: {
@@ -78,71 +78,46 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      
+
       // Pending payments
       prisma.payment.count({
         where: {
           status: 'PENDING'
         }
       }),
-      
+
       // Pending credit requests
       prisma.creditTransaction.count({
         where: {
           type: 'CREDIT_REQUEST'
         }
       }),
-      
+
       // Pending subscription requests
       prisma.subscriptionRequest.count({
         where: {
           status: 'PENDING'
         }
       }),
-      
-      // Today's sessions
-      prisma.session.findMany({
+
+      // Today's sessions (SessionBooking)
+      prisma.sessionBooking.findMany({
         where: {
-          scheduledAt: {
+          scheduledDate: {
             gte: new Date(new Date().setHours(0, 0, 0, 0)),
             lt: new Date(new Date().setHours(23, 59, 59, 999))
           }
         },
-        include: {
-          student: {
-            include: {
-              user: true
-            }
-          },
-          coach: {
-            include: {
-              user: true
-            }
-          }
-        },
-        orderBy: {
-          scheduledAt: 'asc'
-        }
+        orderBy: [
+          { scheduledDate: 'asc' },
+          { startTime: 'asc' }
+        ]
       }),
-      
-      // Recent activities (last 10 activities)
-      prisma.session.findMany({
+
+      // Recent activities (last 10) from SessionBooking
+      prisma.sessionBooking.findMany({
         take: 10,
-        orderBy: {
-          createdAt: 'desc'
-        },
-        include: {
-          student: {
-            include: {
-              user: true
-            }
-          },
-          coach: {
-            include: {
-              user: true
-            }
-          }
-        }
+        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
       })
     ]);
 
@@ -152,27 +127,24 @@ export async function GET(request: NextRequest) {
     const totalRevenue = paymentRevenueAmount + subscriptionRevenueAmount;
 
     // Format today's sessions
-    const formattedTodaySessions = todaySessions.map((session: any) => ({
-      id: session.id,
-      studentName: `${session.student.user.firstName} ${session.student.user.lastName}`,
-      coachName: session.coach.pseudonym,
-      subject: session.subject,
-      time: session.scheduledAt.toLocaleTimeString('fr-FR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      }),
-      status: session.status,
-      type: session.type
+    const formattedTodaySessions = todaySessions.map((s: any) => ({
+      id: s.id,
+      studentName: '',
+      coachName: '',
+      subject: s.subject,
+      time: s.startTime,
+      status: s.status,
+      type: s.type
     }));
 
     // Format recent activities
-    const formattedRecentActivities = recentActivities.map((activity: any) => ({
-      id: activity.id,
+    const formattedRecentActivities = recentActivities.map((a: any) => ({
+      id: a.id,
       type: 'session',
-      title: `Session ${activity.subject} - ${activity.coach.pseudonym}`,
-      description: `Avec ${activity.student.user.firstName} ${activity.student.user.lastName}`,
-      time: activity.createdAt,
-      status: activity.status
+      title: `Session ${a.subject}`,
+      description: '',
+      time: a.scheduledDate,
+      status: a.status
     }));
 
     const dashboardData = {
@@ -199,4 +171,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { subscriptionId, action, reason } = body;
+    const { subscriptionId, action, reason: _reason } = body;
 
     if (!subscriptionId || !action) {
       return NextResponse.json(
@@ -154,14 +154,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let newStatus: string;
+    // status must be a valid SubscriptionStatus from schema
+    let newStatus: 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED';
     let creditAmount: number = 0;
 
     if (action === 'approve') {
       newStatus = 'ACTIVE';
       creditAmount = subscription.creditsPerMonth || 0;
     } else if (action === 'reject') {
-      newStatus = 'REJECTED';
+      newStatus = 'INACTIVE';
     } else {
       return NextResponse.json(
         { error: 'Invalid action' },
@@ -173,10 +174,7 @@ export async function POST(request: NextRequest) {
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        status: newStatus,
-        approvedBy: session.user.firstName + ' ' + session.user.lastName,
-        approvedAt: new Date(),
-        rejectionReason: action === 'reject' ? reason : null
+        status: newStatus
       }
     });
 
@@ -197,7 +195,7 @@ export async function POST(request: NextRequest) {
       subscription: {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
-        message: action === 'approve' 
+        message: action === 'approve'
           ? 'Abonnement approuvé et crédits ajoutés'
           : 'Abonnement rejeté'
       }
@@ -210,4 +208,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

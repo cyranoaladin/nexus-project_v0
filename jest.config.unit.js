@@ -11,9 +11,10 @@ const customJestConfig = {
   testMatch: [
     '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
 };
 
 module.exports = createJestConfig(customJestConfig);
