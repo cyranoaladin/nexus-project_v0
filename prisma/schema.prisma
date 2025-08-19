@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Énumération des rôles utilisateur
@@ -100,13 +100,13 @@ model User {
   // Coach specific relations
   coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
   coachSessions      SessionBooking[]    @relation("CoachSessions")
-  
+
   // Student specific relations
   studentSessions    SessionBooking[]    @relation("StudentSessions")
-  
+
   // Parent specific relations
   parentSessions     SessionBooking[]    @relation("ParentSessions")
-  
+
   // Notification relations
   notifications      SessionNotification[] @relation("UserNotifications")
 
@@ -162,6 +162,13 @@ model Student {
   credits            Int @default(0)
   totalSessions      Int @default(0)
   completedSessions  Int @default(0)
+
+  // Suivi d'usage freemium ARIA
+  freemiumUsage Json?
+
+  // Garantie Bac
+  guaranteeEligible  Boolean   @default(false)
+  guaranteeActivatedAt DateTime?
 
   // Relations
   subscriptions    Subscription[]
@@ -490,24 +497,24 @@ model CoachAvailability {
   id          String   @id @default(cuid())
   coachId     String
   coach       User     @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
-  
+
   // Day of week (0 = Sunday, 1 = Monday, etc.)
   dayOfWeek   Int
   startTime   String   // "09:00"
   endTime     String   // "17:00"
-  
+
   // For specific dates (holidays, special availability)
   specificDate DateTime?
   isAvailable Boolean  @default(true)
-  
+
   // Recurring pattern
   isRecurring Boolean  @default(true)
   validFrom   DateTime @default(now())
   validUntil  DateTime?
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@unique([coachId, dayOfWeek, startTime, endTime, specificDate])
   @@index([coachId, dayOfWeek])
   @@index([coachId, specificDate])
@@ -516,7 +523,7 @@ model CoachAvailability {
 // Session Booking Management
 model SessionBooking {
   id            String           @id @default(cuid())
-  
+
   // Participants
   studentId     String
   student       User             @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
@@ -524,53 +531,53 @@ model SessionBooking {
   coach         User             @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
   parentId      String?
   parent        User?            @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
-  
+
   // Session Details
   subject       Subject
   title         String
   description   String?
-  
+
   // Scheduling
   scheduledDate DateTime
   startTime     String           // "14:00"
   endTime       String           // "15:00"
   duration      Int              // Duration in minutes
-  
+
   // Status Management
   status        SessionStatus    @default(SCHEDULED)
-  
+
   // Session Type
   type          SessionType      @default(INDIVIDUAL)
   modality      SessionModality  @default(ONLINE)
-  
+
   // Location/Meeting Info
   meetingUrl    String?
   meetingId     String?
   location      String?
-  
+
   // Credits & Payment
   creditsUsed   Int              @default(1)
-  
+
   // Feedback & Notes
   coachNotes    String?
   studentNotes  String?
   rating        Int?             // 1-5 stars
   feedback      String?
-  
+
   // Attendance
   studentAttended Boolean?
   coachAttended   Boolean        @default(true)
-  
+
   // Timestamps
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   completedAt   DateTime?
   cancelledAt   DateTime?
-  
+
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
-  
+
   @@index([studentId, scheduledDate])
   @@index([coachId, scheduledDate])
   @@index([status, scheduledDate])
@@ -582,27 +589,27 @@ model SessionNotification {
   id          String             @id @default(cuid())
   sessionId   String
   session     SessionBooking     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   // Recipients
   userId      String
   user        User               @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Notification Details
   type        NotificationType
   title       String
   message     String
-  
+
   // Status
   status      NotificationStatus @default(PENDING)
   sentAt      DateTime?
   readAt      DateTime?
-  
+
   // Delivery Method
   method      NotificationMethod @default(EMAIL)
-  
+
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
-  
+
   @@index([userId, status])
   @@index([sessionId])
 }
@@ -612,17 +619,17 @@ model SessionReminder {
   id          String         @id @default(cuid())
   sessionId   String
   session     SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   // Reminder Timing
   reminderType ReminderType
   scheduledFor DateTime
-  
+
   // Status
   sent        Boolean        @default(false)
   sentAt      DateTime?
-  
+
   createdAt   DateTime       @default(now())
-  
+
   @@index([scheduledFor, sent])
   @@index([sessionId])
 }

@@ -60,16 +60,27 @@ export async function POST(request: NextRequest) {
 
     // Créer une demande de changement d'abonnement
     // (sera activée après paiement)
-    const pendingSubscription = await prisma.subscription.create({
-      data: {
-        studentId,
-        planName: newPlan,
-        monthlyPrice: planData.price,
-        creditsPerMonth: planData.credits,
-        status: 'INACTIVE', // Sera activé après paiement
-        startDate: new Date(),
-        ariaSubjects: JSON.stringify(['MATHEMATIQUES']) // Par défaut en JSON
+    const pendingSubscription = await prisma.$transaction(async (tx) => {
+      const created = await tx.subscription.create({
+        data: {
+          studentId,
+          planName: newPlan,
+          monthlyPrice: planData.price,
+          creditsPerMonth: planData.credits,
+          status: 'INACTIVE',
+          startDate: new Date(),
+          ariaSubjects: JSON.stringify(['MATHEMATIQUES'])
+        }
+      });
+      // Eligibilité garantie: plans annuels
+      const isAnnual = /ANNUEL/i.test(newPlan) || ['IMMERSION_ANNUEL', 'HYBRIDE_ANNUEL', 'PREMIUM_ANNUEL'].includes(newPlan);
+      if (isAnnual) {
+        await tx.student.update({
+          where: { id: student.id },
+          data: { guaranteeEligible: true }
+        });
       }
+      return created;
     });
 
     return NextResponse.json({

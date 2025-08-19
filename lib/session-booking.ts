@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { PrismaClient } from '@prisma/client';
 // import { sendEmail } from '@/lib/email';
 
 export interface AvailableSlot {
@@ -30,7 +29,7 @@ export interface SessionBookingData {
 }
 
 export class SessionBookingService {
-  
+
   /**
    * Get available time slots for a specific coach and date range
    */
@@ -106,31 +105,31 @@ export class SessionBookingService {
     });
 
     const availableSlots: AvailableSlot[] = [];
-    
+
     // Generate available slots for each day in the range
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
       const dayOfWeek = currentDate.getDay();
-      
+
       // Check for specific date availability first
       const specificAvailability = availability.filter(
-        (av: { specificDate: Date | null }) =>
+        (av: { specificDate: Date | null; }) =>
           av.specificDate &&
           av.specificDate.toDateString() === currentDate.toDateString()
       );
-      
+
       // If no specific availability, check recurring availability
-      const recurringAvailability = specificAvailability.length === 0 
+      const recurringAvailability = specificAvailability.length === 0
         ? availability.filter(
-            (av: any) => av.isRecurring && 
+          (av: any) => av.isRecurring &&
             av.dayOfWeek === dayOfWeek &&
             (!av.validFrom || av.validFrom <= currentDate) &&
             (!av.validUntil || av.validUntil >= currentDate)
-          )
+        )
         : [];
-      
+
       const dayAvailability = [...specificAvailability, ...recurringAvailability];
-      
+
       for (const slot of dayAvailability) {
         // Check if subject matches if specified
         if (subject && !coachSubjects.includes(subject)) {
@@ -138,16 +137,16 @@ export class SessionBookingService {
         }
 
         // Check if slot is not booked
-        const isBooked = bookedSlots.some((booking: { scheduledDate: Date; startTime: string; endTime: string }) => 
+        const isBooked = bookedSlots.some((booking: { scheduledDate: Date; startTime: string; endTime: string; }) =>
           booking.scheduledDate.toDateString() === currentDate.toDateString() &&
           this.timesOverlap(
-            slot.startTime, 
-            slot.endTime, 
-            booking.startTime, 
+            slot.startTime,
+            slot.endTime,
+            booking.startTime,
             booking.endTime
           )
         );
-        
+
         if (!isBooked) {
           availableSlots.push({
             coachId: slot.coachId,
@@ -161,10 +160,10 @@ export class SessionBookingService {
           });
         }
       }
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    
+
     return availableSlots;
   }
 
@@ -215,7 +214,7 @@ export class SessionBookingService {
 
     // Filter coaches who have actual availability and format response
     return coaches
-      .filter((coach: { coachAvailabilities: any[] }) => coach.coachAvailabilities.length > 0)
+      .filter((coach: { coachAvailabilities: any[]; }) => coach.coachAvailabilities.length > 0)
       .map((coach: any) => ({
         id: coach.id,
         firstName: coach.firstName,
@@ -239,7 +238,7 @@ export class SessionBookingService {
         data.endTime,
         tx as any
       );
-      
+
       if (!isAvailable) {
         throw new Error('Time slot is not available');
       }
@@ -338,7 +337,7 @@ export class SessionBookingService {
    */
   static async sendScheduledReminders(): Promise<void> {
     const now = new Date();
-    
+
     const dueReminders = await prisma.sessionReminder.findMany({
       where: {
         sent: false,
@@ -358,7 +357,7 @@ export class SessionBookingService {
     for (const reminder of dueReminders) {
       try {
         await this.sendReminder(reminder);
-        
+
         await prisma.sessionReminder.update({
           where: { id: reminder.id },
           data: {
@@ -374,9 +373,9 @@ export class SessionBookingService {
 
   // Helper methods
   private static timesOverlap(
-    start1: string, 
-    end1: string, 
-    start2: string, 
+    start1: string,
+    end1: string,
+    start2: string,
     end2: string
   ): boolean {
     return start1 < end2 && end1 > start2;
@@ -385,10 +384,10 @@ export class SessionBookingService {
   private static calculateDuration(startTime: string, endTime: string): number {
     const [startHour, startMin] = startTime.split(':').map(Number);
     const [endHour, endMin] = endTime.split(':').map(Number);
-    
+
     const startMinutes = startHour * 60 + startMin;
     const endMinutes = endHour * 60 + endMin;
-    
+
     return endMinutes - startMinutes;
   }
 
@@ -503,7 +502,7 @@ export class SessionBookingService {
 
   private static async createSessionReminders(session: any, tx: any): Promise<void> {
     const sessionDateTime = new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`);
-    
+
     const reminders = [
       {
         sessionId: session.id,
@@ -529,11 +528,9 @@ export class SessionBookingService {
 
   private static async createStatusChangeNotifications(session: any, status: string): Promise<void> {
     // Implementation for status change notifications
-    console.log(`Session ${session.id} status changed to ${status}`);
   }
 
   private static async sendReminder(reminder: any): Promise<void> {
     // Implementation for sending reminders
-    console.log(`Sending reminder for session ${reminder.sessionId}`);
   }
-} 
+}

@@ -9,11 +9,14 @@
 ## 1. Vue d'Ensemble de l'Architecture Applicative
 
 ### Architecture Logicielle
-**Application Next.js 14 Full-Stack avec App Router** - Architecture moderne utilisant le nouveau système de routage basé sur les dossiers avec support SSR/SSG intégré.
+
+**Application Next.js 14 Full-Stack avec App Router** - Architecture moderne
+utilisant le nouveau système de routage basé sur les dossiers avec support
+SSR/SSG intégré.
 
 ### Structure des Dossiers Principaux
 
-```
+```bash
 /home/project/
 ├── app/                          # App Router Next.js 14 - Pages et API Routes
 │   ├── api/                      # API Routes backend
@@ -44,6 +47,7 @@
 ```
 
 **Rôle de chaque dossier :**
+
 - **`/app`** : Routage et API backend Next.js 14
 - **`/components`** : Interface utilisateur modulaire
 - **`/lib`** : Logique métier centralisée et utilitaires
@@ -56,9 +60,11 @@
 
 ### Schéma Final Complet
 
-Le schéma Prisma final implémenté se trouve dans `prisma/schema.prisma` avec les modèles suivants :
+Le schéma Prisma final implémenté se trouve dans `prisma/schema.prisma` avec
+les modèles suivants :
 
 **Modèles Principaux :**
+
 - `User` : Utilisateurs système (tous rôles)
 - `ParentProfile`, `StudentProfile`, `CoachProfile` : Profils spécialisés
 - `Student` : Entité métier élève (liée au parent)
@@ -72,6 +78,7 @@ Le schéma Prisma final implémenté se trouve dans `prisma/schema.prisma` avec 
 ### Logique des Relations Clés
 
 **Parent -> Élève(s) (un-à-plusieurs) :**
+
 ```prisma
 model ParentProfile {
   children Student[] // Un parent peut avoir plusieurs enfants
@@ -84,6 +91,7 @@ model Student {
 ```
 
 **Élève -> Coach(s) (plusieurs-à-plusieurs) :**
+
 ```prisma
 model Session {
   studentId String
@@ -92,9 +100,11 @@ model Session {
   coach     CoachProfile @relation(fields: [coachId], references: [id])
 }
 ```
+
 *Relation gérée via la table de liaison `Session` qui représente les cours.*
 
 **Réservation -> Élève et Coach :**
+
 ```prisma
 model Session {
   id        String @id @default(cuid())
@@ -107,9 +117,11 @@ model Session {
 ### Processus de Migration
 
 **Commande de déploiement confirmée :**
+
 ```bash
 npx prisma migrate deploy
 ```
+
 Cette commande applique toutes les migrations en production sans interaction utilisateur.
 
 ---
@@ -119,18 +131,22 @@ Cette commande applique toutes les migrations en production sans interaction uti
 ### Fournisseurs d'Authentification
 
 **Provider configuré :**
+
 - **Credentials Provider** : Email/Password uniquement
 - Configuration dans `lib/auth.ts` avec validation bcrypt
 
 ### Logique des Rôles et Permissions
 
 **Attribution des rôles :**
+
 - **Lors de l'inscription** : Le formulaire "Bilan Gratuit" crée automatiquement :
   - User parent avec `role: 'PARENT'`
   - User élève avec `role: 'ELEVE'`
-- **Création manuelle** : Les autres rôles (ADMIN, ASSISTANTE, COACH) sont créés manuellement en base
+- **Création manuelle** : Les autres rôles (ADMIN, ASSISTANTE, COACH) sont
+créés manuellement en base
 
 **Protection des routes :**
+
 ```typescript
 // Stratégie implémentée dans les API Routes
 const session = await getServerSession(authOptions)
@@ -139,11 +155,13 @@ if (!session || session.user.role !== 'REQUIRED_ROLE') {
 }
 ```
 
-**Middleware de protection :** À implémenter pour protéger les pages dashboard selon le rôle.
+**Middleware de protection :** À implémenter pour protéger les pages dashboard
+selon le rôle.
 
 ### Gestion de la Session
 
 **Stratégie JWT confirmée :**
+
 ```typescript
 session: {
   strategy: 'jwt' // Tokens signés, pas de stockage en base
@@ -161,6 +179,7 @@ session: {
 1. **Validation** : Schéma Zod `bilanGratuitSchema`
 2. **Vérification unicité** : Email parent n'existe pas
 3. **Transaction Prisma** :
+
    ```typescript
    // 1. Création User parent
    const parentUser = await tx.user.create({
@@ -187,12 +206,14 @@ session: {
      data: { parentId: parentProfile.id, userId: studentUser.id, ... }
    })
    ```
+
 4. **Email de bienvenue** : Envoi via `lib/email.ts`
 
 ### Flux de Paiement
 
 **Konnect (Local) - Architecture préparée :**
-```
+
+```bash
 1. Frontend → POST /api/payments/konnect
 2. API interne → Création session Konnect
 3. Redirection → Page paiement Konnect
@@ -201,7 +222,8 @@ session: {
 ```
 
 **Wise (International) - Processus semi-automatisé :**
-```
+
+```bash
 1. Affichage coordonnées bancaires Wise
 2. Création Payment avec status: 'PENDING'
 3. Back-office assistante → Validation manuelle
@@ -215,6 +237,7 @@ session: {
 ### Appel à l'API OpenAI
 
 **Sécurité confirmée :**
+
 - `OPENAI_API_KEY` utilisée **uniquement côté backend** dans `/api/aria/chat/route.ts`
 - **Jamais exposée côté client**
 - Appels via `lib/aria.ts` avec client OpenAI sécurisé
@@ -222,11 +245,14 @@ session: {
 ### Architecture RAG (Retrieval-Augmented Generation)
 
 **État actuel :**
-- **Base vectorielle** : Préparée avec modèle `PedagogicalContent` incluant champ `embedding Float[]`
+
+- **Base vectorielle** : Préparée avec modèle `PedagogicalContent` incluant
+champ `embedding Float[]`
 - **Recherche textuelle** : Implémentée comme MVP avec recherche PostgreSQL classique
 - **Migration pgvector** : Code structuré pour intégration future facile
 
 **Fonction de recherche actuelle :**
+
 ```typescript
 // lib/aria.ts - searchKnowledgeBase()
 const contents = await prisma.pedagogicalContent.findMany({
@@ -243,11 +269,15 @@ const contents = await prisma.pedagogicalContent.findMany({
 ### Logique de l'Offre
 
 **Vérification des droits ARIA :**
+
 ```typescript
 // Dans /api/aria/chat/route.ts
 const activeSubscription = student.subscriptions[0]
 if (!activeSubscription.ariaSubjects.includes(validatedData.subject)) {
-  return NextResponse.json({ error: 'Accès ARIA non autorisé' }, { status: 403 })
+  return NextResponse.json(
+    { error: 'Accès ARIA non autorisé' },
+    { status: 403 }
+  )
 }
 ```
 
@@ -293,6 +323,7 @@ NODE_ENV="production"
 ### Commandes de Build & Démarrage
 
 **Build (dans Dockerfile) :**
+
 ```bash
 npm ci --omit=dev
 npx prisma generate
@@ -300,52 +331,48 @@ npm run build
 ```
 
 **Démarrage production :**
+
 ```bash
 node server.js
 ```
-*Le fichier `server.js` est généré automatiquement par Next.js 14 avec la configuration `output: 'standalone'`.*
+
+*Le fichier `server.js` est généré automatiquement par Next.js 14 avec la
+configuration `output: 'standalone'`.*
 
 ### Dépendances Externes
 
 **Environnement serveur requis :**
+
 - **Node.js v18+** (confirmé dans Dockerfile `FROM node:18-alpine`)
 - **PostgreSQL v15+** (pour Prisma et pgvector futur)
 - **Docker & Docker Compose** (orchestration)
-
-### Points de Montage (Volumes)
-
-**Volumes Docker nécessaires :**
-```yaml
-volumes:
-  - nexus-postgres-data:/var/lib/postgresql/data  # Base de données
-  - ./uploads:/app/uploads                        # Uploads utilisateurs (futur)
-  - ./logs:/app/logs                             # Logs application (futur)
-```
-
-**Note :** Actuellement, aucun upload de fichiers n'est implémenté, mais la structure est prête.
 
 ---
 
 ## 7. Points d'Attention pour le Déploiement
 
 ### Sécurité
+
 - Toutes les API Routes sont protégées par vérification de session
 - Mots de passe hashés avec bcrypt (12 rounds)
 - Variables sensibles jamais exposées côté client
 
 ### Performance
+
 - Images optimisées avec Next.js Image component
 - Composants React optimisés avec Framer Motion
 - Base de données indexée sur les requêtes fréquentes
 
 ### Monitoring
+
 - Logs structurés dans les API Routes
 - Gestion d'erreurs centralisée
 - Prêt pour intégration monitoring (Sentry, etc.)
 
 ---
 
-**Cette architecture garantit une application robuste, sécurisée et prête pour la mise en production sur votre VPS dédié.**
+**Cette architecture garantit une application robuste, sécurisée et prête pour
+la mise en production sur votre VPS dédié.**
 
 ---
 

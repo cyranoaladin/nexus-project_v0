@@ -1,6 +1,7 @@
+import { Providers } from "@/components/providers";
+import 'katex/dist/katex.min.css';
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
-import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const inter = Inter({

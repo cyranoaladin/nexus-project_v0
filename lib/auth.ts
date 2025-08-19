@@ -10,7 +10,7 @@ const generateSecret = () => {
   if (process.env.NEXTAUTH_SECRET) {
     return process.env.NEXTAUTH_SECRET;
   }
-  
+
   // Generate a random secret for development
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -31,62 +31,36 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials) {
-        // === LOG DE DÉBOGAGE N°1 ===
-        console.log("--- [AUTHORIZE START] ---");
-        console.log("Credentials received:", credentials);
-
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
-          console.error("[AUTHORIZE ERROR] Missing credentials");
           return null;
         }
-
         try {
           const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email
-            },
-            include: {
-              parentProfile: true,
-              studentProfile: true,
-              coachProfile: true
-            }
+            where: { email: credentials.email },
           });
 
-          // === LOG DE DÉBOGAGE N°2 ===
-          console.log("User found in DB:", user);
+          if (user && user.password) {
+            const isPasswordValid = await bcrypt.compare(
+              credentials.password,
+              user.password
+            );
 
-          if (!user || !user.password) {
-            console.error("[AUTHORIZE ERROR] User not found or no password set");
-            return null;
-          }
-
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-
-          // === LOG DE DÉBOGAGE N°3 ===
-          console.log("Is password valid:", isPasswordValid);
-
-          if (isPasswordValid) {
-            console.log("--- [AUTHORIZE SUCCESS] ---");
-            return {
-              id: user.id,
-              email: user.email,
-              role: user.role,
-              firstName: user.firstName ?? undefined,
-              lastName: user.lastName ?? undefined,
-            };
-          } else {
-            console.error("[AUTHORIZE ERROR] Invalid password");
-            return null;
+            if (isPasswordValid) {
+              return {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                firstName: user.firstName || undefined,
+                lastName: user.lastName || undefined,
+              };
+            }
           }
         } catch (error) {
-          // === LOG DE DÉBOGAGE N°4 ===
-          console.error("--- [AUTHORIZE CATCH ERROR] ---", error);
+          console.error("[AUTHORIZE ERROR]", error);
           return null;
         }
+        return null;
       }
     })
   ],
@@ -95,45 +69,37 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // === LOG DE DÉBOGAGE N°5 ===
-      console.log("--- [JWT CALLBACK] ---", { token, user });
-      try {
-        if (user) {
-          token.role = user.role;
-          token.firstName = user.firstName;
-          token.lastName = user.lastName;
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
+
+        // Si l'utilisateur est un élève, on cherche son profil pour récupérer les IDs
+        if (user.role === UserRole.ELEVE) {
+          const studentProfile = await prisma.student.findUnique({
+            where: { userId: user.id },
+            select: { id: true, parentId: true }
+          });
+          if (studentProfile) {
+            token.studentId = studentProfile.id;
+            token.parentId = studentProfile.parentId;
+          }
         }
-        return token;
-      } catch (error) {
-        console.error('JWT callback error:', error);
-        return token;
       }
+      return token;
     },
     async session({ session, token }) {
-      // === LOG DE DÉBOGAGE N°6 ===
-      console.log("--- [SESSION CALLBACK] ---", { session, token });
-      try {
-        if (token) {
-          session.user.id = token.sub!;
-          session.user.role = token.role as UserRole;
-          session.user.firstName = token.firstName as string;
-          session.user.lastName = token.lastName as string;
-        }
-        return session;
-      } catch (error) {
-        console.error('Session callback error:', error);
-        // Return a basic session if there's an error
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            id: token?.sub || 'unknown',
-            role: 'PARENT' as UserRole,
-            firstName: token?.firstName as string || '',
-            lastName: token?.lastName as string || ''
-          }
-        };
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
+        // On ajoute les IDs à la session
+        session.user.studentId = token.studentId as string | null;
+        session.user.parentId = token.parentId as string | null;
       }
+      return session;
     }
   },
   pages: {

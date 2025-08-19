@@ -1,9 +1,37 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+function safeEqual(a: string, b: string) {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Lire le corps brut pour vérifier la signature
+    const rawBody = await request.text();
+
+    // Vérification de la signature (sécurité)
+    const signatureHeader = request.headers.get('x-konnect-signature') || request.headers.get('X-Konnect-Signature');
+    const secret = process.env.KONNECT_WEBHOOK_SECRET;
+
+    if (!secret || !signatureHeader) {
+      return NextResponse.json({ error: 'Signature manquante' }, { status: 401 });
+    }
+
+    const computed = crypto
+      .createHmac('sha256', secret)
+      .update(rawBody, 'utf8')
+      .digest('hex');
+
+    if (!safeEqual(signatureHeader, computed)) {
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
 
     // Validation basique du webhook Konnect
     const { payment_id, status, amount, currency } = body;

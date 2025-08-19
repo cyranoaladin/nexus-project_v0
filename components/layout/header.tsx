@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,6 +33,7 @@ export function Header() {
 
   const navigation = [
     { name: "Accueil", href: "/" },
+    { name: "Assistant IA", href: "/aria" },
     { name: "Notre Équipe", href: "/equipe" },
     { name: "Offres & Tarifs", href: "/offres" },
     { name: "Notre Centre", href: "/notre-centre" },

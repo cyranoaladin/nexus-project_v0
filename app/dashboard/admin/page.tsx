@@ -9,14 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Activity,
-  BarChart3,
+  BarChart,
   CreditCard,
   Database,
-  FileText,
-  Globe,
   Loader2,
   LogOut,
-  Mail,
   Settings,
   Shield,
   TestTube,
@@ -27,55 +24,27 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-interface AdminDashboardData {
-  stats: {
-    totalUsers: number;
-    totalStudents: number;
-    totalCoaches: number;
-    totalAssistants: number;
-    totalParents: number;
-    currentMonthRevenue: number;
-    lastMonthRevenue: number;
-    revenueGrowthPercent: number;
-    totalSubscriptions: number;
-    activeSubscriptions: number;
-    totalSessions: number;
-    thisMonthSessions: number;
-    lastMonthSessions: number;
-    sessionGrowthPercent: number;
-  };
-  systemHealth: {
-    database: string;
-    sessions: string;
-    payments: string;
-    subscriptions: string;
-  };
-  recentActivities: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    time: string;
-    status: string;
-    studentName: string;
-    coachName: string;
-    subject: string;
-    action: string;
-  }>;
-  userGrowth: Array<{
-    month: string;
-    count: number;
-  }>;
-  revenueGrowth: Array<{
-    month: string;
-    amount: number;
-  }>;
+interface DashboardData {
+  totalUsers: number;
+  totalStudents: number;
+  totalCoaches: number;
+  totalParents: number;
+  totalRevenue: number;
+  revenueLast30Days: number;
+  totalSubscriptions: number;
+  recentActivities: any[];
+  userGrowth: any[];
+  revenueGrowth: any[];
+  totalAssistants: number;
+  thisMonthSessions: number;
+  sessionGrowthPercent: number;
+  totalSessions: number;
 }
 
 export default function DashboardAdmin() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [adminData, setAdminData] = useState<AdminDashboardData | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,15 +60,15 @@ export default function DashboardAdmin() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/admin/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch admin dashboard data');
         }
-        
+
         const data = await response.json();
-        setAdminData(data);
+        setData(data);
       } catch (err) {
         console.error('Error fetching admin dashboard data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -189,25 +158,25 @@ export default function DashboardAdmin() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-blue-600">
-                    {adminData?.stats?.totalParents || 0}
+                    {data?.totalParents || 0}
                   </div>
                   <p className="text-xs md:text-sm text-gray-500 mt-1">Parents</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-green-600">
-                    {adminData?.stats?.totalStudents || 0}
+                    {data?.totalStudents || 0}
                   </div>
                   <p className="text-xs md:text-sm text-gray-500 mt-1">Élèves</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-purple-600">
-                    {adminData?.stats?.totalCoaches || 0}
+                    {data?.totalCoaches || 0}
                   </div>
                   <p className="text-xs md:text-sm text-gray-500 mt-1">Coachs</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-orange-600">
-                    {adminData?.stats?.totalAssistants || 0}
+                    {data?.totalAssistants || 0}
                   </div>
                   <p className="text-xs md:text-sm text-gray-500 mt-1">Assistantes</p>
                 </div>
@@ -215,7 +184,7 @@ export default function DashboardAdmin() {
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <div className="text-center">
                   <div className="text-lg md:text-xl font-bold text-gray-900">
-                    {adminData?.stats?.totalUsers || 0}
+                    {data?.totalUsers || 0}
                   </div>
                   <p className="text-xs md:text-sm text-gray-500">Total Utilisateurs</p>
                 </div>
@@ -230,10 +199,10 @@ export default function DashboardAdmin() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-green-600">
-                {adminData?.stats?.currentMonthRevenue?.toLocaleString() || 0} TND
+                {data?.totalRevenue?.toLocaleString() || 0} TND
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {adminData?.stats?.revenueGrowthPercent && adminData.stats.revenueGrowthPercent > 0 ? '+' : ''}{adminData?.stats?.revenueGrowthPercent || 0}% par rapport au mois dernier
+                +{data?.revenueLast30Days?.toLocaleString() || 0} TND ce mois-ci
               </p>
             </CardContent>
           </Card>
@@ -245,7 +214,7 @@ export default function DashboardAdmin() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-purple-600">
-                {adminData?.stats?.activeSubscriptions || 0}
+                {data?.totalSubscriptions || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Taux de rétention: 94%
@@ -263,10 +232,10 @@ export default function DashboardAdmin() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-blue-600">
-                {adminData?.stats?.thisMonthSessions || 0}
+                {data?.thisMonthSessions || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {adminData?.stats?.sessionGrowthPercent && adminData.stats.sessionGrowthPercent > 0 ? '+' : ''}{adminData?.stats?.sessionGrowthPercent || 0}% par rapport au mois dernier
+                {data?.sessionGrowthPercent && data.sessionGrowthPercent > 0 ? '+' : ''}{data?.sessionGrowthPercent || 0}% par rapport au mois dernier
               </p>
             </CardContent>
           </Card>
@@ -278,7 +247,7 @@ export default function DashboardAdmin() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-indigo-600">
-                {adminData?.stats?.totalSessions || 0}
+                {data?.totalSessions || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Toutes sessions confondues
@@ -293,7 +262,7 @@ export default function DashboardAdmin() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-orange-600">
-                {adminData?.stats?.totalSubscriptions || 0}
+                {data?.totalSubscriptions || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Tous abonnements confondus
@@ -327,6 +296,18 @@ export default function DashboardAdmin() {
                 </Button>
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
+                  <Link href="/dashboard/admin/rag-management">
+                    <div className="flex items-center space-x-3">
+                      <Database className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Ingestion Docs RAG</p>
+                        <p className="text-xs md:text-sm text-gray-500">Ajouter des fichiers .md à la base</p>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
                   <Link href="/dashboard/admin/users">
                     <div className="flex items-center space-x-3">
                       <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
@@ -353,7 +334,7 @@ export default function DashboardAdmin() {
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
                   <Link href="/dashboard/admin/analytics">
                     <div className="flex items-center space-x-3">
-                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <BarChart className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Analytics</p>
                         <p className="text-xs md:text-sm text-gray-500">Métriques détaillées</p>
@@ -374,9 +355,9 @@ export default function DashboardAdmin() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {adminData?.recentActivities && adminData.recentActivities.length > 0 ? (
+              {data?.recentActivities && data.recentActivities.length > 0 ? (
                 <div className="space-y-3 md:space-y-4">
-                  {adminData.recentActivities.slice(0, 4).map((activity: any, index: number) => (
+                  {data.recentActivities.slice(0, 4).map((activity: any, index: number) => (
                     <div key={activity.id || index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                       <div className="flex-shrink-0">
                         {activity.type === 'session' && <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />}
@@ -400,12 +381,12 @@ export default function DashboardAdmin() {
                           activity.status === 'COMPLETED'
                             ? 'default'
                             : activity.status === 'SUCCESS'
-                            ? 'success'
-                            : activity.status === 'WARNING'
-                            ? 'warning'
-                            : activity.status === 'DESTRUCTIVE'
-                            ? 'destructive'
-                            : 'outline'
+                              ? 'success'
+                              : activity.status === 'WARNING'
+                                ? 'warning'
+                                : activity.status === 'DESTRUCTIVE'
+                                  ? 'destructive'
+                                  : 'outline'
                         }
                         className="ml-2 text-xs"
                       >
@@ -413,12 +394,12 @@ export default function DashboardAdmin() {
                       </Badge>
                     </div>
                   ))}
-                  
-                  {adminData.recentActivities.length > 4 && (
+
+                  {data.recentActivities.length > 4 && (
                     <div className="text-center pt-4">
                       <Button variant="outline" size="sm" asChild>
                         <Link href="/dashboard/admin/activities">
-                          Voir toutes les activités ({adminData.recentActivities.length})
+                          Voir toutes les activités ({data.recentActivities.length})
                         </Link>
                       </Button>
                     </div>

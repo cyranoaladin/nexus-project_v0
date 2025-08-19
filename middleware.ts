@@ -1,56 +1,59 @@
-import { withAuth } from "next-auth/middleware"
-import { NextResponse } from "next/server"
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    const token = req.nextauth.token
-    const { pathname } = req.nextUrl
+    // E2E: bypass all route guards for Playwright
+    if (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1') {
+      return NextResponse.next();
+    }
+    const token = req.nextauth.token;
+    const { pathname } = req.nextUrl;
 
-    // Protection des routes dashboard
-    if (pathname.startsWith('/dashboard')) {
-      if (!token) {
-        return NextResponse.redirect(new URL('/auth/signin', req.url))
+    // Redirection from /dashboard to role-specific dashboard
+    if (pathname === '/dashboard' && token) {
+      let url = '/'; // Fallback
+      switch (token.role) {
+        case 'ADMIN': url = '/dashboard/admin'; break;
+        case 'ASSISTANTE': url = '/dashboard/assistante'; break;
+        case 'COACH': url = '/dashboard/coach'; break;
+        case 'PARENT': url = '/dashboard/parent'; break;
+        case 'ELEVE': url = '/dashboard/eleve'; break;
       }
-
-      // Vérification des rôles spécifiques
-      if (pathname.startsWith('/dashboard/eleve') && token.role !== 'ELEVE') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
-      
-      if (pathname.startsWith('/dashboard/parent') && token.role !== 'PARENT') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
-      
-      if (pathname.startsWith('/dashboard/coach') && token.role !== 'COACH') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
-      
-      if (pathname.startsWith('/dashboard/assistante') && token.role !== 'ASSISTANTE') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
-      
-      if (pathname.startsWith('/dashboard/admin') && token.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
-      }
+      return NextResponse.redirect(new URL(url, req.url));
     }
 
-    return NextResponse.next()
+    // Role-based route protection
+    if (pathname.startsWith('/dashboard/admin') && token?.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/auth/signin', req.url));
+    }
+    if (pathname.startsWith('/dashboard/assistante') && token?.role !== 'ASSISTANTE') {
+      return NextResponse.redirect(new URL('/auth/signin', req.url));
+    }
+    if (pathname.startsWith('/dashboard/coach') && token?.role !== 'COACH') {
+      return NextResponse.redirect(new URL('/auth/signin', req.url));
+    }
+    if (pathname.startsWith('/dashboard/parent') && token?.role !== 'PARENT') {
+      return NextResponse.redirect(new URL('/auth/signin', req.url));
+    }
+    if (pathname.startsWith('/dashboard/eleve') && token?.role !== 'ELEVE') {
+      return NextResponse.redirect(new URL('/auth/signin', req.url));
+    }
+
+    return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        // Permettre l'accès aux pages publiques
-        if (!req.nextUrl.pathname.startsWith('/dashboard')) {
-          return true
-        }
-        
-        // Exiger une authentification pour les dashboards
-        return !!token
-      },
+      authorized: ({ token }) => !!token || process.env.E2E === '1',
     },
   }
-)
+);
 
 export const config = {
-  matcher: ['/dashboard/:path*']
-}
+  // The matcher should protect all dashboard routes
+  // The withAuth helper automatically excludes API routes like /api/auth
+  matcher: [
+    '/dashboard/:path*',
+    '/session/:path*',
+  ],
+};

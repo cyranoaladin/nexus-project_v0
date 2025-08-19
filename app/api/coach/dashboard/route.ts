@@ -1,195 +1,114 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session || session.user.role !== 'COACH') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const coachUserId = session.user.id;
-
-    // Fetch coach profile + user
-    const coach = await prisma.coachProfile.findUnique({
-      where: { userId: coachUserId },
-      include: {
-        user: true,
-      }
+    const coachUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { coachProfile: true },
     });
-
-    if (!coach) {
-      return NextResponse.json(
-        { error: 'Coach profile not found' },
-        { status: 404 }
-      );
+    if (!coachUser?.coachProfile) {
+      return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
     }
+    const coachId = coachUser.coachProfile.id;
 
-    // Time helpers
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Today's sessions from SessionBooking
-    const todaysSessions = await prisma.sessionBooking.findMany({
-      where: {
-        coachId: coachUserId,
-        scheduledDate: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
-      },
-      include: {
-        student: true, // User
-      },
-      orderBy: [{ startTime: 'asc' }]
-    });
-
-    const todaySessions = todaysSessions.map((s: any) => ({
-      id: s.id,
-      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
-      subject: s.subject,
-      time: `${s.startTime} - ${s.endTime}`,
-      type: s.type, // INDIVIDUAL | GROUP | MASTERCLASS
-      status: s.status.toLowerCase(),
-      scheduledAt: s.scheduledDate,
-      duration: s.duration,
-    }));
-
-    // Week stats from SessionBooking
     const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Sunday as start
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
 
-    const weekSessionsRaw = await prisma.sessionBooking.findMany({
-      where: {
-        coachId: coachUserId,
-        scheduledDate: {
-          gte: weekStart,
-          lt: weekEnd,
-        },
-      },
-      include: {
-        student: true,
-      },
-      orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }]
-    });
+    const [todaySessionsRaw, weekSessionsRaw] = await Promise.all([
+      prisma.session.findMany({
+        where: { coachId, scheduledAt: { gte: startOfDay, lte: endOfDay } },
+        include: { student: { include: { user: true } } },
+        orderBy: { scheduledAt: 'asc' },
+      }),
+      prisma.session.findMany({
+        where: { coachId, scheduledAt: { gte: weekStart, lt: weekEnd } },
+        include: { student: { include: { user: true } } },
+        orderBy: { scheduledAt: 'asc' },
+      }),
+    ]);
 
-    const totalSessions = weekSessionsRaw.length;
-    const completedSessions = weekSessionsRaw.filter((s: any) => s.status === 'COMPLETED').length;
-    const upcomingSessions = weekSessionsRaw.filter((s: any) => ['SCHEDULED', 'CONFIRMED'].includes(s.status)).length;
-
-    const weekSessions = weekSessionsRaw.map((s: any) => ({
+    const todaySessions = todaySessionsRaw.map(s => ({
       id: s.id,
-      studentId: s.studentId,
-      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
+      studentName: `${s.student?.user?.firstName ?? ''} ${s.student?.user?.lastName ?? ''}`.trim(),
       subject: s.subject,
-      date: s.scheduledDate,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      duration: s.duration,
+      time: new Date(s.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
       type: s.type,
-      modality: s.modality,
-      status: s.status,
-      creditsUsed: s.creditsUsed,
-      title: s.title,
-      description: s.description ?? ''
+      status: s.status.toLowerCase(),
+      scheduledAt: s.scheduledAt.toISOString(),
+      duration: s.duration,
     }));
 
-    // Unique students this month
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    monthStart.setHours(0, 0, 0, 0);
+    const weekStats = {
+      totalSessions: weekSessionsRaw.length,
+      completedSessions: weekSessionsRaw.filter(s => s.status === 'COMPLETED').length,
+      upcomingSessions: weekSessionsRaw.filter(s => ['SCHEDULED', 'CONFIRMED'].includes(s.status)).length,
+    };
 
-    const uniqueStudentBookings = await prisma.sessionBooking.findMany({
-      where: {
-        coachId: coachUserId,
-        scheduledDate: { gte: monthStart },
+    // Optimisation N+1: Récupérer tous les élèves uniques et leurs crédits en une seule fois.
+    const uniqueStudentIds = [...new Set(weekSessionsRaw.map(s => s.studentId).filter(Boolean))] as string[];
+    const studentsWithCredits = await prisma.student.findMany({
+      where: { id: { in: uniqueStudentIds } },
+      include: {
+        user: true,
+        creditTransactions: { select: { amount: true } },
       },
-      select: { studentId: true },
-      distinct: ['studentId']
     });
 
-    // Parse subjects from JSON string stored in coach profile
-    let specialties: string[] = [];
-    try {
-      specialties = JSON.parse(coach.subjects || '[]');
-    } catch (error) {
-      specialties = [];
-    }
+    const studentDataMap = new Map(studentsWithCredits.map(s => [s.id, {
+      name: `${s.user?.firstName ?? ''} ${s.user?.lastName ?? ''}`.trim(),
+      grade: s.grade,
+      creditBalance: s.creditTransactions.reduce((sum, t) => sum + t.amount, 0),
+    }]));
 
-    // Recent students (last 30 days), fetch Student model for credit balance
-    const recentBookings = await prisma.sessionBooking.findMany({
-      where: {
-        coachId: coachUserId,
-        scheduledDate: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-      },
-      orderBy: { scheduledDate: 'desc' },
-      distinct: ['studentId'],
-      select: { studentId: true, subject: true, scheduledDate: true }
-    });
-
-    const students: Array<{ id: string; name: string; grade: string | null; subject: string; lastSession: Date; creditBalance: number; isNew: boolean; }> = [];
-
-    for (const rb of recentBookings) {
-      const studentUser = await prisma.user.findUnique({ where: { id: rb.studentId } });
-      // Find Student entity to compute credits and grade
-      const studentEntity = await prisma.student.findFirst({
-        where: { userId: rb.studentId },
-        include: { creditTransactions: true }
-      });
-
-      const creditBalance = studentEntity?.creditTransactions?.reduce((t: number, tr: any) => t + tr.amount, 0) ?? 0;
-
-      students.push({
-        id: studentEntity?.id ?? rb.studentId,
-        name: `${studentUser?.firstName ?? ''} ${studentUser?.lastName ?? ''}`.trim(),
-        grade: studentEntity?.grade ?? null,
-        subject: rb.subject,
-        lastSession: rb.scheduledDate,
-        creditBalance,
-        isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      });
-    }
+    const students = weekSessionsRaw.map(s => ({
+      id: s.studentId!,
+      name: studentDataMap.get(s.studentId!)?.name ?? 'Élève inconnu',
+      grade: studentDataMap.get(s.studentId!)?.grade ?? 'N/A',
+      creditBalance: studentDataMap.get(s.studentId!)?.creditBalance ?? 0,
+      subject: s.subject,
+      lastSession: s.scheduledAt.toISOString(),
+      isNew: new Date(s.scheduledAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    }));
 
     const dashboardData = {
       coach: {
-        id: coach.id,
-        pseudonym: coach.pseudonym,
-        tag: coach.tag,
-        firstName: coach.user.firstName,
-        lastName: coach.user.lastName,
-        email: coach.user.email,
-        specialties
+        id: coachUser.coachProfile.id,
+        pseudonym: coachUser.coachProfile.pseudonym,
+        tag: coachUser.coachProfile.tag,
+        firstName: coachUser.firstName,
+        lastName: coachUser.lastName,
+        email: coachUser.email,
+        specialties: JSON.parse(coachUser.coachProfile.subjects || '[]'),
       },
       todaySessions,
-      weekStats: {
-        totalSessions,
-        completedSessions,
-        upcomingSessions
-      },
-      weekSessions,
+      weekStats,
+      weekSessions: weekSessionsRaw,
       students,
-      uniqueStudentsCount: uniqueStudentBookings.length
+      uniqueStudentsCount: uniqueStudentIds.length,
     };
 
     return NextResponse.json(dashboardData);
 
   } catch (error) {
     console.error('Error fetching coach dashboard data:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

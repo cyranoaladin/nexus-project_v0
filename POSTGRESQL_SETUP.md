@@ -1,9 +1,11 @@
 # PostgreSQL Integration Guide
 
 ## Overview
+
 This project is configured to use PostgreSQL as the primary database. The setup includes Docker for easy development and production deployment.
 
 ## Prerequisites
+
 - Docker and Docker Compose installed
 - Node.js 18+ and npm
 - Git
@@ -11,6 +13,7 @@ This project is configured to use PostgreSQL as the primary database. The setup 
 ## Quick Start
 
 ### 1. Environment Setup
+
 Create a `.env` file in the project root with the following variables:
 
 ```env
@@ -26,12 +29,14 @@ DATABASE_PASSWORD=nexus_password
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 npm install pg @types/pg
 ```
 
 ### 3. Start PostgreSQL Database
+
 ```bash
 # Start PostgreSQL container
 npm run docker:up
@@ -41,6 +46,7 @@ docker-compose up postgres-db -d
 ```
 
 ### 4. Database Setup
+
 ```bash
 # Generate Prisma client
 npm run db:generate
@@ -53,6 +59,7 @@ npm run db:seed
 ```
 
 ### 5. Test Connection
+
 ```bash
 npm run db:test
 ```
@@ -60,6 +67,7 @@ npm run db:test
 ## Available Commands
 
 ### Database Commands
+
 - `npm run db:generate` - Generate Prisma client
 - `npm run db:push` - Push schema changes to database
 - `npm run db:migrate` - Create and apply migrations
@@ -69,6 +77,7 @@ npm run db:test
 - `npm run db:test` - Test database connection
 
 ### Docker Commands
+
 - `npm run docker:up` - Start all services
 - `npm run docker:down` - Stop all services
 - `npm run docker:logs` - View service logs
@@ -76,6 +85,7 @@ npm run db:test
 ## Database Schema
 
 The database includes the following main entities:
+
 - **Users** - Authentication and user management
 - **Students** - Student profiles and data
 - **Coaches** - Coach profiles and expertise
@@ -88,29 +98,35 @@ The database includes the following main entities:
 ## Development Workflow
 
 ### Making Schema Changes
+
 1. Modify `prisma/schema.prisma`
 2. Generate migration: `npm run db:migrate`
 3. Test changes locally
 4. Deploy to production: `npm run db:migrate:deploy`
 
 ### Database Access
-- **Prisma Studio**: `npm run db:studio` (opens at http://localhost:5555)
+
+- **Prisma Studio**: `npm run db:studio` (opens at [http://localhost:5555](http://localhost:5555))
 - **Direct Connection**: Use any PostgreSQL client with the DATABASE_URL
 
 ## Production Deployment
 
 ### Environment Variables
+
 For production, ensure these variables are set:
+
 - `DATABASE_URL` - Production PostgreSQL connection string
 - `NODE_ENV=production`
 - All other required environment variables
 
 ### Database Migration
+
 ```bash
 npm run db:migrate:deploy
 ```
 
 ### Health Checks
+
 The application includes database health checks in the `/api/health` endpoint.
 
 ## Troubleshooting
@@ -130,6 +146,7 @@ The application includes database health checks in the `/api/health` endpoint.
    - Check DATABASE_URL format
 
 ### Useful Commands
+
 ```bash
 # View database logs
 docker-compose logs postgres-db
@@ -161,12 +178,14 @@ npx prisma validate
 ## Backup and Recovery
 
 ### Backup
+
 ```bash
 # Create database backup
 docker-compose exec postgres-db pg_dump -U nexus_user nexus_reussite > backup.sql
 ```
 
 ### Restore
+
 ```bash
 # Restore from backup
 docker-compose exec -T postgres-db psql -U nexus_user nexus_reussite < backup.sql
@@ -175,6 +194,7 @@ docker-compose exec -T postgres-db psql -U nexus_user nexus_reussite < backup.sq
 ## Support
 
 For database-related issues:
+
 1. Check the troubleshooting section above
-2. Review Prisma documentation: https://www.prisma.io/docs
-3. Check PostgreSQL logs: `npm run docker:logs` 
+2. Review Prisma documentation: [https://www.prisma.io/docs](https://www.prisma.io/docs)
+3. Check PostgreSQL logs: `npm run docker:logs`

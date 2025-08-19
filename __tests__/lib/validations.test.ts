@@ -144,11 +144,15 @@ describe('Validation Schemas', () => {
   });
 
   describe('sessionBookingSchema', () => {
+    // Génère une date valide pour les tests, 3 heures dans le futur
+    const futureDate = new Date();
+    futureDate.setHours(futureDate.getHours() + 3);
+
     const validSessionData = {
       coachId: 'coach-123',
       subject: 'MATHEMATIQUES' as Subject,
       type: 'COURS_ONLINE',
-      scheduledAt: '2024-12-15T14:00:00.000Z',
+      scheduledAt: futureDate.toISOString(),
       duration: 60,
       title: 'Cours de mathématiques',
       description: 'Révision des équations du second degré'

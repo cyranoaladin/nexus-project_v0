@@ -7,6 +7,7 @@ Suite à votre directive pour l'implémentation d'une suite de tests automatisé
 ## 🎯 Objectifs Atteints
 
 ### ✅ Configuration de l'Environnement de Test
+
 - **Jest** configuré avec React Testing Library pour les tests unitaires et d'intégration
 - **Playwright** configuré pour les tests End-to-End
 - **Mocking système** mis en place pour isoler les tests des services externes
@@ -15,6 +16,7 @@ Suite à votre directive pour l'implémentation d'une suite de tests automatisé
 ### ✅ Tests Unitaires Implémentés
 
 #### Module `lib/credits.ts`
+
 - **calculateCreditCost()** : Validation des coûts selon le type de prestation
   - ✓ Cours en ligne : 1 crédit
   - ✓ Cours présentiel : 1.25 crédits
@@ -24,6 +26,7 @@ Suite à votre directive pour l'implémentation d'une suite de tests automatisé
 - **refundCredits()** : Remboursement lors d'annulations
 
 #### Module `lib/validations.ts`
+
 - **bilanGratuitSchema** : Validation complète du formulaire d'inscription
 - **signinSchema** : Validation connexion avec gestion erreurs
 - **sessionBookingSchema** : Validation réservation de sessions
@@ -33,12 +36,14 @@ Suite à votre directive pour l'implémentation d'une suite de tests automatisé
 ### ✅ Tests d'Intégration API
 
 #### `/api/bilan-gratuit`
+
 - **Inscription réussie** : Création parent + élève avec transaction atomique
 - **Email déjà existant** : Retour erreur 409 (Conflict)
 - **Validation des données** : Contrôle Zod avec messages d'erreur appropriés
 - **Gestion des erreurs DB** : Rollback en cas d'échec
 
 #### `/api/sessions/book`
+
 - **Réservation avec solde suffisant** : Création session + débit crédits
 - **Solde insuffisant** : Erreur 400 avec message explicite
 - **Contrôle d'authentification** : Vérification rôle ELEVE
@@ -48,25 +53,31 @@ Suite à votre directive pour l'implémentation d'une suite de tests automatisé
 ### ✅ Tests End-to-End (Playwright)
 
 #### Scénario 1 : Parcours d'Authentification
-```
+
+```text
 Homepage → Bilan Gratuit → Inscription → Dashboard → Déconnexion → Reconnexion
 ```
+
 - Validation formulaires en temps réel
 - Gestion des erreurs de connexion
 - Persistance de session
 
 #### Scénario 2 : Sélection d'Offres
-```
+
+```text
 Dashboard → Offres → Sélection Hybride → Tunnel Paiement → Simulation Konnect/Wise
 ```
+
 - Navigation fluide entre les étapes
 - Validation des méthodes de paiement
 - Gestion utilisateurs non connectés
 
 #### Scénario 3 : Interaction ARIA
-```
+
+```text
 Homepage → Chat ARIA → 3 Questions → Limite Atteinte → Invitation Inscription
 ```
+
 - Limitation utilisateurs anonymes
 - Questions illimitées pour utilisateurs connectés
 - Gestion des erreurs et états de chargement
@@ -74,16 +85,19 @@ Homepage → Chat ARIA → 3 Questions → Limite Atteinte → Invitation Inscri
 ## 📊 Métriques de Qualité
 
 ### Couverture de Code
+
 - **Tests Unitaires** : 100% des fonctions critiques
 - **Tests d'Intégration** : Tous les endpoints principaux
 - **Tests E2E** : 3 parcours utilisateur complets
 
 ### Performance des Tests
+
 - **Tests Unitaires** : < 1s par suite
 - **Tests d'Intégration** : < 5s par suite
 - **Tests E2E** : < 30s par scénario
 
 ### Fiabilité
+
 - **0 tests flaky** : Tous les tests sont stables
 - **Isolation complète** : Aucune dépendance entre tests
 - **Cleanup automatique** : Reset des données entre tests
@@ -91,6 +105,7 @@ Homepage → Chat ARIA → 3 Questions → Limite Atteinte → Invitation Inscri
 ## 🛠 Infrastructure Technique
 
 ### Configuration Jest
+
 ```javascript
 // Environnement Next.js optimisé
 // Mocking automatique des dépendances externes
@@ -99,6 +114,7 @@ Homepage → Chat ARIA → 3 Questions → Limite Atteinte → Invitation Inscri
 ```
 
 ### Configuration Playwright
+
 ```javascript
 // Multi-navigateurs (Chrome, Firefox, Safari)
 // Screenshots automatiques en cas d'échec
@@ -107,6 +123,7 @@ Homepage → Chat ARIA → 3 Questions → Limite Atteinte → Invitation Inscri
 ```
 
 ### Utilitaires de Test
+
 - **Factory Pattern** : Création de données de test réutilisables
 - **Database Seeding** : Jeux de données cohérents
 - **Mock Centralisé** : Configuration uniforme des mocks
@@ -127,6 +144,7 @@ npm run test:e2e:ui       # Interface graphique
 ## 🔧 Exemples d'Implémentation
 
 ### Test Unitaire Représentatif
+
 ```typescript
 it('should return 1.25 for a presential course', () => {
   const cost = calculateCreditCost('COURS_PRESENTIEL')
@@ -135,6 +153,7 @@ it('should return 1.25 for a presential course', () => {
 ```
 
 ### Test d'Intégration Représentatif
+
 ```typescript
 it('should return 400 when student has insufficient credits', async () => {
   // Setup: Étudiant avec 1 crédit
@@ -144,6 +163,7 @@ it('should return 400 when student has insufficient credits', async () => {
 ```
 
 ### Test E2E Représentatif
+
 ```typescript
 it('should limit anonymous users to 3 questions', async ({ page }) => {
   // Navigation → Chat ARIA → 3 Questions → Limitation
@@ -153,7 +173,7 @@ it('should limit anonymous users to 3 questions', async ({ page }) => {
 
 ## 📁 Structure Finale
 
-```
+```text
 ├── __tests__/
 │   ├── lib/                 # Tests unitaires
 │   ├── api/                 # Tests d'intégration
@@ -168,18 +188,21 @@ it('should limit anonymous users to 3 questions', async ({ page }) => {
 ## 🎯 Validation des Exigences
 
 ### ✅ Exigences Fonctionnelles
+
 - [x] Tests de la logique métier des crédits
 - [x] Tests des validations Zod
 - [x] Tests des API routes critiques
 - [x] Tests des parcours utilisateur complets
 
 ### ✅ Exigences Techniques
+
 - [x] Stack recommandée (Jest + RTL + Playwright)
 - [x] Mocking des services externes
 - [x] Base de données de test isolée
 - [x] Configuration CI/CD ready
 
 ### ✅ Exigences Qualité
+
 - [x] Couverture de code > 80%
 - [x] Tests rapides et fiables
 - [x] Documentation complète

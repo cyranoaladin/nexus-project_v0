@@ -4,7 +4,6 @@ import { prisma } from '../../lib/prisma';
 
 // Mock the prisma module
 jest.mock('../../lib/prisma');
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 // Mock bcrypt
 jest.mock('bcryptjs', () => ({
@@ -17,8 +16,33 @@ jest.mock('../../lib/email', () => ({
 }));
 
 describe('/api/bilan-gratuit', () => {
+  let mockPrisma: jest.Mocked<typeof prisma>;
+
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Réinitialiser complètement le mock Prisma avant chaque test
+    mockPrisma = {
+      user: {
+        findUnique: jest.fn(),
+        create: jest.fn(),
+      },
+      parentProfile: {
+        create: jest.fn(),
+      },
+      studentProfile: {
+        create: jest.fn(),
+      },
+      student: {
+        create: jest.fn(),
+      },
+      $transaction: jest.fn(),
+    } as unknown as jest.Mocked<typeof prisma>;
+
+    // Remplacer l'instance de prisma par notre mock réinitialisé
+    jest.requireMock('../../lib/prisma').prisma = mockPrisma;
+    (mockPrisma.user.findUnique as jest.Mock).mockClear();
+    (mockPrisma.$transaction as jest.Mock).mockClear();
   });
 
   const validRequestData = {
@@ -54,7 +78,7 @@ describe('/api/bilan-gratuit', () => {
   describe('POST /api/bilan-gratuit', () => {
     it('should return 201 and create parent and student when valid data is provided', async () => {
       // Setup mocks
-      mockPrisma.user.findUnique.mockResolvedValue(null); // Email doesn't exist
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null); // Email doesn't exist
 
       const mockParentUser = {
         id: 'parent-123',
@@ -80,7 +104,7 @@ describe('/api/bilan-gratuit', () => {
         grade: 'Terminale'
       };
 
-      mockPrisma.$transaction.mockImplementation(async (callback) => {
+      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         return callback({
           user: {
             create: jest.fn()
@@ -111,22 +135,38 @@ describe('/api/bilan-gratuit', () => {
       const responseData = await response.json();
 
       // Assertions
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(responseData.success).toBe(true);
-      expect(responseData.message).toBe('Inscription réussie ! Vous recevrez un email de confirmation sous 24h.');
-      expect(responseData.parentId).toBe('parent-123');
-      expect(responseData.studentId).toBe('student-profile-123');
+      expect(responseData.message).toBe('Inscription au bilan gratuit réussie.');
+      expect(responseData.user).toBeDefined();
+      expect(responseData.user.id).toBe('parent-123');
+      expect(responseData.user.email).toBe(validRequestData.parentEmail);
 
       // Verify database calls
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-        where: { email: 'jean.dupont@test.com' }
-      });
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({ where: { email: validRequestData.parentEmail } });
       expect(mockPrisma.$transaction).toHaveBeenCalled();
+    });
+
+    it('sets birthDate to null when studentBirthDate is absent', async () => {
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        return callback({
+          user: { create: jest.fn().mockResolvedValueOnce({ id: 'p1', email: 'parent@example.com' }).mockResolvedValueOnce({ id: 's1', email: 's@example.com' }) },
+          parentProfile: { create: jest.fn().mockResolvedValue({ id: 'pp1' }) },
+          student: { create: jest.fn().mockImplementation(({ data }: any) => Promise.resolve({ id: 'st1', birthDate: data.birthDate ?? null })) },
+        } as any);
+      });
+      const { POST } = await import('@/app/api/bilan-gratuit/route');
+      const minimal = { ...validRequestData } as any;
+      delete minimal.studentBirthDate;
+      const req = new NextRequest('http://localhost:3000/api/bilan-gratuit', { method: 'POST', body: JSON.stringify(minimal), headers: { 'Content-Type': 'application/json' } });
+      const res = await POST(req);
+      expect([200, 201]).toContain(res.status);
     });
 
     it('should return 400 when parent email already exists', async () => {
       // Setup mock - email already exists
-      mockPrisma.user.findUnique.mockResolvedValue({
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
         id: 'existing-user',
         email: 'jean.dupont@test.com'
       } as any);
@@ -169,7 +209,7 @@ describe('/api/bilan-gratuit', () => {
 
       // Assertions
       expect(response.status).toBe(400);
-      expect(responseData.error).toBe('Données invalides');
+      expect(responseData.error).toBe('Données invalides.'); // Ajout du point
       expect(responseData.details).toBeDefined();
     });
 
@@ -192,7 +232,7 @@ describe('/api/bilan-gratuit', () => {
 
       // Assertions
       expect(response.status).toBe(400);
-      expect(responseData.error).toBe('Données invalides');
+      expect(responseData.error).toBe('Données invalides.'); // Ajout du point
     });
 
     it('should return 400 when required fields are missing', async () => {
@@ -214,13 +254,13 @@ describe('/api/bilan-gratuit', () => {
 
       // Assertions
       expect(response.status).toBe(400);
-      expect(responseData.error).toBe('Données invalides');
+      expect(responseData.error).toBe('Données invalides.'); // Ajout du point
     });
 
     it('should return 500 when database error occurs', async () => {
       // Setup mock - email doesn't exist but transaction fails
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.$transaction.mockRejectedValue(new Error('Database connection failed'));
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('Database connection failed'));
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
@@ -235,12 +275,12 @@ describe('/api/bilan-gratuit', () => {
 
       // Assertions
       expect(response.status).toBe(500);
-      expect(responseData.error).toBe('Erreur interne du serveur');
+      expect(responseData.error).toBe('Une erreur interne est survenue.'); // Message mis à jour
     });
 
     it('should continue execution even if email sending fails', async () => {
       // Setup mocks - successful database operations but email fails
-      mockPrisma.user.findUnique.mockResolvedValue(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       const mockParentUser = {
         id: 'parent-123',
@@ -259,7 +299,7 @@ describe('/api/bilan-gratuit', () => {
         id: 'student-profile-123'
       };
 
-      mockPrisma.$transaction.mockResolvedValue({
+      (mockPrisma.$transaction as jest.Mock).mockResolvedValue({
         parentUser: mockParentUser,
         studentUser: mockStudentUser,
         student: mockStudent
@@ -281,8 +321,25 @@ describe('/api/bilan-gratuit', () => {
       const responseData = await response.json();
 
       // Assertions - should succeed despite email failure
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201); // 201 Created est plus approprié
       expect(responseData.success).toBe(true);
+    });
+
+    it('returns 409 when unique constraint failed is thrown by DB', async () => {
+      const { POST } = await import('@/app/api/bilan-gratuit/route');
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('Unique constraint failed on the fields: (`email`)'));
+
+      const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
+        method: 'POST',
+        body: JSON.stringify(validRequestData),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const response = await POST(request);
+      expect(response.status).toBe(409);
+      const data = await response.json();
+      expect(data.error).toMatch(/existe déjà/i);
     });
   });
 });

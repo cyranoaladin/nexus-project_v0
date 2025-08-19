@@ -3,6 +3,39 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+
+const createUserSchema = z.object({
+  email: z.string().email(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  role: z.enum(['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE']),
+  password: z.string().min(8),
+  profileData: z
+    .object({
+      pseudonym: z.string().optional(),
+      subjects: z.array(z.string()).optional(),
+      description: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
+});
+
+const updateUserSchema = z.object({
+  id: z.string().min(1),
+  email: z.string().email().optional(),
+  firstName: z.string().min(1).optional(),
+  lastName: z.string().min(1).optional(),
+  role: z.enum(['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE']).optional(),
+  profileData: z
+    .object({
+      pseudonym: z.string().optional(),
+      subjects: z.array(z.string()).optional(),
+      description: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -97,14 +130,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, firstName, lastName, role, password, profileData } = body;
-
-    if (!email || !firstName || !lastName || !role || !password) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    const parsed = createUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
     }
+    const { email, firstName, lastName, role, password, profileData } = parsed.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -184,14 +214,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, email, firstName, lastName, role, profileData } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+    const parsed = updateUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
     }
+    const { id, email, firstName, lastName, role, profileData } = parsed.data;
 
     // Update user
     const updatedUser = await prisma.user.update({

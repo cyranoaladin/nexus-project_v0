@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -20,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const now = new Date();
     let startDate: Date;
-    
+
     switch (period) {
       case 'month':
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -59,7 +61,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // User growth analytics
       prisma.user.groupBy({
         by: ['createdAt', 'role'],
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Session analytics
       prisma.session.groupBy({
         by: ['scheduledAt', 'status'],
@@ -81,7 +83,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Subscription analytics
       prisma.subscription.groupBy({
         by: ['createdAt', 'status'],
@@ -92,7 +94,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Credit transaction analytics
       prisma.creditTransaction.groupBy({
         by: ['createdAt', 'type'],
@@ -106,7 +108,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Recent activities (last 50)
       prisma.session.findMany({
         take: 50,
@@ -175,9 +177,9 @@ export async function GET(request: NextRequest) {
       studentName: `${activity.student.user.firstName} ${activity.student.user.lastName}`,
       coachName: activity.coach.pseudonym,
       subject: activity.subject,
-      action: activity.status === 'COMPLETED' ? 'Session terminée' : 
-              activity.status === 'SCHEDULED' ? 'Session programmée' : 
-              activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
+      action: activity.status === 'COMPLETED' ? 'Session terminée' :
+        activity.status === 'SCHEDULED' ? 'Session programmée' :
+          activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
     }));
 
     // Calculate summary statistics
@@ -211,4 +213,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -150,7 +150,7 @@ export async function PATCH(request: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         // Update subscription
         await prisma.subscription.updateMany({
           where: {
@@ -171,7 +171,7 @@ export async function PATCH(request: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         // Add ARIA addon to subscription
         const currentSubscription = await prisma.subscription.findFirst({
           where: {
@@ -179,11 +179,11 @@ export async function PATCH(request: NextRequest) {
             status: 'ACTIVE'
           }
         });
-        
+
         if (currentSubscription) {
           const currentAriaSubjects = JSON.parse(currentSubscription.ariaSubjects || '[]');
           const newAriaSubjects = [...currentAriaSubjects, subscriptionRequest.planName];
-          
+
           await prisma.subscription.update({
             where: { id: currentSubscription.id },
             data: {
@@ -193,6 +193,25 @@ export async function PATCH(request: NextRequest) {
           });
         }
       }
+    }
+
+    // Garantie Bac: activer si un abonnement premium est actif
+    try {
+      const activeSub = await prisma.subscription.findFirst({
+        where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' }
+      });
+      if (activeSub && ['IMMERSION', 'HYBRIDE'].includes(activeSub.planName)) {
+        await prisma.student.update({
+          where: { id: subscriptionRequest.studentId },
+          data: {
+            guaranteeEligible: true,
+            guaranteeActivatedAt: new Date(),
+          }
+        });
+      }
+    } catch (e) {
+      // Ne pas bloquer la requête pour un échec non-critique
     }
 
     return NextResponse.json({
@@ -207,4 +226,4 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

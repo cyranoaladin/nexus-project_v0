@@ -3,81 +3,21 @@
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
-import { BadgeWidget } from "@/components/ui/badge-widget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video, AlertCircle } from "lucide-react";
+import SessionBooking from "@/components/ui/session-booking";
+import { AlertCircle, BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import SessionBooking from "@/components/ui/session-booking";
 
 interface DashboardData {
-  student: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    grade: string;
-    school: string;
-  };
-  credits: {
-    balance: number;
-    transactions: Array<{
-      id: string;
-      type: string;
-      amount: number;
-      description: string;
-      createdAt: string;
-    }>;
-  };
-  nextSession: {
-    id: string;
-    title: string;
-    subject: string;
-    scheduledAt: string;
-    duration: number;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  } | null;
-  recentSessions: Array<{
-    id: string;
-    title: string;
-    subject: string;
-    status: string;
-    scheduledAt: string;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  }>;
-  ariaStats: {
-    messagesToday: number;
-    totalConversations: number;
-  };
-  badges: Array<{
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    earnedAt: string;
-  }>;
-  achievements?: {
-    earnedBadges: number;
-    recentBadges: Array<{
-      id: string;
-      name: string;
-      description: string;
-      icon: string;
-      color: string;
-      earnedAt: string;
-    }>;
-  };
+  student: any;
+  credits: { balance: number; };
+  nextSession: any | null;
+  recentSessions: any[];
+  ariaStats: { totalConversations: number; };
 }
 
 export default function DashboardEleve() {
@@ -100,13 +40,13 @@ export default function DashboardEleve() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/student/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
-        
+
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
@@ -138,8 +78,8 @@ export default function DashboardEleve() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -165,26 +105,24 @@ export default function DashboardEleve() {
                   <p className="text-sm text-gray-500">Espace Élève</p>
                 </div>
               </div>
-              
+
               {/* Navigation Tabs */}
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-8">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'dashboard'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Tableau de Bord
                 </button>
                 <button
                   onClick={() => setActiveTab('booking')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'booking'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'booking'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Réserver Session
                 </button>
@@ -244,9 +182,9 @@ export default function DashboardEleve() {
                   {dashboardData?.nextSession ? (
                     <>
                       <div className="text-xl font-bold text-gray-900">
-                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', { 
-                          day: '2-digit', 
-                          month: 'short' 
+                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: 'short'
                         })}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">
@@ -274,10 +212,10 @@ export default function DashboardEleve() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl font-bold text-purple-600">
-                    {dashboardData?.achievements?.earnedBadges || 0} badges
+                    {dashboardData?.ariaStats?.totalConversations || 0} conversations
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
-                    Obtenus ce mois
+                    Avec ARIA
                   </p>
                 </CardContent>
               </Card>
@@ -297,44 +235,12 @@ export default function DashboardEleve() {
                   {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
                     <div className="space-y-4">
                       {dashboardData.recentSessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{session.title}</h4>
-                            <p className="text-sm text-gray-600">{session.subject}</p>
-                            <p className="text-sm font-medium text-blue-600">
-                              {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              session.status === 'completed' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {session.status}
-                            </span>
-                          </div>
-                        </div>
+                        <div key={session.id}>{/* Affichage session */}</div>
                       ))}
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Aucune session récente
-                      </h3>
-                      <p className="text-gray-500">
-                        Vos sessions apparaîtront ici une fois programmées.
-                      </p>
-                      <Button 
-                        onClick={() => setActiveTab('booking')}
-                        className="mt-4"
-                      >
-                        Réserver une session
-                      </Button>
+                      <p>Aucune session récente.</p>
                     </div>
                   )}
                 </CardContent>
@@ -349,10 +255,7 @@ export default function DashboardEleve() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <BadgeWidget
-                    studentId={dashboardData?.student.id || ""}
-                    className="h-fit"
-                  />
+                  <p className="text-sm text-muted-foreground">La section des badges est en cours de développement.</p>
                 </CardContent>
               </Card>
             </div>
@@ -363,9 +266,9 @@ export default function DashboardEleve() {
                 <CardTitle>Actions Rapides</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button 
-                    variant="outline" 
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Button
+                    variant="outline"
                     className="h-auto p-4 flex flex-col items-center space-y-2"
                     onClick={() => setActiveTab('booking')}
                   >
@@ -384,6 +287,12 @@ export default function DashboardEleve() {
                       <span>Ressources Pédagogiques</span>
                     </Button>
                   </Link>
+                  <Link href="/aria">
+                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-pink-500 text-pink-600 hover:bg-pink-50 hover:text-pink-700">
+                      <MessageCircle className="w-6 h-6" />
+                      <span>Discuter avec ARIA</span>
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -395,7 +304,6 @@ export default function DashboardEleve() {
             studentId={session!.user.id}
             userCredits={dashboardData.credits.balance}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
               // Refresh dashboard data
               window.location.reload();
               setActiveTab('dashboard');

@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -38,13 +40,13 @@ export async function GET(request: NextRequest) {
           coach: { include: { user: true } }
         }
       }),
-      
+
       // Users
       prisma.user.findMany({
         take: 50,
         orderBy: { createdAt: 'desc' }
       }),
-      
+
       // Subscriptions
       prisma.subscription.findMany({
         take: 50,
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
           student: { include: { user: true } }
         }
       }),
-      
+
       // Credit transactions
       prisma.creditTransaction.findMany({
         take: 50,
@@ -77,11 +79,11 @@ export async function GET(request: NextRequest) {
         studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
         coachName: activity.coach?.pseudonym || 'Unknown Coach',
         subject: activity.subject,
-        action: activity.status === 'COMPLETED' ? 'Session terminée' : 
-                activity.status === 'SCHEDULED' ? 'Session programmée' : 
-                activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
+        action: activity.status === 'COMPLETED' ? 'Session terminée' :
+          activity.status === 'SCHEDULED' ? 'Session programmée' :
+            activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
       })),
-      
+
       // Format new users
       ...users.map((user: any) => ({
         id: user.id,
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
         subject: user.role,
         action: 'Utilisateur créé'
       })),
-      
+
       // Format new subscriptions
       ...subscriptions.map((subscription: any) => ({
         id: subscription.id,
@@ -109,7 +111,7 @@ export async function GET(request: NextRequest) {
         subject: subscription.planName,
         action: 'Abonnement créé'
       })),
-      
+
       // Format credit transactions
       ...creditTransactions.map((transaction: any) => ({
         id: transaction.id,
@@ -126,17 +128,17 @@ export async function GET(request: NextRequest) {
     ];
 
     // Sort by time (most recent first)
-    const sortedActivities = allActivities.sort((a, b) => 
+    const sortedActivities = allActivities.sort((a, b) =>
       new Date(b.time).getTime() - new Date(a.time).getTime()
     );
 
     // Apply filters
     let filteredActivities = sortedActivities;
-    
+
     if (type !== 'ALL') {
       filteredActivities = filteredActivities.filter(activity => activity.type === type);
     }
-    
+
     if (search) {
       filteredActivities = filteredActivities.filter(activity =>
         activity.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -168,4 +170,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

@@ -141,9 +141,8 @@ export async function sendWelcomeEmail(user: any) {
       html: template.html(user)
     });
 
-    console.log(`Email de bienvenue envoyé à ${user.email}`);
   } catch (error) {
-    console.error('Erreur envoi email bienvenue:', error);
+    console.error('Error sending welcome email:', error);
     throw error;
   }
 }
@@ -188,9 +187,8 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
       });
     }
 
-    console.log(`Email de confirmation envoyé pour session ${session.id}`);
   } catch (error) {
-    console.error('Erreur envoi email confirmation:', error);
+    console.error(`Error sending confirmation email for session ${session.id}:`, error);
     throw error;
   }
 }
@@ -206,9 +204,8 @@ export async function sendSessionReminderEmail(session: any, student: any, video
       html: template.html(session, student, videoLink)
     });
 
-    console.log(`Rappel de session envoyé pour ${session.id}`);
   } catch (error) {
-    console.error('Erreur envoi rappel session:', error);
+    console.error(`Error sending reminder for session ${session.id}:`, error);
     throw error;
   }
 }
@@ -287,8 +284,7 @@ export async function sendScheduledReminders() {
       });
     }
 
-    console.log(`${upcomingSessions.length} rappels de session envoyés`);
   } catch (error) {
-    console.error('Erreur envoi rappels automatiques:', error);
+    console.error('Error sending session reminders:', error);
   }
 }

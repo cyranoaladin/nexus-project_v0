@@ -9,8 +9,9 @@ The session booking system provides a comprehensive workflow that allows coaches
 ### **Database Schema**
 
 #### **1. CoachAvailability Model**
+
 - **Purpose**: Stores coach availability schedules (weekly recurring + specific dates)
-- **Key Fields**: 
+- **Key Fields**:
   - `dayOfWeek` (0-6, Sunday-Saturday)
   - `startTime`, `endTime` (HH:MM format)
   - `isRecurring` (weekly pattern vs specific date)
@@ -18,6 +19,7 @@ The session booking system provides a comprehensive workflow that allows coaches
   - `isAvailable` (active/inactive slots)
 
 #### **2. SessionBooking Model**
+
 - **Purpose**: Core session management with full lifecycle tracking
 - **Key Fields**:
   - Participants: `studentId`, `coachId`, `parentId`
@@ -27,11 +29,13 @@ The session booking system provides a comprehensive workflow that allows coaches
   - Feedback: `rating`, `feedback`, `coachNotes`, `studentNotes`
 
 #### **3. SessionNotification Model**
+
 - **Purpose**: Multi-channel notification system
 - **Types**: `SESSION_BOOKED`, `SESSION_REMINDER`, `SESSION_CANCELLED`, etc.
 - **Methods**: `EMAIL`, `SMS`, `IN_APP`, `PUSH`
 
 #### **4. SessionReminder Model**
+
 - **Purpose**: Automated reminder scheduling
 - **Types**: `ONE_DAY_BEFORE`, `TWO_HOURS_BEFORE`, `THIRTY_MINUTES_BEFORE`
 
@@ -53,6 +57,7 @@ graph TD
 ```
 
 **Coach Actions:**
+
 1. **Weekly Schedule**: Set recurring availability for each day of the week
 2. **Specific Dates**: Override weekly schedule for holidays, special events
 3. **Time Slot Management**: Add/remove/modify individual time slots
@@ -77,6 +82,7 @@ graph TD
 ```
 
 **Booking Process:**
+
 1. **Subject Selection**: Choose from available subjects
 2. **Coach Discovery**: View coaches qualified for the subject
 3. **Availability Check**: Real-time slot availability
@@ -101,6 +107,7 @@ graph TD
 ```
 
 **Notification Recipients:**
+
 - **Coach**: Email notification with session details
 - **Assistant**: In-app notification for monitoring
 - **Parent**: Email confirmation (if different from booker)
@@ -129,7 +136,9 @@ graph TD
 ### **Coach Availability Management**
 
 #### **POST /api/coaches/availability**
+
 Set weekly or specific date availability
+
 ```json
 {
   "type": "weekly",
@@ -149,15 +158,19 @@ Set weekly or specific date availability
 ```
 
 #### **GET /api/coaches/availability**
+
 Get coach availability for date range
-```
+
+```text
 ?coachId=xxx&startDate=2024-01-01&endDate=2024-01-07
 ```
 
 ### **Session Booking**
 
 #### **POST /api/sessions/book**
+
 Book a new session
+
 ```json
 {
   "coachId": "xxx",
@@ -173,13 +186,17 @@ Book a new session
 ```
 
 #### **GET /api/sessions**
+
 Get user's sessions
-```
+
+```text
 ?userId=xxx&status=SCHEDULED&startDate=2024-01-01
 ```
 
 #### **PATCH /api/sessions/{id}/status**
+
 Update session status
+
 ```json
 {
   "status": "COMPLETED",
@@ -190,8 +207,9 @@ Update session status
 ## 🎨 **Frontend Components**
 
 ### **1. SessionBooking Component**
+
 - **Purpose**: Complete booking flow for parents/students
-- **Features**: 
+- **Features**:
   - Subject and coach selection
   - Real-time availability checking
   - Multi-step booking wizard
@@ -199,6 +217,7 @@ Update session status
   - Responsive design for all devices
 
 ### **2. CoachAvailability Component**
+
 - **Purpose**: Availability management for coaches
 - **Features**:
   - Weekly schedule editor
@@ -208,6 +227,7 @@ Update session status
   - Visual schedule representation
 
 ### **3. SessionManager Component**
+
 - **Purpose**: Session oversight for assistants
 - **Features**:
   - Real-time session monitoring
@@ -218,17 +238,20 @@ Update session status
 ## 📱 **Responsive Design Features**
 
 ### **Mobile Optimization**
+
 - **Touch-friendly**: Large buttons and tap targets
 - **Readable**: Responsive typography and spacing
 - **Navigation**: Mobile-first navigation patterns
 - **Forms**: Optimized input fields and selectors
 
 ### **Tablet Support**
+
 - **Grid Layouts**: Adaptive column layouts
 - **Touch Interface**: Gesture-friendly interactions
 - **Screen Space**: Efficient use of available space
 
 ### **Desktop Enhancement**
+
 - **Multi-column**: Rich layouts with detailed views
 - **Keyboard**: Full keyboard navigation support
 - **Advanced Features**: Drag-and-drop, bulk operations
@@ -236,16 +259,19 @@ Update session status
 ## 🔔 **Notification System**
 
 ### **Immediate Notifications**
+
 - **Session Booked**: Instant confirmation to all parties
 - **Session Cancelled**: Immediate cancellation notice
 - **Status Changes**: Real-time status updates
 
 ### **Scheduled Reminders**
+
 - **24 Hours Before**: Initial reminder with session details
 - **2 Hours Before**: Preparation reminder
 - **30 Minutes Before**: Final reminder with meeting links
 
 ### **Delivery Methods**
+
 - **Email**: Detailed notifications with calendar attachments
 - **In-App**: Real-time dashboard notifications
 - **SMS**: Critical reminders and confirmations
@@ -254,6 +280,7 @@ Update session status
 ## 🏆 **Key Features**
 
 ### **For Coaches**
+
 - ✅ Flexible availability management
 - ✅ Automatic conflict detection
 - ✅ Session status tracking
@@ -261,6 +288,7 @@ Update session status
 - ✅ Revenue and performance analytics
 
 ### **For Parents/Students**
+
 - ✅ Easy coach discovery
 - ✅ Real-time availability
 - ✅ Credit management
@@ -268,6 +296,7 @@ Update session status
 - ✅ Feedback and ratings
 
 ### **For Assistants**
+
 - ✅ Complete oversight dashboard
 - ✅ Real-time monitoring
 - ✅ Performance analytics
@@ -277,11 +306,13 @@ Update session status
 ## 🔒 **Security & Validation**
 
 ### **Access Control**
+
 - **Role-based**: Strict role-based access control
 - **Session Ownership**: Users can only access their sessions
 - **Coach Subjects**: Validation of coach qualifications
 
 ### **Data Validation**
+
 - **Time Conflicts**: Automatic conflict detection
 - **Credit Limits**: Real-time credit validation
 - **Availability**: Dynamic availability checking
@@ -290,11 +321,13 @@ Update session status
 ## 🚀 **Performance Optimizations**
 
 ### **Database**
+
 - **Indexing**: Strategic database indexes for performance
 - **Caching**: Redis caching for frequently accessed data
 - **Transactions**: Atomic operations for data consistency
 
 ### **Frontend**
+
 - **Lazy Loading**: Component-based code splitting
 - **Optimistic Updates**: Immediate UI feedback
 - **Real-time**: WebSocket connections for live updates
@@ -303,15 +336,17 @@ Update session status
 ## 📈 **Analytics & Reporting**
 
 ### **Session Metrics**
+
 - Booking conversion rates
 - Coach utilization rates
 - Student engagement metrics
 - Revenue per session
 
 ### **Performance Tracking**
+
 - System response times
 - Error rates and resolution
 - User satisfaction scores
 - Feature adoption rates
 
-This comprehensive session booking system provides a seamless experience for all users while maintaining high performance, security, and reliability standards. 
+This comprehensive session booking system provides a seamless experience for all users while maintaining high performance, security, and reliability standards.

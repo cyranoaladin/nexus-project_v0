@@ -5,14 +5,22 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
-  displayName: 'Unit Tests',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jest-environment-jsdom',
-  testMatch: [
-    '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
-  ],
-  moduleNameMapping: {
+  moduleDirectories: ['node_modules', '<rootDir>/'],
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/lib/**/*.test.(ts|tsx)', '**/__tests__/api/**/*.test.(ts|tsx)'],
+  setupFiles: ['./__tests__/setup/dotenv-config.ts'],
+  setupFilesAfterEnv: ['<rootDir>/__tests__/setup/test-database.ts'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/e2e/'],
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+  },
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
   },
 };
 

@@ -20,7 +20,7 @@
 
 ### 1.1. Schéma d'Architecture Final
 
-```
+```plaintext
 ┌─────────────────────────────────────────────────────────────────┐
 │                    ARCHITECTURE NEXUS RÉUSSITE                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -130,6 +130,7 @@ NEXT_PUBLIC_APP_URL="https://nexusreussite.academy"
 ### 1.3. Procédure de Build & Démarrage
 
 **✅ Configuration Confirmée :**
+
 - `next.config.mjs` : `output: 'standalone'` **ACTIVÉ**
 - `experimental.serverComponentsExternalPackages: ['@prisma/client']` **ACTIVÉ**
 
@@ -153,6 +154,7 @@ npm run start
 ```
 
 **Scripts package.json confirmés :**
+
 ```json
 {
   "scripts": {
@@ -170,7 +172,7 @@ npm run start
 
 ### 2.1. Schéma Prisma Final
 
-**✅ RECTIFICATION CTO : Configuration PostgreSQL par défaut**
+#### ✅ RECTIFICATION CTO : Configuration PostgreSQL par défaut
 
 ```prisma
 // Configuration Production PostgreSQL (RECTIFIÉE)
@@ -271,6 +273,7 @@ npx prisma migrate status
 ```
 
 **Commandes de maintenance :**
+
 ```bash
 # Réinitialiser la DB (DEV uniquement)
 npx prisma migrate reset
@@ -295,6 +298,7 @@ npx prisma db seed
 2. **Vérification unicité :** `prisma.user.findUnique({ where: { email } })`
 3. **Hash mot de passe :** `bcrypt.hash(password, 12)`
 4. **Transaction Prisma :**
+
    ```typescript
    await prisma.$transaction(async (tx) => {
      // Créer User parent (role: PARENT)
@@ -318,6 +322,7 @@ npx prisma db seed
      })
    })
    ```
+
 5. **Email de bienvenue :** `sendWelcomeParentEmail()`
 
 #### Flux de Connexion (Login)
@@ -327,6 +332,7 @@ npx prisma db seed
 **Configuration :** `lib/auth.ts`
 
 **Étapes techniques :**
+
 1. **Récupération utilisateur :** `prisma.user.findUnique({ where: { email } })`
 2. **Vérification mot de passe :** `bcrypt.compare(password, user.password)`
 3. **Création session :** NextAuth génère JWT avec `user.id`, `user.role`
@@ -335,6 +341,7 @@ npx prisma db seed
 #### Protection des API
 
 **Middleware :** `middleware.ts`
+
 ```typescript
 // Protection des routes par rôle
 export const config = {
@@ -347,6 +354,7 @@ export const config = {
 ```
 
 **Vérification de session dans chaque route protégée :**
+
 ```typescript
 const session = await getServerSession(authOptions)
 if (!session || session.user.role !== 'ELEVE') {
@@ -361,10 +369,12 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/subscriptions/change`
 
 **Workflow technique :**
+
 1. **Authentification :** Vérification session parent
 2. **Validation :** Schema Zod avec `planName`, `ariaSubjects`
 3. **Récupération tarifs :** Mapping des plans (ACCES_PLATEFORME: 79 TND, HYBRIDE: 179 TND, IMMERSION: 299 TND)
 4. **Création Subscription :**
+
    ```typescript
    await prisma.subscription.create({
      data: {
@@ -378,7 +388,9 @@ if (!session || session.user.role !== 'ELEVE') {
      }
    })
    ```
+
 5. **Allocation crédits initiaux :**
+
    ```typescript
    await prisma.creditTransaction.create({
      data: {
@@ -395,6 +407,7 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/payments/validate`
 
 **Workflow "Pack Grand Oral" :**
+
 1. **Création Payment :** `type: 'SPECIAL_PACK'`, `status: 'PENDING'`
 2. **Traitement paiement :** Konnect ou Wise
 3. **Webhook confirmation :** Mise à jour `status: 'COMPLETED'`
@@ -403,8 +416,10 @@ if (!session || session.user.role !== 'ELEVE') {
 #### Logique des Crédits
 
 **Décrémentation lors d'une réservation :**
+
 - **API :** `POST /api/sessions/book`
 - **Logique :**
+
   ```typescript
   // Vérifier solde
   const totalCredits = await calculateTotalCredits(studentId)
@@ -423,8 +438,10 @@ if (!session || session.user.role !== 'ELEVE') {
   ```
 
 **Report mensuel et expiration :**
+
 - **Cron Job :** `lib/cron-jobs.ts` (exécution quotidienne)
 - **Logique :**
+
   ```typescript
   // Expirer les crédits > 12 mois
   const expiredCredits = await prisma.creditTransaction.findMany({
@@ -448,10 +465,12 @@ if (!session || session.user.role !== 'ELEVE') {
 #### Konnect
 
 **API Routes créées :**
+
 - `POST /api/payments/konnect` : Initier paiement
 - `POST /api/webhooks/konnect` : Webhook de confirmation
 
 **Cycle de vie :**
+
 1. **Initialisation :** Création Payment `status: PENDING` + appel API Konnect
 2. **Redirection :** Utilisateur vers gateway Konnect
 3. **Webhook :** Konnect notifie `/api/webhooks/konnect`
@@ -461,10 +480,12 @@ if (!session || session.user.role !== 'ELEVE') {
 #### Wise
 
 **API Routes :**
+
 - `POST /api/payments/wise` : Générer instructions de virement
 - `POST /api/payments/wise/confirm` : Validation manuelle assistante
 
 **Logique backend :**
+
 1. **Création Payment :** `status: PENDING`, `method: 'wise'`
 2. **Instructions virement :** Génération référence unique
 3. **Validation manuelle :** Assistante confirme réception via back-office
@@ -477,15 +498,19 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/sessions/book`
 
 **Logique technique :**
+
 1. **Validation données :** Date, heure, coach, matière
 2. **Vérification crédits :**
+
    ```typescript
    const totalCredits = await calculateTotalCredits(studentId)
    if (totalCredits < CREDIT_COSTS[serviceType]) {
      return NextResponse.json({ error: 'Solde insuffisant' })
    }
    ```
+
 3. **Vérification disponibilité coach :**
+
    ```typescript
    const conflictingSessions = await prisma.session.findMany({
      where: {
@@ -495,7 +520,9 @@ if (!session || session.user.role !== 'ELEVE') {
      }
    })
    ```
+
 4. **Transaction atomique :**
+
    ```typescript
    await prisma.$transaction([
      // Créer session
@@ -507,6 +534,7 @@ if (!session || session.user.role !== 'ELEVE') {
      })
    ])
    ```
+
 5. **Génération lien visio :** URL Jitsi unique
 6. **Email confirmation :** Notification élève + coach
 
@@ -515,12 +543,16 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/sessions/cancel`
 
 **Logique d'annulation :**
+
 1. **Vérification délais :**
+
    ```typescript
    const hoursUntilSession = differenceInHours(session.scheduledAt, new Date())
    const canCancel = hoursUntilSession >= 24 // ou 48h selon règle
    ```
+
 2. **Remboursement conditionnel :**
+
    ```typescript
    if (canCancel) {
      await prisma.creditTransaction.create({
@@ -529,6 +561,7 @@ if (!session || session.user.role !== 'ELEVE') {
      })
    }
    ```
+
 3. **Mise à jour statut :** `status: 'CANCELLED'`
 4. **Notifications :** Email coach + élève
 
@@ -539,8 +572,10 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/aria/chat`
 
 **Séquence technique :**
+
 1. **Authentification :** `session.user.role === 'ELEVE'`
 2. **Vérification droits d'accès :**
+
    ```typescript
    const activeSubscription = await prisma.subscription.findFirst({
      where: { studentId, status: 'ACTIVE' }
@@ -550,7 +585,9 @@ if (!session || session.user.role !== 'ELEVE') {
      return NextResponse.json({ error: 'Accès non autorisé à cette matière' })
    }
    ```
+
 3. **Recherche contextuelle :**
+
    ```typescript
    const relevantContent = await prisma.pedagogicalContent.findMany({
      where: {
@@ -560,13 +597,17 @@ if (!session || session.user.role !== 'ELEVE') {
      take: 5
    })
    ```
+
 4. **Construction prompt :**
+
    ```typescript
    const systemPrompt = `Tu es ARIA, l'assistant IA de Nexus Réussite spécialisé en ${subject}.
    Contexte pédagogique : ${relevantContent.map(c => c.content).join('\n')}
    Niveau élève : ${student.grade}`
    ```
+
 5. **Appel OpenAI :**
+
    ```typescript
    const response = await openai.chat.completions.create({
      model: 'gpt-4o-mini',
@@ -576,7 +617,9 @@ if (!session || session.user.role !== 'ELEVE') {
      ]
    })
    ```
+
 6. **Sauvegarde conversation :**
+
    ```typescript
    await prisma.ariaConversation.create({
      data: {
@@ -597,6 +640,7 @@ if (!session || session.user.role !== 'ELEVE') {
 **API Route :** `POST /api/aria/feedback`
 
 **Logique :**
+
 ```typescript
 await prisma.ariaMessage.update({
   where: { id: messageId },
@@ -607,6 +651,7 @@ await prisma.ariaMessage.update({
 ### 3.6. Visioconférence (Jitsi)
 
 **Génération salle unique :**
+
 ```typescript
 // Dans /api/sessions/book
 const roomName = `nexus-${sessionId}-${Date.now()}`
@@ -619,6 +664,7 @@ await prisma.session.update({
 ```
 
 **Intégration frontend :**
+
 ```typescript
 // Redirection ou iframe vers session.location
 window.open(session.location, '_blank')
@@ -648,10 +694,12 @@ window.open(session.location, '_blank')
 ### 4.1. Scénarios de Test Utilisateur (Workflow)
 
 #### Scénario 1 : Inscription et Premier Achat
+
 **Acteur :** Nouveau parent
 **Objectif :** Valider le parcours complet d'onboarding
 
 **Étapes :**
+
 1. **Page d'accueil :** Clic "Bilan Stratégique Gratuit"
 2. **Formulaire inscription :** Saisie données parent + élève
 3. **Validation :** Email de bienvenue reçu + accès dashboard
@@ -662,10 +710,12 @@ window.open(session.location, '_blank')
 **Résultat attendu :** Parent connecté, abonnement actif, crédits disponibles
 
 #### Scénario 2 : Réservation et Annulation
+
 **Acteur :** Élève avec crédits
 **Objectif :** Tester la logique de réservation/annulation
 
 **Étapes :**
+
 1. **Dashboard élève :** Accès "Réserver un cours"
 2. **Sélection :** Coach "Hélios", Mathématiques, Cours online
 3. **Planification :** Créneau J+3 à 14h (1 crédit)
@@ -676,10 +726,12 @@ window.open(session.location, '_blank')
 **Résultat attendu :** Crédits correctement déduits/remboursés selon règles
 
 #### Scénario 3 : Session IA ARIA
+
 **Acteur :** Élève avec add-on ARIA activé
 **Objectif :** Valider l'assistant IA pédagogique
 
 **Étapes :**
+
 1. **Dashboard élève :** Accès "Assistant ARIA"
 2. **Sélection matière :** NSI (add-on activé)
 3. **Question :** "Explique-moi l'algorithme de tri à bulles"
@@ -690,10 +742,12 @@ window.open(session.location, '_blank')
 **Résultat attendu :** Réponses pertinentes + historique conservé
 
 #### Scénario 4 : Gestion des Paiements Wise
+
 **Acteur :** Parent international
 **Objectif :** Tester le workflow de paiement manuel
 
 **Étapes :**
+
 1. **Choix paiement :** Sélection "Virement Wise"
 2. **Instructions :** Génération référence unique
 3. **Simulation virement :** (côté parent)
@@ -703,10 +757,12 @@ window.open(session.location, '_blank')
 **Résultat attendu :** Workflow manuel fonctionnel + traçabilité complète
 
 #### Scénario 5 : Workflow Coach
+
 **Acteur :** Coach Hélios
 **Objectif :** Tester l'interface enseignant
 
 **Étapes :**
+
 1. **Dashboard coach :** Vue agenda + sessions planifiées
 2. **Préparation cours :** Accès fiche élève + historique
 3. **Session live :** Lancement Jitsi depuis l'interface
@@ -716,10 +772,12 @@ window.open(session.location, '_blank')
 **Résultat attendu :** Interface coach complète + outils pédagogiques
 
 #### Scénario 6 : Engagement et Conversion par Micro-CTA (NOUVEAU - Directive CTO)
+
 **Acteur :** Visiteur non connecté
 **Objectif :** Valider le tunnel de conversion via les nouveaux modules marketing
 
 **Étapes :**
+
 1. **Page d'accueil :** Scroll jusqu'à la section "Curieux de voir ARIA en action ?"
 2. **Widget ARIA :** Clic sur "Testez notre IA : Quel est mon profil d'apprenant ?"
 3. **Interaction IA :** Échange de 2-3 messages avec ARIA
@@ -735,6 +793,7 @@ window.open(session.location, '_blank')
 #### Étapes Première Mise en Production
 
 **1. Configuration Serveur :**
+
 ```bash
 # Installation Node.js 18+
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -749,6 +808,7 @@ sudo -u postgres createuser --interactive nexus_user
 ```
 
 **2. Variables d'Environnement :**
+
 ```bash
 # Copier et configurer .env
 cp .env.example .env
@@ -757,6 +817,7 @@ nano .env
 ```
 
 **3. Installation Application :**
+
 ```bash
 # Clone du repository
 git clone [REPO_URL] /var/www/nexus-reussite
@@ -771,6 +832,7 @@ npx prisma migrate deploy
 ```
 
 **4. Seed Initial (OBLIGATOIRE) :**
+
 ```bash
 # Création du premier compte ADMIN
 npm run seed:admin
@@ -779,6 +841,7 @@ npx prisma db seed
 ```
 
 **Script de seed (`prisma/seed.ts`) :**
+
 ```typescript
 // Créer compte ADMIN par défaut
 const admin = await prisma.user.create({
@@ -800,6 +863,7 @@ const coaches = [
 ```
 
 **3. Configuration Nginx :**
+
 ```bash
 # RECTIFICATION CTO : Domaine officiel nexusreussite.academy
 server {
@@ -818,12 +882,14 @@ server {
 ```
 
 **4. Configuration SSL (Let's Encrypt) :**
+
 ```bash
 sudo apt install certbot python3-certbot-nginx
 sudo certbot --nginx -d nexusreussite.academy
 ```
 
 **5. Déploiement Docker (RECTIFICATION CTO - Procédure Dockerisée) :**
+
 ```bash
 # Cloner le repository
 git clone [REPO_URL] /var/www/nexus-reussite
@@ -841,6 +907,7 @@ docker compose up --build -d
 ```
 
 **6. Service Docker Compose (remplace systemd) :**
+
 ```yaml
 # docker-compose.yml avec restart: always
 services:
@@ -898,7 +965,8 @@ pg_dump -U nexus_user -h localhost nexus_reussite > backup_$(date +%Y%m%d).sql
 
 Cette documentation technique de livraison fournit une vision exhaustive de l'architecture et de l'implémentation de la plateforme Nexus Réussite. L'application est prête pour la validation fonctionnelle et le déploiement en production.
 
-#### Points d'attention critiques :**
+### Points d'attention critiques
+
 1. **Configuration PostgreSQL** ✅ RECTIFIÉE - par défaut dans schema.prisma
 2. **Configuration SMTP Hostinger** ✅ RECTIFIÉE - smtp.hostinger.com:465
 3. **Variables Wise manuelles** ✅ RECTIFIÉES - affichage coordonnées bancaires

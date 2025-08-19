@@ -1,0 +1,6 @@
+# services/rag_service/requirements.txt
+fastapi
+uvicorn[standard]
+pydantic
+prometheus-fastapi-instrumentator
+

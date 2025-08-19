@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function TestLoginPage() {
@@ -8,24 +9,26 @@ export default function TestLoginPage() {
   const [email, setEmail] = useState("adam@gmail.com");
   const [password, setPassword] = useState("adam90053729");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    setError(null);
+
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
+      const result = await signIn('credentials', {
         redirect: false,
+        email: email,
+        password: password,
       });
-      
-      console.log("Login result:", result);
-      
-      if (result?.error) {
-        alert(`Login failed: ${result.error}`);
+
+      if (result?.ok) {
+        router.push('/dashboard');
       } else {
-        alert("Login successful!");
+        setError('Invalid credentials');
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -41,8 +44,8 @@ export default function TestLoginPage() {
 
   const clearSession = () => {
     // Clear all cookies
-    document.cookie.split(";").forEach(function(c) { 
-      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+    document.cookie.split(";").forEach(function (c) {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
     localStorage.clear();
     sessionStorage.clear();
@@ -90,7 +93,7 @@ export default function TestLoginPage() {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Password
@@ -103,7 +106,9 @@ export default function TestLoginPage() {
                   required
                 />
               </div>
-              
+
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -136,4 +141,4 @@ export default function TestLoginPage() {
       </div>
     </div>
   );
-} 
+}

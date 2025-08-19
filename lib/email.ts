@@ -87,12 +87,10 @@ export async function sendWelcomeParentEmail(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('Email de bienvenue envoyé à:', parentEmail);
   } catch (error) {
     console.error('Erreur envoi email:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if (process.env.NODE_ENV === 'development') {
-      console.log('Email non envoyé en mode développement');
       return;
     }
     throw error;
@@ -149,12 +147,10 @@ export async function sendCreditExpirationReminder(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('Email de rappel crédits envoyé à:', parentEmail);
   } catch (error) {
     console.error('Erreur envoi email rappel:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if (process.env.NODE_ENV === 'development') {
-      console.log('Email de rappel non envoyé en mode développement');
       return;
     }
     throw error;

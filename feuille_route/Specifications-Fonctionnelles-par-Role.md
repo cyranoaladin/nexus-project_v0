@@ -1,10 +1,13 @@
-Spécifications Fonctionnelles par Rôle et Module
-Projet : Plateforme Nexus Réussite
-1. Authentification & Rôles
+# Spécifications Fonctionnelles par Rôle et Module
+
+## 1. Authentification & Rôles
+
 Rôles Définis : ADMIN, ASSISTANTE, COACH, PARENT, ELEVE.
 Processus d'Inscription : Formulaire de "Bilan Gratuit" unique qui crée le compte PARENT et le compte ELEVE et les lie.
 Modèle Multi-Enfants : Le compte PARENT est unique. Le tableau de bord parent doit inclure un sélecteur d'enfant pour basculer entre les profils de chaque enfant inscrit. Chaque enfant a son propre abonnement et son propre solde de crédits.
-2. Les Tableaux de Bord (Dashboards)
+
+## 2. Les Tableaux de Bord (Dashboards)
+
 Dashboard Élève :
 Vue centrale sur son Agenda (cours, ateliers).
 Accès direct à la réservation de sessions et au chat ARIA.
@@ -27,12 +30,16 @@ Dashboard Admin :
 Accès complet à toutes les données.
 Gestion des contenus du site (CMS Headless).
 Statistiques globales de la plateforme.
-3. Module Agenda & Réservation
+
+## 3. Module Agenda & Réservation
+
 Vue Centralisée : L'agenda doit être le cœur de l'expérience, affichant cours en ligne, présentiel et ateliers.
 Réservation Élève : Parcours de réservation fluide : choix matière -> modalité -> coach (optionnel) -> créneau. Le coût en crédits doit être affiché clairement.
 Gestion Coach : Chaque coach doit pouvoir définir ses propres créneaux de disponibilité (en spécifiant en ligne/présentiel).
 Prévention des Conflits : Le système doit empêcher les doubles réservations (un coach sur deux cours en même temps, une salle occupée deux fois).
-4. Module de Communication & Visio
+
+## 4. Module de Communication & Visio
+
 MVP de Lancement :
 Un chat textuel asynchrone sécurisé est implémenté entre un coach et ses élèves.
 Le chat doit permettre le partage de fichiers (images, PDF).

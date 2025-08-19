@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ELEVE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -60,4 +62,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

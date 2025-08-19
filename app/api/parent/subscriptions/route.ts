@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
         return total + transaction.amount;
       }, 0);
 
-      const activeSubscription = child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') || 
-                                child.subscriptions.find((sub: any) => sub.status === 'INACTIVE') || 
-                                null;
+      const activeSubscription = child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') ||
+        child.subscriptions.find((sub: any) => sub.status === 'INACTIVE') ||
+        null;
 
       return {
         id: child.id,
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -94,11 +94,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    console.log('Received subscription request:', body);
     const { studentId, planName, monthlyPrice, creditsPerMonth } = body;
 
     if (!studentId || !planName || !monthlyPrice) {
-      console.log('Missing fields:', { studentId, planName, monthlyPrice });
       return NextResponse.json(
         { error: 'Missing required fields', received: body },
         { status: 400 }
@@ -171,4 +169,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

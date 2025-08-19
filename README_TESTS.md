@@ -71,7 +71,7 @@ npx playwright test e2e/auth-flow.spec.ts
 
 ## 📁 Structure des Tests
 
-```
+```text
 __tests__/
 ├── lib/                    # Tests unitaires
 │   ├── credits.test.ts     # Logique de gestion des crédits
@@ -96,12 +96,14 @@ e2e/                        # Tests End-to-End
 ### Tests Unitaires
 
 #### `lib/credits.ts`
+
 - ✅ `calculateCreditCost()` : Coûts selon type de prestation
 - ✅ `checkCreditBalance()` : Vérification solde de crédits
 - ✅ `debitCredits()` : Débit de crédits
 - ✅ `refundCredits()` : Remboursement de crédits
 
 #### `lib/validations.ts`
+
 - ✅ `bilanGratuitSchema` : Validation inscription
 - ✅ `signinSchema` : Validation connexion
 - ✅ `sessionBookingSchema` : Validation réservation
@@ -110,12 +112,14 @@ e2e/                        # Tests End-to-End
 ### Tests d'Intégration
 
 #### `/api/bilan-gratuit`
+
 - ✅ Inscription réussie avec données valides
 - ✅ Erreur si email parent existe déjà
 - ✅ Validation des données d'entrée
 - ✅ Gestion des erreurs de base de données
 
 #### `/api/sessions/book`
+
 - ✅ Réservation réussie avec solde suffisant
 - ✅ Erreur si solde insuffisant
 - ✅ Contrôle d'authentification
@@ -125,16 +129,19 @@ e2e/                        # Tests End-to-End
 ### Tests End-to-End
 
 #### Parcours d'Authentification
+
 - ✅ Inscription → Connexion → Déconnexion → Reconnexion
 - ✅ Gestion des erreurs de connexion
 - ✅ Validation des formulaires
 
 #### Sélection d'Offres
+
 - ✅ Navigation vers tunnel de paiement
 - ✅ Sélection méthodes de paiement (Konnect/Wise)
 - ✅ Gestion utilisateurs non connectés
 
 #### Interaction ARIA
+
 - ✅ Limitation à 3 questions pour utilisateurs anonymes
 - ✅ Questions illimitées pour utilisateurs connectés
 - ✅ Gestion des erreurs et états de chargement

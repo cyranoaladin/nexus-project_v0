@@ -71,9 +71,9 @@ npm run dev
 
 ### 4. Test the Application
 
-1. **Visit the homepage**: http://localhost:3000
-2. **Test the bilan gratuit form**: http://localhost:3000/bilan-gratuit
-3. **Test login**: http://localhost:3000/auth/signin
+1. **Visit the homepage**: [http://localhost:3000](http://localhost:3000)
+2. **Test the bilan gratuit form**: [http://localhost:3000/bilan-gratuit](http://localhost:3000/bilan-gratuit)
+3. **Test login**: [http://localhost:3000/auth/signin](http://localhost:3000/auth/signin)
 
 ## Current Status
 
@@ -98,7 +98,9 @@ npm run dev
 ## Troubleshooting
 
 ### Permission Issues
+
 If you encounter permission errors, move the project to a user directory:
+
 ```bash
 # Create new directory
 mkdir C:\Users\YourUsername\Projects
@@ -111,7 +113,9 @@ cd C:\Users\YourUsername\Projects\nexus-project_v0
 ```
 
 ### Database Issues
+
 If database operations fail:
+
 ```bash
 # Reset database
 npx prisma migrate reset
@@ -121,4 +125,5 @@ npx prisma db push
 ```
 
 ### Port Issues
-If port 3000 is in use, the server will automatically try 3001, 3002, etc. 
+
+If port 3000 is in use, the server will automatically try 3001, 3002, etc.

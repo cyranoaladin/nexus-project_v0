@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const E2E_BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:3001';
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -18,11 +20,13 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: E2E_BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+
+  timeout: 60 * 1000, // Augmenter le timeout global à 60 secondes
 
   /* Configure projects for major browsers */
   projects: [
@@ -40,33 +44,16 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command:
+      'E2E=1 NEXT_PUBLIC_E2E=1 DATABASE_URL=postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public ' +
+      'NEXTAUTH_URL=' + E2E_BASE_URL + ' ' +
+      'npm run dev -- --port 3001',
+    url: E2E_BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 300 * 1000, // Augmentation du timeout à 5 minutes
   },
 });

@@ -1,0 +1,18 @@
+# docker-compose.rollback.yml
+# Fichier de secours pour revenir à la version précédente connue.
+# Définissez PREV_IMAGE_TAG dans l'environnement avant d'exécuter:
+#   export PREV_IMAGE_TAG=v1.2.2
+
+services:
+  next-app:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-app:${PREV_IMAGE_TAG}
+
+  rag_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-rag:${PREV_IMAGE_TAG}
+
+  llm_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-llm:${PREV_IMAGE_TAG}
+
+  pdf_generator_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-pdf:${PREV_IMAGE_TAG}
+

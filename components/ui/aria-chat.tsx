@@ -1,25 +1,28 @@
-"use client"
+"use client";
 
-import React from "react"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useSession } from "next-auth/react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageCircle, X, Send, Bot, User, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react"
-import Image from "next/image"
-import { Subject } from "@/types/enums"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Subject } from "@/types/enums";
+import { AnimatePresence, motion } from "framer-motion";
+import 'katex/dist/katex.min.css';
+import { Bot, MessageCircle, Send, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  feedback?: boolean | null
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  feedback?: boolean | null;
 }
 
 const SUBJECTS_OPTIONS = [
@@ -33,37 +36,52 @@ const SUBJECTS_OPTIONS = [
   { value: Subject.PHYSIQUE_CHIMIE, label: "Physique-Chimie" },
   { value: Subject.SVT, label: "SVT" },
   { value: Subject.SES, label: "SES" }
-]
+];
 
 export function AriaChat() {
-  const { data: session } = useSession()
-  const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES)
-  const [conversationId, setConversationId] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [hasAriaAccess, setHasAriaAccess] = useState(false)
+  const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES); // Par défaut sur Mathématiques
+  const [conversationId, setConversationId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasAriaAccess, setHasAriaAccess] = useState(false);
+  const [showSubscriptionPrompt, setShowSubscriptionPrompt] = useState(false);
 
   useEffect(() => {
     if (session?.user.role === 'ELEVE') {
-      setIsAuthenticated(true)
+      setIsAuthenticated(true);
       // TODO: Vérifier les droits ARIA de l'élève
-      setHasAriaAccess(true)
+      setHasAriaAccess(true);
     } else {
-      setIsAuthenticated(false)
-      setHasAriaAccess(false)
+      setIsAuthenticated(false);
+      setHasAriaAccess(false);
     }
-  }, [session])
+  }, [session]);
+
+  // Message d'accueil initial
+  useEffect(() => {
+    if (session?.user && messages.length === 0) {
+      setMessages([
+        {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `Bonjour ${session.user.firstName}! Je suis ARIA. Comment puis-je vous aider en ${selectedSubject} aujourd'hui ?`,
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [session, messages.length, selectedSubject]);
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim()) return;
 
     if (!isAuthenticated) {
       // Mode démo pour utilisateurs non connectés
-      handleDemoMessage()
-      return
+      handleDemoMessage();
+      return;
     }
 
     const userMessage: Message = {
@@ -71,11 +89,12 @@ export function AriaChat() {
       role: 'user',
       content: input,
       timestamp: new Date()
-    }
+    };
 
-    setMessages(prev => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setShowSubscriptionPrompt(false);
 
     try {
       const response = await fetch('/api/aria/chat', {
@@ -84,49 +103,52 @@ export function AriaChat() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          conversationId: conversationId || undefined,
           subject: selectedSubject,
-          content: input
+          message: input
         })
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
+
+      if (response.status === 429) { // Limite de requêtes atteinte
+        setShowSubscriptionPrompt(true);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: result?.error || "Vous avez atteint votre limite pour aujourd'hui.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsLoading(false);
+        return;
+      }
 
       if (response.ok) {
         const ariaMessage: Message = {
-          id: result.message.id,
+          id: Date.now().toString(),
           role: 'assistant',
-          content: result.message.content,
-          timestamp: new Date(result.message.createdAt)
-        }
+          content: result.response,
+          timestamp: new Date()
+        };
 
-        setMessages(prev => [...prev, ariaMessage])
-        
-        if (!conversationId) {
-          setConversationId(result.conversation.id)
-        }
-
-        // Afficher les nouveaux badges si il y en a
-        if (result.newBadges && result.newBadges.length > 0) {
-          // TODO: Afficher notification de nouveaux badges
-          console.log('Nouveaux badges:', result.newBadges)
-        }
+        setMessages(prev => [...prev, ariaMessage]);
       } else {
-        throw new Error(result.error || 'Erreur lors de la communication avec ARIA')
+        const errorData = await response.json().catch(() => ({ error: "Une erreur de communication est survenue." }));
+        throw new Error(errorData.error || 'Erreur lors de la communication avec ARIA');
       }
-    } catch (error) {
-      console.error('Erreur ARIA:', error)
+    } catch (error: any) {
+      console.error('Erreur ARIA:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "Désolé, je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.",
+        content: error.message || "Désolé, je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.",
         timestamp: new Date()
-      }
-      setMessages(prev => [...prev, errorMessage])
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDemoMessage = () => {
     const userMessage: Message = {
@@ -134,31 +156,31 @@ export function AriaChat() {
       role: 'user',
       content: input,
       timestamp: new Date()
-    }
+    };
 
-    setMessages(prev => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
 
     setTimeout(() => {
-      const demoResponse = messages.length === 0 
+      const demoResponse = messages.length === 0
         ? "Bonjour ! Je suis ARIA, votre assistant IA pédagogique. Pour accéder à toutes mes fonctionnalités et bénéficier d'un suivi personnalisé, connectez-vous à votre compte Nexus Réussite."
-        : "Pour continuer notre conversation et accéder à mes contenus pédagogiques exclusifs, veuillez vous connecter à votre compte."
+        : "Pour continuer notre conversation et accéder à mes contenus pédagogiques exclusifs, veuillez vous connecter à votre compte.";
 
       const ariaMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: demoResponse,
         timestamp: new Date()
-      }
+      };
 
-      setMessages(prev => [...prev, ariaMessage])
-      setIsLoading(false)
-    }, 1500)
-  }
+      setMessages(prev => [...prev, ariaMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const handleFeedback = async (messageId: string, feedback: boolean) => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     try {
       await fetch('/api/aria/feedback', {
@@ -170,23 +192,23 @@ export function AriaChat() {
           messageId,
           feedback
         })
-      })
+      });
 
       // Mettre à jour le message avec le feedback
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg.id === messageId ? { ...msg, feedback } : msg
-      ))
+      ));
     } catch (error) {
-      console.error('Erreur feedback:', error)
+      console.error('Erreur feedback:', error);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   return (
     <>
@@ -199,11 +221,14 @@ export function AriaChat() {
       >
         <Button
           onClick={() => setIsOpen(true)}
+          aria-label="Ouvrir ARIA"
+          data-testid="open-aria-chat"
+          data-testid-nexus="nexus-open-aria-chat"
           className="w-16 h-16 rounded-full shadow-xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 group"
         >
           <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
         </Button>
-        
+
         {/* Bulle d'invitation */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -314,19 +339,22 @@ export function AriaChat() {
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-xl p-4 shadow-sm ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-50 text-bleu-nuit border border-slate-200'
-                        }`}
+                        className={`max-w-[85%] rounded-xl p-4 shadow-sm ${message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-blue-50 text-bleu-nuit border border-slate-200'
+                          }`}
                       >
                         <div className="flex items-start space-x-2">
                           {message.role === 'assistant' && (
                             <Bot className="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0" />
                           )}
-                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <div className="text-sm leading-relaxed">
+                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
                         </div>
-                        
+
                         {/* Feedback pour les réponses ARIA */}
                         {message.role === 'assistant' && isAuthenticated && (
                           <div className="flex items-center space-x-2 mt-3">
@@ -368,6 +396,33 @@ export function AriaChat() {
                     </div>
                   )}
 
+                  {showSubscriptionPrompt && (
+                    <div className="bg-yellow-100 border border-yellow-200 rounded-xl p-6 text-center">
+                      <p className="text-sm text-yellow-800 mb-4 font-medium">
+                        Votre limite quotidienne d'utilisation de l'IA a été atteinte.
+                        <br />
+                        {isAuthenticated ? (
+                          <span>Pour continuer avec ARIA+, souscrivez à un abonnement.</span>
+                        ) : (
+                          <span>Veuillez vous connecter pour bénéficier d'un accès illimité.</span>
+                        )}
+                      </p>
+                      {isAuthenticated ? (
+                        <Button asChild size="default" className="w-full bg-blue-600 hover:bg-blue-700">
+                          <Link href="/dashboard/parent/abonnements">
+                            Souscrire à ARIA+
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button asChild size="default" className="w-full bg-blue-600 hover:bg-blue-700">
+                          <Link href="/auth/signin">
+                            Se Connecter
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
                   {!isAuthenticated && messages.length >= 2 && (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
                       <p className="text-sm text-blue-800 mb-4 font-medium">
@@ -405,20 +460,25 @@ export function AriaChat() {
                         </Select>
                       </div>
                     )}
-                    
+
                     <div className="flex space-x-3">
                       <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder={isAuthenticated ? `Posez votre question en ${SUBJECTS_OPTIONS.find(s => s.value === selectedSubject)?.label}...` : "Posez votre question..."}
-                        disabled={isLoading}
+                        disabled={false}
                         className="flex-1 h-12 text-sm"
+                        data-testid="nexus-aria-input"
+                        data-testid-aria="aria-input"
                       />
                       <Button
                         onClick={handleSendMessage}
                         disabled={!input.trim() || isLoading}
                         size="default"
+                        aria-label="Envoyer le message"
+                        data-testid="aria-send"
+                        data-testid-nexus="nexus-aria-send"
                         className="h-12 px-4 bg-blue-600 hover:bg-blue-700"
                       >
                         <Send className="w-5 h-5" />
@@ -437,5 +497,5 @@ export function AriaChat() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
