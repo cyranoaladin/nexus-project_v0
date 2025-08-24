@@ -1,0 +1,154 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, CreditCard, AlertCircle } from "lucide-react";
+
+interface CreditPurchaseDialogProps {
+  studentId: string;
+  studentName: string;
+  onPurchaseComplete: () => void;
+  defaultOpen?: boolean;
+}
+
+export default function CreditPurchaseDialog({ studentId, studentName, onPurchaseComplete, defaultOpen }: CreditPurchaseDialogProps) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    creditAmount: "",
+    reason: ""
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.creditAmount || isNaN(Number(formData.creditAmount))) {
+      alert("Veuillez entrer un nombre valide de crédits");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/parent/credit-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentId: studentId,
+          creditAmount: parseInt(formData.creditAmount),
+          reason: formData.reason
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message);
+        setOpen(false);
+        setFormData({ creditAmount: "", reason: "" });
+        onPurchaseComplete();
+      } else {
+        const errorData = await response.json();
+        alert(`Erreur: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error requesting credits:', error);
+      alert('Une erreur est survenue lors de la demande de crédits');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+          <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          Acheter des Crédits
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5" />
+            Acheter des Crédits
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulaire sécurisé pour demander l'achat de crédits. Votre demande sera transmise à l'assistant pour validation.
+          </DialogDescription>
+          <p className="text-sm text-gray-600 mt-2">
+            Demande d'achat de crédits pour {studentName}
+          </p>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="creditAmount">Nombre de crédits *</Label>
+            <Input
+              id="creditAmount"
+              type="number"
+              min="1"
+              value={formData.creditAmount}
+              onChange={(e) => setFormData({ ...formData, creditAmount: e.target.value })}
+              placeholder="Ex: 10"
+              required
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="reason">Raison de l'achat (optionnel)</Label>
+            <Textarea
+              id="reason"
+              value={formData.reason}
+              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+              placeholder="Ex: Préparation aux examens, cours supplémentaires..."
+              rows={3}
+            />
+          </div>
+
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Information importante :</p>
+                <p>Votre demande sera envoyée à l'assistant pour approbation. Les crédits seront ajoutés à votre compte une fois approuvés.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button 
+              type="submit" 
+              className="flex-1"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Envoi en cours...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Envoyer la Demande
+                </>
+              )}
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setOpen(false)}
+              className="flex-1"
+              disabled={loading}
+            >
+              Annuler
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+} 

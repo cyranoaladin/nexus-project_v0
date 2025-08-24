@@ -1,0 +1,222 @@
+Audit technique exhaustif du dépôt “nexus-project_v0”
+Contexte: Next.js 14 (App Router) + TypeScript + Prisma + Jest/Playwright + Docker. Règles client prioritaires intégrées (sécurité des secrets, HTTPS, lint+format, doc+tests, CI/CD, monitoring/alerting).
+
+Synthèse exécutive (points majeurs)
+•  Sécurité/Secrets: Pas de secrets en clair dans le code, mais la présence d’un fichier env.txt commité contenant des placeholders (NEXTAUTH_SECRET, OPENAI_API_KEY) est un anti-pattern et risque de confusion. docker-compose embarque un mot de passe par défaut “ChangeMePlease_1234” et DNS Google codés en dur. Webhook Konnect sans vérification de signature → critique.
+•  Base de données: Prisma/schema.prisma paramétré sur SQLite alors que la prod (compose/env.example/docs) vise PostgreSQL. Incohérence majeure à corriger avant toute mise en prod. Migrations SQLite présentes.
+•  Authentification: NextAuth Credentials OK, secret généré dynamiquement si absent (dangereux en prod: rotation implicite des tokens). Middleware RBAC présent. Hash bcrypt côté login; il faut confirmer le hash à la création.
+•  IA/ARIA: Clé OpenAI côté serveur, OK. Modèle “gpt-3.5-turbo” hardcodé (vs OPENAI_MODEL présent dans env.example). Journalisation console seulement.
+•  Paiements: Konnect: endpoint MVP stub, pas d’appel réel, pas d’idempotence, pas de signature webhook, pas de “replay protection”. Wise confirm: flux semi-manuel, pas d’upload preuve (TODO).
+•  Qualité/CI: ESLint activé mais ignoreDuringBuilds: true, Prettier non configuré, pas de Storybook. Pas de pipeline CI/CD versionné, pas de SemVer/tagging, pas d’étapes lint/test/build/deploy automatiques. Couverture 85% non mesurée.
+•  Documentation: Très fournie (/docs, READMEs), onboarding clair. Des divergences avec l’implémentation (BDD Postgres vs SQLite).
+
+Dossier par dossier et fichier par fichier
+
+Racine
+•  package.json
+•  Déps à jour globalement; openai ^4.x OK. next ^14.2.3 OK. bcryptjs présent.
+•  Scripts: tests Jest (unit+integration), Playwright, Prisma, Docker compose.
+•  Manque: scripts lint:fix, format (Prettier), audit. Reco: ajouter “npm run lint”, “prettier --check/--write”, “npm audit --omit=dev”.
+•  next.config.mjs
+•  output: 'standalone' OK Docker.
+•  eslint.ignoreDuringBuilds: true → masque erreurs de lint en build CI (à éviter). images.unoptimized: true (debug) → pénalité perf/SEO en prod.
+•  experimental.ppr: false: OK.
+•  Dockerfile
+•  Multi-stage, npm install puis build, standalone + .prisma + prisma/ copiés: OK.
+•  runner: npm install --omit=dev OK. CMD “node server.js” cohérent avec standalone Next 14.
+•  Reco: ajouter USER non-root, HEALTHCHECK, NODE_OPTIONS=--enable-source-maps, et variables Prisma eng (éventuels).
+•  docker-compose.yml
+•  Service db: postgres:15-alpine; password par défaut “ChangeMePlease_1234” → interdit en prod.
+•  Service next-app: DATABASE_URL via env; prisma migrate deploy au démarrage: OK. DNS 8.8.8.8/8.8.4.4 codés en dur (éviter).
+•  Reco: supprimer DNS hardcodés, secrets via fichiers/manager, healthchecks app, restart policy OK.
+•  .eslintrc.json
+•  Base Next core-web-vitals + typescript. Manque config ESLint + Prettier alignée aux règles (ESLint + Prettier TS/Vue). Reco: intégrer prettier, règles import/order, no-floating-promises, etc.
+•  tsconfig.json
+•  strict: true, moduleResolution: bundler, paths '@/*': OK.
+•  .gitignore
+•  .env* ignorés: OK. env.txt n’est pas ignoré → voir plus bas.
+•  README.md / DOCUMENTATION_TECHNIQUE_LIVRAISON.md / ARCHITECTURE_TECHNIQUE.md / DEVELOPMENT_SETUP.md / POSTGRESQL_SETUP.md
+•  Documentation riche et structurée. Divergences:
+◦  Docs affirment Postgres en prod; le schema.prisma est en SQLite.
+◦  Docs déclarent validations, signatures webhook, etc., non intégrés partout en code.
+•  Reco: aligner doc et code (BDD, environnements, sécurité webhooks).
+
+Dossier prisma/
+•  schema.prisma
+•  datasource db provider="sqlite" url="file:./dev.db" → incohérent avec compose/env.example (Postgres). Modèles riches (User/Profiles/Student/Session/Payment/Aria/...).
+•  Beaucoup de champs JSON stockés en string (ariaSubjects, subjects, embedding, tags) par contrainte SQLite. Si passage Postgres, envisager types JSONB + index GIN.
+•  Indexation: SessionBooking et Notifications bien indexés; d’autres entités pourraient bénéficier d’index (Payment.userId/status, Subscription.studentId/status, Student.userId).
+•  Sécurité: password dans User attendu hashé; pas d’indication de chiffrement PII (email/phone). Reco: au moins hash/salt (bcrypt OK) et audit d’accès. Pour données très sensibles: chiffrement app-layer.
+•  migrations/
+•  Migrations datées SQLite (2025-08-*). Reco: régénérer migrations Postgres une fois datasource corrigée.
+•  dev.db / test.db
+•  Bases SQLite versionnées localement. Ne pas commiter en prod.
+
+Dossier lib/
+•  lib/prisma.ts
+•  Singleton PrismaClient. OK pour Next. Reco: config log niveau 'error' en prod, 'query' en dev, et accélérer fail-fast si DATABASE_URL absent.
+•  lib/auth.ts
+•  NextAuth CredentialsProvider, bcrypt.compare, PrismaAdapter.
+•  secret: generateSecret() si NEXTAUTH_SECRET absent → OK dev, dangereux en prod (instabilité tokens). Reco: exiger NEXTAUTH_SECRET en prod, sinon throw.
+•  callbacks: injecte role/firstName/lastName dans token/session: OK. Pages: signIn custom.
+•  lib/email-service.ts
+•  Nodemailer via env SMTP_*. From utilise process.env.SMTP_FROM. Pas de retry/backoff ni d’anti-spam (rate limit). Templates HTML corrects; URLs basées sur NEXTAUTH_URL.
+•  Reco: ajouter timeouts, retry simple, circuit-breaker light, et templating séparé. Journalisation structurée.
+•  lib/aria.ts
+•  Client OpenAI côté serveur, OK. Le modèle est hardcodé “gpt-3.5-turbo” alors que env.example propose OPENAI_MODEL. Reco: lire process.env.OPENAI_MODEL avec fallback.
+•  RAG: recherche textuelle simple sur PedagogicalContent; OK MVP. Reco: passer à Postgres + pgvector si prévus.
+•  Erreurs OpenAI: renvoi générique, capture 403 → OK. Reco: limites de débit, masquage PII dans logs.
+•  lib/aria/access-control.ts + orchestrator.ts
+•  Vérification droits ARIA: parse ariaSubjects JSON string; robustesse OK (try/catch). Freemium limit 5/jour, update usage; OK MVP.
+•  TODO explicite pour parent → enfant actif: à implémenter.
+•  lib/credits.ts
+•  Grille coûts, calcul du solde via transactions non expirées, débit/remboursement, allocation mensuelle, expiration, règles d’annulation (24h/48h). OK.
+•  Reco: transaction/idempotence côté API pour débit, et index sur expiresAt/type.
+•  lib/validations.ts
+•  Schémas Zod complets (bilan, signin, booking, ARIA). OK. Enum Subject locale pour éviter mismatch client/serveur, cohérent.
+
+Dossier app/api/ (routes principales)
+•  auth/[...nextauth]/route.ts
+•  Branche NextAuth sur authOptions: OK.
+•  bilan-gratuit/route.ts
+•  Référencé dans docs et tests; non affiché ici, mais grep montrait appels. À vérifier hash du mot de passe à la création (bcrypt.hash) et unicité email.
+•  sessions/book/route.ts
+•  Zod, transaction Prisma, vérif crédits, conflit coach, débit crédits: OK. Codes d’erreurs explicites. Reco: idempotence (clé naturelle unique par (studentId, scheduledAt, coachId)) et verrouillage créneau si charge.
+•  payments/konnect/route.ts
+•  Schéma Zod OK. Paiement PENDING créé. Simule URL Konnect; TODO API réelle commentée. Reco critique:
+◦  Ne jamais recevoir “amount” directement du client pour une ressource tarifée, préférer itemKey côté serveur → resolve prix server-side.
+◦  Ajouter idempotency keys (via Payment.externalId) et signature des requêtes sortantes.
+•  webhooks/konnect/route.ts
+•  Aucune vérification de signature (KONNECT_WEBHOOK_SECRET). Risque très élevé. Reco: vérifier en-têtes de signature et rejeter si invalides. Gérer idempotence sur payment_id. Journaliser audit.
+•  payments/wise/confirm/route.ts
+•  Flux semi-manuel; enregistre métadonnées. OK MVP. TODO upload preuve, notification assistante.
+•  aria/chat/route.ts
+•  Auth obligatoire, Zod, contrôle d’accès ARIA et freemium, appel generateAriaResponse, sauvegarde conversation: OK. Reco: rate limiting IP/user, quotas globaux, tolérance aux erreurs OpenAI (timeouts/retry).
+
+Dossier middleware.ts
+•  withAuth protège /dashboard et /session par rôle. Redirection /dashboard → dashboard selon rôle. OK. Reco: ajouter règles CSRF si formulaires, headers de sécurité (cf. middleware headers).
+
+Dossier components/
+•  UI, layout, sections. Pas de anomalies repérées au survol. Reco: a11y systématique (aria-*, roles, images alt), éventuellement intégrer eslint-plugin-jsx-a11y.
+
+Tests (tests/ et e2e/)
+•  Jest configs (unit+integration) + setup files. CollectCoverageFrom paramétré, mais pas de seuils. Reco: enforce coverageThreshold à 85% backend (règle utilisateur).
+•  Tests unitaires (credits, validations) détaillés, couvrent cas limites. OK.
+•  Tests intégration API présents (bilan-gratuit, sessions/book). OK.
+•  E2E Playwright: config avec webServer, baseURL 3001, projets multi-navigateurs, timeouts augmentés. Spécs auth, aria, subscription. OK. Reco: rendre non .skip les tests concernés; intégrer au CI.
+
+Dossier scripts/
+•  scripts/check-config.js
+•  Vérifie variables d’env presence (grep détecté). Utile pour CI avant build.
+
+Dossier prisma/dev.db et test.db
+•  Ne pas déployer en prod. OK en dev; restent dans le repo (non ignorés). Reco: ignorer/test assets appropriés.
+
+Dossier public/
+•  Assets, manifest. OK. Reco: optimiser images si images.unoptimized désactivé en prod.
+
+Dossier docs divers
+•  ARCHITECTURE_TECHNIQUE.md, DOCUMENTATION_TECHNIQUE_LIVRAISON.md, POSTGRESQL_SETUP.md, etc.
+•  Très complets. Plusieurs extraits affirment des éléments (ex: Postgres provider, signature webhooks) qui ne sont pas encore alignés dans le code. Reco: “source de vérité” = code; mettre à jour l’un ou l’autre.
+
+Conformité aux règles utilisateur (résumé)
+•  Secrets et HTTPS
+•  Pas de secrets en clair dans le code. env.txt commité avec placeholders → à éviter. HTTPS exigé en prod: NEXTAUTH_URL https en env.example OK; pas d’enforcement HSTS/redirect côté app → Reco middleware/NGINX.
+•  Style/Lint/Prettier/Storybook
+•  ESLint basique; Prettier non présent; pas de Storybook. Reco: ajouter/eslint-config-prettier + prettier, et Storybook pour UI.
+•  Dépendances obsolètes/vulnérables
+•  Non audité automatiquement ici. Reco: exécuter npm audit et corriger à 0 vuln selon règle.
+•  Tests et couverture ≥85%
+•  Tests existants solides, mais pas de seuil enforce. Reco: coverageThreshold dans Jest et rapport en CI.
+•  CI/CD complet
+•  Non présent (.github/workflows absent). Reco: pipeline lint→test→build→image→deploy, tagging SemVer, rollback.
+•  Changelog/README/Docs
+•  README/Docs très fournis. Pas de CHANGELOG versionné ni tag SemVer. Reco: CHANGELOG.md + releases Git.
+•  Logging/Monitoring/Alerting
+•  console.error simple; pas de Sentry/Datadog. Reco: pino/winston + Sentry, alertes basiques (Healthcheck/uptime + webhook).
+
+Risques identifiés et recommandations prioritaires (P0 à P3)
+
+P0 – Bloquants prod/sécurité
+•  Webhook Konnect sans signature ni idempotence
+•  Implémenter vérification HMAC (KONNECT_WEBHOOK_SECRET), refuser si invalide. Stocker idempotency (ex: metadata.konnectTransactionId) et ignorer doublons.
+•  Incohérence BDD: schema.prisma en SQLite mais prod en Postgres
+•  Aligner datasource sur PostgreSQL (provider = "postgresql", url = env("DATABASE_URL")), régénérer migrations, tester sur Postgres local via compose.
+•  NEXTAUTH_SECRET généré dynamiquement si absent
+•  En production, exiger NEXTAUTH_SECRET présent (throw si manquant); ne pas auto-générer.
+•  Mots de passe par défaut / DNS hardcodés dans docker-compose
+•  Remplacer “ChangeMePlease_1234” par variable secrète fournie via environnement/secrets. Supprimer DNS 8.8.* ou paramétrables.
+
+P1 – Qualité/robustesse
+•  Pipeline CI/CD manquant
+•  Mettre en place CI GitHub Actions: lint (ESLint+Prettier) → tests unit/int/E2E (headless) → build → scan vulnérabilités → build image Docker → déploiement (environnements). Enforcements: coverage ≥85%, npm audit zéro vuln.
+•  Lint/Format
+•  Ajouter Prettier + eslint-config-prettier; retirer ignoreDuringBuilds en prod/CI; activer “next lint” bloquant.
+•  Paiements Konnect côté serveur
+•  Ne pas accepter “amount”/“description” du client; résoudre côté serveur depuis “itemKey”. Utiliser idempotency-key (header) pour appels sortants.
+
+P2 – Observabilité/fiabilité
+•  Logging structuré + monitoring
+•  Intégrer pino/winston; tracer erreurs; connecter Sentry; ajouter /api/health plus riche (DB + external services).
+•  Taux limites et anti-abus (ARIA et API)
+•  Rate limiting par IP/user (ex: Upstash Redis Ratelimit ou middleware simple).
+•  Emails
+•  Ajouter retry, timeouts, et file d’attente (BullMQ/Redis) si volume.
+
+P3 – Perf, a11y, DX
+•  next.config images.unoptimized: true
+•  Activer optimisation en prod. Vérifier tailles images/public.
+•  Accessibilité UI
+•  Intégrer eslint-plugin-jsx-a11y, audit axe-core.
+•  Storybook
+•  Créer stories pour composants UI et sections; doc vivante.
+
+Contrôles par fichiers sensibles (échantillon ciblé)
+•  lib/aria.ts: modèle hardcodé “gpt-3.5-turbo” → utiliser process.env.OPENAI_MODEL || “gpt-4o-mini”.
+•  app/api/webhooks/konnect/route.ts: ajouter vérification signature, idempotence, et validation stricte du payload.
+•  app/api/payments/konnect/route.ts: sécuriser derive montant côté serveur; ne jamais faire confiance au client.
+•  lib/auth.ts: require NEXTAUTH_SECRET en prod.
+•  env.txt: retirer du repo ou renommer en sample non ambigu (env.local.example). .gitignore déjà couvre .env*.
+•  prisma/schema.prisma: migrer provider → postgresql, passer les champs JSON string → JSONB si Postgres, ajouter index.
+
+Tests et couverture
+•  Unitaire: credits/validations complets. Intégration: bilan-gratuit, sessions/book. E2E: auth/subscription/aria. Reco:
+•  Ajouter coverageThreshold: { global: { branches/functions/lines/statements: 85 } }.
+•  Activer Playwright en CI (chromium only pour vitesse), headless true, reporter junit + html artifact.
+•  Tests critiques E2E: paiement Konnect (mock/sandbox), webhook signature, parcours parent → validation assistante.
+
+CI/CD attendu (conforme aux règles)
+•  Lint → Test (unit/integration, coverage≥85) → Build → Scan (npm audit) → Docker image → Tag Git (SemVer) → Deploy → Health check → Notifs → Rollback possible.
+•  Ajouter “npm run check-config” en étape précoce pour vérifier les ENV obligatoires.
+
+Conformité au RGPD/sécurité (suggestions)
+•  Journalisation: pas de PII dans logs. Masquer emails/phones.
+•  Data retention: définir TTL pour messages ARIA si nécessaire.
+•  Sécurité HTTP: forcer HTTPS (Nginx), HSTS, CSP, X-Frame-Options pour pages sensibles, SameSite/Lax+Secure pour cookies.
+
+Checklist règles utilisateur (état)
+•  Secret mgmt (dotenv, pas de hardcode): Partiellement conforme (env.txt commité, compose password par défaut) → KO à corriger.
+•  HTTPS prod: Aligné via NEXTAUTH_URL, mais enforcement non montré côté app → À compléter.
+•  Lint/Format (ESLint + Prettier): ESLint partiel, Prettier absent → KO.
+•  Doc inline/Storybook/OpenAPI: Doc riche, pas de Storybook ni OpenAPI → Partiel.
+•  Déps non obsolètes: À auditer (npm audit requis) → Inconnu.
+•  Tests unit/int/E2E et 85% backend: Bon socle, seuil non enforce → Partiel.
+•  CI/CD (lint, test, build, image, deploy) + tag SemVer + rollback: Absent → KO.
+•  Changelog/README/docs à jour: README et docs OK; pas de CHANGELOG → Partiel.
+•  Diagrammes d’archi /docs: Présents → OK.
+•  Onboarding <2h: Docs très guidées → probablement OK.
+•  Logging critiquable exploitable + monitoring/alerting: Console basique, pas de monitoring → KO.
+
+Conclusion
+Le projet est très avancé fonctionnellement (auth, réservez une session, ARIA, paiements MVP, tests). Avant mise en production, des chantiers critiques doivent être traités:
+1) Sécurité et cohérence: Webhooks signés/idempotents, secrets non committés, NextAuth secret requis en prod.
+2) Base de données: Alignement complet sur PostgreSQL (schema/migrations), retrait de SQLite en prod.
+3) Qualité et CI/CD: Lint+Prettier, couverture enforce 85%, pipeline CI/CD complet avec tagging et rollback.
+4) Observabilité et robustesse: Logging structuré, monitoring (Sentry), rate limiting.
+
+Si vous le souhaitez, je peux produire:
+•  Une grille d’écarts détaillée (fichier) classée P0→P3 avec chemins/ligne concernée.
+•  Un plan d’actions “Quick Wins” (1-2 jours) vs “Stabilisation” (1-2 semaines).
+•  Des snippets précis (non appliqués) pour sécuriser Webhooks Konnect, migrer Prisma vers Postgres, et ajouter coverageThreshold/CI GitHub Actions.
+
+

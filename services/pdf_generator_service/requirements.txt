@@ -1,0 +1,7 @@
+# services/pdf_generator_service/requirements.txt
+fastapi
+uvicorn[standard]
+pydantic
+PyLaTeX
+prometheus-fastapi-instrumentator
+

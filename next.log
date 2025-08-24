@@ -1,0 +1,27 @@
+
+> nexus-reussite-app@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.31
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1744ms
+ ✓ Compiled /api/health in 434ms (58 modules)
+ GET /api/health 200 in 622ms
+   Reload env: .env.local
+ ✓ Compiled in 1209ms (260 modules)
+   Reload env: .env.local
+ ✓ Compiled in 117ms (202 modules)
+   Reload env: .env
+ ✓ Compiled in 240ms (202 modules)
+   Reload env: .env.local
+ ✓ Compiled in 36ms (202 modules)
+   Reload env: .env
+ ✓ Compiled in 106ms (202 modules)
+ ✓ Compiled in 42ms (202 modules)
+   Reload env: .env
+ ✓ Compiled in 47ms (202 modules)
+   Reload env: .env
+ ✓ Compiled in 47ms (202 modules)

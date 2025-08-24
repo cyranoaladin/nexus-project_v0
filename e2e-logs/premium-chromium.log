@@ -1,0 +1,5 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › e2e/aria-premium-flow.spec.ts:5:7 › ARIA Premium Flow - Marie Dupont › personalized answer with mastery hint and PDF success, then remembers context
+[1A[2K  1 passed (5.3s)
