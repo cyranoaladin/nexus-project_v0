@@ -42,3 +42,12 @@ next-env.d.ts
 
 /app/generated/prisma
 .env
+
+# Ignore environments and builds
+.venv/
+**/.venv/
+node_modules/
+.next/
+dist/
+coverage/
+playwright-report/
