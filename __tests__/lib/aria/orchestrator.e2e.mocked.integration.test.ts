@@ -54,7 +54,7 @@ describe('E2E orchestrator flow (mocked HTTP interactions)', () => {
     // RAG ingestion appelée
     expect(global.fetch).toHaveBeenCalled();
     const url = (global.fetch as jest.Mock).mock.calls[0][0];
-    expect(url).toBe('http://rag_service:8001/ingest');
+    expect(String(url)).toMatch(/\/ingest$/);
 
     // Réponse finale contient l’URL du document
     expect(res.documentUrl).toBe('/pdfs/fiche.pdf');

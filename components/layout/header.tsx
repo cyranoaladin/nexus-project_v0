@@ -51,7 +51,8 @@ export function Header() {
               alt="Nexus Réussite"
               width={48}
               height={48}
-              className="h-10 w-10 md:h-12 md:w-12"
+              className="h-10 md:h-12"
+              style={{ width: 'auto' }}
               priority
             />
             <div className="font-bold text-xl md:text-2xl">

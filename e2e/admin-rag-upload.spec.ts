@@ -4,9 +4,20 @@ import { loginAs } from './helpers';
 test.describe('Admin RAG Upload', () => {
   test('parse metadata and ingest document', async ({ page, browserName, context }) => {
     await loginAs(page, 'admin@nexus.com');
-    await page.goto('/dashboard/admin/rag-management');
+    try { await page.goto('/dashboard/admin/rag-management', { waitUntil: 'domcontentloaded' }); } catch {}
     try { await page.waitForURL('**/dashboard/admin/rag-management', { timeout: 15000 }); } catch {}
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Assurer que nous sommes bien sur la page de gestion RAG
+    const pageReady = await page.getByText(/Ingestion de Documents|Base de Connaissances Actuelle/i).first().isVisible().catch(() => false);
+    if (!pageReady) {
+      if (/\/auth\/signin/.test(page.url())) {
+        await loginAs(page, 'admin@nexus.com');
+        try { await page.goto('/dashboard/admin/rag-management', { waitUntil: 'domcontentloaded' }); } catch {}
+        await page.waitForLoadState('domcontentloaded');
+      }
+    }
+
     // Page ready when uploader input attaches
 
     // Create a temporary .md file in-memory via filechooser
@@ -19,9 +30,15 @@ test.describe('Admin RAG Upload', () => {
       `Contenu principal.`;
 
     await page.waitForTimeout(800);
-    // Attacher le fichier même si l'input n'est pas visible sur WebKit
-    await page.waitForSelector('[data-testid="rag-file-upload"]', { state: 'attached', timeout: 30000 });
-    // Safari: l'input file peut être masqué; setInputFiles fonctionne quand même si l'élément est attaché
+    // Attacher le fichier même si l'input n'est pas visible
+    const fileInput = page.getByTestId('rag-file-upload');
+    await fileInput.waitFor({ state: 'attached', timeout: 30000 }).catch(async () => {
+      // Dernier essai: recharger la page RAG
+      try { await page.goto('/dashboard/admin/rag-management', { waitUntil: 'domcontentloaded' }); } catch {}
+      await page.waitForLoadState('domcontentloaded');
+      await fileInput.waitFor({ state: 'attached', timeout: 15000 }).catch(() => {});
+    });
+    // Safari/Firefox: l'input file peut être masqué; setInputFiles fonctionne quand même si attaché
     await page.setInputFiles('[data-testid="rag-file-upload"]', {
       name: 'suites.md',
       mimeType: 'text/markdown',

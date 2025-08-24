@@ -50,7 +50,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await req.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: any;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const { type, ...data } = body;
 
     if (type === 'weekly') {

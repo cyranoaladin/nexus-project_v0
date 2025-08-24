@@ -17,11 +17,35 @@ async function postRequest<T>(url: string, body: any): Promise<T> {
     });
 
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`Erreur HTTP ${response.status} de ${url}: ${errorBody}`);
+      const errText = typeof (response as any).text === 'function'
+        ? await (response as any).text().catch(() => '')
+        : '';
+      console.error(`Erreur HTTP ${response.status} de ${url}: ${errText}`);
       throw new Error(`Le service a répondu avec une erreur: ${response.status}`);
     }
-    return response.json();
+
+    // Essayer d'abord JSON si disponible
+    if (typeof (response as any).json === 'function') {
+      try {
+        return await (response as any).json();
+      } catch {}
+    }
+    // Sinon, essayer text -> JSON.parse
+    if (typeof (response as any).text === 'function') {
+      try {
+        const text = await (response as any).text();
+        if (!text) return {} as T;
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          console.warn(`Réponse non-JSON depuis ${url}, corps tronqué: ${text.slice(0, 120)}...`);
+          return {} as T;
+        }
+      } catch {}
+    }
+
+    // Dernier recours
+    return {} as T;
   } catch (error) {
     console.error(`Impossible de contacter le service à ${url}:`, error);
     throw new Error(`Erreur de communication avec un service interne.`);

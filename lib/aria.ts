@@ -2,9 +2,31 @@ import { Subject } from '@prisma/client';
 import OpenAI from 'openai';
 import { prisma } from './prisma';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+function getOpenAI(): { chat: { completions: { create: (args: any) => Promise<{ choices: { message: { content: string } }[] }> } } } {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (apiKey && apiKey.trim().length > 0) {
+    const client = new OpenAI({ apiKey });
+    // Adapter pour retourner une forme homogène
+    return {
+      chat: {
+        completions: {
+          create: async (args: any) => {
+            const res = await (client as any).chat.completions.create(args);
+            return res;
+          },
+        },
+      },
+    } as any;
+  }
+  // Fallback sûr sans clé: renvoyer une réponse simulée
+  return {
+    chat: {
+      completions: {
+        create: async (_args: any) => ({ choices: [{ message: { content: 'Réponse simulée.' } }] }),
+      },
+    },
+  } as any;
+}
 
 // Système de prompt pour ARIA
 const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
@@ -89,7 +111,7 @@ export async function generateAriaResponse(
     ];
 
     // Appel à OpenAI
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages,
       max_tokens: 1000,

@@ -413,6 +413,113 @@ async function main() {
     ]
   });
 
+  // 10. Coach availabilities pour quelques coachs
+  const someCoaches = await prisma.user.findMany({ where: { role: 'COACH' }, take: 3 });
+  for (const coach of someCoaches) {
+    try {
+      await prisma.coachAvailability.upsert({
+        where: {
+          // composite via unique([...])
+          coachId_dayOfWeek_startTime_endTime_specificDate: {
+            coachId: coach.id,
+            dayOfWeek: 1,
+            startTime: '09:00',
+            endTime: '17:00',
+            specificDate: null,
+          } as any,
+        },
+        update: {},
+        create: {
+          coachId: coach.id,
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '17:00',
+          isAvailable: true,
+          isRecurring: true,
+        },
+      });
+    } catch {}
+  }
+
+  // 11. Session booking + notifications/reminders
+  const studentUserAny = await prisma.user.findFirst({ where: { role: 'ELEVE' } });
+  const parentUserAny = await prisma.user.findFirst({ where: { role: 'PARENT' } });
+  const coachUserAny = await prisma.user.findFirst({ where: { role: 'COACH' } });
+  if (studentUserAny && coachUserAny) {
+    const booking = await prisma.sessionBooking.create({
+      data: {
+        studentId: studentUserAny.id,
+        coachId: coachUserAny.id,
+        parentId: parentUserAny?.id,
+        subject: 'MATHEMATIQUES' as any,
+        title: 'Séance de test',
+        scheduledDate: new Date(Date.now() + 24 * 3600 * 1000),
+        startTime: '14:00',
+        endTime: '15:00',
+        duration: 60,
+        status: 'SCHEDULED' as any,
+        type: 'INDIVIDUAL' as any,
+        modality: 'ONLINE' as any,
+        creditsUsed: 1,
+      }
+    });
+    await prisma.sessionNotification.create({
+      data: {
+        sessionId: booking.id,
+        userId: studentUserAny.id,
+        type: 'SESSION_BOOKED' as any,
+        title: 'Réservation créée',
+        message: 'Votre session a été planifiée.',
+        method: 'EMAIL' as any,
+      }
+    });
+    await prisma.sessionReminder.create({
+      data: {
+        sessionId: booking.id,
+        reminderType: 'ONE_DAY_BEFORE' as any,
+        scheduledFor: new Date(Date.now() + 23 * 3600 * 1000),
+      }
+    });
+  }
+
+  // 12. Notifications système génériques
+  const anyUser = await prisma.user.findFirst();
+  if (anyUser) {
+    await prisma.notification.createMany({
+      data: [
+        { userId: anyUser.id, userRole: 'ADMIN' as any, type: 'PAYMENT_REQUIRED', title: 'Paiement requis', message: 'Un paiement en attente.' , data: '{}' },
+        { userId: anyUser.id, userRole: 'PARENT' as any, type: 'SESSION_REMINDER', title: 'Rappel de session', message: 'Votre session commence bientôt.' , data: '{}' },
+      ]
+    });
+  }
+
+  // 13. Demandes d’abonnement
+  const anyStudentForRequest = await prisma.student.findFirst();
+  if (anyStudentForRequest) {
+    await prisma.subscriptionRequest.create({
+      data: {
+        studentId: anyStudentForRequest.id,
+        requestType: 'PLAN_CHANGE',
+        planName: 'HYBRIDE',
+        monthlyPrice: 300,
+        status: 'PENDING',
+        requestedBy: 'parent',
+        requestedByEmail: 'parent@example.com',
+      }
+    });
+  }
+
+  // 14. Badges de démonstration
+  const badge = await prisma.badge.upsert({
+    where: { name: 'ASSIDUITE_BRONZE' },
+    update: {},
+    create: { name: 'ASSIDUITE_BRONZE', description: 'Présence régulière', category: 'ASSIDUITE', condition: 'Avoir assisté à 5 sessions consécutives' }
+  });
+  const anyStudent2 = await prisma.student.findFirst();
+  if (anyStudent2) {
+    await prisma.studentBadge.create({ data: { studentId: anyStudent2.id, badgeId: badge.id } });
+  }
+
   console.log(`Seeding finished.`);
 }
 

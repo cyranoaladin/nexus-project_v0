@@ -12,7 +12,7 @@ import SessionBooking from "@/components/ui/session-booking";
 import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AddChildDialog from "./add-child-dialog";
 import { AriaAddonDialog } from "./aria-addon-dialog";
 import CreditPurchaseDialog from "./credit-purchase-dialog";
@@ -67,7 +67,7 @@ export default function DashboardParent() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [showBookingDialog, setShowBookingDialog] = useState(false);
 
-  const refreshDashboardData = async () => {
+  const refreshDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -90,7 +90,7 @@ export default function DashboardParent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedChild]);
 
 
 
@@ -103,7 +103,7 @@ export default function DashboardParent() {
     }
 
     refreshDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, refreshDashboardData]);
 
   if (status === "loading" || loading) {
     return (

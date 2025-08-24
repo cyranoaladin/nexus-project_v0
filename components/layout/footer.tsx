@@ -16,7 +16,7 @@ export function Footer() {
                 width={40}
                 height={40}
                 className="h-8 md:h-10"
-                style={{ width: 'auto' }}
+                style={{ width: 'auto', height: 'auto' }}
               />
               <div className="font-bold text-lg md:text-xl">
                 <span className="text-blue-300">Nexus</span>

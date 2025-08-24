@@ -4,12 +4,34 @@
 
 from typing import Any, Dict
 from textwrap import dedent
+import re
 
 class GenerateurTemplatesLaTeX:
     def __init__(self) -> None:
         pass
 
+    def _sanitize_contenu(self, contenu: str) -> str:
+        """
+        Normalise le contenu LaTeX reçu:
+        - Convertit les séquences littérales "\n" en vraies nouvelles lignes
+        - Corrige les backslashes manquants pour les environnements itemize/enumerate
+        """
+        s = contenu
+        # Normalisation basique des fins de ligne et des séquences littérales
+        s = s.replace("\r\n", "\n").replace("\\r\\n", "\n")
+        s = s.replace("\\n", "\n")
+
+        # Répare des oublis de backslash/lettres manquantes uniquement en début de token
+        # Ex.: 'egin{itemize}' -> '\\begin{itemize}', 'nd{itemize}' -> '\\end{itemize}'
+        # Évite de toucher aux séquences déjà correctes comme 'begin{itemize}' ou '\\end{itemize}'.
+        s = re.sub(r"(?<![A-Za-z\\])egin\{itemize\}", r"\\begin{itemize}", s)
+        s = re.sub(r"(?<![A-Za-z\\])nd\{itemize\}", r"\\end{itemize}", s)
+        s = re.sub(r"(?<![A-Za-z\\])egin\{enumerate\}", r"\\begin{enumerate}", s)
+        s = re.sub(r"(?<![A-Za-z\\])nd\{enumerate\}", r"\\end{enumerate}", s)
+        return s
+
     def generer_document(self, type_document: str, contenu: str, matiere: str, nom_eleve: str, options: Dict[str, Any]) -> str:
+        contenu = self._sanitize_contenu(contenu)
         if type_document == 'cours':
             return self._template_cours(contenu, matiere, nom_eleve, options)
         elif type_document == 'fiche_revision':
@@ -23,7 +45,6 @@ class GenerateurTemplatesLaTeX:
             \usepackage[utf8]{inputenc}
             \usepackage[T1]{fontenc}
             \usepackage[french]{babel}
-            \usepackage{lmodern}
             \usepackage{geometry}
             \usepackage{fancyhdr}
             \usepackage{amsmath,amssymb}

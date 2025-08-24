@@ -135,7 +135,7 @@ export async function sendWelcomeEmail(user: any) {
     const template = EMAIL_TEMPLATES.WELCOME;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: user.email,
       subject: template.subject,
       html: template.html(user)
@@ -152,7 +152,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
     const template = EMAIL_TEMPLATES.SESSION_CONFIRMATION;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: student.email,
       subject: template.subject,
       html: template.html(session, student, coach)
@@ -198,7 +198,7 @@ export async function sendSessionReminderEmail(session: any, student: any, video
     const template = EMAIL_TEMPLATES.SESSION_REMINDER;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: student.email,
       subject: template.subject,
       html: template.html(session, student, videoLink)

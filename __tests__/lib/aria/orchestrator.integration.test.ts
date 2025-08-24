@@ -90,7 +90,7 @@ describe('AriaOrchestrator Integration Tests', () => {
     // Vérifie l'appel à /ingest du RAG service
     expect(global.fetch).toHaveBeenCalled();
     const url = (global.fetch as jest.Mock).mock.calls[0][0];
-    expect(url).toBe('http://rag_service:8001/ingest');
+    expect(String(url)).toMatch(/\/ingest$/);
 
     // Vérifier que l'orchestrateur a bien persisté des messages
     expect(prisma.ariaMessage.createMany).toHaveBeenCalledTimes(1);

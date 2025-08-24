@@ -6,7 +6,19 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ success: false, error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await req.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ success: false, error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: unknown;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ success: false, error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
 
     // Validation des données avec Zod
     const validatedData = bilanGratuitSchema.parse(body);

@@ -31,7 +31,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
     }
 
-    const body = await req.json();
+    // Sécuriser le parsing JSON et gérer les cas de corps vide / type invalide
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+
+    let raw = '';
+    try {
+      raw = await req.text();
+    } catch {
+      raw = '';
+    }
+
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
+
     const parsedBody = chatRequestSchema.safeParse(body);
 
     if (!parsedBody.success) {
@@ -78,7 +101,12 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("[API_ARIA_CHAT_ERROR]", error);
+    try {
+      const { logger } = await import('@/lib/logger');
+      logger.error({ err: String(error) }, 'API_ARIA_CHAT_ERROR');
+    } catch {
+      console.error('[API_ARIA_CHAT_ERROR]', error);
+    }
     return NextResponse.json({ error: "Une erreur est survenue lors de la communication avec ARIA." }, { status: 500 });
   }
 }

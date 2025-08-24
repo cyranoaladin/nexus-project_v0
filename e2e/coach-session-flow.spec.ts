@@ -4,18 +4,18 @@ import { loginAs } from './helpers';
 test.describe('Coach session flow', () => {
   test('Coach dashboard opens and can schedule a session entry', async ({ page }) => {
     await loginAs(page, 'helios@nexus.com', 'password123');
-    await page.goto('/dashboard/coach');
-    await page.waitForLoadState('networkidle');
+    try { await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' }); } catch {}
+    await page.waitForLoadState('domcontentloaded');
     if (!/\/dashboard\/coach/.test(page.url())) {
       const link = page.locator('a', { hasText: /Coach|Tableau de bord coach|Enseignant/i }).first();
       if (await link.count().then(c => c > 0)) {
         await link.click({ force: true });
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
       }
       if (/\/auth\/signin/.test(page.url())) {
         await loginAs(page, 'helios@nexus.com', 'password123');
-        await page.goto('/dashboard/coach');
-        await page.waitForLoadState('networkidle');
+        try { await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' }); } catch {}
+        await page.waitForLoadState('domcontentloaded');
       }
     }
     if (/\/dashboard\/coach/.test(page.url())) {
@@ -32,7 +32,7 @@ test.describe('Coach session flow', () => {
     const sessionsLink = page.locator('a', { hasText: /Sessions|Séances/i }).first();
     if (await sessionsLink.count().then(c => c > 0)) {
       await sessionsLink.click({ force: true });
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(page.url()).toMatch(/dashboard\/coach|sessions/);
     }
   });

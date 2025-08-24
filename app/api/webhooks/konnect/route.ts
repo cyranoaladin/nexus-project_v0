@@ -86,24 +86,25 @@ export async function POST(request: NextRequest) {
       if (payment.type === 'SUBSCRIPTION') {
         // Activer l'abonnement
         const student = await prisma.student.findUnique({
-          where: { id: metadata.studentId }
+          where: { id: metadata?.studentId }
         });
 
         if (student) {
-          // Désactiver l'ancien abonnement
+          const planKey = String(metadata?.itemKey || '').trim();
+          // Désactiver l'ancien abonnement actif
           await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
+              studentId: student.id,
               status: 'ACTIVE'
             },
             data: { status: 'CANCELLED' }
           });
 
-          // Activer le nouvel abonnement
-          await prisma.subscription.updateMany({
+          // Tenter d'activer une ligne INACTIVE existante
+          const updated = await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
-              planName: metadata.itemKey,
+              studentId: student.id,
+              planName: planKey,
               status: 'INACTIVE'
             },
             data: {
@@ -112,10 +113,26 @@ export async function POST(request: NextRequest) {
             }
           });
 
+          // Si aucune ligne n'a été activée, créer un abonnement ex-nihilo (fallback)
+          if (updated.count === 0) {
+            await prisma.subscription.create({
+              data: {
+                studentId: student.id,
+                planName: planKey || 'HYBRIDE',
+                monthlyPrice: typeof payment.amount === 'number' ? Math.round(payment.amount) : 0,
+                creditsPerMonth: 8,
+                status: 'ACTIVE',
+                startDate: new Date(),
+                ariaSubjects: '[]',
+                ariaCost: 0,
+              }
+            });
+          }
+
           // Allouer les crédits mensuels si applicable
           const subscription = await prisma.subscription.findFirst({
             where: {
-              studentId: metadata.studentId,
+              studentId: student.id,
               status: 'ACTIVE'
             }
           });
@@ -126,7 +143,7 @@ export async function POST(request: NextRequest) {
 
             await prisma.creditTransaction.create({
               data: {
-                studentId: metadata.studentId,
+                studentId: student.id,
                 type: 'MONTHLY_ALLOCATION',
                 amount: subscription.creditsPerMonth,
                 description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
@@ -156,7 +173,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur webhook Konnect:', error);
+    try {
+      const { logger } = await import('@/lib/logger');
+      logger.error({ err: String(error) }, 'Erreur webhook Konnect');
+    } catch {
+      console.error('Erreur webhook Konnect:', error);
+    }
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

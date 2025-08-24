@@ -41,6 +41,7 @@ const SUBJECTS_OPTIONS = [
 export function AriaChat() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const isE2E = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_E2E === '1';
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES); // Par défaut sur Mathématiques
@@ -60,6 +61,13 @@ export function AriaChat() {
       setHasAriaAccess(false);
     }
   }, [session]);
+
+  // Ouvrir automatiquement la fenêtre en mode E2E pour les tests
+  useEffect(() => {
+    if (isE2E) {
+      setIsOpen(true);
+    }
+  }, [isE2E]);
 
   // Message d'accueil initial
   useEffect(() => {
@@ -469,8 +477,7 @@ export function AriaChat() {
                         placeholder={isAuthenticated ? `Posez votre question en ${SUBJECTS_OPTIONS.find(s => s.value === selectedSubject)?.label}...` : "Posez votre question..."}
                         disabled={false}
                         className="flex-1 h-12 text-sm"
-                        data-testid="nexus-aria-input"
-                        data-testid-aria="aria-input"
+                        data-testid="aria-input"
                       />
                       <Button
                         onClick={handleSendMessage}

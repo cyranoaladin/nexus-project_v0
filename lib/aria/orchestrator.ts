@@ -1,7 +1,7 @@
 // lib/aria/orchestrator.ts
 import { prisma } from '@/lib/prisma';
 import { AriaMessage, ParentProfile, Student, Subject, User } from '@prisma/client';
-import { llm_service, pdf_generator_service } from './services';
+import { llm_service, pdf_generator_service, rag_service } from './services';
 
 // Interfaces pour une meilleure clarté du contexte
 interface FullStudentProfile extends Student {
@@ -227,12 +227,21 @@ export class AriaOrchestrator {
             studentId: this.studentId,
           }
         };
-        // Conserver l'appel direct (compatibilité tests) ; en production, un reverse proxy/port mappe l'accès.
-        fetch('http://rag_service:8001/ingest', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).catch(() => {});
+        // Utiliser le client RAG interne, respectant RAG_SERVICE_URL
+        const base = process.env.RAG_SERVICE_URL || 'http://localhost:8001';
+        try {
+          if ((rag_service as any)?.ingest) {
+            rag_service
+              .ingest(payload)
+              .catch(() => { /* ignorer les erreurs d'ingestion */ });
+          } else if (typeof fetch === 'function') {
+            fetch(`${base}/ingest`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }).catch(() => { /* ignorer les erreurs d'ingestion */ });
+          }
+        } catch {}
       }
     } catch {}
 

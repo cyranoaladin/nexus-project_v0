@@ -20,8 +20,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
     }
 
-    // 2. Validation du corps de la requête
-    const body = await req.json();
+    // 2. Validation du corps de la requête (parser en sécurité)
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await req.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: unknown;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const parsedBody = ingestRequestSchema.safeParse(body);
 
     if (!parsedBody.success) {

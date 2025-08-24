@@ -5,7 +5,8 @@ FROM python:3.11-slim
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended \
-      texlive-fonts-extra ghostscript make && \
+      texlive-fonts-extra texlive-lang-french texlive-xetex latexmk \
+      ghostscript make && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

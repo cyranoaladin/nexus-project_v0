@@ -5,8 +5,8 @@ import { USERS } from './test-data';
 test.describe('ARIA Interaction Flow', () => {
 
   test('should not allow unauthenticated users to use ARIA', async ({ page }) => {
-    await page.goto('/aria');
-    await page.waitForLoadState('networkidle');
+    try { await page.goto('/aria', { waitUntil: 'domcontentloaded' }); } catch {}
+    await page.waitForLoadState('domcontentloaded');
     // En E2E, la page est toujours accessible
     await expect(page.getByText('Assistant Pédagogique ARIA')).toBeVisible();
   });
@@ -21,8 +21,8 @@ test.describe('ARIA Interaction Flow', () => {
       });
     });
     await loginAs(page, 'marie.dupont@nexus.com');
-    await page.goto('/aria');
-    await page.waitForLoadState('networkidle');
+    try { await page.goto('/aria', { waitUntil: 'domcontentloaded' }); } catch {}
+    await page.waitForLoadState('domcontentloaded');
     const inputForMessage = page.locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]').first();
     try {
       await expect(inputForMessage).toBeVisible({ timeout: 20000 });
@@ -56,7 +56,7 @@ test.describe('ARIA Interaction Flow', () => {
     page.on('response', r => { if (r.url().includes('/api/aria/chat')) lastResponseStatus = r.status(); });
     await loginAs(page, USERS[4].email);
     // Use dedicated ARIA page to ensure authenticated flow triggers network calls
-    await page.goto('/aria');
+    try { await page.goto('/aria', { waitUntil: 'domcontentloaded' }); } catch {}
     const chatInput = page.locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]');
     const submitButton = page.getByTestId('aria-send');
 

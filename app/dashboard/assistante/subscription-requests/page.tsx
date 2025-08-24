@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,18 +52,7 @@ export default function SubscriptionRequestsPage() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchRequests();
-  }, [session, status, router, statusFilter]);
-
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -82,7 +71,18 @@ export default function SubscriptionRequestsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ASSISTANTE') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchRequests();
+  }, [session, status, router, fetchRequests]);
 
   const handleAction = async (requestId: string, action: 'APPROVED' | 'REJECTED') => {
     setProcessing(true);

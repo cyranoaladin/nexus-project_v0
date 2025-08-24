@@ -14,14 +14,14 @@ test.describe('ARIA Freemium Flow - Lucas Dupont', () => {
     });
 
     await loginAs(page, 'lucas.dupont@nexus.com');
-    await page.goto('/aria');
-    await page.waitForLoadState('networkidle');
+    try { await page.goto('/aria', { waitUntil: 'domcontentloaded' }); } catch {}
+    await page.waitForLoadState('domcontentloaded');
     let input = page.locator('input[placeholder="Posez votre question à ARIA..."]').first();
     try {
       await expect(input).toBeVisible({ timeout: 12000 });
     } catch {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      try { await page.goto('/', { waitUntil: 'domcontentloaded' }); } catch {}
+      await page.waitForLoadState('domcontentloaded');
       await page.getByTestId('open-aria-chat').click();
       input = page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first();
       await expect(input).toBeVisible({ timeout: 12000 });

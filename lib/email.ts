@@ -31,7 +31,7 @@ export async function sendWelcomeParentEmail(
   tempPassword?: string
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'contact@nexus-reussite.tn',
+    from: (process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexus-reussite.tn'),
     to: parentEmail,
     subject: '🎉 Bienvenue chez Nexus Réussite !',
     html: `
@@ -106,7 +106,7 @@ export async function sendCreditExpirationReminder(
   expirationDate: Date
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'contact@nexus-reussite.tn',
+    from: (process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexus-reussite.tn'),
     to: parentEmail,
     subject: '⏰ Rappel : Vos crédits expirent bientôt',
     html: `
