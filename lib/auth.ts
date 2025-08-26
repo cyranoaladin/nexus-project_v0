@@ -26,13 +26,17 @@ const generateSecret = () => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   secret: generateSecret(),
-  debug: process.env.NODE_ENV === 'development' && process.env.E2E !== '1' && process.env.E2E_RUN !== '1' && process.env.NEXT_PUBLIC_E2E !== '1',
+  debug:
+    process.env.NODE_ENV === 'development' &&
+    process.env.E2E !== '1' &&
+    process.env.E2E_RUN !== '1' &&
+    process.env.NEXT_PUBLIC_E2E !== '1',
   providers: [
     CredentialsProvider({
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
@@ -44,10 +48,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (user && user.password) {
-            const isPasswordValid = await bcrypt.compare(
-              credentials.password,
-              user.password
-            );
+            const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
             if (isPasswordValid) {
               return {
@@ -60,15 +61,15 @@ export const authOptions: NextAuthOptions = {
             }
           }
         } catch (error) {
-          console.error("[AUTHORIZE ERROR]", error);
+          console.error('[AUTHORIZE ERROR]', error);
           return null;
         }
         return null;
-      }
-    })
+      },
+    }),
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -82,7 +83,7 @@ export const authOptions: NextAuthOptions = {
         if (user.role === UserRole.ELEVE) {
           const studentProfile = await prisma.student.findUnique({
             where: { userId: user.id },
-            select: { id: true, parentId: true }
+            select: { id: true, parentId: true },
           });
           if (studentProfile) {
             token.studentId = studentProfile.id;
@@ -103,9 +104,9 @@ export const authOptions: NextAuthOptions = {
         session.user.parentId = token.parentId as string | null;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/auth/signin'
-  }
+    signIn: '/auth/signin',
+  },
 };

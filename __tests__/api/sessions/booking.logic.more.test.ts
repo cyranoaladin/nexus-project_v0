@@ -76,7 +76,10 @@ describe('POST /api/sessions/book - booking logic branches', () => {
       creditsToUse: 1,
       title: 'Révision',
     };
-    const req = new NextRequest('http://localhost/api/sessions/book', { method: 'POST', body: JSON.stringify(body) } as any);
+    const req = new NextRequest('http://localhost/api/sessions/book', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    } as any);
     const { POST } = require('@/app/api/sessions/book/route');
     const res = await POST(req as any);
     expect(res.status).toBe(400);
@@ -111,15 +114,18 @@ describe('POST /api/sessions/book - booking logic branches', () => {
       creditsToUse: 2,
       title: 'Révision dérivées',
     };
-    const req = new NextRequest('http://localhost/api/sessions/book', { method: 'POST', body: JSON.stringify(body) } as any);
+    const req = new NextRequest('http://localhost/api/sessions/book', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    } as any);
     const { POST } = require('@/app/api/sessions/book/route');
     const res = await POST(req as any);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
     expect(json.sessionId).toBe('sess1');
-    expect(createTx).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ amount: -2 }) }));
+    expect(createTx).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ amount: -2 }) })
+    );
   });
 });
-
-

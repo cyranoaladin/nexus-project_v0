@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Clock, Plus, Trash2, Save, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface TimeSlot {
@@ -33,7 +42,7 @@ const DAYS_OF_WEEK = [
   { value: 4, label: 'Jeudi', shortLabel: 'Jeu' },
   { value: 5, label: 'Vendredi', shortLabel: 'Ven' },
   { value: 6, label: 'Samedi', shortLabel: 'Sam' },
-  { value: 0, label: 'Dimanche', shortLabel: 'Dim' }
+  { value: 0, label: 'Dimanche', shortLabel: 'Dim' },
 ];
 
 const DEFAULT_SLOTS = [
@@ -42,26 +51,26 @@ const DEFAULT_SLOTS = [
   { startTime: '11:00', endTime: '12:00', isAvailable: true },
   { startTime: '14:00', endTime: '15:00', isAvailable: true },
   { startTime: '15:00', endTime: '16:00', isAvailable: true },
-  { startTime: '16:00', endTime: '17:00', isAvailable: true }
+  { startTime: '16:00', endTime: '17:00', isAvailable: true },
 ];
 
-export default function CoachAvailability({ 
-  coachId, 
-  onAvailabilityUpdated 
+export default function CoachAvailability({
+  coachId,
+  onAvailabilityUpdated,
 }: CoachAvailabilityProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'weekly' | 'specific'>('weekly');
-  
+
   // Weekly schedule
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>(
-    DAYS_OF_WEEK.map(day => ({
+    DAYS_OF_WEEK.map((day) => ({
       dayOfWeek: day.value,
-      slots: []
+      slots: [],
     }))
   );
-  
+
   // Specific date availability
   const [specificDate, setSpecificDate] = useState('');
   const [specificSlots, setSpecificSlots] = useState<TimeSlot[]>([]);
@@ -71,24 +80,24 @@ export default function CoachAvailability({
       setLoading(true);
       const response = await fetch(`/api/coaches/availability?coachId=${coachId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Process and organize the availability data
-        const schedule = DAYS_OF_WEEK.map(day => {
+        const schedule = DAYS_OF_WEEK.map((day) => {
           const daySlots = data.availability
             .filter((av: any) => av.isRecurring && av.dayOfWeek === day.value)
             .map((av: any) => ({
               startTime: av.startTime,
               endTime: av.endTime,
-              isAvailable: av.isAvailable
+              isAvailable: av.isAvailable,
             }));
-          
+
           return {
             dayOfWeek: day.value,
-            slots: daySlots.length > 0 ? daySlots : []
+            slots: daySlots.length > 0 ? daySlots : [],
           };
         });
-        
+
         setWeeklySchedule(schedule);
       }
     } catch (error) {
@@ -104,67 +113,70 @@ export default function CoachAvailability({
   }, [loadCurrentAvailability]);
 
   const addTimeSlot = (dayOfWeek: number) => {
-    setWeeklySchedule(prev => prev.map(day => 
-      day.dayOfWeek === dayOfWeek 
-        ? { 
-            ...day, 
-            slots: [...day.slots, { startTime: '09:00', endTime: '10:00', isAvailable: true }] 
-          }
-        : day
-    ));
+    setWeeklySchedule((prev) =>
+      prev.map((day) =>
+        day.dayOfWeek === dayOfWeek
+          ? {
+              ...day,
+              slots: [...day.slots, { startTime: '09:00', endTime: '10:00', isAvailable: true }],
+            }
+          : day
+      )
+    );
   };
 
   const removeTimeSlot = (dayOfWeek: number, slotIndex: number) => {
-    setWeeklySchedule(prev => prev.map(day => 
-      day.dayOfWeek === dayOfWeek 
-        ? { 
-            ...day, 
-            slots: day.slots.filter((_, index) => index !== slotIndex) 
-          }
-        : day
-    ));
+    setWeeklySchedule((prev) =>
+      prev.map((day) =>
+        day.dayOfWeek === dayOfWeek
+          ? {
+              ...day,
+              slots: day.slots.filter((_, index) => index !== slotIndex),
+            }
+          : day
+      )
+    );
   };
 
-  const updateTimeSlot = (dayOfWeek: number, slotIndex: number, field: keyof TimeSlot, value: any) => {
-    setWeeklySchedule(prev => prev.map(day => 
-      day.dayOfWeek === dayOfWeek 
-        ? { 
-            ...day, 
-            slots: day.slots.map((slot, index) => 
-              index === slotIndex 
-                ? { ...slot, [field]: value }
-                : slot
-            ) 
-          }
-        : day
-    ));
+  const updateTimeSlot = (
+    dayOfWeek: number,
+    slotIndex: number,
+    field: keyof TimeSlot,
+    value: any
+  ) => {
+    setWeeklySchedule((prev) =>
+      prev.map((day) =>
+        day.dayOfWeek === dayOfWeek
+          ? {
+              ...day,
+              slots: day.slots.map((slot, index) =>
+                index === slotIndex ? { ...slot, [field]: value } : slot
+              ),
+            }
+          : day
+      )
+    );
   };
 
   const copyDaySchedule = (fromDay: number, toDay: number) => {
-    const sourceDay = weeklySchedule.find(day => day.dayOfWeek === fromDay);
+    const sourceDay = weeklySchedule.find((day) => day.dayOfWeek === fromDay);
     if (sourceDay) {
-      setWeeklySchedule(prev => prev.map(day => 
-        day.dayOfWeek === toDay 
-          ? { ...day, slots: [...sourceDay.slots] }
-          : day
-      ));
+      setWeeklySchedule((prev) =>
+        prev.map((day) => (day.dayOfWeek === toDay ? { ...day, slots: [...sourceDay.slots] } : day))
+      );
     }
   };
 
   const setDefaultSchedule = (dayOfWeek: number) => {
-    setWeeklySchedule(prev => prev.map(day => 
-      day.dayOfWeek === dayOfWeek 
-        ? { ...day, slots: [...DEFAULT_SLOTS] }
-        : day
-    ));
+    setWeeklySchedule((prev) =>
+      prev.map((day) => (day.dayOfWeek === dayOfWeek ? { ...day, slots: [...DEFAULT_SLOTS] } : day))
+    );
   };
 
   const clearDaySchedule = (dayOfWeek: number) => {
-    setWeeklySchedule(prev => prev.map(day => 
-      day.dayOfWeek === dayOfWeek 
-        ? { ...day, slots: [] }
-        : day
-    ));
+    setWeeklySchedule((prev) =>
+      prev.map((day) => (day.dayOfWeek === dayOfWeek ? { ...day, slots: [] } : day))
+    );
   };
 
   const saveWeeklyAvailability = async () => {
@@ -179,8 +191,8 @@ export default function CoachAvailability({
         },
         body: JSON.stringify({
           type: 'weekly',
-          schedule: weeklySchedule.filter(day => day.slots.length > 0)
-        })
+          schedule: weeklySchedule.filter((day) => day.slots.length > 0),
+        }),
       });
 
       const data = await response.json();
@@ -201,17 +213,20 @@ export default function CoachAvailability({
   };
 
   const addSpecificSlot = () => {
-    setSpecificSlots(prev => [...prev, { startTime: '09:00', endTime: '10:00', isAvailable: true }]);
+    setSpecificSlots((prev) => [
+      ...prev,
+      { startTime: '09:00', endTime: '10:00', isAvailable: true },
+    ]);
   };
 
   const removeSpecificSlot = (index: number) => {
-    setSpecificSlots(prev => prev.filter((_, i) => i !== index));
+    setSpecificSlots((prev) => prev.filter((_, i) => i !== index));
   };
 
   const updateSpecificSlot = (index: number, field: keyof TimeSlot, value: any) => {
-    setSpecificSlots(prev => prev.map((slot, i) => 
-      i === index ? { ...slot, [field]: value } : slot
-    ));
+    setSpecificSlots((prev) =>
+      prev.map((slot, i) => (i === index ? { ...slot, [field]: value } : slot))
+    );
   };
 
   const saveSpecificAvailability = async () => {
@@ -232,8 +247,8 @@ export default function CoachAvailability({
         body: JSON.stringify({
           type: 'specific',
           date: specificDate,
-          slots: specificSlots
-        })
+          slots: specificSlots,
+        }),
       });
 
       const data = await response.json();
@@ -276,7 +291,7 @@ export default function CoachAvailability({
             <Calendar className="w-5 h-5 md:w-6 md:h-6 mr-2 text-blue-600" />
             Gestion des Disponibilités
           </CardTitle>
-          
+
           {/* Tab Navigation */}
           <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
             <button
@@ -304,19 +319,23 @@ export default function CoachAvailability({
 
         <CardContent>
           {message && (
-            <div className={`mb-4 p-3 rounded-lg flex items-center ${
-              message.type === 'success' 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
+            <div
+              className={`mb-4 p-3 rounded-lg flex items-center ${
+                message.type === 'success'
+                  ? 'bg-green-50 border border-green-200'
+                  : 'bg-red-50 border border-red-200'
+              }`}
+            >
               {message.type === 'success' ? (
                 <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
               ) : (
                 <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
               )}
-              <span className={`text-sm ${
-                message.type === 'success' ? 'text-green-700' : 'text-red-700'
-              }`}>
+              <span
+                className={`text-sm ${
+                  message.type === 'success' ? 'text-green-700' : 'text-red-700'
+                }`}
+              >
                 {message.text}
               </span>
             </div>
@@ -327,8 +346,8 @@ export default function CoachAvailability({
             <div className="space-y-6">
               <div className="grid gap-4 md:gap-6">
                 {DAYS_OF_WEEK.map((day) => {
-                  const daySchedule = weeklySchedule.find(d => d.dayOfWeek === day.value);
-                  
+                  const daySchedule = weeklySchedule.find((d) => d.dayOfWeek === day.value);
+
                   return (
                     <Card key={day.value} className="border-l-4 border-l-blue-500">
                       <CardHeader className="pb-3">
@@ -366,7 +385,7 @@ export default function CoachAvailability({
                           </div>
                         </div>
                       </CardHeader>
-                      
+
                       <CardContent className="pt-0">
                         {(daySchedule?.slots?.length ?? 0) > 0 ? (
                           <div className="grid gap-3">
@@ -382,26 +401,32 @@ export default function CoachAvailability({
                                   <Input
                                     type="time"
                                     value={slot.startTime}
-                                    onChange={(e) => updateTimeSlot(day.value, index, 'startTime', e.target.value)}
+                                    onChange={(e) =>
+                                      updateTimeSlot(day.value, index, 'startTime', e.target.value)
+                                    }
                                     className="w-24 h-8 text-sm"
                                   />
                                   <span className="text-gray-400">-</span>
                                   <Input
                                     type="time"
                                     value={slot.endTime}
-                                    onChange={(e) => updateTimeSlot(day.value, index, 'endTime', e.target.value)}
+                                    onChange={(e) =>
+                                      updateTimeSlot(day.value, index, 'endTime', e.target.value)
+                                    }
                                     className="w-24 h-8 text-sm"
                                   />
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-2">
                                   <Label className="text-xs">Disponible</Label>
                                   <Switch
                                     checked={slot.isAvailable}
-                                    onCheckedChange={(checked: boolean) => updateTimeSlot(day.value, index, 'isAvailable', checked)}
+                                    onCheckedChange={(checked: boolean) =>
+                                      updateTimeSlot(day.value, index, 'isAvailable', checked)
+                                    }
                                   />
                                 </div>
-                                
+
                                 <Button
                                   size="sm"
                                   variant="ghost"
@@ -425,11 +450,7 @@ export default function CoachAvailability({
               </div>
 
               <div className="flex justify-end">
-                <Button
-                  onClick={saveWeeklyAvailability}
-                  disabled={saving}
-                  className="px-6 md:px-8"
-                >
+                <Button onClick={saveWeeklyAvailability} disabled={saving} className="px-6 md:px-8">
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -451,15 +472,20 @@ export default function CoachAvailability({
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base md:text-lg">Disponibilité pour une date spécifique</CardTitle>
+                  <CardTitle className="text-base md:text-lg">
+                    Disponibilité pour une date spécifique
+                  </CardTitle>
                   <p className="text-sm text-gray-600">
-                    Définissez des créneaux pour une date particulière (remplace le planning hebdomadaire pour cette date)
+                    Définissez des créneaux pour une date particulière (remplace le planning
+                    hebdomadaire pour cette date)
                   </p>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="specificDate" className="text-sm md:text-base">Date</Label>
+                    <Label htmlFor="specificDate" className="text-sm md:text-base">
+                      Date
+                    </Label>
                     <Input
                       id="specificDate"
                       type="date"
@@ -498,26 +524,32 @@ export default function CoachAvailability({
                               <Input
                                 type="time"
                                 value={slot.startTime}
-                                onChange={(e) => updateSpecificSlot(index, 'startTime', e.target.value)}
+                                onChange={(e) =>
+                                  updateSpecificSlot(index, 'startTime', e.target.value)
+                                }
                                 className="w-24 h-8 text-sm"
                               />
                               <span className="text-gray-400">-</span>
                               <Input
                                 type="time"
                                 value={slot.endTime}
-                                onChange={(e) => updateSpecificSlot(index, 'endTime', e.target.value)}
+                                onChange={(e) =>
+                                  updateSpecificSlot(index, 'endTime', e.target.value)
+                                }
                                 className="w-24 h-8 text-sm"
                               />
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                               <Label className="text-xs">Disponible</Label>
                               <Switch
                                 checked={slot.isAvailable}
-                                onCheckedChange={(checked: boolean) => updateSpecificSlot(index, 'isAvailable', checked)}
+                                onCheckedChange={(checked: boolean) =>
+                                  updateSpecificSlot(index, 'isAvailable', checked)
+                                }
                               />
                             </div>
-                            
+
                             <Button
                               size="sm"
                               variant="ghost"
@@ -564,4 +596,4 @@ export default function CoachAvailability({
       </Card>
     </div>
   );
-} 
+}

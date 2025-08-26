@@ -18,21 +18,15 @@ const coachUpdateSchema = z.object({
   expertise: z.string().min(10, 'Expertise doit contenir au moins 10 caractères'),
   subjects: z.array(z.string()).min(1, 'Au moins une matière requise'),
   availableOnline: z.boolean(),
-  availableInPerson: z.boolean()
+  availableInPerson: z.boolean(),
 });
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const coachId = params.id;
@@ -42,20 +36,17 @@ export async function PUT(
     // Check if coach exists
     const existingCoach = await prisma.coachProfile.findUnique({
       where: { userId: coachId },
-      include: { user: true }
+      include: { user: true },
     });
 
     if (!existingCoach) {
-      return NextResponse.json(
-        { error: 'Coach non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Coach non trouvé' }, { status: 404 });
     }
 
     // Check if email is being changed and if it already exists
     if (validatedData.email !== existingCoach.user.email) {
       const existingUser = await prisma.user.findUnique({
-        where: { email: validatedData.email }
+        where: { email: validatedData.email },
       });
 
       if (existingUser) {
@@ -69,7 +60,7 @@ export async function PUT(
     // Check if pseudonym is being changed and if it already exists
     if (validatedData.pseudonym !== existingCoach.pseudonym) {
       const existingCoachWithPseudonym = await prisma.coachProfile.findUnique({
-        where: { pseudonym: validatedData.pseudonym }
+        where: { pseudonym: validatedData.pseudonym },
       });
 
       if (existingCoachWithPseudonym) {
@@ -86,7 +77,7 @@ export async function PUT(
       const userData = {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
-        email: validatedData.email
+        email: validatedData.email,
       };
 
       // Only update password if provided
@@ -97,7 +88,7 @@ export async function PUT(
 
       const user = await tx.user.update({
         where: { id: coachId },
-        data: userData
+        data: userData,
       });
 
       // Update coach profile
@@ -111,8 +102,8 @@ export async function PUT(
           expertise: validatedData.expertise,
           subjects: JSON.stringify(validatedData.subjects),
           availableOnline: validatedData.availableOnline,
-          availableInPerson: validatedData.availableInPerson
-        }
+          availableInPerson: validatedData.availableInPerson,
+        },
       });
 
       return { user, coachProfile };
@@ -126,46 +117,39 @@ export async function PUT(
         firstName: result.user.firstName,
         lastName: result.user.lastName,
         email: result.user.email,
-        pseudonym: result.coachProfile.pseudonym
-      }
+        pseudonym: result.coachProfile.pseudonym,
+      },
     });
-
   } catch (error) {
     console.error('Error updating coach:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: 'Données invalides',
-          details: error.errors 
+          details: error.errors,
         },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error',
       },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const coachId = params.id;
@@ -173,19 +157,16 @@ export async function DELETE(
     // Check if coach exists
     const existingCoach = await prisma.coachProfile.findUnique({
       where: { userId: coachId },
-      include: { user: true }
+      include: { user: true },
     });
 
     if (!existingCoach) {
-      return NextResponse.json(
-        { error: 'Coach non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Coach non trouvé' }, { status: 404 });
     }
 
     // Check if coach has any sessions
     const sessionsCount = await prisma.sessionBooking.count({
-      where: { coachId: coachId }
+      where: { coachId: coachId },
     });
 
     if (sessionsCount > 0) {
@@ -199,28 +180,27 @@ export async function DELETE(
     await prisma.$transaction(async (tx) => {
       // Delete coach profile first (due to foreign key constraints)
       await tx.coachProfile.delete({
-        where: { userId: coachId }
+        where: { userId: coachId },
       });
 
       // Delete user
       await tx.user.delete({
-        where: { id: coachId }
+        where: { id: coachId },
       });
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Coach supprimé avec succès'
+      message: 'Coach supprimé avec succès',
     });
-
   } catch (error) {
     console.error('Error deleting coach:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error',
       },
       { status: 500 }
     );
   }
-} 
+}

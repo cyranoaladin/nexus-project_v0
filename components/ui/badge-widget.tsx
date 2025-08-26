@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Award, Medal, Star, Trophy, Zap } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
-import { Badge } from "./badge";
-import { Button } from "./button";
-import { Card, CardContent, CardHeader, CardTitle } from "./card";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Award, Medal, Star, Trophy, Zap } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Badge } from './badge';
+import { Button } from './button';
+import { Card, CardContent, CardHeader, CardTitle } from './card';
 
 interface UserBadge {
   id: string;
@@ -50,7 +50,7 @@ const getCategoryColor = (category: string) => {
   }
 };
 
-export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
+export function BadgeWidget({ studentId, className = '' }: BadgeWidgetProps) {
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
@@ -72,7 +72,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           description: 'Première connexion à la plateforme',
           category: 'ASSIDUITE',
           icon: '👋',
-          unlockedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+          unlockedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
         },
         {
           id: '2',
@@ -80,17 +80,17 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           description: 'Première question posée à ARIA',
           category: 'ARIA',
           icon: '🤖',
-          unlockedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+          unlockedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         },
         {
           id: '3',
           name: 'Série en Cours',
-          description: 'Connexion 3 jours d\'affilée',
+          description: "Connexion 3 jours d'affilée",
           category: 'ASSIDUITE',
           icon: '📈',
           unlockedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-          isNew: true
-        }
+          isNew: true,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -150,7 +150,9 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           <div className="text-center py-6 text-gray-500">
             <Medal className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Aucun badge débloqué pour le moment</p>
-            <p className="text-xs mt-1">Continuez vos efforts pour débloquer vos premiers badges !</p>
+            <p className="text-xs mt-1">
+              Continuez vos efforts pour débloquer vos premiers badges !
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -183,9 +185,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
                       <h4 className="font-medium text-sm truncate">{badge.name}</h4>
                       {getCategoryIcon(badge.category)}
                     </div>
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                      {badge.description}
-                    </p>
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">{badge.description}</p>
                     <p className="text-xs text-gray-500 mt-1">
                       Débloqué le {badge.unlockedAt.toLocaleDateString('fr-FR')}
                     </p>

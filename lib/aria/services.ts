@@ -80,7 +80,7 @@ interface RAGIngestRequest {
 }
 
 export const rag_service = {
-  ingest: (data: RAGIngestRequest): Promise<{ success: boolean; }> => {
-    return postRequest<{ success: boolean; }>(`${RAG_SERVICE_URL}/ingest`, data);
+  ingest: (data: RAGIngestRequest): Promise<{ success: boolean }> => {
+    return postRequest<{ success: boolean }>(`${RAG_SERVICE_URL}/ingest`, data);
   },
 };

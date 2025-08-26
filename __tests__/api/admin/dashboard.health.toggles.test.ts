@@ -11,7 +11,14 @@ describe('Admin Dashboard - systemHealth toggles', () => {
     jest.clearAllMocks();
   });
 
-  function mockCounts({ revenueNow, revenuePrev, activeSubs, sessionNow, sessionPrev, totals = {} as any }) {
+  function mockCounts({
+    revenueNow,
+    revenuePrev,
+    activeSubs,
+    sessionNow,
+    sessionPrev,
+    totals = {} as any,
+  }) {
     (prisma as any).user = (prisma as any).user || {};
     (prisma as any).student = (prisma as any).student || {};
     (prisma as any).coachProfile = (prisma as any).coachProfile || {};
@@ -19,7 +26,8 @@ describe('Admin Dashboard - systemHealth toggles', () => {
     (prisma as any).subscription = (prisma as any).subscription || {};
     (prisma as any).payment = (prisma as any).payment || {};
 
-    (prisma as any).user.count = jest.fn()
+    (prisma as any).user.count = jest
+      .fn()
       .mockResolvedValueOnce(totals.totalUsers ?? 10)
       .mockResolvedValueOnce(totals.totalAssistants ?? 1);
     (prisma as any).student.count = jest.fn().mockResolvedValue(totals.totalStudents ?? 5);
@@ -32,7 +40,8 @@ describe('Admin Dashboard - systemHealth toggles', () => {
       .mockResolvedValueOnce({ _sum: { amount: revenueNow } })
       .mockResolvedValueOnce({ _sum: { amount: revenuePrev } });
 
-    (prisma as any).subscription.count = jest.fn()
+    (prisma as any).subscription.count = jest
+      .fn()
       .mockResolvedValueOnce(totals.totalSubscriptions ?? 6)
       .mockResolvedValueOnce(activeSubs);
 
@@ -45,7 +54,13 @@ describe('Admin Dashboard - systemHealth toggles', () => {
   }
 
   it('marks all as active when revenue, sessions, subscriptions are positive', async () => {
-    mockCounts({ revenueNow: 1000, revenuePrev: 800, activeSubs: 3, sessionNow: 10, sessionPrev: 5 });
+    mockCounts({
+      revenueNow: 1000,
+      revenuePrev: 800,
+      activeSubs: 3,
+      sessionNow: 10,
+      sessionPrev: 5,
+    });
 
     const { GET } = require('@/app/api/admin/dashboard/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/dashboard'));

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,7 +17,9 @@ interface AriaFeedbackProps {
 }
 
 export function AriaFeedback({ messageId, onFeedback, className = '' }: AriaFeedbackProps) {
-  const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | 'comment' | null>(null);
+  const [feedbackType, setFeedbackType] = useState<'positive' | 'negative' | 'comment' | null>(
+    null
+  );
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -31,7 +33,7 @@ export function AriaFeedback({ messageId, onFeedback, className = '' }: AriaFeed
       const feedbackData = {
         messageId,
         type,
-        content: type === 'comment' ? comment : undefined
+        content: type === 'comment' ? comment : undefined,
       };
 
       // Appel API pour enregistrer le feedback
@@ -40,7 +42,7 @@ export function AriaFeedback({ messageId, onFeedback, className = '' }: AriaFeed
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(feedbackData)
+        body: JSON.stringify(feedbackData),
       });
 
       if (response.ok) {
@@ -49,7 +51,7 @@ export function AriaFeedback({ messageId, onFeedback, className = '' }: AriaFeed
           onFeedback(feedbackData);
         }
       } else {
-        console.error('Erreur lors de l\'envoi du feedback');
+        console.error("Erreur lors de l'envoi du feedback");
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -195,27 +197,25 @@ interface AriaMessageWithFeedbackProps {
 export function AriaMessageWithFeedback({
   message,
   showFeedback = true,
-  onFeedback
+  onFeedback,
 }: AriaMessageWithFeedbackProps) {
   return (
     <div className={`mb-4 ${message.isUser ? 'ml-8' : 'mr-8'}`}>
-      <Card className={`${message.isUser
-          ? 'bg-blue-500 text-white ml-auto'
-          : 'bg-white border-gray-200'
-        }`}>
+      <Card
+        className={`${
+          message.isUser ? 'bg-blue-500 text-white ml-auto' : 'bg-white border-gray-200'
+        }`}
+      >
         <CardContent className="p-4">
           <div className="space-y-2">
             {/* Contenu du message */}
-            <div className="text-sm whitespace-pre-wrap">
-              {message.content}
-            </div>
+            <div className="text-sm whitespace-pre-wrap">{message.content}</div>
 
             {/* Timestamp */}
-            <div className={`text-xs ${message.isUser ? 'text-blue-100' : 'text-gray-500'
-              }`}>
+            <div className={`text-xs ${message.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
               {new Date(message.timestamp).toLocaleTimeString('fr-FR', {
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
               })}
             </div>
           </div>
@@ -225,10 +225,7 @@ export function AriaMessageWithFeedback({
       {/* Feedback pour les messages d'ARIA uniquement */}
       {!message.isUser && showFeedback && (
         <div className="mt-2">
-          <AriaFeedback
-            messageId={message.id}
-            onFeedback={onFeedback}
-          />
+          <AriaFeedback messageId={message.id} onFeedback={onFeedback} />
         </div>
       )}
     </div>

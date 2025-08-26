@@ -1,18 +1,31 @@
-"use client";
+'use client';
 
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import NotificationBell from "@/components/ui/notification-bell";
-import SessionManagement from "@/components/ui/session-management";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Menu, Phone, Settings, UserPlus, Users, X } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import NotificationBell from '@/components/ui/notification-bell';
+import SessionManagement from '@/components/ui/session-management';
+import {
+  AlertCircle,
+  Calendar,
+  CreditCard,
+  Loader2,
+  LogOut,
+  Mail,
+  Menu,
+  Phone,
+  Settings,
+  UserPlus,
+  Users,
+  X,
+} from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface DashboardData {
   totalStudents: number;
@@ -36,11 +49,11 @@ export default function DashboardAssistante() {
   const allowBypass = process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development';
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'ASSISTANTE') {
       if (!allowBypass) {
-        router.push("/auth/signin");
+        router.push('/auth/signin');
         return;
       }
     }
@@ -69,7 +82,7 @@ export default function DashboardAssistante() {
     fetchDashboardData();
   }, [session, status, router, allowBypass]);
 
-  if (status === "loading" || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -89,10 +102,7 @@ export default function DashboardAssistante() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="mt-4"
-          >
+          <Button onClick={() => window.location.reload()} className="mt-4">
             Réessayer
           </Button>
         </div>
@@ -141,9 +151,7 @@ export default function DashboardAssistante() {
           </div>
         </header>
 
-        {session?.user?.id && (
-          <SessionManagement assistantId={session.user.id} />
-        )}
+        {session?.user?.id && <SessionManagement assistantId={session.user.id} />}
       </div>
     );
   }
@@ -161,7 +169,9 @@ export default function DashboardAssistante() {
                   <h1 className="font-semibold text-gray-900 text-sm md:text-base">
                     Cléa - Assistante Pédagogique
                   </h1>
-                  <p className="text-xs md:text-sm text-gray-500 hidden sm:block">Centre de Coordination</p>
+                  <p className="text-xs md:text-sm text-gray-500 hidden sm:block">
+                    Centre de Coordination
+                  </p>
                 </div>
               </div>
             </div>
@@ -185,7 +195,7 @@ export default function DashboardAssistante() {
                     >
                       {(data?.pendingSubscriptionRequests?.length ?? 0) > 9
                         ? '9+'
-                        : data?.pendingSubscriptionRequests?.length ?? 0}
+                        : (data?.pendingSubscriptionRequests?.length ?? 0)}
                     </Badge>
                   )}
                 </Button>
@@ -201,7 +211,7 @@ export default function DashboardAssistante() {
                     >
                       {(data?.pendingCreditRequests?.length ?? 0) > 9
                         ? '9+'
-                        : data?.pendingCreditRequests?.length ?? 0}
+                        : (data?.pendingCreditRequests?.length ?? 0)}
                     </Badge>
                   )}
                 </Button>
@@ -224,11 +234,7 @@ export default function DashboardAssistante() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2"
               >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
             </div>
           </div>
@@ -237,7 +243,10 @@ export default function DashboardAssistante() {
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
               <Link href="/dashboard/assistante/subscription-requests">
-                <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900 relative">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-600 hover:text-gray-900 relative"
+                >
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
                   {(data?.pendingSubscriptionRequests?.length ?? 0) > 0 && (
@@ -247,13 +256,16 @@ export default function DashboardAssistante() {
                     >
                       {(data?.pendingSubscriptionRequests?.length ?? 0) > 9
                         ? '9+'
-                        : data?.pendingSubscriptionRequests?.length ?? 0}
+                        : (data?.pendingSubscriptionRequests?.length ?? 0)}
                     </Badge>
                   )}
                 </Button>
               </Link>
               <Link href="/dashboard/assistante/credit-requests">
-                <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900 relative">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-600 hover:text-gray-900 relative"
+                >
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes de Crédits
                   {(data?.pendingCreditRequests?.length ?? 0) > 0 && (
@@ -263,7 +275,7 @@ export default function DashboardAssistante() {
                     >
                       {(data?.pendingCreditRequests?.length ?? 0) > 9
                         ? '9+'
-                        : data?.pendingCreditRequests?.length ?? 0}
+                        : (data?.pendingCreditRequests?.length ?? 0)}
                     </Badge>
                   )}
                 </Button>
@@ -286,7 +298,7 @@ export default function DashboardAssistante() {
         {/* Welcome Section */}
         <div className="mb-6 md:mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
-            Bonjour {session?.user?.firstName ?? "Assistante"} ! 📞
+            Bonjour {session?.user?.firstName ?? 'Assistante'} ! 📞
           </h2>
           <p className="text-sm md:text-base text-gray-600">
             Votre tableau de bord pour coordonner l'activité de Nexus Réussite.
@@ -294,7 +306,8 @@ export default function DashboardAssistante() {
         </div>
 
         {/* Alertes et Tâches Urgentes */}
-        {(data?.pendingSubscriptionRequests?.length || 0) > 0 || (data?.pendingCreditRequests?.length || 0) > 0 ? (
+        {(data?.pendingSubscriptionRequests?.length || 0) > 0 ||
+        (data?.pendingCreditRequests?.length || 0) > 0 ? (
           <div className="mb-6 md:mb-8">
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>
@@ -308,7 +321,9 @@ export default function DashboardAssistante() {
                   {(data?.pendingSubscriptionRequests?.length || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900 text-sm md:text-base">Demandes d'abonnement</p>
+                        <p className="font-medium text-gray-900 text-sm md:text-base">
+                          Demandes d'abonnement
+                        </p>
                         <p className="text-xs md:text-sm text-gray-600">À approuver</p>
                       </div>
                       <Badge variant="destructive">
@@ -319,7 +334,9 @@ export default function DashboardAssistante() {
                   {(data?.pendingCreditRequests?.length || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900 text-sm md:text-base">Demandes de crédits</p>
+                        <p className="font-medium text-gray-900 text-sm md:text-base">
+                          Demandes de crédits
+                        </p>
                         <p className="text-xs md:text-sm text-gray-600">À approuver</p>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -351,9 +368,7 @@ export default function DashboardAssistante() {
               <div className="text-xl md:text-2xl font-bold text-blue-600">
                 {data?.totalStudents || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {data?.totalCoaches || 0} coachs actifs
-              </p>
+              <p className="text-xs text-gray-500 mt-1">{data?.totalCoaches || 0} coachs actifs</p>
             </CardContent>
           </Card>
 
@@ -366,9 +381,7 @@ export default function DashboardAssistante() {
               <div className="text-xl md:text-2xl font-bold text-green-600">
                 {data?.thisMonthRevenue?.toLocaleString() || 0} TND
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Ce mois-ci
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Ce mois-ci</p>
             </CardContent>
           </Card>
 
@@ -381,9 +394,7 @@ export default function DashboardAssistante() {
               <div className="text-xl md:text-2xl font-bold text-purple-600">
                 {data?.thisMonthSessions || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Sessions ce mois-ci
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Sessions ce mois-ci</p>
             </CardContent>
           </Card>
         </div>
@@ -400,31 +411,47 @@ export default function DashboardAssistante() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 <Link href="/dashboard/assistante/coaches">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
+                  <Button
+                    variant="outline"
+                    className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full"
+                  >
                     <UserPlus className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Coachs</span>
-                    <span className="text-xs text-gray-500 text-center">Créer et gérer les coachs</span>
+                    <span className="text-xs text-gray-500 text-center">
+                      Créer et gérer les coachs
+                    </span>
                   </Button>
                 </Link>
 
                 <Link href="/dashboard/assistante/credits">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
+                  <Button
+                    variant="outline"
+                    className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full"
+                  >
                     <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Crédits</span>
-                    <span className="text-xs text-gray-500 text-center">Ajouter/Retirer des crédits</span>
+                    <span className="text-xs text-gray-500 text-center">
+                      Ajouter/Retirer des crédits
+                    </span>
                   </Button>
                 </Link>
 
                 <Link href="/dashboard/assistante/students">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
+                  <Button
+                    variant="outline"
+                    className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full"
+                  >
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Élèves</span>
                     <span className="text-xs text-gray-500 text-center">Voir tous les élèves</span>
                   </Button>
                 </Link>
 
-                <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full"
-                  onClick={() => setActiveView('sessions')}>
+                <Button
+                  variant="outline"
+                  className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full"
+                  onClick={() => setActiveView('sessions')}
+                >
                   <Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
                   <span className="text-xs md:text-sm font-medium">Gérer les Sessions</span>
                   <span className="text-xs text-gray-500 text-center">Superviser les sessions</span>
@@ -453,7 +480,9 @@ export default function DashboardAssistante() {
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm md:text-base truncate">{session.studentName}</p>
+                        <p className="font-medium text-gray-900 text-sm md:text-base truncate">
+                          {session.studentName}
+                        </p>
                         <p className="text-xs md:text-sm text-gray-600 truncate">
                           {session.subject} - {session.coachName}
                         </p>
@@ -461,8 +490,11 @@ export default function DashboardAssistante() {
                       </div>
                       <Badge
                         variant={
-                          session.status === 'SCHEDULED' ? 'default' :
-                            session.status === 'COMPLETED' ? 'outline' : 'destructive'
+                          session.status === 'SCHEDULED'
+                            ? 'default'
+                            : session.status === 'COMPLETED'
+                              ? 'outline'
+                              : 'destructive'
                         }
                         className="ml-2 text-xs"
                       >
@@ -496,7 +528,9 @@ export default function DashboardAssistante() {
                       <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Gestion des Utilisateurs</p>
-                        <p className="text-xs md:text-sm text-gray-500">Créer, modifier, désactiver</p>
+                        <p className="text-xs md:text-sm text-gray-500">
+                          Créer, modifier, désactiver
+                        </p>
                       </div>
                     </div>
                   </Button>
@@ -526,8 +560,6 @@ export default function DashboardAssistante() {
                   </Button>
                 </Link>
               </div>
-
-              
             </CardContent>
           </Card>
         </div>

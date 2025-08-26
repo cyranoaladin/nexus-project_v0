@@ -9,7 +9,12 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const isTestEnv = process.env.NODE_ENV === 'test';
-    const allowBypass = !isTestEnv && (process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development');
+    const allowBypass =
+      !isTestEnv &&
+      (process.env.E2E === '1' ||
+        process.env.E2E_RUN === '1' ||
+        process.env.NEXT_PUBLIC_E2E === '1' ||
+        process.env.NODE_ENV === 'development');
     if (!session || session.user.role !== 'ASSISTANTE') {
       if (!allowBypass) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -33,13 +38,23 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.student.count(),
       prisma.coachProfile.count(),
-      prisma.session.count({ where: { scheduledAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } } }),
+      prisma.session.count({
+        where: {
+          scheduledAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+        },
+      }),
       prisma.payment.aggregate({
         _sum: { amount: true },
-        where: { status: 'COMPLETED', createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } },
+        where: {
+          status: 'COMPLETED',
+          createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+        },
       }),
       prisma.subscriptionRequest.findMany({ where: { status: 'PENDING' }, select: { id: true } }),
-      prisma.creditTransaction.findMany({ where: { type: 'CREDIT_REQUEST' }, select: { id: true } }),
+      prisma.creditTransaction.findMany({
+        where: { type: 'CREDIT_REQUEST' },
+        select: { id: true },
+      }),
       prisma.session.findMany({
         where: { scheduledAt: { gte: todayStart, lt: todayEnd } },
         include: {
@@ -55,7 +70,10 @@ export async function GET(request: NextRequest) {
       studentName: `${session.student.user.firstName} ${session.student.user.lastName}`,
       coachName: session.coach.pseudonym,
       subject: session.subject,
-      time: new Date(session.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date(session.scheduledAt).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
       status: session.status,
       type: session.type,
     }));
@@ -69,7 +87,6 @@ export async function GET(request: NextRequest) {
       pendingCreditRequests: pendingCreditRequestsArr,
       todaySessions: formattedTodaySessions,
     });
-
   } catch (error) {
     console.error('Error fetching assistant dashboard data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

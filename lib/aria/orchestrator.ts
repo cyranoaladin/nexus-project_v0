@@ -7,7 +7,7 @@ import { generatePdfLocally } from './pdf-fallback';
 // Interfaces pour une meilleure clarté du contexte
 interface FullStudentProfile extends Student {
   user: User;
-  parent?: (ParentProfile & { user: User; }) | null;
+  parent?: (ParentProfile & { user: User }) | null;
 }
 
 interface FullStudentContext {
@@ -55,12 +55,33 @@ export class AriaOrchestrator {
     let subscriptions: any[] = [];
     let creditTransactions: any[] = [];
     let sessions: any[] = [];
-    try { assessments = await (prisma as any).assessment.findMany({ where: { studentId: this.studentId } }); } catch {}
-    try { mastery = await (prisma as any).mastery.findMany({ where: { studentId: this.studentId } }); } catch {}
-    try { documents = await (prisma as any).document.findMany({ where: { studentId: this.studentId } }); } catch {}
-    try { subscriptions = await (prisma as any).subscription.findMany({ where: { studentId: this.studentId } }); } catch {}
-    try { creditTransactions = await (prisma as any).creditTransaction.findMany({ where: { studentId: this.studentId } }); } catch {}
-    try { sessions = await (prisma as any).session.findMany({ where: { studentId: this.studentId }, orderBy: { createdAt: 'desc' } }); } catch {}
+    try {
+      assessments = await (prisma as any).assessment.findMany({
+        where: { studentId: this.studentId },
+      });
+    } catch {}
+    try {
+      mastery = await (prisma as any).mastery.findMany({ where: { studentId: this.studentId } });
+    } catch {}
+    try {
+      documents = await (prisma as any).document.findMany({ where: { studentId: this.studentId } });
+    } catch {}
+    try {
+      subscriptions = await (prisma as any).subscription.findMany({
+        where: { studentId: this.studentId },
+      });
+    } catch {}
+    try {
+      creditTransactions = await (prisma as any).creditTransaction.findMany({
+        where: { studentId: this.studentId },
+      });
+    } catch {}
+    try {
+      sessions = await (prisma as any).session.findMany({
+        where: { studentId: this.studentId },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch {}
 
     this.fullStudentContext = {
       profile: profile as FullStudentProfile,
@@ -76,11 +97,11 @@ export class AriaOrchestrator {
 
   private async _findOrCreateConversation(subject: Subject): Promise<string> {
     const existing = await prisma.ariaConversation.findFirst({
-      where: { studentId: this.studentId, subject: subject }
+      where: { studentId: this.studentId, subject: subject },
     });
     if (existing) return existing.id;
     const created = await prisma.ariaConversation.create({
-      data: { studentId: this.studentId, subject: subject }
+      data: { studentId: this.studentId, subject: subject },
     });
     return created.id;
   }
@@ -88,7 +109,11 @@ export class AriaOrchestrator {
   /**
    * Gère la requête de l'utilisateur de bout en bout.
    */
-  public async handleQuery(query: string, subject: Subject, attachments: Array<{ url: string; name: string; type: string; size: number; }> = []): Promise<{ response: string; documentUrl?: string; }> {
+  public async handleQuery(
+    query: string,
+    subject: Subject,
+    attachments: Array<{ url: string; name: string; type: string; size: number }> = []
+  ): Promise<{ response: string; documentUrl?: string }> {
     // 1. Construire le contexte complet (Tâche 2)
     await this._buildFullStudentContext();
 
@@ -102,24 +127,28 @@ export class AriaOrchestrator {
     // 2. Déterminer l'intention de la requête (simplifié pour l'instant)
     const ql = query.toLowerCase();
     const isPdfRequest = ql.includes('pdf') || ql.includes('document') || ql.includes('fiche');
-    const requestType = isPdfRequest ? "PDF_GENERATION" : "EXPLICATION";
+    const requestType = isPdfRequest ? 'PDF_GENERATION' : 'EXPLICATION';
 
     // 3. Appeler le service LLM avec le contexte complet (Tâche 3)
     // Normaliser les clés du contexte pour le LLM (français et anglais)
     const profile = this.fullStudentContext.profile;
-    const normalizedProfil = profile ? {
-      id: profile.id,
-      prenom: profile.user.firstName,
-      nom: profile.user.lastName,
-      grade: (profile as any).grade ?? null,
-      classe: (profile as any).classe ?? null,
-      campus: (profile as any).campus ?? null,
-      parent: profile.parent ? {
-        prenom: profile.parent.user.firstName,
-        nom: profile.parent.user.lastName,
-        id: profile.parent.id,
-      } : null,
-    } : null;
+    const normalizedProfil = profile
+      ? {
+          id: profile.id,
+          prenom: profile.user.firstName,
+          nom: profile.user.lastName,
+          grade: (profile as any).grade ?? null,
+          classe: (profile as any).classe ?? null,
+          campus: (profile as any).campus ?? null,
+          parent: profile.parent
+            ? {
+                prenom: profile.parent.user.firstName,
+                nom: profile.parent.user.lastName,
+                id: profile.parent.id,
+              }
+            : null,
+        }
+      : null;
 
     const normalizedContext: any = {
       // Original keys
@@ -138,7 +167,9 @@ export class AriaOrchestrator {
 
     // Ajouter les pièces jointes (URLs) dans le contexte documents
     try {
-      const existingDocs = Array.isArray((normalizedContext as any).documents) ? (normalizedContext as any).documents : [];
+      const existingDocs = Array.isArray((normalizedContext as any).documents)
+        ? (normalizedContext as any).documents
+        : [];
       const mapped = (attachments || []).map((a) => ({
         titre: a.name,
         url: a.url,
@@ -150,12 +181,17 @@ export class AriaOrchestrator {
 
     // 3.a. Logique décisionnelle locale basée sur la mastery (si disponible)
     const masteryList = ((this.fullStudentContext as any)?.mastery || []) as any[];
-    const weaknesses = masteryList.filter((m: any) => m?.level === 'LOW' || (typeof m?.score === 'number' && m.score <= 0.5));
+    const weaknesses = masteryList.filter(
+      (m: any) => m?.level === 'LOW' || (typeof m?.score === 'number' && m.score <= 0.5)
+    );
     const hasCriticalGaps = weaknesses.length >= 2;
     const interventionMode = hasCriticalGaps ? 'REMEDIATION_GUIDEE' : 'STANDARD';
     const decisionHints = {
       interventionMode,
-      focusConcepts: weaknesses.slice(0, 3).map((w: any) => w?.concept).filter(Boolean),
+      focusConcepts: weaknesses
+        .slice(0, 3)
+        .map((w: any) => w?.concept)
+        .filter(Boolean),
       requireStepByStep: hasCriticalGaps,
       requireChecks: true,
     };
@@ -184,20 +220,18 @@ export class AriaOrchestrator {
       };
       const minimalFromText = (text: string) => {
         // Echapper les caractères LaTeX spéciaux et convertir les retours à la ligne en \par
-        const safe = (text || '')
-          .replace(/([#%&_{}$])/g, '\\$1')
-          .replace(/\n/g, '\\par ');
+        const safe = (text || '').replace(/([#%&_{}$])/g, '\\$1').replace(/\n/g, '\\par ');
         return `\\documentclass[12pt]{article}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T1]{fontenc}\n\\usepackage{lmodern}\n\\usepackage{geometry}\n\\geometry{margin=2cm}\n\\begin{document}\n${safe}\n\\end{document}`;
       };
 
       const tryCompile = async (latex: string) => {
         return pdf_generator_service.generate_pdf({
           contenu: latex,
-          type_document: "fiche_revision",
-          matiere: "Mathematiques",
+          type_document: 'fiche_revision',
+          matiere: 'Mathematiques',
           nom_fichier: `fiche_revision_${Date.now()}`,
           nom_eleve: studentName,
-          footer_brand: "ARIA",
+          footer_brand: 'ARIA',
           footer_show_date: true,
           footer_extra: `Sujet: ${subject}`,
         });
@@ -225,30 +259,40 @@ export class AriaOrchestrator {
       } catch {}
 
       // Génération locale si aucune URL distante obtenue (préférée pour le runtime local)
-      if (!documentUrl) try {
-        const base = (llmResponse.response || '').trim();
-        const enriched = base.length < 200
-          ? `${base}\n\nRésumé structuré :\n- Définition\n- Propriétés\n- Dérivée\n- Résolution d'équations\n- Applications et exemples\n\nConseils méthodologiques :\n1. Identifier la base et la croissance.\n2. Utiliser ln pour résoudre b^x = c.\n3. Vérifier le domaine et les limites.`
-          : base;
-        const local = await generatePdfLocally({
-          content: enriched,
-          fileBaseName: `fiche_revision_${Date.now()}`,
-          studentName,
-          subject: String(subject),
-        });
-        console.info('[ARIA_PDF_LOCAL]', { url: local.url, contentLength: enriched.length, studentName, subject: String(subject) });
-        documentUrl = local.url;
-        // Adapter l'URL aux attentes tests mockés si variables de tests présentes
-        if (process.env.NODE_ENV === 'test') {
-          const wantDoc = (global as any).__ARIA_TEST_DOC_URL__;
-          if (typeof wantDoc === 'string') {
-            documentUrl = wantDoc;
+      if (!documentUrl)
+        try {
+          const base = (llmResponse.response || '').trim();
+          const enriched =
+            base.length < 200
+              ? `${base}\n\nRésumé structuré :\n- Définition\n- Propriétés\n- Dérivée\n- Résolution d'équations\n- Applications et exemples\n\nConseils méthodologiques :\n1. Identifier la base et la croissance.\n2. Utiliser ln pour résoudre b^x = c.\n3. Vérifier le domaine et les limites.`
+              : base;
+          const local = await generatePdfLocally({
+            content: enriched,
+            fileBaseName: `fiche_revision_${Date.now()}`,
+            studentName,
+            subject: String(subject),
+          });
+          console.info('[ARIA_PDF_LOCAL]', {
+            url: local.url,
+            contentLength: enriched.length,
+            studentName,
+            subject: String(subject),
+          });
+          documentUrl = local.url;
+          // Adapter l'URL aux attentes tests mockés si variables de tests présentes
+          if (process.env.NODE_ENV === 'test') {
+            const wantDoc = (global as any).__ARIA_TEST_DOC_URL__;
+            if (typeof wantDoc === 'string') {
+              documentUrl = wantDoc;
+            }
           }
+        } catch (errLocalFinal) {
+          console.error(
+            'Echec génération PDF (local final), réponse textuelle seulement:',
+            errLocalFinal
+          );
+          documentUrl = undefined;
         }
-      } catch (errLocalFinal) {
-        console.error('Echec génération PDF (local final), réponse textuelle seulement:', errLocalFinal);
-        documentUrl = undefined;
-      }
     }
 
     // 5. Déclencher la boucle d'auto-amélioration du RAG (Tâche 4)
@@ -259,7 +303,9 @@ export class AriaOrchestrator {
       const hasLists = /(^|\n)\s*[-] \s*\S|(^|\n)\s*\d+\.\s*\S/m.test(text);
       const hasDefinitions = /D[é|e]finition\s*:|Th[é|e]or[è|e]me\s*:|Proposition\s*:/i.test(text);
       const isTestEnv = process.env.NODE_ENV === 'test' || !!(global as any).jest;
-      const shouldIngest = isTestEnv ? (wordCount > 30) : (wordCount > 150 && (hasHeadings || hasLists || hasDefinitions));
+      const shouldIngest = isTestEnv
+        ? wordCount > 30
+        : wordCount > 150 && (hasHeadings || hasLists || hasDefinitions);
       if (shouldIngest) {
         const payload = {
           contenu: text,
@@ -268,7 +314,7 @@ export class AriaOrchestrator {
             matiere: String(subject),
             niveau: (this.fullStudentContext as any)?.profile?.grade ?? null,
             studentId: this.studentId,
-          }
+          },
         };
         // Conserver l'appel direct (compatibilité tests) ; en production, un reverse proxy/port mappe l'accès.
         fetch('http://rag_service:8001/ingest', {
@@ -284,7 +330,7 @@ export class AriaOrchestrator {
       data: [
         { role: 'USER', content: query, conversationId: conversationId },
         { role: 'ASSISTANT', content: llmResponse.response, conversationId: conversationId },
-      ]
+      ],
     });
 
     return { response: llmResponse.response, documentUrl };

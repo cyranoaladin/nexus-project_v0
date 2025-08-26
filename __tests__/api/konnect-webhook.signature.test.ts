@@ -24,7 +24,7 @@ describe('Konnect webhook signature', () => {
     process.env.KONNECT_WEBHOOK_SECRET = secret;
     const req: any = {
       text: async () => raw,
-      headers: new Map([["x-konnect-signature", 'invalid']]),
+      headers: new Map([['x-konnect-signature', 'invalid']]),
       url: 'http://localhost/api/webhooks/konnect',
     };
     const res = await konnectWebhook(req as any);
@@ -40,24 +40,35 @@ describe('Konnect webhook signature', () => {
     jest.doMock('@/lib/prisma', () => ({
       prisma: {
         payment: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'pay_1', status: 'PENDING', type: 'SUBSCRIPTION', metadata: { studentId: 's1', itemKey: 'PLAN' }, user: {} }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({
+              id: 'pay_1',
+              status: 'PENDING',
+              type: 'SUBSCRIPTION',
+              metadata: { studentId: 's1', itemKey: 'PLAN' },
+              user: {},
+            }),
           update: jest.fn().mockResolvedValue({}),
         },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 's1' }) },
-        subscription: { updateMany: jest.fn().mockResolvedValue({}), findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 0 }) },
+        subscription: {
+          updateMany: jest.fn().mockResolvedValue({}),
+          findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 0 }),
+        },
         creditTransaction: { create: jest.fn().mockResolvedValue({}) },
-      }
+      },
     }));
     const { POST } = require('@/app/api/webhooks/konnect/route');
 
     const req: any = {
       text: async () => raw,
-      headers: new Map([["x-konnect-signature", sig]]),
+      headers: new Map([['x-konnect-signature', sig]]),
       url: 'http://localhost/api/webhooks/konnect',
       json: async () => payload,
     };
 
     const res = await POST(req as any);
-    expect([200,201]).toContain(res.status);
+    expect([200, 201]).toContain(res.status);
   });
 });

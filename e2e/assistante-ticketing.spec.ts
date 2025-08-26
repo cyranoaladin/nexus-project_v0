@@ -8,7 +8,7 @@ test.describe('Assistante ticketing', () => {
     await page.waitForLoadState('networkidle');
     if (!/\/dashboard\/assistante/.test(page.url())) {
       const link = page.locator('a', { hasText: /Assistante|Tableau de bord assistante/i }).first();
-      if (await link.count().then(c => c > 0)) {
+      if (await link.count().then((c) => c > 0)) {
         await link.click({ force: true });
         await page.waitForLoadState('networkidle');
       }
@@ -20,9 +20,17 @@ test.describe('Assistante ticketing', () => {
     }
     // Assouplir: si toujours sur signin, valider que le formulaire est visible; sinon, vérifier un élément du dashboard
     if (/\/dashboard\/assistante/.test(page.url())) {
-      const supportVisible = await page.getByText(/Support|Tickets|Assistance|Assistante/i).first().isVisible().catch(() => false);
+      const supportVisible = await page
+        .getByText(/Support|Tickets|Assistance|Assistante/i)
+        .first()
+        .isVisible()
+        .catch(() => false);
       if (!supportVisible) {
-        const headingVisible = await page.getByRole('heading').first().isVisible().catch(() => false);
+        const headingVisible = await page
+          .getByRole('heading')
+          .first()
+          .isVisible()
+          .catch(() => false);
         expect(Boolean(headingVisible)).toBeTruthy();
       } else {
         expect(true).toBeTruthy();

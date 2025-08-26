@@ -1,67 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
 const sendMessageSchema = z.object({
   receiverId: z.string(),
   content: z.string().min(1, 'Message requis').max(1000, 'Message trop long'),
   fileUrl: z.string().optional(),
-  fileName: z.string().optional()
-})
+  fileName: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const { rateLimit } = await import('@/lib/rate-limit');
     const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
-  const rlConf = getRateLimitConfig('MESSAGES_SEND', { windowMs: 60_000, max: 60 });
-  const rl = await rateLimit(rlConf)(`msg_send:${ip}`);
-  if (!rl.ok) {
-    return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
-  }
-
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Authentification requise' },
-        { status: 401 }
-      )
+    const rlConf = getRateLimitConfig('MESSAGES_SEND', { windowMs: 60_000, max: 60 });
+    const rl = await rateLimit(rlConf)(`msg_send:${ip}`);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
     }
-    
-    const body = await request.json()
-    const validatedData = sendMessageSchema.parse(body)
-    
+
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validatedData = sendMessageSchema.parse(body);
+
     // Vérifier que le destinataire existe
     const receiver = await prisma.user.findUnique({
-      where: { id: validatedData.receiverId }
-    })
-    
+      where: { id: validatedData.receiverId },
+    });
+
     if (!receiver) {
-      return NextResponse.json(
-        { error: 'Destinataire non trouvé' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Destinataire non trouvé' }, { status: 404 });
     }
-    
+
     // Vérifier les permissions de communication
     // Élèves peuvent écrire à leurs coachs
     // Coachs peuvent écrire à leurs élèves
     // Assistante peut écrire à tout le monde
     // Parents peuvent écrire aux coachs de leurs enfants
-    
+
     if (session.user.role === 'ELEVE') {
       // Vérifier que le destinataire est un coach ou l'assistante
       if (!['COACH', 'ASSISTANTE'].includes(receiver.role)) {
-        return NextResponse.json(
-          { error: 'Communication non autorisée' },
-          { status: 403 }
-        )
+        return NextResponse.json({ error: 'Communication non autorisée' }, { status: 403 });
       }
     }
-    
+
     // Créer le message
     const message = await prisma.message.create({
       data: {
@@ -69,7 +63,7 @@ export async function POST(request: NextRequest) {
         receiverId: validatedData.receiverId,
         content: validatedData.content,
         fileUrl: validatedData.fileUrl,
-        fileName: validatedData.fileName
+        fileName: validatedData.fileName,
       },
       include: {
         sender: {
@@ -77,20 +71,20 @@ export async function POST(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            role: true
-          }
+            role: true,
+          },
         },
         receiver: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            role: true
-          }
-        }
-      }
-    })
-    
+            role: true,
+          },
+        },
+      },
+    });
+
     return NextResponse.json({
       success: true,
       message: {
@@ -100,16 +94,12 @@ export async function POST(request: NextRequest) {
         fileName: message.fileName,
         createdAt: message.createdAt,
         sender: message.sender,
-        receiver: message.receiver
-      }
-    })
-    
+        receiver: message.receiver,
+      },
+    });
   } catch (error) {
-    console.error('Erreur envoi message:', error)
-    
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+    console.error('Erreur envoi message:', error);
+
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

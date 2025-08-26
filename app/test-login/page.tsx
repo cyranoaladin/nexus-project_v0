@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { signIn, signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function TestLoginPage() {
   const { data: session, status } = useSession();
-  const [email, setEmail] = useState("adam@gmail.com");
-  const [password, setPassword] = useState("adam90053729");
+  const [email, setEmail] = useState('adam@gmail.com');
+  const [password, setPassword] = useState('adam90053729');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,8 +31,8 @@ export default function TestLoginPage() {
         setError('Invalid credentials');
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert("Login error occurred");
+      console.error('Login error:', error);
+      alert('Login error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -44,21 +44,21 @@ export default function TestLoginPage() {
 
   const clearSession = () => {
     // Clear all cookies
-    document.cookie.split(";").forEach(function (c) {
-      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    document.cookie.split(';').forEach(function (c) {
+      document.cookie = c
+        .replace(/^ +/, '')
+        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
     });
     localStorage.clear();
     sessionStorage.clear();
-    alert("Session cleared. Please refresh the page.");
+    alert('Session cleared. Please refresh the page.');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            Connexion de test
-          </h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900">Connexion de test</h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Tester le système d'authentification
           </p>
@@ -67,14 +67,19 @@ export default function TestLoginPage() {
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-medium">État de session courant :</h3>
-            <p className="text-sm text-gray-600">
-              Statut : {status}
-            </p>
+            <p className="text-sm text-gray-600">Statut : {status}</p>
             {session && (
               <div className="mt-2 p-3 bg-gray-100 rounded">
-                <p><strong>Utilisateur :</strong> {session.user?.email}</p>
-                <p><strong>Rôle :</strong> {(session.user as any)?.role}</p>
-                <p><strong>Nom :</strong> {(session.user as any)?.firstName} {(session.user as any)?.lastName}</p>
+                <p>
+                  <strong>Utilisateur :</strong> {session.user?.email}
+                </p>
+                <p>
+                  <strong>Rôle :</strong> {(session.user as any)?.role}
+                </p>
+                <p>
+                  <strong>Nom :</strong> {(session.user as any)?.firstName}{' '}
+                  {(session.user as any)?.lastName}
+                </p>
               </div>
             )}
           </div>
@@ -82,9 +87,7 @@ export default function TestLoginPage() {
           {!session ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
                 <input
                   type="email"
                   value={email}
@@ -95,9 +98,7 @@ export default function TestLoginPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
                 <input
                   type="password"
                   value={password}
@@ -114,7 +115,7 @@ export default function TestLoginPage() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isLoading ? "Connexion..." : "Connexion"}
+                {isLoading ? 'Connexion...' : 'Connexion'}
               </button>
             </form>
           ) : (

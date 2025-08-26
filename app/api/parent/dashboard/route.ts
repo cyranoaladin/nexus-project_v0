@@ -9,7 +9,11 @@ export const runtime = 'nodejs';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    const allowBypass = process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development';
+    const allowBypass =
+      process.env.E2E === '1' ||
+      process.env.E2E_RUN === '1' ||
+      process.env.NEXT_PUBLIC_E2E === '1' ||
+      process.env.NODE_ENV === 'development';
 
     let parentUserId: string | null = (session as any)?.user?.id ?? null;
     if ((!session || session.user.role !== 'PARENT') && allowBypass) {
@@ -73,7 +77,9 @@ export async function GET() {
               planName: c.subscriptions[0].planName,
               monthlyPrice: c.subscriptions[0].monthlyPrice ?? 0,
               startDate: (c.subscriptions[0].startDate || new Date()).toISOString(),
-              endDate: (c.subscriptions[0].endDate || new Date(Date.now() + 30 * 86400000)).toISOString(),
+              endDate: (
+                c.subscriptions[0].endDate || new Date(Date.now() + 30 * 86400000)
+              ).toISOString(),
               status: c.subscriptions[0].status || 'ACTIVE',
             }
           : null,

@@ -8,8 +8,8 @@ const transporter = nodemailer.createTransport({
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD
-  }
+    pass: process.env.SMTP_PASSWORD,
+  },
 });
 
 // Templates d'email
@@ -46,7 +46,7 @@ const EMAIL_TEMPLATES = {
           <p>Besoin d'aide ? Notre équipe est là pour vous accompagner !</p>
         </div>
       </div>
-    `
+    `,
   },
 
   SESSION_CONFIRMATION: {
@@ -89,7 +89,7 @@ const EMAIL_TEMPLATES = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   SESSION_REMINDER: {
@@ -125,8 +125,8 @@ const EMAIL_TEMPLATES = {
           </p>
         </div>
       </div>
-    `
-  }
+    `,
+  },
 };
 
 // Fonctions d'envoi d'emails
@@ -138,9 +138,8 @@ export async function sendWelcomeEmail(user: any) {
       from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
       to: user.email,
       subject: template.subject,
-      html: template.html(user)
+      html: template.html(user),
     });
-
   } catch (error) {
     console.error('Error sending welcome email:', error);
     throw error;
@@ -155,7 +154,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
       from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
       to: student.email,
       subject: template.subject,
-      html: template.html(session, student, coach)
+      html: template.html(session, student, coach),
     });
 
     // Envoyer aussi au coach si assigné
@@ -183,10 +182,9 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
               </div>
             </div>
           </div>
-        `
+        `,
       });
     }
-
   } catch (error) {
     console.error(`Error sending confirmation email for session ${session.id}:`, error);
     throw error;
@@ -201,9 +199,8 @@ export async function sendSessionReminderEmail(session: any, student: any, video
       from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
       to: student.email,
       subject: template.subject,
-      html: template.html(session, student, videoLink)
+      html: template.html(session, student, videoLink),
     });
-
   } catch (error) {
     console.error(`Error sending reminder for session ${session.id}:`, error);
     throw error;
@@ -234,17 +231,17 @@ export async function sendScheduledReminders() {
     type SessionWithRelations = Session & {
       student: {
         user: User;
-      },
+      };
       coach?: {
         user: User;
       };
     };
 
-    const upcomingSessions = await prisma.session.findMany({
+    const upcomingSessions = (await prisma.session.findMany({
       where: {
         scheduledAt: {
           gte: fiveMinutesFromOneHour,
-          lte: oneHourFromNow
+          lte: oneHourFromNow,
         },
         status: 'SCHEDULED',
         // reminderSent field needs to be added to the Prisma schema first
@@ -253,25 +250,21 @@ export async function sendScheduledReminders() {
       include: {
         student: {
           include: {
-            user: true
-          }
+            user: true,
+          },
         },
         coach: {
           include: {
-            user: true
-          }
-        }
-      }
-    }) as SessionWithRelations[];
+            user: true,
+          },
+        },
+      },
+    })) as SessionWithRelations[];
 
     for (const session of upcomingSessions) {
       const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
 
-      await sendSessionReminderEmail(
-        session,
-        session.student.user,
-        videoLink
-      );
+      await sendSessionReminderEmail(session, session.student.user, videoLink);
 
       // Marquer le rappel comme envoyé
       // Uncomment after adding reminderSent field to Prisma schema
@@ -280,10 +273,9 @@ export async function sendScheduledReminders() {
         data: {
           // reminderSent: true
           // Temporarily comment this out until schema is updated
-        }
+        },
       });
     }
-
   } catch (error) {
     console.error('Error sending session reminders:', error);
   }

@@ -23,7 +23,18 @@ describe('Admin Activities - filters and pagination branches', () => {
   }
 
   it('type=session filter', async () => {
-    seed({ sessions: [{ id: 's1', subject: 'NSI', status: 'SCHEDULED', createdAt: new Date(), student: { user: { firstName: 'A', lastName: 'B' } }, coach: { user: {}, pseudonym: 'Coach' } }] });
+    seed({
+      sessions: [
+        {
+          id: 's1',
+          subject: 'NSI',
+          status: 'SCHEDULED',
+          createdAt: new Date(),
+          student: { user: { firstName: 'A', lastName: 'B' } },
+          coach: { user: {}, pseudonym: 'Coach' },
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=session'));
     expect(res.status).toBe(200);
@@ -32,16 +43,38 @@ describe('Admin Activities - filters and pagination branches', () => {
   });
 
   it('type=subscription filter', async () => {
-    seed({ subs: [{ id: 'sub1', planName: 'HYBRIDE', status: 'ACTIVE', createdAt: new Date(), student: { user: { firstName: 'E', lastName: 'F' } } }] });
+    seed({
+      subs: [
+        {
+          id: 'sub1',
+          planName: 'HYBRIDE',
+          status: 'ACTIVE',
+          createdAt: new Date(),
+          student: { user: { firstName: 'E', lastName: 'F' } },
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
-    const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=subscription'));
+    const res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?type=subscription')
+    );
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.activities.every((a: any) => a.type === 'subscription')).toBe(true);
   });
 
   it('type=credit filter', async () => {
-    seed({ credits: [{ id: 'c1', type: 'USAGE', amount: -1, createdAt: new Date(), student: { user: { firstName: 'G', lastName: 'H' } } }] });
+    seed({
+      credits: [
+        {
+          id: 'c1',
+          type: 'USAGE',
+          amount: -1,
+          createdAt: new Date(),
+          student: { user: { firstName: 'G', lastName: 'H' } },
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=credit'));
     expect(res.status).toBe(200);
@@ -50,20 +83,38 @@ describe('Admin Activities - filters and pagination branches', () => {
   });
 
   it('search by coachName, description and subject', async () => {
-    seed({ sessions: [
-      { id: 's1', subject: 'MATHEMATIQUES', status: 'COMPLETED', createdAt: new Date(), student: { user: { firstName: 'Alice', lastName: 'Z' } }, coach: { user: {}, pseudonym: 'Helios' } },
-    ] });
+    seed({
+      sessions: [
+        {
+          id: 's1',
+          subject: 'MATHEMATIQUES',
+          status: 'COMPLETED',
+          createdAt: new Date(),
+          student: { user: { firstName: 'Alice', lastName: 'Z' } },
+          coach: { user: {}, pseudonym: 'Helios' },
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
     const res1 = await GET(new NextRequest('http://localhost/api/admin/activities?search=helios'));
     expect((await res1.json()).activities.length).toBeGreaterThan(0);
     const res2 = await GET(new NextRequest('http://localhost/api/admin/activities?search=Alice'));
     expect((await res2.json()).activities.length).toBeGreaterThan(0);
-    const res3 = await GET(new NextRequest('http://localhost/api/admin/activities?search=mathematiques'));
+    const res3 = await GET(
+      new NextRequest('http://localhost/api/admin/activities?search=mathematiques')
+    );
     expect((await res3.json()).activities.length).toBeGreaterThan(0);
   });
 
   it('pagination branches (page 2 shorter)', async () => {
-    const base = Array.from({ length: 15 }, (_, i) => ({ id: `s${i}`, subject: 'NSI', status: 'SCHEDULED', createdAt: new Date(), student: { user: { firstName: 'A', lastName: 'B' } }, coach: { user: {}, pseudonym: 'Coach' } }));
+    const base = Array.from({ length: 15 }, (_, i) => ({
+      id: `s${i}`,
+      subject: 'NSI',
+      status: 'SCHEDULED',
+      createdAt: new Date(),
+      student: { user: { firstName: 'A', lastName: 'B' } },
+      coach: { user: {}, pseudonym: 'Coach' },
+    }));
     seed({ sessions: base });
     const { GET } = require('@/app/api/admin/activities/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/activities?page=2&limit=10'));
@@ -74,12 +125,42 @@ describe('Admin Activities - filters and pagination branches', () => {
 
   it('action branches: COMPLETED, SCHEDULED, CANCELLED, and default else', async () => {
     const now = new Date();
-    seed({ sessions: [
-      { id: 's1', subject: 'NSI', status: 'COMPLETED', createdAt: now, student: { user: { firstName: 'A', lastName: 'B' } }, coach: { user: {}, pseudonym: 'Coach' } },
-      { id: 's2', subject: 'NSI', status: 'SCHEDULED', createdAt: now, student: { user: { firstName: 'C', lastName: 'D' } }, coach: { user: {}, pseudonym: 'Coach' } },
-      { id: 's3', subject: 'NSI', status: 'CANCELLED', createdAt: now, student: { user: { firstName: 'E', lastName: 'F' } }, coach: { user: {}, pseudonym: 'Coach' } },
-      { id: 's4', subject: 'NSI', status: 'IN_PROGRESS', createdAt: now, student: { user: { firstName: 'G', lastName: 'H' } }, coach: { user: {}, pseudonym: 'Coach' } },
-    ]});
+    seed({
+      sessions: [
+        {
+          id: 's1',
+          subject: 'NSI',
+          status: 'COMPLETED',
+          createdAt: now,
+          student: { user: { firstName: 'A', lastName: 'B' } },
+          coach: { user: {}, pseudonym: 'Coach' },
+        },
+        {
+          id: 's2',
+          subject: 'NSI',
+          status: 'SCHEDULED',
+          createdAt: now,
+          student: { user: { firstName: 'C', lastName: 'D' } },
+          coach: { user: {}, pseudonym: 'Coach' },
+        },
+        {
+          id: 's3',
+          subject: 'NSI',
+          status: 'CANCELLED',
+          createdAt: now,
+          student: { user: { firstName: 'E', lastName: 'F' } },
+          coach: { user: {}, pseudonym: 'Coach' },
+        },
+        {
+          id: 's4',
+          subject: 'NSI',
+          status: 'IN_PROGRESS',
+          createdAt: now,
+          student: { user: { firstName: 'G', lastName: 'H' } },
+          coach: { user: {}, pseudonym: 'Coach' },
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=session'));
     const json = await res.json();
@@ -94,18 +175,33 @@ describe('Admin Activities - filters and pagination branches', () => {
   });
 
   it('search negative yields 0 results', async () => {
-    seed({ users: [{ id: 'u1', firstName: 'Alice', lastName: 'Z', role: 'ELEVE', createdAt: new Date() }] });
+    seed({
+      users: [
+        { id: 'u1', firstName: 'Alice', lastName: 'Z', role: 'ELEVE', createdAt: new Date() },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
-    const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=user&search=notfound'));
+    const res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?type=user&search=notfound')
+    );
     const json = await res.json();
     expect(json.activities.length).toBe(0);
   });
 
   it('pagination page out of range returns empty list', async () => {
-    const base = Array.from({ length: 15 }, (_, i) => ({ id: `s${i}`, subject: 'NSI', status: 'SCHEDULED', createdAt: new Date(), student: { user: { firstName: 'A', lastName: 'B' } }, coach: { user: {}, pseudonym: 'Coach' } }));
+    const base = Array.from({ length: 15 }, (_, i) => ({
+      id: `s${i}`,
+      subject: 'NSI',
+      status: 'SCHEDULED',
+      createdAt: new Date(),
+      student: { user: { firstName: 'A', lastName: 'B' } },
+      coach: { user: {}, pseudonym: 'Coach' },
+    }));
     seed({ sessions: base });
     const { GET } = require('@/app/api/admin/activities/route');
-    const res = await GET(new NextRequest('http://localhost/api/admin/activities?page=3&limit=10&type=session'));
+    const res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?page=3&limit=10&type=session')
+    );
     const json = await res.json();
     expect(json.activities.length).toBe(0);
     expect(json.pagination.totalPages).toBe(2);
@@ -113,16 +209,27 @@ describe('Admin Activities - filters and pagination branches', () => {
 
   it('handles missing nested fields (Unknown names) and allows searching fallback labels', async () => {
     const now = new Date();
-    seed({ sessions: [
-      { id: 's1', subject: 'NSI', status: 'COMPLETED', createdAt: now, student: null, coach: null },
-    ]});
+    seed({
+      sessions: [
+        {
+          id: 's1',
+          subject: 'NSI',
+          status: 'COMPLETED',
+          createdAt: now,
+          student: null,
+          coach: null,
+        },
+      ],
+    });
     const { GET } = require('@/app/api/admin/activities/route');
     // Without search, activity should still be returned with fallback labels
     let res = await GET(new NextRequest('http://localhost/api/admin/activities?type=session'));
     let json = await res.json();
     expect(json.activities.length).toBe(1);
     // Search Unknown Coach should match fallback
-    res = await GET(new NextRequest('http://localhost/api/admin/activities?type=session&search=unknown%20coach'));
+    res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?type=session&search=unknown%20coach')
+    );
     json = await res.json();
     expect(json.activities.length).toBe(1);
   });
@@ -131,11 +238,23 @@ describe('Admin Activities - filters and pagination branches', () => {
     const now = new Date();
     seed({
       subs: [
-        { id: 'sub1', planName: 'HYBRIDE', status: 'ACTIVE', createdAt: now, student: { user: { firstName: 'Jean', lastName: 'Valjean' } } },
+        {
+          id: 'sub1',
+          planName: 'HYBRIDE',
+          status: 'ACTIVE',
+          createdAt: now,
+          student: { user: { firstName: 'Jean', lastName: 'Valjean' } },
+        },
       ],
       credits: [
-        { id: 'c1', type: 'REFUND', amount: 1, createdAt: now, student: { user: { firstName: 'Cosette', lastName: 'L.' } } },
-      ]
+        {
+          id: 'c1',
+          type: 'REFUND',
+          amount: 1,
+          createdAt: now,
+          student: { user: { firstName: 'Cosette', lastName: 'L.' } },
+        },
+      ],
     });
     const { GET } = require('@/app/api/admin/activities/route');
     // Search by planName in subject
@@ -150,15 +269,26 @@ describe('Admin Activities - filters and pagination branches', () => {
   });
 
   it('pagination with limit=1 produces multiple pages and correct slicing', async () => {
-    const base = Array.from({ length: 3 }, (_, i) => ({ id: `s${i}`, subject: 'NSI', status: 'SCHEDULED', createdAt: new Date(Date.now() + i * 1000), student: { user: { firstName: 'A', lastName: 'B' } }, coach: { user: {}, pseudonym: 'Coach' } }));
+    const base = Array.from({ length: 3 }, (_, i) => ({
+      id: `s${i}`,
+      subject: 'NSI',
+      status: 'SCHEDULED',
+      createdAt: new Date(Date.now() + i * 1000),
+      student: { user: { firstName: 'A', lastName: 'B' } },
+      coach: { user: {}, pseudonym: 'Coach' },
+    }));
     seed({ sessions: base });
     const { GET } = require('@/app/api/admin/activities/route');
-    let res = await GET(new NextRequest('http://localhost/api/admin/activities?limit=1&page=1&type=session'));
+    let res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?limit=1&page=1&type=session')
+    );
     let json = await res.json();
     expect(json.activities.length).toBe(1);
     expect(json.pagination.totalPages).toBe(3);
 
-    res = await GET(new NextRequest('http://localhost/api/admin/activities?limit=1&page=3&type=session'));
+    res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?limit=1&page=3&type=session')
+    );
     json = await res.json();
     expect(json.activities.length).toBe(1);
   });

@@ -17,7 +17,9 @@ export async function generatePdfLocally(params: LocalPdfParams): Promise<{ url:
 
   const publicDir = path.join(process.cwd(), 'public');
   const outDir = path.join(publicDir, 'generated');
-  try { fs.mkdirSync(outDir, { recursive: true }); } catch {}
+  try {
+    fs.mkdirSync(outDir, { recursive: true });
+  } catch {}
 
   const safeBase = fileBaseName.replace(/[^a-zA-Z0-9_-]+/g, '_');
   const fileName = `${safeBase}.pdf`;
@@ -75,5 +77,3 @@ export async function generatePdfLocally(params: LocalPdfParams): Promise<{ url:
 
   return { url: `/generated/${fileName}` };
 }
-
-

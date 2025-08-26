@@ -1,8 +1,14 @@
-[ 
+[
   { "path": "/", "roles": ["PUBLIC"], "requiredSelector": "header" },
   { "path": "/aria", "roles": ["ELEVE"], "requiredSelector": "[data-testid='nexus-aria-input']" },
-  { "path": "/dashboard/admin", "roles": ["ADMIN"], "requiredSelector": "[data-testid='admin-dashboard']" },
-  { "path": "/dashboard/admin/subscriptions", "roles": ["ADMIN"], "requiredSelector": "[data-testid='subscriptions-table']" }
+  {
+    "path": "/dashboard/admin",
+    "roles": ["ADMIN"],
+    "requiredSelector": "[data-testid='admin-dashboard']"
+  },
+  {
+    "path": "/dashboard/admin/subscriptions",
+    "roles": ["ADMIN"],
+    "requiredSelector": "[data-testid='subscriptions-table']"
+  }
 ]
-
-

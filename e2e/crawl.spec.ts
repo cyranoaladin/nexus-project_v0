@@ -4,7 +4,11 @@ import { loginAs } from './helpers';
 
 test.setTimeout(120000);
 test('crawl buttons & links on key pages', async ({ page }) => {
-  const routes = JSON.parse(await fs.readFile('tests/e2e/routes.map.json', 'utf-8')) as Array<{path:string, requiredSelector:string, roles?: string[]}>;
+  const routes = JSON.parse(await fs.readFile('tests/e2e/routes.map.json', 'utf-8')) as Array<{
+    path: string;
+    requiredSelector: string;
+    roles?: string[];
+  }>;
 
   for (const route of routes) {
     const roles = route.roles || [];
@@ -14,10 +18,14 @@ test('crawl buttons & links on key pages', async ({ page }) => {
       await loginAs(page, 'eleve.lucas.dupont@nexus.com');
     }
     await page.goto(route.path, { waitUntil: 'networkidle' });
-    await expect(page.locator('text=/Cette page est en cours de construction\\./')).not.toBeVisible();
+    await expect(
+      page.locator('text=/Cette page est en cours de construction\\./')
+    ).not.toBeVisible();
     await expect(page.locator(route.requiredSelector).first()).toBeVisible();
 
-    const clickables = page.locator('a:visible, button:visible, [role="button"]:visible, [data-testid]:visible');
+    const clickables = page.locator(
+      'a:visible, button:visible, [role="button"]:visible, [data-testid]:visible'
+    );
     const count = Math.min(await clickables.count(), 10);
     for (let i = 0; i < count; i++) {
       const el = clickables.nth(i);
@@ -45,7 +53,8 @@ test('crawl buttons & links on key pages', async ({ page }) => {
     }
 
     // Stabiliser avant de passer à la route suivante
-    try { await page.waitForLoadState('networkidle', { timeout: 1000 }); } catch {}
+    try {
+      await page.waitForLoadState('networkidle', { timeout: 1000 });
+    } catch {}
   }
 });
-

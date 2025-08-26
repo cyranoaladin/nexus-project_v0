@@ -2,7 +2,7 @@
 
 ## Projet: Plateforme Nexus Réussite v4.1
 
-  **Version :** 3.0(Finale pour Développement);
+**Version :** 3.0(Finale pour Développement);
 
 ---
 
@@ -24,13 +24,13 @@ Déployer la plateforme de **pédagogie augmentée** de référence pour les lyc
 
 #### 2.1.Plan du Site(Pages Publiques)
 
-* `/` : **Page d'Accueil** (Hub de conversion stratégique)
-  * `/equipe` : **Notre Équipe**
-* `/offres` : **Offres & Tarifs** (Détail complet du modèle)
-* `/notre-centre` : **Le Centre de Tunis**
-* `/contact` : **Contact & FAQ**
-* `/blog` : **Blog**
-* `/bilan-gratuit` : **Formulaire de Diagnostic**
+- `/` : **Page d'Accueil** (Hub de conversion stratégique)
+  - `/equipe` : **Notre Équipe**
+- `/offres` : **Offres & Tarifs** (Détail complet du modèle)
+- `/notre-centre` : **Le Centre de Tunis**
+- `/contact` : **Contact & FAQ**
+- `/blog` : **Blog**
+- `/bilan-gratuit` : **Formulaire de Diagnostic**
 
 #### 2.2.Parcours Utilisateur Cible(Conversion Parent)
 
@@ -44,27 +44,27 @@ Déployer la plateforme de **pédagogie augmentée** de référence pour les lyc
 
 ### 3. Spécifications Techniques
 
-* **Stack Technique:** **Next.js 14 Full - Stack(App Router)**.
-* **Langage :** TypeScript.
-* **Styling :** Tailwind CSS.
-* **Animations :** Framer Motion.
-* **Icônes :** `lucide-react`.
-* **Base de Données:** **PostgreSQL**.
-* **ORM :** **Prisma**.
-* **Authentification :** **NextAuth.js**.
-* **Paiements :** Double intégration
-* **Konnect** pour les paiements locaux(Tunisie).
-    *   **Processus semi - automatisé** pour les virements internationaux(Wise).
-* **Déploiement Cible:** **VPS Dédié(Ubuntu) via Docker & Docker Compose**, avec Nginx en reverse proxy.
-* **Emailing Transactionnel:** SMTP(via Hostinger).
+- **Stack Technique:** **Next.js 14 Full - Stack(App Router)**.
+- **Langage :** TypeScript.
+- **Styling :** Tailwind CSS.
+- **Animations :** Framer Motion.
+- **Icônes :** `lucide-react`.
+- **Base de Données:** **PostgreSQL**.
+- **ORM :** **Prisma**.
+- **Authentification :** **NextAuth.js**.
+- **Paiements :** Double intégration
+- **Konnect** pour les paiements locaux(Tunisie).
+  - **Processus semi - automatisé** pour les virements internationaux(Wise).
+- **Déploiement Cible:** **VPS Dédié(Ubuntu) via Docker & Docker Compose**, avec Nginx en reverse proxy.
+- **Emailing Transactionnel:** SMTP(via Hostinger).
 
 ---
 
 ### 4. Architecture de l'Agent IA "ARIA"
 
-* **Modèle :** `GPT-4` ou version supérieure d'OpenAI.
-    ***Architecture :** **RAG(Retrieval - Augmented Generation)**.
-    * ARIA ne répond pas de manière générique.Ses réponses sont basées sur une **base de données vectorielle** (`pgvector` dans PostgreSQL) contenant nos propres contenus pédagogiques(fiches, cours, exercices).
-* **Fonctionnalités Clés:**
-  * **Historique des Conversations:** Chaque conversation est sauvegardée et accessible par l'élève, et utilisée pour profiler l'élève et améliorer le contexte des futures interactions.
-  * **Feedback Utilisateur:** Un système de notation binaire(👍/👎) doit être implémenté sur chaque réponse d'ARIA pour l'amélioration continue.
+- **Modèle :** `GPT-4` ou version supérieure d'OpenAI.
+  **\*Architecture :** **RAG(Retrieval - Augmented Generation)**.
+  - ARIA ne répond pas de manière générique.Ses réponses sont basées sur une **base de données vectorielle** (`pgvector` dans PostgreSQL) contenant nos propres contenus pédagogiques(fiches, cours, exercices).
+- **Fonctionnalités Clés:**
+  - **Historique des Conversations:** Chaque conversation est sauvegardée et accessible par l'élève, et utilisée pour profiler l'élève et améliorer le contexte des futures interactions.
+  - **Feedback Utilisateur:** Un système de notation binaire(👍/👎) doit être implémenté sur chaque réponse d'ARIA pour l'amélioration continue.

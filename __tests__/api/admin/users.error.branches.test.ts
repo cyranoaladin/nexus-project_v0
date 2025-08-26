@@ -24,8 +24,20 @@ describe('Admin Users - error branches', () => {
     (prisma as any).user.findUnique = jest.fn().mockResolvedValue(null);
     (prisma as any).user.create = jest.fn().mockRejectedValue(new Error('create failed'));
     const { POST } = require('@/app/api/admin/users/route');
-    const payload = { email: 'e@e.com', firstName: 'A', lastName: 'B', role: 'ELEVE', password: 'password123' };
-    const res = await POST(new NextRequest('http://localhost/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) } as any));
+    const payload = {
+      email: 'e@e.com',
+      firstName: 'A',
+      lastName: 'B',
+      role: 'ELEVE',
+      password: 'password123',
+    };
+    const res = await POST(
+      new NextRequest('http://localhost/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      } as any)
+    );
     expect(res.status).toBe(500);
   });
 
@@ -33,7 +45,13 @@ describe('Admin Users - error branches', () => {
     (prisma as any).user.update = jest.fn().mockRejectedValue(new Error('update failed'));
     const { PUT } = require('@/app/api/admin/users/route');
     const payload = { id: 'u1', firstName: 'X' };
-    const res = await PUT(new NextRequest('http://localhost/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) } as any));
+    const res = await PUT(
+      new NextRequest('http://localhost/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      } as any)
+    );
     expect(res.status).toBe(500);
   });
 

@@ -1,0 +1,17 @@
+# Dependencies and build artifacts
+node_modules
+.next
+coverage
+dist
+
+# Test and e2e outputs
+playwright-report
+test-results
+reports
+
+# Logs
+*.log
+
+# Generated assets
+public/generated
+

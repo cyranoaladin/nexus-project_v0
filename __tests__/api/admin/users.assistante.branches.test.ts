@@ -14,7 +14,11 @@ describe('Admin Users - ASSISTANTE branches', () => {
 
   it('POST creates ASSISTANTE with profileData branch present (lines 172-174)', async () => {
     (prisma as any).user.findUnique = jest.fn().mockResolvedValue(null);
-    (prisma as any).user.create = jest.fn().mockImplementation(({ data }: any) => Promise.resolve({ id: 'u1', ...data, coachProfile: null }));
+    (prisma as any).user.create = jest
+      .fn()
+      .mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'u1', ...data, coachProfile: null })
+      );
 
     const payload = {
       email: 'assistant@example.com',

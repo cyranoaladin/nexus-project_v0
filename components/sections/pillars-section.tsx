@@ -1,60 +1,73 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
-import { Award, BrainCircuit, CheckCircle2, GitBranch, HelpCircle, ShieldCheck, Users, X } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
+import {
+  Award,
+  BrainCircuit,
+  CheckCircle2,
+  GitBranch,
+  HelpCircle,
+  ShieldCheck,
+  Users,
+  X,
+} from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 const pillars = [
   {
     icon: Users,
     title: "Des Coachs d'Exception",
-    category: "La Garantie Humaine",
-    description: "Nous ne recrutons que l'élite. Chaque intervenant est rigoureusement sélectionné pour son expertise et son expérience du système éducatif français.",
+    category: 'La Garantie Humaine',
+    description:
+      "Nous ne recrutons que l'élite. Chaque intervenant est rigoureusement sélectionné pour son expertise et son expérience du système éducatif français.",
     features: [
       "Professeurs **Agrégés & Certifiés** de l'Éducation Nationale française",
       "Riche expérience dans **l'enseignement français à l'étranger**",
-      "Spécialistes NSI titulaires du **DIU NSI**",
-      "Pédagogie active et suivi **bienveillant**"
-    ]
+      'Spécialistes NSI titulaires du **DIU NSI**',
+      'Pédagogie active et suivi **bienveillant**',
+    ],
   },
   {
     icon: BrainCircuit,
-    title: "Une Technologie Qui Fait la Différence",
-    category: "Le Levier Technologique",
-    description: "Nous avons développé des outils propriétaires qui vous donnent un avantage décisif, disponibles 24/7 pour ne jamais être bloqué.",
+    title: 'Une Technologie Qui Fait la Différence',
+    category: 'Le Levier Technologique',
+    description:
+      'Nous avons développé des outils propriétaires qui vous donnent un avantage décisif, disponibles 24/7 pour ne jamais être bloqué.',
     features: [
-      "**IA ARIA** entraînée sur nos contenus exclusifs",
-      "Plateforme de suivi de progression **en temps réel**",
-      "Visioconférence intégrée et **sécurisée**",
-      "Ressources et quiz **interactifs**"
-    ]
+      '**IA ARIA** entraînée sur nos contenus exclusifs',
+      'Plateforme de suivi de progression **en temps réel**',
+      'Visioconférence intégrée et **sécurisée**',
+      'Ressources et quiz **interactifs**',
+    ],
   },
   {
     icon: GitBranch,
-    title: "Votre Parcours, Votre Stratégie",
-    category: "La Stratégie Personnalisée",
-    description: "Il n'y a pas de solution unique pour la réussite. Nous construisons avec vous un plan d'action sur-mesure, du premier jour jusqu'à Parcoursup.",
+    title: 'Votre Parcours, Votre Stratégie',
+    category: 'La Stratégie Personnalisée',
+    description:
+      "Il n'y a pas de solution unique pour la réussite. Nous construisons avec vous un plan d'action sur-mesure, du premier jour jusqu'à Parcoursup.",
     features: [
-      "**Bilan Stratégique** initial complet et gratuit",
-      "Constitution de groupes de travail **homogènes**",
-      "**Flexibilité totale** grâce au système de crédits",
-      "Accompagnement **dédié à l'orientation**"
-    ]
+      '**Bilan Stratégique** initial complet et gratuit',
+      'Constitution de groupes de travail **homogènes**',
+      '**Flexibilité totale** grâce au système de crédits',
+      "Accompagnement **dédié à l'orientation**",
+    ],
   },
   {
     icon: Award,
-    title: "Des Résultats Concrets",
-    category: "Les Résultats Concrets",
-    description: "Notre accompagnement ne s'arrête pas aux bonnes notes. Nous préparons activement vos enfants à leur avenir et nous nous engageons sur leurs résultats.",
+    title: 'Des Résultats Concrets',
+    category: 'Les Résultats Concrets',
+    description:
+      "Notre accompagnement ne s'arrête pas aux bonnes notes. Nous préparons activement vos enfants à leur avenir et nous nous engageons sur leurs résultats.",
     features: [
-      "Préparation stratégique aux concours **post-bac**",
-      "Accompagnement expert et intégré à **Parcoursup**",
-      "Développement de **compétences transversales** pour le supérieur",
-      "**Garantie \"Bac Obtenu ou Remboursé\"** sous conditions"
-    ]
-  }
+      'Préparation stratégique aux concours **post-bac**',
+      'Accompagnement expert et intégré à **Parcoursup**',
+      'Développement de **compétences transversales** pour le supérieur',
+      '**Garantie "Bac Obtenu ou Remboursé"** sous conditions',
+    ],
+  },
 ];
 
 // Composant Tooltip pour DIU NSI
@@ -76,9 +89,7 @@ function DIUTooltip() {
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
           <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 w-80 text-left">
             <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-slate-900 text-sm">
-                Qu'est-ce que le DIU NSI ?
-              </h4>
+              <h4 className="font-semibold text-slate-900 text-sm">Qu'est-ce que le DIU NSI ?</h4>
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-slate-400 hover:text-slate-600 ml-2"
@@ -87,10 +98,10 @@ function DIUTooltip() {
               </button>
             </div>
             <p className="text-xs text-slate-700 leading-relaxed">
-              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui garantit
-              que l'enseignant possède les connaissances et les compétences pédagogiques requises
-              pour enseigner la spécialité Numérique et Sciences Informatiques (NSI) en classes
-              de 1ère et de Terminale, conformément aux exigences de la réforme du lycée.
+              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui garantit que
+              l'enseignant possède les connaissances et les compétences pédagogiques requises pour
+              enseigner la spécialité Numérique et Sciences Informatiques (NSI) en classes de 1ère
+              et de Terminale, conformément aux exigences de la réforme du lycée.
             </p>
             {/* Flèche du tooltip */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
@@ -148,8 +159,9 @@ export function PillarsSection() {
             L'<span className="text-blue-600">Excellence</span> Augmentée
           </h2>
           <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-            Nous avons construit un écosystème unique où l'expertise humaine, la puissance technologique
-            et la stratégie personnalisée convergent vers un seul objectif : votre réussite.
+            Nous avons construit un écosystème unique où l'expertise humaine, la puissance
+            technologique et la stratégie personnalisée convergent vers un seul objectif : votre
+            réussite.
           </p>
         </motion.div>
 
@@ -204,7 +216,7 @@ export function PillarsSection() {
 
                   {/* Colonne de droite - Image */}
                   <div className="lg:order-last">
-                    {pillar.category === "La Garantie Humaine" ? (
+                    {pillar.category === 'La Garantie Humaine' ? (
                       <Image
                         src="/images/Image_AccompagnementBienveillant.png"
                         alt="Accompagnement bienveillant par nos experts"
@@ -212,7 +224,7 @@ export function PillarsSection() {
                         height={400}
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
-                    ) : pillar.category === "Le Levier Technologique" ? (
+                    ) : pillar.category === 'Le Levier Technologique' ? (
                       <Image
                         src="/images/aria_mascotte.png"
                         alt="ARIA - Notre Intelligence Artificielle"
@@ -220,7 +232,7 @@ export function PillarsSection() {
                         height={400}
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
-                    ) : pillar.category === "La Stratégie Personnalisée" ? (
+                    ) : pillar.category === 'La Stratégie Personnalisée' ? (
                       <Image
                         src="/images/asisstante_parents.png"
                         alt="Accompagnement personnalisé des familles"
@@ -228,7 +240,7 @@ export function PillarsSection() {
                         height={400}
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
-                    ) : pillar.category === "Les Résultats Concrets" ? (
+                    ) : pillar.category === 'Les Résultats Concrets' ? (
                       <Image
                         src="/images/coach_parcoursup.png"
                         alt="Coaching Parcoursup et orientation"

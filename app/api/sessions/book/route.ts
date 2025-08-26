@@ -33,7 +33,10 @@ export async function POST(request: NextRequest) {
     const raw = await request.json();
     const parse = BookingRequestSchema.safeParse(raw);
     if (!parse.success) {
-      return NextResponse.json({ error: 'Invalid request', details: parse.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid request', details: parse.error.flatten() },
+        { status: 400 }
+      );
     }
     const body = parse.data;
 
@@ -44,7 +47,10 @@ export async function POST(request: NextRequest) {
     }
     if (role === 'ELEVE') {
       if (process.env.NODE_ENV !== 'test') {
-        const stu = await prisma.student.findUnique({ where: { id: body.studentId }, include: { user: true } });
+        const stu = await prisma.student.findUnique({
+          where: { id: body.studentId },
+          include: { user: true },
+        });
         if (!stu || stu.userId !== session.user.id) {
           return NextResponse.json({ error: 'Student mismatch' }, { status: 403 });
         }
@@ -68,29 +74,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Weekend booking not allowed' }, { status: 400 });
     }
     const startHour = parseInt(bodyWithDefaults.startTime.split(':')[0]);
-    const endTime = body.endTime && body.endTime.trim() ? body.endTime : (() => {
-      const base = toDate(bodyWithDefaults.scheduledDate, bodyWithDefaults.startTime);
-      const dt = new Date(base.getTime() + (body.duration || 0) * 60000);
-      const hh = String(dt.getUTCHours()).padStart(2, '0');
-      const mm = String(dt.getUTCMinutes()).padStart(2, '0');
-      return `${hh}:${mm}`;
-    })();
+    const endTime =
+      body.endTime && body.endTime.trim()
+        ? body.endTime
+        : (() => {
+            const base = toDate(bodyWithDefaults.scheduledDate, bodyWithDefaults.startTime);
+            const dt = new Date(base.getTime() + (body.duration || 0) * 60000);
+            const hh = String(dt.getUTCHours()).padStart(2, '0');
+            const mm = String(dt.getUTCMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
+          })();
     const endHour = parseInt(endTime.split(':')[0]);
     if (startHour < 8 || endHour > 20) {
-      return NextResponse.json({ error: 'Bookings must be between 08:00 and 20:00' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Bookings must be between 08:00 and 20:00' },
+        { status: 400 }
+      );
     }
 
     const startDateTime = toDate(bodyWithDefaults.scheduledDate, bodyWithDefaults.startTime);
     const endDateTime = toDate(bodyWithDefaults.scheduledDate, endTime);
-    const computedDuration = Math.max(0, Math.round((endDateTime.getTime() - startDateTime.getTime()) / 60000));
+    const computedDuration = Math.max(
+      0,
+      Math.round((endDateTime.getTime() - startDateTime.getTime()) / 60000)
+    );
     if (computedDuration !== bodyWithDefaults.duration) {
       return NextResponse.json({ error: 'Duration mismatch' }, { status: 400 });
     }
 
     // Resolve coach profile id from userId (simplify in test env)
-    const coachProfile = process.env.NODE_ENV === 'test'
-      ? { id: body.coachId }
-      : await prisma.coachProfile.findUnique({ where: { userId: bodyWithDefaults.coachId } });
+    const coachProfile =
+      process.env.NODE_ENV === 'test'
+        ? { id: body.coachId }
+        : await prisma.coachProfile.findUnique({ where: { userId: bodyWithDefaults.coachId } });
     if (!coachProfile) {
       return NextResponse.json({ error: 'Coach not found' }, { status: 404 });
     }
@@ -102,12 +118,18 @@ export async function POST(request: NextRequest) {
           coachId: bodyWithDefaults.coachId,
           isAvailable: true,
           OR: [
-            { isRecurring: true, specificDate: null, dayOfWeek: new Date(body.scheduledDate).getUTCDay() },
+            {
+              isRecurring: true,
+              specificDate: null,
+              dayOfWeek: new Date(body.scheduledDate).getUTCDay(),
+            },
             { isRecurring: false, specificDate: new Date(body.scheduledDate) },
           ],
         },
       });
-      const fitsAvailability = availabilities.some((av) => av.startTime <= bodyWithDefaults.startTime && av.endTime >= endTime);
+      const fitsAvailability = availabilities.some(
+        (av) => av.startTime <= bodyWithDefaults.startTime && av.endTime >= endTime
+      );
       if (!fitsAvailability) {
         return NextResponse.json({ error: 'Selected slot not available' }, { status: 409 });
       }
@@ -125,7 +147,10 @@ export async function POST(request: NextRequest) {
         return overlap(startDateTime, endDateTime, sStart, sEnd);
       });
       if (hasSessionConflict) {
-        return NextResponse.json({ error: 'Coach already has a session at this time' }, { status: 409 });
+        return NextResponse.json(
+          { error: 'Coach already has a session at this time' },
+          { status: 409 }
+        );
       }
 
       const coachBookings = await prisma.sessionBooking.findMany({
@@ -136,7 +161,9 @@ export async function POST(request: NextRequest) {
         },
         select: { startTime: true, endTime: true },
       });
-      const hasBookingConflict = coachBookings.some((b) => !(b.endTime <= body.startTime || b.startTime >= endTime));
+      const hasBookingConflict = coachBookings.some(
+        (b) => !(b.endTime <= body.startTime || b.startTime >= endTime)
+      );
       if (hasBookingConflict) {
         return NextResponse.json({ error: 'Time slot already booked' }, { status: 409 });
       }
@@ -144,7 +171,8 @@ export async function POST(request: NextRequest) {
 
     // Credits check
     const student = await prisma.student.findUnique({ where: { id: bodyWithDefaults.studentId } });
-    if (!student && process.env.NODE_ENV !== 'test') return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    if (!student && process.env.NODE_ENV !== 'test')
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
 
     // Create booking + session + credit transaction atomically
     const result = await prisma.$transaction(async (tx) => {
@@ -175,7 +203,7 @@ export async function POST(request: NextRequest) {
       const booking = (tx as any).sessionBooking?.create
         ? await (tx as any).sessionBooking.create({
             data: {
-              studentId: (student?.userId) || session.user.id, // allow in tests
+              studentId: student?.userId || session.user.id, // allow in tests
               coachId: bodyWithDefaults.coachId, // userId of coach
               parentId: bodyWithDefaults.parentId || null,
               subject: bodyWithDefaults.subject as any,
@@ -222,7 +250,11 @@ export async function POST(request: NextRequest) {
       return { booking, session: createdSession };
     });
 
-    return NextResponse.json({ success: true, sessionId: result.session.id, bookingId: result.booking?.id });
+    return NextResponse.json({
+      success: true,
+      sessionId: result.session.id,
+      bookingId: result.booking?.id,
+    });
   } catch (error) {
     console.error('POST /api/sessions/book error:', error);
     if ((error as any)?.http) {
@@ -231,5 +263,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
- 

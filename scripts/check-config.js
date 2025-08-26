@@ -10,12 +10,12 @@ console.log('🔍 Checking NextAuth Configuration...\n');
 const envFiles = ['.env', '.env.local', '.env.development'];
 let envFileFound = false;
 
-envFiles.forEach(file => {
+envFiles.forEach((file) => {
   const filePath = path.join(process.cwd(), file);
   if (fs.existsSync(filePath)) {
     console.log(`✅ Found ${file}`);
     envFileFound = true;
-    
+
     // Read and check for NEXTAUTH_SECRET
     const content = fs.readFileSync(filePath, 'utf8');
     if (content.includes('NEXTAUTH_SECRET')) {
@@ -23,7 +23,7 @@ envFiles.forEach(file => {
     } else {
       console.log(`⚠️  NEXTAUTH_SECRET missing in ${file}`);
     }
-    
+
     if (content.includes('NEXTAUTH_URL')) {
       console.log(`✅ NEXTAUTH_URL found in ${file}`);
     } else {
@@ -36,7 +36,7 @@ envFiles.forEach(file => {
 
 if (!envFileFound) {
   console.log('\n📝 Creating .env.local file...');
-  
+
   const envContent = `# =============================================================================
 # CONFIGURATION DATABASE (SQLite pour développement)
 # =============================================================================
@@ -69,4 +69,4 @@ console.log('Create a .env.local file in your project root with:');
 console.log('NEXTAUTH_URL="http://localhost:3000"');
 console.log('NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development"');
 console.log('DATABASE_URL="file:./prisma/dev.db"');
-console.log('NODE_ENV="development"'); 
+console.log('NODE_ENV="development"');

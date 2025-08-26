@@ -1,36 +1,46 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, User } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Plus, User } from 'lucide-react';
 
 interface AddChildDialogProps {
   onChildAdded: () => void;
 }
 
-const GRADES = [
-  "Seconde", "Première", "Terminale"
-];
+const GRADES = ['Seconde', 'Première', 'Terminale'];
 
 export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    grade: "",
-    school: ""
+    firstName: '',
+    lastName: '',
+    grade: '',
+    school: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.firstName || !formData.lastName || !formData.grade) {
-      alert("Veuillez remplir tous les champs obligatoires");
+      alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -45,13 +55,13 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
       });
 
       if (response.ok) {
-        alert("Enfant ajouté avec succès!");
+        alert('Enfant ajouté avec succès!');
         setOpen(false);
         setFormData({
-          firstName: "",
-          lastName: "",
-          grade: "",
-          school: ""
+          firstName: '',
+          lastName: '',
+          grade: '',
+          school: '',
         });
         onChildAdded();
       } else {
@@ -60,7 +70,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
       }
     } catch (error) {
       console.error('Error adding child:', error);
-      alert('Une erreur est survenue lors de l\'ajout de l\'enfant');
+      alert("Une erreur est survenue lors de l'ajout de l'enfant");
     } finally {
       setLoading(false);
     }
@@ -111,13 +121,14 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
               />
             </div>
           </div>
-          
-
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="grade">Niveau *</Label>
-              <Select value={formData.grade} onValueChange={(value) => setFormData({ ...formData, grade: value })}>
+              <Select
+                value={formData.grade}
+                onValueChange={(value) => setFormData({ ...formData, grade: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner le niveau" />
                 </SelectTrigger>
@@ -142,11 +153,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            <Button 
-              type="submit" 
-              className="flex-1"
-              disabled={loading}
-            >
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -159,9 +166,9 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
                 </>
               )}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1"
               disabled={loading}
@@ -173,4 +180,4 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

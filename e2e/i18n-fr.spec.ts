@@ -13,6 +13,3 @@ test.describe('Vérifications i18n FR', () => {
     expect(bodyText).not.toMatch(/\bN\/A\b/);
   });
 });
-
-
-

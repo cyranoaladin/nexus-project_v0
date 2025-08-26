@@ -16,10 +16,7 @@ export async function GET(_req: NextRequest) {
 
     const notifications = await prisma.notification.findMany({
       where: {
-        OR: [
-          { userId: session.user.id },
-          { userRole: 'ASSISTANTE' as any },
-        ],
+        OR: [{ userId: session.user.id }, { userRole: 'ASSISTANTE' as any }],
       },
       orderBy: { createdAt: 'desc' },
       take: 50,
@@ -41,5 +38,3 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-

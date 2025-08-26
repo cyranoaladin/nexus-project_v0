@@ -12,75 +12,79 @@ const OFFERS_PREVIEW = [
   {
     id: 'cortex',
     title: 'Nexus Cortex',
-    subtitle: 'L\'Intelligence Artificielle au service de votre réussite',
-    description: 'Votre tuteur personnel IA, disponible 24/7 pour répondre à vos questions, corriger vos méthodes et vous entraîner avec des quiz sur mesure.',
+    subtitle: "L'Intelligence Artificielle au service de votre réussite",
+    description:
+      'Votre tuteur personnel IA, disponible 24/7 pour répondre à vos questions, corriger vos méthodes et vous entraîner avec des quiz sur mesure.',
     whyPoints: [
       'Disponibilité 24/7 sans interruption',
       'Correction instantanée de vos méthodes',
       'Quiz personnalisés selon vos lacunes',
-      'Progression mesurée et optimisée'
+      'Progression mesurée et optimisée',
     ],
     cta: 'Découvrir notre IA',
     iconPath: '/images/Icon_NexusCortex.png',
     iconColor: 'text-purple-600',
     buttonColor: 'bg-purple-600 hover:bg-purple-700',
     gradientBg: 'from-purple-50 to-white',
-    isPopular: false
+    isPopular: false,
   },
   {
     id: 'flex',
     title: 'Le Studio Flex',
     subtitle: 'La flexibilité absolue pour un accompagnement sur-mesure',
-    description: 'Accédez à la demande à nos experts. Réservez un cours individuel, une session de coaching ou un atelier de groupe, précisément quand vous en avez besoin.',
+    description:
+      'Accédez à la demande à nos experts. Réservez un cours individuel, une session de coaching ou un atelier de groupe, précisément quand vous en avez besoin.',
     whyPoints: [
       'Réservation à la demande selon vos besoins',
       'Accès direct à nos experts certifiés',
       'Formats variés : individuel, groupe, coaching',
-      'Flexibilité totale dans votre planning'
+      'Flexibilité totale dans votre planning',
     ],
     cta: 'Explorer les prestations à la carte',
     iconPath: '/images/Icon_StudioFlex.png',
     iconColor: 'text-orange-500',
     buttonColor: 'bg-orange-500 hover:bg-orange-600',
     gradientBg: 'from-orange-50 to-white',
-    isPopular: true
+    isPopular: true,
   },
   {
     id: 'academies',
     title: 'Les Académies Nexus',
     subtitle: 'Des stages intensifs pour une progression accélérée',
-    description: 'Des stages intensifs pendant chaque vacance scolaire pour maîtriser une matière, préparer une épreuve clé (Bac de Français, Grand Oral) et prendre une avance considérable.',
+    description:
+      'Des stages intensifs pendant chaque vacance scolaire pour maîtriser une matière, préparer une épreuve clé (Bac de Français, Grand Oral) et prendre une avance considérable.',
     whyPoints: [
       'Stages pendant chaque période de vacances',
       'Préparation ciblée des épreuves clés',
       'Progression intensive et mesurable',
-      'Avance considérable sur le programme'
+      'Avance considérable sur le programme',
     ],
     cta: 'Voir tous nos stages',
     iconPath: '/images/Icon_AcademiesNexus.png',
     iconColor: 'text-purple-600',
     buttonColor: 'bg-purple-600 hover:bg-purple-700',
     gradientBg: 'from-purple-50 to-white',
-    isPopular: false
+    isPopular: false,
   },
   {
     id: 'odyssee',
     title: 'Le Programme Odyssée',
-    subtitle: 'L\'accompagnement annuel intégral vers l\'excellence',
-    description: 'L\'accompagnement annuel intégral qui structure toute l\'année de Première ou de Terminale pour viser la mention, sécuriser Parcoursup et réussir en candidat libre.',
+    subtitle: "L'accompagnement annuel intégral vers l'excellence",
+    description:
+      "L'accompagnement annuel intégral qui structure toute l'année de Première ou de Terminale pour viser la mention, sécuriser Parcoursup et réussir en candidat libre.",
     whyPoints: [
       'Structuration complète de votre année scolaire',
       'Accompagnement vers la mention au Bac',
       'Préparation stratégique de Parcoursup',
-      'Support intégral pour candidats libres'
+      'Support intégral pour candidats libres',
     ],
     cta: 'Découvrir les parcours annuels',
     iconPath: '/images/Icon_ProgrammeOdyssee.png',
     iconColor: 'text-orange-500',
     buttonColor: 'bg-orange-500 hover:bg-orange-600',
     gradientBg: 'from-orange-50 to-white',
-    isPopular: false
-  }
+    isPopular: false,
+  },
 ];
 
 export function OffersPreviewSection() {
@@ -102,8 +106,8 @@ export function OffersPreviewSection() {
             Des Parcours Adaptés à Chaque Ambition
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Découvrez nos quatre univers de solutions conçus pour répondre précisément à vos besoins,
-            que vous soyez élève autonome ou famille en quête d'excellence.
+            Découvrez nos quatre univers de solutions conçus pour répondre précisément à vos
+            besoins, que vous soyez élève autonome ou famille en quête d'excellence.
           </p>
         </motion.div>
 
@@ -121,7 +125,7 @@ export function OffersPreviewSection() {
                   whileHover={{
                     scale: 1.03,
                     y: -8,
-                    transition: { duration: 0.2 }
+                    transition: { duration: 0.2 },
                   }}
                   className="h-full relative"
                 >
@@ -134,7 +138,9 @@ export function OffersPreviewSection() {
                     </div>
                   )}
 
-                  <Card className={`h-full border-0 shadow-xl hover:shadow-2xl bg-gradient-to-br ${offer.gradientBg} transition-all duration-300 cursor-pointer group relative overflow-hidden`}>
+                  <Card
+                    className={`h-full border-0 shadow-xl hover:shadow-2xl bg-gradient-to-br ${offer.gradientBg} transition-all duration-300 cursor-pointer group relative overflow-hidden`}
+                  >
                     <CardHeader className="pb-4">
                       {/* Icône thématique centrée en haut avec couleur personnalisée */}
                       <div className="flex justify-center mb-6">
@@ -156,17 +162,13 @@ export function OffersPreviewSection() {
                         </h3>
 
                         {/* Sous-titre en italique avec taille augmentée */}
-                        <h4 className="text-lg italic text-gray-700 mb-4">
-                          {offer.subtitle}
-                        </h4>
+                        <h4 className="text-lg italic text-gray-700 mb-4">{offer.subtitle}</h4>
                       </div>
                     </CardHeader>
 
                     <CardContent className="pt-0">
                       {/* Description avec police Inter */}
-                      <p className="text-gray-600 mb-6 leading-relaxed">
-                        {offer.description}
-                      </p>
+                      <p className="text-gray-600 mb-6 leading-relaxed">{offer.description}</p>
 
                       {/* Liste "Pourquoi" avec icônes Check vertes */}
                       <div className="mb-6">
@@ -177,9 +179,7 @@ export function OffersPreviewSection() {
                           {offer.whyPoints.map((point, pointIndex) => (
                             <li key={pointIndex} className="flex items-start">
                               <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-700">
-                                {point}
-                              </span>
+                              <span className="text-sm text-gray-700">{point}</span>
                             </li>
                           ))}
                         </ul>

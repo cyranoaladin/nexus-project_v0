@@ -13,5 +13,3 @@ describe('API /api/coach/dashboard', () => {
     expect(res.status).toBe(401);
   });
 });
-
-

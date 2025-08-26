@@ -17,7 +17,7 @@ import {
   Settings,
   Shield,
   TestTube,
-  Users
+  Users,
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -53,11 +53,11 @@ function DashboardAdmin() {
   // Plus de rendu minimal: toujours afficher le vrai tableau de bord avec bypass d'auth éventuel
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'ADMIN') {
       if (!allowBypass) {
-        router.push("/auth/signin");
+        router.push('/auth/signin');
         return;
       }
     }
@@ -98,7 +98,10 @@ function DashboardAdmin() {
               <div className="flex items-center space-x-2">
                 <Shield className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
                 <div>
-                  <h1 className="font-semibold text-gray-900 text-sm md:text-base" suppressHydrationWarning>
+                  <h1
+                    className="font-semibold text-gray-900 text-sm md:text-base"
+                    suppressHydrationWarning
+                  >
                     Administration Nexus Réussite
                   </h1>
                   <p className="text-xs md:text-sm text-gray-500">Contrôle Total du Système</p>
@@ -151,7 +154,10 @@ function DashboardAdmin() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-testid="kpi-cards">
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+              data-testid="kpi-cards"
+            >
               {/* User Counts Section */}
               <Card className="lg:col-span-2">
                 <CardHeader>
@@ -215,16 +221,16 @@ function DashboardAdmin() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify_between space-y-0 pb-2">
-                  <CardTitle className="text-xs md:text-sm font-medium">Abonnements Actifs</CardTitle>
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Abonnements Actifs
+                  </CardTitle>
                   <Activity className="h-4 w-4 text-purple-600" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl md:text-2xl font-bold text-purple-600">
                     {data?.totalSubscriptions || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Taux de rétention: 94%
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Taux de rétention: 94%</p>
                 </CardContent>
               </Card>
             </div>
@@ -241,7 +247,8 @@ function DashboardAdmin() {
                     {data?.thisMonthSessions || 0}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {data?.sessionGrowthPercent && data.sessionGrowthPercent > 0 ? '+' : ''}{data?.sessionGrowthPercent || 0}% par rapport au mois dernier
+                    {data?.sessionGrowthPercent && data.sessionGrowthPercent > 0 ? '+' : ''}
+                    {data?.sessionGrowthPercent || 0}% par rapport au mois dernier
                   </p>
                 </CardContent>
               </Card>
@@ -255,24 +262,22 @@ function DashboardAdmin() {
                   <div className="text-xl md:text-2xl font-bold text-indigo-600">
                     {data?.totalSessions || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Toutes sessions confondues
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Toutes sessions confondues</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify_between space-y-0 pb-2">
-                  <CardTitle className="text-xs md:text-sm font-medium">Total Abonnements</CardTitle>
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Total Abonnements
+                  </CardTitle>
                   <CreditCard className="h-4 w-4 text-orange-600" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl md:text-2xl font-bold text-orange-600">
                     {data?.totalSubscriptions || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Tous abonnements confondus
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Tous abonnements confondus</p>
                 </CardContent>
               </Card>
             </div>
@@ -289,31 +294,49 @@ function DashboardAdmin() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start h-auto p-3 md:p-4"
+                      asChild
+                    >
                       <Link href="/dashboard/admin/tests">
                         <div className="flex items-center space-x-3">
                           <TestTube className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                           <div className="text-left">
                             <p className="font-medium text-sm md:text-base">Tests Système</p>
-                            <p className="text-xs md:text-sm text-gray-500">E-mails, paiements, API</p>
+                            <p className="text-xs md:text-sm text-gray-500">
+                              E-mails, paiements, API
+                            </p>
                           </div>
                         </div>
                       </Link>
                     </Button>
 
-                    <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start h-auto p-3 md:p-4"
+                      asChild
+                    >
                       <Link href="/dashboard/admin/rag-management">
                         <div className="flex items-center space-x-3">
                           <Database className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
                           <div className="text-left">
-                            <p className="font-medium text-sm md:text-base">Ingestion de documents RAG</p>
-                            <p className="text-xs md:text-sm text-gray-500">Ajouter des fichiers Markdown à la base</p>
+                            <p className="font-medium text-sm md:text-base">
+                              Ingestion de documents RAG
+                            </p>
+                            <p className="text-xs md:text-sm text-gray-500">
+                              Ajouter des fichiers Markdown à la base
+                            </p>
                           </div>
                         </div>
                       </Link>
                     </Button>
 
-                    <Button variant="outline" className="w-full justify_start h-auto p-3 md:p-4" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify_start h-auto p-3 md:p-4"
+                      asChild
+                    >
                       <Link href="/dashboard/admin/users">
                         <div className="flex items-center space-x-3">
                           <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
@@ -325,19 +348,29 @@ function DashboardAdmin() {
                       </Link>
                     </Button>
 
-                    <Button variant="outline" className="w-full justify_start h-auto p-3 md:p-4" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify_start h-auto p-3 md:p-4"
+                      asChild
+                    >
                       <Link href="/dashboard/admin/subscriptions">
                         <div className="flex items-center space-x-3">
                           <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                           <div className="text-left">
                             <p className="font-medium text-sm md:text-base">Abonnements Actifs</p>
-                            <p className="text-xs md:text-sm text-gray-500">Gestion des abonnements</p>
+                            <p className="text-xs md:text-sm text-gray-500">
+                              Gestion des abonnements
+                            </p>
                           </div>
                         </div>
                       </Link>
                     </Button>
 
-                    <Button variant="outline" className="w-full justify_start h-auto p-3 md:p-4" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify_start h-auto p-3 md:p-4"
+                      asChild
+                    >
                       <Link href="/dashboard/admin/analytics">
                         <div className="flex items-center space-x-3">
                           <BarChart className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
@@ -364,22 +397,32 @@ function DashboardAdmin() {
                   {data?.recentActivities && data.recentActivities.length > 0 ? (
                     <div className="space-y-3 md:space-y-4">
                       {data.recentActivities.slice(0, 4).map((activity: any, index: number) => (
-                        <div key={activity.id || index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div
+                          key={activity.id || index}
+                          className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"
+                        >
                           <div className="flex-shrink-0">
-                            {activity.type === 'session' && <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />}
-                            {activity.type === 'user' && <Users className="w-4 h-4 md:w-5 md:h-5 text-green-600" />}
-                            {activity.type === 'subscription' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />}
-                            {activity.type === 'credit' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />}
+                            {activity.type === 'session' && (
+                              <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                            )}
+                            {activity.type === 'user' && (
+                              <Users className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                            )}
+                            {activity.type === 'subscription' && (
+                              <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                            )}
+                            {activity.type === 'credit' && (
+                              <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs md:text-sm font-medium text-gray-900 truncate">
                               {activity.title}
                             </p>
-                            <p className="text-xs text-gray-500 truncate">
-                              {activity.description}
-                            </p>
+                            <p className="text-xs text-gray-500 truncate">{activity.description}</p>
                             <p className="text-xs text-gray-400">
-                              {activity.action} - {new Date(activity.time).toLocaleDateString('fr-FR')}
+                              {activity.action} -{' '}
+                              {new Date(activity.time).toLocaleDateString('fr-FR')}
                             </p>
                           </div>
                           <Badge

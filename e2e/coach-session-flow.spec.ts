@@ -7,8 +7,10 @@ test.describe('Coach session flow', () => {
     await page.goto('/dashboard/coach');
     await page.waitForLoadState('networkidle');
     if (!/\/dashboard\/coach/.test(page.url())) {
-      const link = page.locator('a', { hasText: /Coach|Tableau de bord coach|Enseignant/i }).first();
-      if (await link.count().then(c => c > 0)) {
+      const link = page
+        .locator('a', { hasText: /Coach|Tableau de bord coach|Enseignant/i })
+        .first();
+      if (await link.count().then((c) => c > 0)) {
         await link.click({ force: true });
         await page.waitForLoadState('networkidle');
       }
@@ -20,7 +22,11 @@ test.describe('Coach session flow', () => {
     }
     if (/\/dashboard\/coach/.test(page.url())) {
       // Vérifie présence d'actions rapides
-      const someCoachUI = await page.getByText(/Coach|Séance|Session|Actions/i).first().isVisible().catch(() => false);
+      const someCoachUI = await page
+        .getByText(/Coach|Séance|Session|Actions/i)
+        .first()
+        .isVisible()
+        .catch(() => false);
       expect(Boolean(someCoachUI)).toBeTruthy();
     } else {
       // Assouplir si resté sur signin
@@ -30,7 +36,7 @@ test.describe('Coach session flow', () => {
 
     // Smoke: ouvrir page sessions si lien disponible
     const sessionsLink = page.locator('a', { hasText: /Sessions|Séances/i }).first();
-    if (await sessionsLink.count().then(c => c > 0)) {
+    if (await sessionsLink.count().then((c) => c > 0)) {
       await sessionsLink.click({ force: true });
       await page.waitForLoadState('networkidle');
       await expect(page.url()).toMatch(/dashboard\/coach|sessions/);

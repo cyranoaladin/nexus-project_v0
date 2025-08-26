@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { AriaWidget } from '@/components/ui/aria-widget';
 import { Button } from '@/components/ui/button';

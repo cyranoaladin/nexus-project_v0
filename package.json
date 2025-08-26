@@ -30,7 +30,9 @@
     "docker:logs": "docker-compose logs -f",
     "clean:artifacts": "bash -lc 'rm -rf services/pdf_generator_service/.test_output services/pdf_generator_service/generated_pdfs e2e-logs test-results playwright-report reports *.pid *.log || true'",
     "clean:cache": "bash -lc 'rm -rf .next coverage dist || true'",
-    "clean": "npm run clean:artifacts && npm run clean:cache"
+    "clean": "npm run clean:artifacts && npm run clean:cache",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -108,6 +110,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "pino-pretty": "^11.2.2",
+    "prettier": "^3.6.2",
     "prisma": "^6.14.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.1",

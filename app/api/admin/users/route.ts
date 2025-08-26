@@ -40,12 +40,9 @@ const updateUserSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -58,16 +55,16 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const whereClause: any = {};
-    
+
     if (role && role !== 'ALL') {
       whereClause.role = role;
     }
-    
+
     if (search) {
       whereClause.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
         { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } }
+        { email: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -78,15 +75,15 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          createdAt: 'desc'
+          createdAt: 'desc',
         },
         include: {
           student: true,
           coachProfile: true,
-          parentProfile: true
-        }
+          parentProfile: true,
+        },
       }),
-      prisma.user.count({ where: whereClause })
+      prisma.user.count({ where: whereClause }),
     ]);
 
     const formattedUsers = users.map((user: any) => ({
@@ -96,7 +93,7 @@ export async function GET(request: NextRequest) {
       lastName: user.lastName,
       role: user.role,
       createdAt: user.createdAt,
-      profile: user.student || user.coachProfile || user.parentProfile || null
+      profile: user.student || user.coachProfile || user.parentProfile || null,
     }));
 
     return NextResponse.json({
@@ -105,47 +102,40 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total: totalUsers,
-        totalPages: Math.ceil(totalUsers / limit)
-      }
+        totalPages: Math.ceil(totalUsers / limit),
+      },
     });
-
   } catch (error) {
     console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const parsed = createUserSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid payload', details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
     const { email, firstName, lastName, role, password, profileData } = parsed.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }
 
     // Hash password
@@ -159,25 +149,29 @@ export async function POST(request: NextRequest) {
         lastName,
         role,
         password: hashedPassword,
-        ...(role === 'COACH' && profileData ? {
-          coachProfile: {
-            create: {
-              pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-              subjects: JSON.stringify(profileData.subjects || []),
-              description: profileData.description || '',
-              title: profileData.title || ''
+        ...(role === 'COACH' && profileData
+          ? {
+              coachProfile: {
+                create: {
+                  pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
+                  subjects: JSON.stringify(profileData.subjects || []),
+                  description: profileData.description || '',
+                  title: profileData.title || '',
+                },
+              },
             }
-          }
-        } : {}),
-        ...(role === 'ASSISTANTE' && profileData ? {
-          // Assistant profile can be extended later
-        } : {})
+          : {}),
+        ...(role === 'ASSISTANTE' && profileData
+          ? {
+              // Assistant profile can be extended later
+            }
+          : {}),
       },
       include: {
         coachProfile: true,
         studentProfile: true,
-        parentProfile: true
-      }
+        parentProfile: true,
+      },
     });
 
     return NextResponse.json({
@@ -189,34 +183,30 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        profile: user.coachProfile
-      }
+        profile: user.coachProfile,
+      },
     });
-
   } catch (error) {
     console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const parsed = updateUserSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid payload', details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
     const { id, email, firstName, lastName, role, profileData } = parsed.data;
 
@@ -228,30 +218,32 @@ export async function PUT(request: NextRequest) {
         firstName,
         lastName,
         role,
-        ...(role === 'COACH' && profileData ? {
-          coachProfile: {
-            upsert: {
-              create: {
-                pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-                subjects: JSON.stringify(profileData.subjects || []),
-                description: profileData.description || '',
-                title: profileData.title || ''
+        ...(role === 'COACH' && profileData
+          ? {
+              coachProfile: {
+                upsert: {
+                  create: {
+                    pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
+                    subjects: JSON.stringify(profileData.subjects || []),
+                    description: profileData.description || '',
+                    title: profileData.title || '',
+                  },
+                  update: {
+                    pseudonym: profileData.pseudonym,
+                    subjects: JSON.stringify(profileData.subjects || []),
+                    description: profileData.description,
+                    title: profileData.title,
+                  },
+                },
               },
-              update: {
-                pseudonym: profileData.pseudonym,
-                subjects: JSON.stringify(profileData.subjects || []),
-                description: profileData.description,
-                title: profileData.title
-              }
             }
-          }
-        } : {})
+          : {}),
       },
       include: {
         coachProfile: true,
         studentProfile: true,
-        parentProfile: true
-      }
+        parentProfile: true,
+      },
     });
 
     return NextResponse.json({
@@ -263,67 +255,50 @@ export async function PUT(request: NextRequest) {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         role: updatedUser.role,
-        profile: updatedUser.coachProfile
-      }
+        profile: updatedUser.coachProfile,
+      },
     });
-
   } catch (error) {
     console.error('Error updating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
     // Check if user exists
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Delete user (this will cascade to related profiles)
     await prisma.user.delete({
-      where: { id }
+      where: { id },
     });
 
     return NextResponse.json({
       success: true,
-      message: 'User deleted successfully'
+      message: 'User deleted successfully',
     });
-
   } catch (error) {
     console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

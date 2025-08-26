@@ -12,8 +12,16 @@ const RUN = process.env.E2E_RUN === '1';
     const error = page.getByText(/Erreur lors du chargement/i);
 
     // Robust redirect detection (some engines propagate session slowly)
-    const redirected = /\/auth\/signin/.test(page.url()) ||
-      (await (async () => { try { await page.waitForURL('**/auth/signin', { timeout: 8000 }); return true; } catch { return false; } })());
+    const redirected =
+      /\/auth\/signin/.test(page.url()) ||
+      (await (async () => {
+        try {
+          await page.waitForURL('**/auth/signin', { timeout: 8000 });
+          return true;
+        } catch {
+          return false;
+        }
+      })());
 
     if (redirected) {
       await expect(page).toHaveURL(/\/auth\/signin/);

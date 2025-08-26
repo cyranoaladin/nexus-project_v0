@@ -5,9 +5,13 @@ export const testPrisma = new PrismaClient({
   datasources: {
     db: {
       // Prefer Postgres for tests. Fallback to local mapped DB on 5433.
-      url: process.env.TEST_DATABASE_URL || process.env.JEST_DB_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public'
-    }
-  }
+      url:
+        process.env.TEST_DATABASE_URL ||
+        process.env.JEST_DB_URL ||
+        process.env.DATABASE_URL ||
+        'postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public',
+    },
+  },
 });
 
 // Test data setup utilities
@@ -38,8 +42,8 @@ export const createTestParent = async (overrides: any = {}) => {
       firstName: 'Jean',
       lastName: 'Dupont',
       phone: '0123456789',
-      ...overrides
-    }
+      ...overrides,
+    },
   });
 };
 
@@ -50,8 +54,8 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
       role: 'ELEVE',
       firstName: 'Marie',
       lastName: 'Dupont',
-      ...overrides.user
-    }
+      ...overrides.user,
+    },
   });
 
   const studentProfile = await testPrisma.studentProfile.create({
@@ -59,8 +63,8 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
       userId: studentUser.id,
       grade: 'Terminale',
       school: 'Lycée Test',
-      ...overrides.profile
-    }
+      ...overrides.profile,
+    },
   });
 
   const student = await testPrisma.student.create({
@@ -68,8 +72,8 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
       parentId,
       userId: studentUser.id,
       grade: 'Terminale',
-      ...overrides.student
-    }
+      ...overrides.student,
+    },
   });
 
   return { studentUser, studentProfile, student };
@@ -82,8 +86,8 @@ export const createTestCoach = async (overrides: any = {}) => {
       role: 'COACH',
       firstName: 'Pierre',
       lastName: 'Martin',
-      ...overrides.user
-    }
+      ...overrides.user,
+    },
   });
 
   const coachProfile = await testPrisma.coachProfile.create({
@@ -92,8 +96,8 @@ export const createTestCoach = async (overrides: any = {}) => {
       pseudonym: 'Prof_Pierre',
       subjects: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE']),
       availableOnline: true,
-      ...overrides.profile
-    }
+      ...overrides.profile,
+    },
   });
 
   return { coachUser, coachProfile };
@@ -108,8 +112,8 @@ export const createTestSubscription = async (studentId: string, overrides: any =
       creditsPerMonth: 20,
       monthlyPrice: 99,
       startDate: new Date(),
-      ...overrides
-    }
+      ...overrides,
+    },
   });
 };
 
@@ -119,7 +123,7 @@ export const addCreditsToStudent = async (studentId: string, amount: number) => 
       studentId,
       type: 'PURCHASE',
       amount,
-      description: `Test credit allocation: ${amount} credits`
-    }
+      description: `Test credit allocation: ${amount} credits`,
+    },
   });
 };

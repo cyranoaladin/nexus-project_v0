@@ -1,17 +1,23 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, Loader2, LogOut, Search, Settings, X } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertCircle, Check, Loader2, LogOut, Search, Settings, X } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface SubscriptionRequest {
   id: string;
@@ -43,16 +49,16 @@ export default function SubscriptionsManagement() {
   const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionReason, setRejectionReason] = useState('');
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
@@ -63,13 +69,13 @@ export default function SubscriptionsManagement() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/assistant/subscriptions');
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions');
       }
-      
+
       const data = await response.json();
       setPendingSubscriptions(data.pendingSubscriptions);
       setAllSubscriptions(data.allSubscriptions);
@@ -94,7 +100,7 @@ export default function SubscriptionsManagement() {
         body: JSON.stringify({
           subscriptionId,
           action,
-          reason: action === 'reject' ? rejectionReason : undefined
+          reason: action === 'reject' ? rejectionReason : undefined,
         }),
       });
 
@@ -105,11 +111,11 @@ export default function SubscriptionsManagement() {
 
       const result = await response.json();
       alert(result.subscription.message);
-      
+
       // Reset form
       setSelectedRequest(null);
-      setRejectionReason("");
-      
+      setRejectionReason('');
+
       // Refresh data
       fetchSubscriptions();
     } catch (err) {
@@ -120,15 +126,16 @@ export default function SubscriptionsManagement() {
     }
   };
 
-  const filteredPendingSubscriptions = pendingSubscriptions.filter(sub =>
-    sub.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.parent.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.parent.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.planName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPendingSubscriptions = pendingSubscriptions.filter(
+    (sub) =>
+      sub.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.parent.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.parent.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.planName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (status === "loading" || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -146,10 +153,7 @@ export default function SubscriptionsManagement() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => fetchSubscriptions()} 
-            className="mt-4"
-          >
+          <Button onClick={() => fetchSubscriptions()} className="mt-4">
             Réessayer
           </Button>
         </div>
@@ -167,9 +171,7 @@ export default function SubscriptionsManagement() {
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
                 <Settings className="w-8 h-8 text-blue-600" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
-                    Gestion des Abonnements
-                  </h1>
+                  <h1 className="font-semibold text-gray-900">Gestion des Abonnements</h1>
                   <p className="text-sm text-gray-500">Approbation des demandes</p>
                 </div>
               </Link>
@@ -191,12 +193,8 @@ export default function SubscriptionsManagement() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Demandes d'Abonnements
-              </h2>
-              <p className="text-gray-600">
-                Gérez les demandes d'abonnements des parents
-              </p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Demandes d'Abonnements</h2>
+              <p className="text-gray-600">Gérez les demandes d'abonnements des parents</p>
             </div>
             <div className="flex space-x-2">
               <Badge variant="outline" className="text-sm">
@@ -234,7 +232,8 @@ export default function SubscriptionsManagement() {
                         Demandé par {request.parent.firstName} {request.parent.lastName}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {new Date(request.createdAt).toLocaleDateString('fr-FR')} à {new Date(request.createdAt).toLocaleTimeString('fr-FR')}
+                        {new Date(request.createdAt).toLocaleDateString('fr-FR')} à{' '}
+                        {new Date(request.createdAt).toLocaleTimeString('fr-FR')}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-orange-700 border-orange-300">
@@ -246,8 +245,12 @@ export default function SubscriptionsManagement() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                       <p className="text-sm font-medium text-gray-700">Élève</p>
-                      <p className="text-sm text-gray-600">{request.student.firstName} {request.student.lastName}</p>
-                      <p className="text-xs text-gray-500">{request.student.grade} - {request.student.school}</p>
+                      <p className="text-sm text-gray-600">
+                        {request.student.firstName} {request.student.lastName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {request.student.grade} - {request.student.school}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-700">Abonnement</p>
@@ -256,16 +259,18 @@ export default function SubscriptionsManagement() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-700">Crédits</p>
-                      <p className="text-sm text-gray-600">{request.creditsPerMonth} crédits/mois</p>
+                      <p className="text-sm text-gray-600">
+                        {request.creditsPerMonth} crédits/mois
+                      </p>
                       <p className="text-xs text-gray-500">Type: {request.planType}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => setSelectedRequest(request)}
                         >
@@ -280,25 +285,31 @@ export default function SubscriptionsManagement() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label className="text-sm font-medium">Élève</Label>
-                              <p className="text-sm">{request.student.firstName} {request.student.lastName}</p>
+                              <p className="text-sm">
+                                {request.student.firstName} {request.student.lastName}
+                              </p>
                               <p className="text-xs text-gray-500">{request.student.grade}</p>
                             </div>
                             <div>
                               <Label className="text-sm font-medium">Parent</Label>
-                              <p className="text-sm">{request.parent.firstName} {request.parent.lastName}</p>
+                              <p className="text-sm">
+                                {request.parent.firstName} {request.parent.lastName}
+                              </p>
                               <p className="text-xs text-gray-500">{request.parent.email}</p>
                             </div>
                           </div>
-                          
+
                           <div>
                             <Label className="text-sm font-medium">Abonnement</Label>
                             <p className="text-sm font-medium">{request.planName}</p>
                             <p className="text-sm">{request.monthlyPrice} TND/mois</p>
-                            <p className="text-xs text-gray-500">{request.creditsPerMonth} crédits inclus</p>
+                            <p className="text-xs text-gray-500">
+                              {request.creditsPerMonth} crédits inclus
+                            </p>
                           </div>
 
                           <div className="flex space-x-2">
-                            <Button 
+                            <Button
                               onClick={() => handleSubscriptionAction(request.id, 'approve')}
                               className="flex-1"
                               disabled={isProcessing}
@@ -317,8 +328,8 @@ export default function SubscriptionsManagement() {
                             </Button>
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button 
-                                  variant="outline" 
+                                <Button
+                                  variant="outline"
                                   className="flex-1"
                                   disabled={isProcessing}
                                 >
@@ -342,7 +353,7 @@ export default function SubscriptionsManagement() {
                                     />
                                   </div>
                                   <div className="flex space-x-2">
-                                    <Button 
+                                    <Button
                                       onClick={() => handleSubscriptionAction(request.id, 'reject')}
                                       variant="secondary"
                                       className="flex-1"
@@ -375,11 +386,11 @@ export default function SubscriptionsManagement() {
           ) : (
             <div className="text-center py-12">
               <Check className="w-16 h-16 text-green-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Aucune demande en attente
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune demande en attente</h3>
               <p className="text-gray-500">
-                {searchTerm ? 'Aucune demande ne correspond à votre recherche.' : 'Toutes les demandes ont été traitées.'}
+                {searchTerm
+                  ? 'Aucune demande ne correspond à votre recherche.'
+                  : 'Toutes les demandes ont été traitées.'}
               </p>
             </div>
           )}
@@ -387,4 +398,4 @@ export default function SubscriptionsManagement() {
       </main>
     </div>
   );
-} 
+}

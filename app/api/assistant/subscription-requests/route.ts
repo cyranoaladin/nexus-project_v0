@@ -8,10 +8,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -24,7 +21,7 @@ export async function GET(request: NextRequest) {
     // Get subscription requests
     const requests = await prisma.subscriptionRequest.findMany({
       where: {
-        status: status
+        status: status,
       },
       include: {
         student: {
@@ -32,23 +29,23 @@ export async function GET(request: NextRequest) {
             user: true,
             parent: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
       skip: skip,
-      take: limit
+      take: limit,
     });
 
     const total = await prisma.subscriptionRequest.count({
       where: {
-        status: status
-      }
+        status: status,
+      },
     });
 
     return NextResponse.json({
@@ -57,16 +54,12 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
-
   } catch (error) {
     console.error('Error fetching subscription requests:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -75,27 +68,24 @@ export async function PATCH(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    const { requestId, action, reason, planName: planNameInput, monthlyPrice: monthlyPriceInput } = body;
+    const {
+      requestId,
+      action,
+      reason,
+      planName: planNameInput,
+      monthlyPrice: monthlyPriceInput,
+    } = body;
 
     if (!requestId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     if (!['APPROVED', 'REJECTED'].includes(action)) {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
     // Get the request
@@ -107,26 +97,20 @@ export async function PATCH(request: NextRequest) {
             user: true,
             parent: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
-      }
+                user: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!subscriptionRequest) {
-      return NextResponse.json(
-        { error: 'Request not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
 
     if (subscriptionRequest.status !== 'PENDING') {
-      return NextResponse.json(
-        { error: 'Request already processed' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Request already processed' }, { status: 400 });
     }
 
     // Update request status
@@ -136,8 +120,8 @@ export async function PATCH(request: NextRequest) {
         status: action,
         processedBy: `${session.user.firstName} ${session.user.lastName}`,
         processedAt: new Date(),
-        rejectionReason: action === 'REJECTED' ? reason : null
-      }
+        rejectionReason: action === 'REJECTED' ? reason : null,
+      },
     });
 
     // If approved, apply the changes
@@ -145,7 +129,10 @@ export async function PATCH(request: NextRequest) {
       if (subscriptionRequest.requestType === 'PLAN_CHANGE') {
         // Use planName/monthlyPrice from body if provided, else from stored request
         const targetPlanName = planNameInput || subscriptionRequest.planName;
-        const targetMonthlyPrice = typeof monthlyPriceInput === 'number' ? monthlyPriceInput : subscriptionRequest.monthlyPrice;
+        const targetMonthlyPrice =
+          typeof monthlyPriceInput === 'number'
+            ? monthlyPriceInput
+            : subscriptionRequest.monthlyPrice;
 
         if (!targetPlanName) {
           return NextResponse.json(
@@ -158,13 +145,13 @@ export async function PATCH(request: NextRequest) {
         await prisma.subscription.updateMany({
           where: {
             studentId: subscriptionRequest.studentId,
-            status: 'ACTIVE'
+            status: 'ACTIVE',
           },
           data: {
             planName: targetPlanName,
             monthlyPrice: targetMonthlyPrice,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         });
       } else if (subscriptionRequest.requestType === 'ARIA_ADDON') {
         const addonName = planNameInput || subscriptionRequest.planName;
@@ -179,8 +166,8 @@ export async function PATCH(request: NextRequest) {
         const currentSubscription = await prisma.subscription.findFirst({
           where: {
             studentId: subscriptionRequest.studentId,
-            status: 'ACTIVE'
-          }
+            status: 'ACTIVE',
+          },
         });
 
         if (currentSubscription) {
@@ -191,8 +178,8 @@ export async function PATCH(request: NextRequest) {
             where: { id: currentSubscription.id },
             data: {
               ariaSubjects: JSON.stringify(newAriaSubjects),
-              updatedAt: new Date()
-            }
+              updatedAt: new Date(),
+            },
           });
         }
       }
@@ -202,7 +189,7 @@ export async function PATCH(request: NextRequest) {
     try {
       const activeSub = await prisma.subscription.findFirst({
         where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
       if (activeSub && ['IMMERSION', 'HYBRIDE'].includes(activeSub.planName)) {
         await prisma.student.update({
@@ -210,7 +197,7 @@ export async function PATCH(request: NextRequest) {
           data: {
             guaranteeEligible: true,
             guaranteeActivatedAt: new Date(),
-          }
+          },
         });
       }
     } catch (e) {
@@ -219,14 +206,10 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Demande ${action === 'APPROVED' ? 'approuvée' : 'rejetée'} avec succès`
+      message: `Demande ${action === 'APPROVED' ? 'approuvée' : 'rejetée'} avec succès`,
     });
-
   } catch (error) {
     console.error('Error processing subscription request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

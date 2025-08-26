@@ -1,11 +1,14 @@
 // lib/aria/access-control.ts
-import { prisma } from "@/lib/prisma";
-import { Student, Subject, Subscription, User } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
+import { Student, Subject, Subscription, User } from '@prisma/client';
 
-type StudentWithSubscriptions = Student & { subscriptions: Subscription[]; };
+type StudentWithSubscriptions = Student & { subscriptions: Subscription[] };
 
 // Cette fonction résout le profil de l'élève actif, que l'utilisateur soit un parent ou l'élève lui-même.
-async function resolveStudent(userId: string, userRole: string): Promise<StudentWithSubscriptions | null> {
+async function resolveStudent(
+  userId: string,
+  userRole: string
+): Promise<StudentWithSubscriptions | null> {
   if (userRole === 'ELEVE') {
     return await prisma.student.findUnique({
       where: { userId },
@@ -20,8 +23,8 @@ async function resolveStudent(userId: string, userRole: string): Promise<Student
       include: {
         children: {
           include: { subscriptions: true },
-          take: 1
-        }
+          take: 1,
+        },
       },
     });
     return (parentProfile as any)?.children?.[0] || null;
@@ -30,7 +33,13 @@ async function resolveStudent(userId: string, userRole: string): Promise<Student
 }
 
 // Cette fonction est le point d'entrée pour vérifier si un utilisateur a accès à ARIA pour une matière donnée.
-export async function assertAriaAccess(userId: string, subject: Subject): Promise<{ student: Student & { user: User; subscriptions: Subscription[]; }, hasAriaPlusForSubject: boolean; }> {
+export async function assertAriaAccess(
+  userId: string,
+  subject: Subject
+): Promise<{
+  student: Student & { user: User; subscriptions: Subscription[] };
+  hasAriaPlusForSubject: boolean;
+}> {
   const student = await prisma.student.findUnique({
     where: { userId },
     include: {
@@ -50,7 +59,7 @@ export async function assertAriaAccess(userId: string, subject: Subject): Promis
     throw new Error('Profil élève non trouvé ou non associé à cet utilisateur.');
   }
 
-  const hasAriaPlusForSubject = student.subscriptions.some(sub => {
+  const hasAriaPlusForSubject = student.subscriptions.some((sub) => {
     try {
       // ariaSubjects est stocké comme une chaîne JSON, il faut la parser.
       const subjects = JSON.parse(sub.ariaSubjects || '[]') as Subject[];
@@ -74,7 +83,10 @@ export async function checkFreemiumUsage(studentId: string): Promise<boolean> {
   const student = await prisma.student.findUnique({ where: { id: studentId } });
   if (!student) return false;
 
-  const usageData = student.freemiumUsage as { lastRequestDate?: string; requestCount?: number; } | null;
+  const usageData = student.freemiumUsage as {
+    lastRequestDate?: string;
+    requestCount?: number;
+  } | null;
   if (!usageData || !usageData.lastRequestDate) {
     return true; // Première utilisation
   }
@@ -95,10 +107,17 @@ export async function updateFreemiumUsage(studentId: string): Promise<void> {
   if (!student) return;
 
   const today = new Date();
-  const usageData = student.freemiumUsage as { lastRequestDate?: string; requestCount?: number; } | null;
+  const usageData = student.freemiumUsage as {
+    lastRequestDate?: string;
+    requestCount?: number;
+  } | null;
 
   let newCount = 1;
-  if (usageData && usageData.lastRequestDate && new Date(usageData.lastRequestDate).toDateString() === today.toDateString()) {
+  if (
+    usageData &&
+    usageData.lastRequestDate &&
+    new Date(usageData.lastRequestDate).toDateString() === today.toDateString()
+  ) {
     newCount = (usageData.requestCount || 0) + 1;
   }
 

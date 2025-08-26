@@ -31,15 +31,21 @@ export default async function AdminUsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
+            {users.map((u) => (
               <tr key={u.id} className="border-t">
                 <td className="p-2 font-mono">{u.email}</td>
-                <td className="p-2">{[u.firstName, u.lastName].filter(Boolean).join(' ') || '—'}</td>
-                <td className="p-2"><span className="px-2 py-1 rounded bg-blue-50 text-blue-700">{u.role}</span></td>
+                <td className="p-2">
+                  {[u.firstName, u.lastName].filter(Boolean).join(' ') || '—'}
+                </td>
+                <td className="p-2">
+                  <span className="px-2 py-1 rounded bg-blue-50 text-blue-700">{u.role}</span>
+                </td>
                 <td className="p-2">
                   {u.parentProfile ? 'Parent' : ''}
                   {u.studentProfile ? (u.parentProfile ? ' • Élève' : 'Élève') : ''}
-                  {u.coachProfile ? `${u.parentProfile || u.studentProfile ? ' • ' : ''}Coach${u.coachProfile.pseudonym ? ` (${u.coachProfile.pseudonym})` : ''}` : ''}
+                  {u.coachProfile
+                    ? `${u.parentProfile || u.studentProfile ? ' • ' : ''}Coach${u.coachProfile.pseudonym ? ` (${u.coachProfile.pseudonym})` : ''}`
+                    : ''}
                   {!u.parentProfile && !u.studentProfile && !u.coachProfile ? '—' : ''}
                 </td>
                 <td className="p-2">{new Date(u.createdAt).toLocaleString('fr-FR')}</td>

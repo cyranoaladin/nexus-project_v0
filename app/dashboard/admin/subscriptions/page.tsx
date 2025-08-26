@@ -31,11 +31,17 @@ export default async function AdminSubscriptionsPage() {
             </tr>
           </thead>
           <tbody>
-            {subs.map(s => {
-              const studentName = `${s.student?.user?.firstName ?? ''} ${s.student?.user?.lastName ?? ''}`.trim() || '—';
+            {subs.map((s) => {
+              const studentName =
+                `${s.student?.user?.firstName ?? ''} ${s.student?.user?.lastName ?? ''}`.trim() ||
+                '—';
               const email = s.student?.user?.email ?? '—';
               const aria = (() => {
-                try { return JSON.parse(s.ariaSubjects || '[]').join(', ') || '—'; } catch { return '—'; }
+                try {
+                  return JSON.parse(s.ariaSubjects || '[]').join(', ') || '—';
+                } catch {
+                  return '—';
+                }
               })();
               return (
                 <tr key={s.id} className="border-t">
@@ -44,10 +50,16 @@ export default async function AdminSubscriptionsPage() {
                   <td className="p-2">{s.planName}</td>
                   <td className="p-2">{s.monthlyPrice}</td>
                   <td className="p-2">{s.creditsPerMonth}</td>
-                  <td className="p-2"><span className="px-2 py-1 rounded bg-purple-50 text-purple-700">{s.status}</span></td>
+                  <td className="p-2">
+                    <span className="px-2 py-1 rounded bg-purple-50 text-purple-700">
+                      {s.status}
+                    </span>
+                  </td>
                   <td className="p-2">{aria}</td>
                   <td className="p-2">{new Date(s.startDate).toLocaleDateString('fr-FR')}</td>
-                  <td className="p-2">{s.endDate ? new Date(s.endDate).toLocaleDateString('fr-FR') : '—'}</td>
+                  <td className="p-2">
+                    {s.endDate ? new Date(s.endDate).toLocaleDateString('fr-FR') : '—'}
+                  </td>
                 </tr>
               );
             })}

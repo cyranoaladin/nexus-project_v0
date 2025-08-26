@@ -9,7 +9,10 @@
  * @param userType - Type d'utilisateur ('coach' | 'student')
  * @returns L'URL complète de la salle Jitsi
  */
-export function generateJitsiRoomUrl(sessionId: string, userType: 'coach' | 'student' = 'student'): string {
+export function generateJitsiRoomUrl(
+  sessionId: string,
+  userType: 'coach' | 'student' = 'student'
+): string {
   // Utiliser un nom de salle déterministe pour garantir que tous les participants rejoignent la même salle
   const roomName = generateDeterministicRoomName(sessionId, userType);
 
@@ -30,9 +33,10 @@ export function generateJitsiRoomUrl(sessionId: string, userType: 'coach' | 'stu
 export function generateDeterministicRoomName(sessionId: string, additionalSeed?: string): string {
   const seed = additionalSeed || 'nexus-default';
   // Utiliser sessionId + seed pour créer un nom déterministe mais unique
-  const base64 = (typeof window !== 'undefined' && typeof window.btoa === 'function')
-    ? window.btoa(`${sessionId}-${seed}`)
-    : Buffer.from(`${sessionId}-${seed}`, 'utf-8').toString('base64');
+  const base64 =
+    typeof window !== 'undefined' && typeof window.btoa === 'function'
+      ? window.btoa(`${sessionId}-${seed}`)
+      : Buffer.from(`${sessionId}-${seed}`, 'utf-8').toString('base64');
   const hash = base64.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
   return `nexus-reussite-${sessionId.slice(0, 8)}-${hash.slice(0, 12)}`;
 }
@@ -54,13 +58,13 @@ export function generateDeterministicJitsiUrl(sessionId: string, additionalSeed?
  * @param jitsiUrl - L'URL complète Jitsi
  * @returns Objet contenant le serveur et le nom de salle
  */
-export function parseJitsiUrl(jitsiUrl: string): { server: string; roomName: string; } | null {
+export function parseJitsiUrl(jitsiUrl: string): { server: string; roomName: string } | null {
   try {
     const url = new URL(jitsiUrl);
     const roomName = url.pathname.substring(1); // Enlever le '/' initial
     return {
       server: `${url.protocol}//${url.host}`,
-      roomName
+      roomName,
     };
   } catch (error) {
     console.error('Erreur parsing URL Jitsi:', error);
@@ -104,16 +108,18 @@ export function buildJitsiUrlWithConfig(
     'config.defaultLanguage': 'fr',
 
     // Limitations pour étudiants
-    ...(isHost ? {} : {
-      'config.disableModeratorIndicator': 'true',
-      'config.disableProfile': 'true'
-    }),
+    ...(isHost
+      ? {}
+      : {
+          'config.disableModeratorIndicator': 'true',
+          'config.disableProfile': 'true',
+        }),
 
     // Branding et sécurité
     'interfaceConfig.SHOW_JITSI_WATERMARK': 'false',
     'interfaceConfig.SHOW_WATERMARK_FOR_GUESTS': 'false',
     'interfaceConfig.BRAND_WATERMARK_LINK': '',
-    'interfaceConfig.SHOW_POWERED_BY': 'false'
+    'interfaceConfig.SHOW_POWERED_BY': 'false',
   });
 
   // Ajouter les paramètres à l'URL
@@ -155,6 +161,6 @@ export function createJitsiRoomInfo(
     fullUrl,
     serverUrl,
     sessionId,
-    isHost
+    isHost,
   };
 }

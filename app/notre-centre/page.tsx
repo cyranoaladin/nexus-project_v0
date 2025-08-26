@@ -1,15 +1,15 @@
-"use client"
+'use client';
 
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { Badge } from "@/components/ui/badge"
-import { MapPin } from "lucide-react"
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { Badge } from '@/components/ui/badge';
+import { MapPin } from 'lucide-react';
 
 export default function NotreCentrePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="py-12 md:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -21,11 +21,10 @@ export default function NotreCentrePage() {
               Le Centre Nexus Réussite
             </h1>
             <div className="bg-white rounded-xl p-6 md:p-12 shadow-soft max-w-2xl mx-auto">
-              <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
-                Page en construction
-              </p>
+              <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">Page en construction</p>
               <p className="text-sm md:text-base text-gray-500">
-                Notre centre de Tunis sera bientôt présenté en détail avec toutes ses installations premium.
+                Notre centre de Tunis sera bientôt présenté en détail avec toutes ses installations
+                premium.
               </p>
             </div>
           </div>
@@ -34,5 +33,5 @@ export default function NotreCentrePage() {
 
       <Footer />
     </div>
-  )
+  );
 }

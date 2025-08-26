@@ -4,7 +4,7 @@ import { ServiceType } from '@/types/enums';
 const CREDIT_COSTS = {
   COURS_ONLINE: 1,
   COURS_PRESENTIEL: 1.25,
-  ATELIER_GROUPE: 1.5
+  ATELIER_GROUPE: 1.5,
 } as const;
 
 // Calcul du coût en crédits selon le type de prestation
@@ -23,16 +23,15 @@ export function calculateCreditCost(serviceType: ServiceType): number {
 
 // Vérification du solde de crédits
 import { prisma } from './prisma';
-export async function checkCreditBalance(studentId: string, requiredCredits: number): Promise<boolean> {
-
+export async function checkCreditBalance(
+  studentId: string,
+  requiredCredits: number
+): Promise<boolean> {
   const transactions = await prisma.creditTransaction.findMany({
     where: {
       studentId,
-      OR: [
-        { expiresAt: null },
-        { expiresAt: { gt: new Date() } }
-      ]
-    }
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
   });
 
   const totalCredits = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -41,36 +40,43 @@ export async function checkCreditBalance(studentId: string, requiredCredits: num
 }
 
 // Débit des crédits pour une session
-export async function debitCredits(studentId: string, amount: number, sessionId: string, description: string) {
-
+export async function debitCredits(
+  studentId: string,
+  amount: number,
+  sessionId: string,
+  description: string
+) {
   return await prisma.creditTransaction.create({
     data: {
       studentId,
       type: 'USAGE',
       amount: -amount,
       description,
-      sessionId
-    }
+      sessionId,
+    },
   });
 }
 
 // Remboursement de crédits (annulation)
-export async function refundCredits(studentId: string, amount: number, sessionId: string, description: string) {
-
+export async function refundCredits(
+  studentId: string,
+  amount: number,
+  sessionId: string,
+  description: string
+) {
   return await prisma.creditTransaction.create({
     data: {
       studentId,
       type: 'REFUND',
       amount,
       description,
-      sessionId
-    }
+      sessionId,
+    },
   });
 }
 
 // Attribution des crédits mensuels
 export async function allocateMonthlyCredits(studentId: string, credits: number) {
-
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 2); // Expire dans 2 mois (report 1 mois)
 
@@ -80,19 +86,18 @@ export async function allocateMonthlyCredits(studentId: string, credits: number)
       type: 'MONTHLY_ALLOCATION',
       amount: credits,
       description: `Allocation mensuelle de ${credits} crédits`,
-      expiresAt: nextMonth
-    }
+      expiresAt: nextMonth,
+    },
   });
 }
 
 // Expiration des crédits reportés
 export async function expireOldCredits() {
-
   const expiredTransactions = await prisma.creditTransaction.findMany({
     where: {
       expiresAt: { lt: new Date() },
-      type: 'MONTHLY_ALLOCATION'
-    }
+      type: 'MONTHLY_ALLOCATION',
+    },
   });
 
   for (const transaction of expiredTransactions) {
@@ -101,8 +106,8 @@ export async function expireOldCredits() {
         studentId: transaction.studentId,
         type: 'EXPIRATION',
         amount: -transaction.amount,
-        description: `Expiration de ${transaction.amount} crédits reportés`
-      }
+        description: `Expiration de ${transaction.amount} crédits reportés`,
+      },
     });
   }
 }

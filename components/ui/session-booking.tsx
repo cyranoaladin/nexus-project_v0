@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,25 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, BookOpen, CreditCard, CheckCircle, AlertCircle, Loader2, Info, CalendarDays } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Calendar,
+  Clock,
+  User,
+  BookOpen,
+  CreditCard,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Info,
+  CalendarDays,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -46,32 +63,32 @@ const SUBJECTS = [
   { value: 'ESPAGNOL', label: 'Espagnol' },
   { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie' },
   { value: 'SVT', label: 'SVT' },
-  { value: 'SES', label: 'SES' }
+  { value: 'SES', label: 'SES' },
 ];
 
 const SESSION_TYPES = [
   { value: 'INDIVIDUAL', label: 'Session individuelle' },
   { value: 'GROUP', label: 'Session de groupe' },
-  { value: 'MASTERCLASS', label: 'Masterclass' }
+  { value: 'MASTERCLASS', label: 'Masterclass' },
 ];
 
 const MODALITIES = [
   { value: 'ONLINE', label: 'En ligne' },
   { value: 'IN_PERSON', label: 'En présentiel' },
-  { value: 'HYBRID', label: 'Hybride' }
+  { value: 'HYBRID', label: 'Hybride' },
 ];
 
-export default function SessionBooking({ 
-  studentId, 
-  parentId, 
+export default function SessionBooking({
+  studentId,
+  parentId,
   userCredits,
-  onBookingComplete 
+  onBookingComplete,
 }: SessionBookingProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form data
   const [subject, setSubject] = useState('');
   const [selectedCoach, setSelectedCoach] = useState('');
@@ -81,7 +98,7 @@ export default function SessionBooking({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [creditsToUse, setCreditsToUse] = useState(1);
-  
+
   // Data
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
@@ -96,14 +113,13 @@ export default function SessionBooking({
   const [titleError, setTitleError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
-
   const loadCoaches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await fetch(`/api/coaches/available?subject=${subject}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setCoaches(data.coaches);
       } else {
@@ -122,17 +138,20 @@ export default function SessionBooking({
       setError(null);
       const endDate = new Date(selectedWeek);
       endDate.setDate(selectedWeek.getDate() + 6);
-      
+
       const response = await fetch(
         `/api/coaches/availability?coachId=${selectedCoach}&startDate=${selectedWeek.toISOString()}&endDate=${endDate.toISOString()}`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         // Use the enhanced available slots from the API
         const slots = data.availableSlots.map((slot: any) => ({
           coachId: selectedCoach,
-          coachName: coaches.find(c => c.id === selectedCoach)?.firstName + ' ' + coaches.find(c => c.id === selectedCoach)?.lastName,
+          coachName:
+            coaches.find((c) => c.id === selectedCoach)?.firstName +
+            ' ' +
+            coaches.find((c) => c.id === selectedCoach)?.lastName,
           date: new Date(slot.date),
           startTime: slot.startTime,
           endTime: slot.endTime,
@@ -172,7 +191,7 @@ export default function SessionBooking({
   const calculateDuration = (startTime: string, endTime: string): number => {
     const [startHour, startMin] = startTime.split(':').map(Number);
     const [endHour, endMin] = endTime.split(':').map(Number);
-    return (endHour * 60 + endMin) - (startHour * 60 + startMin);
+    return endHour * 60 + endMin - (startHour * 60 + startMin);
   };
 
   const formatTime = (time: string): string => {
@@ -180,10 +199,10 @@ export default function SessionBooking({
   };
 
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('fr-FR', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long' 
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
     });
   };
 
@@ -221,7 +240,7 @@ export default function SessionBooking({
     }
 
     if (isDateTooFar(selectedSlot.date)) {
-      return 'Impossible de réserver une session plus de 3 mois à l\'avance';
+      return "Impossible de réserver une session plus de 3 mois à l'avance";
     }
 
     const dayOfWeek = selectedSlot.date.getDay();
@@ -269,7 +288,7 @@ export default function SessionBooking({
         modality: modality,
         title: title,
         description: description,
-        creditsToUse: creditsToUse
+        creditsToUse: creditsToUse,
       } as const;
 
       const response = await fetch('/api/sessions/book', {
@@ -277,7 +296,7 @@ export default function SessionBooking({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bookingData)
+        body: JSON.stringify(bookingData),
       });
 
       const data = await response.json();
@@ -352,9 +371,7 @@ export default function SessionBooking({
                 <div
                   key={stepNum}
                   className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full text-sm md:text-base font-medium ${
-                    step >= stepNum
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                    step >= stepNum ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
                   }`}
                 >
                   {stepNum}
@@ -409,7 +426,9 @@ export default function SessionBooking({
                 className="space-y-4 md:space-y-6"
               >
                 <div>
-                  <Label htmlFor="subject" className="text-sm md:text-base">Matière *</Label>
+                  <Label htmlFor="subject" className="text-sm md:text-base">
+                    Matière *
+                  </Label>
                   <Select value={subject} onValueChange={setSubject}>
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Sélectionnez une matière" />
@@ -426,7 +445,9 @@ export default function SessionBooking({
 
                 {subject && (
                   <div>
-                    <Label htmlFor="coach" className="text-sm md:text-base">Coach *</Label>
+                    <Label htmlFor="coach" className="text-sm md:text-base">
+                      Coach *
+                    </Label>
                     {loading ? (
                       <div className="mt-1 p-3 border rounded-lg flex items-center">
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -447,7 +468,9 @@ export default function SessionBooking({
                       </Select>
                     ) : (
                       <div className="mt-1 p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
-                        <p className="text-sm text-yellow-800">Aucun coach disponible pour cette matière</p>
+                        <p className="text-sm text-yellow-800">
+                          Aucun coach disponible pour cette matière
+                        </p>
                       </div>
                     )}
                   </div>
@@ -499,45 +522,60 @@ export default function SessionBooking({
                     <div>
                       <div className="mb-2 text-sm font-medium text-blue-700">En ligne</div>
                       <div className="grid gap-3 md:gap-4">
-                        {availableSlots.filter((s: any) => s.modality === 'ONLINE').map((slot, index) => {
-                          const isPast = isDateInPast(slot.date);
-                          const isTooFar = isDateTooFar(slot.date);
-                          const isWeekend = slot.date.getDay() === 0 || slot.date.getDay() === 6;
-                          const isInvalidTime = parseInt(slot.startTime.split(':')[0]) < 8 || parseInt(slot.endTime.split(':')[0]) > 20;
-                          return (
-                            <Card
-                              key={`on-${index}`}
-                              className={`cursor-pointer transition-all duration-200 ${
-                                selectedSlot === slot
-                                  ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600'
-                                  : isPast || isTooFar || isWeekend || isInvalidTime
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : 'hover:border-blue-300'
-                              }`}
-                              onClick={() => {
-                                if (!isPast && !isTooFar && !isWeekend && !isInvalidTime) {
-                                  setSelectedSlot(slot);
-                                }
-                              }}
-                            >
-                              <CardContent className="p-3 md:p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-3">
-                                    <Calendar className="w-4 h-4 text-blue-600" />
-                                    <div>
-                                      <p className="font-medium text-sm md:text-base">{formatDate(slot.date)}</p>
-                                      <p className="text-xs md:text-sm text-gray-600">{formatTime(slot.startTime)} - {formatTime(slot.endTime)}</p>
+                        {availableSlots
+                          .filter((s: any) => s.modality === 'ONLINE')
+                          .map((slot, index) => {
+                            const isPast = isDateInPast(slot.date);
+                            const isTooFar = isDateTooFar(slot.date);
+                            const isWeekend = slot.date.getDay() === 0 || slot.date.getDay() === 6;
+                            const isInvalidTime =
+                              parseInt(slot.startTime.split(':')[0]) < 8 ||
+                              parseInt(slot.endTime.split(':')[0]) > 20;
+                            return (
+                              <Card
+                                key={`on-${index}`}
+                                className={`cursor-pointer transition-all duration-200 ${
+                                  selectedSlot === slot
+                                    ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600'
+                                    : isPast || isTooFar || isWeekend || isInvalidTime
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:border-blue-300'
+                                }`}
+                                onClick={() => {
+                                  if (!isPast && !isTooFar && !isWeekend && !isInvalidTime) {
+                                    setSelectedSlot(slot);
+                                  }
+                                }}
+                              >
+                                <CardContent className="p-3 md:p-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                      <Calendar className="w-4 h-4 text-blue-600" />
+                                      <div>
+                                        <p className="font-medium text-sm md:text-base">
+                                          {formatDate(slot.date)}
+                                        </p>
+                                        <p className="text-xs md:text-sm text-gray-600">
+                                          {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <Badge variant="outline" className="text-xs">
+                                        {slot.duration} min
+                                      </Badge>
+                                      <Badge
+                                        variant="default"
+                                        className="text-xs ml-1 bg-blue-600 text-white"
+                                      >
+                                        En ligne
+                                      </Badge>
                                     </div>
                                   </div>
-                                  <div className="text-right">
-                                    <Badge variant="outline" className="text-xs">{slot.duration} min</Badge>
-                                    <Badge variant="default" className="text-xs ml-1 bg-blue-600 text-white">En ligne</Badge>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                       </div>
                     </div>
 
@@ -545,45 +583,57 @@ export default function SessionBooking({
                     <div>
                       <div className="mb-2 text-sm font-medium text-green-700">Présentiel</div>
                       <div className="grid gap-3 md:gap-4">
-                        {availableSlots.filter((s: any) => s.modality === 'IN_PERSON').map((slot, index) => {
-                          const isPast = isDateInPast(slot.date);
-                          const isTooFar = isDateTooFar(slot.date);
-                          const isWeekend = slot.date.getDay() === 0 || slot.date.getDay() === 6;
-                          const isInvalidTime = parseInt(slot.startTime.split(':')[0]) < 8 || parseInt(slot.endTime.split(':')[0]) > 20;
-                          return (
-                            <Card
-                              key={`ip-${index}`}
-                              className={`cursor-pointer transition-all duration-200 ${
-                                selectedSlot === slot
-                                  ? 'border-green-600 bg-green-50 ring-2 ring-green-600'
-                                  : isPast || isTooFar || isWeekend || isInvalidTime
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : 'hover:border-green-300'
-                              }`}
-                              onClick={() => {
-                                if (!isPast && !isTooFar && !isWeekend && !isInvalidTime) {
-                                  setSelectedSlot(slot);
-                                }
-                              }}
-                            >
-                              <CardContent className="p-3 md:p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-3">
-                                    <Calendar className="w-4 h-4 text-green-600" />
-                                    <div>
-                                      <p className="font-medium text-sm md:text-base">{formatDate(slot.date)}</p>
-                                      <p className="text-xs md:text-sm text-gray-600">{formatTime(slot.startTime)} - {formatTime(slot.endTime)}</p>
+                        {availableSlots
+                          .filter((s: any) => s.modality === 'IN_PERSON')
+                          .map((slot, index) => {
+                            const isPast = isDateInPast(slot.date);
+                            const isTooFar = isDateTooFar(slot.date);
+                            const isWeekend = slot.date.getDay() === 0 || slot.date.getDay() === 6;
+                            const isInvalidTime =
+                              parseInt(slot.startTime.split(':')[0]) < 8 ||
+                              parseInt(slot.endTime.split(':')[0]) > 20;
+                            return (
+                              <Card
+                                key={`ip-${index}`}
+                                className={`cursor-pointer transition-all duration-200 ${
+                                  selectedSlot === slot
+                                    ? 'border-green-600 bg-green-50 ring-2 ring-green-600'
+                                    : isPast || isTooFar || isWeekend || isInvalidTime
+                                      ? 'opacity-50 cursor-not-allowed'
+                                      : 'hover:border-green-300'
+                                }`}
+                                onClick={() => {
+                                  if (!isPast && !isTooFar && !isWeekend && !isInvalidTime) {
+                                    setSelectedSlot(slot);
+                                  }
+                                }}
+                              >
+                                <CardContent className="p-3 md:p-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                      <Calendar className="w-4 h-4 text-green-600" />
+                                      <div>
+                                        <p className="font-medium text-sm md:text-base">
+                                          {formatDate(slot.date)}
+                                        </p>
+                                        <p className="text-xs md:text-sm text-gray-600">
+                                          {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <Badge variant="outline" className="text-xs">
+                                        {slot.duration} min
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs ml-1">
+                                        Présentiel
+                                      </Badge>
                                     </div>
                                   </div>
-                                  <div className="text-right">
-                                    <Badge variant="outline" className="text-xs">{slot.duration} min</Badge>
-                                    <Badge variant="outline" className="text-xs ml-1">Présentiel</Badge>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>
@@ -610,11 +660,17 @@ export default function SessionBooking({
                 {selectedSlot && (
                   <div className="sticky bottom-2 mt-4 bg-white border rounded-lg shadow p-3 flex items-center justify-between">
                     <div className="text-sm text-gray-800">
-                      Créneau sélectionné: {formatDate(selectedSlot.date)} • {formatTime(selectedSlot.startTime)}-{formatTime(selectedSlot.endTime)} • {selectedSlot.modality === 'ONLINE' ? 'En ligne' : 'Présentiel'}
+                      Créneau sélectionné: {formatDate(selectedSlot.date)} •{' '}
+                      {formatTime(selectedSlot.startTime)}-{formatTime(selectedSlot.endTime)} •{' '}
+                      {selectedSlot.modality === 'ONLINE' ? 'En ligne' : 'Présentiel'}
                     </div>
                     <div className="space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => setSelectedSlot(null)}>Changer</Button>
-                      <Button size="sm" onClick={() => setStep(3)}>Valider</Button>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedSlot(null)}>
+                        Changer
+                      </Button>
+                      <Button size="sm" onClick={() => setStep(3)}>
+                        Valider
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -636,7 +692,10 @@ export default function SessionBooking({
                     <div className="text-sm text-blue-800 space-y-1">
                       <p>Coach: {selectedSlot.coachName}</p>
                       <p>Date: {formatDate(selectedSlot.date)}</p>
-                      <p>Heure: {formatTime(selectedSlot.startTime)} - {formatTime(selectedSlot.endTime)}</p>
+                      <p>
+                        Heure: {formatTime(selectedSlot.startTime)} -{' '}
+                        {formatTime(selectedSlot.endTime)}
+                      </p>
                       <p>Durée: {selectedSlot.duration} minutes</p>
                     </div>
                   </div>
@@ -644,7 +703,9 @@ export default function SessionBooking({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                   <div>
-                    <Label htmlFor="sessionType" className="text-sm md:text-base">Type de session</Label>
+                    <Label htmlFor="sessionType" className="text-sm md:text-base">
+                      Type de session
+                    </Label>
                     <Select value={sessionType} onValueChange={setSessionType}>
                       <SelectTrigger className="mt-1">
                         <SelectValue />
@@ -660,7 +721,9 @@ export default function SessionBooking({
                   </div>
 
                   <div>
-                    <Label htmlFor="modality" className="text-sm md:text-base">Modalité</Label>
+                    <Label htmlFor="modality" className="text-sm md:text-base">
+                      Modalité
+                    </Label>
                     <Select value={modality} onValueChange={setModality}>
                       <SelectTrigger className="mt-1">
                         <SelectValue />
@@ -682,7 +745,7 @@ export default function SessionBooking({
 
                 <div>
                   <Label htmlFor="title" className="text-sm md:text-base">
-                    Titre de la session * 
+                    Titre de la session *
                     <span className="text-xs text-gray-500 ml-2">({title.length}/100)</span>
                   </Label>
                   <Input
@@ -693,9 +756,7 @@ export default function SessionBooking({
                     className={`mt-1 ${titleError ? 'border-red-300' : ''}`}
                     maxLength={100}
                   />
-                  {titleError && (
-                    <p className="text-xs text-red-600 mt-1">{titleError}</p>
-                  )}
+                  {titleError && <p className="text-xs text-red-600 mt-1">{titleError}</p>}
                 </div>
 
                 <div>
@@ -718,17 +779,24 @@ export default function SessionBooking({
                 </div>
 
                 <div>
-                  <Label htmlFor="credits" className="text-sm md:text-base">Crédits à utiliser</Label>
-                  <Select value={creditsToUse.toString()} onValueChange={(value) => setCreditsToUse(parseInt(value))}>
+                  <Label htmlFor="credits" className="text-sm md:text-base">
+                    Crédits à utiliser
+                  </Label>
+                  <Select
+                    value={creditsToUse.toString()}
+                    onValueChange={(value) => setCreditsToUse(parseInt(value))}
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[1, 2, 3, 4, 5].filter(num => num <= userCredits).map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} crédit{num > 1 ? 's' : ''}
-                        </SelectItem>
-                      ))}
+                      {[1, 2, 3, 4, 5]
+                        .filter((num) => num <= userCredits)
+                        .map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} crédit{num > 1 ? 's' : ''}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-600 mt-1">
@@ -785,4 +853,4 @@ export default function SessionBooking({
       </Card>
     </div>
   );
-} 
+}

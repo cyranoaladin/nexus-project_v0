@@ -1,4 +1,3 @@
-
 export default function ParentPaiementPage() {
   const invoices = [
     { id: 'inv-001', date: '2025-08-01', amount: 120, status: 'PAYÉ' },
@@ -18,7 +17,7 @@ export default function ParentPaiementPage() {
             </tr>
           </thead>
           <tbody>
-            {invoices.map(i => (
+            {invoices.map((i) => (
               <tr key={i.id} className="border-t">
                 <td className="p-2">{i.id}</td>
                 <td className="p-2">{i.date}</td>

@@ -6,7 +6,11 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(_req: NextRequest) {
   try {
-    const allow = process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development';
+    const allow =
+      process.env.E2E === '1' ||
+      process.env.E2E_RUN === '1' ||
+      process.env.NEXT_PUBLIC_E2E === '1' ||
+      process.env.NODE_ENV === 'development';
     if (!allow) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -26,17 +30,62 @@ export async function POST(_req: NextRequest) {
       const data: any[] = [];
       const coachUserId = cp.userId;
       for (const d of days) {
-        data.push({ coachId: coachUserId, dayOfWeek: d, startTime: '14:00', endTime: '18:00', isRecurring: true, isAvailable: true });
+        data.push({
+          coachId: coachUserId,
+          dayOfWeek: d,
+          startTime: '14:00',
+          endTime: '18:00',
+          isRecurring: true,
+          isAvailable: true,
+        });
       }
       for (const d of extra) {
-        data.push({ coachId: coachUserId, dayOfWeek: d, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
+        data.push({
+          coachId: coachUserId,
+          dayOfWeek: d,
+          startTime: '09:00',
+          endTime: '12:00',
+          isRecurring: true,
+          isAvailable: true,
+        });
       }
-      data.push({ coachId: coachUserId, dayOfWeek: 6, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
-      data.push({ coachId: coachUserId, dayOfWeek: blocked.getDay(), startTime: '00:00', endTime: '23:59', specificDate: blocked, isAvailable: false, isRecurring: false });
+      data.push({
+        coachId: coachUserId,
+        dayOfWeek: 6,
+        startTime: '09:00',
+        endTime: '12:00',
+        isRecurring: true,
+        isAvailable: true,
+      });
+      data.push({
+        coachId: coachUserId,
+        dayOfWeek: blocked.getDay(),
+        startTime: '00:00',
+        endTime: '23:59',
+        specificDate: blocked,
+        isAvailable: false,
+        isRecurring: false,
+      });
       for (let i = 1; i <= 3; i++) {
         const d = new Date(now.getTime() + i * 24 * 3600 * 1000);
-        data.push({ coachId: coachUserId, dayOfWeek: d.getDay(), startTime: '10:00', endTime: '12:00', specificDate: d, isAvailable: true, isRecurring: false });
-        data.push({ coachId: coachUserId, dayOfWeek: d.getDay(), startTime: '15:00', endTime: '17:00', specificDate: d, isAvailable: true, isRecurring: false });
+        data.push({
+          coachId: coachUserId,
+          dayOfWeek: d.getDay(),
+          startTime: '10:00',
+          endTime: '12:00',
+          specificDate: d,
+          isAvailable: true,
+          isRecurring: false,
+        });
+        data.push({
+          coachId: coachUserId,
+          dayOfWeek: d.getDay(),
+          startTime: '15:00',
+          endTime: '17:00',
+          specificDate: d,
+          isAvailable: true,
+          isRecurring: false,
+        });
       }
 
       const res = await prisma.coachAvailability.createMany({ data, skipDuplicates: true });
@@ -49,5 +98,3 @@ export async function POST(_req: NextRequest) {
     return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
   }
 }
-
-

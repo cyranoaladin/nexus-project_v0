@@ -8,10 +8,14 @@ describe('/api/sessions/book - Core Logic', () => {
     // Test credit cost calculation directly with mocked logic
     const calculateCreditCost = (serviceType: string) => {
       switch (serviceType) {
-        case 'COURS_ONLINE': return 1;
-        case 'COURS_PRESENTIEL': return 1.25;
-        case 'ATELIER_GROUPE': return 1.5;
-        default: return 1;
+        case 'COURS_ONLINE':
+          return 1;
+        case 'COURS_PRESENTIEL':
+          return 1.25;
+        case 'ATELIER_GROUPE':
+          return 1.5;
+        default:
+          return 1;
       }
     };
 
@@ -27,7 +31,7 @@ describe('/api/sessions/book - Core Logic', () => {
       scheduledAt: '2024-12-15T14:00:00.000Z',
       duration: 60,
       title: 'Cours de mathématiques',
-      description: 'Test session'
+      description: 'Test session',
     };
 
     // Validate required fields are present
@@ -63,7 +67,10 @@ describe('/api/sessions/book - Core Logic', () => {
       validateStudent: (studentId: string) => !!studentId,
       checkCredits: (studentId: string, cost: number) => cost <= 10, // Assume 10 credits available
       createSession: (data: any) => ({ ...data, id: 'session-123', status: 'SCHEDULED' }),
-      debitCredits: (studentId: string, amount: number) => ({ success: true, newBalance: 10 - amount })
+      debitCredits: (studentId: string, amount: number) => ({
+        success: true,
+        newBalance: 10 - amount,
+      }),
     };
 
     const studentId = 'student-123';

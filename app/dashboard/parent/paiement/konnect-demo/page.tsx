@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, CreditCard, X } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, CheckCircle, CreditCard, X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function KonnectDemoContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [paymentId, setPaymentId] = useState("");
+  const [paymentId, setPaymentId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
@@ -39,14 +39,14 @@ function KonnectDemoContent() {
       const response = await fetch('/api/webhooks/konnect', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           payment_id: paymentId,
           status: 'completed',
           amount: 450000, // En millimes
-          currency: 'TND'
-        })
+          currency: 'TND',
+        }),
       });
 
       if (response.ok) {
@@ -102,20 +102,16 @@ function KonnectDemoContent() {
 
           <CardContent className="p-8 space-y-6">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h3 className="font-semibold text-yellow-800 mb-2">
-                🚧 Mode Démonstration
-              </h3>
+              <h3 className="font-semibold text-yellow-800 mb-2">🚧 Mode Démonstration</h3>
               <p className="text-yellow-700 text-sm">
-                Ceci est une simulation du processus de paiement Konnect.
-                En production, vous seriez redirigé vers la vraie interface Konnect.
+                Ceci est une simulation du processus de paiement Konnect. En production, vous seriez
+                redirigé vers la vraie interface Konnect.
               </p>
             </div>
 
             <div className="text-center space-y-4">
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 className="font-semibold text-lg text-gray-900 mb-2">
-                  Montant à payer
-                </h4>
+                <h4 className="font-semibold text-lg text-gray-900 mb-2">Montant à payer</h4>
                 <div className="text-3xl font-bold text-blue-600">450 TND</div>
                 <p className="text-gray-600 text-sm mt-1">Abonnement HYBRIDE</p>
               </div>

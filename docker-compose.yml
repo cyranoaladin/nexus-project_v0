@@ -10,9 +10,9 @@ services:
     volumes:
       - nexus_db_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - '5433:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
       target: builder
     container_name: db_setup_job
-    restart: "no"
+    restart: 'no'
     depends_on:
       db:
         condition: service_healthy
@@ -47,9 +47,13 @@ services:
     volumes:
       - rag_storage:/app/storage
     ports:
-      - "8001:8000"
+      - '8001:8000'
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test:
+        [
+          'CMD-SHELL',
+          "python -c 'import urllib.request; import sys;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,9 +68,13 @@ services:
     environment:
       - PUBLIC_BASE_URL=http://localhost:8002
     ports:
-      - "8002:8000"
+      - '8002:8000'
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test:
+        [
+          'CMD-SHELL',
+          "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -82,9 +90,13 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - LLM_MODEL=${LLM_MODEL}
     ports:
-      - "8003:8000"
+      - '8003:8000'
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test:
+        [
+          'CMD-SHELL',
+          "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
+        ]
     networks:
       - nexus_network
 
@@ -116,12 +128,12 @@ services:
       - PDF_GENERATOR_SERVICE_URL=http://pdf_generator_service:8000
       - LLM_SERVICE_URL=http://llm_service:8000
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1" ]
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - "3000:3000"
+      - '3000:3000'
     networks:
       - nexus_network
 

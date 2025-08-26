@@ -5,19 +5,29 @@ test.describe('ARIA Freemium Flow - Lucas Dupont', () => {
   test('shows subscription prompt after 6 questions', async ({ page }) => {
     // Intercept to simulate 429 on >= 6th request
     let count = 0;
-    await page.route('**/api/aria/chat', async route => {
+    await page.route('**/api/aria/chat', async (route) => {
       count += 1;
       if (count >= 6) {
-        return route.fulfill({ status: 429, contentType: 'application/json', body: JSON.stringify({ error: 'Limite', cta: { url: '/dashboard/parent/abonnements' } }) });
+        return route.fulfill({
+          status: 429,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Limite', cta: { url: '/dashboard/parent/abonnements' } }),
+        });
       }
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ response: `ok ${count}` }) });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ response: `ok ${count}` }),
+      });
     });
 
     await loginAs(page, 'lucas.dupont@nexus.com');
     await page.goto('/aria');
     await page.waitForLoadState('networkidle');
     await expect(page.getByText('Assistant Pédagogique ARIA')).toBeVisible({ timeout: 20000 });
-    let input = page.locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]').first();
+    let input = page
+      .locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]')
+      .first();
     try {
       await expect(input).toBeVisible({ timeout: 12000 });
     } catch {

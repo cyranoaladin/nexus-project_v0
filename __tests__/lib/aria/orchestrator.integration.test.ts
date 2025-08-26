@@ -37,7 +37,10 @@ describe('AriaOrchestrator Integration Tests', () => {
     orchestrator = new AriaOrchestrator(studentId, parentId);
 
     // Provide default mock implementations to avoid undefined errors
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: studentId, user: { firstName: 'Test' } });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: studentId,
+      user: { firstName: 'Test' },
+    });
     (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaMessage.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'm1' });
@@ -77,13 +80,19 @@ describe('AriaOrchestrator Integration Tests', () => {
   });
 
   // Tâche 4: Test de la Boucle d'Auto-Amélioration du RAG
-  it("devrait déclencher une ingestion RAG après une réponse de haute qualité", async () => {
+  it('devrait déclencher une ingestion RAG après une réponse de haute qualité', async () => {
     // Mock the LLM to return a high-quality (long) response
-    const highQualityResponse = "Ceci est une explication très détaillée de plus de cent cinquante mots qui est conçue pour être de haute qualité et donc ingérée par le service RAG. Elle contient suffisamment de substance pour être considérée comme une nouvelle connaissance. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-    (llm_service.generate_response as jest.Mock).mockResolvedValue({ response: highQualityResponse });
+    const highQualityResponse =
+      'Ceci est une explication très détaillée de plus de cent cinquante mots qui est conçue pour être de haute qualité et donc ingérée par le service RAG. Elle contient suffisamment de substance pour être considérée comme une nouvelle connaissance. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+    (llm_service.generate_response as jest.Mock).mockResolvedValue({
+      response: highQualityResponse,
+    });
 
     // Mock fetch to verify the call to the RAG service
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: () => Promise.resolve({ success: true }) });
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true }),
+    });
 
     await orchestrator.handleQuery(query as any);
 

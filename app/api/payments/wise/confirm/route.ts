@@ -8,7 +8,7 @@ const wiseConfirmSchema = z.object({
   orderId: z.string(),
   transferReference: z.string(),
   transferDate: z.string(),
-  transferAmount: z.string()
+  transferAmount: z.string(),
 });
 
 export async function POST(request: NextRequest) {
@@ -16,10 +16,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -28,7 +25,7 @@ export async function POST(request: NextRequest) {
       orderId: formData.get('orderId'),
       transferReference: formData.get('transferReference'),
       transferDate: formData.get('transferDate'),
-      transferAmount: formData.get('transferAmount')
+      transferAmount: formData.get('transferAmount'),
     });
 
     // Vérifier que la commande appartient au parent
@@ -37,15 +34,12 @@ export async function POST(request: NextRequest) {
         id: validatedData.orderId,
         userId: session.user.id,
         method: 'wise',
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (!payment) {
-      return NextResponse.json(
-        { error: 'Commande non trouvée ou déjà traitée' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Commande non trouvée ou déjà traitée' }, { status: 404 });
     }
 
     // Mettre à jour le paiement avec les informations de virement
@@ -53,13 +47,13 @@ export async function POST(request: NextRequest) {
       where: { id: validatedData.orderId },
       data: {
         metadata: {
-          ...(payment.metadata as Record<string, any> || {}),
+          ...((payment.metadata as Record<string, any>) || {}),
           transferReference: validatedData.transferReference,
           transferDate: validatedData.transferDate,
           transferAmount: validatedData.transferAmount,
-          submittedAt: new Date().toISOString()
-        }
-      }
+          submittedAt: new Date().toISOString(),
+        },
+      },
     });
 
     // TODO: Gérer l'upload du fichier de preuve
@@ -67,15 +61,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Preuve de virement enregistrée. Validation sous 24-48h.'
+      message: 'Preuve de virement enregistrée. Validation sous 24-48h.',
     });
-
   } catch (error) {
     console.error('Erreur confirmation Wise:', error);
 
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

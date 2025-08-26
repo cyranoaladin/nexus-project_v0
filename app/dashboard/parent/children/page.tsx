@@ -1,4 +1,3 @@
-
 export default function ParentChildrenPage() {
   const children = [
     { id: 's1', name: 'Marie Dupont', grade: 'Terminale', subjects: ['Maths', 'Physique'] },
@@ -17,7 +16,7 @@ export default function ParentChildrenPage() {
             </tr>
           </thead>
           <tbody>
-            {children.map(c => (
+            {children.map((c) => (
               <tr key={c.id} className="border-t">
                 <td className="p-2">{c.name}</td>
                 <td className="p-2">{c.grade}</td>

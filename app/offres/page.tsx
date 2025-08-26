@@ -2,12 +2,28 @@
 
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { ArrowRight, Award, Calendar, Check, Clock, Code2, Shield, Sparkles, Target, Users } from 'lucide-react';
+import {
+  ArrowRight,
+  Award,
+  Calendar,
+  Check,
+  Clock,
+  Code2,
+  Shield,
+  Sparkles,
+  Target,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -29,13 +45,13 @@ const SUBSCRIPTION_PLANS = [
       '5 crédits de coaching/mois',
       'Accès aux ressources exclusives',
       'Suivi personnalisé par email',
-      'Support technique inclus'
+      'Support technique inclus',
     ],
-    popular: false
+    popular: false,
   },
   {
     name: 'Confort',
-    description: 'L\'équilibre parfait entre soutien et autonomie',
+    description: "L'équilibre parfait entre soutien et autonomie",
     price: 300,
     credits: 12,
     features: [
@@ -44,13 +60,13 @@ const SUBSCRIPTION_PLANS = [
       'Sessions individuelles prioritaires',
       'Planning flexible et adaptatif',
       'Bilan mensuel détaillé',
-      'Accès aux masterclass'
+      'Accès aux masterclass',
     ],
-    popular: true
+    popular: true,
   },
   {
     name: 'Excellence',
-    description: 'Accompagnement intensif pour viser l\'excellence',
+    description: "Accompagnement intensif pour viser l'excellence",
     price: 450,
     credits: 20,
     features: [
@@ -59,29 +75,30 @@ const SUBSCRIPTION_PLANS = [
       'Coach personnel dédié',
       'Suivi parental renforcé',
       'Préparation aux examens',
-      'Garantie résultats'
+      'Garantie résultats',
     ],
-    popular: false
-  }
+    popular: false,
+  },
 ];
 
 // Configuration du pack annuel
 const ANNUAL_PACK = {
   name: 'Pack Réussite "Candidat Libre"',
   badge: 'Offre Complète',
-  description: 'L\'accompagnement intégral pour réussir votre Baccalauréat en candidat libre avec un taux de réussite exceptionnel.',
+  description:
+    "L'accompagnement intégral pour réussir votre Baccalauréat en candidat libre avec un taux de réussite exceptionnel.",
   price: 7200,
   originalPrice: 9000,
   features: [
-    '10 mois d\'accompagnement personnalisé',
-    '80 crédits répartis sur l\'année',
+    "10 mois d'accompagnement personnalisé",
+    "80 crédits répartis sur l'année",
     'Coach principal dédié tout au long du parcours',
     'Accès illimité à la plateforme e-learning',
     'Préparation complète aux épreuves du Bac',
     'Suivi parental mensuel détaillé',
     'Garantie "Bac Obtenu ou Remboursé"',
-    'Support technique prioritaire 7j/7'
-  ]
+    'Support technique prioritaire 7j/7',
+  ],
 };
 
 // Configuration des stages intensifs
@@ -89,33 +106,35 @@ const INTENSIVE_STAGES = [
   {
     name: 'Stage Révisions Intensives Bac',
     badge: 'Préparation Bac',
-    description: 'Une semaine intensive pour maximiser vos chances de réussite au Baccalauréat avec nos meilleurs coachs.',
+    description:
+      'Une semaine intensive pour maximiser vos chances de réussite au Baccalauréat avec nos meilleurs coachs.',
     price: 800,
     features: [
       '40h de cours intensifs en petits groupes',
       'Révisions ciblées sur vos matières faibles',
-      'Simulations d\'épreuves en conditions réelles',
+      "Simulations d'épreuves en conditions réelles",
       'Coaching mental et gestion du stress',
       'Supports de révision exclusifs',
-      'Suivi post-stage pendant 1 mois'
+      'Suivi post-stage pendant 1 mois',
     ],
-    icons: [Clock, Target, Users, Shield, Award, Calendar]
+    icons: [Clock, Target, Users, Shield, Award, Calendar],
   },
   {
     name: 'Python Bootcamp Intensif',
     badge: 'Nouveau',
-    description: 'Maîtrisez Python en 2 semaines avec notre programme intensif conçu pour les débutants et intermédiaires.',
+    description:
+      'Maîtrisez Python en 2 semaines avec notre programme intensif conçu pour les débutants et intermédiaires.',
     price: 1200,
     features: [
       '60h de formation pratique sur 2 semaines',
       'Projets concrets et portfolio professionnel',
       'Mentoring individuel avec développeurs seniors',
       'Certificat de compétences reconnu',
-      'Accès plateforme d\'exercices à vie',
-      'Accompagnement placement en stage/emploi'
+      "Accès plateforme d'exercices à vie",
+      'Accompagnement placement en stage/emploi',
     ],
-    icons: [Code2, Target, Users, Award, Shield, Calendar]
-  }
+    icons: [Code2, Target, Users, Award, Shield, Calendar],
+  },
 ];
 
 // Configuration des packs spéciaux
@@ -126,23 +145,23 @@ const SPECIAL_PACKS = [
     price: 600,
     features: [
       'Aide à la rédaction des lettres de motivation',
-      'Préparation aux entretiens d\'admission',
+      "Préparation aux entretiens d'admission",
       'Stratégie de vœux personnalisée',
-      'Suivi jusqu\'aux résultats d\'admission',
-      '10 crédits de coaching dédiés'
-    ]
+      "Suivi jusqu'aux résultats d'admission",
+      '10 crédits de coaching dédiés',
+    ],
   },
   {
     name: 'Pack Grand Oral',
-    description: 'Préparation intensive à l\'épreuve du Grand Oral du Bac',
+    description: "Préparation intensive à l'épreuve du Grand Oral du Bac",
     price: 400,
     features: [
       'Méthodologie complète du Grand Oral',
       'Entraînements en conditions réelles',
       'Coaching prise de parole en public',
       'Aide au choix des questions',
-      '8 crédits de préparation intensive'
-    ]
+      '8 crédits de préparation intensive',
+    ],
   },
   {
     name: 'Pack Rattrapage',
@@ -153,9 +172,9 @@ const SPECIAL_PACKS = [
       'Plan de rattrapage personnalisé',
       'Sessions intensives de remise à niveau',
       'Suivi des progrès hebdomadaire',
-      '15 crédits de soutien ciblé'
-    ]
-  }
+      '15 crédits de soutien ciblé',
+    ],
+  },
 ];
 
 // Configuration des matières pour ARIA
@@ -169,7 +188,7 @@ const AVAILABLE_SUBJECTS = [
   { id: 'english', name: 'Anglais', included: false },
   { id: 'spanish', name: 'Espagnol', included: false },
   { id: 'ses', name: 'SES', included: false },
-  { id: 'computer', name: 'NSI', included: false }
+  { id: 'computer', name: 'NSI', included: false },
 ];
 
 // Composant ARIA interactif
@@ -180,7 +199,7 @@ function ARIAInteractiveModule() {
 
   const toggleSubject = (subjectId: string) => {
     if (selectedSubjects.includes(subjectId)) {
-      setSelectedSubjects(selectedSubjects.filter(id => id !== subjectId));
+      setSelectedSubjects(selectedSubjects.filter((id) => id !== subjectId));
     } else {
       setSelectedSubjects([...selectedSubjects, subjectId]);
     }
@@ -221,9 +240,7 @@ function ARIAInteractiveModule() {
           <h3 className="font-heading text-3xl md:text-4xl font-bold text-white mb-2">
             Personnalisez Votre Assistant IA ARIA
           </h3>
-          <p className="text-slate-300 text-lg">
-            Votre assistant IA personnel, disponible 24/7
-          </p>
+          <p className="text-slate-300 text-lg">Votre assistant IA personnel, disponible 24/7</p>
         </div>
       </div>
 
@@ -234,8 +251,8 @@ function ARIAInteractiveModule() {
             Choisissez vos matières
           </h4>
           <p className="text-slate-300 mb-6">
-            Votre abonnement inclut déjà une matière. Sélectionnez les matières supplémentaires
-            que vous souhaitez activer pour votre assistant IA.
+            Votre abonnement inclut déjà une matière. Sélectionnez les matières supplémentaires que
+            vous souhaitez activer pour votre assistant IA.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
@@ -250,18 +267,17 @@ function ARIAInteractiveModule() {
                   disabled={isIncluded}
                   className={`
                     px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                    ${isIncluded
-                      ? 'bg-blue-600 text-white border border-blue-500 cursor-default'
-                      : isSelected
-                        ? 'bg-blue-600 text-white border border-blue-500 hover:bg-blue-700'
-                        : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+                    ${
+                      isIncluded
+                        ? 'bg-blue-600 text-white border border-blue-500 cursor-default'
+                        : isSelected
+                          ? 'bg-blue-600 text-white border border-blue-500 hover:bg-blue-700'
+                          : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                     }
                   `}
                 >
                   {subject.name}
-                  {isIncluded && (
-                    <span className="block text-xs text-blue-200 mt-1">Incluse</span>
-                  )}
+                  {isIncluded && <span className="block text-xs text-blue-200 mt-1">Incluse</span>}
                 </button>
               );
             })}
@@ -270,9 +286,7 @@ function ARIAInteractiveModule() {
 
         {/* Récapitulatif de prix */}
         <div className="bg-slate-800 rounded-xl p-6">
-          <h4 className="font-heading text-xl font-bold text-white mb-6">
-            Récapitulatif
-          </h4>
+          <h4 className="font-heading text-xl font-bold text-white mb-6">Récapitulatif</h4>
 
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
@@ -285,7 +299,9 @@ function ARIAInteractiveModule() {
                 <span className="text-slate-300">
                   Matières supplémentaires ({additionalSubjects}) :
                 </span>
-                <span className={`font-medium ${isPackBetter ? 'line-through text-slate-500' : 'text-white'}`}>
+                <span
+                  className={`font-medium ${isPackBetter ? 'line-through text-slate-500' : 'text-white'}`}
+                >
                   +{additionalSubjects * 50} TND
                 </span>
               </div>
@@ -311,9 +327,7 @@ function ARIAInteractiveModule() {
               <span className="text-lg font-semibold text-white">Prix Total Mensuel :</span>
               <div className="text-right">
                 {isPackBetter && (
-                  <div className="text-slate-400 line-through text-sm">
-                    {additionalCost} TND
-                  </div>
+                  <div className="text-slate-400 line-through text-sm">{additionalCost} TND</div>
                 )}
                 <div className="text-2xl font-bold text-blue-400">
                   {isPackBetter ? packPrice : additionalCost} TND
@@ -322,7 +336,10 @@ function ARIAInteractiveModule() {
             </div>
           </div>
 
-          <Button onClick={handleProceed} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+          <Button
+            onClick={handleProceed}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          >
             {isPackBetter ? 'Choisir le Pack Toutes Matières' : 'Ajouter à mon Abonnement'}
           </Button>
         </div>
@@ -349,7 +366,8 @@ export default function OffresPage() {
               Des Formules Flexibles pour Chaque <span className="text-blue-600">Ambition</span>
             </h1>
             <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
-              Découvrez notre écosystème d'offres, de l'abonnement mensuel aux stages spécialisés, et construisez le parcours de réussite qui vous correspond.
+              Découvrez notre écosystème d'offres, de l'abonnement mensuel aux stages spécialisés,
+              et construisez le parcours de réussite qui vous correspond.
             </p>
           </motion.div>
 
@@ -389,26 +407,40 @@ export default function OffresPage() {
                     </div>
                   )}
 
-                  <Card className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${plan.popular
-                      ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
-                      : 'bg-white border border-slate-200 shadow-lg'
-                    }`}>
+                  <Card
+                    className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${
+                      plan.popular
+                        ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
+                        : 'bg-white border border-slate-200 shadow-lg'
+                    }`}
+                  >
                     <CardHeader className="text-center p-6 md:p-8">
                       <CardTitle className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
                         {plan.name}
                       </CardTitle>
-                      <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6">{plan.description}</p>
+                      <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6">
+                        {plan.description}
+                      </p>
 
                       {/* Prix avec typographie hiérarchisée */}
                       <div className="mb-4 md:mb-6">
                         <div className="flex items-baseline justify-center">
-                          <span className="font-bold text-3xl md:text-5xl lg:text-6xl text-slate-900" style={{ fontFamily: 'Poppins' }}>
+                          <span
+                            className="font-bold text-3xl md:text-5xl lg:text-6xl text-slate-900"
+                            style={{ fontFamily: 'Poppins' }}
+                          >
                             {plan.price}
                           </span>
-                          <span className="font-medium text-lg md:text-xl text-blue-600 ml-2" style={{ fontFamily: 'Inter' }}>
+                          <span
+                            className="font-medium text-lg md:text-xl text-blue-600 ml-2"
+                            style={{ fontFamily: 'Inter' }}
+                          >
                             TND
                           </span>
-                          <span className="font-normal text-sm md:text-base text-slate-500 ml-1" style={{ fontFamily: 'Inter' }}>
+                          <span
+                            className="font-normal text-sm md:text-base text-slate-500 ml-1"
+                            style={{ fontFamily: 'Inter' }}
+                          >
                             /mois
                           </span>
                         </div>
@@ -416,7 +448,10 @@ export default function OffresPage() {
 
                       {plan.credits > 0 && (
                         <div className="mb-3 md:mb-4">
-                          <Badge className="bg-blue-600 text-white font-medium text-xs md:text-sm" style={{ fontFamily: 'Inter' }}>
+                          <Badge
+                            className="bg-blue-600 text-white font-medium text-xs md:text-sm"
+                            style={{ fontFamily: 'Inter' }}
+                          >
                             {plan.credits} crédits inclus
                           </Badge>
                         </div>
@@ -426,23 +461,27 @@ export default function OffresPage() {
                     <CardContent className="p-6 md:p-8 flex-1 flex flex-col">
                       <ul className="space-y-3 md:space-y-5 mb-6 md:mb-8 flex-1">
                         {plan.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                          <li
+                            key={featureIndex}
+                            className="flex items-start space-x-3 md:space-x-4"
+                          >
                             <Check className="w-4 h-4 md:w-6 md:h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
+                            <span className="text-sm md:text-base text-gray-700 leading-relaxed">
+                              {feature}
+                            </span>
                           </li>
                         ))}
                       </ul>
 
                       <Button
                         asChild
-                        className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold transition-all duration-300 ${plan.popular
+                        className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold transition-all duration-300 ${
+                          plan.popular
                             ? 'bg-red-500 hover:bg-red-600 text-white'
                             : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
-                          }`}
+                        }`}
                       >
-                        <Link href="/bilan-gratuit">
-                          Commencer
-                        </Link>
+                        <Link href="/bilan-gratuit">Commencer</Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -503,7 +542,10 @@ export default function OffresPage() {
                     ))}
                   </div>
 
-                  <Button asChild className="w-full h-12 md:h-16 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button
+                    asChild
+                    className="w-full h-12 md:h-16 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+                  >
                     <Link href="/bilan-gratuit">
                       Découvrir le Pack Candidat Libre
                       <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
@@ -565,17 +607,25 @@ export default function OffresPage() {
                         {stage.features.map((feature, featureIndex) => {
                           const IconComponent = stage.icons?.[featureIndex] || Check;
                           return (
-                            <li key={featureIndex} className="flex items-start space-x-3 md:space-x-4">
+                            <li
+                              key={featureIndex}
+                              className="flex items-start space-x-3 md:space-x-4"
+                            >
                               <IconComponent className="w-4 h-4 md:w-6 md:h-6 text-blue-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm md:text-base text-gray-700 leading-relaxed">{feature}</span>
+                              <span className="text-sm md:text-base text-gray-700 leading-relaxed">
+                                {feature}
+                              </span>
                             </li>
                           );
                         })}
                       </ul>
 
-                      <Button asChild className="w-full h-12 md:h-14 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button
+                        asChild
+                        className="w-full h-12 md:h-14 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+                      >
                         <Link href="/bilan-gratuit">
-                          {index === 0 ? "Je réserve ma place" : "S'inscrire au Bootcamp"}
+                          {index === 0 ? 'Je réserve ma place' : "S'inscrire au Bootcamp"}
                         </Link>
                       </Button>
                     </CardContent>
@@ -605,12 +655,20 @@ export default function OffresPage() {
             <div className="max-w-4xl mx-auto">
               <Accordion type="single" collapsible className="w-full space-y-3 md:space-y-4">
                 {SPECIAL_PACKS.map((pack) => (
-                  <AccordionItem key={pack.name} value={pack.name} className="border border-gray-200 rounded-xl px-4 md:px-6">
+                  <AccordionItem
+                    key={pack.name}
+                    value={pack.name}
+                    className="border border-gray-200 rounded-xl px-4 md:px-6"
+                  >
                     <AccordionTrigger className="text-left hover:no-underline py-4 md:py-6">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full mr-4 space-y-2 sm:space-y-0">
                         <div>
-                          <h4 className="font-semibold text-lg md:text-xl text-gray-900">{pack.name}</h4>
-                          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">{pack.description}</p>
+                          <h4 className="font-semibold text-lg md:text-xl text-gray-900">
+                            {pack.name}
+                          </h4>
+                          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
+                            {pack.description}
+                          </p>
                         </div>
                         <div className="text-center sm:text-right">
                           <div className="text-xl md:text-2xl font-bold text-blue-600">
@@ -628,10 +686,11 @@ export default function OffresPage() {
                           </div>
                         ))}
                       </div>
-                      <Button asChild className="w-full h-10 md:h-12 bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base">
-                        <Link href="/bilan-gratuit">
-                          Réserver ce Pack
-                        </Link>
+                      <Button
+                        asChild
+                        className="w-full h-10 md:h-12 bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base"
+                      >
+                        <Link href="/bilan-gratuit">Réserver ce Pack</Link>
                       </Button>
                     </AccordionContent>
                   </AccordionItem>

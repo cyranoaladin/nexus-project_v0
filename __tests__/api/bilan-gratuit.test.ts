@@ -7,12 +7,12 @@ jest.mock('../../lib/prisma');
 
 // Mock bcrypt
 jest.mock('bcryptjs', () => ({
-  hash: jest.fn().mockResolvedValue('hashed-password')
+  hash: jest.fn().mockResolvedValue('hashed-password'),
 }));
 
 // Mock email service
 jest.mock('../../lib/email', () => ({
-  sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined)
+  sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('/api/bilan-gratuit', () => {
@@ -72,7 +72,7 @@ describe('/api/bilan-gratuit', () => {
 
     // Consentements
     acceptTerms: true,
-    acceptNewsletter: false
+    acceptNewsletter: false,
   };
 
   describe('POST /api/bilan-gratuit', () => {
@@ -86,7 +86,7 @@ describe('/api/bilan-gratuit', () => {
         firstName: 'Jean',
         lastName: 'Dupont',
         role: 'PARENT',
-        phone: '0123456789'
+        phone: '0123456789',
       };
 
       const mockStudentUser = {
@@ -94,32 +94,33 @@ describe('/api/bilan-gratuit', () => {
         email: 'marie.dupont@nexus-student.local',
         firstName: 'Marie',
         lastName: 'Dupont',
-        role: 'ELEVE'
+        role: 'ELEVE',
       };
 
       const mockStudent = {
         id: 'student-profile-123',
         parentId: 'parent-profile-123',
         userId: 'student-123',
-        grade: 'Terminale'
+        grade: 'Terminale',
       };
 
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         return callback({
           user: {
-            create: jest.fn()
+            create: jest
+              .fn()
               .mockResolvedValueOnce(mockParentUser)
-              .mockResolvedValueOnce(mockStudentUser)
+              .mockResolvedValueOnce(mockStudentUser),
           },
           parentProfile: {
-            create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' })
+            create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' }),
           },
           studentProfile: {
-            create: jest.fn().mockResolvedValue({ id: 'student-profile-123' })
+            create: jest.fn().mockResolvedValue({ id: 'student-profile-123' }),
           },
           student: {
-            create: jest.fn().mockResolvedValue(mockStudent)
-          }
+            create: jest.fn().mockResolvedValue(mockStudent),
+          },
         } as any);
       });
 
@@ -127,7 +128,7 @@ describe('/api/bilan-gratuit', () => {
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(validRequestData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -143,7 +144,9 @@ describe('/api/bilan-gratuit', () => {
       expect(responseData.user.email).toBe(validRequestData.parentEmail);
 
       // Verify database calls
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({ where: { email: validRequestData.parentEmail } });
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: validRequestData.parentEmail },
+      });
       expect(mockPrisma.$transaction).toHaveBeenCalled();
     });
 
@@ -151,15 +154,30 @@ describe('/api/bilan-gratuit', () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         return callback({
-          user: { create: jest.fn().mockResolvedValueOnce({ id: 'p1', email: 'parent@example.com' }).mockResolvedValueOnce({ id: 's1', email: 's@example.com' }) },
+          user: {
+            create: jest
+              .fn()
+              .mockResolvedValueOnce({ id: 'p1', email: 'parent@example.com' })
+              .mockResolvedValueOnce({ id: 's1', email: 's@example.com' }),
+          },
           parentProfile: { create: jest.fn().mockResolvedValue({ id: 'pp1' }) },
-          student: { create: jest.fn().mockImplementation(({ data }: any) => Promise.resolve({ id: 'st1', birthDate: data.birthDate ?? null })) },
+          student: {
+            create: jest
+              .fn()
+              .mockImplementation(({ data }: any) =>
+                Promise.resolve({ id: 'st1', birthDate: data.birthDate ?? null })
+              ),
+          },
         } as any);
       });
       const { POST } = await import('@/app/api/bilan-gratuit/route');
       const minimal = { ...validRequestData } as any;
       delete minimal.studentBirthDate;
-      const req = new NextRequest('http://localhost:3000/api/bilan-gratuit', { method: 'POST', body: JSON.stringify(minimal), headers: { 'Content-Type': 'application/json' } });
+      const req = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
+        method: 'POST',
+        body: JSON.stringify(minimal),
+        headers: { 'Content-Type': 'application/json' },
+      });
       const res = await POST(req);
       expect([200, 201]).toContain(res.status);
     });
@@ -168,14 +186,14 @@ describe('/api/bilan-gratuit', () => {
       // Setup mock - email already exists
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
         id: 'existing-user',
-        email: 'jean.dupont@test.com'
+        email: 'jean.dupont@test.com',
       } as any);
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(validRequestData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -193,14 +211,14 @@ describe('/api/bilan-gratuit', () => {
     it('should return 400 when validation fails (invalid email)', async () => {
       const invalidData = {
         ...validRequestData,
-        parentEmail: 'invalid-email'
+        parentEmail: 'invalid-email',
       };
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(invalidData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -216,14 +234,14 @@ describe('/api/bilan-gratuit', () => {
     it('should return 400 when validation fails (password too short)', async () => {
       const invalidData = {
         ...validRequestData,
-        parentPassword: '1234567' // Too short
+        parentPassword: '1234567', // Too short
       };
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(invalidData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -238,14 +256,14 @@ describe('/api/bilan-gratuit', () => {
     it('should return 400 when required fields are missing', async () => {
       const invalidData = {
         ...validRequestData,
-        parentFirstName: undefined
+        parentFirstName: undefined,
       };
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(invalidData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -260,13 +278,15 @@ describe('/api/bilan-gratuit', () => {
     it('should return 500 when database error occurs', async () => {
       // Setup mock - email doesn't exist but transaction fails
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('Database connection failed'));
+      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(validRequestData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -286,34 +306,36 @@ describe('/api/bilan-gratuit', () => {
         id: 'parent-123',
         email: 'jean.dupont@test.com',
         firstName: 'Jean',
-        lastName: 'Dupont'
+        lastName: 'Dupont',
       };
 
       const mockStudentUser = {
         id: 'student-123',
         firstName: 'Marie',
-        lastName: 'Dupont'
+        lastName: 'Dupont',
       };
 
       const mockStudent = {
-        id: 'student-profile-123'
+        id: 'student-profile-123',
       };
 
       (mockPrisma.$transaction as jest.Mock).mockResolvedValue({
         parentUser: mockParentUser,
         studentUser: mockStudentUser,
-        student: mockStudent
+        student: mockStudent,
       } as any);
 
       // Mock email service to throw error
-      const { sendWelcomeParentEmail } = await import('@/lib/email')
-        ; (sendWelcomeParentEmail as jest.Mock).mockRejectedValue(new Error('Email service unavailable'));
+      const { sendWelcomeParentEmail } = await import('@/lib/email');
+      (sendWelcomeParentEmail as jest.Mock).mockRejectedValue(
+        new Error('Email service unavailable')
+      );
 
       // Create request
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(validRequestData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       // Call API
@@ -328,12 +350,14 @@ describe('/api/bilan-gratuit', () => {
     it('returns 409 when unique constraint failed is thrown by DB', async () => {
       const { POST } = await import('@/app/api/bilan-gratuit/route');
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(new Error('Unique constraint failed on the fields: (`email`)'));
+      (mockPrisma.$transaction as jest.Mock).mockRejectedValue(
+        new Error('Unique constraint failed on the fields: (`email`)')
+      );
 
       const request = new NextRequest('http://localhost:3000/api/bilan-gratuit', {
         method: 'POST',
         body: JSON.stringify(validRequestData),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const response = await POST(request);

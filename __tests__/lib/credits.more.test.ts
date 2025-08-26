@@ -1,4 +1,11 @@
-import { calculateCreditCost, checkCreditBalance, debitCredits, refundCredits, allocateMonthlyCredits, canCancelBooking } from '@/lib/credits';
+import {
+  calculateCreditCost,
+  checkCreditBalance,
+  debitCredits,
+  refundCredits,
+  allocateMonthlyCredits,
+  canCancelBooking,
+} from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
 
 describe('lib/credits additional coverage', () => {
@@ -49,18 +56,10 @@ describe('lib/credits additional coverage', () => {
 
   it('canCancelBooking enforces 48h for ATELIER_GROUPE and 24h otherwise', () => {
     const now = Date.now();
-    expect(
-      canCancelBooking(new Date(now + 49 * 3600 * 1000), 'ATELIER_GROUPE' as any)
-    ).toBe(true);
-    expect(
-      canCancelBooking(new Date(now + 47 * 3600 * 1000), 'ATELIER_GROUPE' as any)
-    ).toBe(false);
+    expect(canCancelBooking(new Date(now + 49 * 3600 * 1000), 'ATELIER_GROUPE' as any)).toBe(true);
+    expect(canCancelBooking(new Date(now + 47 * 3600 * 1000), 'ATELIER_GROUPE' as any)).toBe(false);
 
-    expect(
-      canCancelBooking(new Date(now + 25 * 3600 * 1000), 'COURS_ONLINE' as any)
-    ).toBe(true);
-    expect(
-      canCancelBooking(new Date(now + 23 * 3600 * 1000), 'COURS_ONLINE' as any)
-    ).toBe(false);
+    expect(canCancelBooking(new Date(now + 25 * 3600 * 1000), 'COURS_ONLINE' as any)).toBe(true);
+    expect(canCancelBooking(new Date(now + 23 * 3600 * 1000), 'COURS_ONLINE' as any)).toBe(false);
   });
 });

@@ -16,7 +16,9 @@ test.describe('Session Booking Flow (E2E, smoke)', () => {
     await bookingTab.click();
 
     // Valider la présence de l'UI de réservation rendue par SessionBooking
-    await expect(page.getByRole('heading', { name: /Réserver une Session/i })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole('heading', { name: /Réserver une Session/i })).toBeVisible({
+      timeout: 20000,
+    });
 
     // Cross-check: la page ARIA est atteignable en mode E2E
     await page.goto('/aria');
@@ -24,5 +26,3 @@ test.describe('Session Booking Flow (E2E, smoke)', () => {
     await expect(page.getByText('Assistant Pédagogique ARIA')).toBeVisible({ timeout: 15000 });
   });
 });
-
-

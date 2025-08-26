@@ -29,7 +29,7 @@ export default async function CoachMessagesPage() {
               </tr>
             </thead>
             <tbody>
-              {messages.map(m => (
+              {messages.map((m) => (
                 <tr key={m.id} className="border-t">
                   <td className="p-2">{m.senderId}</td>
                   <td className="p-2">{m.content}</td>
@@ -43,5 +43,3 @@ export default async function CoachMessagesPage() {
     </div>
   );
 }
-
-

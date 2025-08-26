@@ -19,13 +19,17 @@ test.describe('Mobile responsive', () => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.getByTestId('open-aria-chat').click();
-      await expect(page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first()).toBeVisible({ timeout: 20000 });
+      await expect(
+        page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first()
+      ).toBeVisible({ timeout: 20000 });
     }
     await input.fill('Test sur mobile');
     const send = page
       .locator('[data-testid="aria-send"], button[aria-label="Envoyer le message"]')
       .first();
-    await send.click().catch(async () => { await input.press('Enter'); });
+    await send.click().catch(async () => {
+      await input.press('Enter');
+    });
     await expect(page.getByTestId('aria-messages').first()).toBeVisible();
   });
 });

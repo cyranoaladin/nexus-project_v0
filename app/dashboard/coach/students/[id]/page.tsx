@@ -4,7 +4,9 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
-interface Params { params: { id: string } }
+interface Params {
+  params: { id: string };
+}
 
 export default async function StudentProfilePage({ params }: Params) {
   const session = await getServerSession(authOptions);
@@ -37,7 +39,9 @@ export default async function StudentProfilePage({ params }: Params) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="p-4 border rounded-md">
           <p className="text-sm text-gray-500">Nom</p>
-          <p className="font-medium">{student.user.firstName} {student.user.lastName}</p>
+          <p className="font-medium">
+            {student.user.firstName} {student.user.lastName}
+          </p>
         </div>
         <div className="p-4 border rounded-md">
           <p className="text-sm text-gray-500">Classe</p>
@@ -54,9 +58,11 @@ export default async function StudentProfilePage({ params }: Params) {
         {student.sessions.length === 0 ? (
           <p className="p-3 text-gray-600">Aucune session.</p>
         ) : (
-          student.sessions.map(s => (
+          student.sessions.map((s) => (
             <div key={s.id} className="p-3 text-sm flex justify-between">
-              <span>{s.title} • {new Date(s.scheduledAt).toLocaleString('fr-FR')}</span>
+              <span>
+                {s.title} • {new Date(s.scheduledAt).toLocaleString('fr-FR')}
+              </span>
               <span className="text-gray-500">{s.status}</span>
             </div>
           ))
@@ -68,10 +74,14 @@ export default async function StudentProfilePage({ params }: Params) {
         {student.reports.length === 0 ? (
           <p className="p-3 text-gray-600">Aucun rapport.</p>
         ) : (
-          student.reports.map(r => (
+          student.reports.map((r) => (
             <div key={r.id} className="p-3 text-sm">
-              <p className="font-medium">{r.title} • {r.period}</p>
-              <p className="text-gray-600 text-xs">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</p>
+              <p className="font-medium">
+                {r.title} • {r.period}
+              </p>
+              <p className="text-gray-600 text-xs">
+                {new Date(r.createdAt).toLocaleDateString('fr-FR')}
+              </p>
             </div>
           ))
         )}
@@ -79,5 +89,3 @@ export default async function StudentProfilePage({ params }: Params) {
     </div>
   );
 }
-
-

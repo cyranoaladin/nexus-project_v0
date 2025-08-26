@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,16 +32,19 @@ export function Header() {
   }, [isMenuOpen]);
 
   const navigation = [
-    { name: "Accueil", href: "/" },
-    { name: "Assistant IA", href: "/aria" },
-    { name: "Notre Équipe", href: "/equipe" },
-    { name: "Offres & Tarifs", href: "/offres" },
-    { name: "Notre Centre", href: "/notre-centre" },
-    { name: "Contact", href: "/contact" },
+    { name: 'Accueil', href: '/' },
+    { name: 'Assistant IA', href: '/aria' },
+    { name: 'Notre Équipe', href: '/equipe' },
+    { name: 'Offres & Tarifs', href: '/offres' },
+    { name: 'Notre Centre', href: '/notre-centre' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
-    <header data-testid="nexus-header" className={`sticky top-0 z-50 w-full border-b border-slate-200 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm' : 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60'}`}>
+    <header
+      data-testid="nexus-header"
+      className={`sticky top-0 z-50 w-full border-b border-slate-200 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm' : 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60'}`}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 md:h-20 items-center justify-between">
           {/* Logo */}
@@ -77,14 +80,10 @@ export function Header() {
           {/* CTA Buttons Desktop */}
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             <Button asChild variant="secondary" size="sm" className="px-4">
-              <Link href="/auth/signin">
-                Se Connecter
-              </Link>
+              <Link href="/auth/signin">Se Connecter</Link>
             </Button>
             <Button asChild size="sm" className="px-4">
-              <Link href="/bilan-gratuit">
-                Bilan Gratuit
-              </Link>
+              <Link href="/bilan-gratuit">Bilan Gratuit</Link>
             </Button>
           </div>
 
@@ -94,11 +93,7 @@ export function Header() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 

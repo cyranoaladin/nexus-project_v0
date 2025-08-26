@@ -1,23 +1,33 @@
-"use client";
+'use client';
 
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import SessionBooking from "@/components/ui/session-booking";
-import { AlertCircle, BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import SessionBooking from '@/components/ui/session-booking';
+import {
+  AlertCircle,
+  BookOpen,
+  Calendar,
+  CreditCard,
+  Loader2,
+  LogOut,
+  MessageCircle,
+  User,
+  Video,
+} from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface DashboardData {
   student: any;
-  credits: { balance: number; };
+  credits: { balance: number };
   nextSession: any | null;
   recentSessions: any[];
-  ariaStats: { totalConversations: number; };
+  ariaStats: { totalConversations: number };
   badges: any[];
 }
 
@@ -30,10 +40,10 @@ export default function DashboardEleve() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'ELEVE') {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
@@ -61,7 +71,7 @@ export default function DashboardEleve() {
     fetchDashboardData();
   }, [session, status, router]);
 
-  if (status === "loading" || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -79,10 +89,7 @@ export default function DashboardEleve() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="mt-4"
-          >
+          <Button onClick={() => window.location.reload()} className="mt-4">
             Réessayer
           </Button>
         </div>
@@ -111,19 +118,21 @@ export default function DashboardEleve() {
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-8">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'dashboard'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Tableau de Bord
                 </button>
                 <button
                   onClick={() => setActiveTab('booking')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'booking'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'booking'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Réserver Session
                 </button>
@@ -150,9 +159,7 @@ export default function DashboardEleve() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Bonjour {session?.user.firstName} ! 👋
               </h2>
-              <p className="text-gray-600">
-                Bienvenue dans votre espace personnel Nexus Réussite.
-              </p>
+              <p className="text-gray-600">Bienvenue dans votre espace personnel Nexus Réussite.</p>
             </div>
 
             {/* Stats Cards */}
@@ -167,9 +174,7 @@ export default function DashboardEleve() {
                   <div className="text-2xl font-bold text-blue-600">
                     {dashboardData?.credits.balance || 0} crédits
                   </div>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Disponibles pour vos sessions
-                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Disponibles pour vos sessions</p>
                 </CardContent>
               </Card>
 
@@ -183,20 +188,22 @@ export default function DashboardEleve() {
                   {dashboardData?.nextSession ? (
                     <>
                       <div className="text-xl font-bold text-gray-900">
-                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', {
-                          day: '2-digit',
-                          month: 'short'
-                        })}
+                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString(
+                          'fr-FR',
+                          {
+                            day: '2-digit',
+                            month: 'short',
+                          }
+                        )}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">
-                        {dashboardData.nextSession.subject} • {dashboardData.nextSession.duration}min
+                        {dashboardData.nextSession.subject} • {dashboardData.nextSession.duration}
+                        min
                       </p>
                     </>
                   ) : (
                     <>
-                      <div className="text-xl font-bold text-gray-400">
-                        Aucune
-                      </div>
+                      <div className="text-xl font-bold text-gray-400">Aucune</div>
                       <p className="text-xs text-gray-600 mt-1">
                         Programmez votre prochaine session
                       </p>
@@ -215,9 +222,7 @@ export default function DashboardEleve() {
                   <div className="text-xl font-bold text-purple-600">
                     {dashboardData?.ariaStats?.totalConversations || 0} conversations
                   </div>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Avec ARIA
-                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Avec ARIA</p>
                 </CardContent>
               </Card>
             </div>
@@ -236,14 +241,20 @@ export default function DashboardEleve() {
                   {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
                     <div className="space-y-4">
                       {dashboardData.recentSessions.map((s: any) => (
-                        <div key={s.id} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div
+                          key={s.id}
+                          className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"
+                        >
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
                               <h4 className="font-medium text-gray-900">{s.title || s.subject}</h4>
                             </div>
-                            <p className="text-sm text-gray-600">Coach: {s.coach?.user?.firstName} {s.coach?.user?.lastName}</p>
+                            <p className="text-sm text-gray-600">
+                              Coach: {s.coach?.user?.firstName} {s.coach?.user?.lastName}
+                            </p>
                             <p className="text-sm font-medium text-blue-600">
-                              {new Date(s.scheduledAt).toLocaleDateString('fr-FR')} • {s.duration} min
+                              {new Date(s.scheduledAt).toLocaleDateString('fr-FR')} • {s.duration}{' '}
+                              min
                             </p>
                           </div>
                         </div>
@@ -306,19 +317,28 @@ export default function DashboardEleve() {
                     <span>Réserver une Session</span>
                   </Button>
                   <Link href="/dashboard/eleve/sessions">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-center space-y-2"
+                    >
                       <Video className="w-6 h-6 text-purple-600" />
                       <span>Mes Sessions</span>
                     </Button>
                   </Link>
                   <Link href="/dashboard/eleve/ressources">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-center space-y-2"
+                    >
                       <BookOpen className="w-6 h-6 text-green-600" />
                       <span>Ressources Pédagogiques</span>
                     </Button>
                   </Link>
                   <Link href="/aria">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-pink-500 text-pink-600 hover:bg-pink-50 hover:text-pink-700">
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-pink-500 text-pink-600 hover:bg-pink-50 hover:text-pink-700"
+                    >
                       <MessageCircle className="w-6 h-6" />
                       <span>Discuter avec ARIA</span>
                     </Button>

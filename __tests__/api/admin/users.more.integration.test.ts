@@ -22,9 +22,19 @@ describe('API /api/admin/users additional branches', () => {
   });
 
   it('GET applies role and search filters and returns formatted users', async () => {
-    (prisma as any).user.findMany = jest.fn().mockResolvedValue([
-      { id: 'u1', email: 'a@a.com', firstName: 'Alice', lastName: 'A', role: 'COACH', createdAt: new Date(), coachProfile: { id: 'cp1' } },
-    ]);
+    (prisma as any).user.findMany = jest
+      .fn()
+      .mockResolvedValue([
+        {
+          id: 'u1',
+          email: 'a@a.com',
+          firstName: 'Alice',
+          lastName: 'A',
+          role: 'COACH',
+          createdAt: new Date(),
+          coachProfile: { id: 'cp1' },
+        },
+      ]);
     (prisma as any).user.count = jest.fn().mockResolvedValue(1);
 
     const { GET } = require('@/app/api/admin/users/route');
@@ -48,10 +58,24 @@ describe('API /api/admin/users additional branches', () => {
 
   it('POST COACH without profileData skips coachProfile branch', async () => {
     (prisma as any).user.findUnique = jest.fn().mockResolvedValue(null);
-    (prisma as any).user.create = jest.fn().mockImplementation(({ data }: any) => Promise.resolve({ id: 'u1', ...data }));
+    (prisma as any).user.create = jest
+      .fn()
+      .mockImplementation(({ data }: any) => Promise.resolve({ id: 'u1', ...data }));
     const { POST } = require('@/app/api/admin/users/route');
-    const payload = { email: 'c@e.com', firstName: 'C', lastName: 'E', role: 'COACH', password: 'password123' };
-    const res = await POST(new NextRequest('http://localhost/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }));
+    const payload = {
+      email: 'c@e.com',
+      firstName: 'C',
+      lastName: 'E',
+      role: 'COACH',
+      password: 'password123',
+    };
+    const res = await POST(
+      new NextRequest('http://localhost/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+    );
     expect(res.status).toBe(200);
     const call = (prisma as any).user.create.mock.calls[0][0];
     expect(call.data.coachProfile).toBeUndefined();
@@ -61,7 +85,10 @@ describe('API /api/admin/users additional branches', () => {
     const { getServerSession } = require('next-auth');
     (getServerSession as jest.Mock).mockResolvedValueOnce(null);
     const { POST } = require('@/app/api/admin/users/route');
-    const req = new NextRequest('http://localhost/api/admin/users', { method: 'POST', body: JSON.stringify({}) });
+    const req = new NextRequest('http://localhost/api/admin/users', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
@@ -81,9 +108,18 @@ describe('API /api/admin/users additional branches', () => {
     (prisma as any).user.findUnique = jest.fn().mockResolvedValue({ id: 'u1' });
     const { POST } = require('@/app/api/admin/users/route');
     const valid = {
-      email: 'e@e.com', firstName: 'E', lastName: 'F', role: 'COACH', password: 'password123', profileData: {}
+      email: 'e@e.com',
+      firstName: 'E',
+      lastName: 'F',
+      role: 'COACH',
+      password: 'password123',
+      profileData: {},
     };
-    const req = new NextRequest('http://localhost/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(valid) });
+    const req = new NextRequest('http://localhost/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(valid),
+    });
     const res = await POST(req);
     expect(res.status).toBe(400);
   });
@@ -92,7 +128,9 @@ describe('API /api/admin/users additional branches', () => {
     (prisma as any).user.findMany = jest.fn().mockResolvedValue([]);
     (prisma as any).user.count = jest.fn().mockResolvedValue(0);
     const { GET } = require('@/app/api/admin/users/route');
-    const res = await GET(new NextRequest('http://localhost/api/admin/users?role=COACH&page=2&limit=5&search=test'));
+    const res = await GET(
+      new NextRequest('http://localhost/api/admin/users?role=COACH&page=2&limit=5&search=test')
+    );
     expect(res.status).toBe(200);
     expect((prisma as any).user.count).toHaveBeenCalled();
   });

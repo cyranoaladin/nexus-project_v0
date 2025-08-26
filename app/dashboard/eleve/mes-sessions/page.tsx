@@ -1,8 +1,19 @@
-
 export default function EleveMesSessionsPage() {
   const sessions = [
-    { id: 'sess-1', date: '2025-08-10 18:00', coach: 'Helios', subject: 'Maths', status: 'PLANIFIÉE' },
-    { id: 'sess-2', date: '2025-08-15 17:00', coach: 'Zenon', subject: 'Philosophie', status: 'TERMINÉE' },
+    {
+      id: 'sess-1',
+      date: '2025-08-10 18:00',
+      coach: 'Helios',
+      subject: 'Maths',
+      status: 'PLANIFIÉE',
+    },
+    {
+      id: 'sess-2',
+      date: '2025-08-15 17:00',
+      coach: 'Zenon',
+      subject: 'Philosophie',
+      status: 'TERMINÉE',
+    },
   ];
   return (
     <div className="max-w-5xl mx-auto px-4 py-6" data-testid="eleve-sessions">
@@ -18,7 +29,7 @@ export default function EleveMesSessionsPage() {
             </tr>
           </thead>
           <tbody>
-            {sessions.map(s => (
+            {sessions.map((s) => (
               <tr key={s.id} className="border-t">
                 <td className="p-2">{s.date}</td>
                 <td className="p-2">{s.coach}</td>

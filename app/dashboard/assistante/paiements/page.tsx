@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -84,7 +84,9 @@ export default function AssistantPaymentsPage() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button onClick={fetchPayments} className="mt-4">Réessayer</Button>
+          <Button onClick={fetchPayments} className="mt-4">
+            Réessayer
+          </Button>
         </div>
       </div>
     );
@@ -126,7 +128,7 @@ export default function AssistantPaymentsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map(p => (
+                    {payments.map((p) => (
                       <tr key={p.id} className="border-t">
                         <td className="p-2">{p.userEmail}</td>
                         <td className="p-2">{p.amount} TND</td>
@@ -138,7 +140,15 @@ export default function AssistantPaymentsPage() {
                                 ? 'outline'
                                 : p.status === 'COMPLETED'
                                   ? 'default'
-                                  : 'destructive') as 'default' | 'success' | 'outline' | 'popular' | 'warning' | 'destructive' | null | undefined
+                                  : 'destructive') as
+                                | 'default'
+                                | 'success'
+                                | 'outline'
+                                | 'popular'
+                                | 'warning'
+                                | 'destructive'
+                                | null
+                                | undefined
                             }
                           >
                             {p.status}
@@ -148,11 +158,22 @@ export default function AssistantPaymentsPage() {
                         <td className="p-2 space-x-2">
                           {p.status === 'PENDING' && (
                             <>
-                              <Button size="sm" onClick={() => updatePayment(p.id, 'approve')} disabled={processing === p.id}> 
-                                {processing === p.id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
+                              <Button
+                                size="sm"
+                                onClick={() => updatePayment(p.id, 'approve')}
+                                disabled={processing === p.id}
+                              >
+                                {processing === p.id ? (
+                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                ) : null}
                                 Approuver
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => updatePayment(p.id, 'reject')} disabled={processing === p.id}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updatePayment(p.id, 'reject')}
+                                disabled={processing === p.id}
+                              >
                                 Rejeter
                               </Button>
                             </>

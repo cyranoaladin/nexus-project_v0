@@ -7,12 +7,9 @@ import bcrypt from 'bcryptjs';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -23,10 +20,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!parentProfile) {
-      return NextResponse.json(
-        { error: 'Parent profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent profile not found' }, { status: 404 });
     }
 
     const children = await prisma.student.findMany({
@@ -35,27 +29,27 @@ export async function GET(request: NextRequest) {
         user: true,
         creditTransactions: {
           orderBy: {
-            createdAt: 'desc'
-          }
+            createdAt: 'desc',
+          },
         },
         sessions: {
           where: {
             scheduledAt: {
-              gte: new Date()
-            }
+              gte: new Date(),
+            },
           },
           include: {
             coach: {
               include: {
-                user: true
-              }
-            }
+                user: true,
+              },
+            },
           },
           orderBy: {
-            scheduledAt: 'asc'
-          }
-        }
-      }
+            scheduledAt: 'asc',
+          },
+        },
+      },
     });
 
     const formattedChildren = children.map((child: any) => {
@@ -72,46 +66,31 @@ export async function GET(request: NextRequest) {
         school: child.school,
         creditBalance: creditBalance,
         upcomingSessions: child.sessions.length,
-        createdAt: child.createdAt
+        createdAt: child.createdAt,
       };
     });
 
     return NextResponse.json(formattedChildren);
-
   } catch (error) {
     console.error('Error fetching children:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    const {
-      firstName,
-      lastName,
-      grade,
-      school
-    } = body;
+    const { firstName, lastName, grade, school } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !grade) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Generate email in the same format as bilan-gratuit
@@ -119,14 +98,11 @@ export async function POST(request: NextRequest) {
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un enfant avec ce nom existe déjà' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Un enfant avec ce nom existe déjà' }, { status: 400 });
     }
 
     const userId = session.user.id;
@@ -137,22 +113,16 @@ export async function POST(request: NextRequest) {
     });
 
     if (!parentProfile) {
-      return NextResponse.json(
-        { error: 'Parent profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent profile not found' }, { status: 404 });
     }
 
     // Get parent's password to use for the child
     const parentUser = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!parentUser || !parentUser.password) {
-      return NextResponse.json(
-        { error: 'Parent password not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent password not found' }, { status: 404 });
     }
 
     // Create child in transaction
@@ -164,8 +134,8 @@ export async function POST(request: NextRequest) {
           password: parentUser.password, // Use parent's password
           firstName,
           lastName,
-          role: 'ELEVE'
-        }
+          role: 'ELEVE',
+        },
       });
 
       // Create student
@@ -174,11 +144,11 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           parentId: parentProfile.id,
           grade,
-          school: school || ''
+          school: school || '',
         },
         include: {
-          user: true
-        }
+          user: true,
+        },
       });
 
       return student;
@@ -192,15 +162,11 @@ export async function POST(request: NextRequest) {
         lastName: result.user.lastName,
         email: result.user.email,
         grade: result.grade,
-        school: result.school
-      }
+        school: result.school,
+      },
     });
-
   } catch (error) {
     console.error('Error creating child:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

@@ -39,10 +39,10 @@
 ```typescript
 // Génération UUID selon directives CTO
 export function generateJitsiRoomUrl(sessionId: string): string {
-  const uuid = crypto.randomUUID()
-  const roomName = `nexus-reussite-session-${sessionId}-${uuid}`
-  const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si'
-  return `${jitsiServerUrl}/${roomName}`
+  const uuid = crypto.randomUUID();
+  const roomName = `nexus-reussite-session-${sessionId}-${uuid}`;
+  const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
+  return `${jitsiServerUrl}/${roomName}`;
 }
 ```
 
@@ -50,10 +50,10 @@ export function generateJitsiRoomUrl(sessionId: string): string {
 
 ```typescript
 // Génération salle selon stratégie CTO
-const uuid = crypto.randomUUID()
-const roomName = `nexus-reussite-session-${sessionId}-${uuid}`
-const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si'
-const jitsiUrl = `${jitsiServerUrl}/${roomName}`
+const uuid = crypto.randomUUID();
+const roomName = `nexus-reussite-session-${sessionId}-${uuid}`;
+const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
+const jitsiUrl = `${jitsiServerUrl}/${roomName}`;
 ```
 
 ## 🚀 Avantages de l'Implémentation
@@ -112,7 +112,7 @@ NEXT_PUBLIC_JITSI_SERVER_URL="https://meet.jit.si"
 
 - **UUID Unique** : Chaque session génère une salle impossible à deviner
 - **Iframe Sécurisé** : Intégration native sans API complexe
-- **Variables Publiques** : Configuration frontend via NEXT_PUBLIC_*
+- **Variables Publiques** : Configuration frontend via NEXT*PUBLIC*\*
 - **Migration Facile** : Changement de serveur en une variable
 - **MVP Ready** : Fonctionnel immédiatement avec meet.jit.si
 

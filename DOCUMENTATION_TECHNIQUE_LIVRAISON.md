@@ -245,16 +245,16 @@ enum PaymentStatus {
 
 ### 2.2. Description des Tables Métier Clés
 
-| Table | Rôle Principal | Colonnes Importantes |
-|-------|----------------|---------------------|
-| **User** | Utilisateur principal avec authentification | `email` (unique), `password` (bcrypt), `role` (ADMIN/PARENT/ELEVE/COACH/ASSISTANTE) |
-| **Student** | Entité métier élève liée au parent | `parentId` (FK), `userId` (FK), `grade` (classe scolaire) |
-| **Subscription** | Abonnement mensuel de l'élève | `planName` (ACCES_PLATEFORME/HYBRIDE/IMMERSION), `status` (ACTIVE/INACTIVE/CANCELLED), `creditsPerMonth` |
-| **CreditTransaction** | Historique des crédits | `type` (MONTHLY_ALLOCATION/PURCHASE/USAGE/REFUND), `amount` (peut être négatif), `expiresAt` |
-| **Session** | Cours/ateliers planifiés | `status` (SCHEDULED/COMPLETED/CANCELLED), `creditCost`, `scheduledAt`, `location` (visio URL) |
-| **Payment** | Transactions financières | `status` (PENDING/COMPLETED/FAILED), `method` (konnect/wise), `externalId` (ID externe) |
-| **AriaConversation** | Conversations avec l'IA | `studentId` (FK), `subject` (matière), `messages` (relation vers AriaMessage) |
-| **CoachProfile** | Profil des enseignants | `pseudonym` (Hélios/Zénon), `subjects` (JSON array), `availableOnline` |
+| Table                 | Rôle Principal                              | Colonnes Importantes                                                                                     |
+| --------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **User**              | Utilisateur principal avec authentification | `email` (unique), `password` (bcrypt), `role` (ADMIN/PARENT/ELEVE/COACH/ASSISTANTE)                      |
+| **Student**           | Entité métier élève liée au parent          | `parentId` (FK), `userId` (FK), `grade` (classe scolaire)                                                |
+| **Subscription**      | Abonnement mensuel de l'élève               | `planName` (ACCES_PLATEFORME/HYBRIDE/IMMERSION), `status` (ACTIVE/INACTIVE/CANCELLED), `creditsPerMonth` |
+| **CreditTransaction** | Historique des crédits                      | `type` (MONTHLY_ALLOCATION/PURCHASE/USAGE/REFUND), `amount` (peut être négatif), `expiresAt`             |
+| **Session**           | Cours/ateliers planifiés                    | `status` (SCHEDULED/COMPLETED/CANCELLED), `creditCost`, `scheduledAt`, `location` (visio URL)            |
+| **Payment**           | Transactions financières                    | `status` (PENDING/COMPLETED/FAILED), `method` (konnect/wise), `externalId` (ID externe)                  |
+| **AriaConversation**  | Conversations avec l'IA                     | `studentId` (FK), `subject` (matière), `messages` (relation vers AriaMessage)                            |
+| **CoachProfile**      | Profil des enseignants                      | `pseudonym` (Hélios/Zénon), `subjects` (JSON array), `availableOnline`                                   |
 
 ### 2.3. Logique de Migration
 
@@ -345,20 +345,16 @@ npx prisma db seed
 ```typescript
 // Protection des routes par rôle
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/api/admin/:path*',
-    '/api/sessions/:path*'
-  ]
-}
+  matcher: ['/dashboard/:path*', '/api/admin/:path*', '/api/sessions/:path*'],
+};
 ```
 
 **Vérification de session dans chaque route protégée :**
 
 ```typescript
-const session = await getServerSession(authOptions)
+const session = await getServerSession(authOptions);
 if (!session || session.user.role !== 'ELEVE') {
-  return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 })
+  return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
 }
 ```
 
@@ -384,9 +380,9 @@ if (!session || session.user.role !== 'ELEVE') {
        creditsPerMonth,
        status: 'ACTIVE',
        startDate: new Date(),
-       ariaSubjects: JSON.stringify(ariaSubjects)
-     }
-   })
+       ariaSubjects: JSON.stringify(ariaSubjects),
+     },
+   });
    ```
 
 5. **Allocation crédits initiaux :**
@@ -397,9 +393,9 @@ if (!session || session.user.role !== 'ELEVE') {
        studentId,
        type: 'MONTHLY_ALLOCATION',
        amount: creditsPerMonth,
-       description: `Crédits mensuels - ${planName}`
-     }
-   })
+       description: `Crédits mensuels - ${planName}`,
+     },
+   });
    ```
 
 #### Achat de Pack
@@ -422,9 +418,9 @@ if (!session || session.user.role !== 'ELEVE') {
 
   ```typescript
   // Vérifier solde
-  const totalCredits = await calculateTotalCredits(studentId)
+  const totalCredits = await calculateTotalCredits(studentId);
   if (totalCredits < sessionCreditCost) {
-    throw new Error('Solde insuffisant')
+    throw new Error('Solde insuffisant');
   }
 
   // Décrémenter
@@ -432,9 +428,9 @@ if (!session || session.user.role !== 'ELEVE') {
     data: {
       type: 'USAGE',
       amount: -sessionCreditCost,
-      sessionId: newSession.id
-    }
-  })
+      sessionId: newSession.id,
+    },
+  });
   ```
 
 **Report mensuel et expiration :**
@@ -447,16 +443,16 @@ if (!session || session.user.role !== 'ELEVE') {
   const expiredCredits = await prisma.creditTransaction.findMany({
     where: {
       expiresAt: { lt: new Date() },
-      type: 'MONTHLY_ALLOCATION'
-    }
-  })
+      type: 'MONTHLY_ALLOCATION',
+    },
+  });
 
   // Créer transactions d'expiration
   for (const credit of expiredCredits) {
     await prisma.creditTransaction.create({
       type: 'EXPIRATION',
-      amount: -credit.amount
-    })
+      amount: -credit.amount,
+    });
   }
   ```
 
@@ -503,9 +499,9 @@ if (!session || session.user.role !== 'ELEVE') {
 2. **Vérification crédits :**
 
    ```typescript
-   const totalCredits = await calculateTotalCredits(studentId)
+   const totalCredits = await calculateTotalCredits(studentId);
    if (totalCredits < CREDIT_COSTS[serviceType]) {
-     return NextResponse.json({ error: 'Solde insuffisant' })
+     return NextResponse.json({ error: 'Solde insuffisant' });
    }
    ```
 
@@ -516,9 +512,9 @@ if (!session || session.user.role !== 'ELEVE') {
      where: {
        coachId,
        scheduledAt: { gte: startTime, lt: endTime },
-       status: { not: 'CANCELLED' }
-     }
-   })
+       status: { not: 'CANCELLED' },
+     },
+   });
    ```
 
 4. **Transaction atomique :**
@@ -547,8 +543,8 @@ if (!session || session.user.role !== 'ELEVE') {
 1. **Vérification délais :**
 
    ```typescript
-   const hoursUntilSession = differenceInHours(session.scheduledAt, new Date())
-   const canCancel = hoursUntilSession >= 24 // ou 48h selon règle
+   const hoursUntilSession = differenceInHours(session.scheduledAt, new Date());
+   const canCancel = hoursUntilSession >= 24; // ou 48h selon règle
    ```
 
 2. **Remboursement conditionnel :**
@@ -557,8 +553,8 @@ if (!session || session.user.role !== 'ELEVE') {
    if (canCancel) {
      await prisma.creditTransaction.create({
        type: 'REFUND',
-       amount: session.creditCost
-     })
+       amount: session.creditCost,
+     });
    }
    ```
 
@@ -578,11 +574,11 @@ if (!session || session.user.role !== 'ELEVE') {
 
    ```typescript
    const activeSubscription = await prisma.subscription.findFirst({
-     where: { studentId, status: 'ACTIVE' }
-   })
-   const ariaSubjects = JSON.parse(activeSubscription.ariaSubjects)
+     where: { studentId, status: 'ACTIVE' },
+   });
+   const ariaSubjects = JSON.parse(activeSubscription.ariaSubjects);
    if (!ariaSubjects.includes(requestedSubject)) {
-     return NextResponse.json({ error: 'Accès non autorisé à cette matière' })
+     return NextResponse.json({ error: 'Accès non autorisé à cette matière' });
    }
    ```
 
@@ -592,18 +588,18 @@ if (!session || session.user.role !== 'ELEVE') {
    const relevantContent = await prisma.pedagogicalContent.findMany({
      where: {
        subject: requestedSubject,
-       grade: student.grade
+       grade: student.grade,
      },
-     take: 5
-   })
+     take: 5,
+   });
    ```
 
 4. **Construction prompt :**
 
    ```typescript
    const systemPrompt = `Tu es ARIA, l'assistant IA de Nexus Réussite spécialisé en ${subject}.
-   Contexte pédagogique : ${relevantContent.map(c => c.content).join('\n')}
-   Niveau élève : ${student.grade}`
+   Contexte pédagogique : ${relevantContent.map((c) => c.content).join('\n')}
+   Niveau élève : ${student.grade}`;
    ```
 
 5. **Appel OpenAI :**
@@ -613,9 +609,9 @@ if (!session || session.user.role !== 'ELEVE') {
      model: 'gpt-4o-mini',
      messages: [
        { role: 'system', content: systemPrompt },
-       { role: 'user', content: userMessage }
-     ]
-   })
+       { role: 'user', content: userMessage },
+     ],
+   });
    ```
 
 6. **Sauvegarde conversation :**
@@ -628,11 +624,11 @@ if (!session || session.user.role !== 'ELEVE') {
        messages: {
          create: [
            { role: 'user', content: userMessage },
-           { role: 'assistant', content: aiResponse }
-         ]
-       }
-     }
-   })
+           { role: 'assistant', content: aiResponse },
+         ],
+       },
+     },
+   });
    ```
 
 #### API de Feedback
@@ -644,8 +640,8 @@ if (!session || session.user.role !== 'ELEVE') {
 ```typescript
 await prisma.ariaMessage.update({
   where: { id: messageId },
-  data: { feedback: isPositive } // true = 👍, false = 👎
-})
+  data: { feedback: isPositive }, // true = 👍, false = 👎
+});
 ```
 
 ### 3.6. Visioconférence (Jitsi)
@@ -654,36 +650,36 @@ await prisma.ariaMessage.update({
 
 ```typescript
 // Dans /api/sessions/book
-const roomName = `nexus-${sessionId}-${Date.now()}`
-const jitsiUrl = `https://${process.env.JITSI_DOMAIN}/${roomName}`
+const roomName = `nexus-${sessionId}-${Date.now()}`;
+const jitsiUrl = `https://${process.env.JITSI_DOMAIN}/${roomName}`;
 
 await prisma.session.update({
   where: { id: sessionId },
-  data: { location: jitsiUrl }
-})
+  data: { location: jitsiUrl },
+});
 ```
 
 **Intégration frontend :**
 
 ```typescript
 // Redirection ou iframe vers session.location
-window.open(session.location, '_blank')
+window.open(session.location, '_blank');
 ```
 
 ### 3.7. Emails Transactionnels
 
 **Liste complète des emails automatiques :**
 
-| Email | Déclencheur | Destinataire | API Route |
-|-------|-------------|--------------|-----------|
-| **Bienvenue Parent** | POST /api/bilan-gratuit | Parent | `sendWelcomeParentEmail()` |
-| **Confirmation Réservation** | POST /api/sessions/book | Élève + Coach | `sendBookingConfirmationEmail()` |
-| **Rappel Cours 24h** | Cron quotidien | Élève + Coach | `sendSessionReminderEmail()` |
-| **Annulation Session** | POST /api/sessions/cancel | Élève + Coach | `sendCancellationEmail()` |
-| **Paiement Confirmé** | Webhook Konnect/Wise | Parent | `sendPaymentConfirmationEmail()` |
-| **Abonnement Activé** | POST /api/subscriptions/change | Parent | `sendSubscriptionConfirmationEmail()` |
-| **Crédits Expirés** | Cron mensuel | Parent | `sendCreditExpirationEmail()` |
-| **Rapport Mensuel** | Cron mensuel | Parent | `sendMonthlyReportEmail()` |
+| Email                        | Déclencheur                    | Destinataire  | API Route                             |
+| ---------------------------- | ------------------------------ | ------------- | ------------------------------------- |
+| **Bienvenue Parent**         | POST /api/bilan-gratuit        | Parent        | `sendWelcomeParentEmail()`            |
+| **Confirmation Réservation** | POST /api/sessions/book        | Élève + Coach | `sendBookingConfirmationEmail()`      |
+| **Rappel Cours 24h**         | Cron quotidien                 | Élève + Coach | `sendSessionReminderEmail()`          |
+| **Annulation Session**       | POST /api/sessions/cancel      | Élève + Coach | `sendCancellationEmail()`             |
+| **Paiement Confirmé**        | Webhook Konnect/Wise           | Parent        | `sendPaymentConfirmationEmail()`      |
+| **Abonnement Activé**        | POST /api/subscriptions/change | Parent        | `sendSubscriptionConfirmationEmail()` |
+| **Crédits Expirés**          | Cron mensuel                   | Parent        | `sendCreditExpirationEmail()`         |
+| **Rapport Mensuel**          | Cron mensuel                   | Parent        | `sendMonthlyReportEmail()`            |
 
 **Configuration SMTP :** `lib/email.ts` avec nodemailer
 
@@ -850,15 +846,15 @@ const admin = await prisma.user.create({
     password: await bcrypt.hash('AdminSecure2025!', 12),
     role: 'ADMIN',
     firstName: 'Super',
-    lastName: 'Admin'
-  }
-})
+    lastName: 'Admin',
+  },
+});
 
 // Créer profils coaches initiaux (Hélios, Zénon, etc.)
 const coaches = [
   { pseudonym: 'Hélios', subjects: ['MATHEMATIQUES', 'NSI'] },
-  { pseudonym: 'Zénon', subjects: ['PHILOSOPHIE', 'FRANCAIS'] }
-]
+  { pseudonym: 'Zénon', subjects: ['PHILOSOPHIE', 'FRANCAIS'] },
+];
 // ... création des profils
 ```
 
@@ -908,7 +904,7 @@ docker compose up --build -d
 
 **6. Service Docker Compose (remplace systemd) :**
 
-```yaml
+````yaml
 # docker-compose.yml avec restart: always
 services:
   app:
@@ -923,7 +919,7 @@ services:
 # Ajouter à crontab
 0 2 * * * cd /var/www/nexus-reussite && npm run cron:daily
 0 0 1 * * cd /var/www/nexus-reussite && npm run cron:monthly
-```
+````
 
 #### Commandes de Maintenance
 

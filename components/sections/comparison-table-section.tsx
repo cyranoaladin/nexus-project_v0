@@ -1,45 +1,45 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Check, X } from 'lucide-react';
 
 export function ComparisonTableSection() {
   const comparisonData = [
     {
-      criteria: "Profil des Enseignants",
-      standard: "Souvent des \"répétiteurs\" non certifiés.",
-      nexus: "Agrégés & Certifiés de l'Éducation Nationale Française."
+      criteria: 'Profil des Enseignants',
+      standard: 'Souvent des "répétiteurs" non certifiés.',
+      nexus: "Agrégés & Certifiés de l'Éducation Nationale Française.",
     },
     {
-      criteria: "Connaissance du Programme",
-      standard: "Maîtrise approximative des attentes.",
-      nexus: "Expérience avérée dans le réseau AEFE."
+      criteria: 'Connaissance du Programme',
+      standard: 'Maîtrise approximative des attentes.',
+      nexus: 'Expérience avérée dans le réseau AEFE.',
     },
     {
-      criteria: "Expertise NSI",
-      standard: "Pas de qualification spécifique requise.",
-      nexus: "Titulaires du DIU NSI (diplôme officiel)."
+      criteria: 'Expertise NSI',
+      standard: 'Pas de qualification spécifique requise.',
+      nexus: 'Titulaires du DIU NSI (diplôme officiel).',
     },
     {
-      criteria: "Approche Pédagogique",
-      standard: "Du bachotage répétitif.",
-      nexus: "Pédagogie individualisée qui développe l'autonomie."
+      criteria: 'Approche Pédagogique',
+      standard: 'Du bachotage répétitif.',
+      nexus: "Pédagogie individualisée qui développe l'autonomie.",
     },
     {
-      criteria: "Aide 24/7",
-      standard: "Inexistante.",
-      nexus: "Plateforme intelligente & IA ARIA."
+      criteria: 'Aide 24/7',
+      standard: 'Inexistante.',
+      nexus: 'Plateforme intelligente & IA ARIA.',
     },
     {
       criteria: "Préparation à l'Orientation",
-      standard: "Service séparé, si proposé.",
-      nexus: "Intégrée à notre écosystème \"tout-en-un\"."
+      standard: 'Service séparé, si proposé.',
+      nexus: 'Intégrée à notre écosystème "tout-en-un".',
     },
     {
-      criteria: "Garantie de Réussite",
-      standard: "Aucune.",
-      nexus: "Garantie \"Bac Obtenu ou Remboursé\"."
-    }
+      criteria: 'Garantie de Réussite',
+      standard: 'Aucune.',
+      nexus: 'Garantie "Bac Obtenu ou Remboursé".',
+    },
   ];
 
   return (
@@ -95,9 +95,7 @@ export function ComparisonTableSection() {
                       viewport={{ once: true }}
                       className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="py-6 px-6 font-semibold text-gray-900">
-                        {row.criteria}
-                      </td>
+                      <td className="py-6 px-6 font-semibold text-gray-900">{row.criteria}</td>
                       <td className="py-6 px-6 text-center">
                         <div className="flex items-center justify-center space-x-3">
                           <X className="w-5 h-5 text-red-500" />
@@ -126,11 +124,10 @@ export function ComparisonTableSection() {
             className="mt-12 text-center"
           >
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">
-                Prêt à Découvrir la Différence ?
-              </h3>
+              <h3 className="text-2xl font-bold mb-4">Prêt à Découvrir la Différence ?</h3>
               <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-                Rejoignez les familles qui ont fait le choix de l'excellence et transformé le parcours scolaire de leur enfant.
+                Rejoignez les familles qui ont fait le choix de l'excellence et transformé le
+                parcours scolaire de leur enfant.
               </p>
               <a
                 href="/offres"

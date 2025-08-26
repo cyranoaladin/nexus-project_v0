@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Clock, Mail, Phone, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { motion } from 'framer-motion';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, Clock, Mail, Phone, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ConfirmationPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <motion.div
@@ -24,7 +24,7 @@ export default function ConfirmationPage() {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-8"
             >
               <CheckCircle className="w-10 h-10 text-green-600" />
@@ -46,8 +46,8 @@ export default function ConfirmationPage() {
               transition={{ delay: 0.4 }}
               className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto"
             >
-              Votre demande de bilan stratégique gratuit a été enregistrée avec succès. 
-              Notre équipe va analyser votre profil et vous contacter très prochainement.
+              Votre demande de bilan stratégique gratuit a été enregistrée avec succès. Notre équipe
+              va analyser votre profil et vous contacter très prochainement.
             </motion.p>
 
             {/* Étapes suivantes */}
@@ -104,12 +104,10 @@ export default function ConfirmationPage() {
               <div className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-blue-600 mt-1" />
                 <div className="text-left">
-                  <h3 className="font-semibold text-blue-900 mb-2">
-                    Vérifiez votre boîte email
-                  </h3>
+                  <h3 className="font-semibold text-blue-900 mb-2">Vérifiez votre boîte email</h3>
                   <p className="text-blue-800 text-sm">
-                    Un email de confirmation a été envoyé avec vos identifiants de connexion. 
-                    Si vous ne le trouvez pas, pensez à vérifier vos spams.
+                    Un email de confirmation a été envoyé avec vos identifiants de connexion. Si
+                    vous ne le trouvez pas, pensez à vérifier vos spams.
                   </p>
                 </div>
               </div>
@@ -128,11 +126,9 @@ export default function ConfirmationPage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  Nous Contacter
-                </Link>
+                <Link href="/contact">Nous Contacter</Link>
               </Button>
             </motion.div>
 
@@ -147,9 +143,12 @@ export default function ConfirmationPage() {
                 Une question urgente ? Contactez-nous directement au{' '}
                 <a href="tel:+21612345678" className="text-primary-500 font-medium hover:underline">
                   +216 12 345 678
-                </a>
-                {' '}ou par email à{' '}
-                <a href="mailto:contact@nexus-reussite.tn" className="text-primary-500 font-medium hover:underline">
+                </a>{' '}
+                ou par email à{' '}
+                <a
+                  href="mailto:contact@nexus-reussite.tn"
+                  className="text-primary-500 font-medium hover:underline"
+                >
                   contact@nexus-reussite.tn
                 </a>
               </p>
@@ -160,5 +159,5 @@ export default function ConfirmationPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

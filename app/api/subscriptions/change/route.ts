@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 const changeSubscriptionSchema = z.object({
   studentId: z.string(),
-  newPlan: z.string()
+  newPlan: z.string(),
 });
 
 export async function POST(request: NextRequest) {
@@ -15,10 +15,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -26,10 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Vérifier que le plan existe
     if (!SUBSCRIPTION_PLANS[newPlan as keyof typeof SUBSCRIPTION_PLANS]) {
-      return NextResponse.json(
-        { error: 'Plan d\'abonnement invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Plan d'abonnement invalide" }, { status: 400 });
     }
 
     // Vérifier que l'élève appartient au parent connecté
@@ -37,23 +31,20 @@ export async function POST(request: NextRequest) {
       where: {
         id: studentId,
         parent: {
-          userId: session.user.id
-        }
+          userId: session.user.id,
+        },
       },
       include: {
         subscriptions: {
           where: { status: 'ACTIVE' },
           orderBy: { createdAt: 'desc' },
-          take: 1
-        }
-      }
+          take: 1,
+        },
+      },
     });
 
     if (!student) {
-      return NextResponse.json(
-        { error: 'Élève non trouvé ou non autorisé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Élève non trouvé ou non autorisé' }, { status: 404 });
     }
 
     const planData = SUBSCRIPTION_PLANS[newPlan as keyof typeof SUBSCRIPTION_PLANS];
@@ -69,15 +60,17 @@ export async function POST(request: NextRequest) {
           creditsPerMonth: planData.credits,
           status: 'INACTIVE',
           startDate: new Date(),
-          ariaSubjects: JSON.stringify(['MATHEMATIQUES'])
-        }
+          ariaSubjects: JSON.stringify(['MATHEMATIQUES']),
+        },
       });
       // Eligibilité garantie: plans annuels
-      const isAnnual = /ANNUEL/i.test(newPlan) || ['IMMERSION_ANNUEL', 'HYBRIDE_ANNUEL', 'PREMIUM_ANNUEL'].includes(newPlan);
+      const isAnnual =
+        /ANNUEL/i.test(newPlan) ||
+        ['IMMERSION_ANNUEL', 'HYBRIDE_ANNUEL', 'PREMIUM_ANNUEL'].includes(newPlan);
       if (isAnnual) {
         await tx.student.update({
           where: { id: student.id },
-          data: { guaranteeEligible: true }
+          data: { guaranteeEligible: true },
         });
       }
       return created;
@@ -86,15 +79,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       subscriptionId: pendingSubscription.id,
-      message: 'Demande de changement créée, procédez au paiement'
+      message: 'Demande de changement créée, procédez au paiement',
     });
-
   } catch (error) {
     console.error('Erreur changement abonnement:', error);
 
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

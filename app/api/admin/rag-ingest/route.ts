@@ -1,22 +1,24 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { UserRole, Subject } from "@prisma/client";
-import OpenAI from "openai";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { UserRole, Subject } from '@prisma/client';
+import OpenAI from 'openai';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-const EmbeddingModel = "text-embedding-3-small" as const;
+const EmbeddingModel = 'text-embedding-3-small' as const;
 
 // Accepts French front-matter keys and maps them to Prisma fields
 const ingestSchema = z.object({
-  contenu: z.string().min(1, "Le contenu est obligatoire"),
-  metadata: z.object({
-    titre: z.string().min(1, "Le titre est obligatoire").catch(""),
-    matiere: z.nativeEnum(Subject).or(z.string()).optional(),
-    niveau: z.string().optional(),
-    mots_cles: z.array(z.string()).optional(),
-  }).passthrough(),
+  contenu: z.string().min(1, 'Le contenu est obligatoire'),
+  metadata: z
+    .object({
+      titre: z.string().min(1, 'Le titre est obligatoire').catch(''),
+      matiere: z.nativeEnum(Subject).or(z.string()).optional(),
+      niveau: z.string().optional(),
+      mots_cles: z.array(z.string()).optional(),
+    })
+    .passthrough(),
 });
 
 function normalizeMetadata(meta: any): {
@@ -25,14 +27,14 @@ function normalizeMetadata(meta: any): {
   grade: string | null;
   tags: string[];
 } {
-  const title = (meta.titre ?? meta.title ?? "").toString();
+  const title = (meta.titre ?? meta.title ?? '').toString();
   const grade = meta.niveau ? String(meta.niveau) : null;
 
   // Try to map matiere (French) to Subject enum if provided as string
   let subjectEnum: Subject = Subject.MATHEMATIQUES;
   const rawSubject = (meta.matiere ?? meta.subject)?.toString();
   if (rawSubject) {
-    const candidate = rawSubject.toUpperCase().replace(/\s|-/g, "_");
+    const candidate = rawSubject.toUpperCase().replace(/\s|-/g, '_');
     if (candidate in Subject) {
       subjectEnum = (Subject as any)[candidate] as Subject;
     }
@@ -56,19 +58,28 @@ export async function POST(req: Request) {
     const rlConf = getRateLimitConfig('RAG_INGEST', { windowMs: 60_000, max: 5 });
     const rl = await rateLimit(rlConf)(`rag_ingest:${ip}`);
     if (!rl.ok) {
-      return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Trop de requêtes, réessayez plus tard.' },
+        { status: 429 }
+      );
     }
 
     const session = await getServerSession(authOptions);
     const role = session?.user?.role as UserRole | undefined;
-if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)) {
-      return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
+    if (
+      !role ||
+      !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)
+    ) {
+      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
     }
 
     const body = await req.json();
     const parsed = ingestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Requête invalide", details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Requête invalide', details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
 
     const { contenu, metadata } = parsed.data;
@@ -76,14 +87,20 @@ if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole
 
     // Generate embedding via OpenAI, with safe fallbacks for dev
     const apiKey = process.env.OPENAI_API_KEY;
-    const enableEmbeddingsEnv = (process.env.ENABLE_EMBEDDINGS || '').toString().trim().toLowerCase();
+    const enableEmbeddingsEnv = (process.env.ENABLE_EMBEDDINGS || '')
+      .toString()
+      .trim()
+      .toLowerCase();
     const embeddingsEnabled = enableEmbeddingsEnv === '1' || enableEmbeddingsEnv === 'true';
     const looksLikeDummy = !apiKey || /^(dummy|test|fake|dev)-/i.test(apiKey);
 
     let vector: number[] | undefined;
     if (embeddingsEnabled) {
       if (looksLikeDummy) {
-        return NextResponse.json({ error: 'OPENAI_API_KEY invalide/absente alors que ENABLE_EMBEDDINGS=1.' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'OPENAI_API_KEY invalide/absente alors que ENABLE_EMBEDDINGS=1.' },
+          { status: 400 }
+        );
       }
       try {
         const openai = new OpenAI({ apiKey: apiKey as string });
@@ -94,7 +111,10 @@ if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole
         vector = embRes.data?.[0]?.embedding as unknown as number[] | undefined;
       } catch (e: any) {
         console.error('[RAG_INGEST_EMBEDDINGS_ERROR]', e?.message || e);
-        return NextResponse.json({ error: "Échec d'appel embeddings OpenAI (mode strict)." }, { status: 502 });
+        return NextResponse.json(
+          { error: "Échec d'appel embeddings OpenAI (mode strict)." },
+          { status: 502 }
+        );
       }
     } else {
       // Fallback DEV uniquement si embeddings désactivés
@@ -110,7 +130,7 @@ if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole
     // Persist in DB. In schema, embedding and tags are strings (JSON-encoded)
     const created = await prisma.pedagogicalContent.create({
       data: {
-        title: title || "Sans titre",
+        title: title || 'Sans titre',
         content: contenu,
         subject,
         grade: grade ?? undefined,
@@ -121,7 +141,7 @@ if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole
 
     return NextResponse.json({ id: created.id }, { status: 201 });
   } catch (error) {
-    console.error("[RAG_INGEST_POST_ERROR]", error);
-    return NextResponse.json({ error: "Erreur interne du serveur" }, { status: 500 });
+    console.error('[RAG_INGEST_POST_ERROR]', error);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

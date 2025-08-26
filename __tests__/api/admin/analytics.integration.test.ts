@@ -13,7 +13,7 @@ describe('Admin Analytics API', () => {
     const { getServerSession } = require('next-auth');
     getServerSession.mockResolvedValueOnce(null);
     const req = new NextRequest('http://localhost/api/admin/analytics');
-const { GET } = require('@/app/api/admin/analytics/route');
+    const { GET } = require('@/app/api/admin/analytics/route');
     const res = await GET(req as any);
     expect(res.status).toBe(401);
   });
@@ -44,7 +44,7 @@ const { GET } = require('@/app/api/admin/analytics/route');
     (prisma.session.findMany as jest.Mock).mockResolvedValue([]);
 
     const req = new NextRequest('http://localhost/api/admin/analytics?period=month&type=all');
-const { GET } = require('@/app/api/admin/analytics/route');
+    const { GET } = require('@/app/api/admin/analytics/route');
     const res = await GET(req as any);
     expect(res.status).toBe(200);
     const json = await res.json();

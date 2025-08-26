@@ -9,7 +9,11 @@ export const BookingRequestSchema = z.object({
   scheduledDate: zISODate,
   startTime: zTimeHHMM,
   endTime: zTimeHHMM.optional(),
-  duration: z.number().int().positive().max(11 * 60), // <= 11h safety
+  duration: z
+    .number()
+    .int()
+    .positive()
+    .max(11 * 60), // <= 11h safety
   type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
   modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
   title: z.string().min(1),
@@ -17,12 +21,13 @@ export const BookingRequestSchema = z.object({
   creditsToUse: z.number().int().positive(),
 });
 
-export const BookingResponseSchema = z.object({
-  success: z.literal(true),
-  sessionId: z.string().min(1),
-  bookingId: z.string().min(1).optional(),
-}).or(z.object({ success: z.literal(false).optional(), error: z.string() }));
+export const BookingResponseSchema = z
+  .object({
+    success: z.literal(true),
+    sessionId: z.string().min(1),
+    bookingId: z.string().min(1).optional(),
+  })
+  .or(z.object({ success: z.literal(false).optional(), error: z.string() }));
 
 export type BookingRequest = z.infer<typeof BookingRequestSchema>;
 export type BookingResponse = z.infer<typeof BookingResponseSchema>;
-

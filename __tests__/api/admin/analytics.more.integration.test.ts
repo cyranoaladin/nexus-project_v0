@@ -25,11 +25,17 @@ describe('API /api/admin/analytics additional branches', () => {
 
   it('handles period=quarter and year and default gracefully', async () => {
     const { GET } = require('@/app/api/admin/analytics/route');
-    const resQuarter = await GET(new NextRequest('http://localhost/api/admin/analytics?period=quarter&type=all'));
+    const resQuarter = await GET(
+      new NextRequest('http://localhost/api/admin/analytics?period=quarter&type=all')
+    );
     expect(resQuarter.status).toBe(200);
-    const resYear = await GET(new NextRequest('http://localhost/api/admin/analytics?period=year&type=all'));
+    const resYear = await GET(
+      new NextRequest('http://localhost/api/admin/analytics?period=year&type=all')
+    );
     expect(resYear.status).toBe(200);
-    const resInvalid = await GET(new NextRequest('http://localhost/api/admin/analytics?period=invalid&type=all'));
+    const resInvalid = await GET(
+      new NextRequest('http://localhost/api/admin/analytics?period=invalid&type=all')
+    );
     expect(resInvalid.status).toBe(200);
   });
 

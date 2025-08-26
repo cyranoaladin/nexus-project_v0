@@ -2,15 +2,15 @@ name: CI/CD
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
   push:
-    branches: [ "main" ]
+    branches: ['main']
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 env:
-  NODE_VERSION: "20"
-  PY_VERSION: "3.11"
+  NODE_VERSION: '20'
+  PY_VERSION: '3.11'
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
   IMAGE_PREFIX: nexus
 

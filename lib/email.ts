@@ -8,7 +8,7 @@ const createTransporter = () => {
       host: 'localhost',
       port: 1025,
       secure: false,
-      ignoreTLS: true
+      ignoreTLS: true,
     });
   }
 
@@ -18,8 +18,8 @@ const createTransporter = () => {
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
+      pass: process.env.SMTP_PASSWORD,
+    },
   });
 };
 
@@ -56,14 +56,18 @@ export async function sendWelcomeParentEmail(
             </ol>
           </div>
 
-          ${tempPassword ? `
+          ${
+            tempPassword
+              ? `
           <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3>🔐 Vos identifiants de connexion :</h3>
             <p><strong>Email :</strong> ${parentEmail}</p>
             <p><strong>Mot de passe temporaire :</strong> ${tempPassword}</p>
             <p><em>Vous pourrez modifier ce mot de passe lors de votre première connexion.</em></p>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL}"
@@ -81,7 +85,7 @@ export async function sendWelcomeParentEmail(
           <p>À très bientôt,<br><strong>L'équipe Nexus Réussite</strong></p>
         </div>
       </div>
-    `
+    `,
   };
 
   try {
@@ -141,7 +145,7 @@ export async function sendCreditExpirationReminder(
           <p>Cordialement,<br><strong>L'équipe Nexus Réussite</strong></p>
         </div>
       </div>
-    `
+    `,
   };
 
   try {

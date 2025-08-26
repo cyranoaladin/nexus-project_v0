@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { prisma } from './prisma';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Système de prompt pour ARIA
@@ -40,13 +40,10 @@ async function searchKnowledgeBase(query: string, subject: Subject, limit: numbe
 
   const contents = await prisma.pedagogicalContent.findMany({
     where: {
-      OR: [
-        { title: { contains: query } },
-        { content: { contains: query } }
-      ]
+      OR: [{ title: { contains: query } }, { content: { contains: query } }],
     },
     take: limit,
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
   });
 
   return contents;
@@ -57,7 +54,7 @@ export async function generateAriaResponse(
   studentId: string,
   subject: Subject,
   message: string,
-  conversationHistory: Array<{ role: string; content: string; }> = []
+  conversationHistory: Array<{ role: string; content: string }> = []
 ): Promise<string> {
   try {
     // Recherche dans la base de connaissances
@@ -76,16 +73,16 @@ export async function generateAriaResponse(
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: 'system',
-        content: ARIA_SYSTEM_PROMPT + context
+        content: ARIA_SYSTEM_PROMPT + context,
       },
-      ...conversationHistory.map(msg => ({
+      ...conversationHistory.map((msg) => ({
         role: msg.role as 'user' | 'assistant',
-        content: msg.content
+        content: msg.content,
       })),
       {
         role: 'user',
-        content: `Matière : ${subject}\n\nQuestion : ${message}`
-      }
+        content: `Matière : ${subject}\n\nQuestion : ${message}`,
+      },
     ];
 
     // Appel à OpenAI
@@ -93,11 +90,10 @@ export async function generateAriaResponse(
       model: 'gpt-3.5-turbo',
       messages,
       max_tokens: 1000,
-      temperature: 0.7
+      temperature: 0.7,
     });
 
-    return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
-
+    return completion.choices[0]?.message?.content || "Désolé, je n'ai pas pu générer une réponse.";
   } catch (error) {
     console.error('Erreur ARIA:', error);
     // Si c'est une erreur de permission, on la relance pour que l'API renvoie un statut d'erreur
@@ -120,7 +116,7 @@ export async function saveAriaConversation(
 
   if (conversationId) {
     conversation = await prisma.ariaConversation.findUnique({
-      where: { id: conversationId }
+      where: { id: conversationId },
     });
   }
 
@@ -128,8 +124,8 @@ export async function saveAriaConversation(
     conversation = await prisma.ariaConversation.create({
       data: {
         studentId,
-        subject
-      }
+        subject,
+      },
     });
   }
 
@@ -138,8 +134,8 @@ export async function saveAriaConversation(
     data: {
       conversationId: conversation.id,
       role: 'user',
-      content: userMessage
-    }
+      content: userMessage,
+    },
   });
 
   // Sauvegarde de la réponse ARIA
@@ -147,8 +143,8 @@ export async function saveAriaConversation(
     data: {
       conversationId: conversation.id,
       role: 'assistant',
-      content: ariaResponse
-    }
+      content: ariaResponse,
+    },
   });
 
   return { conversation, ariaMessage };
@@ -158,6 +154,6 @@ export async function saveAriaConversation(
 export async function recordAriaFeedback(messageId: string, feedback: boolean) {
   return await prisma.ariaMessage.update({
     where: { id: messageId },
-    data: { feedback }
+    data: { feedback },
   });
 }

@@ -1,11 +1,11 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { Header } from "@/components/layout/header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Clock, Mail, ArrowRight, Home } from "lucide-react"
-import Link from "next/link"
+import { motion } from 'framer-motion';
+import { Header } from '@/components/layout/header';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, Clock, Mail, ArrowRight, Home } from 'lucide-react';
+import Link from 'next/link';
 
 export default function PaymentConfirmationPage() {
   return (
@@ -21,7 +21,7 @@ export default function PaymentConfirmationPage() {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-8"
             >
               <CheckCircle className="w-10 h-10 text-green-600" />
@@ -43,8 +43,8 @@ export default function PaymentConfirmationPage() {
               transition={{ delay: 0.4 }}
               className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto"
             >
-              Votre demande de paiement a été enregistrée avec succès. 
-              Notre équipe va valider votre virement et activer votre service très prochainement.
+              Votre demande de paiement a été enregistrée avec succès. Notre équipe va valider votre
+              virement et activer votre service très prochainement.
             </motion.p>
 
             {/* Étapes de validation */}
@@ -115,11 +115,9 @@ export default function PaymentConfirmationPage() {
                   Retour au Dashboard
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  Une Question ?
-                </Link>
+                <Link href="/contact">Une Question ?</Link>
               </Button>
             </motion.div>
 
@@ -134,9 +132,12 @@ export default function PaymentConfirmationPage() {
                 Une question sur votre paiement ? Contactez-nous au{' '}
                 <a href="tel:+21612345678" className="text-blue-600 font-medium hover:underline">
                   +216 12 345 678
-                </a>
-                {' '}ou par email à{' '}
-                <a href="mailto:contact@nexus-reussite.tn" className="text-blue-600 font-medium hover:underline">
+                </a>{' '}
+                ou par email à{' '}
+                <a
+                  href="mailto:contact@nexus-reussite.tn"
+                  className="text-blue-600 font-medium hover:underline"
+                >
                   contact@nexus-reussite.tn
                 </a>
               </p>
@@ -145,5 +146,5 @@ export default function PaymentConfirmationPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

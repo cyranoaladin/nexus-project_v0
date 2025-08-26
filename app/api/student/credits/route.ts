@@ -10,10 +10,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ELEVE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const studentId = session.user.id;
@@ -23,17 +20,14 @@ export async function GET(request: NextRequest) {
       include: {
         creditTransactions: {
           orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      }
+            createdAt: 'desc',
+          },
+        },
+      },
     });
 
     if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
     // Calculate current balance
@@ -48,19 +42,15 @@ export async function GET(request: NextRequest) {
       description: transaction.description,
       sessionId: transaction.sessionId,
       expiresAt: transaction.expiresAt,
-      createdAt: transaction.createdAt
+      createdAt: transaction.createdAt,
     }));
 
     return NextResponse.json({
       balance,
-      transactions: formattedTransactions
+      transactions: formattedTransactions,
     });
-
   } catch (error) {
     console.error('Error fetching student credits:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

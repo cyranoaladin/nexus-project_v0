@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import RagDocumentList, { Document } from "@/components/admin/RagDocumentList";
-import RagUploader from "@/components/admin/RagUploader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import RagDocumentList, { Document } from '@/components/admin/RagDocumentList';
+import RagUploader from '@/components/admin/RagUploader';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 
 export default function RagManagementPage() {
   const isE2E = process.env.NEXT_PUBLIC_E2E === '1';
@@ -35,7 +35,8 @@ export default function RagManagementPage() {
           <CardHeader>
             <CardTitle>Ingestion de Documents</CardTitle>
             <CardDescription>
-              Téléversez un fichier Markdown (.md) contenant des métadonnées YAML pour l'ajouter à la mémoire du RAG.
+              Téléversez un fichier Markdown (.md) contenant des métadonnées YAML pour l'ajouter à
+              la mémoire du RAG.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -52,7 +53,8 @@ export default function RagManagementPage() {
         <CardHeader>
           <CardTitle>Ingestion de Documents</CardTitle>
           <CardDescription>
-            Téléversez un fichier Markdown (.md) contenant des métadonnées YAML pour l'ajouter à la mémoire du RAG.
+            Téléversez un fichier Markdown (.md) contenant des métadonnées YAML pour l'ajouter à la
+            mémoire du RAG.
           </CardDescription>
         </CardHeader>
         <CardContent>

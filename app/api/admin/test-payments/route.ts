@@ -16,27 +16,27 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'test_connection':
         // Tester la connexion à l'API Konnect
-        const apiUrl = testMode ?
-          'https://api.preprod.konnect.network' :
-          'https://api.konnect.network';
+        const apiUrl = testMode
+          ? 'https://api.preprod.konnect.network'
+          : 'https://api.konnect.network';
 
         try {
           const response = await fetch(`${apiUrl}/api/v2/payments/init-payment`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': process.env.KONNECT_API_KEY || ''
+              'x-api-key': process.env.KONNECT_API_KEY || '',
             },
             body: JSON.stringify({
               receiverWalletId: process.env.KONNECT_WALLET_ID,
               amount: 100, // Test avec 100 millimes
-              token: "TND",
-              description: "Test de connexion API",
-              acceptedPaymentMethods: ["wallet", "bank_card"],
+              token: 'TND',
+              description: 'Test de connexion API',
+              acceptedPaymentMethods: ['wallet', 'bank_card'],
               successUrl: `${process.env.NEXTAUTH_URL}/payment/success`,
               failUrl: `${process.env.NEXTAUTH_URL}/payment/failed`,
-              theme: "light"
-            })
+              theme: 'light',
+            }),
           });
 
           if (response.ok) {
@@ -45,53 +45,56 @@ export async function POST(request: NextRequest) {
               success: true,
               message: 'Connexion API Konnect réussie',
               paymentRef: data.paymentRef,
-              paymentUrl: data.paymentUrl
+              paymentUrl: data.paymentUrl,
             });
           } else {
             const errorData = await response.text();
             return NextResponse.json({
               success: false,
-              error: `Erreur API Konnect: ${response.status} - ${errorData}`
+              error: `Erreur API Konnect: ${response.status} - ${errorData}`,
             });
           }
         } catch (error: any) {
           return NextResponse.json({
             success: false,
-            error: `Erreur de connexion: ${error.message}`
+            error: `Erreur de connexion: ${error.message}`,
           });
         }
 
       case 'create_test_payment':
         // Créer un paiement de test
         if (!amount || amount < 100) {
-          return NextResponse.json({
-            success: false,
-            error: 'Montant minimum: 100 millimes (0.1 TND)'
-          }, { status: 400 });
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Montant minimum: 100 millimes (0.1 TND)',
+            },
+            { status: 400 }
+          );
         }
 
-        const paymentApiUrl = testMode ?
-          'https://api.preprod.konnect.network' :
-          'https://api.konnect.network';
+        const paymentApiUrl = testMode
+          ? 'https://api.preprod.konnect.network'
+          : 'https://api.konnect.network';
 
         try {
           const paymentResponse = await fetch(`${paymentApiUrl}/api/v2/payments/init-payment`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': process.env.KONNECT_API_KEY || ''
+              'x-api-key': process.env.KONNECT_API_KEY || '',
             },
             body: JSON.stringify({
               receiverWalletId: process.env.KONNECT_WALLET_ID,
               amount: amount,
-              token: "TND",
+              token: 'TND',
               description: `Test paiement - ${amount} millimes`,
-              acceptedPaymentMethods: ["wallet", "bank_card"],
+              acceptedPaymentMethods: ['wallet', 'bank_card'],
               successUrl: `${process.env.NEXTAUTH_URL}/payment/success?test=true`,
               failUrl: `${process.env.NEXTAUTH_URL}/payment/failed?test=true`,
-              theme: "light",
-              orderId: `TEST_${Date.now()}`
-            })
+              theme: 'light',
+              orderId: `TEST_${Date.now()}`,
+            }),
           });
 
           if (paymentResponse.ok) {
@@ -104,20 +107,20 @@ export async function POST(request: NextRequest) {
                 url: paymentData.paymentUrl,
                 amount: amount,
                 currency: 'TND',
-                mode: testMode ? 'TEST' : 'PRODUCTION'
-              }
+                mode: testMode ? 'TEST' : 'PRODUCTION',
+              },
             });
           } else {
             const errorData = await paymentResponse.text();
             return NextResponse.json({
               success: false,
-              error: `Erreur création paiement: ${paymentResponse.status} - ${errorData}`
+              error: `Erreur création paiement: ${paymentResponse.status} - ${errorData}`,
             });
           }
         } catch (error: any) {
           return NextResponse.json({
             success: false,
-            error: `Erreur paiement: ${error.message}`
+            error: `Erreur paiement: ${error.message}`,
           });
         }
 
@@ -125,55 +128,57 @@ export async function POST(request: NextRequest) {
         // Vérifier le statut d'un paiement
         const { paymentRef } = body;
         if (!paymentRef) {
-          return NextResponse.json({
-            success: false,
-            error: 'Référence de paiement requise'
-          }, { status: 400 });
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Référence de paiement requise',
+            },
+            { status: 400 }
+          );
         }
 
-        const statusApiUrl = testMode ?
-          'https://api.preprod.konnect.network' :
-          'https://api.konnect.network';
+        const statusApiUrl = testMode
+          ? 'https://api.preprod.konnect.network'
+          : 'https://api.konnect.network';
 
         try {
           const statusResponse = await fetch(`${statusApiUrl}/api/v2/payments/${paymentRef}`, {
             method: 'GET',
             headers: {
-              'x-api-key': process.env.KONNECT_API_KEY || ''
-            }
+              'x-api-key': process.env.KONNECT_API_KEY || '',
+            },
           });
 
           if (statusResponse.ok) {
             const statusData = await statusResponse.json();
             return NextResponse.json({
               success: true,
-              payment: statusData
+              payment: statusData,
             });
           } else {
             return NextResponse.json({
               success: false,
-              error: `Erreur vérification statut: ${statusResponse.status}`
+              error: `Erreur vérification statut: ${statusResponse.status}`,
             });
           }
         } catch (error: any) {
           return NextResponse.json({
             success: false,
-            error: `Erreur vérification: ${error.message}`
+            error: `Erreur vérification: ${error.message}`,
           });
         }
 
       default:
-        return NextResponse.json({
-          error: 'Action non reconnue'
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: 'Action non reconnue',
+          },
+          { status: 400 }
+        );
     }
-
   } catch (error) {
     console.error('Erreur API test paiement:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
 
@@ -190,7 +195,7 @@ export async function GET(request: NextRequest) {
       apiKey: !!process.env.KONNECT_API_KEY,
       walletId: !!process.env.KONNECT_WALLET_ID,
       publicKey: !!process.env.NEXT_PUBLIC_KONNECT_PUBLIC_KEY,
-      webhookSecret: !!process.env.KONNECT_WEBHOOK_SECRET
+      webhookSecret: !!process.env.KONNECT_WEBHOOK_SECRET,
     };
 
     return NextResponse.json({
@@ -201,15 +206,11 @@ export async function GET(request: NextRequest) {
           apiKey: !!process.env.WISE_API_KEY,
           profileId: !!process.env.WISE_PROFILE_ID,
         },
-        allConfigured: Object.values(konnectConfig).every(Boolean)
-      }
+        allConfigured: Object.values(konnectConfig).every(Boolean),
+      },
     });
-
   } catch (error) {
     console.error('Erreur GET test paiement:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

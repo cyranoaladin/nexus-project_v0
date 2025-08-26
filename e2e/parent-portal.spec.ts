@@ -9,7 +9,7 @@ test.describe('Parent portal', () => {
     // Tolère redirection temporaire; tente un accès via le menu si nécessaire
     if (!/\/dashboard\/parent/.test(page.url())) {
       const parentLinks = page.locator('a', { hasText: /Parent|Tableau de bord parent/i });
-      if (await parentLinks.count().then(c => c > 0)) {
+      if (await parentLinks.count().then((c) => c > 0)) {
         await parentLinks.first().click({ force: true });
         await page.waitForLoadState('networkidle');
       }
@@ -39,7 +39,11 @@ test.describe('Parent portal', () => {
     // Vérification RBAC basique: la page ARIA se charge en E2E (bypass), on vérifie simplement qu'elle est atteignable
     await page.goto('/aria');
     await page.waitForLoadState('networkidle');
-    const ariaHeaderVisible = await page.getByText(/Assistant Pédagogique ARIA/i).first().isVisible().catch(() => false);
+    const ariaHeaderVisible = await page
+      .getByText(/Assistant Pédagogique ARIA/i)
+      .first()
+      .isVisible()
+      .catch(() => false);
     expect(Boolean(ariaHeaderVisible)).toBeTruthy();
   });
 });

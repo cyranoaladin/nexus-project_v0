@@ -1,45 +1,45 @@
-"use client";
+'use client';
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Footer } from '@/components/layout/footer';
+import { Header } from '@/components/layout/header';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff, Loader2, LogIn } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setError('');
 
     try {
-      const result = await signIn("credentials", {
+      const result = await signIn('credentials', {
         email,
         password,
-        redirect: false
+        redirect: false,
       });
 
       if (result?.error) {
-        setError("Email ou mot de passe incorrect");
+        setError('Email ou mot de passe incorrect');
       } else {
-        router.push("/dashboard");
+        router.push('/dashboard');
       }
     } catch (error) {
-      setError("Une erreur est survenue lors de la connexion");
+      setError('Une erreur est survenue lors de la connexion');
     } finally {
       setIsLoading(false);
     }
@@ -64,8 +64,8 @@ export default function SignInPage() {
               Bon Retour sur Nexus Réussite
             </h1>
             <p className="text-slate-600">
-              Connectez-vous pour accéder à votre espace personnalisé et continuer
-              votre parcours vers l'excellence.
+              Connectez-vous pour accéder à votre espace personnalisé et continuer votre parcours
+              vers l'excellence.
             </p>
           </motion.div>
 
@@ -115,7 +115,7 @@ export default function SignInPage() {
                     <div className="relative mt-2">
                       <Input
                         id="password"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Votre mot de passe"
@@ -125,7 +125,9 @@ export default function SignInPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                        aria-label={
+                          showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
                       >
                         {showPassword ? (
@@ -167,20 +169,16 @@ export default function SignInPage() {
 
                 <div className="mt-8 pt-6 border-t border-slate-200">
                   <div className="text-center space-y-4">
-                    <p className="text-sm text-slate-600">
-                      Pas encore de compte ?
-                    </p>
+                    <p className="text-sm text-slate-600">Pas encore de compte ?</p>
                     <Button asChild variant="outline" className="w-full">
-                      <Link href="/bilan-gratuit">
-                        Créer mon Compte Gratuit
-                      </Link>
+                      <Link href="/bilan-gratuit">Créer mon Compte Gratuit</Link>
                     </Button>
                   </div>
                 </div>
 
                 <div className="mt-6 text-center">
                   <p className="text-xs text-slate-500">
-                    En vous connectant, vous acceptez nos{" "}
+                    En vous connectant, vous acceptez nos{' '}
                     <Link href="/conditions" className="text-blue-600 hover:underline">
                       conditions d'utilisation
                     </Link>

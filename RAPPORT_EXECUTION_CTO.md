@@ -102,14 +102,14 @@
 
 ### **Fichiers Créés/Modifiés :**
 
-| Fichier | Action | Objectif |
-|---------|--------|----------|
-| `env.example` | ✅ Créé | Variables corrigées (Hostinger, nexusreussite.academy) |
-| `prisma/schema.prisma` | ✅ Modifié | PostgreSQL par défaut |
-| `components/sections/hero-section.tsx` | ✅ Modifié | Titre, sous-titre, preuve sociale CTO |
-| `components/ui/aria-widget.tsx` | ✅ Créé | Widget chat interactif |
-| `components/sections/micro-engagement-section.tsx` | ✅ Créé | Section ARIA démo |
-| `DOCUMENTATION_TECHNIQUE_LIVRAISON.md` | ✅ Modifié | Toutes rectifications + Scénario 6 |
+| Fichier                                            | Action     | Objectif                                               |
+| -------------------------------------------------- | ---------- | ------------------------------------------------------ |
+| `env.example`                                      | ✅ Créé    | Variables corrigées (Hostinger, nexusreussite.academy) |
+| `prisma/schema.prisma`                             | ✅ Modifié | PostgreSQL par défaut                                  |
+| `components/sections/hero-section.tsx`             | ✅ Modifié | Titre, sous-titre, preuve sociale CTO                  |
+| `components/ui/aria-widget.tsx`                    | ✅ Créé    | Widget chat interactif                                 |
+| `components/sections/micro-engagement-section.tsx` | ✅ Créé    | Section ARIA démo                                      |
+| `DOCUMENTATION_TECHNIQUE_LIVRAISON.md`             | ✅ Modifié | Toutes rectifications + Scénario 6                     |
 
 ### **Impact Technique :**
 

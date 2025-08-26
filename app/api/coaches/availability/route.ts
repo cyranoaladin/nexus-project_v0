@@ -13,26 +13,38 @@ function normalizeTime(time: string): string {
 
 // Validation schema for setting availability
 const availabilitySchema = z.object({
-  schedule: z.array(z.object({
-    dayOfWeek: z.number().min(0).max(6), // 0 = Sunday, 6 = Saturday
-    slots: z.array(z.object({
-      startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-      endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-      isAvailable: z.boolean().default(true)
-    }))
-  })),
+  schedule: z.array(
+    z.object({
+      dayOfWeek: z.number().min(0).max(6), // 0 = Sunday, 6 = Saturday
+      slots: z.array(
+        z.object({
+          startTime: z
+            .string()
+            .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+          endTime: z
+            .string()
+            .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+          isAvailable: z.boolean().default(true),
+        })
+      ),
+    })
+  ),
   validFrom: z.string().optional(),
-  validUntil: z.string().optional()
+  validUntil: z.string().optional(),
 });
 
 // Validation schema for specific date availability
 const specificDateSchema = z.object({
   date: z.string().min(1, 'Date is required'),
-  slots: z.array(z.object({
-    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-    isAvailable: z.boolean().default(true)
-  }))
+  slots: z.array(
+    z.object({
+      startTime: z
+        .string()
+        .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+      endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+      isAvailable: z.boolean().default(true),
+    })
+  ),
 });
 
 function isEndAfterStart(startTime: string, endTime: string): boolean {
@@ -42,12 +54,9 @@ function isEndAfterStart(startTime: string, endTime: string): boolean {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'COACH') {
-      return NextResponse.json(
-        { error: 'Only coaches can set availability' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Only coaches can set availability' }, { status: 403 });
     }
 
     const body = await req.json();
@@ -62,7 +71,9 @@ export async function POST(req: NextRequest) {
         for (const slot of day.slots) {
           if (!isEndAfterStart(slot.startTime, slot.endTime)) {
             return NextResponse.json(
-              { error: `Invalid time range ${slot.startTime}-${slot.endTime} for day ${day.dayOfWeek}` },
+              {
+                error: `Invalid time range ${slot.startTime}-${slot.endTime} for day ${day.dayOfWeek}`,
+              },
               { status: 400 }
             );
           }
@@ -76,19 +87,19 @@ export async function POST(req: NextRequest) {
           uniqueKeys.add(key);
         }
       }
-      
+
       // Clear existing weekly availability for the coach
       await prisma.coachAvailability.deleteMany({
         where: {
           coachId: session.user.id,
           isRecurring: true,
-          specificDate: { equals: null }
-        }
+          specificDate: { equals: null },
+        },
       });
 
       // Create new availability slots
       const availabilitySlots = [] as Array<any>;
-      
+
       for (const day of validatedData.schedule) {
         for (const slot of day.slots) {
           availabilitySlots.push({
@@ -99,7 +110,7 @@ export async function POST(req: NextRequest) {
             isAvailable: slot.isAvailable,
             isRecurring: true,
             validFrom: validatedData.validFrom ? new Date(validatedData.validFrom) : new Date(),
-            validUntil: validatedData.validUntil ? new Date(validatedData.validUntil) : null
+            validUntil: validatedData.validUntil ? new Date(validatedData.validUntil) : null,
           });
         }
       }
@@ -110,7 +121,10 @@ export async function POST(req: NextRequest) {
         } catch (e: any) {
           if (e?.code === 'P2002') {
             return NextResponse.json(
-              { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
+              {
+                error:
+                  'Some slots conflict with existing ones (unique constraint). Please adjust times.',
+              },
               { status: 409 }
             );
           }
@@ -121,12 +135,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Weekly availability updated successfully',
-        slotsCreated: availabilitySlots.length
+        slotsCreated: availabilitySlots.length,
       });
-
     } else if (type === 'specific') {
       const validatedData = specificDateSchema.parse(data);
-      
+
       const specificDate = new Date(validatedData.date);
 
       // Validate slot times and deduplicate for specific date
@@ -134,37 +147,41 @@ export async function POST(req: NextRequest) {
       for (const slot of validatedData.slots) {
         if (!isEndAfterStart(slot.startTime, slot.endTime)) {
           return NextResponse.json(
-            { error: `Invalid time range ${slot.startTime}-${slot.endTime} for date ${validatedData.date}` },
+            {
+              error: `Invalid time range ${slot.startTime}-${slot.endTime} for date ${validatedData.date}`,
+            },
             { status: 400 }
           );
         }
         const key = `${specificDate.toDateString()}|${slot.startTime}|${slot.endTime}|specific`;
         if (uniqueKeys.has(key)) {
           return NextResponse.json(
-            { error: `Duplicate slot ${slot.startTime}-${slot.endTime} for date ${validatedData.date}` },
+            {
+              error: `Duplicate slot ${slot.startTime}-${slot.endTime} for date ${validatedData.date}`,
+            },
             { status: 400 }
           );
         }
         uniqueKeys.add(key);
       }
-      
+
       // Clear existing availability for this specific date
       await prisma.coachAvailability.deleteMany({
         where: {
           coachId: session.user.id,
-          specificDate: specificDate
-        }
+          specificDate: specificDate,
+        },
       });
 
       // Create new availability slots for specific date
-      const availabilitySlots = validatedData.slots.map(slot => ({
+      const availabilitySlots = validatedData.slots.map((slot) => ({
         coachId: session.user.id,
         dayOfWeek: specificDate.getDay(),
         startTime: normalizeTime(slot.startTime),
         endTime: normalizeTime(slot.endTime),
         isAvailable: slot.isAvailable,
         isRecurring: false,
-        specificDate: specificDate
+        specificDate: specificDate,
       }));
 
       if (availabilitySlots.length > 0) {
@@ -173,7 +190,10 @@ export async function POST(req: NextRequest) {
         } catch (e: any) {
           if (e?.code === 'P2002') {
             return NextResponse.json(
-              { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
+              {
+                error:
+                  'Some slots conflict with existing ones (unique constraint). Please adjust times.',
+              },
               { status: 409 }
             );
           }
@@ -185,7 +205,7 @@ export async function POST(req: NextRequest) {
         success: true,
         message: 'Specific date availability updated successfully',
         date: validatedData.date,
-        slotsCreated: availabilitySlots.length
+        slotsCreated: availabilitySlots.length,
       });
     }
 
@@ -193,17 +213,16 @@ export async function POST(req: NextRequest) {
       { error: 'Invalid availability type. Use "weekly" or "specific"' },
       { status: 400 }
     );
-
   } catch (error) {
     console.error('Set availability error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to set availability' },
       { status: 500 }
@@ -215,12 +234,9 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -240,7 +256,7 @@ export async function GET(req: NextRequest) {
     // Build query conditions
     const whereConditions: any = {
       coachId: coachId,
-      isAvailable: true
+      isAvailable: true,
     };
 
     if (startDate && endDate) {
@@ -250,19 +266,16 @@ export async function GET(req: NextRequest) {
           isRecurring: true,
           specificDate: { equals: null },
           validFrom: { lte: new Date(endDate) },
-          OR: [
-            { validUntil: null },
-            { validUntil: { gte: new Date(startDate) } }
-          ]
+          OR: [{ validUntil: null }, { validUntil: { gte: new Date(startDate) } }],
         },
         {
           // Specific date availability
           isRecurring: false,
           specificDate: {
             gte: new Date(startDate),
-            lte: new Date(endDate)
-          }
-        }
+            lte: new Date(endDate),
+          },
+        },
       ];
     }
 
@@ -274,18 +287,17 @@ export async function GET(req: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true
-          }
-        }
+            email: true,
+          },
+        },
       },
-      orderBy: [
-        { dayOfWeek: 'asc' },
-        { startTime: 'asc' }
-      ]
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
     });
 
     // Fetch coach modality capabilities
-    const coachProfile = await prisma.coachProfile.findUnique({ where: { userId: coachId } }).catch(() => null);
+    const coachProfile = await prisma.coachProfile
+      .findUnique({ where: { userId: coachId } })
+      .catch(() => null);
     const coachCanOnline = coachProfile?.availableOnline ?? true;
     const coachCanInPerson = coachProfile?.availableInPerson ?? true;
 
@@ -297,16 +309,16 @@ export async function GET(req: NextRequest) {
           coachId: coachId,
           scheduledDate: {
             gte: new Date(startDate),
-            lte: new Date(endDate)
+            lte: new Date(endDate),
           },
-          status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
+          status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
         },
         select: {
           scheduledDate: true,
           startTime: true,
           endTime: true,
-          status: true
-        }
+          status: true,
+        },
       });
     }
 
@@ -322,12 +334,11 @@ export async function GET(req: NextRequest) {
       availability: availability,
       bookedSlots: bookedSlots,
       availableSlots: availableSlots,
-      coach: availability[0]?.coach || null
+      coach: availability[0]?.coach || null,
     });
-
   } catch (error) {
     console.error('Get availability error:', error);
-    
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to get availability' },
       { status: 500 }
@@ -341,7 +352,11 @@ function generateAvailableSlots(
   bookedSlots: any[],
   startDate: string | null,
   endDate: string | null,
-  opts?: { canOnline: boolean; canInPerson: boolean; modalityFilter?: 'ONLINE' | 'IN_PERSON' | 'HYBRID' | undefined }
+  opts?: {
+    canOnline: boolean;
+    canInPerson: boolean;
+    modalityFilter?: 'ONLINE' | 'IN_PERSON' | 'HYBRID' | undefined;
+  }
 ) {
   if (!startDate || !endDate) return [];
 
@@ -352,21 +367,24 @@ function generateAvailableSlots(
   // Generate slots for each day in the range
   for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
     const dayOfWeek = date.getDay();
-    
+
     // Skip weekends
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
     const dateStr = date.toISOString().split('T')[0];
-    
+
     // Find availability for this day
-    const dayAvailability = availability.filter(av => 
-      (av.isRecurring && av.dayOfWeek === dayOfWeek) ||
-      (!av.isRecurring && av.specificDate && new Date(av.specificDate).toDateString() === date.toDateString())
+    const dayAvailability = availability.filter(
+      (av) =>
+        (av.isRecurring && av.dayOfWeek === dayOfWeek) ||
+        (!av.isRecurring &&
+          av.specificDate &&
+          new Date(av.specificDate).toDateString() === date.toDateString())
     );
 
     // Find bookings for this day
-    const dayBookings = bookedSlots.filter(booking => 
-      new Date(booking.scheduledDate).toDateString() === date.toDateString()
+    const dayBookings = bookedSlots.filter(
+      (booking) => new Date(booking.scheduledDate).toDateString() === date.toDateString()
     );
 
     // Generate hour-long slots from availability
@@ -374,7 +392,9 @@ function generateAvailableSlots(
       const hourSegments = splitIntoHourSegments(av.startTime, av.endTime);
       for (const seg of hourSegments) {
         // Booking overlap check on this hour segment
-        const isBooked = dayBookings.some(booking => booking.startTime < seg.end && booking.endTime > seg.start);
+        const isBooked = dayBookings.some(
+          (booking) => booking.startTime < seg.end && booking.endTime > seg.start
+        );
         if (isBooked) continue;
 
         // Business hours check
@@ -438,44 +458,35 @@ function splitIntoHourSegments(start: string, end: string): Array<{ start: strin
 function calculateDuration(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
-  return (endHour * 60 + endMin) - (startHour * 60 + startMin);
+  return endHour * 60 + endMin - (startHour * 60 + startMin);
 }
 
 // DELETE - Remove specific availability slot
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== 'COACH') {
-      return NextResponse.json(
-        { error: 'Only coaches can delete availability' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Only coaches can delete availability' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
     const availabilityId = searchParams.get('id');
 
     if (!availabilityId) {
-      return NextResponse.json(
-        { error: 'Availability ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Availability ID is required' }, { status: 400 });
     }
 
     // Verify the availability belongs to the coach
     const availability = await prisma.coachAvailability.findFirst({
       where: {
         id: availabilityId,
-        coachId: session.user.id
-      }
+        coachId: session.user.id,
+      },
     });
 
     if (!availability) {
-      return NextResponse.json(
-        { error: 'Availability slot not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Availability slot not found' }, { status: 404 });
     }
 
     // Check if there are any scheduled sessions during this time
@@ -483,44 +494,43 @@ export async function DELETE(req: NextRequest) {
       where: {
         coachId: session.user.id,
         status: { in: ['SCHEDULED', 'CONFIRMED'] },
-        OR: availability.specificDate ? [
-          { scheduledDate: availability.specificDate }
-        ] : [
-          {
-            AND: [
-              { startTime: { gte: availability.startTime } },
-              { endTime: { lte: availability.endTime } }
-            ]
-          }
-        ]
-      }
+        OR: availability.specificDate
+          ? [{ scheduledDate: availability.specificDate }]
+          : [
+              {
+                AND: [
+                  { startTime: { gte: availability.startTime } },
+                  { endTime: { lte: availability.endTime } },
+                ],
+              },
+            ],
+      },
     });
 
     if (conflictingSessions.length > 0) {
       return NextResponse.json(
-        { 
+        {
           error: 'Cannot delete availability slot with scheduled sessions',
-          conflictingSessions: conflictingSessions.length
+          conflictingSessions: conflictingSessions.length,
         },
         { status: 409 }
       );
     }
 
     await prisma.coachAvailability.delete({
-      where: { id: availabilityId }
+      where: { id: availabilityId },
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Availability slot deleted successfully'
+      message: 'Availability slot deleted successfully',
     });
-
   } catch (error) {
     console.error('Delete availability error:', error);
-    
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to delete availability' },
       { status: 500 }
     );
   }
-} 
+}

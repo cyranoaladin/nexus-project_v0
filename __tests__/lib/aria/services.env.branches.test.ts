@@ -1,5 +1,9 @@
 describe('ARIA services env branches', () => {
-  const orig = { LLM_SERVICE_URL: process.env.LLM_SERVICE_URL, PDF_GENERATOR_SERVICE_URL: process.env.PDF_GENERATOR_SERVICE_URL, RAG_SERVICE_URL: process.env.RAG_SERVICE_URL } as any;
+  const orig = {
+    LLM_SERVICE_URL: process.env.LLM_SERVICE_URL,
+    PDF_GENERATOR_SERVICE_URL: process.env.PDF_GENERATOR_SERVICE_URL,
+    RAG_SERVICE_URL: process.env.RAG_SERVICE_URL,
+  } as any;
 
   afterEach(() => {
     process.env.LLM_SERVICE_URL = orig.LLM_SERVICE_URL;
@@ -13,7 +17,12 @@ describe('ARIA services env branches', () => {
     process.env.PDF_GENERATOR_SERVICE_URL = 'http://pdf:9001';
     process.env.RAG_SERVICE_URL = 'http://rag:9002';
     const { llm_service, pdf_generator_service, rag_service } = require('@/lib/aria/services');
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ response: 'ok', url: 'u', success: true }) });
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ response: 'ok', url: 'u', success: true }),
+      });
     await llm_service.generate_response({} as any);
     await pdf_generator_service.generate_pdf({} as any);
     await rag_service.ingest({} as any);
@@ -28,7 +37,12 @@ describe('ARIA services env branches', () => {
     delete process.env.PDF_GENERATOR_SERVICE_URL;
     delete process.env.RAG_SERVICE_URL;
     const { llm_service, pdf_generator_service, rag_service } = require('@/lib/aria/services');
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ response: 'ok', url: 'u', success: true }) });
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ response: 'ok', url: 'u', success: true }),
+      });
     await llm_service.generate_response({} as any);
     await pdf_generator_service.generate_pdf({} as any);
     await rag_service.ingest({} as any);

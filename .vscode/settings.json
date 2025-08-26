@@ -1,9 +1,7 @@
 {
   "python.defaultInterpreterPath": "/home/alaeddine/Documents/nexus-project_v0/.venv/bin/python",
   "python.venvPath": "/home/alaeddine/Documents/nexus-project_v0",
-  "python.venvFolders": [
-    ".venv"
-  ],
+  "python.venvFolders": [".venv"],
   "python.analysis.venvPath": "/home/alaeddine/Documents/nexus-project_v0",
   "python.analysis.venv": ".venv",
   "python.analysis.typeCheckingMode": "basic",

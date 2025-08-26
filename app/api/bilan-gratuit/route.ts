@@ -13,14 +13,11 @@ export async function POST(req: NextRequest) {
 
     // Vérifier si l'email parent existe déjà
     const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.parentEmail }
+      where: { email: validatedData.parentEmail },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Un compte existe déjà avec cet email' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Un compte existe déjà avec cet email' }, { status: 400 });
     }
 
     // Hasher le mot de passe
@@ -40,14 +37,14 @@ export async function POST(req: NextRequest) {
           firstName: validatedData.parentFirstName,
           lastName: validatedData.parentLastName,
           phone: validatedData.parentPhone,
-        }
+        },
       });
 
       // Créer le profil parent
       const parentProfile = await tx.parentProfile.create({
         data: {
-          userId: parentUser.id
-        }
+          userId: parentUser.id,
+        },
       });
 
       // Créer le compte élève
@@ -58,7 +55,7 @@ export async function POST(req: NextRequest) {
           firstName: validatedData.studentFirstName,
           lastName: validatedData.studentLastName,
           password: hashedPassword, // L'élève utilise le même mot de passe que le parent initialement
-        }
+        },
       });
 
       // Créer l'entité Student liée au parent
@@ -68,8 +65,10 @@ export async function POST(req: NextRequest) {
           userId: studentUser.id,
           grade: validatedData.studentGrade,
           school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null,
-        }
+          birthDate: validatedData.studentBirthDate
+            ? new Date(validatedData.studentBirthDate)
+            : null,
+        },
       });
 
       // Le StudentProfile n'est plus nécessaire car les infos sont dans Student.
@@ -82,33 +81,44 @@ export async function POST(req: NextRequest) {
     // TODO: Implémenter un système de notification fiable pour l'assistante.
     // TODO: Mettre en place un vrai service d'emailing (ex: Resend, Postmark).
 
-    return NextResponse.json({
-      success: true,
-      message: 'Inscription au bilan gratuit réussie.',
-      user: { id: result.parentUser.id, email: result.parentUser.email },
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Inscription au bilan gratuit réussie.',
+        user: { id: result.parentUser.id, email: result.parentUser.email },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('[BILAN_GRATUIT_ERROR]', error);
 
     if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json({
-        success: false,
-        error: 'Données invalides.',
-        details: (error as any).issues,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Données invalides.',
+          details: (error as any).issues,
+        },
+        { status: 400 }
+      );
     }
 
     if (error instanceof Error && error.message.includes('Unique constraint failed')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Un utilisateur avec cet email existe déjà.',
-      }, { status: 409 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Un utilisateur avec cet email existe déjà.',
+        },
+        { status: 409 }
+      );
     }
 
-    return NextResponse.json({
-      success: false,
-      error: 'Une erreur interne est survenue.',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Une erreur interne est survenue.',
+      },
+      { status: 500 }
+    );
   }
 }

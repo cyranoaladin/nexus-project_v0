@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Activity } from "lucide-react";
+import { Activity } from 'lucide-react';
 
 interface Activity {
   id: string;
@@ -17,8 +17,30 @@ interface Activity {
 
 export default function AdminActivitiesPage() {
   const items: Activity[] = [
-    { id: '1', type: 'SESSION', title: 'Session programmée', description: 'Marie avec Helios', time: 'Il y a 2h', status: 'PLANNED', studentName: 'Marie Dupont', coachName: 'Helios', subject: 'Maths', action: 'Planification' },
-    { id: '2', type: 'ARIA', title: 'Réponse ARIA', description: 'Fiche PDF générée', time: 'Il y a 4h', status: 'DONE', studentName: 'Marie Dupont', coachName: 'ARIA', subject: 'Maths', action: 'PDF' },
+    {
+      id: '1',
+      type: 'SESSION',
+      title: 'Session programmée',
+      description: 'Marie avec Helios',
+      time: 'Il y a 2h',
+      status: 'PLANNED',
+      studentName: 'Marie Dupont',
+      coachName: 'Helios',
+      subject: 'Maths',
+      action: 'Planification',
+    },
+    {
+      id: '2',
+      type: 'ARIA',
+      title: 'Réponse ARIA',
+      description: 'Fiche PDF générée',
+      time: 'Il y a 4h',
+      status: 'DONE',
+      studentName: 'Marie Dupont',
+      coachName: 'ARIA',
+      subject: 'Maths',
+      action: 'PDF',
+    },
   ];
   return (
     <div className="max-w-5xl mx-auto px-4 py-6" data-testid="admin-activities">
@@ -38,7 +60,7 @@ export default function AdminActivitiesPage() {
             </tr>
           </thead>
           <tbody>
-            {items.map(a => (
+            {items.map((a) => (
               <tr key={a.id} className="border-t">
                 <td className="p-2">{a.type}</td>
                 <td className="p-2">{a.title}</td>

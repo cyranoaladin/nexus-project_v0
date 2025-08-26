@@ -46,10 +46,22 @@ export function ChatWindow() {
       if (!res.ok || !data?.url) {
         throw new Error(data?.error || 'Upload échoué');
       }
-      setAttachments(prev => [...prev, { url: data.url as string, name: file.name, type: file.type, size: file.size }]);
-      setMessages(prev => [...prev, { role: 'assistant', content: `Fichier ajouté: ${file.name} (${Math.round(file.size/1024)} Ko)` }]);
+      setAttachments((prev) => [
+        ...prev,
+        { url: data.url as string, name: file.name, type: file.type, size: file.size },
+      ]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: `Fichier ajouté: ${file.name} (${Math.round(file.size / 1024)} Ko)`,
+        },
+      ]);
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Échec de l'upload: ${(e as Error).message}` }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: `Échec de l'upload: ${(e as Error).message}` },
+      ]);
     }
   }
 
@@ -58,7 +70,7 @@ export function ChatWindow() {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -71,7 +83,10 @@ export function ChatWindow() {
 
       if (res.status === 429) {
         setShowSubscriptionPrompt(true);
-        setMessages(prev => [...prev, { role: 'assistant', content: "Vous avez atteint votre limite pour aujourd'hui." }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: "Vous avez atteint votre limite pour aujourd'hui." },
+        ]);
         setIsLoading(false); // Correction : S'assurer de désactiver le chargement
         return;
       }
@@ -82,18 +97,23 @@ export function ChatWindow() {
 
       const data = await res.json();
       const assistantMessage: Message = { role: 'assistant', content: data.response };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
 
       // Afficher un lien PDF lorsque disponible
       if (data.documentUrl) {
-        const linkMsg: Message = { role: 'assistant', content: `PDF généré: [Télécharger le document](${data.documentUrl})` };
-        setMessages(prev => [...prev, linkMsg]);
+        const linkMsg: Message = {
+          role: 'assistant',
+          content: `PDF généré: [Télécharger le document](${data.documentUrl})`,
+        };
+        setMessages((prev) => [...prev, linkMsg]);
       }
-
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
-      const errorMessage: Message = { role: 'assistant', content: "Désolé, une erreur est survenue. Veuillez réessayer." };
-      setMessages(prev => [...prev, errorMessage]);
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: 'Désolé, une erreur est survenue. Veuillez réessayer.',
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -106,14 +126,26 @@ export function ChatWindow() {
   const isE2E = process.env.NEXT_PUBLIC_E2E === '1';
   const allowUI = isE2E || !!session;
   if (!allowUI) {
-    return <div className="text-center text-red-700">Veuillez vous connecter pour utiliser ARIA.</div>;
+    return (
+      <div className="text-center text-red-700">Veuillez vous connecter pour utiliser ARIA.</div>
+    );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg max-w-4xl mx-auto" data-testid="nexus-aria-container">
+    <div
+      className="bg-white border border-gray-200 rounded-lg shadow-lg max-w-4xl mx-auto"
+      data-testid="nexus-aria-container"
+    >
       {/* Mascotte ARIA */}
       <div className="p-4 flex items-center gap-3">
-        <Image src="/images/logo_nexus_reussite.png" alt="ARIA mascotte" width={32} height={32} className="h-8 w-8 rounded-full" data-testid="nexus-aria-mascotte" />
+        <Image
+          src="/images/logo_nexus_reussite.png"
+          alt="ARIA mascotte"
+          width={32}
+          height={32}
+          className="h-8 w-8 rounded-full"
+          data-testid="nexus-aria-mascotte"
+        />
         <div className="text-sm text-gray-600">Assistant ARIA</div>
       </div>
       {showSubscriptionPrompt && (
@@ -124,11 +156,13 @@ export function ChatWindow() {
 
       <div className="p-4 border-b">
         {/* TODO: Remplacer par un vrai sélecteur Radix UI */}
-        <label htmlFor="subject-select" className="mr-2 font-semibold">Matière :</label>
+        <label htmlFor="subject-select" className="mr-2 font-semibold">
+          Matière :
+        </label>
         <select
           id="subject-select"
           value={currentSubject}
-          onChange={e => setCurrentSubject(e.target.value)}
+          onChange={(e) => setCurrentSubject(e.target.value)}
           className="p-2 border rounded-md"
           data-testid="nexus-aria-subject"
         >
@@ -144,8 +178,16 @@ export function ChatWindow() {
           <option value="SES">SES</option>
         </select>
         <div className="mt-3 flex items-center gap-3">
-          <label htmlFor="aria-file" className="text-sm font-semibold">Ajouter un fichier (PDF/PNG/JPEG) :</label>
-          <input id="aria-file" type="file" accept=".pdf,image/png,image/jpeg" onChange={(e) => handleUpload(e.target.files)} data-testid="nexus-upload-input" />
+          <label htmlFor="aria-file" className="text-sm font-semibold">
+            Ajouter un fichier (PDF/PNG/JPEG) :
+          </label>
+          <input
+            id="aria-file"
+            type="file"
+            accept=".pdf,image/png,image/jpeg"
+            onChange={(e) => handleUpload(e.target.files)}
+            data-testid="nexus-upload-input"
+          />
         </div>
         {attachments.length > 0 && (
           <div className="mt-2 text-sm text-gray-700">
@@ -153,7 +195,15 @@ export function ChatWindow() {
             <ul className="list-disc pl-6">
               {attachments.map((att, idx) => (
                 <li key={idx}>
-                  <a href={att.url} className="text-blue-600 underline" target="_blank" rel="noreferrer">{att.name}</a> ({Math.round(att.size/1024)} Ko)
+                  <a
+                    href={att.url}
+                    className="text-blue-600 underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {att.name}
+                  </a>{' '}
+                  ({Math.round(att.size / 1024)} Ko)
                 </li>
               ))}
             </ul>
@@ -161,10 +211,19 @@ export function ChatWindow() {
         )}
       </div>
 
-      <div className="h-[60vh] overflow-y-auto p-6 space-y-4" data-testid="aria-messages" data-testid-aria="aria-messages">
+      <div
+        className="h-[60vh] overflow-y-auto p-6 space-y-4"
+        data-testid="aria-messages"
+        data-testid-aria="aria-messages"
+      >
         {messages.map((msg, index) => (
-          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-lg p-3 rounded-2xl ${msg.role === 'user' ? 'bg-bleu-primaire text-white' : 'bg-gray-200 text-gray-800'}`}>
+          <div
+            key={index}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-lg p-3 rounded-2xl ${msg.role === 'user' ? 'bg-bleu-primaire text-white' : 'bg-gray-200 text-gray-800'}`}
+            >
               <MessageRenderer content={msg.content} />
             </div>
           </div>

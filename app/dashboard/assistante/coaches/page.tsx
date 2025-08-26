@@ -23,12 +23,16 @@ export default async function AssistantCoachesPage() {
             </tr>
           </thead>
           <tbody>
-            {coaches.map(c => (
+            {coaches.map((c) => (
               <tr key={c.id} className="border-t">
-                <td className="p-2">{c.user.firstName} {c.user.lastName}</td>
+                <td className="p-2">
+                  {c.user.firstName} {c.user.lastName}
+                </td>
                 <td className="p-2">{c.user.email}</td>
                 <td className="p-2">{c.pseudonym || '-'}</td>
-                <td className="p-2">{Array.isArray(c.subjects) ? (c.subjects as any).join(', ') : '-'}</td>
+                <td className="p-2">
+                  {Array.isArray(c.subjects) ? (c.subjects as any).join(', ') : '-'}
+                </td>
               </tr>
             ))}
           </tbody>

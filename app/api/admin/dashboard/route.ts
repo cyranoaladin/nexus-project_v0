@@ -9,19 +9,25 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const isTestEnv = process.env.NODE_ENV === 'test';
-    const allowBypass = !isTestEnv && (process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development');
+    const allowBypass =
+      !isTestEnv &&
+      (process.env.E2E === '1' ||
+        process.env.E2E_RUN === '1' ||
+        process.env.NEXT_PUBLIC_E2E === '1' ||
+        process.env.NODE_ENV === 'development');
     if (!allowBypass && (!session || session.user.role !== 'ADMIN')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // --- User Statistics ---
-    const [totalUsers, totalStudents, totalCoaches, totalAssistants, totalParents] = await Promise.all([
-      prisma.user.count(),
-      prisma.student.count(),
-      prisma.coachProfile.count(),
-      prisma.user.count({ where: { role: 'ASSISTANTE' } }),
-      prisma.parentProfile.count(),
-    ]);
+    const [totalUsers, totalStudents, totalCoaches, totalAssistants, totalParents] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.student.count(),
+        prisma.coachProfile.count(),
+        prisma.user.count({ where: { role: 'ASSISTANTE' } }),
+        prisma.parentProfile.count(),
+      ]);
 
     // --- Revenue Statistics (match UI expectations) ---
     const now = new Date();
@@ -52,9 +58,14 @@ export async function GET(request: NextRequest) {
 
     const [thisMonthSessions, lastMonthSessions] = await Promise.all([
       prisma.session.count({ where: { scheduledAt: { gte: firstDayThisMonth } } }),
-      prisma.session.count({ where: { scheduledAt: { gte: firstDayLastMonth, lt: firstDayThisMonth } } }),
+      prisma.session.count({
+        where: { scheduledAt: { gte: firstDayLastMonth, lt: firstDayThisMonth } },
+      }),
     ]);
-    const sessionGrowthPercent = lastMonthSessions > 0 ? ((thisMonthSessions - lastMonthSessions) / lastMonthSessions) * 100 : 0;
+    const sessionGrowthPercent =
+      lastMonthSessions > 0
+        ? ((thisMonthSessions - lastMonthSessions) / lastMonthSessions) * 100
+        : 0;
     const totalSessions = await prisma.session.count();
 
     // --- System Health ---
@@ -62,7 +73,7 @@ export async function GET(request: NextRequest) {
       database: 'healthy',
       sessions: thisMonthSessions > 0 ? 'active' : 'inactive',
       payments: revenueLast30Days > 0 ? 'active' : 'inactive',
-      subscriptions: activeSubscriptions > 0 ? 'active' : 'inactive'
+      subscriptions: activeSubscriptions > 0 ? 'active' : 'inactive',
     };
 
     // --- Response Formatting (flat fields expected by UI) ---
@@ -85,7 +96,6 @@ export async function GET(request: NextRequest) {
       userGrowth: [],
       revenueGrowth: [],
     });
-
   } catch (error) {
     console.error('Error fetching admin dashboard data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

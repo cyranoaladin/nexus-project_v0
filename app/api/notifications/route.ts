@@ -6,12 +6,9 @@ import { authOptions } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -19,7 +16,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const whereClause: any = {
-      userId: session.user.id
+      userId: session.user.id,
     };
 
     if (unreadOnly) {
@@ -29,85 +26,71 @@ export async function GET(request: NextRequest) {
     const notifications = await prisma.notification.findMany({
       where: whereClause,
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
-      take: limit
+      take: limit,
     });
 
     const unreadCount = await prisma.notification.count({
       where: {
         userId: session.user.id,
-        read: false
-      }
+        read: false,
+      },
     });
 
     return NextResponse.json({
       notifications: notifications,
-      unreadCount: unreadCount
+      unreadCount: unreadCount,
     });
-
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { notificationId, action } = body;
 
     if (!notificationId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     if (action === 'markAsRead') {
       await prisma.notification.update({
         where: {
           id: notificationId,
-          userId: session.user.id
+          userId: session.user.id,
         },
         data: {
-          read: true
-        }
+          read: true,
+        },
       });
     } else if (action === 'markAllAsRead') {
       await prisma.notification.updateMany({
         where: {
           userId: session.user.id,
-          read: false
+          read: false,
         },
         data: {
-          read: true
-        }
+          read: true,
+        },
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Notification updated successfully'
+      message: 'Notification updated successfully',
     });
-
   } catch (error) {
     console.error('Error updating notification:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

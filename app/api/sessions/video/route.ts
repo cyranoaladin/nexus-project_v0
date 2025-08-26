@@ -22,23 +22,20 @@ export async function POST(request: NextRequest) {
     const bookingSession = await prisma.session.findFirst({
       where: {
         id: sessionId,
-        OR: [
-          { studentId: session.user.id },
-          { coachId: session.user.id }
-        ]
+        OR: [{ studentId: session.user.id }, { coachId: session.user.id }],
       },
       include: {
         student: {
           include: {
-            user: true
-          }
+            user: true,
+          },
         },
         coach: {
-          include: {  
-            user: true
-          }
-        }
-      }
+          include: {
+            user: true,
+          },
+        },
+      },
     });
 
     if (!bookingSession) {
@@ -51,21 +48,24 @@ export async function POST(request: NextRequest) {
     const timeDifference = Math.abs(now.getTime() - sessionStart.getTime());
     const fifteenMinutes = 15 * 60 * 1000;
 
-    if (timeDifference > fifteenMinutes && bookingSession.status !== "SCHEDULED") {
-      return NextResponse.json({
-        error: 'La session n\'est pas encore disponible ou a expiré'
-      }, { status: 400 });
+    if (timeDifference > fifteenMinutes && bookingSession.status !== 'SCHEDULED') {
+      return NextResponse.json(
+        {
+          error: "La session n'est pas encore disponible ou a expiré",
+        },
+        { status: 400 }
+      );
     }
 
     switch (action) {
       case 'JOIN':
         // Marquer la session comme en cours si elle ne l'est pas déjà
-        if (bookingSession.status === "SCHEDULED") {
+        if (bookingSession.status === 'SCHEDULED') {
           await prisma.session.update({
             where: { id: sessionId },
             data: {
-              status: "SCHEDULED" // Garder SCHEDULED car il n'y a pas IN_PROGRESS
-            }
+              status: 'SCHEDULED', // Garder SCHEDULED car il n'y a pas IN_PROGRESS
+            },
           });
         }
 
@@ -86,9 +86,9 @@ export async function POST(request: NextRequest) {
             subject: bookingSession.subject,
             scheduledAt: bookingSession.scheduledAt,
             duration: bookingSession.duration,
-            status: "SCHEDULED",
-            isHost: session.user.role === 'COACH'
-          }
+            status: 'SCHEDULED',
+            isHost: session.user.role === 'COACH',
+          },
         });
 
       case 'LEAVE':
@@ -96,26 +96,22 @@ export async function POST(request: NextRequest) {
         await prisma.session.update({
           where: { id: sessionId },
           data: {
-              status: "COMPLETED"
-          }
+            status: 'COMPLETED',
+          },
         });
 
         // TODO: Logique de crédits si nécessaire
 
         return NextResponse.json({
           success: true,
-          message: 'Session terminée avec succès'
+          message: 'Session terminée avec succès',
         });
 
       default:
         return NextResponse.json({ error: 'Action non supportée' }, { status: 400 });
     }
-
   } catch (error) {
     console.error('Erreur lors de la gestion de la session vidéo:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

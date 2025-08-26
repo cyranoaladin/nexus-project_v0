@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { VideoConference } from "@/components/ui/video-conference";
-import { ArrowLeft, BookOpen, Clock, User } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { VideoConference } from '@/components/ui/video-conference';
+import { ArrowLeft, BookOpen, Clock, User } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 interface SessionData {
   id: string;
@@ -31,15 +31,15 @@ function SessionVideoCallContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session) {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
     if (!sessionId) {
-      setError("ID de session manquant");
+      setError('ID de session manquant');
       setLoading(false);
       return;
     }
@@ -49,12 +49,18 @@ function SessionVideoCallContent() {
     setTimeout(() => {
       const mockSessionData: SessionData = {
         id: sessionId,
-        studentName: session.user.role === 'ELEVE' ? `${session.user.firstName} ${session.user.lastName}` : "Sarah Martin",
-        coachName: session.user.role === 'COACH' ? `${session.user.firstName} ${session.user.lastName}` : "Prof. Ahmed Ben Ali",
-        subject: "Mathématiques - Algèbre",
+        studentName:
+          session.user.role === 'ELEVE'
+            ? `${session.user.firstName} ${session.user.lastName}`
+            : 'Sarah Martin',
+        coachName:
+          session.user.role === 'COACH'
+            ? `${session.user.firstName} ${session.user.lastName}`
+            : 'Prof. Ahmed Ben Ali',
+        subject: 'Mathématiques - Algèbre',
         scheduledAt: new Date().toISOString(),
         duration: 60,
-        status: 'IN_PROGRESS'
+        status: 'IN_PROGRESS',
       };
 
       setSessionData(mockSessionData);
@@ -64,16 +70,17 @@ function SessionVideoCallContent() {
 
   const handleLeaveSession = () => {
     // Logique de fin de session
-    const redirectPath = session?.user.role === 'ELEVE'
-      ? '/dashboard/eleve'
-      : session?.user.role === 'COACH'
-        ? '/dashboard/coach'
-        : '/dashboard';
+    const redirectPath =
+      session?.user.role === 'ELEVE'
+        ? '/dashboard/eleve'
+        : session?.user.role === 'COACH'
+          ? '/dashboard/coach'
+          : '/dashboard';
 
     router.push(redirectPath);
   };
 
-  if (status === "loading" || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -92,9 +99,7 @@ function SessionVideoCallContent() {
             <CardTitle className="text-red-600">Erreur</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
-              {error || "Session introuvable"}
-            </p>
+            <p className="text-gray-600 mb-4">{error || 'Session introuvable'}</p>
             <Button asChild>
               <Link href={session?.user.role === 'ELEVE' ? '/dashboard/eleve' : '/dashboard'}>
                 Retour au tableau de bord
@@ -123,12 +128,8 @@ function SessionVideoCallContent() {
                 </Link>
               </Button>
               <div>
-                <h1 className="font-semibold text-gray-900">
-                  Session de Visioconférence
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {sessionData.subject}
-                </p>
+                <h1 className="font-semibold text-gray-900">Session de Visioconférence</h1>
+                <p className="text-sm text-gray-500">{sessionData.subject}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">

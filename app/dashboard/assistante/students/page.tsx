@@ -22,11 +22,15 @@ export default async function AssistantStudentsPage() {
             </tr>
           </thead>
           <tbody>
-            {students.map(s => (
+            {students.map((s) => (
               <tr key={s.id} className="border-t">
-                <td className="p-2">{s.user.firstName} {s.user.lastName}</td>
+                <td className="p-2">
+                  {s.user.firstName} {s.user.lastName}
+                </td>
                 <td className="p-2">{s.user.email}</td>
-                <td className="p-2">{s.parent?.user.firstName} {s.parent?.user.lastName}</td>
+                <td className="p-2">
+                  {s.parent?.user.firstName} {s.parent?.user.lastName}
+                </td>
                 <td className="p-2">{(s as any).grade || '-'}</td>
               </tr>
             ))}

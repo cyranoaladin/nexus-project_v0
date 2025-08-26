@@ -1,50 +1,50 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const STEPS = [
   {
-    number: "01",
-    iconPath: "/images/Icon_Etape1_Bilan.png",
-    title: "Bilan Stratégique",
-    shortTitle: "Bilan Gratuit"
+    number: '01',
+    iconPath: '/images/Icon_Etape1_Bilan.png',
+    title: 'Bilan Stratégique',
+    shortTitle: 'Bilan Gratuit',
   },
   {
-    number: "02",
-    iconPath: "/images/Icon_Etape2_Formule.png",
-    title: "Choisissez Votre Formule",
-    shortTitle: "Votre Formule"
+    number: '02',
+    iconPath: '/images/Icon_Etape2_Formule.png',
+    title: 'Choisissez Votre Formule',
+    shortTitle: 'Votre Formule',
   },
   {
-    number: "03",
-    iconPath: "/images/Icon_Etape3_Reservation.png",
-    title: "Réservez Vos Sessions",
-    shortTitle: "Réservation"
+    number: '03',
+    iconPath: '/images/Icon_Etape3_Reservation.png',
+    title: 'Réservez Vos Sessions',
+    shortTitle: 'Réservation',
   },
   {
-    number: "04",
-    iconPath: "/images/Icon_Etape4_Coaching.png",
-    title: "Rencontrez Vos Coachs",
-    shortTitle: "Coaching"
+    number: '04',
+    iconPath: '/images/Icon_Etape4_Coaching.png',
+    title: 'Rencontrez Vos Coachs',
+    shortTitle: 'Coaching',
   },
   {
-    number: "05",
-    iconPath: "/images/Icon_Etape5_ARIA.png",
-    title: "ARIA, Votre IA 24/7",
-    shortTitle: "IA ARIA"
+    number: '05',
+    iconPath: '/images/Icon_Etape5_ARIA.png',
+    title: 'ARIA, Votre IA 24/7',
+    shortTitle: 'IA ARIA',
   },
   {
-    number: "06",
-    iconPath: "/images/Icon_Etape6_Progres.png",
-    title: "Suivez Vos Progrès",
-    shortTitle: "Progression"
-  }
+    number: '06',
+    iconPath: '/images/Icon_Etape6_Progres.png',
+    title: 'Suivez Vos Progrès',
+    shortTitle: 'Progression',
+  },
 ];
 
 export function HowItWorksSection() {
@@ -67,8 +67,9 @@ export function HowItWorksSection() {
             Votre Parcours <span className="text-blue-600">"Tout-en-Un"</span> vers la Réussite
           </h2>
           <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-            Un processus simple et transparent, conçu pour vous accompagner
-            de la découverte jusqu'à la <span className="text-blue-600">réussite au Baccalauréat</span> et l'<span className="text-blue-600">excellence à Parcoursup</span>.
+            Un processus simple et transparent, conçu pour vous accompagner de la découverte jusqu'à
+            la <span className="text-blue-600">réussite au Baccalauréat</span> et l'
+            <span className="text-blue-600">excellence à Parcoursup</span>.
           </p>
         </motion.div>
 
@@ -104,9 +105,7 @@ export function HowItWorksSection() {
                 {step.shortTitle}
               </h3>
               {/* Numéro d'étape */}
-              <span className="text-sm text-blue-600 font-semibold">
-                Étape {step.number}
-              </span>
+              <span className="text-sm text-blue-600 font-semibold">Étape {step.number}</span>
             </motion.div>
           ))}
         </motion.div>
@@ -170,9 +169,13 @@ export function HowItWorksSection() {
                 Prêt à Commencer Votre Transformation ?
               </h3>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Faites le premier pas vers l'excellence. Votre bilan stratégique gratuit vous attend.
+                Faites le premier pas vers l'excellence. Votre bilan stratégique gratuit vous
+                attend.
               </p>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white h-16 px-8 text-lg font-semibold group">
+              <Button
+                asChild
+                className="bg-blue-600 hover:bg-blue-700 text-white h-16 px-8 text-lg font-semibold group"
+              >
                 <Link href="/bilan-gratuit">
                   Commencer mon Bilan Stratégique Gratuit
                   <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />

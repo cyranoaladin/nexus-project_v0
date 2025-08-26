@@ -1,12 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CreditCard, AlertCircle } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 
 interface CreditPurchaseDialogProps {
   studentId: string;
@@ -15,19 +22,24 @@ interface CreditPurchaseDialogProps {
   defaultOpen?: boolean;
 }
 
-export default function CreditPurchaseDialog({ studentId, studentName, onPurchaseComplete, defaultOpen }: CreditPurchaseDialogProps) {
+export default function CreditPurchaseDialog({
+  studentId,
+  studentName,
+  onPurchaseComplete,
+  defaultOpen,
+}: CreditPurchaseDialogProps) {
   const [open, setOpen] = useState(!!defaultOpen);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    creditAmount: "",
-    reason: ""
+    creditAmount: '',
+    reason: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.creditAmount || isNaN(Number(formData.creditAmount))) {
-      alert("Veuillez entrer un nombre valide de crédits");
+      alert('Veuillez entrer un nombre valide de crédits');
       return;
     }
 
@@ -41,7 +53,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
         body: JSON.stringify({
           studentId: studentId,
           creditAmount: parseInt(formData.creditAmount),
-          reason: formData.reason
+          reason: formData.reason,
         }),
       });
 
@@ -49,7 +61,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
         const result = await response.json();
         alert(result.message);
         setOpen(false);
-        setFormData({ creditAmount: "", reason: "" });
+        setFormData({ creditAmount: '', reason: '' });
         onPurchaseComplete();
       } else {
         const errorData = await response.json();
@@ -78,7 +90,8 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
             Acheter des Crédits
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Formulaire sécurisé pour demander l'achat de crédits. Votre demande sera transmise à l'assistant pour validation.
+            Formulaire sécurisé pour demander l'achat de crédits. Votre demande sera transmise à
+            l'assistant pour validation.
           </DialogDescription>
           <p className="text-sm text-gray-600 mt-2">
             Demande d'achat de crédits pour {studentName}
@@ -97,7 +110,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="reason">Raison de l'achat (optionnel)</Label>
             <Textarea
@@ -114,17 +127,16 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Information importante :</p>
-                <p>Votre demande sera envoyée à l'assistant pour approbation. Les crédits seront ajoutés à votre compte une fois approuvés.</p>
+                <p>
+                  Votre demande sera envoyée à l'assistant pour approbation. Les crédits seront
+                  ajoutés à votre compte une fois approuvés.
+                </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            <Button 
-              type="submit" 
-              className="flex-1"
-              disabled={loading}
-            >
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -137,9 +149,9 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
                 </>
               )}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1"
               disabled={loading}
@@ -151,4 +163,4 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
       </DialogContent>
     </Dialog>
   );
-} 
+}

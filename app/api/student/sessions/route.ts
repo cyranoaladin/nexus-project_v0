@@ -10,10 +10,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ELEVE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const studentId = session.user.id;
@@ -21,19 +18,19 @@ export async function GET(request: NextRequest) {
     const sessions = await prisma.session.findMany({
       where: {
         student: {
-          userId: studentId
-        }
+          userId: studentId,
+        },
       },
       include: {
         coach: {
           include: {
-            user: true
-          }
-        }
+            user: true,
+          },
+        },
       },
       orderBy: {
-        scheduledAt: 'desc'
-      }
+        scheduledAt: 'desc',
+      },
     });
 
     const formattedSessions = sessions.map((session: any) => ({
@@ -49,17 +46,13 @@ export async function GET(request: NextRequest) {
         firstName: session.coach.user.firstName,
         lastName: session.coach.user.lastName,
         pseudonym: session.coach.pseudonym,
-        tag: session.coach.tag
-      }
+        tag: session.coach.tag,
+      },
     }));
 
     return NextResponse.json(formattedSessions);
-
   } catch (error) {
     console.error('Error fetching student sessions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

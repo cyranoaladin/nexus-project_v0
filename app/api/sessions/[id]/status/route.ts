@@ -43,4 +43,3 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

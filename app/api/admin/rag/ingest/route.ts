@@ -21,14 +21,20 @@ export async function POST(req: Request) {
     const rlConf = getRateLimitConfig('RAG_INGEST', { windowMs: 60_000, max: 5 });
     const rl = await rateLimit(rlConf)(`rag_ingest_proxy:${ip}`);
     if (!rl.ok) {
-      return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Trop de requêtes, réessayez plus tard.' },
+        { status: 429 }
+      );
     }
 
     // 1. Vérification de la session et du rôle
     const session = await getServerSession(authOptions);
     const role = session?.user?.role as UserRole | undefined;
-    if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)) {
-      return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
+    if (
+      !role ||
+      !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)
+    ) {
+      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
     }
 
     // 2. Validation du corps de la requête
@@ -36,7 +42,10 @@ export async function POST(req: Request) {
     const parsedBody = ingestRequestSchema.safeParse(body);
 
     if (!parsedBody.success) {
-      return NextResponse.json({ error: "Requête invalide", details: parsedBody.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Requête invalide', details: parsedBody.error.flatten() },
+        { status: 400 }
+      );
     }
 
     const { contenu, metadata } = parsedBody.data;
@@ -51,17 +60,21 @@ export async function POST(req: Request) {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Erreur du service RAG : ${errorBody}`);
-      return NextResponse.json({ error: "Le service RAG a rencontré une erreur." }, { status: response.status });
+      return NextResponse.json(
+        { error: 'Le service RAG a rencontré une erreur.' },
+        { status: response.status }
+      );
     }
 
     const responseData = await response.json();
 
     // 4. Succès
-    return NextResponse.json({ message: "Document ingéré avec succès.", data: responseData }, { status: 201 });
-
+    return NextResponse.json(
+      { message: 'Document ingéré avec succès.', data: responseData },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("[API_RAG_INGEST_ERROR]", error);
-    return NextResponse.json({ error: "Une erreur interne est survenue." }, { status: 500 });
+    console.error('[API_RAG_INGEST_ERROR]', error);
+    return NextResponse.json({ error: 'Une erreur interne est survenue.' }, { status: 500 });
   }
 }
-

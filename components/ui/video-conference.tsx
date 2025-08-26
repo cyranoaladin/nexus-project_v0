@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 interface VideoConferenceProps {
   sessionId: string;
@@ -19,7 +19,7 @@ export function VideoConference({
   roomName,
   isHost,
   onLeave,
-  className
+  className,
 }: VideoConferenceProps) {
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -53,7 +53,7 @@ export function VideoConference({
       height: '100%',
       parentNode: jitsiContainerRef.current,
       userInfo: {
-        displayName: isHost ? coachName : studentName
+        displayName: isHost ? coachName : studentName,
       },
       configOverwrite: {
         startWithAudioMuted: true,
@@ -61,19 +61,38 @@ export function VideoConference({
       },
       interfaceConfigOverwrite: {
         TOOLBAR_BUTTONS: [
-          'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-          'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
-          'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
-          'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts'
+          'microphone',
+          'camera',
+          'closedcaptions',
+          'desktop',
+          'fullscreen',
+          'fodeviceselection',
+          'hangup',
+          'profile',
+          'chat',
+          'recording',
+          'livestreaming',
+          'etherpad',
+          'sharedvideo',
+          'settings',
+          'raisehand',
+          'videoquality',
+          'filmstrip',
+          'invite',
+          'feedback',
+          'stats',
+          'shortcuts',
         ],
-      }
+      },
     } as any;
 
     // @ts-ignore - JitsiMeetExternalAPI est chargé dynamiquement
     const api = new (window as any).JitsiMeetExternalAPI(domain, options);
 
     return () => {
-      try { (api as any)?.dispose?.(); } catch {}
+      try {
+        (api as any)?.dispose?.();
+      } catch {}
     };
   }, [roomName, studentName, coachName, isHost, ready]);
 

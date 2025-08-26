@@ -8,10 +8,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -22,10 +19,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!parentProfile) {
-      return NextResponse.json(
-        { error: 'Parent profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent profile not found' }, { status: 404 });
     }
 
     // Get children with their subscriptions
@@ -35,15 +29,15 @@ export async function GET(request: NextRequest) {
         user: true,
         subscriptions: {
           orderBy: {
-            createdAt: 'desc'
-          }
+            createdAt: 'desc',
+          },
         },
         creditTransactions: {
           orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      }
+            createdAt: 'desc',
+          },
+        },
+      },
     });
 
     const formattedChildren = children.map((child: any) => {
@@ -51,7 +45,8 @@ export async function GET(request: NextRequest) {
         return total + transaction.amount;
       }, 0);
 
-      const activeSubscription = child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') ||
+      const activeSubscription =
+        child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') ||
         child.subscriptions.find((sub: any) => sub.status === 'INACTIVE') ||
         null;
 
@@ -65,20 +60,16 @@ export async function GET(request: NextRequest) {
         subscriptionStatus: activeSubscription?.status || 'INACTIVE',
         subscriptionExpiry: activeSubscription?.endDate,
         creditBalance: creditBalance,
-        ariaSubjects: [] // Placeholder for ARIA subjects
+        ariaSubjects: [], // Placeholder for ARIA subjects
       };
     });
 
     return NextResponse.json({
-      children: formattedChildren
+      children: formattedChildren,
     });
-
   } catch (error) {
     console.error('Error fetching parent subscriptions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -87,10 +78,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -110,24 +98,18 @@ export async function POST(request: NextRequest) {
     });
 
     if (!parentProfile) {
-      return NextResponse.json(
-        { error: 'Parent profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent profile not found' }, { status: 404 });
     }
 
     const student = await prisma.student.findFirst({
       where: {
         id: studentId,
-        parentId: parentProfile.id
-      }
+        parentId: parentProfile.id,
+      },
     });
 
     if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found or unauthorized' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Student not found or unauthorized' }, { status: 404 });
     }
 
     // Create subscription request
@@ -141,15 +123,15 @@ export async function POST(request: NextRequest) {
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
         ariaSubjects: '[]', // Default empty array
-        ariaCost: 0 // Default cost
+        ariaCost: 0, // Default cost
       },
       include: {
         student: {
           include: {
-            user: true
-          }
-        }
-      }
+            user: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -158,15 +140,11 @@ export async function POST(request: NextRequest) {
         id: subscription.id,
         planName: subscription.planName,
         status: subscription.status,
-        message: 'Demande d\'abonnement envoyée. En attente d\'approbation par l\'assistant.'
-      }
+        message: "Demande d'abonnement envoyée. En attente d'approbation par l'assistant.",
+      },
     });
-
   } catch (error) {
     console.error('Error creating subscription request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

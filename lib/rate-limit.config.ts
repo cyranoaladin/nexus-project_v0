@@ -15,4 +15,3 @@ export function getRateLimitConfig(name: string, fallback: RateConfig): RateConf
   const windowMs = readIntEnv(`RATE_LIMIT_${key}_WINDOW_MS`) ?? defWindow ?? fallback.windowMs;
   return { windowMs, max };
 }
-

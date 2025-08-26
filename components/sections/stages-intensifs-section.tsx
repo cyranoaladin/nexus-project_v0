@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { ArrowRight, BrainCircuit, Clock, Target, Users } from "lucide-react";
-import Link from "next/link";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { ArrowRight, BrainCircuit, Clock, Target, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export function StagesIntensifsSection() {
   return (
@@ -20,11 +20,12 @@ export function StagesIntensifsSection() {
           className="text-center mb-16"
         >
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-6">
-            Nos <span className="text-blue-300">Stages Intensifs</span> : Prenez une Longueur d'Avance
+            Nos <span className="text-blue-300">Stages Intensifs</span> : Prenez une Longueur
+            d'Avance
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Pendant les vacances, nous transformons le temps en une opportunité.
-            10 jours pour consolider, approfondir et exceller avant la rentrée.
+            Pendant les vacances, nous transformons le temps en une opportunité. 10 jours pour
+            consolider, approfondir et exceller avant la rentrée.
           </p>
         </motion.div>
 
@@ -69,7 +70,9 @@ export function StagesIntensifsSection() {
                       <Clock className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900">20 Heures de Cours en Profondeur</h4>
+                      <h4 className="font-semibold text-slate-900">
+                        20 Heures de Cours en Profondeur
+                      </h4>
                       <p className="text-sm text-slate-600">(2h/jour)</p>
                     </div>
                   </div>
@@ -81,7 +84,9 @@ export function StagesIntensifsSection() {
                       <BrainCircuit className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900">Focus sur la Méthodologie du Bac</h4>
+                      <h4 className="font-semibold text-slate-900">
+                        Focus sur la Méthodologie du Bac
+                      </h4>
                       <p className="text-sm text-slate-600">Techniques d'examen éprouvées</p>
                     </div>
                   </div>

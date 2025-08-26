@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { motion } from 'framer-motion';
+import { CheckCircle2, XCircle } from 'lucide-react';
 
 export function ProblemSolutionSection() {
   return (
@@ -38,7 +38,9 @@ export function ProblemSolutionSection() {
                     <XCircle className="w-8 h-8 text-gray-600" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-700 mb-2">L'Ancienne Méthode</h3>
-                  <p className="text-gray-600">Le Soutien Scolaire Classique : Les Pièges à Éviter</p>
+                  <p className="text-gray-600">
+                    Le Soutien Scolaire Classique : Les Pièges à Éviter
+                  </p>
                 </div>
 
                 <div className="space-y-6 flex-1">
@@ -55,9 +57,12 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Des Répétiteurs, pas des Pédagogues</h4>
+                      <h4 className="font-semibold text-gray-800 mb-1">
+                        Des Répétiteurs, pas des Pédagogues
+                      </h4>
                       <p className="text-gray-600 leading-relaxed">
-                        Souvent des intervenants sans certification ni expérience avérée dans l'Éducation Nationale française.
+                        Souvent des intervenants sans certification ni expérience avérée dans
+                        l'Éducation Nationale française.
                       </p>
                     </div>
                   </div>
@@ -65,9 +70,12 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Du Bachotage, pas de l'Apprentissage</h4>
+                      <h4 className="font-semibold text-gray-800 mb-1">
+                        Du Bachotage, pas de l'Apprentissage
+                      </h4>
                       <p className="text-gray-600 leading-relaxed">
-                        Une mémorisation à court terme qui néglige l'autonomie et les compétences pour le supérieur.
+                        Une mémorisation à court terme qui néglige l'autonomie et les compétences
+                        pour le supérieur.
                       </p>
                     </div>
                   </div>
@@ -104,7 +112,9 @@ export function ProblemSolutionSection() {
                     <CheckCircle2 className="w-8 h-8 text-blue-600" />
                   </div>
                   <h3 className="text-2xl font-bold text-blue-900 mb-2">Notre Révolution</h3>
-                  <p className="text-blue-700">L'Écosystème Nexus Réussite : La Solution Tout-en-Un</p>
+                  <p className="text-blue-700">
+                    L'Écosystème Nexus Réussite : La Solution Tout-en-Un
+                  </p>
                 </div>
 
                 <div className="space-y-6 flex-1">
@@ -113,7 +123,8 @@ export function ProblemSolutionSection() {
                     <div>
                       <h4 className="font-semibold text-blue-900 mb-1">Un Suivi Analytique</h4>
                       <p className="text-blue-800 leading-relaxed">
-                        Un dashboard qui mesure l'effort, suit la progression et vous donne une visibilité totale.
+                        Un dashboard qui mesure l'effort, suit la progression et vous donne une
+                        visibilité totale.
                       </p>
                     </div>
                   </div>
@@ -121,7 +132,9 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Experts, pas des Amateurs</h4>
+                      <h4 className="font-semibold text-blue-900 mb-1">
+                        Des Experts, pas des Amateurs
+                      </h4>
                       <p className="text-blue-800 leading-relaxed">
                         Une équipe d'Agrégés, de Certifiés et d'experts de l'enseignement français.
                       </p>
@@ -131,9 +144,12 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Compétences, pas du Bachotage</h4>
+                      <h4 className="font-semibold text-blue-900 mb-1">
+                        Des Compétences, pas du Bachotage
+                      </h4>
                       <p className="text-blue-800 leading-relaxed">
-                        Une pédagogie qui vise le Bac ET prépare activement aux exigences des études supérieures.
+                        Une pédagogie qui vise le Bac ET prépare activement aux exigences des études
+                        supérieures.
                       </p>
                     </div>
                   </div>
@@ -143,7 +159,8 @@ export function ProblemSolutionSection() {
                     <div>
                       <h4 className="font-semibold text-blue-900 mb-1">Une Flexibilité Maximale</h4>
                       <p className="text-blue-800 leading-relaxed">
-                        Une plateforme accessible 24/7 et des cours que vous réservez à votre rythme.
+                        Une plateforme accessible 24/7 et des cours que vous réservez à votre
+                        rythme.
                       </p>
                     </div>
                   </div>

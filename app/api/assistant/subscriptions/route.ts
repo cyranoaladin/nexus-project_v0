@@ -7,18 +7,15 @@ import { SubscriptionStatus } from '@prisma/client';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get pending subscription requests (INACTIVE subscriptions that need approval)
     const pendingSubscriptions = await prisma.subscription.findMany({
       where: {
-        status: 'INACTIVE'
+        status: 'INACTIVE',
       },
       include: {
         student: {
@@ -26,15 +23,15 @@ export async function GET(request: NextRequest) {
             user: true,
             parent: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     // Get all subscriptions for overview
@@ -45,15 +42,15 @@ export async function GET(request: NextRequest) {
             user: true,
             parent: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     const formattedPendingSubscriptions = pendingSubscriptions.map((sub: any) => ({
@@ -68,13 +65,13 @@ export async function GET(request: NextRequest) {
         firstName: sub.student.user.firstName,
         lastName: sub.student.user.lastName,
         grade: sub.student.grade,
-        school: sub.student.school
+        school: sub.student.school,
       },
       parent: {
         firstName: sub.student.parent.user.firstName,
         lastName: sub.student.parent.user.lastName,
-        email: sub.student.parent.user.email
-      }
+        email: sub.student.parent.user.email,
+      },
     }));
 
     const formattedAllSubscriptions = allSubscriptions.map((sub: any) => ({
@@ -90,69 +87,53 @@ export async function GET(request: NextRequest) {
         id: sub.student.id,
         firstName: sub.student.user.firstName,
         lastName: sub.student.user.lastName,
-        grade: sub.student.grade
+        grade: sub.student.grade,
       },
       parent: {
         firstName: sub.student.parent.user.firstName,
-        lastName: sub.student.parent.user.lastName
-      }
+        lastName: sub.student.parent.user.lastName,
+      },
     }));
 
     return NextResponse.json({
       pendingSubscriptions: formattedPendingSubscriptions,
-      allSubscriptions: formattedAllSubscriptions
+      allSubscriptions: formattedAllSubscriptions,
     });
-
   } catch (error) {
     console.error('Error fetching subscription requests:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { subscriptionId, action, reason } = body;
 
     if (!subscriptionId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Get the subscription
     const subscription = await prisma.subscription.findUnique({
       where: { id: subscriptionId },
       include: {
-        student: true
-      }
+        student: true,
+      },
     });
 
     if (!subscription) {
-      return NextResponse.json(
-        { error: 'Subscription not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
     }
 
     if (subscription.status !== 'INACTIVE') {
-      return NextResponse.json(
-        { error: 'Subscription is not pending approval' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Subscription is not pending approval' }, { status: 400 });
     }
 
     let newStatus: SubscriptionStatus;
@@ -164,18 +145,15 @@ export async function POST(request: NextRequest) {
     } else if (action === 'reject') {
       newStatus = SubscriptionStatus.CANCELLED;
     } else {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
     // Update subscription status
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        status: newStatus
-      }
+        status: newStatus,
+      },
     });
 
     // If approved, add credits to student
@@ -185,8 +163,8 @@ export async function POST(request: NextRequest) {
           studentId: subscription.studentId,
           type: 'CREDIT_ADD',
           amount: creditAmount,
-          description: `Crédits inclus dans l'abonnement ${subscription.planName} (approuvé par ${session.user.firstName} ${session.user.lastName})`
-        }
+          description: `Crédits inclus dans l'abonnement ${subscription.planName} (approuvé par ${session.user.firstName} ${session.user.lastName})`,
+        },
       });
     }
 
@@ -195,17 +173,12 @@ export async function POST(request: NextRequest) {
       subscription: {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
-        message: action === 'approve' 
-          ? 'Abonnement approuvé et crédits ajoutés'
-          : 'Abonnement rejeté'
-      }
+        message:
+          action === 'approve' ? 'Abonnement approuvé et crédits ajoutés' : 'Abonnement rejeté',
+      },
     });
-
   } catch (error) {
     console.error('Error processing subscription request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

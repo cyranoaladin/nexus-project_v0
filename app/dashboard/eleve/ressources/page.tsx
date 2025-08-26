@@ -25,7 +25,9 @@ export default async function EleveRessourcesPage() {
           {ressources.map((r) => (
             <div key={r.id} className="border rounded-md p-3 bg-white">
               <h3 className="font-medium">{r.title}</h3>
-              <p className="text-sm text-gray-600 mt-1 line-clamp-3">{r.content.slice(0, 240)}...</p>
+              <p className="text-sm text-gray-600 mt-1 line-clamp-3">
+                {r.content.slice(0, 240)}...
+              </p>
               <div className="text-xs text-gray-500 mt-2">{r.subject}</div>
             </div>
           ))}

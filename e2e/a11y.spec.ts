@@ -8,8 +8,8 @@ test('a11y: ARIA page has no serious/critical violations', async ({ page }) => {
   const accessibilityScanResults = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa'])
     .analyze();
-  const violations = accessibilityScanResults.violations.filter(v => ['serious','critical'].includes(v.impact || ''));
+  const violations = accessibilityScanResults.violations.filter((v) =>
+    ['serious', 'critical'].includes(v.impact || '')
+  );
   expect(violations, JSON.stringify(violations, null, 2)).toHaveLength(0);
 });
-
-

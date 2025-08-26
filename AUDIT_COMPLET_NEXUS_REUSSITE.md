@@ -313,16 +313,16 @@
 
 ### 4.1 Respect du Cahier des Charges
 
-| Spécification | État | Conformité |
-|---------------|------|------------|
-| Stack technique | ✅ | 100% |
-| Business model | ✅ | 95% |
-| Rôles et permissions | ✅ | 90% |
-| ARIA/IA | ⚠️ | 60% |
-| Visioconférence | 🔴 | 0% |
-| Gamification | ⚠️ | 50% |
-| Pages publiques | ⚠️ | 85% |
-| Design/UX | ✅ | 90% |
+| Spécification        | État | Conformité |
+| -------------------- | ---- | ---------- |
+| Stack technique      | ✅   | 100%       |
+| Business model       | ✅   | 95%        |
+| Rôles et permissions | ✅   | 90%        |
+| ARIA/IA              | ⚠️   | 60%        |
+| Visioconférence      | 🔴   | 0%         |
+| Gamification         | ⚠️   | 50%        |
+| Pages publiques      | ⚠️   | 85%        |
+| Design/UX            | ✅   | 90%        |
 
 ### 4.2 Écart par rapport à la vision
 
@@ -340,53 +340,53 @@
 ### 🚨 URGENCES (1-2 semaines)
 
 1. **Intégrer la visioconférence**
-    - Solution : Jitsi Meet auto-hébergé
-    - Impact : Critique pour les cours en ligne
-    - Effort : 40h
+   - Solution : Jitsi Meet auto-hébergé
+   - Impact : Critique pour les cours en ligne
+   - Effort : 40h
 
 2. **Créer la page blog**
-    - Solution : Pages statiques + CMS headless
-    - Impact : SEO et communication
-    - Effort : 16h
+   - Solution : Pages statiques + CMS headless
+   - Impact : SEO et communication
+   - Effort : 16h
 
 3. **Finaliser l'interface de gamification**
-    - Solution : Widget badges + notifications
-    - Impact : Engagement élèves
-    - Effort : 24h
+   - Solution : Widget badges + notifications
+   - Impact : Engagement élèves
+   - Effort : 24h
 
 ### ⚡ PRIORITÉ HAUTE (2-4 semaines)
 
 1. **Configurer pgvector et RAG**
-    - Solution : Extension PostgreSQL + embeddings
-    - Impact : Qualité des réponses ARIA
-    - Effort : 32h
+   - Solution : Extension PostgreSQL + embeddings
+   - Impact : Qualité des réponses ARIA
+   - Effort : 32h
 
 2. **Compléter le système de réservation**
-    - Solution : Interface complète + prévention conflits
-    - Impact : UX critique
-    - Effort : 40h
+   - Solution : Interface complète + prévention conflits
+   - Impact : UX critique
+   - Effort : 40h
 
 3. **Finaliser la configuration emails**
-    - Solution : SMTP + templates + cron jobs
-    - Impact : Communication automatisée
-    - Effort : 16h
+   - Solution : SMTP + templates + cron jobs
+   - Impact : Communication automatisée
+   - Effort : 16h
 
 ### 📋 PRIORITÉ MOYENNE (4-8 semaines)
 
 1. **Intégrer un CMS headless**
-    - Solution : Strapi ou Sanity
-    - Impact : Gestion de contenu admin
-    - Effort : 24h
+   - Solution : Strapi ou Sanity
+   - Impact : Gestion de contenu admin
+   - Effort : 24h
 
 2. **Ajouter les tests automatisés**
-    - Solution : Jest + Playwright
-    - Impact : Qualité et maintenabilité
-    - Effort : 40h
+   - Solution : Jest + Playwright
+   - Impact : Qualité et maintenabilité
+   - Effort : 40h
 
 3. **Optimiser les performances**
-    - Solution : Cache, compression, optimisations
-    - Impact : Expérience utilisateur
-    - Effort : 24h
+   - Solution : Cache, compression, optimisations
+   - Impact : Expérience utilisateur
+   - Effort : 24h
 
 ---
 
@@ -468,6 +468,6 @@ solide en produit fini exceptionnel.
 
 ---
 
-*Audit réalisé le 2 août 2025 par Alaeddine BEN RHOUMA*
-*Niveau de détail : Complet*
-*Fiabilité : 95%*
+_Audit réalisé le 2 août 2025 par Alaeddine BEN RHOUMA_
+_Niveau de détail : Complet_
+_Fiabilité : 95%_

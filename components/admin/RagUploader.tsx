@@ -1,15 +1,15 @@
 // components/admin/RagUploader.tsx
-"use client";
+'use client';
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import * as yaml from "js-yaml";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import * as yaml from 'js-yaml';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface DocumentMetadata {
   titre?: string;
@@ -27,18 +27,18 @@ export default function RagUploader() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [metadata, setMetadata] = useState<DocumentMetadata | null>(null);
-  const [content, setContent] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [content, setContent] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<string>("");
+  const [success, setSuccess] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
       setMetadata(null);
-      setContent("");
-      setError("");
-      setSuccess("");
+      setContent('');
+      setError('');
+      setSuccess('');
     }
   };
 
@@ -56,20 +56,22 @@ export default function RagUploader() {
         const match = text.match(yamlRegex);
 
         if (!match) {
-          throw new Error("Aucun bloc de métadonnées YAML (entouré de ---) n'a été trouvé au début du fichier.");
+          throw new Error(
+            "Aucun bloc de métadonnées YAML (entouré de ---) n'a été trouvé au début du fichier."
+          );
         }
 
         const yamlContent = match[1];
         const parsedMetadata = yaml.load(yamlContent) as DocumentMetadata;
-        const mainContent = text.replace(yamlRegex, "").trim();
+        const mainContent = text.replace(yamlRegex, '').trim();
 
         setMetadata(parsedMetadata);
         setContent(mainContent);
-        setError("");
+        setError('');
       } catch (err: any) {
         setError(`Erreur lors du parsing du fichier : ${err.message}`);
         setMetadata(null);
-        setContent("");
+        setContent('');
       }
     };
     reader.readAsText(file);
@@ -77,13 +79,13 @@ export default function RagUploader() {
 
   const handleSubmit = async () => {
     if (!content || !metadata) {
-      setError("Le contenu et les métadonnées ne peuvent pas être vides.");
+      setError('Le contenu et les métadonnées ne peuvent pas être vides.');
       return;
     }
 
     setIsLoading(true);
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     try {
       const response = await fetch('/api/admin/rag-ingest', {
@@ -95,17 +97,20 @@ export default function RagUploader() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Une erreur inconnue est survenue.");
+        throw new Error(data.error || 'Une erreur inconnue est survenue.');
       }
 
       setSuccess(`Document ingéré avec succès ! ID du document : ${data.id}`);
       setFile(null);
       setMetadata(null);
-      setContent("");
+      setContent('');
       // rafraîchissement côté client uniquement
-      try { router.refresh(); } catch {}
-      try { router.refresh(); } catch {}
-
+      try {
+        router.refresh();
+      } catch {}
+      try {
+        router.refresh();
+      } catch {}
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -113,12 +118,17 @@ export default function RagUploader() {
     }
   };
 
-
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="file-upload">Fichier Markdown (.md)</Label>
-        <Input id="file-upload" data-testid="rag-file-upload" type="file" accept=".md" onChange={handleFileChange} />
+        <Input
+          id="file-upload"
+          data-testid="rag-file-upload"
+          type="file"
+          accept=".md"
+          onChange={handleFileChange}
+        />
       </div>
 
       <Button onClick={handleParseFile} disabled={!file} data-testid="rag-analyse">
@@ -139,15 +149,30 @@ export default function RagUploader() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Titre</Label>
-              <Input value={(metadata.titre as string) || ''} readOnly disabled data-testid="rag-meta-titre" />
+              <Input
+                value={(metadata.titre as string) || ''}
+                readOnly
+                disabled
+                data-testid="rag-meta-titre"
+              />
             </div>
             <div className="space-y-2">
               <Label>Matière</Label>
-              <Input value={(metadata.matiere as string) || ''} readOnly disabled data-testid="rag-meta-matiere" />
+              <Input
+                value={(metadata.matiere as string) || ''}
+                readOnly
+                disabled
+                data-testid="rag-meta-matiere"
+              />
             </div>
             <div className="space-y-2">
               <Label>Niveau</Label>
-              <Input value={(metadata.niveau as string) || ''} readOnly disabled data-testid="rag-meta-niveau" />
+              <Input
+                value={(metadata.niveau as string) || ''}
+                readOnly
+                disabled
+                data-testid="rag-meta-niveau"
+              />
             </div>
           </div>
 

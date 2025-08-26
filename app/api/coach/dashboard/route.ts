@@ -22,7 +22,12 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const isTestEnv = process.env.NODE_ENV === 'test';
-    const allowBypass = !isTestEnv && (process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development');
+    const allowBypass =
+      !isTestEnv &&
+      (process.env.E2E === '1' ||
+        process.env.E2E_RUN === '1' ||
+        process.env.NEXT_PUBLIC_E2E === '1' ||
+        process.env.NODE_ENV === 'development');
     let coachUserId: string | null = null;
     if (!session || session.user.role !== 'COACH') {
       if (!allowBypass) {
@@ -86,8 +91,10 @@ export async function GET(request: NextRequest) {
 
     const weekStats = {
       totalSessions: weekBookings.length,
-      completedSessions: weekBookings.filter(s => s.status === 'COMPLETED').length,
-      upcomingSessions: weekBookings.filter(s => s.status === 'SCHEDULED' || s.status === 'CONFIRMED').length,
+      completedSessions: weekBookings.filter((s) => s.status === 'COMPLETED').length,
+      upcomingSessions: weekBookings.filter(
+        (s) => s.status === 'SCHEDULED' || s.status === 'CONFIRMED'
+      ).length,
     };
 
     const weekSessions = weekBookings.map((s) => ({
@@ -116,7 +123,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Build students list from recent sessions
-    const uniqueStudentUserIds = Array.from(new Set(weekBookings.map(s => s.studentId)));
+    const uniqueStudentUserIds = Array.from(new Set(weekBookings.map((s) => s.studentId)));
 
     let students: any[] = [];
     if (uniqueStudentUserIds.length > 0) {
@@ -130,34 +137,43 @@ export async function GET(request: NextRequest) {
         }),
       ]);
 
-      const userMap = new Map(studentsUsers.map(u => [u.id, u]));
-      const studentModelMap = new Map(studentsModels.map(s => [s.userId, s]));
-      const lastMap = new Map(lastSessionsByStudent.map(r => [r.studentId, r._max.scheduledDate]));
+      const userMap = new Map(studentsUsers.map((u) => [u.id, u]));
+      const studentModelMap = new Map(studentsModels.map((s) => [s.userId, s]));
+      const lastMap = new Map(
+        lastSessionsByStudent.map((r) => [r.studentId, r._max.scheduledDate])
+      );
 
       // credit balances: group by Student id
-      const studentIds = studentsModels.map(s => s.id);
-      const creditAgg = studentIds.length > 0 ? await prisma.creditTransaction.groupBy({
-        by: ['studentId'],
-        where: { studentId: { in: studentIds } },
-        _sum: { amount: true },
-      }) : [];
-      const creditMap = new Map(creditAgg.map(c => [c.studentId, Number(c._sum.amount || 0)]));
+      const studentIds = studentsModels.map((s) => s.id);
+      const creditAgg =
+        studentIds.length > 0
+          ? await prisma.creditTransaction.groupBy({
+              by: ['studentId'],
+              where: { studentId: { in: studentIds } },
+              _sum: { amount: true },
+            })
+          : [];
+      const creditMap = new Map(creditAgg.map((c) => [c.studentId, Number(c._sum.amount || 0)]));
 
-      students = uniqueStudentUserIds.map((userId, index) => {
-        const user = userMap.get(userId);
-        const student = studentModelMap.get(userId);
-        const lastSession = lastMap.get(userId) || null;
-        if (!student) return null;
-        return {
-          id: student.id,
-          name: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : 'Élève',
-          grade: student.grade || 'N/A',
-          isNew: !!lastSession && (new Date().getTime() - new Date(lastSession).getTime()) < 1000 * 60 * 60 * 24 * 14,
-          subject: weekBookings.find(s => s.studentId === userId)?.subject || 'MATHEMATIQUES',
-          lastSession: lastSession || new Date(0),
-          creditBalance: creditMap.get(student.id) || 0,
-        };
-      }).filter(Boolean) as any[];
+      students = uniqueStudentUserIds
+        .map((userId, index) => {
+          const user = userMap.get(userId);
+          const student = studentModelMap.get(userId);
+          const lastSession = lastMap.get(userId) || null;
+          if (!student) return null;
+          return {
+            id: student.id,
+            name: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : 'Élève',
+            grade: student.grade || 'N/A',
+            isNew:
+              !!lastSession &&
+              new Date().getTime() - new Date(lastSession).getTime() < 1000 * 60 * 60 * 24 * 14,
+            subject: weekBookings.find((s) => s.studentId === userId)?.subject || 'MATHEMATIQUES',
+            lastSession: lastSession || new Date(0),
+            creditBalance: creditMap.get(student.id) || 0,
+          };
+        })
+        .filter(Boolean) as any[];
     }
 
     let specialties: string[] = [];

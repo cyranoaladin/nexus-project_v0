@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -30,8 +30,8 @@ export default function AssistantSupportPage() {
     }
     // Placeholder: list last messages as tickets when API exists
     fetch('/api/assistant/notifications')
-      .then(r => r.ok ? r.json() : { notifications: [] })
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : { notifications: [] }))
+      .then((data) => {
         const items = (data.notifications || []).slice(0, 20).map((n: any) => ({
           id: n.id,
           fromEmail: n.userEmail || 'parent@nexus.tn',
@@ -93,16 +93,32 @@ export default function AssistantSupportPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {tickets.map(t => (
+                    {tickets.map((t) => (
                       <tr key={t.id} className="border-t">
                         <td className="p-2">{t.fromEmail}</td>
                         <td className="p-2">{t.title}</td>
                         <td className="p-2">
-                          <Badge variant={(t.status === 'PENDING' ? 'outline' : 'default') as 'default' | 'success' | 'outline' | 'popular' | 'warning' | 'destructive' | null | undefined}>{t.status}</Badge>
+                          <Badge
+                            variant={
+                              (t.status === 'PENDING' ? 'outline' : 'default') as
+                                | 'default'
+                                | 'success'
+                                | 'outline'
+                                | 'popular'
+                                | 'warning'
+                                | 'destructive'
+                                | null
+                                | undefined
+                            }
+                          >
+                            {t.status}
+                          </Badge>
                         </td>
                         <td className="p-2">{new Date(t.createdAt).toLocaleString('fr-FR')}</td>
                         <td className="p-2">
-                          <Button size="sm" variant="outline">Ouvrir</Button>
+                          <Button size="sm" variant="outline">
+                            Ouvrir
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -116,5 +132,3 @@ export default function AssistantSupportPage() {
     </div>
   );
 }
-
-

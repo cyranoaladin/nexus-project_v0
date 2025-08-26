@@ -1,37 +1,45 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { ArrowRight, Users } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { ArrowRight, Users } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const STATS = [
   {
-    id: "experience",
+    id: 'experience',
     value: 150,
-    suffix: "+",
+    suffix: '+',
     label: "Années d'Expérience",
-    description: "Cumulées par notre équipe d'experts"
+    description: "Cumulées par notre équipe d'experts",
   },
   {
-    id: "experts",
+    id: 'experts',
     value: 25,
-    suffix: "+",
-    label: "Experts Certifiés",
-    description: "Agrégés et Certifiés de l'Éducation Nationale"
+    suffix: '+',
+    label: 'Experts Certifiés',
+    description: "Agrégés et Certifiés de l'Éducation Nationale",
   },
   {
-    id: "success",
+    id: 'success',
     value: 95,
-    suffix: "%",
-    label: "Taux de Réussite",
-    description: "De nos élèves au Baccalauréat"
-  }
+    suffix: '%',
+    label: 'Taux de Réussite',
+    description: 'De nos élèves au Baccalauréat',
+  },
 ];
 
-function AnimatedCounter({ value, suffix = "", duration = 2000 }: { value: number; suffix?: string; duration?: number; }) {
+function AnimatedCounter({
+  value,
+  suffix = '',
+  duration = 2000,
+}: {
+  value: number;
+  suffix?: string;
+  duration?: number;
+}) {
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -66,12 +74,13 @@ function AnimatedCounter({ value, suffix = "", duration = 2000 }: { value: numbe
       initial={{ opacity: 0 }}
       whileInView={{
         opacity: 1,
-        transition: { duration: 0.6 }
+        transition: { duration: 0.6 },
       }}
       onViewportEnter={() => setHasAnimated(true)}
       viewport={{ once: true }}
     >
-      {count}{suffix}
+      {count}
+      {suffix}
     </motion.span>
   );
 }
@@ -82,9 +91,9 @@ export function ExpertsHighlightSection() {
       className="relative py-24 overflow-hidden"
       style={{
         backgroundImage: "url('/images/BackgroundImage_EquipeStrategique.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center center",
-        backgroundRepeat: "no-repeat"
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       {/* Superposition sombre pour la lisibilité */}
@@ -110,8 +119,8 @@ export function ExpertsHighlightSection() {
             L'Excellence de nos <span className="text-blue-300">Experts</span>
           </h2>
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
-            Notre équipe d'élite réunit les meilleurs talents de l'enseignement français.
-            Découvrez les chiffres qui témoignent de notre expertise exceptionnelle.
+            Notre équipe d'élite réunit les meilleurs talents de l'enseignement français. Découvrez
+            les chiffres qui témoignent de notre expertise exceptionnelle.
           </p>
         </motion.div>
 
@@ -132,9 +141,7 @@ export function ExpertsHighlightSection() {
               <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-3">
                 {stat.label}
               </h3>
-              <p className="text-blue-200 text-lg leading-relaxed">
-                {stat.description}
-              </p>
+              <p className="text-blue-200 text-lg leading-relaxed">{stat.description}</p>
             </motion.div>
           ))}
         </div>
@@ -152,10 +159,13 @@ export function ExpertsHighlightSection() {
               Rencontrez l'Équipe qui Transforme les Destins
             </h3>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Chaque expert de notre équipe a été rigoureusement sélectionné pour son excellence pédagogique
-              et sa capacité à révéler le potentiel de chaque élève.
+              Chaque expert de notre équipe a été rigoureusement sélectionné pour son excellence
+              pédagogique et sa capacité à révéler le potentiel de chaque élève.
             </p>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white h-16 px-8 text-lg font-semibold group shadow-xl">
+            <Button
+              asChild
+              className="bg-blue-600 hover:bg-blue-700 text-white h-16 px-8 text-lg font-semibold group shadow-xl"
+            >
               <Link href="/equipe">
                 Découvrir notre équipe
                 <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />

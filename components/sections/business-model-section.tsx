@@ -1,55 +1,50 @@
-"use client";
+'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatPrice } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { Award, Calendar, Check, CreditCard, Sparkles, Zap } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatPrice } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Award, Calendar, Check, CreditCard, Sparkles, Zap } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Formules d'abonnement selon les spécifications exactes
 const SUBSCRIPTION_PLANS = {
   ACCES_PLATEFORME: {
-    name: "ACCÈS PLATEFORME",
+    name: 'ACCÈS PLATEFORME',
     description: "L'essentiel pour commencer votre parcours d'excellence",
     price: 150,
     credits: 0,
     features: [
-      "Accès 24/7 à la plateforme",
-      "Suivi personnalisé",
-      "0 crédits/mois",
-      "ARIA (1 matière)"
-    ]
+      'Accès 24/7 à la plateforme',
+      'Suivi personnalisé',
+      '0 crédits/mois',
+      'ARIA (1 matière)',
+    ],
   },
   HYBRIDE: {
-    name: "HYBRIDE",
+    name: 'HYBRIDE',
     description: "L'équilibre parfait entre autonomie et suivi humain personnalisé",
     price: 450,
     credits: 4,
     popular: true,
-    features: [
-      "Tout de la Plateforme",
-      "4 crédits/mois",
-      "Coach référent",
-      "Support prioritaire"
-    ]
+    features: ['Tout de la Plateforme', '4 crédits/mois', 'Coach référent', 'Support prioritaire'],
   },
   IMMERSION: {
-    name: "IMMERSION",
+    name: 'IMMERSION',
     description: "L'accompagnement premium pour une réussite exceptionnelle",
     price: 750,
     credits: 8,
-    features: [
-      "Tout de l'Hybride",
-      "8 crédits/mois",
-      "Support prioritaire",
-      "Bilan trimestriel"
-    ]
-  }
+    features: ["Tout de l'Hybride", '8 crédits/mois', 'Support prioritaire', 'Bilan trimestriel'],
+  },
 };
 
 // Matières disponibles pour ARIA
@@ -61,7 +56,7 @@ const AVAILABLE_SUBJECTS = [
   { id: 'philosophy', name: 'Philosophie', included: false },
   { id: 'history', name: 'Histoire-Géographie', included: false },
   { id: 'english', name: 'Anglais', included: false },
-  { id: 'spanish', name: 'Espagnol', included: false }
+  { id: 'spanish', name: 'Espagnol', included: false },
 ];
 
 // Composant interactif ARIA
@@ -71,21 +66,19 @@ function ARIAInteractiveModule() {
   const toggleSubject = (subjectId: string) => {
     if (subjectId === 'math') return; // La première matière est toujours incluse
 
-    setSelectedSubjects(prev =>
-      prev.includes(subjectId)
-        ? prev.filter(id => id !== subjectId)
-        : [...prev, subjectId]
+    setSelectedSubjects((prev) =>
+      prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId]
     );
   };
 
   const additionalSubjects = selectedSubjects.length - 1; // -1 car math est incluse
   const isPackBetter = additionalSubjects >= 3;
   const monthlyPrice = isPackBetter ? 120 : additionalSubjects * 50;
-  const savings = isPackBetter ? (additionalSubjects * 50) - 120 : 0;
+  const savings = isPackBetter ? additionalSubjects * 50 - 120 : 0;
 
   const getButtonText = () => {
-    if (additionalSubjects === 0) return "Sélectionnez une matière supplémentaire";
-    if (isPackBetter) return "Passer au Pack Toutes Matières";
+    if (additionalSubjects === 0) return 'Sélectionnez une matière supplémentaire';
+    if (isPackBetter) return 'Passer au Pack Toutes Matières';
     return `Ajouter ${additionalSubjects} matière${additionalSubjects > 1 ? 's' : ''}`;
   };
 
@@ -106,9 +99,7 @@ function ARIAInteractiveModule() {
           <h3 className="font-heading text-3xl md:text-4xl font-bold text-white mb-2">
             L'Offre IA "ARIA"
           </h3>
-          <p className="text-slate-300 text-lg">
-            Votre assistant IA personnel, disponible 24/7
-          </p>
+          <p className="text-slate-300 text-lg">Votre assistant IA personnel, disponible 24/7</p>
         </div>
       </div>
 
@@ -119,8 +110,8 @@ function ARIAInteractiveModule() {
             Choisissez vos matières
           </h4>
           <p className="text-slate-300 mb-6">
-            Votre abonnement inclut déjà une matière. Sélectionnez les matières supplémentaires
-            que vous souhaitez activer pour votre assistant IA.
+            Votre abonnement inclut déjà une matière. Sélectionnez les matières supplémentaires que
+            vous souhaitez activer pour votre assistant IA.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
@@ -135,18 +126,17 @@ function ARIAInteractiveModule() {
                   disabled={isIncluded}
                   className={`
                     px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                    ${isIncluded
-                      ? 'bg-blue-600 text-white border border-blue-500 cursor-default'
-                      : isSelected
-                        ? 'bg-blue-600 text-white border border-blue-500 hover:bg-blue-700'
-                        : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+                    ${
+                      isIncluded
+                        ? 'bg-blue-600 text-white border border-blue-500 cursor-default'
+                        : isSelected
+                          ? 'bg-blue-600 text-white border border-blue-500 hover:bg-blue-700'
+                          : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                     }
                   `}
                 >
                   {subject.name}
-                  {isIncluded && (
-                    <span className="block text-xs text-blue-200 mt-1">Incluse</span>
-                  )}
+                  {isIncluded && <span className="block text-xs text-blue-200 mt-1">Incluse</span>}
                 </button>
               );
             })}
@@ -155,9 +145,7 @@ function ARIAInteractiveModule() {
 
         {/* Récapitulatif de prix */}
         <div className="bg-slate-800 rounded-xl p-6">
-          <h4 className="font-heading text-xl font-bold text-white mb-6">
-            Récapitulatif
-          </h4>
+          <h4 className="font-heading text-xl font-bold text-white mb-6">Récapitulatif</h4>
 
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
@@ -170,7 +158,9 @@ function ARIAInteractiveModule() {
                 <span className="text-slate-300">
                   Matières supplémentaires ({additionalSubjects}) :
                 </span>
-                <span className={`font-medium ${isPackBetter ? 'line-through text-slate-500' : 'text-white'}`}>
+                <span
+                  className={`font-medium ${isPackBetter ? 'line-through text-slate-500' : 'text-white'}`}
+                >
                   +{additionalSubjects * 50} TND
                 </span>
               </div>
@@ -210,18 +200,17 @@ function ARIAInteractiveModule() {
 
           <Button
             disabled={additionalSubjects === 0}
-            className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${additionalSubjects === 0
+            className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${
+              additionalSubjects === 0
                 ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                 : isPackBetter
                   ? 'bg-red-500 hover:bg-red-600 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
+            }`}
             asChild={additionalSubjects > 0}
           >
             {additionalSubjects > 0 ? (
-              <Link href="/bilan-gratuit">
-                {getButtonText()}
-              </Link>
+              <Link href="/bilan-gratuit">{getButtonText()}</Link>
             ) : (
               <span>{getButtonText()}</span>
             )}
@@ -235,38 +224,38 @@ function ARIAInteractiveModule() {
 // Packs spécifiques selon les spécifications
 const SPECIAL_PACKS = {
   GRAND_ORAL: {
-    name: "Pack Grand Oral",
+    name: 'Pack Grand Oral',
     price: 750,
-    description: "Préparation complète au Grand Oral",
+    description: 'Préparation complète au Grand Oral',
     features: [
-      "4 séances de coaching individuel",
-      "Préparation des supports visuels",
+      '4 séances de coaching individuel',
+      'Préparation des supports visuels',
       "Entraînement à l'oral avec feedback vidéo",
-      "Simulation d'épreuve en conditions réelles"
-    ]
+      "Simulation d'épreuve en conditions réelles",
+    ],
   },
   BAC_FRANCAIS: {
-    name: "Pack Bac de Français",
+    name: 'Pack Bac de Français',
     price: 1200,
-    description: "Accompagnement intensif pour le Bac de Français",
+    description: 'Accompagnement intensif pour le Bac de Français',
     features: [
-      "6 séances de méthodologie",
-      "Révision complète des œuvres",
+      '6 séances de méthodologie',
+      'Révision complète des œuvres',
       "Entraînement à l'oral avec textes",
-      "Correction de 3 devoirs blancs"
-    ]
+      'Correction de 3 devoirs blancs',
+    ],
   },
   ORIENTATION: {
-    name: "Pack Orientation & Parcoursup",
+    name: 'Pack Orientation & Parcoursup',
     price: 900,
-    description: "Stratégie complète pour Parcoursup",
+    description: 'Stratégie complète pour Parcoursup',
     features: [
       "Bilan d'orientation personnalisé",
-      "Stratégie de vœux optimisée",
-      "Rédaction des projets motivés",
-      "Préparation aux entretiens"
-    ]
-  }
+      'Stratégie de vœux optimisée',
+      'Rédaction des projets motivés',
+      'Préparation aux entretiens',
+    ],
+  },
 };
 
 export function BusinessModelSection() {
@@ -290,8 +279,8 @@ export function BusinessModelSection() {
           </h2>
           <div className="max-w-5xl mx-auto">
             <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
-              Nous avons conçu un modèle révolutionnaire qui allie la transparence d'un abonnement
-              à la flexibilité totale d'un système de crédits pour vos prestations humaines.
+              Nous avons conçu un modèle révolutionnaire qui allie la transparence d'un abonnement à
+              la flexibilité totale d'un système de crédits pour vos prestations humaines.
             </p>
 
             {/* Infographie explicative */}
@@ -305,11 +294,13 @@ export function BusinessModelSection() {
               >
                 <div className="flex items-center mb-6">
                   <Calendar className="w-8 h-8 text-blue-600 mr-4" />
-                  <h3 className="font-heading font-bold text-xl text-gray-900">L'Abonnement (Le Socle)</h3>
+                  <h3 className="font-heading font-bold text-xl text-gray-900">
+                    L'Abonnement (Le Socle)
+                  </h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Accès complet à la plateforme, ARIA, suivi personnalisé +
-                  un budget mensuel de crédits inclus selon votre formule.
+                  Accès complet à la plateforme, ARIA, suivi personnalisé + un budget mensuel de
+                  crédits inclus selon votre formule.
                 </p>
               </motion.div>
 
@@ -322,11 +313,13 @@ export function BusinessModelSection() {
               >
                 <div className="flex items-center mb-6">
                   <Zap className="w-8 h-8 text-red-500 mr-4" />
-                  <h3 className="font-heading font-bold text-xl text-gray-900">Les Crédits (La Flexibilité)</h3>
+                  <h3 className="font-heading font-bold text-xl text-gray-900">
+                    Les Crédits (La Flexibilité)
+                  </h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  1 crédit = 1h de cours particulier en ligne. Utilisez vos crédits
-                  quand vous en avez besoin, pour les prestations humaines.
+                  1 crédit = 1h de cours particulier en ligne. Utilisez vos crédits quand vous en
+                  avez besoin, pour les prestations humaines.
                 </p>
               </motion.div>
             </div>
@@ -346,16 +339,16 @@ export function BusinessModelSection() {
           </h3>
           <div className="text-gray-700 space-y-4 max-w-4xl mx-auto">
             <p className="text-lg leading-relaxed">
-              <strong>Coûts des Prestations :</strong> Cours en ligne (1 crédit) •
-              Cours en présentiel (1,25 crédit) • Atelier de groupe (1,5 crédit)
+              <strong>Coûts des Prestations :</strong> Cours en ligne (1 crédit) • Cours en
+              présentiel (1,25 crédit) • Atelier de groupe (1,5 crédit)
             </p>
             <p className="text-lg leading-relaxed">
-              <strong>Report :</strong> Les crédits non utilisés sont reportés 1 mois.
-              Notification 7 jours avant expiration.
+              <strong>Report :</strong> Les crédits non utilisés sont reportés 1 mois. Notification
+              7 jours avant expiration.
             </p>
             <p className="text-lg leading-relaxed">
-              <strong>Packs supplémentaires :</strong> Validité 12 mois.
-              Annulation gratuite &gt; 24h (cours) ou 48h (ateliers).
+              <strong>Packs supplémentaires :</strong> Validité 12 mois. Annulation gratuite &gt;
+              24h (cours) ou 48h (ateliers).
             </p>
           </div>
         </motion.div>
@@ -391,10 +384,13 @@ export function BusinessModelSection() {
                   </div>
                 )}
 
-                <Card className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${'popular' in plan && plan.popular
-                  ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
-                  : 'bg-white border border-slate-200 shadow-lg'
-                  }`}>
+                <Card
+                  className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${
+                    'popular' in plan && plan.popular
+                      ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
+                      : 'bg-white border border-slate-200 shadow-lg'
+                  }`}
+                >
                   <CardHeader className="text-center p-8">
                     <CardTitle className="font-heading text-2xl font-bold text-gray-900 mb-4">
                       {plan.name}
@@ -404,13 +400,22 @@ export function BusinessModelSection() {
                     {/* Prix avec typographie hiérarchisée */}
                     <div className="mb-6">
                       <div className="flex items-baseline justify-center">
-                        <span className="font-bold text-5xl md:text-6xl text-slate-900" style={{ fontFamily: 'Poppins' }}>
+                        <span
+                          className="font-bold text-5xl md:text-6xl text-slate-900"
+                          style={{ fontFamily: 'Poppins' }}
+                        >
                           {plan.price}
                         </span>
-                        <span className="font-medium text-xl text-blue-600 ml-2" style={{ fontFamily: 'Inter' }}>
+                        <span
+                          className="font-medium text-xl text-blue-600 ml-2"
+                          style={{ fontFamily: 'Inter' }}
+                        >
                           TND
                         </span>
-                        <span className="font-normal text-base text-slate-500 ml-1" style={{ fontFamily: 'Inter' }}>
+                        <span
+                          className="font-normal text-base text-slate-500 ml-1"
+                          style={{ fontFamily: 'Inter' }}
+                        >
                           /mois
                         </span>
                       </div>
@@ -418,7 +423,11 @@ export function BusinessModelSection() {
 
                     {plan.credits > 0 && (
                       <div className="mb-4">
-                        <Badge variant="default" className="bg-blue-600 text-white font-medium" style={{ fontFamily: 'Inter' }}>
+                        <Badge
+                          variant="default"
+                          className="bg-blue-600 text-white font-medium"
+                          style={{ fontFamily: 'Inter' }}
+                        >
                           {plan.credits} crédits inclus
                         </Badge>
                       </div>
@@ -437,14 +446,13 @@ export function BusinessModelSection() {
 
                     <Button
                       asChild
-                      className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${'popular' in plan && plan.popular
-                        ? 'bg-red-500 hover:bg-red-600 text-white'
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
-                        }`}
+                      className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${
+                        'popular' in plan && plan.popular
+                          ? 'bg-red-500 hover:bg-red-600 text-white'
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
+                      }`}
                     >
-                      <Link href="/bilan-gratuit">
-                        Commencer
-                      </Link>
+                      <Link href="/bilan-gratuit">Commencer</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -452,7 +460,6 @@ export function BusinessModelSection() {
             ))}
           </div>
         </motion.div>
-
 
         {/* Module ARIA Interactif */}
         <motion.div
@@ -486,7 +493,11 @@ export function BusinessModelSection() {
             <div className="max-w-4xl mx-auto">
               <Accordion type="single" collapsible className="w-full space-y-4">
                 {Object.entries(SPECIAL_PACKS).map(([key, pack]) => (
-                  <AccordionItem key={key} value={key} className="border border-gray-200 rounded-xl px-6">
+                  <AccordionItem
+                    key={key}
+                    value={key}
+                    className="border border-gray-200 rounded-xl px-6"
+                  >
                     <AccordionTrigger className="text-left hover:no-underline py-6">
                       <div className="flex justify-between items-center w-full mr-4">
                         <div>
@@ -495,7 +506,7 @@ export function BusinessModelSection() {
                         </div>
                         <div className="text-right">
                           <span className="text-2xl font-bold text-blue-600">
-                            {formatPrice(pack.price, "TND")}
+                            {formatPrice(pack.price, 'TND')}
                           </span>
                         </div>
                       </div>
@@ -511,9 +522,7 @@ export function BusinessModelSection() {
                           ))}
                         </ul>
                         <Button className="btn-primary w-full h-14 text-lg font-semibold" asChild>
-                          <Link href="/bilan-gratuit">
-                            Réserver ce Pack
-                          </Link>
+                          <Link href="/bilan-gratuit">Réserver ce Pack</Link>
                         </Button>
                       </div>
                     </AccordionContent>
@@ -521,46 +530,59 @@ export function BusinessModelSection() {
                 ))}
 
                 {/* Pack Candidat Libre */}
-                <AccordionItem value="candidat-libre" className="border border-gray-200 rounded-xl px-6">
+                <AccordionItem
+                  value="candidat-libre"
+                  className="border border-gray-200 rounded-xl px-6"
+                >
                   <AccordionTrigger className="text-left hover:no-underline py-6">
                     <div className="flex justify-between items-center w-full mr-4">
                       <div>
-                        <h4 className="font-semibold text-xl text-gray-900">Pack Spécial Candidat Libre</h4>
-                        <p className="text-gray-600 mt-2">Accompagnement sur-mesure pour candidats libres</p>
+                        <h4 className="font-semibold text-xl text-gray-900">
+                          Pack Spécial Candidat Libre
+                        </h4>
+                        <p className="text-gray-600 mt-2">
+                          Accompagnement sur-mesure pour candidats libres
+                        </p>
                       </div>
-                      <span className="text-2xl font-bold text-blue-600">
-                        Devis personnalisé
-                      </span>
+                      <span className="text-2xl font-bold text-blue-600">Devis personnalisé</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-0">
                     <div className="space-y-6">
                       <p className="text-gray-700 leading-relaxed">
-                        Un accompagnement sur-mesure pour les élèves en Terminale ou Première passant le <span className="text-blue-600 font-semibold">Baccalauréat</span> en candidat libre.
-                        Inclut un plan de travail personnalisé, des sessions de suivi hebdomadaires, et un accès complet à la plateforme et à ARIA.
+                        Un accompagnement sur-mesure pour les élèves en Terminale ou Première
+                        passant le <span className="text-blue-600 font-semibold">Baccalauréat</span>{' '}
+                        en candidat libre. Inclut un plan de travail personnalisé, des sessions de
+                        suivi hebdomadaires, et un accès complet à la plateforme et à ARIA.
                       </p>
                       <ul className="space-y-4">
                         <li className="flex items-start space-x-4">
                           <Check className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700 leading-relaxed">Plan de travail 100% personnalisé</span>
+                          <span className="text-gray-700 leading-relaxed">
+                            Plan de travail 100% personnalisé
+                          </span>
                         </li>
                         <li className="flex items-start space-x-4">
                           <Check className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700 leading-relaxed">Sessions de suivi hebdomadaires</span>
+                          <span className="text-gray-700 leading-relaxed">
+                            Sessions de suivi hebdomadaires
+                          </span>
                         </li>
                         <li className="flex items-start space-x-4">
                           <Check className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700 leading-relaxed">Accès complet plateforme + ARIA toutes matières</span>
+                          <span className="text-gray-700 leading-relaxed">
+                            Accès complet plateforme + ARIA toutes matières
+                          </span>
                         </li>
                         <li className="flex items-start space-x-4">
                           <Check className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700 leading-relaxed">Préparation spécifique aux épreuves</span>
+                          <span className="text-gray-700 leading-relaxed">
+                            Préparation spécifique aux épreuves
+                          </span>
                         </li>
                       </ul>
                       <Button className="btn-primary w-full h-14 text-lg font-semibold" asChild>
-                        <Link href="/contact">
-                          Contactez-nous pour un bilan et un devis adapté
-                        </Link>
+                        <Link href="/contact">Contactez-nous pour un bilan et un devis adapté</Link>
                       </Button>
                     </div>
                   </AccordionContent>

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,9 @@ export default function AssistantUsersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<UserItem[]>([]);
-  const [roleFilter, setRoleFilter] = useState<'ALL' | 'ADMIN' | 'ASSISTANTE' | 'COACH' | 'PARENT' | 'ELEVE'>('ALL');
+  const [roleFilter, setRoleFilter] = useState<
+    'ALL' | 'ADMIN' | 'ASSISTANTE' | 'COACH' | 'PARENT' | 'ELEVE'
+  >('ALL');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,8 +33,8 @@ export default function AssistantUsersPage() {
       return;
     }
     fetch(`/api/assistant/users?role=${roleFilter}`)
-      .then(r => r.ok ? r.json() : { users: [] })
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : { users: [] }))
+      .then((data) => {
         setUsers(data.users || []);
         setLoading(false);
       })
@@ -59,7 +61,12 @@ export default function AssistantUsersPage() {
               <Users className="w-6 h-6 text-blue-600" />
               <h1 className="font-semibold text-gray-900">Gestion des Utilisateurs</h1>
             </div>
-            <Badge variant="outline">{users.length} {roleFilter === 'ALL' ? 'utilisateurs' : (roleFilter.toLowerCase() + (users.length > 1 ? 's' : ''))}</Badge>
+            <Badge variant="outline">
+              {users.length}{' '}
+              {roleFilter === 'ALL'
+                ? 'utilisateurs'
+                : roleFilter.toLowerCase() + (users.length > 1 ? 's' : '')}
+            </Badge>
           </div>
         </div>
       </header>
@@ -101,12 +108,28 @@ export default function AssistantUsersPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map(u => (
+                    {users.map((u) => (
                       <tr key={u.id} className="border-t">
-                        <td className="p-2">{u.firstName} {u.lastName}</td>
+                        <td className="p-2">
+                          {u.firstName} {u.lastName}
+                        </td>
                         <td className="p-2">{u.email}</td>
                         <td className="p-2">
-                          <Badge variant={"outline" as 'default' | 'success' | 'outline' | 'popular' | 'warning' | 'destructive' | null | undefined}>{u.role}</Badge>
+                          <Badge
+                            variant={
+                              'outline' as
+                                | 'default'
+                                | 'success'
+                                | 'outline'
+                                | 'popular'
+                                | 'warning'
+                                | 'destructive'
+                                | null
+                                | undefined
+                            }
+                          >
+                            {u.role}
+                          </Badge>
                         </td>
                         <td className="p-2">{new Date(u.createdAt).toLocaleString('fr-FR')}</td>
                       </tr>
@@ -121,5 +144,3 @@ export default function AssistantUsersPage() {
     </div>
   );
 }
-
-

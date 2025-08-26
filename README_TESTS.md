@@ -152,9 +152,9 @@ e2e/                        # Tests End-to-End
 
 ```typescript
 it('should return 1.25 for a presential course', () => {
-  const cost = calculateCreditCost('COURS_PRESENTIEL')
-  expect(cost).toBe(1.25)
-})
+  const cost = calculateCreditCost('COURS_PRESENTIEL');
+  expect(cost).toBe(1.25);
+});
 ```
 
 ### Test : Annulation avec Logique Métier
@@ -162,21 +162,21 @@ it('should return 1.25 for a presential course', () => {
 ```typescript
 it('should return true if cancellation is 25 hours before', () => {
   // Note: Cette fonction doit être implémentée
-  const canCancel = canCancelBooking(sessionDate, 25)
-  expect(canCancel).toBe(true)
-})
+  const canCancel = canCancelBooking(sessionDate, 25);
+  expect(canCancel).toBe(true);
+});
 ```
 
 ### Test : Flux Complet de Réservation
 
 ```typescript
 it('should complete booking: check credits → book → debit', async () => {
-  const creditCost = calculateCreditCost('COURS_PRESENTIEL')
-  const hasCredits = await checkCreditBalance(studentId, creditCost)
-  expect(hasCredits).toBe(true)
+  const creditCost = calculateCreditCost('COURS_PRESENTIEL');
+  const hasCredits = await checkCreditBalance(studentId, creditCost);
+  expect(hasCredits).toBe(true);
 
   // ... création session et débit
-})
+});
 ```
 
 ## 📊 Couverture de Code

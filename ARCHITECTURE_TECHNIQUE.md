@@ -101,7 +101,7 @@ model Session {
 }
 ```
 
-*Relation gérée via la table de liaison `Session` qui représente les cours.*
+_Relation gérée via la table de liaison `Session` qui représente les cours._
 
 **Réservation -> Élève et Coach :**
 
@@ -143,15 +143,15 @@ Cette commande applique toutes les migrations en production sans interaction uti
   - User parent avec `role: 'PARENT'`
   - User élève avec `role: 'ELEVE'`
 - **Création manuelle** : Les autres rôles (ADMIN, ASSISTANTE, COACH) sont
-créés manuellement en base
+  créés manuellement en base
 
 **Protection des routes :**
 
 ```typescript
 // Stratégie implémentée dans les API Routes
-const session = await getServerSession(authOptions)
+const session = await getServerSession(authOptions);
 if (!session || session.user.role !== 'REQUIRED_ROLE') {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 ```
 
@@ -164,7 +164,7 @@ selon le rôle.
 
 ```typescript
 session: {
-  strategy: 'jwt' // Tokens signés, pas de stockage en base
+  strategy: 'jwt'; // Tokens signés, pas de stockage en base
 }
 ```
 
@@ -247,7 +247,7 @@ session: {
 **État actuel :**
 
 - **Base vectorielle** : Préparée avec modèle `PedagogicalContent` incluant
-champ `embedding Float[]`
+  champ `embedding Float[]`
 - **Recherche textuelle** : Implémentée comme MVP avec recherche PostgreSQL classique
 - **Migration pgvector** : Code structuré pour intégration future facile
 
@@ -260,10 +260,10 @@ const contents = await prisma.pedagogicalContent.findMany({
     subject,
     OR: [
       { title: { contains: query, mode: 'insensitive' } },
-      { content: { contains: query, mode: 'insensitive' } }
-    ]
-  }
-})
+      { content: { contains: query, mode: 'insensitive' } },
+    ],
+  },
+});
 ```
 
 ### Logique de l'Offre
@@ -272,12 +272,9 @@ const contents = await prisma.pedagogicalContent.findMany({
 
 ```typescript
 // Dans /api/aria/chat/route.ts
-const activeSubscription = student.subscriptions[0]
+const activeSubscription = student.subscriptions[0];
 if (!activeSubscription.ariaSubjects.includes(validatedData.subject)) {
-  return NextResponse.json(
-    { error: 'Accès ARIA non autorisé' },
-    { status: 403 }
-  )
+  return NextResponse.json({ error: 'Accès ARIA non autorisé' }, { status: 403 });
 }
 ```
 
@@ -336,8 +333,8 @@ npm run build
 node server.js
 ```
 
-*Le fichier `server.js` est généré automatiquement par Next.js 14 avec la
-configuration `output: 'standalone'`.*
+_Le fichier `server.js` est généré automatiquement par Next.js 14 avec la
+configuration `output: 'standalone'`._
 
 ### Dépendances Externes
 
@@ -376,5 +373,5 @@ la mise en production sur votre VPS dédié.**
 
 ---
 
-*Document généré par Alaeddine BEN RHOUMA*
-*Contact technique : Disponible pour clarifications et support déploiement*
+_Document généré par Alaeddine BEN RHOUMA_
+_Contact technique : Disponible pour clarifications et support déploiement_

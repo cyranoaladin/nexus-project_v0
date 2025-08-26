@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';

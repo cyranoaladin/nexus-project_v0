@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Award, Shield, Star } from "lucide-react";
-import Image from "next/image";
+import { motion } from 'framer-motion';
+import { Award, Shield, Star } from 'lucide-react';
+import Image from 'next/image';
 
 export function GuaranteeSection() {
   return (
@@ -54,7 +54,8 @@ export function GuaranteeSection() {
                   viewport={{ once: true }}
                   className="text-xl text-gray-700 mb-8 leading-relaxed"
                 >
-                  Nous sommes tellement convaincus de l'excellence de notre écosystème que nous lions notre succès au vôtre.
+                  Nous sommes tellement convaincus de l'excellence de notre écosystème que nous
+                  lions notre succès au vôtre.
                 </motion.p>
 
                 {/* Bloc de garantie principal */}
@@ -73,9 +74,9 @@ export function GuaranteeSection() {
                   </div>
 
                   <p className="text-blue-100 text-lg leading-relaxed">
-                    Si votre enfant, inscrit à notre formule annuelle "Immersion" ou "Candidat Libre",
-                    suit assidûment notre programme et n'obtient pas son Baccalauréat, nous vous
-                    remboursons l'intégralité des frais de scolarité de l'année.
+                    Si votre enfant, inscrit à notre formule annuelle "Immersion" ou "Candidat
+                    Libre", suit assidûment notre programme et n'obtient pas son Baccalauréat, nous
+                    vous remboursons l'intégralité des frais de scolarité de l'année.
                   </p>
                 </motion.div>
 
@@ -87,8 +88,8 @@ export function GuaranteeSection() {
                   viewport={{ once: true }}
                   className="text-sm text-gray-500"
                 >
-                  *Soumis à conditions de participation et de validation du parcours de suivi.
-                  Voir nos conditions générales de vente.
+                  *Soumis à conditions de participation et de validation du parcours de suivi. Voir
+                  nos conditions générales de vente.
                 </motion.p>
               </div>
 

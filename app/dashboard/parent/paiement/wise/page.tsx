@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AlertCircle, ArrowLeft, Check, Copy, Globe, Upload } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertCircle, ArrowLeft, Check, Copy, Globe, Upload } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function WisePaymentContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [orderId, setOrderId] = useState("");
+  const [orderId, setOrderId] = useState('');
   const [orderDetails, setOrderDetails] = useState<any>(null);
-  const [transferReference, setTransferReference] = useState("");
-  const [transferDate, setTransferDate] = useState("");
-  const [transferAmount, setTransferAmount] = useState("");
+  const [transferReference, setTransferReference] = useState('');
+  const [transferDate, setTransferDate] = useState('');
+  const [transferAmount, setTransferAmount] = useState('');
   const [transferProof, setTransferProof] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [copied, setCopied] = useState("");
+  const [copied, setCopied] = useState('');
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
@@ -38,8 +38,8 @@ function WisePaymentContent() {
       setOrderDetails({
         id: orderIdParam,
         amount: 450,
-        description: "Abonnement HYBRIDE",
-        currency: "TND"
+        description: 'Abonnement HYBRIDE',
+        currency: 'TND',
       });
     } else {
       router.push('/dashboard/parent/abonnements');
@@ -49,7 +49,7 @@ function WisePaymentContent() {
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
     setCopied(field);
-    setTimeout(() => setCopied(""), 2000);
+    setTimeout(() => setCopied(''), 2000);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +61,7 @@ function WisePaymentContent() {
 
   const handleSubmitProof = async () => {
     if (!transferReference || !transferDate || !transferAmount) {
-      alert("Veuillez remplir tous les champs obligatoires");
+      alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -79,13 +79,13 @@ function WisePaymentContent() {
 
       const response = await fetch('/api/payments/wise/confirm', {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
       if (response.ok) {
         router.push('/dashboard/parent/paiement/confirmation');
       } else {
-        alert('Erreur lors de l\'envoi de la preuve de virement');
+        alert("Erreur lors de l'envoi de la preuve de virement");
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -141,12 +141,8 @@ function WisePaymentContent() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="text-center">
                   <div className="text-sm text-blue-800 mb-1">Montant exact à virer</div>
-                  <div className="text-3xl font-bold text-blue-600">
-                    {orderDetails.amount} TND
-                  </div>
-                  <div className="text-sm text-blue-700 mt-1">
-                    {orderDetails.description}
-                  </div>
+                  <div className="text-3xl font-bold text-blue-600">{orderDetails.amount} TND</div>
+                  <div className="text-sm text-blue-700 mt-1">{orderDetails.description}</div>
                 </div>
               </div>
 
@@ -155,17 +151,17 @@ function WisePaymentContent() {
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Bénéficiaire</Label>
                   <div className="flex items-center space-x-2 mt-1">
-                    <Input
-                      value="Nexus Réussite SARL"
-                      readOnly
-                      className="bg-gray-50"
-                    />
+                    <Input value="Nexus Réussite SARL" readOnly className="bg-gray-50" />
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard("Nexus Réussite SARL", "beneficiary")}
+                      onClick={() => copyToClipboard('Nexus Réussite SARL', 'beneficiary')}
                     >
-                      {copied === "beneficiary" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied === 'beneficiary' ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -181,9 +177,13 @@ function WisePaymentContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard("GB29 NWBK 6016 1331 9268 19", "iban")}
+                      onClick={() => copyToClipboard('GB29 NWBK 6016 1331 9268 19', 'iban')}
                     >
-                      {copied === "iban" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied === 'iban' ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -191,17 +191,17 @@ function WisePaymentContent() {
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Code SWIFT/BIC</Label>
                   <div className="flex items-center space-x-2 mt-1">
-                    <Input
-                      value="NWBKGB2L"
-                      readOnly
-                      className="bg-gray-50 font-mono"
-                    />
+                    <Input value="NWBKGB2L" readOnly className="bg-gray-50 font-mono" />
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard("NWBKGB2L", "swift")}
+                      onClick={() => copyToClipboard('NWBKGB2L', 'swift')}
                     >
-                      {copied === "swift" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied === 'swift' ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -217,9 +217,15 @@ function WisePaymentContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(`NEXUS-${orderId.slice(-8).toUpperCase()}`, "reference")}
+                      onClick={() =>
+                        copyToClipboard(`NEXUS-${orderId.slice(-8).toUpperCase()}`, 'reference')
+                      }
                     >
-                      {copied === "reference" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied === 'reference' ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -293,9 +299,7 @@ function WisePaymentContent() {
                     onChange={handleFileUpload}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    PDF, JPG ou PNG - Max 5MB
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">PDF, JPG ou PNG - Max 5MB</p>
                 </div>
               </div>
 
@@ -305,8 +309,8 @@ function WisePaymentContent() {
                   <div className="text-sm text-green-800">
                     <div className="font-semibold mb-1">Validation rapide</div>
                     <div>
-                      Notre équipe validera votre virement sous 24-48h ouvrées.
-                      Vous recevrez un email de confirmation.
+                      Notre équipe validera votre virement sous 24-48h ouvrées. Vous recevrez un
+                      email de confirmation.
                     </div>
                   </div>
                 </div>
@@ -332,7 +336,8 @@ function WisePaymentContent() {
               </Button>
 
               <p className="text-xs text-gray-500 text-center">
-                En confirmant, vous certifiez avoir effectué le virement avec les informations fournies
+                En confirmant, vous certifiez avoir effectué le virement avec les informations
+                fournies
               </p>
             </CardContent>
           </Card>

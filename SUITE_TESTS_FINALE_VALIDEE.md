@@ -152,5 +152,5 @@ Cette suite de tests constitue le **filet de sécurité** requis pour le déploi
 
 ---
 
-*Équipe de développement - Tests validés par Alaeddine BEN RHOUMA*
-*Prêt pour la mise en production sécurisée* 🚀
+_Équipe de développement - Tests validés par Alaeddine BEN RHOUMA_
+_Prêt pour la mise en production sécurisée_ 🚀

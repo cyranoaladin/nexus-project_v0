@@ -1,4 +1,10 @@
-import { calculateCreditCost, canCancelBooking, checkCreditBalance, debitCredits, refundCredits } from '../../lib/credits';
+import {
+  calculateCreditCost,
+  canCancelBooking,
+  checkCreditBalance,
+  debitCredits,
+  refundCredits,
+} from '../../lib/credits';
 import { prisma } from '../../lib/prisma';
 import { ServiceType } from '../../types/enums';
 
@@ -46,31 +52,32 @@ describe('Credits System', () => {
       const mockTransactions = [
         { amount: 5, expiresAt: null },
         { amount: -2, expiresAt: null },
-        { amount: 3, expiresAt: new Date(Date.now() + 86400000) } // expires tomorrow
+        { amount: 3, expiresAt: new Date(Date.now() + 86400000) }, // expires tomorrow
       ];
 
-      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(
+        mockTransactions as any
+      );
 
       const result = await checkCreditBalance('student-123', 5);
       expect(result).toBe(true);
       expect(mockPrisma.creditTransaction.findMany).toHaveBeenCalledWith({
         where: {
           studentId: 'student-123',
-          OR: [
-            { expiresAt: null },
-            { expiresAt: { gt: expect.any(Date) } }
-          ]
-        }
+          OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }],
+        },
       });
     });
 
     it('should return false when student has insufficient credits', async () => {
       const mockTransactions = [
         { amount: 2, expiresAt: null },
-        { amount: -1, expiresAt: null } // Solde = 1
+        { amount: -1, expiresAt: null }, // Solde = 1
       ];
 
-      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(
+        mockTransactions as any
+      );
 
       const result = await checkCreditBalance('student-123', 5); // Demande de 5 crédits
       expect(result).toBe(false);
@@ -79,10 +86,12 @@ describe('Credits System', () => {
     it('should exclude expired credits from calculation', async () => {
       const mockTransactions = [
         { amount: 5, expiresAt: null },
-        { amount: -2, expiresAt: null }
+        { amount: -2, expiresAt: null },
       ];
 
-      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(
+        mockTransactions as any
+      );
 
       const result = await checkCreditBalance('student-123', 2);
       expect(result).toBe(true);
@@ -97,7 +106,7 @@ describe('Credits System', () => {
         type: 'USAGE',
         amount: -1.25,
         description: 'Test session booking',
-        sessionId: 'session-123'
+        sessionId: 'session-123',
       };
 
       // Configuration explicite du mock pour ce test
@@ -112,8 +121,8 @@ describe('Credits System', () => {
           type: 'USAGE',
           amount: -1.25,
           description: 'Test session booking',
-          sessionId: 'session-123'
-        }
+          sessionId: 'session-123',
+        },
       });
     });
   });
@@ -126,13 +135,18 @@ describe('Credits System', () => {
         type: 'REFUND',
         amount: 1.25,
         description: 'Session cancellation refund',
-        sessionId: 'session-123'
+        sessionId: 'session-123',
       };
 
       // Configuration explicite du mock pour ce test
       (mockPrisma.creditTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
 
-      const result = await refundCredits('student-123', 1.25, 'session-123', 'Session cancellation refund');
+      const result = await refundCredits(
+        'student-123',
+        1.25,
+        'session-123',
+        'Session cancellation refund'
+      );
 
       expect(result).toEqual(mockTransaction);
       expect(mockPrisma.creditTransaction.create).toHaveBeenCalledWith({
@@ -141,8 +155,8 @@ describe('Credits System', () => {
           type: 'REFUND',
           amount: 1.25,
           description: 'Session cancellation refund',
-          sessionId: 'session-123'
-        }
+          sessionId: 'session-123',
+        },
       });
     });
   });

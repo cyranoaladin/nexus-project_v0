@@ -6,18 +6,15 @@ import { authOptions } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get pending credit requests
     const creditRequests = await prisma.creditTransaction.findMany({
       where: {
-        type: 'CREDIT_REQUEST'
+        type: 'CREDIT_REQUEST',
       },
       include: {
         student: {
@@ -25,15 +22,15 @@ export async function GET(request: NextRequest) {
             user: true,
             parent: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     const formattedRequests = creditRequests.map((request: any) => ({
@@ -46,69 +43,53 @@ export async function GET(request: NextRequest) {
         firstName: request.student.user.firstName,
         lastName: request.student.user.lastName,
         grade: request.student.grade,
-        school: request.student.school
+        school: request.student.school,
       },
       parent: {
         firstName: request.student.parent.user.firstName,
         lastName: request.student.parent.user.lastName,
-        email: request.student.parent.user.email
-      }
+        email: request.student.parent.user.email,
+      },
     }));
 
     return NextResponse.json({
-      creditRequests: formattedRequests
+      creditRequests: formattedRequests,
     });
-
   } catch (error) {
     console.error('Error fetching credit requests:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { requestId, action, reason } = body;
 
     if (!requestId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Get the credit request
     const creditRequest = await prisma.creditTransaction.findUnique({
       where: { id: requestId },
       include: {
-        student: true
-      }
+        student: true,
+      },
     });
 
     if (!creditRequest) {
-      return NextResponse.json(
-        { error: 'Credit request not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Credit request not found' }, { status: 404 });
     }
 
     if (creditRequest.type !== 'CREDIT_REQUEST') {
-      return NextResponse.json(
-        { error: 'Invalid credit request' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid credit request' }, { status: 400 });
     }
 
     if (action === 'approve') {
@@ -119,8 +100,8 @@ export async function POST(request: NextRequest) {
           where: { id: requestId },
           data: {
             type: 'CREDIT_ADD',
-            description: `Crédits approuvés par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`
-          }
+            description: `Crédits approuvés par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`,
+          },
         });
 
         // Add credits to student
@@ -129,43 +110,34 @@ export async function POST(request: NextRequest) {
             studentId: creditRequest.studentId,
             type: 'CREDIT_ADD',
             amount: creditRequest.amount,
-            description: `Crédits ajoutés par ${session.user.firstName} ${session.user.lastName} (demande approuvée)`
-          }
+            description: `Crédits ajoutés par ${session.user.firstName} ${session.user.lastName} (demande approuvée)`,
+          },
         });
       });
 
       return NextResponse.json({
         success: true,
-        message: 'Demande de crédits approuvée et crédits ajoutés'
+        message: 'Demande de crédits approuvée et crédits ajoutés',
       });
-
     } else if (action === 'reject') {
       // Update the credit request status
       await prisma.creditTransaction.update({
         where: { id: requestId },
         data: {
           type: 'CREDIT_REJECTED',
-          description: `Demande rejetée par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`
-        }
+          description: `Demande rejetée par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`,
+        },
       });
 
       return NextResponse.json({
         success: true,
-        message: 'Demande de crédits rejetée'
+        message: 'Demande de crédits rejetée',
       });
-
     } else {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-
   } catch (error) {
     console.error('Error processing credit request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

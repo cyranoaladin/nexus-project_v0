@@ -1,4 +1,3 @@
-
 export const USERS = [
   { email: 'admin@nexus.com', password: 'password123', dashboardUrl: '/dashboard/admin' },
   { email: 'assistante@nexus.com', password: 'password123', dashboardUrl: '/dashboard/assistante' },

@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle, Clock, Shield } from "lucide-react";
-import Link from "next/link";
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { ArrowRight, CheckCircle, Clock, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export function CTASection() {
   const benefits = [
     {
       icon: CheckCircle,
-      text: "Bilan personnalisé gratuit"
+      text: 'Bilan personnalisé gratuit',
     },
     {
       icon: Clock,
-      text: "Réponse sous 24h"
+      text: 'Réponse sous 24h',
     },
     {
       icon: Shield,
-      text: "Sans engagement"
-    }
+      text: 'Sans engagement',
+    },
   ];
 
   return (
@@ -40,11 +40,14 @@ export function CTASection() {
             className="fade-in-up"
           >
             <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
-              Prêt à Conquérir le <span className="text-blue-100">Bac</span> et Vos <span className="text-blue-100">Objectifs</span> ?
+              Prêt à Conquérir le <span className="text-blue-100">Bac</span> et Vos{' '}
+              <span className="text-blue-100">Objectifs</span> ?
             </h2>
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Commencez par un bilan stratégique gratuit et découvrez comment
-              notre approche unique peut garantir votre <span className="text-blue-100 font-semibold">réussite au Baccalauréat</span> et votre <span className="text-blue-100 font-semibold">excellence à Parcoursup</span>.
+              Commencez par un bilan stratégique gratuit et découvrez comment notre approche unique
+              peut garantir votre{' '}
+              <span className="text-blue-100 font-semibold">réussite au Baccalauréat</span> et votre{' '}
+              <span className="text-blue-100 font-semibold">excellence à Parcoursup</span>.
             </p>
           </motion.div>
 
@@ -59,7 +62,10 @@ export function CTASection() {
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
               return (
-                <div key={index} className="flex items-center space-x-3 text-white/90 bg-white/10 rounded-full px-6 py-3 backdrop-blur-sm">
+                <div
+                  key={index}
+                  className="flex items-center space-x-3 text-white/90 bg-white/10 rounded-full px-6 py-3 backdrop-blur-sm"
+                >
                   <Icon className="w-6 h-6" />
                   <span className="font-semibold text-lg">{benefit.text}</span>
                 </div>
@@ -89,9 +95,7 @@ export function CTASection() {
               variant="secondary"
               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-bold h-16 px-8 text-lg transform transition-all duration-300 hover:scale-105 bg-transparent"
             >
-              <Link href="/contact">
-                Poser une Question
-              </Link>
+              <Link href="/contact">Poser une Question</Link>
             </Button>
           </motion.div>
 
@@ -104,11 +108,16 @@ export function CTASection() {
             className="text-center"
           >
             <p className="text-white/80 text-lg font-medium">
-              Prêt à construire l'avenir de votre enfant ? Commencez par un échange avec nos experts.
+              Prêt à construire l'avenir de votre enfant ? Commencez par un échange avec nos
+              experts.
             </p>
             <div className="flex justify-center mt-4 space-x-1">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-2 h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
+                <div
+                  key={i}
+                  className="w-2 h-2 bg-white/60 rounded-full animate-pulse"
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
               ))}
             </div>
           </motion.div>

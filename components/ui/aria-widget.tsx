@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +13,16 @@ interface AriaWidgetProps {
   initialPrompt?: string;
 }
 
-export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon profil d'apprenant ?" }: AriaWidgetProps) {
+export function AriaWidget({
+  isOpen,
+  onClose,
+  initialPrompt = "Quel est mon profil d'apprenant ?",
+}: AriaWidgetProps) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Bonjour ! Je suis ARIA, votre assistant IA pédagogique. ${initialPrompt ? `Parlons de : "${initialPrompt}"` : 'Comment puis-je vous aider aujourd\'hui ?'}`
-    }
+      content: `Bonjour ! Je suis ARIA, votre assistant IA pédagogique. ${initialPrompt ? `Parlons de : "${initialPrompt}"` : "Comment puis-je vous aider aujourd'hui ?"}`,
+    },
   ]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,15 +34,18 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
 
     const userMessage = currentMessage;
     setCurrentMessage('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
     // Simuler une réponse ARIA (en production, appel API réel)
     setTimeout(() => {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `C'est une excellente question ! Basé sur votre demande "${userMessage}", je peux vous donner des conseils personnalisés. Pour vous fournir une recommandation vraiment adaptée à votre profil, j'aurais besoin de votre email pour continuer notre échange.`
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: `C'est une excellente question ! Basé sur votre demande "${userMessage}", je peux vous donner des conseils personnalisés. Pour vous fournir une recommandation vraiment adaptée à votre profil, j'aurais besoin de votre email pour continuer notre échange.`,
+        },
+      ]);
       setIsLoading(false);
       setShowEmailCapture(true);
     }, 1500);
@@ -49,10 +56,13 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
 
     // TODO: Enregistrer l'email en base avec tag "Prospect via Quiz IA"
 
-    setMessages(prev => [...prev, {
-      role: 'assistant',
-      content: `Merci ${userEmail} ! Je vais maintenant pouvoir vous proposer un accompagnement personnalisé. Basé sur nos échanges, je recommande de commencer par notre bilan stratégique gratuit pour identifier précisément vos besoins et objectifs.`
-    }]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        content: `Merci ${userEmail} ! Je vais maintenant pouvoir vous proposer un accompagnement personnalisé. Basé sur nos échanges, je recommande de commencer par notre bilan stratégique gratuit pour identifier précisément vos besoins et objectifs.`,
+      },
+    ]);
     setShowEmailCapture(false);
   };
 
@@ -105,10 +115,9 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl p-3 ${message.role === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                    }`}
+                  className={`max-w-[80%] rounded-2xl p-3 ${
+                    message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                  }`}
                 >
                   {message.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2">
@@ -126,8 +135,14 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
                 <div className="bg-gray-100 rounded-2xl p-3">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.1s' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></div>
                   </div>
                 </div>
               </div>

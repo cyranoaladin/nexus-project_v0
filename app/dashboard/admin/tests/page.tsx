@@ -29,7 +29,7 @@ export default async function AdminTestsPage() {
             </tr>
           </thead>
           <tbody>
-            {checks.map(c => (
+            {checks.map((c) => (
               <tr key={c.name} className="border-t">
                 <td className="p-2">{c.name}</td>
                 <td className="p-2">{c.ok ? 'OK' : 'KO'}</td>

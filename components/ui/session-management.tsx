@@ -1,12 +1,30 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, BookOpen, Filter, Search, Eye, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Calendar,
+  Clock,
+  User,
+  BookOpen,
+  Filter,
+  Search,
+  Eye,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Session {
@@ -54,7 +72,7 @@ const STATUS_COLORS = {
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-emerald-100 text-emerald-800',
   CANCELLED: 'bg-red-100 text-red-800',
-  NO_SHOW: 'bg-gray-100 text-gray-800'
+  NO_SHOW: 'bg-gray-100 text-gray-800',
 };
 
 const STATUS_LABELS = {
@@ -63,7 +81,7 @@ const STATUS_LABELS = {
   IN_PROGRESS: 'En cours',
   COMPLETED: 'Terminée',
   CANCELLED: 'Annulée',
-  NO_SHOW: 'Absence'
+  NO_SHOW: 'Absence',
 };
 
 export default function SessionManagement({ assistantId }: SessionManagementProps) {
@@ -71,7 +89,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -87,13 +105,13 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/sessions?role=assistant');
-      
+
       if (!response.ok) {
         throw new Error('Failed to load sessions');
       }
-      
+
       const data = await response.json();
       setSessions(data.sessions || []);
     } catch (err) {
@@ -113,25 +131,26 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(session =>
-        session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.coach.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.coach.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.coach.pseudonym.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.subject.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (session) =>
+          session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.coach.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.coach.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.coach.pseudonym.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.subject.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(session => session.status === statusFilter);
+      filtered = filtered.filter((session) => session.status === statusFilter);
     }
 
     // Subject filter
     if (subjectFilter !== 'all') {
-      filtered = filtered.filter(session => session.subject === subjectFilter);
+      filtered = filtered.filter((session) => session.subject === subjectFilter);
     }
 
     // Date filter
@@ -139,10 +158,10 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
       const today = new Date();
       const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
       const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
-      
-      filtered = filtered.filter(session => {
+
+      filtered = filtered.filter((session) => {
         const sessionDate = new Date(session.scheduledDate);
-        
+
         switch (dateFilter) {
           case 'today':
             return sessionDate.toDateString() === new Date().toDateString();
@@ -153,8 +172,10 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
           case 'week':
             return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
           case 'month':
-            return sessionDate.getMonth() === new Date().getMonth() && 
-                   sessionDate.getFullYear() === new Date().getFullYear();
+            return (
+              sessionDate.getMonth() === new Date().getMonth() &&
+              sessionDate.getFullYear() === new Date().getFullYear()
+            );
           default:
             return true;
         }
@@ -162,7 +183,9 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
     }
 
     // Sort by date (most recent first)
-    filtered.sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+    filtered.sort(
+      (a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()
+    );
 
     setFilteredSessions(filtered);
     setCurrentPage(1); // Reset to first page when filters change
@@ -181,8 +204,8 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
         },
         body: JSON.stringify({
           status: newStatus,
-          notes: notes
-        })
+          notes: notes,
+        }),
       });
 
       if (!response.ok) {
@@ -202,7 +225,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
       weekday: 'short',
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -211,7 +234,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
   };
 
   // Get unique subjects for filter
-  const uniqueSubjects = Array.from(new Set(sessions.map(s => s.subject)));
+  const uniqueSubjects = Array.from(new Set(sessions.map((s) => s.subject)));
 
   // Pagination
   const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
@@ -233,12 +256,8 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Gestion des Sessions
-          </h1>
-          <p className="text-gray-600">
-            Supervisez et gérez toutes les sessions de la plateforme
-          </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Gestion des Sessions</h1>
+          <p className="text-gray-600">Supervisez et gérez toutes les sessions de la plateforme</p>
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="px-3 py-1">
@@ -294,7 +313,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les matières</SelectItem>
-                {uniqueSubjects.map(subject => (
+                {uniqueSubjects.map((subject) => (
                   <SelectItem key={subject} value={subject}>
                     {subject}
                   </SelectItem>
@@ -351,9 +370,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center space-x-3">
-                          <h3 className="font-medium text-gray-900 truncate">
-                            {session.title}
-                          </h3>
+                          <h3 className="font-medium text-gray-900 truncate">{session.title}</h3>
                           <Badge className={`text-xs ${STATUS_COLORS[session.status]}`}>
                             {STATUS_LABELS[session.status]}
                           </Badge>
@@ -377,7 +394,8 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                           </div>
                           <div className="flex items-center">
                             <BookOpen className="w-4 h-4 mr-1" />
-                            {session.coach.pseudonym || `${session.coach.firstName} ${session.coach.lastName}`}
+                            {session.coach.pseudonym ||
+                              `${session.coach.firstName} ${session.coach.lastName}`}
                           </div>
                         </div>
 
@@ -430,20 +448,20 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                   >
                     Précédent
                   </Button>
-                  
+
                   <span className="text-sm text-gray-600">
                     Page {currentPage} sur {totalPages}
                   </span>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
                   >
                     Suivant
@@ -454,11 +472,12 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
           ) : (
             <div className="text-center py-12">
               <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Aucune session trouvée
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune session trouvée</h3>
               <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' || subjectFilter !== 'all' || dateFilter !== 'all'
+                {searchTerm ||
+                statusFilter !== 'all' ||
+                subjectFilter !== 'all' ||
+                dateFilter !== 'all'
                   ? 'Aucune session ne correspond aux filtres sélectionnés.'
                   : 'Aucune session programmée pour le moment.'}
               </p>
@@ -469,22 +488,29 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
 
       {/* Session Details Modal */}
       {selectedSession && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true" aria-labelledby="session-details-title" aria-describedby="session-details-desc">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-details-title"
+          aria-describedby="session-details-desc"
+        >
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 id="session-details-title" className="text-xl font-bold">Détails de la Session</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedSession(null)}
-                >
+                <h2 id="session-details-title" className="text-xl font-bold">
+                  Détails de la Session
+                </h2>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedSession(null)}>
                   <XCircle className="w-4 h-4" />
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <p id="session-details-desc" className="sr-only">Informations détaillées de la session sélectionnée, y compris date, heure, élève, coach et statut.</p>
+                <p id="session-details-desc" className="sr-only">
+                  Informations détaillées de la session sélectionnée, y compris date, heure, élève,
+                  coach et statut.
+                </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">Titre</label>
@@ -501,19 +527,22 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                   <div>
                     <label className="text-sm font-medium text-gray-700">Heure</label>
                     <p className="text-gray-900">
-                      {formatTime(selectedSession.startTime)} - {formatTime(selectedSession.endTime)}
+                      {formatTime(selectedSession.startTime)} -{' '}
+                      {formatTime(selectedSession.endTime)}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Élève</label>
                     <p className="text-gray-900">
-                      {selectedSession.student.firstName} {selectedSession.student.lastName} ({selectedSession.student.grade})
+                      {selectedSession.student.firstName} {selectedSession.student.lastName} (
+                      {selectedSession.student.grade})
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Coach</label>
                     <p className="text-gray-900">
-                      {selectedSession.coach.pseudonym || `${selectedSession.coach.firstName} ${selectedSession.coach.lastName}`}
+                      {selectedSession.coach.pseudonym ||
+                        `${selectedSession.coach.firstName} ${selectedSession.coach.lastName}`}
                     </p>
                   </div>
                   {selectedSession.parent && (
@@ -535,7 +564,9 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                 {selectedSession.coachNotes && (
                   <div>
                     <label className="text-sm font-medium text-gray-700">Notes du Coach</label>
-                    <p className="text-gray-900 bg-gray-50 p-3 rounded">{selectedSession.coachNotes}</p>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded">
+                      {selectedSession.coachNotes}
+                    </p>
                   </div>
                 )}
 
@@ -543,7 +574,9 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                   <div>
                     <label className="text-sm font-medium text-gray-700">Évaluation</label>
                     <div className="flex items-center">
-                      <span className="text-lg font-bold text-yellow-600">{selectedSession.rating}/5</span>
+                      <span className="text-lg font-bold text-yellow-600">
+                        {selectedSession.rating}/5
+                      </span>
                       <span className="text-gray-500 ml-2">⭐</span>
                     </div>
                   </div>
@@ -555,4 +588,4 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
       )}
     </div>
   );
-} 
+}

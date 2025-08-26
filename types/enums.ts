@@ -7,20 +7,20 @@ export enum UserRole {
   ASSISTANTE = 'ASSISTANTE',
   COACH = 'COACH',
   PARENT = 'PARENT',
-  ELEVE = 'ELEVE'
+  ELEVE = 'ELEVE',
 }
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   CANCELLED = 'CANCELLED',
-  EXPIRED = 'EXPIRED'
+  EXPIRED = 'EXPIRED',
 }
 
 export enum ServiceType {
   COURS_ONLINE = 'COURS_ONLINE',
   COURS_PRESENTIEL = 'COURS_PRESENTIEL',
-  ATELIER_GROUPE = 'ATELIER_GROUPE'
+  ATELIER_GROUPE = 'ATELIER_GROUPE',
 }
 
 export enum Subject {
@@ -33,7 +33,7 @@ export enum Subject {
   ESPAGNOL = 'ESPAGNOL',
   PHYSIQUE_CHIMIE = 'PHYSIQUE_CHIMIE',
   SVT = 'SVT',
-  SES = 'SES'
+  SES = 'SES',
 }
 
 export enum SessionStatus {
@@ -43,18 +43,18 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
   NO_SHOW = 'NO_SHOW',
-  RESCHEDULED = 'RESCHEDULED'
+  RESCHEDULED = 'RESCHEDULED',
 }
 
 export enum PaymentType {
   SUBSCRIPTION = 'SUBSCRIPTION',
   CREDIT_PACK = 'CREDIT_PACK',
-  SPECIAL_PACK = 'SPECIAL_PACK'
+  SPECIAL_PACK = 'SPECIAL_PACK',
 }
 
 export enum PaymentStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }

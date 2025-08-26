@@ -15,7 +15,11 @@ const E2E_ENABLED = process.env.E2E_RUN === '1';
     await expect(page.locator('header')).toBeVisible();
     // Disambiguate by scoping to header navigation
     const nav = page.getByRole('navigation');
-    await expect(nav.getByRole('link', { name: /Offres & Tarifs|Découvrir nos Offres|Voir Toutes Nos Offres/i })).toBeVisible();
+    await expect(
+      nav.getByRole('link', {
+        name: /Offres & Tarifs|Découvrir nos Offres|Voir Toutes Nos Offres/i,
+      })
+    ).toBeVisible();
   });
 
   test('Bilan gratuit - formulaire accessible', async ({ page }) => {

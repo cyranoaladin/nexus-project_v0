@@ -24,42 +24,44 @@ export async function POST(request: NextRequest) {
       case 'send_test':
         // Envoyer un email de test
         if (!testEmail) {
-          return NextResponse.json({
-            success: false,
-            error: 'Adresse email requise pour le test'
-          }, { status: 400 });
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Adresse email requise pour le test',
+            },
+            { status: 400 }
+          );
         }
 
         try {
           await sendWelcomeEmail({
             firstName: 'Test',
             lastName: 'User',
-            email: testEmail
+            email: testEmail,
           });
 
           return NextResponse.json({
             success: true,
-            message: `Email de test envoyé à ${testEmail}`
+            message: `Email de test envoyé à ${testEmail}`,
           });
         } catch (emailError: any) {
           return NextResponse.json({
             success: false,
-            error: `Erreur envoi email: ${emailError?.message || 'Erreur inconnue'}`
+            error: `Erreur envoi email: ${emailError?.message || 'Erreur inconnue'}`,
           });
         }
 
       default:
-        return NextResponse.json({
-          error: 'Action non reconnue'
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: 'Action non reconnue',
+          },
+          { status: 400 }
+        );
     }
-
   } catch (error) {
     console.error('Erreur API test email:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
 
@@ -78,28 +80,27 @@ export async function GET(request: NextRequest) {
       'SMTP_USER',
       'SMTP_PASSWORD',
       'SMTP_FROM',
-      'SMTP_SECURE'
+      'SMTP_SECURE',
     ];
 
-    const configStatus = envVars.map(varName => ({
+    const configStatus = envVars.map((varName) => ({
       variable: varName,
       configured: !!process.env[varName],
-      value: varName === 'SMTP_PASSWORD' ?
-        (process.env[varName] ? '***configured***' : 'not set') :
-        process.env[varName] || 'not set'
+      value:
+        varName === 'SMTP_PASSWORD'
+          ? process.env[varName]
+            ? '***configured***'
+            : 'not set'
+          : process.env[varName] || 'not set',
     }));
 
     return NextResponse.json({
       success: true,
       configuration: configStatus,
-      allConfigured: configStatus.every(config => config.configured)
+      allConfigured: configStatus.every((config) => config.configured),
     });
-
   } catch (error) {
     console.error('Erreur GET test email:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

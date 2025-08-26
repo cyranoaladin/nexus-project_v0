@@ -147,9 +147,9 @@ npm run test:e2e:ui       # Interface graphique
 
 ```typescript
 it('should return 1.25 for a presential course', () => {
-  const cost = calculateCreditCost('COURS_PRESENTIEL')
-  expect(cost).toBe(1.25)
-})
+  const cost = calculateCreditCost('COURS_PRESENTIEL');
+  expect(cost).toBe(1.25);
+});
 ```
 
 ### Test d'Intégration Représentatif
@@ -159,7 +159,7 @@ it('should return 400 when student has insufficient credits', async () => {
   // Setup: Étudiant avec 1 crédit
   // Action: Tentative réservation 1.25 crédits
   // Assertion: Erreur "Solde insuffisant"
-})
+});
 ```
 
 ### Test E2E Représentatif
@@ -167,8 +167,8 @@ it('should return 400 when student has insufficient credits', async () => {
 ```typescript
 it('should limit anonymous users to 3 questions', async ({ page }) => {
   // Navigation → Chat ARIA → 3 Questions → Limitation
-  await expect(page.locator('[data-testid="aria-registration-prompt"]')).toBeVisible()
-})
+  await expect(page.locator('[data-testid="aria-registration-prompt"]')).toBeVisible();
+});
 ```
 
 ## 📁 Structure Finale

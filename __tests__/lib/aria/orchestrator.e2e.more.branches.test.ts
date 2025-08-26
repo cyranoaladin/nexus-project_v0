@@ -21,7 +21,10 @@ global.fetch = jest.fn();
 describe('E2E orchestrator extra branches', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 's1', user: { firstName: 'Ada', lastName: 'Lovelace' } });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: 's1',
+      user: { firstName: 'Ada', lastName: 'Lovelace' },
+    });
     (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'conv1' });
     (prisma.ariaMessage.findMany as jest.Mock).mockResolvedValue([]);
@@ -30,7 +33,7 @@ describe('E2E orchestrator extra branches', () => {
 
   it('ne génère pas de PDF quand la requête ne le demande pas (EXPLICATION)', async () => {
     (llm_service.generate_response as jest.Mock).mockResolvedValue({
-      response: 'Réponse conversationnelle courte.'
+      response: 'Réponse conversationnelle courte.',
     });
 
     const orch = new AriaOrchestrator('s1', 'p1');
@@ -41,7 +44,7 @@ describe('E2E orchestrator extra branches', () => {
 
   it("ne déclenche pas l'ingestion RAG quand la réponse est courte (\u2264 30 mots)", async () => {
     (llm_service.generate_response as jest.Mock).mockResolvedValue({
-      response: 'Réponse brève.' // \u2264 30 mots
+      response: 'Réponse brève.', // \u2264 30 mots
     });
 
     (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
@@ -55,10 +58,12 @@ describe('E2E orchestrator extra branches', () => {
   it('gère un échec de compilation LaTeX côté service PDF (via exception)', async () => {
     (llm_service.generate_response as jest.Mock).mockResolvedValue({
       response: 'Réponse longue '.repeat(40),
-      contenu_latex: '\\section*{Sujet}\nDocument préparé pour Ada.'
+      contenu_latex: '\\section*{Sujet}\nDocument préparé pour Ada.',
     });
 
-    (pdf_generator_service.generate_pdf as jest.Mock).mockRejectedValue(new Error('Compilation LaTeX échouée'));
+    (pdf_generator_service.generate_pdf as jest.Mock).mockRejectedValue(
+      new Error('Compilation LaTeX échouée')
+    );
 
     const orch = new AriaOrchestrator('s1', 'p1');
     await expect(

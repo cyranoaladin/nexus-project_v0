@@ -25,7 +25,9 @@ describe('Admin Activities API extra branches', () => {
       { id: 'u1', firstName: 'Alice', lastName: 'Dupont', role: 'ELEVE', createdAt: new Date() },
     ]);
     const { GET } = require('@/app/api/admin/activities/route');
-    const res = await GET(new NextRequest('http://localhost/api/admin/activities?type=user&search=alice'));
+    const res = await GET(
+      new NextRequest('http://localhost/api/admin/activities?type=user&search=alice')
+    );
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.activities.every((a: any) => a.type === 'user')).toBe(true);

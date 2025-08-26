@@ -29,7 +29,6 @@ export interface SessionBookingData {
 }
 
 export class SessionBookingService {
-
   /**
    * Get available time slots for a specific coach and date range
    */
@@ -50,39 +49,33 @@ export class SessionBookingService {
             isRecurring: true,
             specificDate: null,
             validFrom: { lte: endDate },
-            OR: [
-              { validUntil: null },
-              { validUntil: { gte: startDate } }
-            ]
+            OR: [{ validUntil: null }, { validUntil: { gte: startDate } }],
           },
           {
             // Specific date availability
             isRecurring: false,
             specificDate: {
               gte: startDate,
-              lte: endDate
-            }
-          }
-        ]
+              lte: endDate,
+            },
+          },
+        ],
       },
       include: {
         coach: {
           select: {
             firstName: true,
-            lastName: true
-          }
-        }
+            lastName: true,
+          },
+        },
       },
-      orderBy: [
-        { dayOfWeek: 'asc' },
-        { startTime: 'asc' }
-      ]
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
     });
 
     // Get coach profile to get subjects
     const coachProfile = await prisma.coachProfile.findUnique({
       where: { userId: coachId },
-      select: { subjects: true }
+      select: { subjects: true },
     });
 
     const coachSubjects = coachProfile ? JSON.parse(coachProfile.subjects || '[]') : [];
@@ -93,15 +86,15 @@ export class SessionBookingService {
         coachId,
         scheduledDate: {
           gte: startDate,
-          lte: endDate
+          lte: endDate,
         },
-        status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
+        status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
       },
       select: {
         scheduledDate: true,
         startTime: true,
-        endTime: true
-      }
+        endTime: true,
+      },
     });
 
     const availableSlots: AvailableSlot[] = [];
@@ -113,20 +106,21 @@ export class SessionBookingService {
 
       // Check for specific date availability first
       const specificAvailability = availability.filter(
-        (av: { specificDate: Date | null; }) =>
-          av.specificDate &&
-          av.specificDate.toDateString() === currentDate.toDateString()
+        (av: { specificDate: Date | null }) =>
+          av.specificDate && av.specificDate.toDateString() === currentDate.toDateString()
       );
 
       // If no specific availability, check recurring availability
-      const recurringAvailability = specificAvailability.length === 0
-        ? availability.filter(
-          (av: any) => av.isRecurring &&
-            av.dayOfWeek === dayOfWeek &&
-            (!av.validFrom || av.validFrom <= currentDate) &&
-            (!av.validUntil || av.validUntil >= currentDate)
-        )
-        : [];
+      const recurringAvailability =
+        specificAvailability.length === 0
+          ? availability.filter(
+              (av: any) =>
+                av.isRecurring &&
+                av.dayOfWeek === dayOfWeek &&
+                (!av.validFrom || av.validFrom <= currentDate) &&
+                (!av.validUntil || av.validUntil >= currentDate)
+            )
+          : [];
 
       const dayAvailability = [...specificAvailability, ...recurringAvailability];
 
@@ -137,14 +131,10 @@ export class SessionBookingService {
         }
 
         // Check if slot is not booked
-        const isBooked = bookedSlots.some((booking: { scheduledDate: Date; startTime: string; endTime: string; }) =>
-          booking.scheduledDate.toDateString() === currentDate.toDateString() &&
-          this.timesOverlap(
-            slot.startTime,
-            slot.endTime,
-            booking.startTime,
-            booking.endTime
-          )
+        const isBooked = bookedSlots.some(
+          (booking: { scheduledDate: Date; startTime: string; endTime: string }) =>
+            booking.scheduledDate.toDateString() === currentDate.toDateString() &&
+            this.timesOverlap(slot.startTime, slot.endTime, booking.startTime, booking.endTime)
         );
 
         if (!isBooked) {
@@ -156,7 +146,7 @@ export class SessionBookingService {
             startTime: slot.startTime,
             endTime: slot.endTime,
             duration: this.calculateDuration(slot.startTime, slot.endTime),
-            isSpecificDate: !slot.isRecurring
+            isSpecificDate: !slot.isRecurring,
           });
         }
       }
@@ -180,9 +170,9 @@ export class SessionBookingService {
         role: 'COACH',
         coachProfile: {
           subjects: {
-            contains: subject
-          }
-        }
+            contains: subject,
+          },
+        },
       },
       include: {
         coachProfile: true,
@@ -194,34 +184,31 @@ export class SessionBookingService {
                 isRecurring: true,
                 specificDate: null,
                 validFrom: { lte: endDate },
-                OR: [
-                  { validUntil: null },
-                  { validUntil: { gte: startDate } }
-                ]
+                OR: [{ validUntil: null }, { validUntil: { gte: startDate } }],
               },
               {
                 isRecurring: false,
                 specificDate: {
                   gte: startDate,
-                  lte: endDate
-                }
-              }
-            ]
-          }
-        }
-      }
+                  lte: endDate,
+                },
+              },
+            ],
+          },
+        },
+      },
     });
 
     // Filter coaches who have actual availability and format response
     return coaches
-      .filter((coach: { coachAvailabilities: any[]; }) => coach.coachAvailabilities.length > 0)
+      .filter((coach: { coachAvailabilities: any[] }) => coach.coachAvailabilities.length > 0)
       .map((coach: any) => ({
         id: coach.id,
         firstName: coach.firstName,
         lastName: coach.lastName,
         email: coach.email,
         coachSubjects: JSON.parse(coach.coachProfile?.subjects || '[]'),
-        coachAvailabilities: coach.coachAvailabilities
+        coachAvailabilities: coach.coachAvailabilities,
       }));
   }
 
@@ -262,19 +249,19 @@ export class SessionBookingService {
           type: data.type as any,
           modality: data.modality as any,
           creditsUsed: data.creditsUsed,
-          status: 'SCHEDULED'
+          status: 'SCHEDULED',
         },
         include: {
           student: true,
           coach: true,
-          parent: true
-        }
+          parent: true,
+        },
       });
 
       // Deduct credits from student
       await tx.student.update({
         where: { userId: data.studentId },
-        data: { credits: { decrement: data.creditsUsed } }
+        data: { credits: { decrement: data.creditsUsed } },
       });
 
       // Create notifications
@@ -299,17 +286,13 @@ export class SessionBookingService {
     const session = await prisma.sessionBooking.findFirst({
       where: {
         id: sessionId,
-        OR: [
-          { coachId: userId },
-          { studentId: userId },
-          { parentId: userId }
-        ]
+        OR: [{ coachId: userId }, { studentId: userId }, { parentId: userId }],
       },
       include: {
         student: true,
         coach: true,
-        parent: true
-      }
+        parent: true,
+      },
     });
 
     if (!session) {
@@ -322,8 +305,8 @@ export class SessionBookingService {
         status: status as any,
         ...(status === 'COMPLETED' && { completedAt: new Date() }),
         ...(status === 'CANCELLED' && { cancelledAt: new Date() }),
-        ...(notes && { coachNotes: notes })
-      }
+        ...(notes && { coachNotes: notes }),
+      },
     });
 
     // Create status change notifications
@@ -341,17 +324,17 @@ export class SessionBookingService {
     const dueReminders = await prisma.sessionReminder.findMany({
       where: {
         sent: false,
-        scheduledFor: { lte: now }
+        scheduledFor: { lte: now },
       },
       include: {
         session: {
           include: {
             student: true,
             coach: true,
-            parent: true
-          }
-        }
-      }
+            parent: true,
+          },
+        },
+      },
     });
 
     for (const reminder of dueReminders) {
@@ -362,8 +345,8 @@ export class SessionBookingService {
           where: { id: reminder.id },
           data: {
             sent: true,
-            sentAt: new Date()
-          }
+            sentAt: new Date(),
+          },
         });
       } catch (error) {
         console.error(`Failed to send reminder ${reminder.id}:`, error);
@@ -372,12 +355,7 @@ export class SessionBookingService {
   }
 
   // Helper methods
-  private static timesOverlap(
-    start1: string,
-    end1: string,
-    start2: string,
-    end2: string
-  ): boolean {
+  private static timesOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
     return start1 < end2 && end1 > start2;
   }
 
@@ -410,18 +388,15 @@ export class SessionBookingService {
             startTime: { lte: startTime },
             endTime: { gte: endTime },
             validFrom: { lte: date },
-            OR: [
-              { validUntil: null },
-              { validUntil: { gte: date } }
-            ]
+            OR: [{ validUntil: null }, { validUntil: { gte: date } }],
           },
           {
             specificDate: date,
             startTime: { lte: startTime },
-            endTime: { gte: endTime }
-          }
-        ]
-      }
+            endTime: { gte: endTime },
+          },
+        ],
+      },
     });
 
     if (!availability) return false;
@@ -434,19 +409,13 @@ export class SessionBookingService {
         status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
         OR: [
           {
-            AND: [
-              { startTime: { lte: startTime } },
-              { endTime: { gt: startTime } }
-            ]
+            AND: [{ startTime: { lte: startTime } }, { endTime: { gt: startTime } }],
           },
           {
-            AND: [
-              { startTime: { lt: endTime } },
-              { endTime: { gte: endTime } }
-            ]
-          }
-        ]
-      }
+            AND: [{ startTime: { lt: endTime } }, { endTime: { gte: endTime } }],
+          },
+        ],
+      },
     });
 
     return !conflict;
@@ -458,7 +427,7 @@ export class SessionBookingService {
     tx: any
   ): Promise<void> {
     const student = await tx.student.findFirst({
-      where: { userId: studentId }
+      where: { userId: studentId },
     });
 
     if (!student || student.credits < creditsNeeded) {
@@ -476,12 +445,12 @@ export class SessionBookingService {
       type: 'SESSION_BOOKED',
       title: 'Nouvelle session réservée',
       message: `${session.student.firstName} ${session.student.lastName} a réservé une session`,
-      method: 'EMAIL'
+      method: 'EMAIL',
     });
 
     // Notify assistants
     const assistants = await tx.user.findMany({
-      where: { role: 'ASSISTANTE' }
+      where: { role: 'ASSISTANTE' },
     });
 
     for (const assistant of assistants) {
@@ -491,42 +460,47 @@ export class SessionBookingService {
         type: 'SESSION_BOOKED',
         title: 'Nouvelle session planifiée',
         message: `Session programmée entre ${session.coach.firstName} et ${session.student.firstName}`,
-        method: 'IN_APP'
+        method: 'IN_APP',
       });
     }
 
     await tx.sessionNotification.createMany({
-      data: notifications
+      data: notifications,
     });
   }
 
   private static async createSessionReminders(session: any, tx: any): Promise<void> {
-    const sessionDateTime = new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`);
+    const sessionDateTime = new Date(
+      `${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`
+    );
 
     const reminders = [
       {
         sessionId: session.id,
         reminderType: 'ONE_DAY_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
+        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000),
       },
       {
         sessionId: session.id,
         reminderType: 'TWO_HOURS_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
+        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000),
       },
       {
         sessionId: session.id,
         reminderType: 'THIRTY_MINUTES_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
-      }
+        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000),
+      },
     ];
 
     await tx.sessionReminder.createMany({
-      data: reminders
+      data: reminders,
     });
   }
 
-  private static async createStatusChangeNotifications(session: any, status: string): Promise<void> {
+  private static async createStatusChangeNotifications(
+    session: any,
+    status: string
+  ): Promise<void> {
     // Implementation for status change notifications
   }
 

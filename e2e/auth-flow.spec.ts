@@ -11,7 +11,9 @@ const RUN = process.env.E2E_RUN === '1';
     await page.locator('input#password').fill('password123');
   });
 
-  test('La page de connexion ne doit avoir aucune violation d\'accessibilité critique', async ({ page }) => {
+  test("La page de connexion ne doit avoir aucune violation d'accessibilité critique", async ({
+    page,
+  }) => {
     await page.goto('/auth/signin');
     await expectNoCriticalA11yViolations(page);
   });

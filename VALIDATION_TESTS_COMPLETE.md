@@ -188,4 +188,4 @@ La plateforme Nexus Réussite dispose maintenant d'une suite de tests automatis�
 
 ---
 
-*Équipe de développement prête pour la phase de validation finale et déploiement sécurisé.* 🚀
+_Équipe de développement prête pour la phase de validation finale et déploiement sécurisé._ 🚀

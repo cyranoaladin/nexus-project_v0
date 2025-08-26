@@ -2,14 +2,26 @@ import { expect, test } from '@playwright/test';
 import { loginAs } from './helpers';
 
 test.describe('ARIA Premium Flow - Marie Dupont', () => {
-  test('personalized answer with mastery hint and PDF success, then remembers context', async ({ page }) => {
+  test('personalized answer with mastery hint and PDF success, then remembers context', async ({
+    page,
+  }) => {
     // Mock API responses for determinism
-    await page.route('**/api/aria/chat', async route => {
+    await page.route('**/api/aria/chat', async (route) => {
       const post = route.request().postDataJSON() as any;
       if (String(post?.message).toLowerCase().includes('pdf')) {
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ response: 'Document prêt', documentUrl: '/pdfs/fiche.pdf' }) });
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ response: 'Document prêt', documentUrl: '/pdfs/fiche.pdf' }),
+        });
       }
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ response: 'Réponse ciblée sur Probabilités (point faible) avec conseils.' }) });
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          response: 'Réponse ciblée sur Probabilités (point faible) avec conseils.',
+        }),
+      });
     });
 
     await loginAs(page, 'marie.dupont@nexus.com');
@@ -25,7 +37,9 @@ test.describe('ARIA Premium Flow - Marie Dupont', () => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
       await page.getByTestId('open-aria-chat').click();
-      chatInput = page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first();
+      chatInput = page
+        .locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]')
+        .first();
       await expect(chatInput).toBeVisible({ timeout: 12000 });
     }
 
@@ -44,7 +58,9 @@ test.describe('ARIA Premium Flow - Marie Dupont', () => {
 
     // 3) Rafraîchit et pose une question relative à la conversation précédente
     await page.reload();
-    let input2 = page.locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]').first();
+    let input2 = page
+      .locator('[data-testid="aria-input"], input[placeholder="Posez votre question à ARIA..."]')
+      .first();
     try {
       await expect(input2).toBeVisible({ timeout: 20000 });
     } catch {
@@ -56,8 +72,12 @@ test.describe('ARIA Premium Flow - Marie Dupont', () => {
       await expect(input2).toBeVisible({ timeout: 20000 });
     }
     await input2.fill('Et par rapport à la dernière explication ?');
-    const send2 = page.locator('[data-testid="aria-send"], button[aria-label="Envoyer le message"]').first();
-    await send2.click().catch(async () => { await page.keyboard.press('Enter'); });
+    const send2 = page
+      .locator('[data-testid="aria-send"], button[aria-label="Envoyer le message"]')
+      .first();
+    await send2.click().catch(async () => {
+      await page.keyboard.press('Enter');
+    });
     await expect(page.getByText('Probabilités', { exact: false })).toBeVisible();
   });
 });

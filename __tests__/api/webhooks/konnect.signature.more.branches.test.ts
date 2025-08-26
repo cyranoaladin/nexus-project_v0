@@ -5,7 +5,9 @@ describe('Konnect webhook additional branches', () => {
   const build = (body: any) => {
     const raw = JSON.stringify(body);
     const sig = crypto.createHmac('sha256', secret).update(raw, 'utf8').digest('hex');
-    const headers = { get: (k: string) => (k.toLowerCase() === 'x-konnect-signature' ? sig : null) } as any;
+    const headers = {
+      get: (k: string) => (k.toLowerCase() === 'x-konnect-signature' ? sig : null),
+    } as any;
     const req = { text: async () => raw, headers } as any;
     return { req, raw, sig };
   };

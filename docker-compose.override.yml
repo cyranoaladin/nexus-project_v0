@@ -17,4 +17,3 @@ services:
 
   pdf_generator_service:
     image: ${REGISTRY}/${IMAGE_PREFIX}-pdf:${IMAGE_TAG}
-

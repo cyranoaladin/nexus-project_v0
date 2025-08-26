@@ -7,7 +7,7 @@ import { z } from 'zod';
 const validatePaymentSchema = z.object({
   paymentId: z.string(),
   action: z.enum(['approve', 'reject']),
-  note: z.string().optional()
+  note: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -15,10 +15,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -32,19 +29,16 @@ export async function POST(request: NextRequest) {
           include: {
             parentProfile: {
               include: {
-                children: true
-              }
-            }
-          }
-        }
-      }
+                children: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!payment) {
-      return NextResponse.json(
-        { error: 'Paiement non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Paiement non trouvé' }, { status: 404 });
     }
 
     if (action === 'approve') {
@@ -54,12 +48,12 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'COMPLETED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...((payment.metadata as Record<string, any>) || {}),
             validatedBy: session.user.id,
             validatedAt: new Date().toISOString(),
-            validationNote: note
-          }
-        }
+            validationNote: note,
+          },
+        },
       });
 
       // Activer le service selon le type
@@ -68,7 +62,7 @@ export async function POST(request: NextRequest) {
       if (payment.type === 'SUBSCRIPTION') {
         // Activer l'abonnement
         const student = await prisma.student.findUnique({
-          where: { id: metadata.studentId }
+          where: { id: metadata.studentId },
         });
 
         if (student) {
@@ -76,9 +70,9 @@ export async function POST(request: NextRequest) {
           await prisma.subscription.updateMany({
             where: {
               studentId: metadata.studentId,
-              status: 'ACTIVE'
+              status: 'ACTIVE',
             },
-            data: { status: 'CANCELLED' }
+            data: { status: 'CANCELLED' },
           });
 
           // Activer le nouvel abonnement
@@ -86,20 +80,20 @@ export async function POST(request: NextRequest) {
             where: {
               studentId: metadata.studentId,
               planName: metadata.itemKey,
-              status: 'INACTIVE'
+              status: 'INACTIVE',
             },
             data: {
               status: 'ACTIVE',
-              startDate: new Date()
-            }
+              startDate: new Date(),
+            },
           });
 
           // Allouer les crédits mensuels
           const subscription = await prisma.subscription.findFirst({
             where: {
               studentId: metadata.studentId,
-              status: 'ACTIVE'
-            }
+              status: 'ACTIVE',
+            },
           });
 
           if (subscription && subscription.creditsPerMonth > 0) {
@@ -112,15 +106,14 @@ export async function POST(request: NextRequest) {
                 type: 'MONTHLY_ALLOCATION',
                 amount: subscription.creditsPerMonth,
                 description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
-                expiresAt: nextMonth
-              }
+                expiresAt: nextMonth,
+              },
             });
           }
         }
       }
 
       // TODO: Envoyer email de confirmation au client
-
     } else {
       // Rejeter le paiement
       await prisma.payment.update({
@@ -128,12 +121,12 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'FAILED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...((payment.metadata as Record<string, any>) || {}),
             rejectedBy: session.user.id,
             rejectedAt: new Date().toISOString(),
-            rejectionReason: note
-          }
-        }
+            rejectionReason: note,
+          },
+        },
       });
 
       // TODO: Envoyer email d'information au client
@@ -141,15 +134,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`
+      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`,
     });
-
   } catch (error) {
     console.error('Erreur validation paiement:', error);
 
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

@@ -20,4 +20,3 @@ export const AriaFeedbackSchema = z.object({
 export type AriaChatRequest = z.infer<typeof AriaChatRequestSchema>;
 export type AriaChatResponse = z.infer<typeof AriaChatResponseSchema>;
 export type AriaFeedback = z.infer<typeof AriaFeedbackSchema>;
-

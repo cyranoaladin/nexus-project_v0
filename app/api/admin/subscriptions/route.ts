@@ -10,10 +10,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -39,14 +36,14 @@ export async function GET(request: NextRequest) {
               OR: [
                 { firstName: { contains: search, mode: 'insensitive' } },
                 { lastName: { contains: search, mode: 'insensitive' } },
-                { email: { contains: search, mode: 'insensitive' } }
-              ]
-            }
-          }
+                { email: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          },
         },
         {
-          planName: { contains: search, mode: 'insensitive' }
-        }
+          planName: { contains: search, mode: 'insensitive' },
+        },
       ];
     }
 
@@ -57,7 +54,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          createdAt: 'desc'
+          createdAt: 'desc',
         },
         include: {
           student: {
@@ -65,14 +62,14 @@ export async function GET(request: NextRequest) {
               user: true,
               parent: {
                 include: {
-                  user: true
-                }
-              }
-            }
-          }
-        }
+                  user: true,
+                },
+              },
+            },
+          },
+        },
       }),
-      prisma.subscription.count({ where: whereClause })
+      prisma.subscription.count({ where: whereClause }),
     ]);
 
     const formattedSubscriptions = subscriptions.map((subscription: any) => ({
@@ -89,13 +86,13 @@ export async function GET(request: NextRequest) {
         lastName: subscription.student.user.lastName,
         email: subscription.student.user.email,
         grade: subscription.student.grade,
-        school: subscription.student.school
+        school: subscription.student.school,
       },
       parent: {
         firstName: subscription.student.parent.user.firstName,
         lastName: subscription.student.parent.user.lastName,
-        email: subscription.student.parent.user.email
-      }
+        email: subscription.student.parent.user.email,
+      },
     }));
 
     return NextResponse.json({
@@ -104,16 +101,12 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total: totalSubscriptions,
-        totalPages: Math.ceil(totalSubscriptions / limit)
-      }
+        totalPages: Math.ceil(totalSubscriptions / limit),
+      },
     });
-
   } catch (error) {
     console.error('Error fetching subscriptions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -122,20 +115,14 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { subscriptionId, status, endDate } = body;
 
     if (!subscriptionId) {
-      return NextResponse.json(
-        { error: 'Subscription ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Subscription ID is required' }, { status: 400 });
     }
 
     // Update subscription
@@ -143,15 +130,15 @@ export async function PUT(request: NextRequest) {
       where: { id: subscriptionId },
       data: {
         status,
-        endDate: endDate ? new Date(endDate) : undefined
+        endDate: endDate ? new Date(endDate) : undefined,
       },
       include: {
         student: {
           include: {
-            user: true
-          }
-        }
-      }
+            user: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -161,15 +148,11 @@ export async function PUT(request: NextRequest) {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
         endDate: updatedSubscription.endDate,
-        studentName: `${updatedSubscription.student.user.firstName} ${updatedSubscription.student.user.lastName}`
-      }
+        studentName: `${updatedSubscription.student.user.firstName} ${updatedSubscription.student.user.lastName}`,
+      },
     });
-
   } catch (error) {
     console.error('Error updating subscription:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

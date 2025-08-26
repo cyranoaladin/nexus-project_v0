@@ -36,12 +36,12 @@ Variables d’environnement runtime (exporter avant `docker compose`)
 
 Déploiement (manuel ou via CI)
 
-1) Se connecter au VPS
-2) Se placer dans le WORKDIR
-3) Exporter `REGISTRY`, `IMAGE_PREFIX`, `IMAGE_TAG`
-4) Vérifier `.env.production`
-5) `docker compose pull && docker compose up -d`
-6) Vérifier la santé:
+1. Se connecter au VPS
+2. Se placer dans le WORKDIR
+3. Exporter `REGISTRY`, `IMAGE_PREFIX`, `IMAGE_TAG`
+4. Vérifier `.env.production`
+5. `docker compose pull && docker compose up -d`
+6. Vérifier la santé:
    - `curl -fsS http://localhost:3000/api/health`
    - `curl -fsS http://localhost:8001/health`
    - `curl -fsS http://localhost:8002/health`

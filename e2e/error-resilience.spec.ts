@@ -22,12 +22,18 @@ test.describe('Error resilience', () => {
     const send = page
       .locator('[data-testid="aria-send"], button[aria-label="Envoyer le message"]')
       .first();
-    await send.click().catch(async () => { await input.press('Enter'); });
+    await send.click().catch(async () => {
+      await input.press('Enter');
+    });
 
     // Vérifie qu'une réponse est bien rendue (même dégradée) et que l'UI ne casse pas
     const messages = page.getByTestId('aria-messages').first();
     await expect(messages).toBeVisible({ timeout: 15000 });
-    const hasSomeText = await messages.getByText(/.+/).first().isVisible().catch(() => false);
+    const hasSomeText = await messages
+      .getByText(/.+/)
+      .first()
+      .isVisible()
+      .catch(() => false);
     expect(Boolean(hasSomeText)).toBeTruthy();
   });
 });

@@ -67,11 +67,8 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'COMPLETED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            processedKeys: [
-              ...(((payment.metadata as any)?.processedKeys) || []),
-              idempotencyKey,
-            ],
+            ...((payment.metadata as Record<string, any>) || {}),
+            processedKeys: [...((payment.metadata as any)?.processedKeys || []), idempotencyKey],
           },
         },
       });
@@ -100,9 +97,9 @@ Fichier: app/api/payments/konnect/route.ts
 
 ```ts
 const PRICE_TABLE: Record<string, number> = {
-  'ABO_HYBRIDE': 249,
-  'ABO_IMMERSION': 399,
-  'ADDON_ARIA_MATHS': 49,
+  ABO_HYBRIDE: 249,
+  ABO_IMMERSION: 399,
+  ADDON_ARIA_MATHS: 49,
 };
 
 // ...
@@ -112,7 +109,7 @@ if (!amount) {
   return NextResponse.json({ error: 'Unknown item key' }, { status: 400 });
 }
 
-const idempotencyKey = `${session.user.id}:${studentId}:${key}:${new Date().toISOString().slice(0,10)}`;
+const idempotencyKey = `${session.user.id}:${studentId}:${key}:${new Date().toISOString().slice(0, 10)}`;
 
 // Exemple d’appel API Konnect avec idempotency
 // const konnectResponse = await fetch('https://api.konnect.network/api/v2/payments/init', {
@@ -210,9 +207,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:

@@ -1,10 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { CreditCard, Calendar, Receipt } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { CreditCard, Calendar, Receipt } from 'lucide-react';
 
 interface InvoiceDetailsDialogProps {
   subscriptionDetails: {
@@ -17,7 +23,10 @@ interface InvoiceDetailsDialogProps {
   studentName: string;
 }
 
-export default function InvoiceDetailsDialog({ subscriptionDetails, studentName }: InvoiceDetailsDialogProps) {
+export default function InvoiceDetailsDialog({
+  subscriptionDetails,
+  studentName,
+}: InvoiceDetailsDialogProps) {
   const [open, setOpen] = useState(false);
 
   if (!subscriptionDetails) {
@@ -32,25 +41,33 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return 'default';
-      case 'INACTIVE': return 'secondary';
-      case 'REJECTED': return 'destructive';
-      default: return 'outline';
+      case 'ACTIVE':
+        return 'default';
+      case 'INACTIVE':
+        return 'secondary';
+      case 'REJECTED':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return 'Actif';
-      case 'INACTIVE': return 'Inactif';
-      case 'REJECTED': return 'Rejeté';
-      default: return status;
+      case 'ACTIVE':
+        return 'Actif';
+      case 'INACTIVE':
+        return 'Inactif';
+      case 'REJECTED':
+        return 'Rejeté';
+      default:
+        return status;
     }
   };
 
@@ -71,7 +88,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             Informations de facturation pour {studentName}
           </p>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
@@ -81,21 +98,17 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
                   subscriptionDetails.status === 'ACTIVE'
                     ? 'default'
                     : subscriptionDetails.status === 'INACTIVE'
-                    ? 'outline'
-                    : subscriptionDetails.status === 'REJECTED'
-                    ? 'destructive'
-                    : 'outline'
+                      ? 'outline'
+                      : subscriptionDetails.status === 'REJECTED'
+                        ? 'destructive'
+                        : 'outline'
                 }
               >
                 {getStatusText(subscriptionDetails.status)}
               </Badge>
             </div>
-            <p className="text-lg font-bold text-blue-600">
-              {subscriptionDetails.planName}
-            </p>
-            <p className="text-sm text-gray-600">
-              {subscriptionDetails.monthlyPrice} TND/mois
-            </p>
+            <p className="text-lg font-bold text-blue-600">{subscriptionDetails.planName}</p>
+            <p className="text-sm text-gray-600">{subscriptionDetails.monthlyPrice} TND/mois</p>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -103,9 +116,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
               <Calendar className="w-5 h-5 text-blue-600" />
               <div>
                 <p className="text-sm font-medium text-gray-900">Date de début</p>
-                <p className="text-sm text-gray-600">
-                  {formatDate(subscriptionDetails.startDate)}
-                </p>
+                <p className="text-sm text-gray-600">{formatDate(subscriptionDetails.startDate)}</p>
               </div>
             </div>
 
@@ -113,9 +124,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
               <CreditCard className="w-5 h-5 text-green-600" />
               <div>
                 <p className="text-sm font-medium text-gray-900">Prochaine facturation</p>
-                <p className="text-sm text-gray-600">
-                  {formatDate(subscriptionDetails.endDate)}
-                </p>
+                <p className="text-sm text-gray-600">{formatDate(subscriptionDetails.endDate)}</p>
               </div>
             </div>
           </div>
@@ -125,16 +134,16 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
               <Receipt className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-yellow-800">
                 <p className="font-medium mb-1">Information :</p>
-                <p>La facturation est automatique à la date indiquée. Vous recevrez un email de confirmation.</p>
+                <p>
+                  La facturation est automatique à la date indiquée. Vous recevrez un email de
+                  confirmation.
+                </p>
               </div>
             </div>
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Fermer
             </Button>
           </div>
@@ -142,4 +151,4 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
       </DialogContent>
     </Dialog>
   );
-} 
+}

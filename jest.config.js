@@ -19,15 +19,8 @@ const customJestConfig = {
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.(test|spec).(js|ts|tsx)',
-    '**/*.(test|spec).(js|ts|tsx)'
-  ],
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/e2e/',
-  ],
+  testMatch: ['**/__tests__/**/*.(test|spec).(js|ts|tsx)', '**/*.(test|spec).(js|ts|tsx)'],
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/e2e/'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

@@ -6,12 +6,9 @@ import { authOptions } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -25,17 +22,14 @@ export async function GET(request: NextRequest) {
           user: true,
           creditTransactions: {
             orderBy: {
-              createdAt: 'desc'
-            }
-          }
-        }
+              createdAt: 'desc',
+            },
+          },
+        },
       });
 
       if (!student) {
-        return NextResponse.json(
-          { error: 'Student not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Student not found' }, { status: 404 });
       }
 
       const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
@@ -49,7 +43,7 @@ export async function GET(request: NextRequest) {
           lastName: student.user.lastName,
           email: student.user.email,
           grade: student.grade,
-          school: student.school
+          school: student.school,
         },
         creditBalance,
         transactions: student.creditTransactions.map((transaction: any) => ({
@@ -57,22 +51,25 @@ export async function GET(request: NextRequest) {
           type: transaction.type,
           amount: transaction.amount,
           description: transaction.description,
-          createdAt: transaction.createdAt
-        }))
+          createdAt: transaction.createdAt,
+        })),
       });
     } else {
       // Get all students with credit balances
       const students = await prisma.student.findMany({
         include: {
           user: true,
-          creditTransactions: true
-        }
+          creditTransactions: true,
+        },
       });
 
       const studentsWithCredits = students.map((student: any) => {
-        const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
-          return total + transaction.amount;
-        }, 0);
+        const creditBalance = student.creditTransactions.reduce(
+          (total: number, transaction: any) => {
+            return total + transaction.amount;
+          },
+          0
+        );
 
         return {
           id: student.id,
@@ -81,53 +78,40 @@ export async function GET(request: NextRequest) {
           email: student.user.email,
           grade: student.grade,
           school: student.school,
-          creditBalance
+          creditBalance,
         };
       });
 
       return NextResponse.json(studentsWithCredits);
     }
-
   } catch (error) {
     console.error('Error fetching student credits:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { studentId, amount, type, description } = body;
 
     if (!studentId || !amount || !type || !description) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Validate student exists
     const student = await prisma.student.findUnique({
-      where: { id: studentId }
+      where: { id: studentId },
     });
 
     if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
     // Create credit transaction
@@ -136,20 +120,20 @@ export async function POST(request: NextRequest) {
         studentId,
         type,
         amount: parseFloat(amount),
-        description: `${description} (par ${session.user.firstName} ${session.user.lastName})`
+        description: `${description} (par ${session.user.firstName} ${session.user.lastName})`,
       },
       include: {
         student: {
           include: {
-            user: true
-          }
-        }
-      }
+            user: true,
+          },
+        },
+      },
     });
 
     // Calculate new balance
     const allTransactions = await prisma.creditTransaction.findMany({
-      where: { studentId }
+      where: { studentId },
     });
 
     const newBalance = allTransactions.reduce((total: number, t: any) => {
@@ -163,20 +147,16 @@ export async function POST(request: NextRequest) {
         type: transaction.type,
         amount: transaction.amount,
         description: transaction.description,
-        createdAt: transaction.createdAt
+        createdAt: transaction.createdAt,
       },
       newBalance,
       student: {
         firstName: transaction.student.user.firstName,
-        lastName: transaction.student.user.lastName
-      }
+        lastName: transaction.student.user.lastName,
+      },
     });
-
   } catch (error) {
     console.error('Error adding student credits:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

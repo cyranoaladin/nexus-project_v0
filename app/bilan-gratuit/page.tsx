@@ -1,19 +1,25 @@
-"use client";
+'use client';
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
-import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Footer } from '@/components/layout/footer';
+import { Header } from '@/components/layout/header';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { motion } from 'framer-motion';
+import { CheckCircle, GraduationCap, Loader2, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 // Simplified enum for testing
 const Subject = {
@@ -26,39 +32,39 @@ const Subject = {
   ESPAGNOL: 'ESPAGNOL',
   PHYSIQUE_CHIMIE: 'PHYSIQUE_CHIMIE',
   SVT: 'SVT',
-  SES: 'SES'
+  SES: 'SES',
 } as const;
 
 const SUBJECTS_OPTIONS = [
-  { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
-  { value: Subject.NSI, label: "NSI (Numérique et Sciences Informatiques)" },
-  { value: Subject.FRANCAIS, label: "Français" },
-  { value: Subject.PHILOSOPHIE, label: "Philosophie" },
-  { value: Subject.HISTOIRE_GEO, label: "Histoire-Géographie" },
-  { value: Subject.ANGLAIS, label: "Anglais" },
-  { value: Subject.ESPAGNOL, label: "Espagnol" },
-  { value: Subject.PHYSIQUE_CHIMIE, label: "Physique-Chimie" },
-  { value: Subject.SVT, label: "SVT" },
-  { value: Subject.SES, label: "SES" }
+  { value: Subject.MATHEMATIQUES, label: 'Mathématiques' },
+  { value: Subject.NSI, label: 'NSI (Numérique et Sciences Informatiques)' },
+  { value: Subject.FRANCAIS, label: 'Français' },
+  { value: Subject.PHILOSOPHIE, label: 'Philosophie' },
+  { value: Subject.HISTOIRE_GEO, label: 'Histoire-Géographie' },
+  { value: Subject.ANGLAIS, label: 'Anglais' },
+  { value: Subject.ESPAGNOL, label: 'Espagnol' },
+  { value: Subject.PHYSIQUE_CHIMIE, label: 'Physique-Chimie' },
+  { value: Subject.SVT, label: 'SVT' },
+  { value: Subject.SES, label: 'SES' },
 ];
 
 const GRADES_OPTIONS = [
-  { value: "seconde", label: "Seconde" },
-  { value: "premiere", label: "Première" },
-  { value: "terminale", label: "Terminale" }
+  { value: 'seconde', label: 'Seconde' },
+  { value: 'premiere', label: 'Première' },
+  { value: 'terminale', label: 'Terminale' },
 ];
 
 const LEVELS_OPTIONS = [
-  { value: "difficultes", label: "En difficulté" },
-  { value: "moyen", label: "Niveau moyen" },
-  { value: "bon", label: "Bon niveau" },
-  { value: "excellent", label: "Excellent niveau" }
+  { value: 'difficultes', label: 'En difficulté' },
+  { value: 'moyen', label: 'Niveau moyen' },
+  { value: 'bon', label: 'Bon niveau' },
+  { value: 'excellent', label: 'Excellent niveau' },
 ];
 
 const MODALITY_OPTIONS = [
-  { value: "online", label: "Cours en ligne uniquement" },
-  { value: "presentiel", label: "Cours en présentiel uniquement" },
-  { value: "hybride", label: "Cours en ligne et présentiel" }
+  { value: 'online', label: 'Cours en ligne uniquement' },
+  { value: 'presentiel', label: 'Cours en présentiel uniquement' },
+  { value: 'hybride', label: 'Cours en ligne et présentiel' },
 ];
 
 export default function BilanGratuitPage() {
@@ -80,7 +86,7 @@ export default function BilanGratuitPage() {
     preferredModality: '',
     availability: '',
     acceptTerms: false,
-    acceptNewsletter: false
+    acceptNewsletter: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -97,8 +103,8 @@ export default function BilanGratuitPage() {
       if (!formData.parentPhone) newErrors.parentPhone = 'Téléphone requis';
       if (!formData.parentPassword) newErrors.parentPassword = 'Mot de passe requis';
     } else {
-      if (!formData.studentFirstName) newErrors.studentFirstName = 'Prénom de l\'élève requis';
-      if (!formData.studentLastName) newErrors.studentLastName = 'Nom de l\'élève requis';
+      if (!formData.studentFirstName) newErrors.studentFirstName = "Prénom de l'élève requis";
+      if (!formData.studentLastName) newErrors.studentLastName = "Nom de l'élève requis";
       if (!formData.studentGrade) newErrors.studentGrade = 'Classe requise';
       if (!formData.currentLevel) newErrors.currentLevel = 'Niveau requis';
       if (!formData.objectives) newErrors.objectives = 'Objectifs requis';
@@ -123,16 +129,16 @@ export default function BilanGratuitPage() {
 
   const toggleSubject = (subject: string) => {
     const newSubjects = selectedSubjects.includes(subject)
-      ? selectedSubjects.filter(s => s !== subject)
+      ? selectedSubjects.filter((s) => s !== subject)
       : [...selectedSubjects, subject];
     setSelectedSubjects(newSubjects);
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -149,7 +155,7 @@ export default function BilanGratuitPage() {
     }
 
     if (!formData.acceptTerms) {
-      alert('Veuillez accepter les conditions générales d\'utilisation.');
+      alert("Veuillez accepter les conditions générales d'utilisation.");
       return;
     }
 
@@ -158,15 +164,15 @@ export default function BilanGratuitPage() {
     try {
       const submitData = {
         ...formData,
-        subjects: selectedSubjects
+        subjects: selectedSubjects,
       };
 
       const response = await fetch('/api/bilan-gratuit', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(submitData)
+        body: JSON.stringify(submitData),
       });
 
       const result = await response.json();
@@ -180,7 +186,7 @@ export default function BilanGratuitPage() {
       }
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Une erreur est survenue lors de l\'inscription');
+      alert("Une erreur est survenue lors de l'inscription");
     } finally {
       setIsSubmitting(false);
     }
@@ -206,7 +212,9 @@ export default function BilanGratuitPage() {
               Créez Votre Compte Parent et Élève
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-              En 2 étapes simples, créez vos comptes et accédez immédiatement à votre tableau de bord personnalisé pour commencer le parcours vers la <span className="text-blue-600 font-semibold">réussite au Baccalauréat</span>.
+              En 2 étapes simples, créez vos comptes et accédez immédiatement à votre tableau de
+              bord personnalisé pour commencer le parcours vers la{' '}
+              <span className="text-blue-600 font-semibold">réussite au Baccalauréat</span>.
             </p>
           </motion.div>
 
@@ -245,7 +253,9 @@ export default function BilanGratuitPage() {
                 <CardContent className="space-y-4 md:space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="parentFirstName" className="text-sm md:text-base">Prénom *</Label>
+                      <Label htmlFor="parentFirstName" className="text-sm md:text-base">
+                        Prénom *
+                      </Label>
                       <Input
                         id="parentFirstName"
                         type="text"
@@ -255,11 +265,15 @@ export default function BilanGratuitPage() {
                         placeholder="Votre prénom"
                       />
                       {errors.parentFirstName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.parentFirstName}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="parentLastName" className="text-sm md:text-base">Nom *</Label>
+                      <Label htmlFor="parentLastName" className="text-sm md:text-base">
+                        Nom *
+                      </Label>
                       <Input
                         id="parentLastName"
                         type="text"
@@ -269,14 +283,18 @@ export default function BilanGratuitPage() {
                         placeholder="Votre nom"
                       />
                       {errors.parentLastName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentLastName}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.parentLastName}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="parentEmail" className="text-sm md:text-base">Email *</Label>
+                      <Label htmlFor="parentEmail" className="text-sm md:text-base">
+                        Email *
+                      </Label>
                       <Input
                         id="parentEmail"
                         type="email"
@@ -290,7 +308,9 @@ export default function BilanGratuitPage() {
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="parentPhone" className="text-sm md:text-base">Téléphone *</Label>
+                      <Label htmlFor="parentPhone" className="text-sm md:text-base">
+                        Téléphone *
+                      </Label>
                       <Input
                         id="parentPhone"
                         type="tel"
@@ -306,7 +326,9 @@ export default function BilanGratuitPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="parentPassword" className="text-sm md:text-base">Mot de passe *</Label>
+                    <Label htmlFor="parentPassword" className="text-sm md:text-base">
+                      Mot de passe *
+                    </Label>
                     <Input
                       id="parentPassword"
                       type="password"
@@ -316,7 +338,9 @@ export default function BilanGratuitPage() {
                       placeholder="Minimum 8 caractères"
                     />
                     {errors.parentPassword && (
-                      <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPassword}</p>
+                      <p className="text-red-500 text-xs md:text-sm mt-1">
+                        {errors.parentPassword}
+                      </p>
                     )}
                   </div>
 
@@ -351,7 +375,9 @@ export default function BilanGratuitPage() {
                 <CardContent className="space-y-4 md:space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="studentFirstName" className="text-sm md:text-base">Prénom de l'élève *</Label>
+                      <Label htmlFor="studentFirstName" className="text-sm md:text-base">
+                        Prénom de l'élève *
+                      </Label>
                       <Input
                         id="studentFirstName"
                         type="text"
@@ -361,11 +387,15 @@ export default function BilanGratuitPage() {
                         placeholder="Prénom de l'élève"
                       />
                       {errors.studentFirstName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.studentFirstName}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="studentLastName" className="text-sm md:text-base">Nom de l'élève *</Label>
+                      <Label htmlFor="studentLastName" className="text-sm md:text-base">
+                        Nom de l'élève *
+                      </Label>
                       <Input
                         id="studentLastName"
                         type="text"
@@ -375,16 +405,25 @@ export default function BilanGratuitPage() {
                         placeholder="Nom de l'élève"
                       />
                       {errors.studentLastName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentLastName}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.studentLastName}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="studentGrade" className="text-sm md:text-base">Niveau *</Label>
-                      <Select value={formData.studentGrade} onValueChange={(value) => handleInputChange('studentGrade', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-red-500' : ''}`}>
+                      <Label htmlFor="studentGrade" className="text-sm md:text-base">
+                        Niveau *
+                      </Label>
+                      <Select
+                        value={formData.studentGrade}
+                        onValueChange={(value) => handleInputChange('studentGrade', value)}
+                      >
+                        <SelectTrigger
+                          className={`mt-1 ${errors.studentGrade ? 'border-red-500' : ''}`}
+                        >
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -396,11 +435,15 @@ export default function BilanGratuitPage() {
                         </SelectContent>
                       </Select>
                       {errors.studentGrade && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentGrade}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.studentGrade}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="studentSchool" className="text-sm md:text-base">Établissement</Label>
+                      <Label htmlFor="studentSchool" className="text-sm md:text-base">
+                        Établissement
+                      </Label>
                       <Input
                         id="studentSchool"
                         type="text"
@@ -414,9 +457,16 @@ export default function BilanGratuitPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label htmlFor="currentLevel" className="text-sm md:text-base">Niveau actuel *</Label>
-                      <Select value={formData.currentLevel} onValueChange={(value) => handleInputChange('currentLevel', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-red-500' : ''}`}>
+                      <Label htmlFor="currentLevel" className="text-sm md:text-base">
+                        Niveau actuel *
+                      </Label>
+                      <Select
+                        value={formData.currentLevel}
+                        onValueChange={(value) => handleInputChange('currentLevel', value)}
+                      >
+                        <SelectTrigger
+                          className={`mt-1 ${errors.currentLevel ? 'border-red-500' : ''}`}
+                        >
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -428,12 +478,19 @@ export default function BilanGratuitPage() {
                         </SelectContent>
                       </Select>
                       {errors.currentLevel && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.currentLevel}</p>
+                        <p className="text-red-500 text-xs md:text-sm mt-1">
+                          {errors.currentLevel}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="preferredModality" className="text-sm md:text-base">Modalité préférée</Label>
-                      <Select value={formData.preferredModality} onValueChange={(value) => handleInputChange('preferredModality', value)}>
+                      <Label htmlFor="preferredModality" className="text-sm md:text-base">
+                        Modalité préférée
+                      </Label>
+                      <Select
+                        value={formData.preferredModality}
+                        onValueChange={(value) => handleInputChange('preferredModality', value)}
+                      >
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Sélectionnez la modalité" />
                         </SelectTrigger>
@@ -449,7 +506,9 @@ export default function BilanGratuitPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="objectives" className="text-sm md:text-base">Objectifs et motivations</Label>
+                    <Label htmlFor="objectives" className="text-sm md:text-base">
+                      Objectifs et motivations
+                    </Label>
                     <Textarea
                       id="objectives"
                       value={formData.objectives}
@@ -461,7 +520,9 @@ export default function BilanGratuitPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="availability" className="text-sm md:text-base">Disponibilités</Label>
+                    <Label htmlFor="availability" className="text-sm md:text-base">
+                      Disponibilités
+                    </Label>
                     <Textarea
                       id="availability"
                       value={formData.availability}
@@ -483,14 +544,19 @@ export default function BilanGratuitPage() {
                             checked={selectedSubjects.includes(subject.value)}
                             onCheckedChange={() => toggleSubject(subject.value)}
                           />
-                          <Label htmlFor={subject.value} className="text-xs md:text-sm cursor-pointer">
+                          <Label
+                            htmlFor={subject.value}
+                            className="text-xs md:text-sm cursor-pointer"
+                          >
                             {subject.label}
                           </Label>
                         </div>
                       ))}
                     </div>
                     {selectedSubjects.length === 0 && (
-                      <p className="text-red-500 text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
+                      <p className="text-red-500 text-xs md:text-sm mt-1">
+                        Veuillez sélectionner au moins une matière
+                      </p>
                     )}
                   </div>
 
@@ -502,17 +568,29 @@ export default function BilanGratuitPage() {
                         checked={formData.acceptTerms}
                         onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
                       />
-                      <Label htmlFor="acceptTerms" className="text-xs md:text-sm leading-relaxed cursor-pointer">
-                        J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales d'utilisation</a> *
+                      <Label
+                        htmlFor="acceptTerms"
+                        className="text-xs md:text-sm leading-relaxed cursor-pointer"
+                      >
+                        J'accepte les{' '}
+                        <a href="#" className="text-blue-600 hover:underline">
+                          conditions générales d'utilisation
+                        </a>{' '}
+                        *
                       </Label>
                     </div>
                     <div className="flex items-start space-x-2">
                       <Checkbox
                         id="acceptNewsletter"
                         checked={formData.acceptNewsletter}
-                        onCheckedChange={(checked) => handleInputChange('acceptNewsletter', checked)}
+                        onCheckedChange={(checked) =>
+                          handleInputChange('acceptNewsletter', checked)
+                        }
                       />
-                      <Label htmlFor="acceptNewsletter" className="text-xs md:text-sm leading-relaxed cursor-pointer">
+                      <Label
+                        htmlFor="acceptNewsletter"
+                        className="text-xs md:text-sm leading-relaxed cursor-pointer"
+                      >
                         J'accepte de recevoir des informations et offres de Nexus Réussite
                       </Label>
                     </div>
@@ -528,7 +606,12 @@ export default function BilanGratuitPage() {
                     </Button>
                     <Button
                       onClick={onSubmit}
-                      disabled={isSubmitting || Object.keys(errors).length > 0 || selectedSubjects.length === 0 || !formData.acceptTerms}
+                      disabled={
+                        isSubmitting ||
+                        Object.keys(errors).length > 0 ||
+                        selectedSubjects.length === 0 ||
+                        !formData.acceptTerms
+                      }
                       className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
                     >
                       {isSubmitting ? (

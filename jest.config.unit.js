@@ -3,13 +3,10 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 
 module.exports = {
   testEnvironment: 'jsdom',
-  testMatch: [
-    '**/__tests__/**/*.test.(ts|tsx|js)',
-    '**/*.unit.test.(ts|tsx|js)'
-  ],
+  testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)', '**/*.unit.test.(ts|tsx|js)'],
   transform: { ...tsJestTransformCfg },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1'
+    '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };

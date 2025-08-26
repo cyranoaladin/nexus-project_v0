@@ -3,7 +3,7 @@ import {
   ariaMessageSchema,
   bilanGratuitSchema,
   sessionBookingSchema,
-  signinSchema
+  signinSchema,
 } from '@/lib/validations';
 import { Subject } from '@prisma/client';
 
@@ -36,7 +36,7 @@ describe('Validation Schemas', () => {
 
       // Consentements
       acceptTerms: true,
-      acceptNewsletter: false
+      acceptNewsletter: false,
     };
 
     it('should pass validation with valid data', () => {
@@ -58,7 +58,9 @@ describe('Validation Schemas', () => {
       const result = bilanGratuitSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Le mot de passe doit contenir au moins 8 caractères');
+        expect(result.error.issues[0].message).toBe(
+          'Le mot de passe doit contenir au moins 8 caractères'
+        );
       }
     });
 
@@ -67,7 +69,9 @@ describe('Validation Schemas', () => {
       const result = bilanGratuitSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Le prénom doit contenir au moins 2 caractères');
+        expect(result.error.issues[0].message).toBe(
+          'Le prénom doit contenir au moins 2 caractères'
+        );
       }
     });
 
@@ -94,7 +98,9 @@ describe('Validation Schemas', () => {
       const result = bilanGratuitSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Décrivez vos objectifs (minimum 10 caractères)');
+        expect(result.error.issues[0].message).toBe(
+          'Décrivez vos objectifs (minimum 10 caractères)'
+        );
       }
     });
 
@@ -112,7 +118,7 @@ describe('Validation Schemas', () => {
     it('should pass validation with a valid email and password', () => {
       const validData = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
       const result = signinSchema.safeParse(validData);
       expect(result.success).toBe(true);
@@ -121,7 +127,7 @@ describe('Validation Schemas', () => {
     it('should fail validation with invalid email', () => {
       const invalidData = {
         email: 'invalid-email',
-        password: 'password123'
+        password: 'password123',
       };
       const result = signinSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -133,7 +139,7 @@ describe('Validation Schemas', () => {
     it('should fail validation with empty password', () => {
       const invalidData = {
         email: 'test@example.com',
-        password: ''
+        password: '',
       };
       const result = signinSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -155,7 +161,7 @@ describe('Validation Schemas', () => {
       scheduledAt: futureDate.toISOString(),
       duration: 60,
       title: 'Cours de mathématiques',
-      description: 'Révision des équations du second degré'
+      description: 'Révision des équations du second degré',
     };
 
     it('should pass validation with valid session data', () => {
@@ -190,7 +196,7 @@ describe('Validation Schemas', () => {
       const validData = {
         conversationId: 'conv-123',
         subject: 'MATHEMATIQUES' as Subject,
-        content: 'Peux-tu m\'aider avec les fractions ?'
+        content: "Peux-tu m'aider avec les fractions ?",
       };
       const result = ariaMessageSchema.safeParse(validData);
       expect(result.success).toBe(true);
@@ -199,7 +205,7 @@ describe('Validation Schemas', () => {
     it('should fail validation with empty content', () => {
       const invalidData = {
         subject: 'MATHEMATIQUES' as Subject,
-        content: ''
+        content: '',
       };
       const result = ariaMessageSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -212,7 +218,7 @@ describe('Validation Schemas', () => {
       const longContent = 'x'.repeat(1001);
       const invalidData = {
         subject: 'MATHEMATIQUES' as Subject,
-        content: longContent
+        content: longContent,
       };
       const result = ariaMessageSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -226,7 +232,7 @@ describe('Validation Schemas', () => {
     it('should pass validation with valid feedback data', () => {
       const validData = {
         messageId: 'msg-123',
-        feedback: true
+        feedback: true,
       };
       const result = ariaFeedbackSchema.safeParse(validData);
       expect(result.success).toBe(true);
@@ -235,7 +241,7 @@ describe('Validation Schemas', () => {
     it('should pass validation with negative feedback', () => {
       const validData = {
         messageId: 'msg-123',
-        feedback: false
+        feedback: false,
       };
       const result = ariaFeedbackSchema.safeParse(validData);
       expect(result.success).toBe(true);

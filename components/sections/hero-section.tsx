@@ -1,12 +1,23 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { ArrowRight, Award, BrainCircuit, Code2, HelpCircle, Network, ShieldCheck, Sparkles, Users, X } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import {
+  ArrowRight,
+  Award,
+  BrainCircuit,
+  Code2,
+  HelpCircle,
+  Network,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  X,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Composant Tooltip pour DIU NSI
 function DIUTooltip() {
@@ -27,9 +38,7 @@ function DIUTooltip() {
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
           <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 w-80 text-left">
             <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-slate-900 text-sm">
-                Qu'est-ce que le DIU NSI ?
-              </h4>
+              <h4 className="font-semibold text-slate-900 text-sm">Qu'est-ce que le DIU NSI ?</h4>
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-slate-400 hover:text-slate-600 ml-2"
@@ -38,9 +47,9 @@ function DIUTooltip() {
               </button>
             </div>
             <p className="text-xs text-slate-700 leading-relaxed">
-              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui garantit
-              que l'enseignant possède les connaissances et les compétences pédagogiques requises
-              pour enseigner la spécialité Numérique et Sciences Informatiques (NSI) en 1ère et
+              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui garantit que
+              l'enseignant possède les connaissances et les compétences pédagogiques requises pour
+              enseigner la spécialité Numérique et Sciences Informatiques (NSI) en 1ère et
               Terminale, conformément aux exigences de la réforme du lycée.
             </p>
             {/* Flèche du tooltip */}
@@ -62,9 +71,9 @@ export function HeroSection() {
         className="absolute inset-0"
         style={{
           backgroundImage: "url('/images/hero-image.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
-          backgroundRepeat: "no-repeat"
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
         }}
       >
         {/* Overlay sombre pour la lisibilité */}
@@ -77,9 +86,21 @@ export function HeroSection() {
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="tech-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <pattern
+                id="tech-grid"
+                x="0"
+                y="0"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
                 <circle cx="20" cy="20" r="1" fill="#3B82F6" />
-                <path d="M 0 20 L 40 20 M 20 0 L 20 40" stroke="#3B82F6" strokeWidth="0.5" opacity="0.3" />
+                <path
+                  d="M 0 20 L 40 20 M 20 0 L 20 40"
+                  stroke="#3B82F6"
+                  strokeWidth="0.5"
+                  opacity="0.3"
+                />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#tech-grid)" />
@@ -89,7 +110,6 @@ export function HeroSection() {
 
       {/* Contenu principal centré full-width */}
       <div className="relative w-full max-w-6xl mx-auto px-4 py-12 md:py-20 text-center">
-
         {/* Badge d'introduction */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -109,12 +129,14 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-
           <h1 className="font-heading text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl">
-            <span className="block text-white">La <span className="text-blue-300">Pédagogie Augmentée</span></span>
+            <span className="block text-white">
+              La <span className="text-blue-300">Pédagogie Augmentée</span>
+            </span>
             <span className="block text-white">pour Réussir son Bac.</span>
-            <span className="block text-white font-medium text-4xl md:text-5xl lg:text-6xl">Sans Stress.</span>
-
+            <span className="block text-white font-medium text-4xl md:text-5xl lg:text-6xl">
+              Sans Stress.
+            </span>
           </h1>
         </motion.div>
 
@@ -140,11 +162,17 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-
           className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
-
         >
-          Nous fusionnons l'expertise de <span className="text-blue-300 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-300 font-semibold">mention au Bac</span> et un <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.
+          Nous fusionnons l'expertise de{' '}
+          <span className="text-blue-300 font-semibold">
+            professeurs d'élite de l'enseignement français
+          </span>{' '}
+          avec la puissance de notre{' '}
+          <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>.
+          L'objectif : transformer le potentiel de votre enfant en une{' '}
+          <span className="text-blue-300 font-semibold">mention au Bac</span> et un{' '}
+          <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.
         </motion.p>
 
         {/* Grille de fonctionnalités centrée */}
@@ -169,13 +197,15 @@ export function HeroSection() {
 
           <div className="flex flex-col items-center gap-3 p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <Network className="w-8 h-8 text-blue-600" />
-            <p className="text-slate-900 font-medium text-center">Expertise <span className="text-blue-600 font-semibold">Enseignement Français</span></p>
-
+            <p className="text-slate-900 font-medium text-center">
+              Expertise <span className="text-blue-600 font-semibold">Enseignement Français</span>
+            </p>
           </div>
           <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <Code2 className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
             <p className="text-slate-900 font-medium text-center text-xs md:text-sm">
-              Spécialistes <span className="text-blue-600 font-semibold">DIU NSI</span><DIUTooltip />
+              Spécialistes <span className="text-blue-600 font-semibold">DIU NSI</span>
+              <DIUTooltip />
             </p>
           </div>
         </motion.div>
@@ -212,7 +242,9 @@ export function HeroSection() {
           className="text-center"
         >
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-medium max-w-4xl mx-auto">
-            <h3 className="text-slate-800 font-bold text-base md:text-lg mb-4 md:mb-6">Notre Force : L'Excellence de nos Experts</h3>
+            <h3 className="text-slate-800 font-bold text-base md:text-lg mb-4 md:mb-6">
+              Notre Force : L'Excellence de nos Experts
+            </h3>
             <div className="grid grid-cols-3 gap-4 md:gap-6">
               <div className="flex flex-col items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -238,7 +270,9 @@ export function HeroSection() {
                 </div>
                 <div className="text-center">
                   <p className="text-lg md:text-2xl font-bold text-slate-900">100%</p>
-                  <p className="text-xs md:text-sm text-slate-600">de nos coachs sont Agrégés ou Certifiés</p>
+                  <p className="text-xs md:text-sm text-slate-600">
+                    de nos coachs sont Agrégés ou Certifiés
+                  </p>
                 </div>
               </div>
             </div>

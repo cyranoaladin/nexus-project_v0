@@ -29,12 +29,9 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -50,39 +47,30 @@ export async function POST(request: NextRequest) {
       expertise,
       subjects,
       availableOnline,
-      availableInPerson
+      availableInPerson,
     } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email || !password || !pseudonym) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Email already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
     }
 
     // Check if pseudonym already exists
     const existingCoach = await prisma.coachProfile.findUnique({
-      where: { pseudonym }
+      where: { pseudonym },
     });
 
     if (existingCoach) {
-      return NextResponse.json(
-        { error: 'Pseudonym already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Pseudonym already exists' }, { status: 400 });
     }
 
     // Hash password
@@ -97,8 +85,8 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           firstName,
           lastName,
-          role: 'COACH'
-        }
+          role: 'COACH',
+        },
       });
 
       // Create coach profile
@@ -112,11 +100,11 @@ export async function POST(request: NextRequest) {
           expertise,
           subjects: JSON.stringify(subjects || []),
           availableOnline: availableOnline ?? true,
-          availableInPerson: availableInPerson ?? true
+          availableInPerson: availableInPerson ?? true,
         },
         include: {
-          user: true
-        }
+          user: true,
+        },
       });
 
       return coach;
@@ -130,15 +118,11 @@ export async function POST(request: NextRequest) {
         lastName: result.user.lastName,
         email: result.user.email,
         pseudonym: result.pseudonym,
-        tag: result.tag
-      }
+        tag: result.tag,
+      },
     });
-
   } catch (error) {
     console.error('Error creating coach:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

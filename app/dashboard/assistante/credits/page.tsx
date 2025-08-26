@@ -24,12 +24,14 @@ export default async function AssistantCreditsPage() {
             </tr>
           </thead>
           <tbody>
-            {credits.map(cr => (
+            {credits.map((cr) => (
               <tr key={cr.id} className="border-t">
-                <td className="p-2">{cr.student?.user.firstName} {cr.student?.user.lastName}</td>
+                <td className="p-2">
+                  {cr.student?.user.firstName} {cr.student?.user.lastName}
+                </td>
                 <td className="p-2">{cr.type}</td>
                 <td className="p-2">{cr.amount}</td>
-                <td className="p-2">{cr.createdAt.toISOString().slice(0,10)}</td>
+                <td className="p-2">{cr.createdAt.toISOString().slice(0, 10)}</td>
               </tr>
             ))}
           </tbody>

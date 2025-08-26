@@ -1,5 +1,5 @@
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware(req) {
@@ -14,11 +14,21 @@ export default withAuth(
     if (pathname === '/dashboard' && token) {
       let url = '/'; // Fallback
       switch (token.role) {
-        case 'ADMIN': url = '/dashboard/admin'; break;
-        case 'ASSISTANTE': url = '/dashboard/assistante'; break;
-        case 'COACH': url = '/dashboard/coach'; break;
-        case 'PARENT': url = '/dashboard/parent'; break;
-        case 'ELEVE': url = '/dashboard/eleve'; break;
+        case 'ADMIN':
+          url = '/dashboard/admin';
+          break;
+        case 'ASSISTANTE':
+          url = '/dashboard/assistante';
+          break;
+        case 'COACH':
+          url = '/dashboard/coach';
+          break;
+        case 'PARENT':
+          url = '/dashboard/parent';
+          break;
+        case 'ELEVE':
+          url = '/dashboard/eleve';
+          break;
       }
       return NextResponse.redirect(new URL(url, req.url));
     }
@@ -52,8 +62,5 @@ export default withAuth(
 export const config = {
   // The matcher should protect all dashboard routes
   // The withAuth helper automatically excludes API routes like /api/auth
-  matcher: [
-    '/dashboard/:path*',
-    '/session/:path*',
-  ],
+  matcher: ['/dashboard/:path*', '/session/:path*'],
 };

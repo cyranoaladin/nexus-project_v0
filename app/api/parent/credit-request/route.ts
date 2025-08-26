@@ -8,20 +8,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { studentId, creditAmount, reason } = body;
 
     if (!studentId || !creditAmount) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Verify student belongs to parent
@@ -31,27 +25,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (!parentProfile) {
-      return NextResponse.json(
-        { error: 'Parent profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Parent profile not found' }, { status: 404 });
     }
 
     const student = await prisma.student.findFirst({
       where: {
         id: studentId,
-        parentId: parentProfile.id
+        parentId: parentProfile.id,
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     });
 
     if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found or unauthorized' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Student not found or unauthorized' }, { status: 404 });
     }
 
     // Create credit request notification
@@ -60,21 +48,18 @@ export async function POST(request: NextRequest) {
         studentId: studentId,
         type: 'CREDIT_REQUEST',
         amount: creditAmount,
-        description: `Demande d'achat de ${creditAmount} crédits par ${session.user.firstName} ${session.user.lastName}. Raison: ${reason || 'Non spécifiée'}`
-      }
+        description: `Demande d'achat de ${creditAmount} crédits par ${session.user.firstName} ${session.user.lastName}. Raison: ${reason || 'Non spécifiée'}`,
+      },
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Demande de crédits envoyée à l\'assistant. Vous recevrez une notification une fois traitée.',
-      requestId: creditRequest.id
+      message:
+        "Demande de crédits envoyée à l'assistant. Vous recevrez une notification une fois traitée.",
+      requestId: creditRequest.id,
     });
-
   } catch (error) {
     console.error('Error creating credit request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

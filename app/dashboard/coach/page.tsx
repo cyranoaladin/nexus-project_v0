@@ -1,18 +1,35 @@
-"use client";
+'use client';
 
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CoachAvailability from "@/components/ui/coach-availability";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { AlertCircle, BookOpen, Calendar, CheckCircle, Clock, Loader2, LogOut, MessageCircle, Users } from "lucide-react";
-import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CoachAvailability from '@/components/ui/coach-availability';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  AlertCircle,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Loader2,
+  LogOut,
+  MessageCircle,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface CoachDashboardData {
   stats: {
@@ -41,10 +58,10 @@ export default function DashboardCoach() {
   const [isWeekDialogOpen, setIsWeekDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     if (!session || session.user.role !== 'COACH') {
-      router.push("/auth/signin");
+      router.push('/auth/signin');
       return;
     }
 
@@ -72,7 +89,7 @@ export default function DashboardCoach() {
     fetchDashboardData();
   }, [session, status, router]);
 
-  if (status === "loading" || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -90,10 +107,7 @@ export default function DashboardCoach() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="mt-4"
-          >
+          <Button onClick={() => window.location.reload()} className="mt-4">
             Réessayer
           </Button>
         </div>
@@ -122,25 +136,30 @@ export default function DashboardCoach() {
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-8">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'dashboard'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Tableau de Bord
                 </button>
                 <button
                   onClick={() => setActiveTab('availability')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'availability'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'availability'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Mes Disponibilités
                 </button>
               </div>
               <div className="ml-4">
-                <a href="/dashboard/admin/rag-management" className="text-sm text-indigo-600 hover:underline">
+                <a
+                  href="/dashboard/admin/rag-management"
+                  className="text-sm text-indigo-600 hover:underline"
+                >
                   Ingestion de documents RAG
                 </a>
               </div>
@@ -192,7 +211,8 @@ export default function DashboardCoach() {
                         {data?.weekStats?.totalSessions || 0}
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {data?.weekStats?.completedSessions || 0} terminées, {data?.weekStats?.upcomingSessions || 0} à venir
+                        {data?.weekStats?.completedSessions || 0} terminées,{' '}
+                        {data?.weekStats?.upcomingSessions || 0} à venir
                       </p>
                     </CardContent>
                   </Card>
@@ -201,32 +221,48 @@ export default function DashboardCoach() {
                   <DialogHeader>
                     <DialogTitle>Sessions de la semaine</DialogTitle>
                   </DialogHeader>
-                  <DialogDescription className="sr-only">Fenêtre listant les sessions coach de la semaine</DialogDescription>
+                  <DialogDescription className="sr-only">
+                    Fenêtre listant les sessions coach de la semaine
+                  </DialogDescription>
                   {data?.weekSessions && data.weekSessions.length > 0 ? (
                     <div className="space-y-3 max-h-[70vh] overflow-y-auto">
                       {data.weekSessions.map((s: any) => (
-                        <div key={s.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div
+                          key={s.id}
+                          className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between"
+                        >
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
                               <h4 className="font-medium text-gray-900">{s.title || s.subject}</h4>
-                              <Badge variant="outline" className="text-xs">{s.type}</Badge>
-                              <Badge variant="default" className="text-xs">{s.modality}</Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {s.type}
+                              </Badge>
+                              <Badge variant="default" className="text-xs">
+                                {s.modality}
+                              </Badge>
                             </div>
                             <p className="text-sm text-gray-600 mt-1">Avec {s.studentName}</p>
-                            <p className="text-sm text-blue-600 font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
+                            <p className="text-sm text-blue-600 font-medium">
+                              {new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} -{' '}
+                              {s.endTime} • {s.duration} min
+                            </p>
                             {s.description && (
                               <p className="text-xs text-gray-500 mt-1">{s.description}</p>
                             )}
                           </div>
                           <div className="mt-3 md:mt-0 flex items-center gap-2">
                             <Badge className="text-xs">{s.status.toLowerCase()}</Badge>
-                            <Badge variant="outline" className="text-xs">{s.creditsUsed} crédit(s)</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {s.creditsUsed} crédit(s)
+                            </Badge>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-gray-500 text-sm">Aucune session planifiée cette semaine.</div>
+                    <div className="text-gray-500 text-sm">
+                      Aucune session planifiée cette semaine.
+                    </div>
                   )}
                 </DialogContent>
               </Dialog>
@@ -240,9 +276,7 @@ export default function DashboardCoach() {
                   <div className="text-2xl font-bold text-gray-900">
                     {data?.todaySessions?.length || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Sessions programmées
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Sessions programmées</p>
                 </CardContent>
               </Card>
 
@@ -255,9 +289,7 @@ export default function DashboardCoach() {
                   <div className="text-2xl font-bold text-gray-900">
                     {data?.uniqueStudentsCount || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Élèves suivis ce mois
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Élèves suivis ce mois</p>
                 </CardContent>
               </Card>
             </div>
@@ -326,12 +358,13 @@ export default function DashboardCoach() {
                       {data.students.map((student, index) => (
                         <div
                           key={student.id}
-                          className={`flex items-center justify-between p-4 rounded-lg border ${student.isNew
-                            ? 'bg-purple-50 border-purple-200'
-                            : index % 2 === 0
-                              ? 'bg-green-50 border-green-200'
-                              : 'bg-blue-50 border-blue-200'
-                            }`}
+                          className={`flex items-center justify-between p-4 rounded-lg border ${
+                            student.isNew
+                              ? 'bg-purple-50 border-purple-200'
+                              : index % 2 === 0
+                                ? 'bg-green-50 border-green-200'
+                                : 'bg-blue-50 border-blue-200'
+                          }`}
                         >
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
@@ -340,21 +373,28 @@ export default function DashboardCoach() {
                                 {student.grade}
                               </Badge>
                               {student.isNew && (
-                                <Badge variant="default" className="text-xs bg-purple-100 text-purple-800">
+                                <Badge
+                                  variant="default"
+                                  className="text-xs bg-purple-100 text-purple-800"
+                                >
                                   Nouveau
                                 </Badge>
                               )}
                             </div>
                             <p className="text-sm text-gray-600">
-                              {student.subject} • Dernière session: {new Date(student.lastSession).toLocaleDateString('fr-FR')}
+                              {student.subject} • Dernière session:{' '}
+                              {new Date(student.lastSession).toLocaleDateString('fr-FR')}
                             </p>
                             <div className="flex items-center space-x-4 mt-2">
-                              <span className={`text-xs font-medium ${student.isNew
-                                ? 'text-purple-600'
-                                : index % 2 === 0
-                                  ? 'text-green-600'
-                                  : 'text-blue-600'
-                                }`}>
+                              <span
+                                className={`text-xs font-medium ${
+                                  student.isNew
+                                    ? 'text-purple-600'
+                                    : index % 2 === 0
+                                      ? 'text-green-600'
+                                      : 'text-blue-600'
+                                }`}
+                              >
                                 {student.isNew ? 'Nouveau élève' : 'Progression: 75%'}
                               </span>
                               <span className="text-xs text-gray-500">
@@ -403,13 +443,19 @@ export default function DashboardCoach() {
                     <span>Gérer mon Planning</span>
                   </Button>
                   <Link href="/dashboard/coach/messages">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-center space-y-2"
+                    >
                       <MessageCircle className="w-6 h-6 text-purple-600" />
                       <span>Messages Élèves</span>
                     </Button>
                   </Link>
                   <Link href="/dashboard/coach/reports">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-center space-y-2"
+                    >
                       <BookOpen className="w-6 h-6 text-green-600" />
                       <span>Rédiger un Rapport</span>
                     </Button>

@@ -41,7 +41,12 @@ export default async function EleveSessionsPage() {
               {sessions.map((s) => (
                 <tr key={s.id} className="border-t">
                   <td className="p-2">{new Date(s.scheduledAt).toLocaleDateString('fr-FR')}</td>
-                  <td className="p-2">{new Date(s.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td className="p-2">
+                    {new Date(s.scheduledAt).toLocaleTimeString('fr-FR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </td>
                   <td className="p-2">{s.subject}</td>
                   <td className="p-2">{(s as any).coach?.pseudonym || '-'}</td>
                   <td className="p-2">{s.status}</td>

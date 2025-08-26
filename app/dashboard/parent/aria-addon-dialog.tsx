@@ -1,13 +1,25 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface AriaAddonDialogProps {
   studentId: string;
@@ -16,27 +28,33 @@ interface AriaAddonDialogProps {
 }
 
 const ARIA_SUBJECTS = [
-  { name: "NSI", value: "NSI" },
-  { name: "Mathématiques", value: "MATH" },
-  { name: "Physique Chimie", value: "PHYSICS" },
-  { name: "Français", value: "FRENCH" },
+  { name: 'NSI', value: 'NSI' },
+  { name: 'Mathématiques', value: 'MATH' },
+  { name: 'Physique Chimie', value: 'PHYSICS' },
+  { name: 'Français', value: 'FRENCH' },
 ];
 
 export function AriaAddonDialog({ studentId, studentName, onSuccess }: AriaAddonDialogProps) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm();
 
-  const selectedSubject = watch("subject");
+  const selectedSubject = watch('subject');
 
   const onSubmit = async (formData: any) => {
     if (!session?.user) {
-      alert("Vous devez être connecté pour faire une demande.");
+      alert('Vous devez être connecté pour faire une demande.');
       return;
     }
     if (!formData.subject) {
-      alert("Veuillez sélectionner une matière pour ARIA+");
+      alert('Veuillez sélectionner une matière pour ARIA+');
       return;
     }
 
@@ -50,8 +68,10 @@ export function AriaAddonDialog({ studentId, studentName, onSuccess }: AriaAddon
           requestType: 'ARIA_ADDON',
           details: {
             subject: formData.subject,
-            message: formData.message || `Demande d'ajout du service ARIA+ pour la matière ${formData.subject}.`
-          }
+            message:
+              formData.message ||
+              `Demande d'ajout du service ARIA+ pour la matière ${formData.subject}.`,
+          },
         }),
       });
 
@@ -83,7 +103,7 @@ export function AriaAddonDialog({ studentId, studentName, onSuccess }: AriaAddon
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="subject">Service ARIA+ *</Label>
-            <Select onValueChange={(value) => setValue("subject", value)} value={selectedSubject}>
+            <Select onValueChange={(value) => setValue('subject', value)} value={selectedSubject}>
               <SelectTrigger id="subject">
                 <SelectValue placeholder="Sélectionnez une matière" />
               </SelectTrigger>
@@ -95,14 +115,20 @@ export function AriaAddonDialog({ studentId, studentName, onSuccess }: AriaAddon
                 ))}
               </SelectContent>
             </Select>
-            {errors.subject && <p className="text-red-500 text-sm mt-1">Veuillez sélectionner une matière.</p>}
+            {errors.subject && (
+              <p className="text-red-500 text-sm mt-1">Veuillez sélectionner une matière.</p>
+            )}
           </div>
           <div>
             <Label htmlFor="message">Message (Optionnel)</Label>
-            <Input id="message" {...register("message")} placeholder="Un message pour l'administration..." />
+            <Input
+              id="message"
+              {...register('message')}
+              placeholder="Un message pour l'administration..."
+            />
           </div>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Envoi en cours..." : "Envoyer la Demande"}
+            {isLoading ? 'Envoi en cours...' : 'Envoyer la Demande'}
           </Button>
         </form>
       </DialogContent>

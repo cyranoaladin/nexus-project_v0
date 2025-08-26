@@ -10,19 +10,13 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json(
-        { error: 'Authentification requise' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
     }
 
     // Récupérer toutes les conversations de l'utilisateur
     const conversations = await prisma.message.findMany({
       where: {
-        OR: [
-          { senderId: session.user.id },
-          { receiverId: session.user.id }
-        ]
+        OR: [{ senderId: session.user.id }, { receiverId: session.user.id }],
       },
       include: {
         sender: {
@@ -30,41 +24,38 @@ export async function GET(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            role: true
-          }
+            role: true,
+          },
         },
         receiver: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            role: true
-          }
-        }
+            role: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     // Grouper par conversation (paire d'utilisateurs)
     const conversationMap = new Map();
 
-    conversations.forEach(message => {
-      const otherUserId = message.senderId === session.user.id
-        ? message.receiverId
-        : message.senderId;
+    conversations.forEach((message) => {
+      const otherUserId =
+        message.senderId === session.user.id ? message.receiverId : message.senderId;
 
-      const otherUser = message.senderId === session.user.id
-        ? message.receiver
-        : message.sender;
+      const otherUser = message.senderId === session.user.id ? message.receiver : message.sender;
 
       if (!conversationMap.has(otherUserId)) {
         conversationMap.set(otherUserId, {
           userId: otherUserId,
           user: otherUser,
           lastMessage: message,
-          unreadCount: 0
+          unreadCount: 0,
         });
       }
 
@@ -78,15 +69,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      conversations: conversationsList
+      conversations: conversationsList,
     });
-
   } catch (error) {
     console.error('Erreur récupération conversations:', error);
 
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
