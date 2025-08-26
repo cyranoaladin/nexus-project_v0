@@ -20,13 +20,14 @@ test.describe('Parent portal', () => {
       }
     }
     if (/\/dashboard\/parent/.test(page.url())) {
-      // Vérifie que des éléments du tableau de bord parent sont visibles
-      const dashboardVisible = await page.getByText(/Parent|Tableau de bord|Enfants|Élèves|Progression/i).first().isVisible().catch(() => false);
-      if (!dashboardVisible) {
-        const headingVisible = await page.getByRole('heading').first().isVisible().catch(() => false);
-        expect(Boolean(headingVisible)).toBeTruthy();
-      } else {
-        expect(true).toBeTruthy();
+      // Attendre explicitement un indicateur stable d'UI parent
+      const stable = page.getByTestId('parent-dashboard').first();
+      try {
+        await expect(stable).toBeVisible({ timeout: 30000 });
+      } catch {
+        // Fallback: tout premier heading visible
+        const heading = page.getByRole('heading').first();
+        await expect(heading).toBeVisible({ timeout: 15000 });
       }
     } else {
       // Assouplir si resté sur signin

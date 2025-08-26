@@ -3,6 +3,7 @@
 import 'katex/dist/katex.min.css';
 import { useSession } from 'next-auth/react';
 import { FormEvent, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { MessageRenderer } from './MessageRenderer';
 import { SubscriptionPrompt } from './SubscriptionPrompt';
 
@@ -112,7 +113,7 @@ export function ChatWindow() {
     <div className="bg-white border border-gray-200 rounded-lg shadow-lg max-w-4xl mx-auto" data-testid="nexus-aria-container">
       {/* Mascotte ARIA */}
       <div className="p-4 flex items-center gap-3">
-        <img src="/images/logo_nexus_reussite.png" alt="ARIA mascotte" className="h-8 w-8 rounded-full" data-testid="nexus-aria-mascotte" />
+        <Image src="/images/logo_nexus_reussite.png" alt="ARIA mascotte" width={32} height={32} className="h-8 w-8 rounded-full" data-testid="nexus-aria-mascotte" />
         <div className="text-sm text-gray-600">Assistant ARIA</div>
       </div>
       {showSubscriptionPrompt && (
@@ -160,7 +161,7 @@ export function ChatWindow() {
         )}
       </div>
 
-      <div className="h-[60vh] overflow-y-auto p-6 space-y-4" data-testid="aria-messages">
+      <div className="h-[60vh] overflow-y-auto p-6 space-y-4" data-testid="aria-messages" data-testid-aria="aria-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-lg p-3 rounded-2xl ${msg.role === 'user' ? 'bg-bleu-primaire text-white' : 'bg-gray-200 text-gray-800'}`}>
@@ -186,12 +187,14 @@ export function ChatWindow() {
           disabled={isE2E ? false : isLoading}
           className="flex-grow p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-bleu-primaire"
           data-testid="nexus-aria-input"
+          data-testid-aria="aria-input"
           aria-label="Entrée de message ARIA"
         />
         <button
           type="submit"
           aria-label="Envoyer le message"
-          data-testid="nexus-aria-send"
+          data-testid="aria-send"
+          data-testid-nexus="nexus-aria-send"
           disabled={isE2E ? false : isLoading}
           className="bg-bleu-primaire text-white p-3 rounded-r-lg font-bold hover:bg-opacity-90 disabled:bg-gray-400"
         >

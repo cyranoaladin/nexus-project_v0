@@ -59,7 +59,7 @@ export default function AssistantUsersPage() {
               <Users className="w-6 h-6 text-blue-600" />
               <h1 className="font-semibold text-gray-900">Gestion des Utilisateurs</h1>
             </div>
-            <Badge variant="outline">{users.length} coachs</Badge>
+            <Badge variant="outline">{users.length} {roleFilter === 'ALL' ? 'utilisateurs' : (roleFilter.toLowerCase() + (users.length > 1 ? 's' : ''))}</Badge>
           </div>
         </div>
       </header>

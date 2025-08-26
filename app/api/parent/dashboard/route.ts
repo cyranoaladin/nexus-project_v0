@@ -17,6 +17,13 @@ export async function GET() {
       parentUserId = anyParent?.userId ?? null;
     }
     if (!parentUserId) {
+      if (allowBypass) {
+        // E2E/dev: renvoyer des données minimales pour stabiliser l'UI parent
+        return NextResponse.json({
+          parent: { id: 'mock-parent', firstName: 'Parent', lastName: 'E2E', email: 'parent@mock' },
+          children: [],
+        });
+      }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

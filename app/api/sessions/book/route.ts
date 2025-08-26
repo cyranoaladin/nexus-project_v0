@@ -3,23 +3,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-type BookBody = {
-  coachId: string; // coach userId
-  studentId: string; // student id (domain entity)
-  parentId?: string | null; // parent userId (optional)
-  subject: string; // Prisma enum Subject
-  scheduledDate: string; // YYYY-MM-DD
-  startTime: string; // HH:MM
-  endTime: string; // HH:MM
-  duration: number; // minutes
-  type: 'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS';
-  modality: 'ONLINE' | 'IN_PERSON' | 'HYBRID';
-  title: string;
-  description?: string;
-  creditsToUse: number;
-};
+import { BookingRequestSchema, type BookingRequest } from '@/shared/schemas/booking';
 
-function toServiceType(type: BookBody['type'], modality: BookBody['modality']) {
+function toServiceType(type: BookingRequest['type'], modality: BookingRequest['modality']) {
   if (type === 'GROUP' || type === 'MASTERCLASS') return 'ATELIER_GROUPE';
   if (modality === 'IN_PERSON') return 'COURS_PRESENTIEL';
   return 'COURS_ONLINE';
@@ -44,17 +30,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await request.json()) as BookBody;
-
-    // Basic validation (type/modality/title peuvent être déduits)
-    const required: Array<keyof BookBody> = [
-      'coachId', 'studentId', 'subject', 'scheduledDate', 'startTime', 'duration', 'creditsToUse',
-    ];
-    for (const k of required) {
-      if ((body as any)[k] === undefined || (body as any)[k] === null || (typeof (body as any)[k] === 'string' && !(body as any)[k].trim())) {
-        return NextResponse.json({ error: `Missing field: ${k}` }, { status: 400 });
-      }
+    const raw = await request.json();
+    const parse = BookingRequestSchema.safeParse(raw);
+    if (!parse.success) {
+      return NextResponse.json({ error: 'Invalid request', details: parse.error.flatten() }, { status: 400 });
     }
+    const body = parse.data;
 
     // Role-based constraints
     const role = session.user.role;
@@ -74,18 +55,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Defaults for optional fields tolerated by tests
-    if (!body.type) body.type = 'INDIVIDUAL' as any;
-    if (!body.modality) body.modality = 'ONLINE' as any;
-    if (!body.title) body.title = `${body.subject} — Session`;
+    const bodyWithDefaults: BookingRequest = {
+      ...body,
+      type: body.type ?? 'INDIVIDUAL',
+      modality: body.modality ?? 'ONLINE',
+      title: body.title ?? `${body.subject} — Session`,
+    };
 
     // Normalize and business rules
-    const day = new Date(body.scheduledDate + 'T00:00:00Z').getUTCDay();
+    const day = new Date(bodyWithDefaults.scheduledDate + 'T00:00:00Z').getUTCDay();
     if (day === 0 || day === 6) {
       return NextResponse.json({ error: 'Weekend booking not allowed' }, { status: 400 });
     }
-    const startHour = parseInt(body.startTime.split(':')[0]);
+    const startHour = parseInt(bodyWithDefaults.startTime.split(':')[0]);
     const endTime = body.endTime && body.endTime.trim() ? body.endTime : (() => {
-      const base = toDate(body.scheduledDate, body.startTime);
+      const base = toDate(bodyWithDefaults.scheduledDate, bodyWithDefaults.startTime);
       const dt = new Date(base.getTime() + (body.duration || 0) * 60000);
       const hh = String(dt.getUTCHours()).padStart(2, '0');
       const mm = String(dt.getUTCMinutes()).padStart(2, '0');
@@ -96,17 +80,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Bookings must be between 08:00 and 20:00' }, { status: 400 });
     }
 
-    const startDateTime = toDate(body.scheduledDate, body.startTime);
-    const endDateTime = toDate(body.scheduledDate, endTime);
+    const startDateTime = toDate(bodyWithDefaults.scheduledDate, bodyWithDefaults.startTime);
+    const endDateTime = toDate(bodyWithDefaults.scheduledDate, endTime);
     const computedDuration = Math.max(0, Math.round((endDateTime.getTime() - startDateTime.getTime()) / 60000));
-    if (computedDuration !== body.duration) {
+    if (computedDuration !== bodyWithDefaults.duration) {
       return NextResponse.json({ error: 'Duration mismatch' }, { status: 400 });
     }
 
     // Resolve coach profile id from userId (simplify in test env)
     const coachProfile = process.env.NODE_ENV === 'test'
       ? { id: body.coachId }
-      : await prisma.coachProfile.findUnique({ where: { userId: body.coachId } });
+      : await prisma.coachProfile.findUnique({ where: { userId: bodyWithDefaults.coachId } });
     if (!coachProfile) {
       return NextResponse.json({ error: 'Coach not found' }, { status: 404 });
     }
@@ -115,7 +99,7 @@ export async function POST(request: NextRequest) {
     if (process.env.NODE_ENV !== 'test') {
       const availabilities = await prisma.coachAvailability.findMany({
         where: {
-          coachId: body.coachId,
+          coachId: bodyWithDefaults.coachId,
           isAvailable: true,
           OR: [
             { isRecurring: true, specificDate: null, dayOfWeek: new Date(body.scheduledDate).getUTCDay() },
@@ -123,7 +107,7 @@ export async function POST(request: NextRequest) {
           ],
         },
       });
-      const fitsAvailability = availabilities.some((av) => av.startTime <= body.startTime && av.endTime >= endTime);
+      const fitsAvailability = availabilities.some((av) => av.startTime <= bodyWithDefaults.startTime && av.endTime >= endTime);
       if (!fitsAvailability) {
         return NextResponse.json({ error: 'Selected slot not available' }, { status: 409 });
       }
@@ -146,8 +130,8 @@ export async function POST(request: NextRequest) {
 
       const coachBookings = await prisma.sessionBooking.findMany({
         where: {
-          coachId: body.coachId,
-          scheduledDate: new Date(body.scheduledDate),
+          coachId: bodyWithDefaults.coachId,
+          scheduledDate: new Date(bodyWithDefaults.scheduledDate),
           status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
         },
         select: { startTime: true, endTime: true },
@@ -159,18 +143,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Credits check
-    const student = await prisma.student.findUnique({ where: { id: body.studentId } });
+    const student = await prisma.student.findUnique({ where: { id: bodyWithDefaults.studentId } });
     if (!student && process.env.NODE_ENV !== 'test') return NextResponse.json({ error: 'Student not found' }, { status: 404 });
 
     // Create booking + session + credit transaction atomically
     const result = await prisma.$transaction(async (tx) => {
       // compute credits inside transaction
       const creditsAgg = await tx.creditTransaction.aggregate({
-        where: { studentId: body.studentId },
+        where: { studentId: bodyWithDefaults.studentId },
         _sum: { amount: true },
       });
       const currentCredits = Math.floor((creditsAgg._sum.amount as number) || 0);
-      if (currentCredits < body.creditsToUse) {
+      if (currentCredits < bodyWithDefaults.creditsToUse) {
         throw { http: 400, msg: 'Crédits insuffisants' };
       }
 
@@ -192,19 +176,19 @@ export async function POST(request: NextRequest) {
         ? await (tx as any).sessionBooking.create({
             data: {
               studentId: (student?.userId) || session.user.id, // allow in tests
-              coachId: body.coachId, // userId of coach
-              parentId: body.parentId || null,
-              subject: body.subject as any,
-              title: body.title,
-              description: body.description,
-              scheduledDate: new Date(body.scheduledDate),
-              startTime: body.startTime,
+              coachId: bodyWithDefaults.coachId, // userId of coach
+              parentId: bodyWithDefaults.parentId || null,
+              subject: bodyWithDefaults.subject as any,
+              title: bodyWithDefaults.title,
+              description: bodyWithDefaults.description,
+              scheduledDate: new Date(bodyWithDefaults.scheduledDate),
+              startTime: bodyWithDefaults.startTime,
               endTime,
-              duration: body.duration,
+              duration: bodyWithDefaults.duration,
               status: 'SCHEDULED' as any,
-              type: body.type as any,
-              modality: body.modality as any,
-              creditsUsed: body.creditsToUse,
+              type: bodyWithDefaults.type as any,
+              modality: bodyWithDefaults.modality as any,
+              creditsUsed: bodyWithDefaults.creditsToUse,
             },
           })
         : undefined;
@@ -212,25 +196,25 @@ export async function POST(request: NextRequest) {
       const sessionStart = startDateTime;
       const createdSession = await tx.session.create({
         data: {
-          studentId: body.studentId,
+          studentId: bodyWithDefaults.studentId,
           coachId: coachProfile.id,
-          type: toServiceType(body.type, body.modality) as any,
-          subject: body.subject as any,
-          title: body.title,
-          description: body.description,
+          type: toServiceType(bodyWithDefaults.type, bodyWithDefaults.modality) as any,
+          subject: bodyWithDefaults.subject as any,
+          title: bodyWithDefaults.title,
+          description: bodyWithDefaults.description,
           scheduledAt: sessionStart,
-          duration: body.duration,
-          creditCost: body.creditsToUse,
+          duration: bodyWithDefaults.duration,
+          creditCost: bodyWithDefaults.creditsToUse,
           status: 'SCHEDULED',
         },
       });
 
       await tx.creditTransaction.create({
         data: {
-          studentId: body.studentId,
+          studentId: bodyWithDefaults.studentId,
           type: 'USAGE',
-          amount: -Math.abs(body.creditsToUse),
-          description: `Réservation session ${body.subject} (${body.startTime}-${endTime})`,
+          amount: -Math.abs(bodyWithDefaults.creditsToUse),
+          description: `Réservation session ${bodyWithDefaults.subject} (${bodyWithDefaults.startTime}-${endTime})`,
           sessionId: createdSession.id,
         },
       });

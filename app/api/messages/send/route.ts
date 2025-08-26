@@ -13,6 +13,15 @@ const sendMessageSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const { rateLimit } = await import('@/lib/rate-limit');
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+  const rlConf = getRateLimitConfig('MESSAGES_SEND', { windowMs: 60_000, max: 60 });
+  const rl = await rateLimit(rlConf)(`msg_send:${ip}`);
+  if (!rl.ok) {
+    return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
+  }
+
     const session = await getServerSession(authOptions)
     
     if (!session) {

@@ -10,11 +10,8 @@
  * @returns L'URL complète de la salle Jitsi
  */
 export function generateJitsiRoomUrl(sessionId: string, userType: 'coach' | 'student' = 'student'): string {
-  // Générer un UUID unique pour cette session
-  const uuid = crypto.randomUUID();
-
-  // Construire le nom de salle unique et difficile à deviner
-  const roomName = `nexus-reussite-session-${sessionId}-${uuid}`;
+  // Utiliser un nom de salle déterministe pour garantir que tous les participants rejoignent la même salle
+  const roomName = generateDeterministicRoomName(sessionId, userType);
 
   // Récupérer l'URL du serveur Jitsi depuis les variables d'environnement
   const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
@@ -33,7 +30,10 @@ export function generateJitsiRoomUrl(sessionId: string, userType: 'coach' | 'stu
 export function generateDeterministicRoomName(sessionId: string, additionalSeed?: string): string {
   const seed = additionalSeed || 'nexus-default';
   // Utiliser sessionId + seed pour créer un nom déterministe mais unique
-  const hash = btoa(`${sessionId}-${seed}`).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  const base64 = (typeof window !== 'undefined' && typeof window.btoa === 'function')
+    ? window.btoa(`${sessionId}-${seed}`)
+    : Buffer.from(`${sessionId}-${seed}`, 'utf-8').toString('base64');
+  const hash = base64.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
   return `nexus-reussite-${sessionId.slice(0, 8)}-${hash.slice(0, 12)}`;
 }
 

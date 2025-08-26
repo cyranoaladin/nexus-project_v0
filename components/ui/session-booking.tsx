@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ interface AvailableSlot {
   startTime: string;
   endTime: string;
   duration: number;
+  modality?: 'ONLINE' | 'IN_PERSON';
 }
 
 interface SessionBookingProps {
@@ -95,44 +96,8 @@ export default function SessionBooking({
   const [titleError, setTitleError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
-  // Load coaches when subject changes
-  useEffect(() => {
-    if (subject) {
-      loadCoaches();
-    } else {
-      setCoaches([]);
-      setSelectedCoach('');
-    }
-  }, [subject]);
 
-  // Load available slots when coach and week change
-  useEffect(() => {
-    if (selectedCoach && selectedWeek) {
-      loadAvailableSlots();
-    } else {
-      setAvailableSlots([]);
-    }
-  }, [selectedCoach, selectedWeek, modality]);
-
-  // Validate title length
-  useEffect(() => {
-    if (title.length > 100) {
-      setTitleError('Le titre ne peut pas dépasser 100 caractères');
-    } else {
-      setTitleError('');
-    }
-  }, [title]);
-
-  // Validate description length
-  useEffect(() => {
-    if (description.length > 500) {
-      setDescriptionError('La description ne peut pas dépasser 500 caractères');
-    } else {
-      setDescriptionError('');
-    }
-  }, [description]);
-
-  const loadCoaches = async () => {
+  const loadCoaches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -149,9 +114,9 @@ export default function SessionBooking({
     } finally {
       setLoading(false);
     }
-  };
+  }, [subject]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -183,9 +148,26 @@ export default function SessionBooking({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCoach, selectedWeek, coaches]);
 
+  // Load coaches when subject changes
+  useEffect(() => {
+    if (subject) {
+      loadCoaches();
+    } else {
+      setCoaches([]);
+      setSelectedCoach('');
+    }
+  }, [subject, loadCoaches]);
 
+  // Load available slots when coach and week change
+  useEffect(() => {
+    if (selectedCoach && selectedWeek) {
+      loadAvailableSlots();
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [selectedCoach, selectedWeek, modality, loadAvailableSlots]);
 
   const calculateDuration = (startTime: string, endTime: string): number => {
     const [startHour, startMin] = startTime.split(':').map(Number);
@@ -288,7 +270,7 @@ export default function SessionBooking({
         title: title,
         description: description,
         creditsToUse: creditsToUse
-      };
+      } as const;
 
       const response = await fetch('/api/sessions/book', {
         method: 'POST',

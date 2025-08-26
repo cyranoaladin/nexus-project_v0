@@ -14,6 +14,16 @@ const ingestRequestSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    // Rate limit proxy calls as well
+    const ip = (req.headers as any).get?.('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const { rateLimit } = await import('@/lib/rate-limit');
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+    const rlConf = getRateLimitConfig('RAG_INGEST', { windowMs: 60_000, max: 5 });
+    const rl = await rateLimit(rlConf)(`rag_ingest_proxy:${ip}`);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+    }
+
     // 1. Vérification de la session et du rôle
     const session = await getServerSession(authOptions);
     const role = session?.user?.role as UserRole | undefined;

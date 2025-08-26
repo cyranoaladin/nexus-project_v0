@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 const konnectPaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -14,6 +15,16 @@ const konnectPaymentSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: payments init should be limited per IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const { rateLimit } = await import('@/lib/rate-limit');
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+  const rlConf = getRateLimitConfig('PAYMENTS_KONNECT', { windowMs: 60_000, max: 3 });
+  const rl = await rateLimit(rlConf)(`konnect_init:${ip}`);
+  if (!rl.ok) {
+    return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+  }
+
     const session = await getServerSession(authOptions)
     
     if (!session || session.user.role !== 'PARENT') {
@@ -93,7 +104,7 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Erreur paiement Konnect:', error)
+    logger.error({ error }, 'Erreur paiement Konnect')
     
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

@@ -217,12 +217,14 @@ async function main() {
   }
 
   // 8. Transactions de crédits pour alimenter les métriques
-  await prisma.creditTransaction.createMany({
-    data: [
-      { studentId: marie.id, type: 'MONTHLY_ALLOCATION', amount: 8, description: 'Allocation mensuelle' },
-      { studentId: marie.id, type: 'USAGE', amount: -1, description: 'Cours maths' },
-    ]
-  });
+  if (anyStudent) {
+    await prisma.creditTransaction.createMany({
+      data: [
+        { studentId: anyStudent.id, type: 'MONTHLY_ALLOCATION', amount: 8, description: 'Allocation mensuelle' },
+        { studentId: anyStudent.id, type: 'USAGE', amount: -1, description: 'Cours maths' },
+      ]
+    });
+  }
 
   // 9. Contenus pédagogiques (RAG) de démonstration
   await prisma.pedagogicalContent.createMany({
@@ -289,31 +291,32 @@ async function extendedSeeds() {
   }
   for (const coach of someCoaches) {
     try {
-      const coachProfileId = (coach as any)?.coachProfile?.id ?? (await prisma.coachProfile.findUnique({ where: { userId: coach.id } }))?.id;
-      if (!coachProfileId) continue;
+      // Use coach user id for CoachAvailability.coachId (references User)
+      const coachUserId = (coach as any)?.id;
+      if (!coachUserId) continue;
 
       // Reset existing availabilities for deterministic state
-      await prisma.coachAvailability.deleteMany({ where: { coachId: coachProfileId } });
+      await prisma.coachAvailability.deleteMany({ where: { coachId: coachUserId } });
 
       const createData: any[] = [];
       // 3 recurring slots Mon/Wed/Fri
       for (const d of [1, 3, 5]) {
-        createData.push({ coachId: coachProfileId, dayOfWeek: d, startTime: '14:00', endTime: '18:00', isRecurring: true, isAvailable: true });
+        createData.push({ coachId: coachUserId, dayOfWeek: d, startTime: '14:00', endTime: '18:00', isRecurring: true, isAvailable: true });
       }
       // Extra recurring slots Tue/Thu morning
       for (const d of [2, 4]) {
-        createData.push({ coachId: coachProfileId, dayOfWeek: d, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
+        createData.push({ coachId: coachUserId, dayOfWeek: d, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
       }
       // Saturday morning
-      createData.push({ coachId: coachProfileId, dayOfWeek: 6, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
+      createData.push({ coachId: coachUserId, dayOfWeek: 6, startTime: '09:00', endTime: '12:00', isRecurring: true, isAvailable: true });
       // one specific date blocked
       const blocked = new Date(Date.now() + 2 * 24 * 3600 * 1000);
-      createData.push({ coachId: coachProfileId, dayOfWeek: blocked.getDay(), startTime: '00:00', endTime: '23:59', specificDate: blocked, isAvailable: false, isRecurring: false });
+      createData.push({ coachId: coachUserId, dayOfWeek: blocked.getDay(), startTime: '00:00', endTime: '23:59', specificDate: blocked, isAvailable: false, isRecurring: false });
       // Specific available dates for next 3 days (two slots per day)
       for (let i = 1; i <= 3; i++) {
         const d = new Date(Date.now() + i * 24 * 3600 * 1000);
-        createData.push({ coachId: coachProfileId, dayOfWeek: d.getDay(), startTime: '10:00', endTime: '12:00', specificDate: d, isAvailable: true, isRecurring: false });
-        createData.push({ coachId: coachProfileId, dayOfWeek: d.getDay(), startTime: '15:00', endTime: '17:00', specificDate: d, isAvailable: true, isRecurring: false });
+        createData.push({ coachId: coachUserId, dayOfWeek: d.getDay(), startTime: '10:00', endTime: '12:00', specificDate: d, isAvailable: true, isRecurring: false });
+        createData.push({ coachId: coachUserId, dayOfWeek: d.getDay(), startTime: '15:00', endTime: '17:00', specificDate: d, isAvailable: true, isRecurring: false });
       }
 
       await prisma.coachAvailability.createMany({ data: createData, skipDuplicates: true });
@@ -388,13 +391,13 @@ async function extendedSeeds() {
 
   // SessionBookings with full spectrum + reminders + notifications
   const coachProfile = await prisma.coachProfile.findFirst();
-  const coachProfileId = coachProfile?.id;
+  const coachUserIdForBooking = coachProfile?.userId;
   const makeBooking = async (studentId: string, status: any, type: any, modality: any, offsetDays: number) => {
-    if (!coachProfileId) return;
+    if (!coachUserIdForBooking) return;
     const sb = await prisma.sessionBooking.create({
       data: {
         studentId,
-        coachId: coachProfileId,
+        coachId: coachUserIdForBooking,
         subject: 'MATHEMATIQUES',
         title: `Session ${status}`,
         description: 'Séance de test',

@@ -15,6 +15,16 @@ const ALLOWED_TYPES = new Set([
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit uploads per IP to prevent abuse
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const { rateLimit } = await import('@/lib/rate-limit');
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+  const rlConf = getRateLimitConfig('UPLOADS_ANALYSE', { windowMs: 60_000, max: 10 });
+  const rl = await rateLimit(rlConf)(`upload_analyse:${ip}`);
+  if (!rl.ok) {
+    return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+  }
+
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });

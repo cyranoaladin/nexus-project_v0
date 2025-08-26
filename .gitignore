@@ -51,3 +51,16 @@ node_modules/
 dist/
 coverage/
 playwright-report/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.so
+**/storage/*.json
+*.log
+*.pid
+reports/
+test-results/
+services/pdf_generator_service/.test_output/
+services/pdf_generator_service/generated_pdfs/
+e2e-logs/

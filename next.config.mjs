@@ -26,6 +26,10 @@ const nextConfig = {
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      // CSP stricte uniquement en production (ajustez si besoin selon les intégrations)
+      ...(isProd
+? [{ key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' https://meet.jit.si 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://rag_service:8000 http://pdf_generator_service:8000 http://llm_service:8000 http://localhost:8001 http://localhost:8002 http://localhost:8003 https://api.konnect.network https://api.openai.com ws: wss:; frame-src https://meet.jit.si;" }]
+        : []),
       // HSTS uniquement en prod et derrière HTTPS
       ...(isProd
         ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' }]

@@ -45,14 +45,14 @@ DATABASE_URL="file:./prisma/dev.db"
 # =============================================================================
 # CONFIGURATION NEXTAUTH
 # =============================================================================
-NEXTAUTH_URL="http://localhost:3002"
+NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development-change-in-production"
 
 # =============================================================================
 # CONFIGURATION ENVIRONNEMENT
 # =============================================================================
 NODE_ENV="development"
-NEXT_PUBLIC_APP_URL="http://localhost:3002"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 `;
 
   fs.writeFileSync(path.join(process.cwd(), '.env.local'), envContent);
@@ -66,7 +66,7 @@ console.log('3. Try logging in again');
 
 console.log('\n📋 Manual Environment Setup:');
 console.log('Create a .env.local file in your project root with:');
-console.log('NEXTAUTH_URL="http://localhost:3002"');
+console.log('NEXTAUTH_URL="http://localhost:3000"');
 console.log('NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development"');
 console.log('DATABASE_URL="file:./prisma/dev.db"');
 console.log('NODE_ENV="development"'); 

@@ -12,7 +12,7 @@ import SessionBooking from "@/components/ui/session-booking";
 import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AddChildDialog from "./add-child-dialog";
 import { AriaAddonDialog } from "./aria-addon-dialog";
 import CreditPurchaseDialog from "./credit-purchase-dialog";
@@ -71,7 +71,7 @@ function DashboardParent() {
   const [openPurchaseDialog, setOpenPurchaseDialog] = useState(false);
   const allowBypass = process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development';
 
-  const refreshDashboardData = async () => {
+  const refreshDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -84,17 +84,13 @@ function DashboardParent() {
 
       const data = await response.json();
       setData(data);
-
-      if (data.children.length > 0 && !selectedChild) {
-        setSelectedChild(data.children[0].id);
-      }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Ouvrir automatiquement la modale d'achat si query ?open=purchase-credits
   useEffect(() => {
@@ -119,14 +115,20 @@ function DashboardParent() {
     }
 
     refreshDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, allowBypass, refreshDashboardData]);
   const isLoading = status === 'loading' || loading;
   const hasError = Boolean(error);
 
   const currentChild = data?.children.find((child) => child.id === selectedChild);
 
+  useEffect(() => {
+    if (data && data.children.length > 0 && !selectedChild) {
+      setSelectedChild(data.children[0].id);
+    }
+  }, [data, selectedChild]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" data-testid="parent-dashboard">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,6 +157,8 @@ function DashboardParent() {
                 </button>
                 <button
                   onClick={() => setActiveTab('booking')}
+                  aria-label="Réserver Session"
+                  data-testid="parent-booking-tab"
                   className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${activeTab === 'booking'
                     ? 'bg-white text-blue-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
@@ -395,7 +399,7 @@ function DashboardParent() {
                     <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
                       {currentChild?.subscriptionDetails?.endDate ?
                         new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) :
-                        'N/A'
+                        'Aucune'
                       }
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">

@@ -73,8 +73,22 @@ jobs:
             fi
           done
 
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Bandit (Python security static analysis)
+        run: bandit -r services -q || (echo "Bandit found issues" && exit 1)
+
       - name: npm audit
         run: npm audit --audit-level=high
+
+      - name: Gitleaks - Detect secrets in repo
+        uses: zricethezav/gitleaks-action@v2
+        with:
+          config-path: ''
+          args: '--no-banner --redact'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push:
     name: Build & Push Images

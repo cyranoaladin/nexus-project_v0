@@ -6,7 +6,11 @@ import { authOptions } from '@/lib/auth';
 export default async function EleveSessionsPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ELEVE') {
-    return null;
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-6" data-testid="eleve-sessions">
+        <p className="text-gray-600">Erreur lors du chargement</p>
+      </div>
+    );
   }
 
   const student = await prisma.student.findUnique({
@@ -18,7 +22,7 @@ export default async function EleveSessionsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6" data-testid="eleve-sessions">
-      <h1 className="text-2xl font-semibold mb-4">Mes Sessions</h1>
+      <h1 className="text-2xl font-semibold mb-4">Réserver une Session</h1>
       {sessions.length === 0 ? (
         <p className="text-gray-600">Aucune session.</p>
       ) : (

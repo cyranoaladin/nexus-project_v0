@@ -77,7 +77,9 @@ export default function AssistantSupportPage() {
           </CardHeader>
           <CardContent>
             {tickets.length === 0 ? (
-              <p className="text-sm text-gray-600">Aucun ticket disponible.</p>
+              <div>
+                <p className="text-sm text-gray-600">Aucun ticket disponible.</p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">

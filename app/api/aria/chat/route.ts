@@ -2,35 +2,24 @@
 import { AriaOrchestrator } from '@/lib/aria/orchestrator';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Subject } from '@prisma/client';
+import { Subject as PrismaSubject } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { AriaChatRequestSchema } from '@/shared/schemas/aria';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const chatRequestSchema = z.object({
-  message: z.string().min(1, "Le message ne peut pas être vide."),
-  subject: z.nativeEnum(Subject, {
-    errorMap: () => ({ message: "La matière fournie est invalide." }),
-  }),
-  attachments: z.array(
-    z.object({
-      url: z.string().url(),
-      name: z.string(),
-      type: z.string(),
-      size: z.number().int().nonnegative(),
-    })
-  ).optional().default([]),
-});
+// Validation centralisée via shared schemas
 
 export async function POST(req: NextRequest) {
   try {
     // Rate limit (IP + route)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const { rateLimit } = await import('@/lib/rate-limit');
-    const check = rateLimit({ windowMs: 60_000, max: 30 })(`aria_chat:${ip}`);
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+    const rlConf = getRateLimitConfig('ARIA_CHAT', { windowMs: 60_000, max: 30 });
+    const check = await rateLimit(rlConf)(`aria_chat:${ip}`);
     if (!check.ok) {
       return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
     }
@@ -38,7 +27,8 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     let effectiveStudentId: string | null = (session as any)?.user?.studentId ?? null;
     let effectiveParentId: string | null = (session as any)?.user?.parentId ?? null;
-    const allowBypass = process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development';
+    const isTestEnv = process.env.NODE_ENV === 'test';
+    const allowBypass = !isTestEnv && (process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1' || process.env.NODE_ENV === 'development');
 
     if (!effectiveStudentId || !effectiveParentId) {
       // Bypass en E2E/dev: utiliser un élève et un parent existants
@@ -46,7 +36,7 @@ export async function POST(req: NextRequest) {
         const anyStudent = await prisma.student.findFirst({ orderBy: { createdAt: 'asc' } });
         const anyParent = anyStudent?.parentId
           ? await prisma.parentProfile.findUnique({ where: { id: anyStudent.parentId } })
-          : await prisma.parentProfile.findFirst({ orderBy: { createdAt: 'asc' } });
+          : await prisma.parentProfile.findFirst({ orderBy: { id: 'asc' } });
         effectiveStudentId = anyStudent?.id ?? null;
         effectiveParentId = (anyStudent?.parentId ?? anyParent?.id) ?? null;
       }
@@ -55,14 +45,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
     }
 
-    const body = await req.json();
-    const parsedBody = chatRequestSchema.safeParse(body);
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Requête invalide: JSON manquant ou corrompu." }, { status: 400 });
+    }
+    const parsedBody = AriaChatRequestSchema.safeParse(body);
 
     if (!parsedBody.success) {
       return NextResponse.json({ error: "Requête invalide", details: parsedBody.error.flatten() }, { status: 400 });
     }
 
-    const { message, subject, attachments } = parsedBody.data as { message: string; subject: Subject; attachments?: Array<{ url: string; name: string; type: string; size: number; }>; };
+    const { message, subject, attachments } = parsedBody.data;
     const studentId = effectiveStudentId;
     const parentId = effectiveParentId;
 
@@ -96,7 +91,7 @@ export async function POST(req: NextRequest) {
     const orchestrator = new AriaOrchestrator(studentId, parentId);
 
     // Gérer la requête de bout en bout
-    const { response, documentUrl } = await orchestrator.handleQuery(message, subject, attachments || []);
+    const { response, documentUrl } = await orchestrator.handleQuery(message, subject as unknown as PrismaSubject, attachments || []);
 
     // Retourner la réponse et l'éventuel URL du document
     return NextResponse.json({

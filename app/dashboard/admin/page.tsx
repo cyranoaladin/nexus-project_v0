@@ -84,7 +84,7 @@ function DashboardAdmin() {
     };
 
     fetchAdminData();
-  }, [session, status, router]);
+  }, [session, status, router, allowBypass]);
   const isLoading = status === 'loading' || loading;
   const hasError = Boolean(error);
 

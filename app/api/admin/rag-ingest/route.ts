@@ -49,6 +49,16 @@ function normalizeMetadata(meta: any): {
 
 export async function POST(req: Request) {
   try {
+    // Rate limit to avoid abuse of embeddings endpoint
+    const ip = (req.headers as any).get?.('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const { rateLimit } = await import('@/lib/rate-limit');
+    const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
+    const rlConf = getRateLimitConfig('RAG_INGEST', { windowMs: 60_000, max: 5 });
+    const rl = await rateLimit(rlConf)(`rag_ingest:${ip}`);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+    }
+
     const session = await getServerSession(authOptions);
     const role = session?.user?.role as UserRole | undefined;
 if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)) {

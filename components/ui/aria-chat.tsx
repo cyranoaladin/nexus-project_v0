@@ -292,7 +292,7 @@ export function AriaChat() {
 
               <CardContent className="flex flex-col h-full p-0">
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4" data-testid="aria-messages" data-testid-aria="aria-messages">
                   {messages.length === 0 && !isAuthenticated && (
                     <div className="text-center text-bleu-nuit py-12">
                       <Image

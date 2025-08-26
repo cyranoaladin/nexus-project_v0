@@ -4,7 +4,8 @@ import { PrismaClient } from '@prisma/client';
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.TEST_DATABASE_URL || 'file:./test.db'
+      // Prefer Postgres for tests. Fallback to local mapped DB on 5433.
+      url: process.env.TEST_DATABASE_URL || process.env.JEST_DB_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public'
     }
   }
 });
@@ -89,7 +90,7 @@ export const createTestCoach = async (overrides: any = {}) => {
     data: {
       userId: coachUser.id,
       pseudonym: 'Prof_Pierre',
-      subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+      subjects: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE']),
       availableOnline: true,
       ...overrides.profile
     }
@@ -102,10 +103,10 @@ export const createTestSubscription = async (studentId: string, overrides: any =
   return await testPrisma.subscription.create({
     data: {
       studentId,
-      plan: 'HYBRIDE',
+      planName: 'HYBRIDE',
       status: 'ACTIVE',
       creditsPerMonth: 20,
-      pricePerMonth: 99,
+      monthlyPrice: 99,
       startDate: new Date(),
       ...overrides
     }

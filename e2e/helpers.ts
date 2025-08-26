@@ -1,13 +1,26 @@
 import { Page, expect } from '@playwright/test';
 
 export async function loginAs(page: Page, email: string, password?: string) {
-  await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+  // En mode E2E, l'authentification est bypass côté middleware/pages.
+  // Ne pas exécuter le flux de connexion pour éviter les courses/redirects.
+  if (process.env.E2E === '1' || process.env.E2E_RUN === '1' || process.env.NEXT_PUBLIC_E2E === '1') {
+    return;
+  }
 
-  // Attendre que la page de connexion soit prête
-  await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 20000 });
+  // Rendez la navigation vers la page de connexion plus robuste (redir sporadiques)
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('input[type="email"]').first()).toBeVisible({ timeout: 20000 });
+      break;
+    } catch {
+      if (attempt === 2) throw new Error('Impossible d\'atteindre /auth/signin');
+      await page.waitForTimeout(500);
+    }
+  }
 
-  const emailInput = page.locator('input#email, input[type="email"]');
-  const passwordInput = page.locator('input#password, input[type="password"]');
+  const emailInput = page.locator('input#email, input[type="email"]').first();
+  const passwordInput = page.locator('input#password, input[type="password"]').first();
 
   // Rendez les champs focus/éditables de manière robuste
   try { await emailInput.click({ timeout: 5000, force: true }); } catch {}

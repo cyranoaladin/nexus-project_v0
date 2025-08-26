@@ -6,5 +6,6 @@
   ],
   "python.analysis.venvPath": "/home/alaeddine/Documents/nexus-project_v0",
   "python.analysis.venv": ".venv",
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  "cursorpyright.analysis.typeCheckingMode": "basic"
 }

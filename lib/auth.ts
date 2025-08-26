@@ -10,8 +10,11 @@ const generateSecret = () => {
   if (process.env.NEXTAUTH_SECRET) {
     return process.env.NEXTAUTH_SECRET;
   }
-
-  // Generate a random secret for development
+  // In production we must not run without a configured secret
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXTAUTH_SECRET is required in production environment');
+  }
+  // Generate a random secret for development only
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < 32; i++) {
@@ -23,7 +26,7 @@ const generateSecret = () => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   secret: generateSecret(),
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === 'development' && process.env.E2E !== '1' && process.env.E2E_RUN !== '1' && process.env.NEXT_PUBLIC_E2E !== '1',
   providers: [
     CredentialsProvider({
       name: 'credentials',

@@ -3,2288 +3,1483 @@
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 1829ms
- ✓ Compiled /api/health in 116ms (58 modules)
- GET /api/health 200 in 273ms
- ✓ Compiled /api/dev/seed-availabilities in 101ms (60 modules)
- POST /api/dev/seed-availabilities 200 in 264ms
- ✓ Compiled /api/coaches/available in 259ms (298 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=MATHEMATIQUES 200 in 370ms
- ✓ Compiled /middleware in 285ms (174 modules)
- ○ Compiling /dashboard/eleve ...
- ✓ Compiled /dashboard/eleve in 4s (1802 modules)
- GET /dashboard/eleve 200 in 4333ms
- ✓ Compiled /favicon.ico in 423ms (1065 modules)
- GET /favicon.ico 200 in 497ms
- ✓ Compiled /api/auth/[...nextauth] in 123ms (1067 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 486ms
- GET /api/auth/session 200 in 50ms
- ✓ Compiled /api/student/dashboard in 191ms (1069 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/student/dashboard 404 in 280ms
- GET /api/student/dashboard 404 in 18ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 662ms (1836 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 756ms
- ○ Compiling / ...
- ✓ Compiled / in 2.3s (2400 modules)
- GET / 200 in 2595ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 26ms
- GET /favicon.ico 200 in 38ms
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 73ms
- GET /api/auth/session 200 in 14ms
+ ✓ Ready in 3s
  ○ Compiling /auth/signin ...
- ✓ Compiled /auth/signin in 791ms (2430 modules)
+ ✓ Compiled /auth/signin in 3.4s (1410 modules)
+ GET /auth/signin 200 in 3978ms
+ GET /auth/signin 200 in 55ms
+ ○ Compiling /aria ...
+ GET /auth/signin 200 in 655ms
+ GET /auth/signin 200 in 656ms
+ GET /auth/signin 200 in 651ms
+ GET /auth/signin 200 in 666ms
+ ✓ Compiled /api/auth/[...nextauth] in 4.4s (2089 modules)
+ GET /api/auth/session 200 in 2146ms
+ GET /api/auth/session 200 in 2141ms
+ GET /api/auth/session 200 in 2189ms
+ GET /api/auth/session 200 in 1993ms
+ GET /api/auth/session 200 in 1996ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/providers 200 in 69ms
- GET /api/auth/csrf 200 in 18ms
- POST /api/auth/callback/credentials 200 in 310ms
- GET /api/auth/session 200 in 14ms
- ✓ Compiled /dashboard in 411ms (2438 modules)
- ○ Compiling /dashboard/assistante ...
- ✓ Compiled /dashboard/assistante in 741ms (2474 modules)
- ✓ Compiled /api/assistant/dashboard in 397ms (1435 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 512ms
- GET /api/assistant/dashboard 200 in 29ms
- ✓ Compiled /api/notifications in 226ms (1437 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/notifications?limit=20 200 in 293ms
- GET /api/notifications?limit=20 200 in 15ms
- GET /api/notifications?limit=20 200 in 19ms
- GET /api/notifications?limit=20 200 in 18ms
- ✓ Compiled /dashboard/assistante/coaches in 418ms (2480 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 44ms
- GET /api/assistant/dashboard 200 in 39ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 17ms
- GET /api/notifications?limit=20 200 in 11ms
- GET /api/notifications?limit=20 200 in 13ms
- ○ Compiling /dashboard/assistante/credits ...
- ✓ Compiled /dashboard/assistante/credits in 512ms (2482 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 37ms
- GET /api/assistant/dashboard 200 in 36ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 13ms
- GET /api/notifications?limit=20 200 in 12ms
- GET /api/notifications?limit=20 200 in 15ms
- ✓ Compiled /dashboard/assistante/students in 444ms (2484 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 35ms
- GET /api/assistant/dashboard 200 in 34ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 22ms
- GET /api/notifications?limit=20 200 in 16ms
- GET /api/notifications?limit=20 200 in 10ms
- ✓ Compiled /api/sessions in 245ms (1444 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/sessions?role=assistant 200 in 308ms
- GET /api/sessions?role=assistant 200 in 26ms
- ✓ Compiled /api/sessions/[id]/status in 173ms (1446 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- PATCH /api/sessions/cmepabr2v0022i2923vg1j9dh/status 200 in 480ms
- GET /api/sessions?role=assistant 200 in 23ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 20ms
- GET /api/notifications?limit=20 200 in 18ms
- GET /api/notifications?limit=20 200 in 21ms
- ✓ Compiled /dashboard/assistante/paiements in 420ms (2147 modules)
- ✓ Compiled /api/assistant/payments in 179ms (1106 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/payments 200 in 239ms
- GET /api/assistant/payments 200 in 17ms
- GET /api/assistant/dashboard 200 in 31ms
- GET /api/assistant/dashboard 200 in 30ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 17ms
- GET /api/notifications?limit=20 200 in 14ms
- GET /api/notifications?limit=20 200 in 11ms
- ○ Compiling /dashboard/assistante/credit-requests ...
- ✓ Compiled /dashboard/assistante/credit-requests in 980ms (2124 modules)
- ✓ Compiled /api/assistant/credit-requests in 164ms (1077 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/credit-requests 200 in 229ms
- GET /api/assistant/credit-requests 200 in 12ms
- GET /api/assistant/dashboard 200 in 26ms
- GET /api/assistant/dashboard 200 in 32ms
- GET /api/notifications?limit=20 200 in 28ms
- GET /api/notifications?limit=20 200 in 18ms
- GET /api/notifications?limit=20 200 in 11ms
- GET /api/notifications?limit=20 200 in 12ms
- ○ Compiling /dashboard/assistante/subscription-requests ...
- ✓ Compiled /dashboard/assistante/subscription-requests in 743ms (2138 modules)
- ✓ Compiled /api/assistant/subscription-requests in 181ms (1086 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/subscription-requests?status=PENDING 200 in 256ms
- GET /api/assistant/subscription-requests?status=PENDING 200 in 23ms
- GET /api/assistant/subscription-requests?status=APPROVED 200 in 23ms
- GET /api/assistant/subscription-requests?status=REJECTED 200 in 20ms
- GET /api/assistant/subscription-requests?status=APPROVED 200 in 23ms
- GET /api/assistant/dashboard 200 in 26ms
- GET /api/assistant/dashboard 200 in 41ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 18ms
- GET /api/notifications?limit=20 200 in 15ms
- GET /api/notifications?limit=20 200 in 14ms
- ○ Compiling /dashboard/admin/rag-management ...
- ✓ Compiled /dashboard/admin/rag-management in 593ms (2339 modules)
- ✓ Compiled /api/admin/rag/documents in 225ms (1277 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/admin/rag/documents 200 in 303ms
- GET /api/admin/rag/documents 200 in 317ms
- GET /api/assistant/dashboard 200 in 26ms
- GET /api/assistant/dashboard 200 in 48ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 17ms
- GET /api/notifications?limit=20 200 in 15ms
- GET /api/notifications?limit=20 200 in 14ms
- GET /api/assistant/dashboard 200 in 47ms
- GET /api/assistant/dashboard 200 in 48ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 17ms
- GET /api/notifications?limit=20 200 in 17ms
- GET /api/notifications?limit=20 200 in 15ms
- ✓ Compiled /api/auth/[...nextauth] in 172ms (1273 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/csrf 200 in 258ms
- POST /api/auth/signout 200 in 25ms
- ✓ Compiled / in 341ms (1422 modules)
- GET / 200 in 637ms
- ✓ Compiled /_not-found in 322ms (2489 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 437ms
- ✓ Compiled /favicon.ico in 353ms (1452 modules)
- GET /favicon.ico 200 in 459ms
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 83ms
- GET /api/auth/session 200 in 20ms
- ✓ Compiled /auth/signin in 280ms (1458 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/providers 200 in 71ms
- GET /api/auth/csrf 200 in 30ms
- POST /api/auth/callback/credentials 200 in 324ms
- GET /api/auth/session 200 in 50ms
- ✓ Compiled /dashboard in 279ms (1451 modules)
- ✓ Compiled /dashboard/eleve in 328ms (1460 modules)
- ✓ Compiled /api/student/dashboard in 238ms (1462 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/student/dashboard 200 in 348ms
- GET /api/student/dashboard 200 in 28ms
- ✓ Compiled /api/coaches/available in 476ms (1290 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=NSI 200 in 575ms
- ✓ Compiled /api/coaches/availability in 463ms (1302 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqz2000ei292ov9m7c1p&startDate=2025-08-25T06:18:03.307Z&endDate=2025-08-31T06:18:03.307Z 200 in 559ms
- GET /dashboard/eleve 200 in 161ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 705ms (2090 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 831ms
- ✓ Compiled /favicon.ico in 229ms (1056 modules)
- GET /favicon.ico 200 in 335ms
- ✓ Compiled /api/auth/[...nextauth] in 191ms (1291 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 334ms
- GET /api/auth/session 200 in 43ms
- ⨯ Failed to generate static paths for /api/auth/[...nextauth]:
-TypeError: ComponentMod.patchFetch is not a function
-    at buildAppStaticPaths (/home/b13/Téléchargements/nexus-project_v0-front-back-aria/node_modules/next/dist/build/utils.js:952:18)
-    at Object.loadStaticPaths (/home/b13/Téléchargements/nexus-project_v0-front-back-aria/node_modules/next/dist/server/dev/static-paths-worker.js:48:53)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  type: 'TypeError'
-}
- ⨯ Failed to generate static paths for /api/auth/[...nextauth]:
-TypeError: ComponentMod.patchFetch is not a function
-    at buildAppStaticPaths (/home/b13/Téléchargements/nexus-project_v0-front-back-aria/node_modules/next/dist/build/utils.js:952:18)
-    at Object.loadStaticPaths (/home/b13/Téléchargements/nexus-project_v0-front-back-aria/node_modules/next/dist/server/dev/static-paths-worker.js:48:53)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  type: 'TypeError'
-}
- ✓ Compiled /api/student/dashboard in 192ms (1314 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/student/dashboard 200 in 332ms
- GET /api/student/dashboard 200 in 24ms
- ○ Compiling /dashboard/eleve/sessions ...
- ✓ Compiled /dashboard/eleve/sessions in 586ms (2382 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /dashboard/eleve/sessions?_rsc=1s4cd 200 in 37ms
- GET /api/student/dashboard 200 in 40ms
- GET /api/student/dashboard 200 in 32ms
- ✓ Compiled /dashboard/eleve/ressources in 302ms (2384 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /dashboard/eleve/ressources?_rsc=8o8ni 200 in 34ms
- GET /api/student/dashboard 200 in 31ms
- GET /api/student/dashboard 200 in 20ms
- GET /api/auth/csrf 200 in 272ms
- POST /api/auth/signout 200 in 48ms
- ○ Compiling / ...
- ✓ Compiled / in 643ms (1448 modules)
- GET / 200 in 970ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 47ms
- GET /favicon.ico 200 in 45ms
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 63ms
- GET /api/auth/session 200 in 15ms
- GET /api/auth/providers 200 in 57ms
- GET /api/auth/csrf 200 in 23ms
- POST /api/auth/callback/credentials 200 in 328ms
- GET /api/auth/session 200 in 28ms
- ✓ Compiled /dashboard in 255ms (1452 modules)
- ○ Compiling /dashboard/admin ...
- ✓ Compiled /dashboard/admin in 1019ms (2544 modules)
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- ✓ Compiled in 1327ms (1938 modules)
- GET /dashboard/admin 200 in 725ms
- ✓ Compiled /_not-found in 331ms (1927 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 440ms
- ✓ Compiled /favicon.ico in 238ms (881 modules)
- GET /favicon.ico 200 in 345ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 853ms (1117 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 1057ms
- GET /api/auth/session 200 in 67ms
- ✓ Compiled /api/admin/dashboard in 370ms (1140 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/admin/dashboard 200 in 633ms
- GET /api/admin/dashboard 200 in 56ms
- ✓ Compiled in 927ms (2232 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/admin/dashboard 200 in 31ms
- ✓ Compiled in 759ms (2232 modules)
- ○ Compiling /dashboard/admin/users ...
- ✓ Compiled /dashboard/admin/users in 722ms (1926 modules)
- ✓ Compiled /api/admin/dashboard in 231ms (1090 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/admin/dashboard 200 in 401ms
- GET /api/admin/dashboard 200 in 193ms
- ✓ Compiled /api/auth/[...nextauth] in 127ms (1092 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/csrf 200 in 221ms
- POST /api/auth/signout 200 in 27ms
- ○ Compiling / ...
- ✓ Compiled / in 735ms (1399 modules)
- GET / 200 in 1028ms
- ✓ Compiled /_not-found in 310ms (2478 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 409ms
- ✓ Compiled /favicon.ico in 482ms (1429 modules)
- GET /favicon.ico 200 in 578ms
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 58ms
- GET /api/auth/session 200 in 24ms
- GET /api/auth/providers 200 in 65ms
- GET /api/auth/csrf 200 in 21ms
- POST /api/auth/callback/credentials 200 in 321ms
- GET /api/auth/session 200 in 52ms
- ✓ Compiled /dashboard in 283ms (1434 modules)
- ○ Compiling /dashboard/parent ...
- ⨯ ./app/dashboard/parent/page.tsx
-Error: 
-  [31mx[0m the name `dynamic` is defined multiple times
-    ,-[[36;1;4m/home/b13/Téléchargements/nexus-project_v0-front-back-aria/app/dashboard/parent/page.tsx[0m:1:1]
- [2m 1[0m | "use client";
- [2m 2[0m | 
- [2m 3[0m | // Force dynamic rendering to prevent static generation issues
- [2m 4[0m | export const dynamic = 'force-dynamic';
-    : [31;1m             ^^^|^^^[0m
-    :                 [31;1m`-- [31;1mprevious definition of `dynamic` here[0m[0m
- [2m 5[0m | 
- [2m 6[0m | import { Footer } from "@/components/layout/footer";
- [2m 7[0m | import { Badge } from "@/components/ui/badge";
- [2m 8[0m | import { Button } from "@/components/ui/button";
- [2m 9[0m | import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
- [2m10[0m | import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- [2m11[0m | import SessionBooking from "@/components/ui/session-booking";
- [2m12[0m | import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
- [2m13[0m | import { signOut, useSession } from "next-auth/react";
- [2m14[0m | import { useRouter } from "next/navigation";
- [2m15[0m | import { useEffect, useState } from "react";
- [2m16[0m | import AddChildDialog from "./add-child-dialog";
- [2m17[0m | import { AriaAddonDialog } from "./aria-addon-dialog";
- [2m18[0m | import CreditPurchaseDialog from "./credit-purchase-dialog";
- [2m19[0m | import InvoiceDetailsDialog from "./invoice-details-dialog";
- [2m20[0m | import SubscriptionChangeDialog from "./subscription-change-dialog";
- [2m21[0m | 
- [2m22[0m | interface Session {
- [2m23[0m |   id: string;
- [2m24[0m |   subject: string;
- [2m25[0m |   scheduledAt: string;
- [2m26[0m |   coachName: string;
- [2m27[0m |   type: 'COURS_ONLINE' | 'PRESENTIEL';
- [2m28[0m | }
- [2m29[0m | 
- [2m30[0m | interface SubscriptionDetails {
- [2m31[0m |   planName: string;
- [2m32[0m |   monthlyPrice: number;
- [2m33[0m |   endDate: string;
- [2m34[0m |   status: string;
- [2m35[0m |   startDate: string;
- [2m36[0m | }
- [2m37[0m | 
- [2m38[0m | interface Child {
- [2m39[0m |   id: string;
- [2m40[0m |   firstName: string;
- [2m41[0m |   lastName: string;
- [2m42[0m |   grade: string;
- [2m43[0m |   credits: number;
- [2m44[0m |   subscription: string;
- [2m45[0m |   progress: number;
- [2m46[0m |   nextSession?: {
- [2m47[0m |     subject: string;
- [2m48[0m |     scheduledAt: string;
- [2m49[0m |   };
- [2m50[0m |   sessions: Session[];
- [2m51[0m |   subjectProgress: Record<string, number>;
- [2m52[0m |   subscriptionDetails?: SubscriptionDetails;
- [2m53[0m | }
- [2m54[0m | 
- [2m55[0m | interface ParentDashboardData {
- [2m56[0m |   parent: any;
- [2m57[0m |   children: Child[];
- [2m58[0m | }
- [2m59[0m | 
- [2m60[0m | import dynamic from 'next/dynamic';
-    : [33;1m       ^^^|^^^[0m
-    :           [33;1m`-- [33;1m`dynamic` redefined here[0m[0m
- [2m61[0m | 
- [2m62[0m | function DashboardParent() {
- [2m63[0m |   const { data: session, status } = useSession();
-    `----
-
-Import trace for requested module:
-./app/dashboard/parent/page.tsx
- ⨯ ./app/dashboard/parent/page.tsx
-Error: 
-  [31mx[0m the name `dynamic` is defined multiple times
-    ,-[[36;1;4m/home/b13/Téléchargements/nexus-project_v0-front-back-aria/app/dashboard/parent/page.tsx[0m:1:1]
- [2m 1[0m | "use client";
- [2m 2[0m | 
- [2m 3[0m | // Force dynamic rendering to prevent static generation issues
- [2m 4[0m | export const dynamic = 'force-dynamic';
-    : [31;1m             ^^^|^^^[0m
-    :                 [31;1m`-- [31;1mprevious definition of `dynamic` here[0m[0m
- [2m 5[0m | 
- [2m 6[0m | import { Footer } from "@/components/layout/footer";
- [2m 7[0m | import { Badge } from "@/components/ui/badge";
- [2m 8[0m | import { Button } from "@/components/ui/button";
- [2m 9[0m | import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
- [2m10[0m | import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- [2m11[0m | import SessionBooking from "@/components/ui/session-booking";
- [2m12[0m | import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
- [2m13[0m | import { signOut, useSession } from "next-auth/react";
- [2m14[0m | import { useRouter } from "next/navigation";
- [2m15[0m | import { useEffect, useState } from "react";
- [2m16[0m | import AddChildDialog from "./add-child-dialog";
- [2m17[0m | import { AriaAddonDialog } from "./aria-addon-dialog";
- [2m18[0m | import CreditPurchaseDialog from "./credit-purchase-dialog";
- [2m19[0m | import InvoiceDetailsDialog from "./invoice-details-dialog";
- [2m20[0m | import SubscriptionChangeDialog from "./subscription-change-dialog";
- [2m21[0m | 
- [2m22[0m | interface Session {
- [2m23[0m |   id: string;
- [2m24[0m |   subject: string;
- [2m25[0m |   scheduledAt: string;
- [2m26[0m |   coachName: string;
- [2m27[0m |   type: 'COURS_ONLINE' | 'PRESENTIEL';
- [2m28[0m | }
- [2m29[0m | 
- [2m30[0m | interface SubscriptionDetails {
- [2m31[0m |   planName: string;
- [2m32[0m |   monthlyPrice: number;
- [2m33[0m |   endDate: string;
- [2m34[0m |   status: string;
- [2m35[0m |   startDate: string;
- [2m36[0m | }
- [2m37[0m | 
- [2m38[0m | interface Child {
- [2m39[0m |   id: string;
- [2m40[0m |   firstName: string;
- [2m41[0m |   lastName: string;
- [2m42[0m |   grade: string;
- [2m43[0m |   credits: number;
- [2m44[0m |   subscription: string;
- [2m45[0m |   progress: number;
- [2m46[0m |   nextSession?: {
- [2m47[0m |     subject: string;
- [2m48[0m |     scheduledAt: string;
- [2m49[0m |   };
- [2m50[0m |   sessions: Session[];
- [2m51[0m |   subjectProgress: Record<string, number>;
- [2m52[0m |   subscriptionDetails?: SubscriptionDetails;
- [2m53[0m | }
- [2m54[0m | 
- [2m55[0m | interface ParentDashboardData {
- [2m56[0m |   parent: any;
- [2m57[0m |   children: Child[];
- [2m58[0m | }
- [2m59[0m | 
- [2m60[0m | import dynamic from 'next/dynamic';
-    : [33;1m       ^^^|^^^[0m
-    :           [33;1m`-- [33;1m`dynamic` redefined here[0m[0m
- [2m61[0m | 
- [2m62[0m | function DashboardParent() {
- [2m63[0m |   const { data: session, status } = useSession();
-    `----
-
-Import trace for requested module:
-./app/dashboard/parent/page.tsx
- GET /dashboard/parent 500 in 60ms
- GET /.well-known/appspecific/com.chrome.devtools.json 500 in 36ms
- ✓ Compiled /_error in 2.4s (2771 modules)
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /dashboard/parent 200 in 301ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 62ms
- GET /favicon.ico 200 in 48ms
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
+ GET /aria 200 in 5770ms
+ GET /auth/signin? 200 in 4508ms
+ GET /auth/signin? 200 in 4503ms
+ GET /auth/signin? 200 in 4509ms
+ GET /auth/signin? 200 in 4508ms
+ GET /auth/signin 200 in 5552ms
+ POST /api/auth/_log 200 in 324ms
+ POST /api/auth/_log 200 in 324ms
+ POST /api/auth/_log 200 in 318ms
+ POST /api/auth/_log 200 in 318ms
+ POST /api/auth/_log 200 in 318ms
+ POST /api/auth/_log 200 in 317ms
+ POST /api/auth/_log 200 in 317ms
+ POST /api/auth/_log 200 in 317ms
+ GET /api/auth/session 200 in 159ms
+ GET /api/auth/session 200 in 219ms
+ GET /api/auth/session 200 in 244ms
+ GET /api/auth/session 200 in 225ms
+ GET /api/auth/session 200 in 201ms
+ GET /api/auth/session 200 in 169ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 85ms
+ GET /auth/signin 200 in 199ms
  GET /api/auth/session 200 in 98ms
- GET /api/auth/session 200 in 22ms
- ✓ Compiled in 476ms (2455 modules)
- ✓ Compiled in 729ms (1290 modules)
- ○ Compiling /api/parent/dashboard ...
- ✓ Compiled /api/parent/dashboard in 507ms (1143 modules)
+ GET /api/auth/session 200 in 83ms
+ GET /auth/signin? 200 in 86ms
+ GET /api/auth/providers 200 in 74ms
+ GET /api/auth/csrf 200 in 44ms
+ POST /api/auth/callback/credentials 401 in 222ms
+ GET /api/auth/session 200 in 31ms
+ GET /api/auth/session 200 in 29ms
+ GET /aria 200 in 27ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 53ms
+ GET /aria 200 in 173ms
+ ✓ Compiled /middleware in 434ms (174 modules)
+ ○ Compiling /dashboard/eleve/sessions ...
+ ✓ Compiled /dashboard/eleve/sessions in 3.3s (2148 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 633ms
- ✓ Compiled in 445ms (2433 modules)
- GET /dashboard/parent 200 in 116ms
- ✓ Compiled /_not-found in 279ms (2422 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 366ms
- ✓ Compiled /favicon.ico in 250ms (1173 modules)
- GET /favicon.ico 200 in 351ms
- ✓ Compiled /api/auth/[...nextauth] in 249ms (1175 modules)
+ GET /aria 200 in 884ms
+ GET /aria 200 in 1383ms
+ GET /auth/signin 200 in 1192ms
+ GET /dashboard/admin/rag-management 200 in 4240ms
+ GET /dashboard/eleve/sessions 200 in 4241ms
+ GET /auth/signin? 200 in 138ms
+ GET /api/auth/session 200 in 90ms
+ GET /api/auth/session 200 in 309ms
+ GET /api/auth/session 200 in 310ms
+ ○ Compiling /api/admin/rag/documents ...
+ ✓ Compiled /api/admin/rag/documents in 626ms (1250 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 354ms
+ GET /api/auth/session 200 in 1543ms
+ GET /api/auth/session 200 in 1538ms
+ GET /api/auth/session 200 in 1105ms
+ GET /api/auth/session 200 in 1100ms
+ GET /api/auth/session 200 in 780ms
+ GET /api/auth/session 200 in 737ms
+ GET /api/admin/rag/documents 403 in 1690ms
+ GET /api/admin/rag/documents 403 in 1688ms
+ GET /api/auth/session 200 in 453ms
+ GET /auth/signin 200 in 1620ms
+ GET /auth/signin 200 in 129ms
+ GET /auth/signin? 200 in 83ms
+ GET /auth/signin? 200 in 101ms
+ GET /auth/signin 200 in 81ms
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 29ms
  GET /api/auth/session 200 in 30ms
- GET /dashboard/parent 200 in 121ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 30ms
- GET /favicon.ico 200 in 48ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/providers 200 in 30ms
+ GET /api/auth/csrf 200 in 64ms
+ POST /api/auth/callback/credentials 200 in 674ms
+ GET /api/auth/session 200 in 55ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 530ms (2178 modules)
+ ○ Compiling /dashboard/admin ...
+ ✓ Compiled /dashboard/admin in 1932ms (2214 modules)
+ GET /dashboard/admin/rag-management 200 in 318ms
+ GET /auth/signin 200 in 152ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/admin/rag/documents 200 in 166ms
+ GET /api/auth/session 200 in 194ms
+ GET /api/admin/rag/documents 200 in 212ms
+ GET /api/auth/session 200 in 202ms
+ GET /api/auth/session 200 in 112ms
+ GET /api/auth/session 200 in 38ms
+ GET /auth/signin 200 in 88ms
+ GET /auth/signin 200 in 68ms
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 40ms
+ GET /auth/signin 200 in 56ms
+ GET /auth/signin? 200 in 85ms
+ GET /api/auth/session 200 in 126ms
+ GET /api/auth/session 200 in 102ms
+ GET /api/auth/providers 200 in 136ms
+ GET /api/auth/csrf 200 in 57ms
+ GET /api/auth/session 200 in 100ms
+ POST /api/auth/callback/credentials 401 in 111ms
+ GET /api/auth/session 200 in 56ms
+ GET /aria 200 in 106ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 80ms
+ GET /aria 200 in 42ms
+ GET /api/auth/session 200 in 71ms
+ GET /api/auth/session 200 in 66ms
+ GET /auth/signin 200 in 74ms
+ GET /auth/signin? 200 in 45ms
+ GET /aria 200 in 42ms
+ ○ Compiling /dashboard/assistante ...
+ ✓ Compiled / in 3.9s (2489 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 3436ms
+ GET /api/auth/session 200 in 1365ms
+ GET /api/auth/session 200 in 1364ms
+ GET /dashboard/assistante 200 in 4677ms
+ GET / 200 in 2735ms
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/session 200 in 78ms
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 29ms
+ ○ Compiling /offres ...
+ ✓ Compiled /contact in 3.5s (2535 modules)
+ GET /auth/signin 200 in 1957ms
+ GET /auth/signin 200 in 498ms
+ ○ Compiling /bilan-gratuit ...
+ ✓ Compiled /bilan-gratuit in 4.8s (2549 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 2686ms
+ GET /api/auth/session 200 in 2716ms
+ GET /aria 200 in 3115ms
+ GET /auth/signin? 200 in 5307ms
+ GET /auth/signin? 200 in 5325ms
+ GET /dashboard/eleve/sessions 200 in 2026ms
+ POST /api/auth/_log 200 in 197ms
+ POST /api/auth/_log 200 in 195ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/session 200 in 145ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 108ms
+ GET / 200 in 256ms
+ ○ Compiling /dashboard/coach ...
+ ✓ Compiled /dashboard/coach in 2.8s (2571 modules)
+ GET /dashboard/coach 200 in 3320ms
+ GET /bilan-gratuit 200 in 3094ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 191ms
+ GET /api/auth/session 200 in 160ms
+ GET /auth/signin 200 in 207ms
+ GET /auth/signin 200 in 68ms
+ GET / 200 in 308ms
+ GET /auth/signin? 200 in 134ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/session 200 in 32ms
+ GET /auth/signin 200 in 109ms
+ GET /auth/signin? 200 in 87ms
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 35ms
+ GET /auth/signin 200 in 99ms
+ GET /api/auth/session 200 in 214ms
+ GET /api/auth/session 200 in 199ms
+ GET /aria 200 in 98ms
+ GET /aria 200 in 109ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 98ms
+ GET /api/auth/session 200 in 38ms
+ GET /api/auth/session 200 in 36ms
+ ○ Compiling /api/aria/chat ...
+ ✓ Compiled /dashboard/admin/analytics in 1245ms (1577 modules)
+ ✓ Compiled in 747ms (1094 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /auth/signin 200 in 3250ms
+ GET /auth/signin 200 in 3268ms
+ GET /dashboard/admin/analytics 200 in 3326ms
+ GET /auth/signin? 200 in 256ms
+ GET /auth/signin? 200 in 222ms
+ ○ Compiling /dashboard/parent ...
+ ✓ Compiled /dashboard/parent in 3.6s (2709 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 2537ms
+ GET /api/auth/session 200 in 2538ms
+ GET /dashboard/parent 200 in 4551ms
+ GET /api/auth/session 200 in 188ms
+ GET /api/auth/session 200 in 186ms
+ GET /auth/signin 200 in 138ms
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 42ms
+ GET /dashboard/coach 200 in 102ms
+ ○ Compiling /dashboard/eleve ...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /dashboard/eleve in 6.6s (2708 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/providers 200 in 9540ms
+ GET /auth/signin 200 in 18494ms
+ GET /auth/signin 200 in 17106ms
+ GET /dashboard/eleve 200 in 21908ms
+ GET /api/auth/csrf 200 in 721ms
+ GET /aria 200 in 984ms
+ ○ Compiling /dashboard/admin ...
+ ✓ Compiled /dashboard/admin in 1892ms (1577 modules)
+ ✓ Compiled in 1ms (1577 modules)
+ ✓ Compiled in 1ms (1577 modules)
+ ✓ Compiled in 1ms (1577 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/auth/callback/credentials 401 in 4706ms
+ GET /dashboard/parent 200 in 4538ms
+ GET /dashboard/admin 200 in 5706ms
+ ✓ Compiled in 1ms (1577 modules)
+ GET /auth/signin? 200 in 4773ms
+ GET /api/auth/session 200 in 3865ms
+ GET / 200 in 3493ms
+ ✓ Compiled in 1ms (1577 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ ✓ Compiled /api/uploads/analyse in 1ms (1577 modules)
+ GET /auth/signin 200 in 6173ms
+ ✓ Compiled in 2ms (1579 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/auth/_log 200 in 5009ms
+ POST /api/auth/_log 200 in 5018ms
+ ✓ Compiled in 0ms (1574 modules)
+ GET /auth/signin 200 in 4954ms
+ ✓ Compiled in 1ms (1574 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/csrf 200 in 4145ms
+ GET /api/auth/session 200 in 3243ms
+ GET /api/auth/session 200 in 5243ms
+ ✓ Compiled /contact in 17ms (1574 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/uploads/analyse 401 in 14819ms
+ GET /auth/signin? 200 in 15015ms
+ ✓ Compiled /api/admin/dashboard in 1ms (1579 modules)
+ ✓ Compiled /dashboard/admin/rag-management in 2ms (1471 modules)
+ GET /auth/signin 200 in 55441ms
+ GET /api/auth/session 200 in 43958ms
+ POST /api/auth/signout 200 in 43961ms
+ ✓ Compiled in 1ms (1479 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 58492ms
+ ✓ Compiled in 0ms (1479 modules)
+ GET /dashboard/parent 200 in 47750ms
+ ✓ Compiled in 1ms (1479 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 4520ms
+ GET /api/auth/session 200 in 1922ms
+ GET /api/auth/session 200 in 4722ms
+ ✓ Compiled in 1ms (1479 modules)
+ GET /dashboard/admin/rag-management 200 in 7801ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/auth/_log 200 in 614ms
+ ✓ Compiled /api/admin/rag/documents in 497ms (1481 modules)
+ GET /api/auth/session 200 in 789ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /auth/signin 200 in 218ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1632ms (1397 modules)
+ GET /auth/signin? 200 in 1689ms
+ GET /favicon.ico 200 in 60ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 210ms
+ GET /api/auth/session 200 in 94ms
+ GET /aria 200 in 14937ms
+ GET /favicon.ico 200 in 89ms
+ GET /auth/signin 200 in 122ms
+ GET /favicon.ico 200 in 77ms
+ GET /api/auth/session 200 in 1019ms
+ GET /api/auth/session 200 in 407ms
+ GET /api/auth/session 200 in 322ms
+ GET /api/auth/session 200 in 218ms
+ GET /auth/signin 200 in 188ms
+ GET /api/auth/session 200 in 208ms
+ GET /api/auth/session 200 in 206ms
+ GET /aria 200 in 186ms
+ GET /favicon.ico 200 in 244ms
+ GET /api/auth/providers 200 in 291ms
+ GET /api/auth/csrf 200 in 477ms
+ GET /auth/signin 200 in 846ms
+ POST /api/auth/callback/credentials 401 in 515ms
+ GET /auth/signin 200 in 418ms
+ GET /favicon.ico 200 in 401ms
+ GET /auth/signin 200 in 661ms
+ GET /favicon.ico 200 in 336ms
+ GET /api/auth/session 200 in 2882ms
+ GET /api/auth/session 200 in 7123ms
+ GET /api/auth/session 200 in 2627ms
+ GET /api/auth/session 200 in 2603ms
+ GET /favicon.ico 200 in 809ms
+ GET /api/auth/session 200 in 461ms
+ GET /api/auth/session 200 in 462ms
+ GET /aria 200 in 4895ms
+ GET /api/auth/session 200 in 139ms
+ GET /api/auth/session 200 in 133ms
+ GET /auth/signin 200 in 214ms
+ GET /api/auth/providers 200 in 368ms
+ GET /api/auth/csrf 200 in 159ms
+ POST /api/auth/callback/credentials 401 in 1258ms
+ GET /dashboard/admin/rag-management 200 in 345ms
+ GET /auth/signin 200 in 128ms
+ GET /api/auth/session 200 in 250ms
+ GET /api/auth/session 200 in 247ms
+ GET /auth/signin 200 in 283ms
+ GET /auth/signin 200 in 195ms
+ GET /api/auth/providers 200 in 252ms
+ GET /api/auth/csrf 200 in 243ms
+ GET /auth/signin 200 in 393ms
+ POST /api/auth/callback/credentials 401 in 297ms
+ GET /auth/signin? 200 in 305ms
+ GET /favicon.ico 200 in 253ms
+ GET /auth/signin 200 in 345ms
+ GET /api/auth/session 200 in 194ms
+ GET /api/auth/session 200 in 192ms
+ GET /favicon.ico 200 in 141ms
+ GET /api/auth/providers 200 in 162ms
+ GET /auth/signin 200 in 206ms
+ GET /api/auth/csrf 200 in 107ms
+ POST /api/auth/callback/credentials 401 in 62ms
+ GET /api/auth/session 200 in 177ms
+ GET /api/auth/session 200 in 222ms
+ GET /api/auth/session 200 in 188ms
+ GET /api/auth/session 200 in 187ms
+ GET /favicon.ico 200 in 191ms
+ GET /api/auth/session 200 in 187ms
+ GET /api/auth/session 200 in 185ms
+ GET /api/auth/providers 200 in 190ms
+ GET /api/auth/csrf 200 in 155ms
+ POST /api/auth/callback/credentials 401 in 125ms
+ GET /auth/signin 200 in 176ms
+ GET /auth/signin? 200 in 153ms
+ GET /favicon.ico 200 in 43ms
+ GET /api/auth/session 200 in 86ms
+ GET /api/auth/session 200 in 89ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 31ms
+ GET /auth/signin 200 in 57ms
+ GET /favicon.ico 200 in 30ms
+ GET /api/auth/session 200 in 76ms
+ GET /api/auth/providers 200 in 89ms
  GET /api/auth/session 200 in 60ms
- GET /api/auth/session 200 in 27ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- ✓ Compiled in 1404ms (2173 modules)
- GET /dashboard/parent 200 in 846ms
- ✓ Compiled /_not-found in 365ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 505ms
- ✓ Compiled /favicon.ico in 233ms (916 modules)
- GET /favicon.ico 200 in 364ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 789ms (1152 modules)
+ GET /api/auth/csrf 200 in 47ms
+ POST /api/auth/callback/credentials 200 in 28ms
+ GET /api/auth/session 200 in 37ms
+ GET /aria 200 in 38ms
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/session 200 in 99ms
+ GET /aria 200 in 39ms
+ GET /api/auth/session 200 in 69ms
+ GET /api/auth/session 200 in 57ms
+ GET /aria 200 in 52ms
+ GET /aria 200 in 55ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 79ms
+ ○ Compiling /dashboard/assistante ...
+ ✓ Compiled / in 1811ms (1386 modules)
+ ✓ Compiled (1459 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 972ms
- GET /api/auth/session 200 in 62ms
- ✓ Compiled /api/parent/dashboard in 469ms (1175 modules)
+ GET /dashboard/assistante 200 in 3148ms
+ GET /aria 200 in 2553ms
+ GET /auth/signin 200 in 946ms
+ GET / 200 in 2777ms
+ ○ Compiling /dashboard/coach ...
+ ✓ Compiled /dashboard/coach in 1110ms (1474 modules)
+ GET /favicon.ico 200 in 1272ms
+ GET /dashboard/coach 200 in 2053ms
+ GET /auth/signin? 200 in 1698ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 658ms
- GET /api/parent/dashboard 200 in 440ms
- GET /api/parent/dashboard 200 in 39ms
- ✓ Compiled in 467ms (2467 modules)
- ○ Compiling /api/coaches/available ...
- ✓ Compiled /api/coaches/available in 617ms (1177 modules)
+ GET /auth/signin 200 in 135ms
+ GET /favicon.ico 200 in 70ms
+ GET /auth/signin? 200 in 143ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/session 200 in 148ms
+ ○ Compiling /offres ...
+ ✓ Compiled /offres in 1114ms (1480 modules)
+ ✓ Compiled /equipe in 0ms (1480 modules)
+ ✓ Compiled /contact in 1ms (1488 modules)
+ ✓ Compiled /bilan-gratuit in 1ms (1498 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=NSI 200 in 709ms
- ✓ Compiled /api/coaches/availability in 211ms (1189 modules)
+ GET /api/auth/session 200 in 2812ms
+ GET /api/auth/session 200 in 2811ms
+ GET / 200 in 2974ms
+ ✓ Compiled in 1ms (1506 modules)
+ ✓ Compiled in 0ms (1506 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqz2000ei292ov9m7c1p&startDate=2025-08-25T06:32:43.138Z&endDate=2025-08-31T06:32:43.138Z 200 in 300ms
- ✓ Compiled /api/sessions/book in 243ms (1157 modules)
+ GET /api/auth/session 200 in 2036ms
+ GET /api/auth/session 200 in 2038ms
+ ✓ Compiled in 1ms (1506 modules)
+ GET /favicon.ico 200 in 1784ms
+ GET /bilan-gratuit 200 in 4044ms
+ GET /auth/signin 200 in 2720ms
+ GET /bilan-gratuit 200 in 89ms
+ GET /favicon.ico 200 in 97ms
+ GET /favicon.ico 200 in 54ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
-POST /api/sessions/book error: { http: 400, msg: 'Crédits insuffisants' }
- POST /api/sessions/book 400 in 370ms
- ✓ Compiled in 1762ms (2173 modules)
- ✓ Compiled in 429ms (2173 modules)
- ✓ Compiled /api/coaches/available in 235ms (1143 modules)
+ GET /api/auth/session 200 in 104ms
+ GET /api/auth/session 200 in 82ms
+ GET /auth/signin 200 in 98ms
+ GET /api/auth/providers 200 in 67ms
+ GET /api/auth/csrf 200 in 41ms
+ POST /api/auth/callback/credentials 200 in 615ms
+ GET /favicon.ico 200 in 141ms
+ GET /api/auth/session 200 in 101ms
+ GET / 200 in 392ms
+ ○ Compiling /api/assistant/dashboard ...
+ ✓ Compiled /api/assistant/dashboard in 1137ms (1508 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=NSI 200 in 355ms
- ✓ Compiled /api/coaches/availability in 252ms (1155 modules)
+ GET /favicon.ico 200 in 1290ms
+ GET /dashboard/assistante 200 in 2114ms
+ GET / 200 in 321ms
+ GET /aria 200 in 94030ms
+ GET /aria 200 in 94015ms
+ GET /favicon.ico 200 in 345ms
+ GET /api/auth/session 200 in 160ms
+ GET /api/auth/session 200 in 161ms
+ GET /auth/signin 200 in 115ms
+ GET /api/auth/session 200 in 322ms
+ GET /api/auth/session 200 in 308ms
+ GET /auth/signin 200 in 289ms
+ ○ Compiling /dashboard/admin/analytics ...
+ ✓ Compiled /bilan-gratuit in 2.9s (1437 modules)
+ ✓ Compiled (1447 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqz2000ei292ov9m7c1p&startDate=2025-08-25T06:34:48.896Z&endDate=2025-08-31T06:34:48.896Z 200 in 367ms
- ✓ Compiled /api/sessions/book in 330ms (1157 modules)
+ GET /api/auth/providers 200 in 2753ms
+ GET /bilan-gratuit 200 in 4874ms
+ GET /auth/signin 200 in 3507ms
+ GET /auth/signin? 200 in 3526ms
+ GET /auth/signin 200 in 2015ms
+ GET /dashboard/admin/analytics 200 in 5436ms
+ GET /api/auth/csrf 200 in 251ms
+ POST /api/auth/callback/credentials 401 in 468ms
+ GET /favicon.ico 200 in 398ms
+ GET /favicon.ico 200 in 344ms
+ ○ Compiling /dashboard/parent ...
+ ✓ Compiled /dashboard/parent in 1712ms (1468 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
-POST /api/sessions/book error: { http: 400, msg: 'Crédits insuffisants' }
- POST /api/sessions/book 400 in 420ms
- ✓ Compiled in 1281ms (2173 modules)
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- ✓ Compiled in 861ms (2173 modules)
- GET /dashboard/parent?open=purchase-credits 200 in 395ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 936ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1063ms
- ✓ Compiled /favicon.ico in 259ms (916 modules)
- GET /favicon.ico 200 in 356ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 691ms (1152 modules)
+ GET /api/auth/session 200 in 634ms
+ GET /api/auth/session 200 in 632ms
+ GET /auth/signin? 200 in 2688ms
+ GET /auth/signin? 200 in 2688ms
+ GET /dashboard/parent 200 in 3365ms
+ GET /auth/signin 200 in 89ms
+ GET /favicon.ico 200 in 150ms
+ GET /api/auth/session 200 in 232ms
+ GET /api/auth/session 200 in 199ms
+ GET /api/auth/session 200 in 196ms
+ GET /api/auth/session 200 in 195ms
+ GET /api/auth/session 200 in 119ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/providers 200 in 86ms
+ GET /api/auth/csrf 200 in 66ms
+ POST /api/auth/callback/credentials 401 in 68ms
+ GET /auth/signin 200 in 99ms
+ GET /favicon.ico 200 in 80ms
+ GET /api/auth/session 200 in 224ms
+ GET /api/auth/session 200 in 217ms
+ GET /aria 200 in 344ms
+ GET /api/auth/providers 200 in 118ms
+ GET /aria 200 in 156ms
+ GET /api/auth/csrf 200 in 71ms
+ POST /api/auth/callback/credentials 401 in 102ms
+ GET /aria 200 in 548ms
+ GET /dashboard/parent 200 in 617ms
+ ○ Compiling /dashboard/eleve ...
+ ✓ Compiled /dashboard/eleve in 1289ms (1474 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 886ms
- GET /api/auth/session 200 in 77ms
+ GET /api/auth/session 200 in 2374ms
+ GET /api/auth/session 200 in 2388ms
+ POST /api/auth/_log 200 in 2317ms
+ POST /api/auth/_log 200 in 2308ms
+ GET / 200 in 2485ms
+ GET /dashboard/eleve 200 in 2651ms
+ GET /api/auth/session 200 in 148ms
+ GET /api/auth/session 200 in 119ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/session 200 in 144ms
+ ○ Compiling /api/aria/chat ...
+ ✓ Compiled /api/aria/chat in 3.1s (1595 modules)
+ ✓ Compiled in 0ms (1595 modules)
+ ✓ Compiled in 1ms (1595 modules)
+ GET /api/auth/session 200 in 3943ms
+ GET /api/auth/session 200 in 3993ms
+ ✓ Compiled in 1ms (1595 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 4156ms
+ GET /api/auth/session 200 in 4151ms
+ GET /aria 200 in 6346ms
+ GET /auth/signin 200 in 5119ms
+ GET /auth/signin 200 in 904ms
+ GET / 200 in 1666ms
+ GET /auth/signin? 200 in 1222ms
+ GET /favicon.ico 200 in 449ms
+ GET /favicon.ico 200 in 553ms
+ GET /auth/signin? 200 in 707ms
+ GET /auth/signin 200 in 708ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 530ms
+ GET /api/auth/session 200 in 519ms
+ ○ Compiling /api/uploads/analyse ...
+ ✓ Compiled /api/uploads/analyse in 5.7s (1578 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 5543ms
+ GET /api/auth/session 200 in 5446ms
+ GET /api/auth/session 200 in 4195ms
+ GET /api/auth/session 200 in 4179ms
+ POST /api/uploads/analyse 401 in 7389ms
+ GET /auth/signin? 200 in 7314ms
+ GET /favicon.ico 200 in 184ms
+ GET /api/auth/session 200 in 342ms
+ GET /api/auth/session 200 in 307ms
+ GET /dashboard/parent 200 in 257ms
+ GET /dashboard/parent 200 in 247ms
+ GET /api/auth/session 200 in 381ms
+ GET /api/auth/session 200 in 256ms
  ○ Compiling /api/parent/dashboard ...
- ✓ Compiled /api/parent/dashboard in 519ms (1175 modules)
+ ✓ Compiled /api/parent/dashboard in 1726ms (1558 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 695ms
- GET /api/parent/dashboard 200 in 43ms
- ✓ Compiled in 895ms (2467 modules)
- ✓ Compiled /api/parent/credit-request in 382ms (1143 modules)
+ GET /api/parent/dashboard 200 in 2334ms
+ GET /api/auth/session 200 in 230ms
+ GET /api/auth/session 200 in 228ms
+ GET /aria 200 in 1217ms
+ GET /api/parent/dashboard 200 in 771ms
+ POST /api/auth/_log 200 in 678ms
+ POST /api/auth/_log 200 in 660ms
+ GET /aria 200 in 1296ms
+ ○ Compiling /dashboard/admin/rag-management ...
+ ✓ Compiled /dashboard/admin/rag-management in 1455ms (1566 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/credit-request 200 in 522ms
- ✓ Compiled /api/parent/dashboard in 145ms (1145 modules)
+ GET /aria 200 in 1143ms
+ GET /dashboard/admin/rag-management 200 in 2250ms
+ ✓ Compiled /api/admin/rag/documents in 466ms (1568 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 241ms
- ✓ Compiled /api/parent/subscription-requests in 289ms (1147 modules)
+ GET /api/auth/session 200 in 989ms
+ GET /api/auth/session 200 in 974ms
+ GET /auth/signin 200 in 140ms
+ GET /api/auth/session 200 in 148ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/providers 200 in 105ms
+ GET /api/auth/csrf 200 in 84ms
+ POST /api/auth/callback/credentials 401 in 80ms
+ GET /auth/signin 200 in 56ms
+ GET /auth/signin 200 in 48ms
+ GET /auth/signin 200 in 57ms
+ GET /aria 200 in 229ms
+ GET /auth/signin 200 in 263ms
+ GET /auth/signin 200 in 261ms
+ GET /auth/signin 200 in 268ms
+ GET /auth/signin 200 in 253ms
+ GET /auth/signin? 200 in 482ms
+ GET /auth/signin? 200 in 494ms
+ GET /auth/signin? 200 in 557ms
+ GET /auth/signin? 200 in 512ms
+ GET /api/auth/session 200 in 280ms
+ GET /api/auth/session 200 in 201ms
+ GET /api/auth/providers 200 in 211ms
+ GET /api/auth/csrf 200 in 320ms
+ GET /api/auth/session 200 in 233ms
+ GET /auth/signin 200 in 582ms
+ GET /api/auth/session 200 in 370ms
+ GET /api/auth/session 200 in 354ms
+ GET /api/auth/session 200 in 326ms
+ GET /api/auth/session 200 in 325ms
+ POST /api/auth/callback/credentials 401 in 337ms
+ GET /api/auth/session 200 in 341ms
+ GET /api/auth/session 200 in 286ms
+ GET /api/auth/session 200 in 286ms
+ GET /auth/signin? 200 in 227ms
+ GET /aria 200 in 69ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/session 200 in 137ms
+ GET /auth/signin 200 in 60ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/session 200 in 125ms
+ GET /api/auth/providers 200 in 110ms
+ GET /api/auth/csrf 200 in 75ms
+ POST /api/auth/callback/credentials 401 in 84ms
+ GET /dashboard/admin/rag-management 200 in 104ms
+ GET /aria 200 in 91ms
+ GET /aria 200 in 221ms
+ ✓ Compiled /dashboard/eleve/sessions in 499ms (1434 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/subscription-requests 200 in 372ms
- GET /api/parent/dashboard 200 in 38ms
- POST /api/parent/credit-request 200 in 41ms
- GET /api/parent/dashboard 200 in 41ms
- ✓ Compiled in 918ms (2437 modules)
- ✓ Compiled in 533ms (2437 modules)
- GET /dashboard/parent?open=purchase-credits 200 in 161ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 780ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 937ms
- ✓ Compiled /favicon.ico in 282ms (916 modules)
- GET /favicon.ico 200 in 360ms
- ✓ Compiled /api/auth/[...nextauth] in 194ms (1152 modules)
+ GET /dashboard/eleve/sessions 200 in 760ms
+ GET /aria 200 in 205ms
+ GET /api/admin/rag/documents 403 in 164ms
+ GET /api/admin/rag/documents 403 in 139ms
+ GET /api/auth/session 200 in 177ms
+ GET /api/auth/session 200 in 155ms
+ GET /api/auth/session 200 in 95ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/session 200 in 79ms
+ GET /api/auth/session 200 in 66ms
+ GET /api/auth/session 200 in 95ms
+ GET /auth/signin 200 in 159ms
+ GET /aria 200 in 113ms
+ GET /auth/signin? 200 in 128ms
+ GET /api/auth/session 200 in 153ms
+ GET /api/auth/session 200 in 118ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/session 200 in 128ms
+ GET /auth/signin 200 in 225ms
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/session 200 in 97ms
+ GET /auth/signin 200 in 76ms
+ GET /auth/signin? 200 in 121ms
+ GET /auth/signin 200 in 158ms
+ GET /api/auth/session 200 in 170ms
+ GET /api/auth/session 200 in 227ms
+ GET /auth/signin? 200 in 256ms
+ GET /api/auth/session 200 in 156ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/providers 200 in 246ms
+ GET /aria 200 in 322ms
+ GET /api/auth/csrf 200 in 199ms
+ GET /api/auth/session 200 in 192ms
+ GET /api/auth/session 200 in 190ms
+ POST /api/auth/callback/credentials 200 in 684ms
+ GET /api/auth/session 200 in 122ms
+ ✓ Compiled /dashboard in 477ms (1438 modules)
+ GET /dashboard/admin/rag-management 200 in 407ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 356ms
- GET /api/auth/session 200 in 58ms
- ✓ Compiled /api/parent/dashboard in 242ms (1175 modules)
+ GET /api/auth/session 200 in 362ms
+ GET /api/auth/session 200 in 359ms
+ GET /api/admin/rag/documents 200 in 145ms
+ GET /api/admin/rag/documents 200 in 122ms
+ GET /api/auth/session 200 in 152ms
+ GET /api/auth/session 200 in 131ms
+ GET /auth/signin 200 in 122ms
+ GET /auth/signin 200 in 79ms
+ GET /api/auth/session 200 in 119ms
+ GET /auth/signin 200 in 225ms
+ GET /api/auth/session 200 in 173ms
+ GET /api/auth/session 200 in 146ms
+ GET /api/auth/providers 200 in 115ms
+ GET /api/auth/csrf 200 in 96ms
+ POST /api/auth/callback/credentials 401 in 100ms
+ GET /api/auth/session 200 in 86ms
+ GET /api/auth/session 200 in 87ms
+ GET /auth/signin 200 in 65ms
+ GET /auth/signin? 200 in 62ms
+ GET /api/auth/session 200 in 46ms
+ GET /api/auth/session 200 in 29ms
+ GET /aria 200 in 52ms
+ GET /api/auth/session 200 in 69ms
+ GET /api/auth/session 200 in 67ms
+ GET /aria 200 in 38ms
+ GET /api/auth/session 200 in 67ms
+ GET /api/auth/session 200 in 66ms
+ GET /auth/signin 200 in 69ms
+ ○ Compiling /dashboard/assistante ...
+ ✓ Compiled /dashboard/assistante in 504ms (1380 modules)
+ ✓ Compiled in 0ms (1380 modules)
+ ✓ Compiled in 0ms (1380 modules)
+ ✓ Compiled in 1ms (1380 modules)
+ GET /api/auth/session 200 in 581ms
+ GET /dashboard/assistante 200 in 1411ms
+ GET /auth/signin? 200 in 1389ms
+ ✓ Compiled in 1ms (1380 modules)
+ GET /aria 200 in 1121ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 395ms
- GET /api/parent/dashboard 200 in 30ms
- ✓ Compiled /api/parent/credit-request in 166ms (1177 modules)
+ POST /api/auth/_log 200 in 691ms
+ POST /api/auth/_log 200 in 690ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 140ms
+ GET /api/auth/session 200 in 134ms
+ GET /api/auth/session 200 in 134ms
+ GET /api/auth/session 200 in 133ms
+ GET /api/auth/session 200 in 84ms
+ GET /auth/signin 200 in 67ms
+ GET /auth/signin? 200 in 62ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 31ms
+ ✓ Compiled / in 271ms (1453 modules)
+ GET / 200 in 470ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/credit-request 200 in 250ms
- GET /api/parent/dashboard 200 in 47ms
- ○ Compiling /api/coaches/available ...
- ✓ Compiled /api/coaches/available in 599ms (1179 modules)
+ GET /dashboard/eleve/sessions 200 in 100ms
+ GET /api/auth/session 200 in 78ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 36ms
+ GET /aria 200 in 57ms
+ ○ Compiling /equipe ...
+ ✓ Compiled /equipe in 596ms (1459 modules)
+ ✓ Compiled /contact in 1ms (1467 modules)
+ ✓ Compiled in 0ms (1477 modules)
+ ✓ Compiled in 0ms (1477 modules)
+ ✓ Compiled /bilan-gratuit in 0ms (1477 modules)
+ GET /auth/signin 200 in 937ms
+ ✓ Compiled in 1ms (1485 modules)
+ GET /auth/signin 200 in 1212ms
+ GET /auth/signin? 200 in 703ms
+ GET /auth/signin? 200 in 56ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=PHYSIQUE_CHIMIE 200 in 754ms
- ○ Compiling /api/coaches/availability ...
- ✓ Compiled /api/coaches/availability in 517ms (1191 modules)
+ GET /api/auth/session 200 in 68ms
+ GET /api/auth/session 200 in 45ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 29ms
+ GET /auth/signin 200 in 56ms
+ GET /api/auth/session 200 in 106ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/providers 200 in 61ms
+ GET /api/auth/csrf 200 in 56ms
+ POST /api/auth/callback/credentials 401 in 56ms
+ GET /auth/signin 200 in 59ms
+ GET /api/auth/session 200 in 138ms
+ GET /api/auth/session 200 in 116ms
+ ○ Compiling /dashboard/coach ...
+ ✓ Compiled /dashboard/coach in 1194ms (1496 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqyn0008i292o6mjkei4&startDate=2025-08-25T06:41:48.060Z&endDate=2025-08-31T06:41:48.060Z 200 in 604ms
- ✓ Compiled /api/sessions/book in 325ms (1161 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- POST /api/sessions/book 200 in 467ms
- GET /api/parent/dashboard 200 in 55ms
- GET /api/coaches/available?subject=MATHEMATIQUES 200 in 59ms
- GET /api/coaches/availability?coachId=cmepabqy90002i2924y7fujhb&startDate=2025-08-25T06:42:48.798Z&endDate=2025-08-31T06:42:48.798Z 200 in 52ms
- ✓ Compiled in 973ms (2173 modules)
- ✓ Compiled in 1475ms (2173 modules)
- ✓ Compiled in 474ms (2173 modules)
- GET /dashboard/parent?open=purchase-credits 200 in 202ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 1070ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1180ms
- ✓ Compiled /favicon.ico in 323ms (916 modules)
- GET /favicon.ico 200 in 418ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 562ms (1152 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 765ms
- GET /api/auth/session 200 in 73ms
- ✓ Compiled /api/parent/dashboard in 404ms (1175 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 614ms
- GET /api/parent/dashboard 200 in 44ms
- ✓ Compiled /api/parent/subscription-requests in 440ms (1177 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/subscription-requests 200 in 543ms
- GET /api/parent/dashboard 200 in 43ms
- ✓ Compiled /api/parent/credit-request in 220ms (1179 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/credit-request 200 in 326ms
- GET /api/parent/dashboard 200 in 48ms
- ○ Compiling /api/coaches/available ...
- ✓ Compiled /api/coaches/available in 624ms (1180 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=MATHEMATIQUES 200 in 714ms
- ○ Compiling /api/coaches/availability ...
- ✓ Compiled /api/coaches/availability in 545ms (1192 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqy90002i2924y7fujhb&startDate=2025-08-25T06:59:48.424Z&endDate=2025-08-31T06:59:48.424Z&modality=ONLINE 200 in 660ms
- ○ Compiling /api/sessions/book ...
- ✓ Compiled /api/sessions/book in 524ms (1163 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- POST /api/sessions/book 409 in 641ms
- ✓ Compiled in 1262ms (2173 modules)
- ✓ Compiled in 671ms (2173 modules)
- ✓ Compiled in 433ms (2173 modules)
- ✓ Compiled /api/auth/[...nextauth] in 144ms (1121 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 273ms
- ✓ Compiled /api/parent/dashboard in 353ms (1145 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 506ms
- ✓ Compiled /api/coaches/available in 352ms (1147 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=NSI 200 in 445ms
- ○ Compiling /api/coaches/availability ...
- ✓ Compiled /api/coaches/availability in 674ms (1159 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqy90002i2924y7fujhb&startDate=2025-08-25T07:07:08.284Z&endDate=2025-08-31T07:07:08.284Z&modality=ONLINE 200 in 789ms
- GET /dashboard/parent?open=purchase-credits 200 in 237ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 1231ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1352ms
- ✓ Compiled /favicon.ico in 399ms (916 modules)
- GET /favicon.ico 200 in 512ms
- ✓ Compiled /api/auth/[...nextauth] in 191ms (1152 modules)
+ GET /api/auth/providers 200 in 2122ms
+ GET /dashboard/coach 200 in 2710ms
+ GET /api/auth/csrf 200 in 188ms
+ POST /api/auth/callback/credentials 401 in 248ms
+ GET /dashboard/assistante 200 in 354ms
+ GET /api/auth/session 200 in 78ms
+ GET /api/auth/session 200 in 139ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/session 200 in 139ms
+ GET /auth/signin 200 in 109ms
+ GET / 200 in 212ms
+ GET /auth/signin? 200 in 120ms
+ GET /api/auth/session 200 in 76ms
+ GET /api/auth/session 200 in 54ms
+ GET /bilan-gratuit 200 in 88ms
+ GET /auth/signin 200 in 60ms
+ GET / 200 in 79ms
+ GET /auth/signin 200 in 61ms
+ GET /auth/signin? 200 in 59ms
+ GET /api/auth/session 200 in 55ms
+ GET /api/auth/session 200 in 38ms
+ GET /aria 200 in 43ms
+ GET /aria 200 in 48ms
+ ✓ Compiled /dashboard/admin/analytics in 356ms (1498 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
  GET /api/auth/session 200 in 359ms
- GET /api/auth/session 200 in 69ms
- ✓ Compiled /api/parent/dashboard in 234ms (1175 modules)
+ GET /api/auth/session 200 in 610ms
+ GET /dashboard/admin/analytics 200 in 826ms
+ GET /api/auth/session 200 in 67ms
+ GET /api/auth/session 200 in 60ms
+ GET /dashboard/parent 200 in 92ms
+ GET /auth/signin 200 in 67ms
+ GET /auth/signin? 200 in 125ms
+ ✓ Compiled /api/aria/chat in 443ms (1598 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 464ms
- GET /api/parent/dashboard 200 in 43ms
- ○ Compiling /api/parent/credit-request ...
- ✓ Compiled /api/parent/credit-request in 573ms (1177 modules)
+ GET /auth/signin 200 in 471ms
+ GET /auth/signin 200 in 878ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/auth/session 200 in 136ms
+ GET /aria 200 in 270ms
+ GET /auth/signin? 200 in 272ms
+ GET /auth/signin? 200 in 237ms
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 53ms
+ GET /api/auth/session 200 in 118ms
+ GET /api/auth/session 200 in 116ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 60ms
+ GET /aria 200 in 60ms
+ GET /api/auth/session 200 in 112ms
+ GET /api/auth/session 200 in 107ms
+ GET /auth/signin 200 in 73ms
+ GET /api/auth/session 200 in 137ms
+ GET /api/auth/session 200 in 105ms
+ GET /dashboard/eleve/sessions 200 in 129ms
+ GET /api/auth/providers 200 in 131ms
+ GET /api/auth/csrf 200 in 101ms
+ POST /api/auth/callback/credentials 200 in 928ms
+ GET /api/auth/session 200 in 141ms
+ GET /api/auth/session 200 in 205ms
+ GET /api/auth/session 200 in 186ms
+ GET /dashboard/assistante 200 in 144ms
+ GET /api/auth/session 200 in 119ms
+ GET /api/auth/session 200 in 94ms
+ ○ Compiling /api/assistant/dashboard ...
+ ✓ Compiled /api/assistant/dashboard in 694ms (1591 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- POST /api/parent/credit-request 200 in 686ms
- GET /api/parent/dashboard 200 in 50ms
- ✓ Compiled /api/coaches/available in 457ms (1179 modules)
+ GET /api/assistant/dashboard 200 in 917ms
+ GET /api/assistant/dashboard 200 in 957ms
+ ○ Compiling /api/notifications ...
+ ✓ Compiled /api/notifications in 720ms (1593 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=FRANCAIS 200 in 565ms
- ○ Compiling /api/coaches/availability ...
- ✓ Compiled /api/coaches/availability in 501ms (1191 modules)
+ GET /api/notifications?limit=20 200 in 1277ms
+ GET /api/notifications?limit=20 200 in 1276ms
+ GET /api/notifications?limit=20 200 in 1251ms
+ GET /api/notifications?limit=20 200 in 1247ms
+ GET /dashboard/coach 200 in 1049ms
+ GET /api/auth/session 200 in 57ms
+ GET /api/auth/session 200 in 102ms
+ GET /auth/signin 200 in 80ms
+ GET /auth/signin 200 in 95ms
+ GET /auth/signin? 200 in 106ms
+ ○ Compiling /dashboard/eleve ...
+ ✓ Compiled /dashboard/eleve in 674ms (1599 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqyg0005i2928pg8s5jt&startDate=2025-08-25T12:57:51.270Z&endDate=2025-08-31T12:57:51.270Z&modality=ONLINE 200 in 608ms
- GET /dashboard/parent?open=purchase-credits 200 in 197ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 33ms
- GET /favicon.ico 200 in 48ms
- GET /api/auth/session 200 in 91ms
- GET /api/auth/session 200 in 82ms
- GET /api/parent/dashboard 200 in 84ms
- GET /api/parent/dashboard 200 in 44ms
- GET /api/coaches/available?subject=FRANCAIS 200 in 63ms
- GET /api/coaches/availability?coachId=cmepabqyg0005i2928pg8s5jt&startDate=2025-08-25T13:01:11.331Z&endDate=2025-08-31T13:01:11.331Z&modality=ONLINE 200 in 51ms
- ✓ Compiled in 1505ms (2173 modules)
- ✓ Compiled in 460ms (2173 modules)
- ✓ Compiled in 1019ms (2173 modules)
- ✓ Compiled in 627ms (2173 modules)
- GET /dashboard/parent?open=purchase-credits 200 in 126ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 831ms (2162 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 939ms
- ✓ Compiled /favicon.ico in 337ms (916 modules)
- GET /favicon.ico 200 in 440ms
- ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 558ms (1152 modules)
+ GET /dashboard/eleve 200 in 1263ms
+ GET /auth/signin 200 in 787ms
+ GET /api/auth/session 200 in 57ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/session 200 in 185ms
+ GET /api/auth/session 200 in 143ms
+ GET /auth/signin 200 in 104ms
+ GET / 200 in 273ms
+ GET /auth/signin 200 in 111ms
+ GET /auth/signin 200 in 184ms
+ GET /api/auth/session 200 in 335ms
+ GET /api/auth/session 200 in 290ms
+ GET /auth/signin? 200 in 397ms
+ GET /api/auth/providers 200 in 118ms
+ GET /api/auth/csrf 200 in 125ms
+ POST /api/auth/callback/credentials 401 in 115ms
+ GET /api/auth/session 200 in 247ms
+ GET /api/auth/session 200 in 268ms
+ GET /api/auth/session 200 in 355ms
+ GET /api/auth/session 200 in 319ms
+ GET /aria 200 in 536ms
+ ○ Compiling /dashboard/admin ...
+ ✓ Compiled /dashboard/admin in 670ms (1606 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 743ms
- GET /api/auth/session 200 in 85ms
- ✓ Compiled /api/parent/dashboard in 291ms (1175 modules)
+ GET /api/auth/session 200 in 1021ms
+ GET /dashboard/parent 200 in 1328ms
+ GET /dashboard/admin 200 in 1428ms
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/auth/session 200 in 181ms
+ ○ Compiling /api/uploads/analyse ...
+ ✓ Compiled /api/uploads/analyse in 623ms (1608 modules)
+ ✓ Compiled (1612 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/parent/dashboard 200 in 475ms
- GET /api/parent/dashboard 200 in 41ms
- ○ Compiling /api/coaches/available ...
- ✓ Compiled /api/coaches/available in 647ms (1177 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/available?subject=NSI 200 in 752ms
- ✓ Compiled /api/coaches/availability in 352ms (1189 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/coaches/availability?coachId=cmepabqy90002i2924y7fujhb&startDate=2025-08-25T13:07:08.412Z&endDate=2025-08-31T13:07:08.412Z 200 in 459ms
- GET /api/auth/csrf 200 in 74ms
- POST /api/auth/signout 200 in 43ms
- ○ Compiling / ...
- ✓ Compiled / in 1255ms (1431 modules)
- GET / 200 in 1570ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 518ms (2710 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 619ms
+ GET /api/auth/session 200 in 1176ms
+ GET /api/auth/session 200 in 1075ms
+ POST /api/uploads/analyse 401 in 956ms
+ GET /api/parent/dashboard 200 in 1135ms
+ GET /api/admin/dashboard 200 in 1289ms
+ GET /aria 200 in 131ms
+ GET /api/auth/csrf 200 in 82ms
+ POST /api/auth/signout 200 in 102ms
+ GET / 200 in 213ms
+ GET /aria 200 in 175ms
+ GET /api/auth/session 200 in 102ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 62ms
+ GET /auth/signin 200 in 126ms
  ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 918ms (1462 modules)
- GET /favicon.ico 200 in 1277ms
+ ✓ Compiled /favicon.ico in 1097ms (1641 modules)
+ GET /auth/signin? 200 in 1542ms
+ GET /auth/signin 200 in 122ms
+ GET /favicon.ico 200 in 66ms
+ GET /favicon.ico 200 in 58ms
+ GET /auth/signin 200 in 81ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 93ms
- GET /api/auth/session 200 in 47ms
- ○ Compiling /auth/signin ...
- ✓ Compiled /auth/signin in 664ms (1470 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/providers 200 in 101ms
- GET /api/auth/csrf 200 in 55ms
- POST /api/auth/callback/credentials 200 in 331ms
+ GET /api/auth/session 200 in 198ms
+ GET /api/auth/session 200 in 157ms
+ GET /api/auth/session 200 in 207ms
+ GET /api/auth/session 200 in 202ms
+ GET /auth/signin? 200 in 426ms
  GET /api/auth/session 200 in 78ms
- ○ Compiling /dashboard/assistante ...
- ✓ Compiled /dashboard/assistante in 534ms (1481 modules)
- ✓ Compiled /api/assistant/dashboard in 474ms (1504 modules)
+ GET /api/auth/session 200 in 40ms
+ GET /dashboard/parent 200 in 64ms
+ GET /api/auth/session 200 in 53ms
+ GET /api/auth/session 200 in 66ms
+ GET /api/parent/dashboard 200 in 83ms
+ GET /aria 200 in 70ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 30ms
+ GET /auth/signin 200 in 68ms
+ GET /favicon.ico 200 in 54ms
+ GET /api/auth/session 200 in 105ms
+ GET /api/auth/session 200 in 98ms
+ GET /api/auth/providers 200 in 79ms
+ GET /api/auth/csrf 200 in 71ms
+ POST /api/auth/callback/credentials 401 in 65ms
+ GET /dashboard/admin/rag-management 200 in 55ms
+ ✓ Compiled /api/admin/rag/documents in 419ms (1620 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 639ms
+ GET /aria 200 in 738ms
+ GET /auth/signin 200 in 157ms
+ GET /dashboard/eleve/sessions 200 in 103ms
+ GET /auth/signin 200 in 99ms
+ GET /api/auth/session 200 in 210ms
+ GET /api/auth/session 200 in 175ms
+ GET /api/auth/session 200 in 155ms
+ GET /api/auth/session 200 in 98ms
+ GET /api/auth/session 200 in 274ms
+ GET /api/auth/session 200 in 226ms
+ GET /api/auth/providers 200 in 235ms
+ GET /api/auth/csrf 200 in 174ms
+ GET /api/auth/providers 200 in 195ms
+ POST /api/auth/callback/credentials 401 in 186ms
+ GET /api/auth/csrf 200 in 171ms
+ POST /api/auth/callback/credentials 200 in 722ms
+ GET /api/auth/session 200 in 158ms
+ GET /dashboard/coach 200 in 120ms
+ GET /api/auth/session 200 in 126ms
+ GET /api/auth/session 200 in 103ms
+ ○ Compiling /api/coach/dashboard ...
+ ✓ Compiled /api/coach/dashboard in 1217ms (1622 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/coach/dashboard 200 in 1446ms
+ GET /api/coach/dashboard 200 in 1478ms
+ GET / 200 in 180ms
+ GET /aria 200 in 62ms
+ GET /api/auth/session 200 in 152ms
+ GET /api/auth/session 200 in 180ms
+ ○ Compiling /dashboard/admin/subscriptions ...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /notre-centre in 4s (2745 modules)
+ ✓ Compiled (2757 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/auth/_log 200 in 1760ms
+ POST /api/auth/_log 200 in 1757ms
+ GET /aria 200 in 5467ms
+ GET /bilan-gratuit 200 in 2474ms
+ GET /auth/signin 200 in 4053ms
+ GET /dashboard/admin/rag-management 200 in 6231ms
+ GET /dashboard/admin/subscriptions 200 in 6485ms
+ GET /dashboard/eleve/sessions 200 in 224ms
+ GET /favicon.ico 200 in 136ms
+ GET /api/auth/session 200 in 136ms
+ GET /api/auth/session 200 in 455ms
+ GET /api/auth/session 200 in 343ms
+ GET /api/admin/rag/documents 403 in 495ms
+ GET /api/admin/rag/documents 403 in 492ms
+ GET /api/auth/session 200 in 508ms
+ GET /api/auth/session 200 in 452ms
+ GET /api/auth/session 200 in 451ms
+ GET /api/auth/session 200 in 362ms
+ GET /api/auth/session 200 in 351ms
+ GET /auth/signin 200 in 776ms
+ GET / 200 in 934ms
+ GET /api/auth/providers 200 in 332ms
+ GET /api/auth/csrf 200 in 423ms
+ GET /auth/signin 200 in 747ms
+ GET /auth/signin? 200 in 807ms
+ POST /api/auth/callback/credentials 401 in 452ms
+ GET /favicon.ico 200 in 171ms
+ GET /auth/signin? 200 in 315ms
+ GET /favicon.ico 200 in 121ms
+ GET /aria 200 in 231ms
+ GET /api/auth/session 200 in 404ms
+ GET /api/auth/session 200 in 355ms
+ GET /api/auth/session 200 in 510ms
+ GET /api/auth/session 200 in 380ms
+ GET /auth/signin 200 in 674ms
+ GET /api/auth/session 200 in 382ms
+ GET /api/auth/session 200 in 298ms
+ GET /auth/signin? 200 in 544ms
+ GET /api/auth/session 200 in 378ms
+ GET /api/auth/session 200 in 373ms
+ GET /api/auth/session 200 in 399ms
+ GET /api/auth/session 200 in 302ms
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 1128ms (1645 modules)
+ GET /bilan-gratuit 200 in 1338ms
+ GET /auth/signin 200 in 318ms
+ GET /favicon.ico 200 in 89ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 189ms
+ GET /api/auth/session 200 in 152ms
+ GET /api/auth/providers 200 in 196ms
+ GET / 200 in 345ms
+ GET /api/auth/csrf 200 in 124ms
+ POST /api/auth/callback/credentials 401 in 88ms
+ GET /api/auth/session 200 in 292ms
+ GET /api/auth/session 200 in 257ms
+ GET /aria 200 in 214ms
+ GET /api/auth/session 200 in 389ms
+ GET /api/auth/session 200 in 378ms
+ GET /aria 200 in 535ms
+ GET /dashboard/assistante 200 in 491ms
+ GET /api/auth/session 200 in 322ms
+ GET /api/auth/session 200 in 320ms
+ GET /bilan-gratuit 200 in 452ms
+ GET /auth/signin 200 in 144ms
+ GET /api/auth/session 200 in 184ms
+ GET /api/auth/session 200 in 145ms
+ GET /api/auth/providers 200 in 148ms
+ GET /api/auth/csrf 200 in 75ms
+ POST /api/auth/callback/credentials 401 in 127ms
+ GET /auth/signin 200 in 163ms
+ GET /aria 200 in 117ms
+ GET /api/auth/session 200 in 202ms
+ GET /api/auth/session 200 in 199ms
+ GET /api/auth/session 200 in 238ms
+ GET /api/auth/session 200 in 172ms
+ GET /aria 200 in 152ms
+ GET /auth/signin 200 in 250ms
+ GET /api/auth/providers 200 in 196ms
+ GET /api/auth/csrf 200 in 133ms
+ POST /api/auth/callback/credentials 401 in 211ms
+ GET /favicon.ico 200 in 168ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 105ms
+ GET /auth/signin 200 in 85ms
+ GET /api/auth/session 200 in 169ms
+ GET /favicon.ico 200 in 172ms
+ GET /api/auth/session 200 in 178ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/session 200 in 96ms
+ GET /auth/signin 200 in 183ms
+ GET /api/auth/providers 200 in 140ms
+ GET /api/auth/csrf 200 in 150ms
+ POST /api/auth/callback/credentials 200 in 575ms
+ GET /favicon.ico 200 in 543ms
+ GET /api/auth/session 200 in 77ms
+ GET /api/auth/session 200 in 127ms
+ GET /api/auth/session 200 in 93ms
  GET /api/assistant/dashboard 200 in 124ms
- ✓ Compiled /api/notifications in 296ms (1506 modules)
+ GET /dashboard/assistante 200 in 118ms
+ GET /auth/signin 200 in 98ms
+ GET /favicon.ico 200 in 87ms
+ GET /auth/signin? 200 in 104ms
+ GET /api/auth/session 200 in 187ms
+ GET /api/auth/session 200 in 223ms
+ GET /api/auth/session 200 in 242ms
+ GET /api/auth/session 200 in 164ms
+ GET /dashboard/eleve/sessions 200 in 170ms
+ GET /api/auth/session 200 in 124ms
+ GET /api/auth/session 200 in 112ms
+ GET / 200 in 160ms
+ GET /favicon.ico 200 in 65ms
+ GET /api/auth/session 200 in 138ms
+ GET /api/auth/session 200 in 107ms
+ GET /auth/signin 200 in 167ms
+ GET /favicon.ico 200 in 124ms
+ GET /auth/signin? 200 in 404ms
+ GET /bilan-gratuit 200 in 102ms
+ GET /api/auth/session 200 in 150ms
+ GET /api/auth/session 200 in 134ms
+ GET / 200 in 102ms
+ GET /favicon.ico 200 in 81ms
+ GET /aria 200 in 82ms
+ GET /api/auth/session 200 in 154ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 105ms
+ GET /aria 200 in 93ms
+ GET /api/auth/session 200 in 144ms
+ GET /api/auth/session 200 in 111ms
+ POST /api/aria/chat 200 in 106ms
+ GET /auth/signin 200 in 395ms
+ GET / 200 in 416ms
+ GET /favicon.ico 200 in 220ms
+ GET /auth/signin? 200 in 276ms
+ GET /bilan-gratuit 200 in 196ms
+ GET /api/auth/session 200 in 369ms
+ GET /api/auth/session 200 in 1124ms
+ GET /aria 200 in 149ms
+ GET /bilan-gratuit 200 in 261ms
+ GET /api/auth/session 200 in 255ms
+ GET /api/auth/session 200 in 299ms
+ GET /aria 200 in 335ms
+ GET /auth/signin 200 in 131ms
+ GET /auth/signin 200 in 151ms
+ GET /auth/signin 200 in 96ms
+ GET /favicon.ico 200 in 140ms
+ GET /auth/signin? 200 in 162ms
+ GET /api/auth/session 200 in 318ms
+ GET /api/auth/session 200 in 296ms
+ GET / 200 in 365ms
+ GET /api/auth/providers 200 in 244ms
+ GET /api/auth/session 200 in 383ms
+ GET /api/auth/session 200 in 376ms
+ GET /api/auth/csrf 200 in 317ms
+ POST /api/auth/callback/credentials 401 in 151ms
+ GET / 200 in 251ms
+ GET /favicon.ico 200 in 190ms
+ GET /dashboard/coach 200 in 223ms
+ GET /auth/signin 200 in 104ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/session 200 in 105ms
+ GET /bilan-gratuit 200 in 212ms
+ GET /favicon.ico 200 in 64ms
+ GET /api/auth/session 200 in 240ms
+ GET /api/auth/session 200 in 191ms
+ GET /auth/signin 200 in 178ms
+ GET /auth/signin 200 in 449ms
+ GET /api/auth/providers 200 in 328ms
+ GET /auth/signin? 200 in 458ms
+ GET /api/auth/csrf 200 in 170ms
+ POST /api/auth/callback/credentials 401 in 295ms
+ GET /favicon.ico 200 in 258ms
+ GET /api/auth/session 200 in 144ms
+ GET /api/auth/session 200 in 103ms
+ GET / 200 in 123ms
+ GET /favicon.ico 200 in 81ms
+ ✓ Compiled /dashboard/admin/analytics in 405ms (1600 modules)
+ GET /dashboard/admin/analytics 200 in 563ms
+ ✓ Compiled /dashboard/parent in 392ms (1619 modules)
+ GET /dashboard/parent 200 in 569ms
+ GET /auth/signin 200 in 85ms
+ GET /favicon.ico 200 in 70ms
+ GET /auth/signin? 200 in 86ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/notifications?limit=20 200 in 419ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 36ms
- ✓ Compiled /dashboard/assistante/credit-requests in 361ms (1502 modules)
- ✓ Compiled /api/assistant/credit-requests in 253ms (1504 modules)
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 83ms
+ GET /aria 200 in 80ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/session 200 in 75ms
+ POST /api/aria/chat 200 in 58ms
+ GET /auth/signin 200 in 56ms
+ GET /favicon.ico 200 in 46ms
+ GET /api/auth/session 200 in 120ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/providers 200 in 110ms
+ GET /api/auth/csrf 200 in 47ms
+ POST /api/auth/callback/credentials 401 in 52ms
+ ✓ Compiled /dashboard/eleve in 348ms (1625 modules)
+ GET /dashboard/eleve 200 in 525ms
+ GET /auth/signin 200 in 141ms
+ GET /favicon.ico 200 in 58ms
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/credit-requests 200 in 352ms
- GET /api/assistant/credit-requests 200 in 172ms
- POST /api/assistant/credit-requests 200 in 56ms
- GET /api/assistant/credit-requests 200 in 54ms
- POST /api/assistant/credit-requests 200 in 53ms
- GET /api/assistant/credit-requests 200 in 41ms
- POST /api/assistant/credit-requests 200 in 55ms
- GET /api/assistant/credit-requests 200 in 50ms
- POST /api/assistant/credit-requests 200 in 55ms
- GET /api/assistant/credit-requests 200 in 44ms
- POST /api/assistant/credit-requests 200 in 53ms
- GET /api/assistant/credit-requests 200 in 43ms
- GET /api/assistant/dashboard 200 in 142ms
- GET /api/assistant/dashboard 200 in 158ms
- GET /api/notifications?limit=20 200 in 118ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 37ms
- ○ Compiling /dashboard/assistante/subscription-requests ...
- ✓ Compiled /dashboard/assistante/subscription-requests in 916ms (1167 modules)
- ✓ Compiled /api/assistant/subscription-requests in 285ms (1169 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/subscription-requests?status=PENDING 200 in 436ms
- GET /api/assistant/subscription-requests?status=PENDING 200 in 47ms
- PATCH /api/assistant/subscription-requests 400 in 94ms
- PATCH /api/assistant/subscription-requests 400 in 65ms
- PATCH /api/assistant/subscription-requests 400 in 77ms
- ✓ Compiled in 702ms (1290 modules)
- ✓ Compiled in 616ms (1290 modules)
- ✓ Compiled in 1329ms (2188 modules)
- ✓ Compiled in 988ms (2188 modules)
- ✓ Compiled in 815ms (2188 modules)
- ✓ Compiled in 1123ms (2188 modules)
- ✓ Compiled in 599ms (2188 modules)
- ○ Compiling /api/assistant/subscription-requests ...
- ✓ Compiled /api/assistant/subscription-requests in 734ms (1160 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- PATCH /api/assistant/subscription-requests 400 in 917ms
- GET /dashboard/assistante/subscription-requests 200 in 146ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 759ms (2439 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 879ms
- ✓ Compiled /favicon.ico in 288ms (1190 modules)
- GET /favicon.ico 200 in 420ms
- ✓ Compiled /api/auth/[...nextauth] in 284ms (1192 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 483ms
- GET /api/auth/session 200 in 87ms
- GET /api/assistant/subscription-requests?status=PENDING 200 in 94ms
- GET /api/assistant/subscription-requests?status=PENDING 200 in 70ms
- ✓ Compiled /api/assistant/dashboard in 344ms (1194 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 452ms
- GET /api/assistant/dashboard 200 in 88ms
- ✓ Compiled /api/notifications in 170ms (1196 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/notifications?limit=20 200 in 264ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 67ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 72ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 72ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 76ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 67ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 77ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 95ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 90ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 71ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 93ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 79ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 63ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 34ms
- GET /dashboard/assistante 200 in 237ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 60ms
- GET /favicon.ico 200 in 61ms
- GET /api/auth/session 200 in 91ms
+ GET /api/auth/session 200 in 126ms
+ GET /api/auth/session 200 in 105ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/auth/providers 200 in 147ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/csrf 200 in 91ms
+ POST /api/auth/callback/credentials 401 in 57ms
+ GET /aria 200 in 71ms
  GET /api/auth/session 200 in 90ms
- GET /api/assistant/dashboard 200 in 118ms
- GET /api/assistant/dashboard 200 in 107ms
- GET /api/notifications?limit=20 200 in 90ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 58ms
- ○ Compiling /dashboard/assistante/coaches ...
- ✓ Compiled /dashboard/assistante/coaches in 555ms (1197 modules)
+ GET /api/auth/session 200 in 89ms
+ GET / 200 in 190ms
+ GET /auth/signin 200 in 161ms
+ GET /auth/signin 200 in 95ms
+ GET /favicon.ico 200 in 71ms
+ GET /api/auth/session 200 in 269ms
+ GET /api/auth/session 200 in 264ms
+ GET /auth/signin? 200 in 330ms
+ GET /api/auth/providers 200 in 135ms
+ GET /api/auth/csrf 200 in 102ms
+ POST /api/auth/callback/credentials 401 in 121ms
+ GET /api/auth/session 200 in 181ms
+ GET /api/auth/session 200 in 170ms
+ GET /dashboard/eleve 200 in 43ms
+ GET /dashboard/coach 200 in 67ms
+ GET /api/auth/session 200 in 150ms
+ GET /api/auth/session 200 in 110ms
+ ○ Compiling /api/uploads/analyse ...
+ ✓ Compiled /api/uploads/analyse in 1041ms (1627 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 79ms
- GET /api/assistant/dashboard 200 in 73ms
- GET /api/notifications?limit=20 200 in 65ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 28ms
- ✓ Compiled /dashboard/assistante/credits in 228ms (1199 modules)
+ POST /api/uploads/analyse 401 in 1277ms
+ GET /dashboard/admin/analytics 200 in 85ms
+ GET /dashboard/parent 200 in 96ms
+ GET /auth/signin 200 in 83ms
+ GET /api/auth/session 200 in 179ms
+ GET /api/auth/session 200 in 132ms
+ GET /api/auth/providers 200 in 96ms
+ GET /api/auth/csrf 200 in 169ms
+ GET /aria 200 in 314ms
+ POST /api/auth/callback/credentials 401 in 171ms
+ GET /api/auth/session 200 in 93ms
+ GET /api/auth/session 200 in 64ms
+ POST /api/aria/chat 200 in 45ms
+ GET /dashboard/parent 200 in 49ms
+ GET /api/auth/session 200 in 78ms
+ GET /api/auth/session 200 in 55ms
+ ✓ Compiled /api/parent/dashboard in 348ms (1629 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 71ms
- GET /api/assistant/dashboard 200 in 70ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 33ms
- ✓ Compiled /dashboard/assistante/students in 223ms (1201 modules)
+ GET /api/parent/dashboard 200 in 449ms
+ GET /aria 200 in 73ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 76ms
+ GET /dashboard/parent 200 in 67ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 62ms
+ GET /api/parent/dashboard 200 in 41ms
+ GET /aria 200 in 53ms
+ GET /api/auth/session 200 in 74ms
+ GET /api/auth/session 200 in 52ms
+ ✓ Compiled /dashboard/admin/rag-management in 313ms (1631 modules)
+ GET /dashboard/admin/rag-management 200 in 449ms
+ GET /aria 200 in 64ms
+ GET /api/auth/session 200 in 527ms
+ GET /api/auth/session 200 in 550ms
+ ○ Compiling /api/admin/rag/documents ...
+ ✓ Compiled /api/admin/rag/documents in 516ms (1633 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 54ms
- GET /api/assistant/dashboard 200 in 71ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 31ms
- ✓ Compiled /api/sessions in 257ms (1203 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/sessions?role=assistant 200 in 347ms
- GET /api/sessions?role=assistant 200 in 41ms
- ✓ Compiled /api/sessions/[id]/status in 182ms (1205 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- PATCH /api/sessions/cmepbmkcs0025i2jr39st7pgx/status 200 in 298ms
- GET /api/sessions?role=assistant 200 in 46ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 61ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 64ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 47ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 46ms
+ GET /api/auth/session 200 in 947ms
+ GET /api/auth/session 200 in 944ms
+ GET /aria 200 in 66ms
+ GET /api/auth/session 200 in 96ms
  GET /api/auth/session 200 in 84ms
- GET /api/assistant/dashboard 200 in 69ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 65ms
+ GET /auth/signin 200 in 79ms
+ GET /api/auth/session 200 in 131ms
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/providers 200 in 84ms
+ GET /api/auth/csrf 200 in 75ms
+ POST /api/auth/callback/credentials 401 in 81ms
+ GET /dashboard/parent 200 in 81ms
+ GET /api/auth/session 200 in 99ms
  GET /api/auth/session 200 in 79ms
- GET /api/assistant/dashboard 200 in 59ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 53ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 44ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 55ms
- ○ Compiling /api/assistant/subscription-requests ...
- ✓ Compiled /api/assistant/subscription-requests in 737ms (1162 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/subscription-requests?status=PENDING 200 in 897ms
- GET /api/assistant/subscription-requests?status=PENDING 200 in 44ms
- ✓ Compiled /api/assistant/dashboard in 217ms (1164 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 337ms
- GET /api/assistant/dashboard 200 in 80ms
- GET /api/notifications?limit=20 200 in 66ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 40ms
- GET /api/notifications?limit=20 200 in 43ms
- ○ Compiling /dashboard/assistante/users ...
- ✓ Compiled /dashboard/assistante/users in 1212ms (2448 modules)
- ✓ Compiled /api/assistant/coaches in 437ms (1171 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/coaches 200 in 562ms
- GET /api/assistant/coaches 200 in 41ms
- GET /api/assistant/dashboard 200 in 57ms
- GET /api/assistant/dashboard 200 in 84ms
- GET /api/notifications?limit=20 200 in 62ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 30ms
- ✓ Compiled /dashboard/assistante/coaches in 331ms (1149 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 80ms
- GET /api/assistant/dashboard 200 in 84ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/notifications?limit=20 200 in 30ms
- GET /api/assistant/dashboard 200 in 61ms
- GET /api/assistant/dashboard 200 in 75ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 35ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/assistant/coaches 200 in 58ms
- GET /api/assistant/coaches 200 in 38ms
- GET /api/assistant/dashboard 200 in 77ms
- GET /api/assistant/dashboard 200 in 82ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 33ms
- GET /api/notifications?limit=20 200 in 30ms
- GET /api/assistant/dashboard 200 in 54ms
- GET /api/assistant/dashboard 200 in 71ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 31ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 78ms
- GET /api/notifications?limit=20 200 in 53ms
- ✓ Compiled in 2.2s (2577 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/notifications?limit=20 200 in 70ms
- GET /api/notifications?limit=20 200 in 34ms
- ✓ Compiled in 677ms (2403 modules)
- ✓ Compiled in 669ms (2403 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/notifications?limit=20 200 in 73ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /dashboard/assistante 200 in 166ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 624ms (2392 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 745ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 506ms (1140 modules)
- GET /favicon.ico 200 in 641ms
- ✓ Compiled /api/auth/[...nextauth] in 282ms (1142 modules)
-[next-auth][warn][DEBUG_ENABLED] 
-https://next-auth.js.org/warnings#debug_enabled
- GET /api/auth/session 200 in 504ms
+ GET /api/parent/dashboard 200 in 74ms
+ GET /aria 200 in 47ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/session 200 in 90ms
+ GET /auth/signin 200 in 65ms
+ GET /auth/signin 200 in 81ms
+ GET /api/auth/session 200 in 266ms
+ GET /api/auth/session 200 in 262ms
+ GET /api/auth/providers 200 in 164ms
+ GET /api/auth/session 200 in 210ms
+ GET /api/auth/session 200 in 177ms
+ GET /api/auth/csrf 200 in 147ms
+ POST /api/auth/callback/credentials 401 in 81ms
+ GET /aria 200 in 54ms
+ GET /api/auth/session 200 in 87ms
  GET /api/auth/session 200 in 86ms
- ✓ Compiled /api/assistant/dashboard in 469ms (1144 modules)
+ GET /dashboard/parent 200 in 60ms
+ GET /aria 200 in 51ms
+ GET /api/auth/session 200 in 127ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/parent/dashboard 200 in 77ms
+ GET /api/auth/session 200 in 203ms
+ GET /api/auth/session 200 in 187ms
+ GET /auth/signin 200 in 133ms
+ GET /aria 200 in 90ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/session 200 in 88ms
+ GET /api/auth/session 200 in 92ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/providers 200 in 87ms
+ GET /api/auth/csrf 200 in 65ms
+ POST /api/auth/callback/credentials 200 in 454ms
+ GET /api/auth/session 200 in 236ms
+ GET / 200 in 311ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 536ms (1555 modules)
+ ✓ Compiled /api/assistant/dashboard in 439ms (1557 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 654ms
- GET /api/assistant/dashboard 200 in 75ms
- GET /api/notifications?limit=20 200 in 69ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 48ms
- ✓ Compiled /api/assistant/users in 239ms (1146 modules)
+ GET /dashboard/assistante 200 in 1069ms
+ GET /auth/signin 200 in 991ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/session 200 in 159ms
+ GET /api/assistant/dashboard 200 in 99ms
+ GET /api/assistant/dashboard 200 in 91ms
+ ○ Compiling /api/notifications ...
+ ✓ Compiled /api/notifications in 598ms (1559 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/users?role=ALL 200 in 341ms
- GET /api/assistant/users?role=ALL 200 in 45ms
- GET /api/assistant/dashboard 200 in 50ms
- GET /api/assistant/dashboard 200 in 83ms
- GET /api/notifications?limit=20 200 in 72ms
- GET /api/notifications?limit=20 200 in 37ms
- GET /api/notifications?limit=20 200 in 36ms
- GET /api/notifications?limit=20 200 in 31ms
- ✓ Compiled /dashboard/assistante/credits in 310ms (1148 modules)
+ GET /api/auth/session 200 in 1038ms
+ GET /api/auth/providers 200 in 174ms
+ GET /api/auth/session 200 in 1058ms
+ GET /api/notifications?limit=20 200 in 1354ms
+ GET /api/notifications?limit=20 200 in 1299ms
+ GET /api/notifications?limit=20 200 in 1317ms
+ GET /api/notifications?limit=20 200 in 1360ms
+ GET /api/auth/csrf 200 in 88ms
+ POST /api/auth/callback/credentials 200 in 475ms
+ GET /api/auth/session 200 in 127ms
+ GET /auth/signin 200 in 214ms
+ GET /dashboard/admin/rag-management 200 in 135ms
+ GET /auth/signin 200 in 114ms
+ GET /api/admin/rag/documents 200 in 230ms
+ GET /api/admin/rag/documents 200 in 185ms
+ GET /api/auth/session 200 in 236ms
+ GET /api/auth/session 200 in 206ms
+ ○ Compiling /api/uploads/analyse ...
+ ✓ Compiled /api/uploads/analyse in 512ms (1561 modules)
 [next-auth][warn][DEBUG_ENABLED] 
 https://next-auth.js.org/warnings#debug_enabled
- GET /api/assistant/dashboard 200 in 65ms
- GET /api/assistant/dashboard 200 in 86ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 32ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 45ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 60ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 68ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 51ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 59ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 56ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 80ms
- GET /api/notifications?limit=20 200 in 55ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 38ms
- GET /api/notifications?limit=20 200 in 1381ms
- GET /api/notifications?limit=20 200 in 1403ms
- GET /api/notifications?limit=20 200 in 124ms
- GET /api/notifications?limit=20 200 in 97ms
- GET /api/notifications?limit=20 200 in 94ms
- GET /api/notifications?limit=20 200 in 49ms
- GET /api/notifications?limit=20 200 in 96ms
- GET /api/notifications?limit=20 200 in 43ms
- GET /api/notifications?limit=20 200 in 93ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 99ms
- GET /api/notifications?limit=20 200 in 46ms
- GET /api/notifications?limit=20 200 in 88ms
- GET /api/notifications?limit=20 200 in 71ms
- GET /api/notifications?limit=20 200 in 103ms
- GET /api/notifications?limit=20 200 in 50ms
- GET /api/notifications?limit=20 200 in 93ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 72ms
- GET /api/notifications?limit=20 200 in 48ms
- GET /api/notifications?limit=20 200 in 104ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 84ms
- GET /api/notifications?limit=20 200 in 52ms
- GET /api/notifications?limit=20 200 in 94ms
- GET /api/notifications?limit=20 200 in 42ms
- GET /api/notifications?limit=20 200 in 102ms
- GET /api/notifications?limit=20 200 in 41ms
- GET /api/notifications?limit=20 200 in 108ms
- GET /api/notifications?limit=20 200 in 57ms
- GET /api/notifications?limit=20 200 in 95ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 81ms
- GET /api/notifications?limit=20 200 in 58ms
- GET /api/notifications?limit=20 200 in 88ms
- GET /api/notifications?limit=20 200 in 54ms
- GET /api/notifications?limit=20 200 in 114ms
- GET /api/notifications?limit=20 200 in 39ms
- GET /api/notifications?limit=20 200 in 378ms
- GET /api/notifications?limit=20 200 in 4895ms
+ POST /api/uploads/analyse 401 in 679ms
+ GET /api/auth/session 200 in 246ms
+ GET /api/auth/session 200 in 189ms
+ GET /auth/signin 200 in 156ms
+ GET /api/auth/session 200 in 256ms
+ GET /api/auth/session 200 in 202ms
+ GET /api/auth/providers 200 in 207ms
+ GET /api/auth/csrf 200 in 166ms
+ POST /api/auth/callback/credentials 401 in 214ms
+ GET /aria 200 in 75ms
+ GET /auth/signin 200 in 70ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/providers 200 in 85ms
+ GET /api/auth/csrf 200 in 71ms
+ POST /api/auth/callback/credentials 200 in 447ms
+ GET /api/auth/session 200 in 83ms
+ ✓ Compiled /dashboard/coach in 424ms (1472 modules)
+ ✓ Compiled /api/coach/dashboard in 447ms (1474 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /dashboard/coach 200 in 1020ms
+ GET /api/auth/session 200 in 102ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/coach/dashboard 200 in 82ms
+ GET / 200 in 140ms
+ GET /api/auth/session 200 in 214ms
+ GET /api/auth/session 200 in 180ms
+ ○ Compiling /offres ...
+ ✓ Compiled /offres in 673ms (1480 modules)
+ ✓ Compiled /notre-centre in 1ms (1480 modules)
+ ✓ Compiled /bilan-gratuit in 0ms (1493 modules)
+ ✓ Compiled (1506 modules)
+ GET /bilan-gratuit 200 in 2407ms
+ GET / 200 in 131ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 255ms
+ GET /api/auth/session 200 in 206ms
+ GET /bilan-gratuit 200 in 108ms
+ GET /api/auth/session 200 in 189ms
+ GET /api/auth/session 200 in 145ms
+ GET / 200 in 96ms
+ GET /api/auth/session 200 in 250ms
+ GET /api/auth/session 200 in 184ms
+ GET /bilan-gratuit 200 in 163ms
+ GET /auth/signin 200 in 66ms
+ GET /api/auth/session 200 in 183ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/providers 200 in 131ms
+ GET /api/auth/csrf 200 in 124ms
+ POST /api/auth/callback/credentials 401 in 111ms
+ GET /aria 200 in 67ms
+ GET /api/auth/session 200 in 98ms
+ GET /api/auth/session 200 in 81ms
+ ○ Compiling /api/aria/chat ...
+ ✓ Compiled /api/aria/chat in 582ms (1569 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET / 200 in 672ms
+ GET /bilan-gratuit 200 in 65ms
+ GET /auth/signin 200 in 62ms
+ GET / 200 in 82ms
+ GET /auth/signin 200 in 59ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 86ms
+ GET /api/auth/providers 200 in 75ms
+ GET /api/auth/csrf 200 in 51ms
+ POST /api/auth/callback/credentials 401 in 76ms
+ ✓ Compiled /dashboard/eleve in 256ms (1559 modules)
+ GET /dashboard/eleve 200 in 462ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 113ms
+ GET /api/auth/session 200 in 103ms
+ ✓ Compiled /dashboard/admin/analytics in 293ms (1561 modules)
+ GET /dashboard/admin/analytics 200 in 427ms
+ ✓ Compiled /dashboard/parent in 374ms (1578 modules)
+ GET /dashboard/parent 200 in 509ms
+ GET /auth/signin 200 in 75ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 132ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/providers 200 in 61ms
+ GET /api/auth/csrf 200 in 69ms
+ POST /api/auth/callback/credentials 401 in 72ms
+ GET /aria 200 in 82ms
+ GET /api/auth/session 200 in 107ms
+ GET /api/auth/session 200 in 85ms
+ POST /api/aria/chat 200 in 27ms
+ GET /auth/signin 200 in 71ms
+ GET /api/auth/session 200 in 136ms
+ GET /api/auth/session 200 in 107ms
+ GET /api/auth/providers 200 in 92ms
+ GET /api/auth/csrf 200 in 60ms
+ POST /api/auth/callback/credentials 401 in 72ms
+ GET /dashboard/parent 200 in 69ms
+ GET /api/auth/session 200 in 121ms
+ GET /api/auth/session 200 in 104ms
+ ○ Compiling /api/parent/dashboard ...
+ ✓ Compiled /api/parent/dashboard in 519ms (1472 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/parent/dashboard 200 in 680ms
+ GET /aria 200 in 98ms
+ GET /api/auth/session 200 in 86ms
+ GET /api/auth/session 200 in 72ms
+ GET /auth/signin 200 in 85ms
+ GET /api/auth/session 200 in 137ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/providers 200 in 72ms
+ GET /api/auth/csrf 200 in 63ms
+ POST /api/auth/callback/credentials 401 in 66ms
+ GET /dashboard/parent 200 in 91ms
+ GET /api/auth/session 200 in 110ms
+ GET /api/auth/session 200 in 92ms
+ GET /api/parent/dashboard 200 in 84ms
+ GET /aria 200 in 75ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/session 200 in 65ms
+ ✓ Compiled / in 238ms (1536 modules)
+ GET / 200 in 526ms
+ GET /auth/signin 200 in 77ms
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ GET /api/auth/session 200 in 141ms
+ GET /api/auth/session 200 in 119ms
+ GET /api/auth/providers 200 in 69ms
+ GET /api/auth/csrf 200 in 72ms
+ POST /api/auth/callback/credentials 200 in 446ms
+ GET /api/auth/session 200 in 104ms
+ ✓ Compiled /dashboard in 355ms (1541 modules)
+ ✓ Compiled /dashboard/admin/rag-management in 215ms (1553 modules)
+ GET /dashboard/admin/rag-management 200 in 343ms
+ ✓ Compiled /api/uploads/analyse in 324ms (1555 modules)
+ ✓ Compiled (1557 modules)
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+ POST /api/uploads/analyse 401 in 338ms

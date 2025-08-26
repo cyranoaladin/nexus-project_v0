@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -66,11 +66,7 @@ export default function CoachAvailability({
   const [specificDate, setSpecificDate] = useState('');
   const [specificSlots, setSpecificSlots] = useState<TimeSlot[]>([]);
 
-  useEffect(() => {
-    loadCurrentAvailability();
-  }, [coachId]);
-
-  const loadCurrentAvailability = async () => {
+  const loadCurrentAvailability = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/coaches/availability?coachId=${coachId}`);
@@ -101,7 +97,11 @@ export default function CoachAvailability({
     } finally {
       setLoading(false);
     }
-  };
+  }, [coachId]);
+
+  useEffect(() => {
+    loadCurrentAvailability();
+  }, [loadCurrentAvailability]);
 
   const addTimeSlot = (dayOfWeek: number) => {
     setWeeklySchedule(prev => prev.map(day => 

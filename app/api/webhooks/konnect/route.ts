@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 function safeEqual(a: string, b: string) {
   const ba = Buffer.from(a);
@@ -32,6 +34,43 @@ export async function POST(request: NextRequest) {
     }
 
     const body = JSON.parse(rawBody);
+
+    const WebhookSchema = z.object({
+      event_id: z.string().optional(),
+      payment_id: z.string().optional(),
+      status: z.string().optional(),
+      amount: z.number().optional(),
+      currency: z.string().optional(),
+      transaction_id: z.string().optional(),
+      timestamp: z.string().optional(),
+      created_at: z.string().optional(),
+    });
+    const parsed = WebhookSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Payload invalide', details: parsed.error.format() }, { status: 400 });
+    }
+
+    // Idempotence & anti-replay (5 minutes window)
+    const eventId: string | undefined = body.event_id || body.payment_id;
+    const eventTs: number = Date.parse(body.timestamp || body.created_at || new Date().toISOString());
+    if (!eventId || !isFinite(eventTs)) {
+      return NextResponse.json({ error: 'Webhook invalide (id/horodatage manquants)' }, { status: 400 });
+    }
+    const fiveMinutes = 5 * 60 * 1000;
+    if (Date.now() - eventTs > fiveMinutes) {
+      return NextResponse.json({ error: 'Webhook expiré (anti-replay)' }, { status: 400 });
+    }
+    // Empêcher re-traitement du même évènement
+    let already: any = null;
+    try {
+      already = await (prisma as any).payment.findFirst({ where: { externalId: eventId } });
+    } catch {
+      // Certains mocks n'exposent pas findFirst; fallback sur findUnique par id si cohérent
+      try { already = await prisma.payment.findUnique({ where: { externalId: eventId } } as any); } catch {}
+    }
+    if (already && already.status === 'COMPLETED' && body.status === 'completed') {
+      return NextResponse.json({ success: true, idempotent: true });
+    }
 
     // Validation basique du webhook Konnect
     const { payment_id, status, amount, currency } = body;
@@ -72,6 +111,7 @@ export async function POST(request: NextRequest) {
         where: { id: payment_id },
         data: {
           status: 'COMPLETED',
+          externalId: eventId,
           metadata: {
             ...(payment.metadata as Record<string, any> || {}),
             konnectTransactionId: body.transaction_id || payment_id,
@@ -147,7 +187,7 @@ export async function POST(request: NextRequest) {
       // Mettre à jour le statut du paiement
       await prisma.payment.update({
         where: { id: payment_id },
-        data: { status: 'FAILED' }
+        data: { status: 'FAILED', externalId: eventId }
       });
 
       return NextResponse.json({ success: true });
@@ -156,7 +196,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur webhook Konnect:', error);
+    logger.error({ error }, 'Erreur webhook Konnect');
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

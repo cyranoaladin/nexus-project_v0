@@ -350,3 +350,10 @@ Update session status
 - Feature adoption rates
 
 This comprehensive session booking system provides a seamless experience for all users while maintaining high performance, security, and reliability standards.
+
+## 📦 Données et source de vérité
+
+- **Sessions historiques (Session)**: modèle utilisé pour des statistiques et historiques hérités.
+- **Réservations (SessionBooking)**: source de vérité opérationnelle pour la planification, la disponibilité, la facturation et l'allocation de crédits.
+
+> Décision: Les agrégations temps-réel (dashboards, vérifications de chevauchement, disponibilité coach, facturation/crédits) utilisent exclusivement `SessionBooking`. Les traitements batch/legacy peuvent lire `Session` le cas échéant. Les endpoints admin/analytics sont alignés sur `SessionBooking` par défaut.

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -9,6 +10,7 @@ export async function GET() {
     // Test a simple query
     const userCount = await prisma.user.count();
     
+    logger.info({ userCount }, 'Healthcheck OK');
     return NextResponse.json({
       status: 'success',
       message: 'API and database are working!',
@@ -19,7 +21,7 @@ export async function GET() {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Health check error:', error);
+    logger.error({ error }, 'Health check error');
     return NextResponse.json({
       status: 'error',
       message: 'Database connection failed',

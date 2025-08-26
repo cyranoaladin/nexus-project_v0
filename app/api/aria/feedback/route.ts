@@ -2,15 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
 import { recordAriaFeedback } from '@/lib/aria'
 import { checkAndAwardBadges } from '@/lib/badges'
-
-// Schema de validation pour le feedback ARIA
-const ariaFeedbackSchema = z.object({
-  messageId: z.string(),
-  feedback: z.boolean()
-})
+import { AriaFeedbackSchema } from '@/shared/schemas/aria'
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const validatedData = ariaFeedbackSchema.parse(body)
+    const validatedData = AriaFeedbackSchema.parse(body)
     
     // Vérifier que le message appartient à l'élève
     const message = await prisma.ariaMessage.findFirst({
