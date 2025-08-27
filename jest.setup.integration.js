@@ -26,22 +26,6 @@ jest.mock('next/server', () => ({
   }
 }));
 
-// Mock Next.js server primitives
-jest.mock('next/server', () => ({
-  NextRequest: class {
-    constructor(url, init) {
-      this.url = url;
-      this.method = init?.method || 'GET';
-      this.headers = new Map(Object.entries(init?.headers || {}));
-      this._body = init?.body;
-    }
-    async json() { return JSON.parse(this._body); }
-  },
-  NextResponse: {
-    json: (data, init) => ({ json: async () => data, status: init?.status || 200, ...init }),
-  },
-}));
-
 // Mock Next Auth
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
@@ -61,30 +45,65 @@ jest.mock('@/lib/auth', () => ({
   authOptions: { adapter: {}, providers: [] },
 }));
 
-// Mock Prisma for integration tests (alias path)
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    user: { findUnique: jest.fn(), create: jest.fn(), findMany: jest.fn(), count: jest.fn(), update: jest.fn(), delete: jest.fn(), deleteMany: jest.fn() },
-    student: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), upsert: jest.fn(), count: jest.fn() },
-    parentProfile: { create: jest.fn(), count: jest.fn() },
-    studentProfile: { create: jest.fn() },
-    session: { create: jest.fn(), findFirst: jest.fn(), count: jest.fn(), findMany: jest.fn() },
-    creditTransaction: { create: jest.fn(), findMany: jest.fn(), groupBy: jest.fn() },
-    coachProfile: { findFirst: jest.fn(), count: jest.fn() },
-    subscription: { create: jest.fn(), count: jest.fn(), updateMany: jest.fn(), findFirst: jest.fn(), findMany: jest.fn(), groupBy: jest.fn() },
-    payment: { groupBy: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
-    ariaConversation: { findFirst: jest.fn(), create: jest.fn() },
-    ariaMessage: { findMany: jest.fn(), create: jest.fn(), createMany: jest.fn() },
-    $transaction: jest.fn(),
-    $queryRaw: jest.fn(),
+// Robust Prisma mock for integration tests
+const createModelMock = () => ({
+  findMany: jest.fn(),
+  findUnique: jest.fn(),
+  findFirst: jest.fn(),
+  create: jest.fn(),
+  createMany: jest.fn(),
+  update: jest.fn(),
+  updateMany: jest.fn(),
+  upsert: jest.fn(),
+  delete: jest.fn(),
+  deleteMany: jest.fn(),
+  count: jest.fn(),
+  groupBy: jest.fn(),
+  aggregate: jest.fn(),
+});
+const prismaProxy = new Proxy({}, {
+  get(target, prop) {
+    if (!target[prop]) {
+      if (prop === '$transaction' || prop === '$queryRaw') {
+        target[prop] = jest.fn();
+      } else {
+        target[prop] = createModelMock();
+      }
+    }
+    return target[prop];
   },
-}));
+});
+
+jest.mock('@/lib/prisma', () => ({ prisma: prismaProxy }));
 
 // Mock email service
 jest.mock('@/lib/email', () => ({ sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined) }));
 
 // External deps
 jest.mock('bcryptjs', () => ({ hash: jest.fn().mockResolvedValue('hashed-password') }));
+
+// Provide and stabilize fetch to avoid hitting external/local services in tests
+const __originalFetch = typeof global.fetch === 'function' ? global.fetch.bind(global) : undefined;
+
+global.fetch = jest.fn(async (input, init) => {
+  try {
+    const url = typeof input === 'string' ? input : (input && input.url) ? input.url : String(input);
+    // Avoid local service calls that are not running during tests
+    if (/localhost:(8001|8002)/.test(url)) {
+      // Simulate deterministic 500 for service endpoints; tests assert error branches
+      return {
+        ok: false,
+        status: 500,
+        json: async () => ({}),
+        text: async () => 'err',
+      };
+    }
+    if (__originalFetch) return __originalFetch(input, init);
+    return { ok: true, status: 200, json: async () => ({}) };
+  } catch {
+    return { ok: false, status: 500, json: async () => ({}) };
+  }
+});
 
 // Env
 process.env.NODE_ENV = 'test';

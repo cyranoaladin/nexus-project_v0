@@ -97,6 +97,7 @@ export default function SignInPage() {
                       placeholder="votre.email@exemple.com"
                       required
                       className="mt-2 h-12"
+                      data-testid="signin-email"
                     />
                   </div>
 
@@ -121,6 +122,7 @@ export default function SignInPage() {
                         placeholder="Votre mot de passe"
                         required
                         className="h-12 pr-12"
+                        data-testid="signin-password"
                       />
                       <button
                         type="button"

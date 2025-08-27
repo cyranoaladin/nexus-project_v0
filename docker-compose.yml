@@ -3,6 +3,8 @@ services:
     image: postgres:15
     container_name: nexus_db_prod
     restart: always
+    env_file:
+      - .env.local
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -81,13 +83,21 @@ services:
         condition: service_healthy
       llm_service:
         condition: service_healthy
+    env_file:
+      - .env.local
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - E2E_RUN=${E2E_RUN}
+      - NEXT_PUBLIC_E2E=${NEXT_PUBLIC_E2E}
+      - E2E_BASE_URL=${E2E_BASE_URL}
       - RAG_SERVICE_URL=http://rag_service:8000
       - PDF_GENERATOR_SERVICE_URL=http://pdf_generator_service:8000
       - LLM_SERVICE_URL=http://llm_service:8000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/nexus_dev?schema=public
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1" ]
       interval: 10s

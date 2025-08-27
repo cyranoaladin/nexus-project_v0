@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 // Simplified enum for testing
 const Subject = {
@@ -84,6 +86,7 @@ export default function BilanGratuitPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
+  const { data: session } = useSession();
 
   const totalSteps = 2;
 
@@ -192,6 +195,24 @@ export default function BilanGratuitPage() {
 
       <main className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          {/* Callout pour élèves connectés */}
+          {session?.user?.studentId && (
+            <div className="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-lg">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <p className="text-sm md:text-base text-blue-800">
+                    Vous êtes connecté en tant qu’élève. Accédez directement au parcours premium du Bilan.
+                  </p>
+                </div>
+                <div>
+                  <Button asChild>
+                    <Link href="/bilan-gratuit/wizard">Commencer mon Bilan</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* En-tête */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

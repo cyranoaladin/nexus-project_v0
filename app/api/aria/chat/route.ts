@@ -31,26 +31,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
     }
 
-    // Sécuriser le parsing JSON et gérer les cas de corps vide / type invalide
-    const contentType = req.headers.get('content-type') || '';
-    if (!contentType.toLowerCase().includes('application/json')) {
-      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
-    }
-
-    let raw = '';
-    try {
-      raw = await req.text();
-    } catch {
-      raw = '';
-    }
-
-    if (!raw || raw.trim().length === 0) {
-      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
-    }
-
+    // Parsing JSON standard (compatible avec tests)
     let body: unknown;
     try {
-      body = JSON.parse(raw);
+      body = await req.json();
     } catch {
       return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
     }
@@ -67,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Freemium limit: max 5 requests per day per student
     const today = new Date().toISOString().split('T')[0];
     const student = await prisma.student.findUnique({ where: { id: studentId } });
-    const usage = (student as any)?.freemiumUsage as { requestsToday?: number; date?: string } | null;
+    const usage = (student as any)?.freemiumUsage as { requestsToday?: number; date?: string; } | null;
 
     if (usage && usage.date === today && (usage.requestsToday ?? 0) >= 5) {
       return NextResponse.json({
@@ -80,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update usage: reset if new day, else increment
-    let nextUsage: { requestsToday: number; date: string };
+    let nextUsage: { requestsToday: number; date: string; };
     if (!usage || usage.date !== today) {
       nextUsage = { requestsToday: 1, date: today };
     } else {

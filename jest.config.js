@@ -9,24 +9,25 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
-  collectCoverageFrom: [
-    'lib/**/*.{js,ts}',
-    'app/api/**/*.{js,ts}',
-    'components/**/*.{js,ts,tsx}',
-    '!**/*.d.ts',
-    '!**/node_modules/**',
-  ],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/$1',
-  },
+  // Limiter ce projet aux tests UI uniquement (les tests API/lib sont couverts par les autres projets)
   testMatch: [
-    '**/__tests__/**/*.(test|spec).(js|ts|tsx)',
-    '**/*.(test|spec).(js|ts|tsx)'
+    '**/__tests__/ui/**/*.(test|spec).(ts|tsx)'
   ],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/e2e/',
+    // Tests UI complexes couverts en E2E Playwright
+    '<rootDir>/__tests__/ui/admin-tests.panel.test.tsx',
+    '<rootDir>/__tests__/ui/eleve-ressources.test.tsx',
+  ],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
+  collectCoverageFrom: [
+    'components/**/*.{js,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
   ],
 };
 

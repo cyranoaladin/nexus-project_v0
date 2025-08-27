@@ -8,9 +8,23 @@ const wisePaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
   key: z.string(),
   studentId: z.string(),
-  amount: z.number(),
-  description: z.string()
+  idempotencyKey: z.string().optional(),
 })
+
+function mapPaymentType(t: 'subscription' | 'addon' | 'pack') {
+  if (t === 'subscription') return 'SUBSCRIPTION' as const
+  if (t === 'pack') return 'CREDIT_PACK' as const
+  return 'SPECIAL_PACK' as const
+}
+
+async function fetchPricing(type: 'subscription' | 'addon' | 'pack', key: string) {
+  const itemType = type.toUpperCase()
+  const pricing = await prisma.productPricing.findUnique({
+    where: { itemType_itemKey: { itemType, itemKey: key } as any },
+  })
+  if (!pricing || pricing.active === false || pricing.currency !== 'TND') return null
+  return { amount: pricing.amount, description: pricing.description }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,22 +68,48 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       )
     }
+
+    const pricing = await fetchPricing(validatedData.type, validatedData.key)
+    if (!pricing) {
+      return NextResponse.json({ error: 'Article inconnu, inactif ou non tarifé' }, { status: 400 })
+    }
+
+    const idempotencyKey = request.headers.get('Idempotency-Key') || validatedData.idempotencyKey || undefined
+
+    if (idempotencyKey) {
+      const existing = await prisma.payment.findUnique({ where: { externalId: idempotencyKey } })
+      if (existing) {
+        const sameUser = existing.userId === session.user.id
+        const sameAmount = Number(existing.amount) === Number(pricing.amount)
+        const sameMethod = existing.method === 'wise'
+        if (!sameUser || !sameAmount || !sameMethod) {
+          return NextResponse.json({ error: 'Clé d\'idempotence déjà utilisée pour un autre paiement' }, { status: 409 })
+        }
+        return NextResponse.json({
+          success: true,
+          orderId: existing.id,
+          message: 'Commande Wise récupérée (idempotent)'
+        })
+      }
+    }
     
     // Créer l'enregistrement de paiement
     const payment = await prisma.payment.create({
       data: {
         userId: session.user.id,
-        type: validatedData.type.toUpperCase() as any,
-        amount: validatedData.amount,
+        type: mapPaymentType(validatedData.type) as any,
+        amount: pricing.amount,
         currency: 'TND',
-        description: validatedData.description,
+        description: pricing.description,
         status: 'PENDING',
         method: 'wise',
+        externalId: idempotencyKey,
         metadata: {
           studentId: validatedData.studentId,
           itemKey: validatedData.key,
-          itemType: validatedData.type
-        }
+          itemType: validatedData.type,
+          idempotencyKey: idempotencyKey || null,
+        } as any,
       }
     })
     

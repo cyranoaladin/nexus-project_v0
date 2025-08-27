@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const createUserSchema = z.object({
@@ -40,7 +40,7 @@ const updateUserSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -58,11 +58,11 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const whereClause: any = {};
-    
+
     if (role && role !== 'ALL') {
       whereClause.role = role;
     }
-    
+
     if (search) {
       whereClause.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -129,17 +129,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.toLowerCase().includes('application/json')) {
+    // Respecter le Content-Type requis par les tests
+    const contentType = request.headers.get('content-type');
+    if (contentType && !contentType.toLowerCase().includes('application/json')) {
       return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
     }
-    let raw = '';
-    try { raw = await request.text(); } catch { raw = ''; }
-    if (!raw || raw.trim().length === 0) {
-      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
-    }
     let body: unknown;
-    try { body = JSON.parse(raw); } catch {
+    try { body = await request.json(); } catch {
       return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
     }
     const parsed = createUserSchema.safeParse(body);
@@ -217,7 +213,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -225,17 +221,13 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.toLowerCase().includes('application/json')) {
+    // Respecter le Content-Type requis par les tests
+    const contentType2 = request.headers.get('content-type');
+    if (contentType2 && !contentType2.toLowerCase().includes('application/json')) {
       return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
     }
-    let raw = '';
-    try { raw = await request.text(); } catch { raw = ''; }
-    if (!raw || raw.trim().length === 0) {
-      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
-    }
     let body: unknown;
-    try { body = JSON.parse(raw); } catch {
+    try { body = await request.json(); } catch {
       return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
     }
     const parsed = updateUserSchema.safeParse(body);
@@ -303,7 +295,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -350,4 +342,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

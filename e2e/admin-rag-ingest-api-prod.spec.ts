@@ -3,7 +3,10 @@ import { loginAs } from './helpers';
 
 // E2E ingestion via API from the browser context to reuse auth cookies
 
+const SKIP_RAG = !process.env.OPENAI_API_KEY;
+
 test.describe('RAG ingestion API - production server', () => {
+  test.skip(SKIP_RAG, 'Skipping RAG ingestion tests: OPENAI_API_KEY not set');
   test('admin can ingest via /api/admin/rag-ingest and list documents', async ({ page }) => {
     // Ensure authenticated ADMIN session (programmatic credentials sign-in)
     // 1) Fetch CSRF token

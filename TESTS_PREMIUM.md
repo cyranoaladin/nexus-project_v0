@@ -1,17 +1,16 @@
-### **Mission de Finalisation de la Suite de Tests "Qualité Premium+"**
+# Mission de Finalisation de la Suite de Tests "Qualité Premium+"
 
 Bonjour Cursor. Notre objectif est de doter le projet **Nexus Réussite** d’une suite de tests automatisés exhaustive garantissant un fonctionnement **“zéro bug”** en production, la **robustesse** des microservices, et la **fiabilité** de l’intelligence d’**ARIA** (personnalisation, mémoire, sécurité).
-
 Tu agis en **Lead QA Engineer** et tu mets en œuvre une stratégie **premium** conforme aux meilleures pratiques d’ingénierie (TDD/BDD, pyramid of tests, CI/CD gating, SLOs).
 
-**Documents de Référence Absolue :**
+## Documents de Référence Absolue
 
 * `@_SPECS_ARIA/00_CAHIER_DES_CHARGES_FINAL_V4`
 * `@_SPECS_ARIA/Orchestration & Logique métier d’ARIA`
 * `@_SPECS_ARIA/Base de données & Modèle élève`
 * `@_SPECS_ARIA/RAPPORT_TESTS_IMPLEMENTATION.md` (pour l’existant)
 
-**Standards & Garde‑fous globaux (à respecter dans tout le repo)**
+## Standards & Garde‑fous globaux (à respecter dans tout le repo)
 
 * Couverture minimale : **90% lignes**, **90% branches**, **95% fichiers critiques** (orchestrateur ARIA, contrôle d’accès, billing/quotas, RAG).
 * Lint & type-check obligatoires (TS strict, mypy si Python).
@@ -91,7 +90,7 @@ Crée `__tests__/api/aria-chat.integration.test.ts` et couvre :
 * Mock `llm_service`. Vérifie que `system_prompt` :
 
   * S’adapte aux **faiblesses Mastery** (Probabilités ↑ guidance).
-  * S’adapte au **statut candidat\_libre** (référentiel différent, méthodo concours).
+  * S’adapte au **statut candidat_libre** (référentiel différent, méthodo concours).
   * Intègre **règles de sécurité** (anti‑prompt‑injection, refus hors‑périmètre).
   * Respecte **ton Nexus Premium** (style, structure attendue).
   * Varie selon **matière** (Maths vs NSI) et **niveau** (Première/Terminale).
@@ -270,7 +269,7 @@ Dans `e2e/`, créer/compléter :
 
 ## Arborescence & Fichiers à créer/étendre (extraits)
 
-```
+```text
 scripts/
   seed-test-users.ts          # étendu (states + data riches)
 __tests__/
@@ -326,6 +325,5 @@ contracts/
 
 ---
 
-**Action finale attendue :**
+**Action finale attendue**
 Implémente cette stratégie de test complète. **Confirme‑nous** une fois terminée que **tous les nouveaux tests passent** en local et en CI, avec les métriques de couverture et les rapports (coverage, axe‑core, Pact, k6) attachés au job CI de la MR/PR.
-

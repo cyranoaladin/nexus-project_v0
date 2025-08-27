@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const E2E_BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:3001';
+const USE_EXTERNAL_SERVER = !!process.env.E2E_NO_SERVER || (process.env.E2E_BASE_URL && process.env.E2E_BASE_URL !== 'http://localhost:3001');
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -46,14 +47,21 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command:
-      'E2E=1 NEXT_PUBLIC_E2E=1 DATABASE_URL=postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public ' +
-      'NEXTAUTH_URL=' + E2E_BASE_URL + ' ' +
-      'npm run dev -- --port 3001',
-    url: E2E_BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 300 * 1000, // Augmentation du timeout à 5 minutes
-  },
+  /* Run your local dev server before starting the tests (disabled if using external server) */
+  webServer: USE_EXTERNAL_SERVER
+    ? undefined
+    : {
+        command:
+          "bash -lc '" +
+          'export E2E=1 NEXT_PUBLIC_E2E=1 NEXTAUTH_URL=' + E2E_BASE_URL + ' NEXTAUTH_SECRET=e2e-test-secret; ' +
+          'if [ -z \"$DATABASE_URL\" ]; then export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public; fi; ' +
+          // Ensure schema exists in E2E regardless of migrations folder presence
+          'npm run db:push; ' +
+          'npm run db:seed; ' +
+          'npm run dev -- --port 3001' +
+          "'",
+        url: E2E_BASE_URL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 300 * 1000, // Augmentation du timeout à 5 minutes
+      },
 });

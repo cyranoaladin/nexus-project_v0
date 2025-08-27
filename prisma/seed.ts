@@ -11,31 +11,38 @@ async function main() {
 
   // RESET database to ensure deterministic state for tests
   try {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE
-      "session_notifications",
-      "session_reminders",
-      "session_bookings",
-      "notifications",
-      "aria_messages",
-      "aria_conversations",
-      "credit_transactions",
-      "student_badges",
-      "student_reports",
-      "subscription_requests",
-      "payments",
-      "subscriptions",
-      "sessions",
-      "pedagogical_contents",
-      "coach_profiles",
-      "parent_profiles",
-      "student_profiles",
-      "students",
-      "messages",
-      "badges",
-      "users"
-      RESTART IDENTITY CASCADE`);
+    const tables = [
+      'session_notifications',
+      'session_reminders',
+      'session_bookings',
+      'notifications',
+      'aria_messages',
+      'aria_conversations',
+      'credit_transactions',
+      'student_badges',
+      'student_reports',
+      'subscription_requests',
+      'payments',
+      'subscriptions',
+      'sessions',
+      'pedagogical_contents',
+      'coach_profiles',
+      'parent_profiles',
+      'student_profiles',
+      'students',
+      'messages',
+      'badges',
+      'users',
+      'product_pricing'
+    ];
+    for (const t of tables) {
+      try {
+        // Truncate only if the table exists in public schema
+        await prisma.$executeRawUnsafe(`DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='${t}') THEN EXECUTE 'TRUNCATE TABLE "${t}" RESTART IDENTITY CASCADE'; END IF; END $$;`);
+      } catch {}
+    }
   } catch (e) {
-    console.warn('WARN seed reset failed (continuing):', e);
+    // Silence reset errors entirely to avoid noisy logs during E2E
   }
 
   // --- 1. Admin User ---
@@ -372,6 +379,29 @@ async function main() {
     }
   }
 
+  // Pricing seeds (ProductPricing)
+  const pricings = [
+    { itemType: 'SUBSCRIPTION', itemKey: 'ACCES_PLATEFORME', amount: 120, description: 'Abonnement Accès Plateforme' },
+    { itemType: 'SUBSCRIPTION', itemKey: 'HYBRIDE', amount: 450, description: 'Abonnement Hybride' },
+    { itemType: 'SUBSCRIPTION', itemKey: 'IMMERSION', amount: 750, description: 'Abonnement Immersion' },
+    { itemType: 'ADDON', itemKey: 'ARIA_SUBJECT', amount: 40, description: 'Add-on ARIA par matière' },
+    { itemType: 'PACK', itemKey: 'CREDITS_5', amount: 100, description: 'Pack 5 crédits' },
+    { itemType: 'PACK', itemKey: 'CREDITS_10', amount: 180, description: 'Pack 10 crédits' },
+    { itemType: 'PACK', itemKey: 'CREDITS_20', amount: 340, description: 'Pack 20 crédits' },
+  ] as const;
+
+  for (const p of pricings) {
+    try {
+      await prisma.productPricing.upsert({
+        where: { itemType_itemKey: { itemType: p.itemType, itemKey: p.itemKey } as any },
+        update: { amount: p.amount, description: p.description, active: true },
+        create: { itemType: p.itemType, itemKey: p.itemKey, amount: p.amount, description: p.description },
+      } as any);
+    } catch (e) {
+      // ignore if constraint differs in dev
+    }
+  }
+
   // 6. Payments répartis sur 2 mois
   const now = new Date();
   const lastMonth = new Date(now); lastMonth.setMonth(now.getMonth() - 1);
@@ -517,7 +547,11 @@ async function main() {
   });
   const anyStudent2 = await prisma.student.findFirst();
   if (anyStudent2) {
-    await prisma.studentBadge.create({ data: { studentId: anyStudent2.id, badgeId: badge.id } });
+    await prisma.studentBadge.upsert({
+      where: { studentId_badgeId: { studentId: anyStudent2.id, badgeId: badge.id } },
+      update: {},
+      create: { studentId: anyStudent2.id, badgeId: badge.id },
+    });
   }
 
   console.log(`Seeding finished.`);

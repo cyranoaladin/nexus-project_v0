@@ -70,11 +70,13 @@ export default function TestLoginPage() {
             <p className="text-sm text-gray-600">
               Status: {status}
             </p>
-            {session && (
-              <div className="mt-2 p-3 bg-gray-100 rounded">
-                <p><strong>User:</strong> {session.user?.email}</p>
-                <p><strong>Role:</strong> {(session.user as any)?.role}</p>
+            {status === 'authenticated' && session && (
+              <div className="mt-2 p-3 bg-gray-100 rounded" data-testid="session-card">
+                <p><strong>User:</strong> <span data-testid="session-email">{session.user?.email}</span></p>
+                <p><strong>Role:</strong> <span data-testid="session-role">{(session.user as any)?.role}</span></p>
                 <p><strong>Name:</strong> {(session.user as any)?.firstName} {(session.user as any)?.lastName}</p>
+                <p><strong>StudentId:</strong> <span data-testid="session-studentId">{(session.user as any)?.studentId || ''}</span></p>
+                <p><strong>ParentId:</strong> <span data-testid="session-parentId">{(session.user as any)?.parentId || ''}</span></p>
               </div>
             )}
           </div>

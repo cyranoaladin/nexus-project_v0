@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SessionBooking from "@/components/ui/session-booking";
-import { AlertCircle, BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video } from "lucide-react";
+import { AlertCircle, BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video, FileText } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,6 +27,7 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string }[]>([]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -59,6 +60,16 @@ export default function DashboardEleve() {
 
     fetchDashboardData();
   }, [session, status, router]);
+
+  useEffect(() => {
+    if (!session?.user?.studentId) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/students/${session.user.studentId}/bilans`, { cache: 'no-store' });
+        if (res.ok) setBilans(await res.json());
+      } catch {}
+    })();
+  }, [session?.user?.studentId]);
 
   if (status === "loading" || loading) {
     return (
@@ -246,7 +257,29 @@ export default function DashboardEleve() {
                 </CardContent>
               </Card>
 
-              {/* Badges et Achievements */}
+            {/* Mes Bilans */}
+            <Card className="mb-8">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Mes Bilans</CardTitle>
+                <FileText className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                {bilans.length === 0 ? (
+                  <p className="text-sm text-gray-600">Aucun bilan pour le moment.</p>
+                ) : (
+                  <ul className="text-sm space-y-2">
+                    {bilans.map((b) => (
+                      <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+                        <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                        <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">Télécharger PDF</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Badges et Achievements */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">

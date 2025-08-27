@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SessionBooking from "@/components/ui/session-booking";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
+import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users, FileText } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
@@ -66,6 +66,7 @@ export default function DashboardParent() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string }[]>([]);
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -90,6 +91,16 @@ export default function DashboardParent() {
     } finally {
       setLoading(false);
     }
+  }, [selectedChild]);
+
+  useEffect(() => {
+    if (!selectedChild) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/students/${selectedChild}/bilans`, { cache: 'no-store' });
+        if (res.ok) setBilans(await res.json());
+      } catch {}
+    })();
   }, [selectedChild]);
 
 
@@ -415,6 +426,30 @@ export default function DashboardParent() {
                     </div>
                   </div>
                 </div>
+
+                {/* Bilans de l’élève */}
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                      Bilans de l’élève
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {bilans.length === 0 ? (
+                      <p className="text-sm text-gray-600">Aucun bilan pour cet élève.</p>
+                    ) : (
+                      <ul className="text-sm space-y-2">
+                        {bilans.map((b) => (
+                          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+                            <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                            <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">Télécharger PDF</a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Note importante */}
                 <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

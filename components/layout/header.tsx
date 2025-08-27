@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,6 +40,9 @@ export function Header() {
     { name: "Notre Centre", href: "/notre-centre" },
     { name: "Contact", href: "/contact" },
   ];
+
+  const { data: session } = useSession();
+  const bilanHref = session?.user?.studentId ? "/bilan-gratuit/wizard" : "/bilan-gratuit";
 
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-slate-200 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm' : 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60'}`}>
@@ -83,7 +87,7 @@ export function Header() {
               </Link>
             </Button>
             <Button asChild size="sm" className="px-4">
-              <Link href="/bilan-gratuit">
+              <Link href={bilanHref}>
                 Bilan Gratuit
               </Link>
             </Button>
@@ -123,7 +127,7 @@ export function Header() {
                 </Link>
               </Button>
               <Button asChild className="w-full">
-                <Link href="/bilan-gratuit" onClick={() => setIsMenuOpen(false)}>
+                <Link href={bilanHref} onClick={() => setIsMenuOpen(false)}>
                   Bilan Gratuit
                 </Link>
               </Button>

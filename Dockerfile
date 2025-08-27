@@ -33,7 +33,11 @@ RUN npx prisma generate
 # On copie le reste du code de l'application.
 COPY . .
 # On lance le build de Next.js.
-RUN npm run build
+ENV NEXT_FONT_IGNORE_ERRORS=1
+RUN NEXT_FONT_IGNORE_ERRORS=1 npm run build
+
+# Rendre exécutable le script avant de le copier dans l'image finale
+RUN chmod +x start-production.sh
 
 
 # === ÉTAPE 4: Création de l'Image Finale de Production ===
@@ -47,7 +51,8 @@ RUN addgroup -S nodejs || true && adduser -S node -G nodejs || true
 
 # [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
 COPY --from=builder /app/package.json /app/package-lock.json* ./
-RUN npm install --omit=dev --network-timeout=1000000
+RUN npm install --omit=dev --network-timeout=1000000 \
+  && npm install prisma tsx --no-save --network-timeout=1000000
 
 # On copie les artefacts de build depuis l'étape "builder".
 COPY --from=builder /app/public ./public
@@ -63,4 +68,5 @@ RUN chown -R node:nodejs /app
 USER node
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+COPY --from=builder /app/start-production.sh ./start-production.sh
+CMD ["./start-production.sh"]
