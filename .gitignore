@@ -3,7 +3,21 @@
 # dependencies
 /node_modules
 /.pnp
-.pnp.*
+.pnp.js
+
+# Next.js
+.next/
+.next-*.pid
+.next-start-*.log
+
+# Playwright
+playwright-report/
+
+# Reports
+reports/
+
+# OS
+.DS_Store
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
