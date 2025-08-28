@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Subject } from "@/types/enums";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ExternalLink, Copy } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Subject } from "@/types/enums";
+import { BookOpen, Copy, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const SUBJECTS_OPTIONS = [
   { value: "all", label: "Toutes les matières" },
@@ -102,18 +102,18 @@ export default function RessourcesPageClient() {
         ) : error ? (
           <div className="text-sm text-red-600">{error}</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="resource-grid">
             {items.map((r) => (
-              <Card key={r.id}>
+              <Card key={r.id} data-testid={`resource-card-${r.id}`}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 justify-between">
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-5 h-5 text-blue-600" />
-                      <a className="hover:underline" href={`/dashboard/eleve/ressources/${r.id}`}>{r.title}</a>
+                      <a className="hover:underline" href={`/dashboard/eleve/ressources/${r.id}`} data-testid={`resource-title-${r.id}`}>{r.title}</a>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={`/dashboard/eleve/ressources/${r.id}`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" asChild data-testid={`resource-open-${r.id}`}>
+                        <a href={`/dashboard/eleve/ressources/${r.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Ouvrir ${r.title}`}>
                           <ExternalLink className="w-4 h-4 mr-1" /> Ouvrir
                         </a>
                       </Button>
@@ -150,4 +150,3 @@ export default function RessourcesPageClient() {
     </div>
   );
 }
-

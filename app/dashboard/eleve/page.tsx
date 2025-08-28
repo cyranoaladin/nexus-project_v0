@@ -3,14 +3,16 @@
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SessionBooking from "@/components/ui/session-booking";
-import { AlertCircle, BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video, FileText } from "lucide-react";
+import { AlertCircle, BookOpen, Calendar, CreditCard, FileText, Loader2, LogOut, MessageCircle, User, Video } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface DashboardData {
   student: any;
@@ -27,7 +29,8 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
-  const [bilans, setBilans] = useState<{ id: string; createdAt: string }[]>([]);
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null; }[]>([]);
+  const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
 
   useEffect(() => {
     if (status === "loading") return;
@@ -110,7 +113,7 @@ export default function DashboardEleve() {
               <div className="flex items-center space-x-2">
                 <User className="w-8 h-8 text-blue-600" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-gray-900" data-testid="student-courses-title">
                     {session?.user.firstName} {session?.user.lastName}
                   </h1>
                   <p className="text-sm text-gray-500">Espace Élève</p>
@@ -143,6 +146,7 @@ export default function DashboardEleve() {
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-gray-600 hover:text-gray-900"
+              data-testid="logout-button"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -257,29 +261,38 @@ export default function DashboardEleve() {
                 </CardContent>
               </Card>
 
-            {/* Mes Bilans */}
-            <Card className="mb-8">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Mes Bilans</CardTitle>
-                <FileText className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                {bilans.length === 0 ? (
-                  <p className="text-sm text-gray-600">Aucun bilan pour le moment.</p>
-                ) : (
-                  <ul className="text-sm space-y-2">
-                    {bilans.map((b) => (
-                      <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
-                        <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
-                        <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">Télécharger PDF</a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
+              {/* Mes Bilans */}
+              <Card className="mb-8">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Mes Bilans</CardTitle>
+                  <FileText className="h-4 w-4 text-blue-600" />
+                </CardHeader>
+                <CardContent>
+                  {/* Filtres */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs text-gray-500">Filtrer par niveau</div>
+                    <div className="w-44">
+                      <Select value={niveauFilter} onValueChange={(v: any) => setNiveauFilter(v)}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Niveau" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Tous">Tous</SelectItem>
+                          <SelectItem value="Première">Première</SelectItem>
+                          <SelectItem value="Terminale">Terminale</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {bilans.length === 0 ? (
+                    <p className="text-sm text-gray-600" data-testid="no-bilans-fallback">Aucun bilan pour le moment.</p>
+                  ) : (
+                    <BilanList bilans={bilans} niveauFilter={niveauFilter} />
+                  )}
+                </CardContent>
+              </Card>
 
-            {/* Badges et Achievements */}
+              {/* Badges et Achievements */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -345,5 +358,125 @@ export default function DashboardEleve() {
         )}
       </main>
     </div>
+  );
+}
+
+// Helpers and small components in the same file for simplicity
+function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
+  if (!n) return '—';
+  const s = n.toLowerCase();
+  if (s.includes('premiere') || s.includes('première')) return 'Première';
+  if (s.includes('terminale')) return 'Terminale';
+  return (n as any) as 'Première' | 'Terminale' | '—';
+}
+
+function BilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null; }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+  const latestTerminale = useMemo(() => bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale'), [bilans]);
+  const filtered = useMemo(() => bilans.filter(b => {
+    if (niveauFilter === 'Tous') return true;
+    return normalizeNiveau(b.niveau) === niveauFilter;
+  }), [bilans, niveauFilter]);
+
+  const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (filtered.length === 0) {
+    return <p className="text-sm text-gray-600">Aucun bilan pour ce filtre.</p>;
+  }
+
+  if (niveauFilter === 'Tous') {
+    const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
+    const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
+    const autres = byDateDesc(filtered.filter(b => ['Première', 'Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
+
+    const renderList = (list: typeof bilans) => (
+      <ul className="text-sm space-y-2">
+        {list.map((b) => {
+          const niv = normalizeNiveau(b.niveau);
+          const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+          const pct = (b as any).percent as number | null | undefined;
+          return (
+            <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+              <span className="flex items-center gap-2">
+                <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                {niv !== '—' && (
+                  <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                    {niv}
+                  </Badge>
+                )}
+                {typeof pct === 'number' && (
+                  <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+                )}
+                {isLatestTerm && (
+                  <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+
+    return (
+      <div className="space-y-4">
+        {terminale.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Terminale</div>
+            {renderList(terminale as any)}
+          </div>
+        )}
+        {premiere.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Première</div>
+            {renderList(premiere as any)}
+          </div>
+        )}
+        {autres.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Autres</div>
+            {renderList(autres as any)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const sorted = byDateDesc(filtered);
+
+  return (
+    <ul className="text-sm space-y-2">
+      {sorted.map((b) => {
+        const niv = normalizeNiveau(b.niveau);
+        const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+        const pct = (b as any).percent as number | null | undefined;
+        return (
+          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+            <span className="flex items-center gap-2">
+              <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+              {niv !== '—' && (
+                <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                  {niv}
+                </Badge>
+              )}
+              {typeof pct === 'number' && (
+                <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+              )}
+              {isLatestTerm && (
+                <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+              )}
+            </span>
+            <span className="flex items-center gap-2">
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole } from './helpers';
 
 // This test targets the already running production build (set E2E_BASE_URL)
 // It performs a full ingestion flow without stubbing APIs.
@@ -9,6 +9,7 @@ const SKIP_RAG_UI = !process.env.OPENAI_API_KEY;
 test.describe('RAG ingestion - production server', () => {
   test.skip(SKIP_RAG_UI, 'Skipping RAG UI tests: OPENAI_API_KEY not set');
   test('admin can ingest a Markdown document end-to-end', async ({ page }) => {
+    const cap = captureConsole(page, test.info());
     await loginAs(page, 'admin@nexus.com', 'password123');
 
     // First land on Admin dashboard to ensure session is valid, then navigate via UI
@@ -87,6 +88,7 @@ test.describe('RAG ingestion - production server', () => {
     // Ingest without stubbing; expect success banner
     await page.getByTestId('rag-ingest').click();
     await expect(page.getByText('Document ingéré avec succès')).toBeVisible({ timeout: 20000 });
+    await cap.attach('console.admin.rag.ingest.ui.json');
   });
 });
 

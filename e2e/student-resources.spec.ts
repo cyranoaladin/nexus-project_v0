@@ -1,4 +1,5 @@
 import { test as base, expect } from '@playwright/test';
+import { captureConsole } from './helpers';
 
 const run = !!process.env.E2E_RUN;
 const test = run ? base : base.skip;
@@ -12,6 +13,7 @@ const dataset = [
 ];
 
 test('Student resources: search and pagination', async ({ page }) => {
+  const cap = captureConsole(page as any, (test as any).info());
   await page.route('**/api/student/resources**', async (route) => {
     const url = new URL(route.request().url());
     const pageNum = parseInt(url.searchParams.get('page') ?? '1', 10);
@@ -42,24 +44,27 @@ test('Student resources: search and pagination', async ({ page }) => {
     });
   });
 
-  await page.goto('/dashboard/eleve/ressources');
+  try { await page.goto('/dashboard/eleve/ressources', { waitUntil: 'domcontentloaded' }); } catch {}
+  try { await page.waitForLoadState('domcontentloaded', { timeout: 5000 }); } catch {}
 
   await expect(page.getByText('Ressources Pédagogiques')).toBeVisible();
 
-  // First page
-  await expect(page.getByRole('link', { name: 'Ressource 1' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Ressource 2' })).toBeVisible();
+  // First page (use stable testids)
+  await expect(page.getByTestId('resource-title-1')).toBeVisible();
+  await expect(page.getByTestId('resource-title-2')).toBeVisible();
 
-  // Go to next page
-  await page.getByRole('button', { name: 'Suivant' }).click();
-  await expect(page.getByRole('link', { name: 'Ressource 3' })).toBeVisible();
+  // Go to next page (ensure enabled to avoid racing disabled state)
+  const nextBtn = page.getByRole('button', { name: 'Suivant' });
+  await expect(nextBtn).toBeEnabled();
+  await nextBtn.click();
+  await expect(page.getByTestId('resource-title-3')).toBeVisible();
 
   // Search action
   await page.getByPlaceholder('Rechercher un titre, un mot-clé...').fill('Algebra');
   await page.getByRole('button', { name: 'Rechercher' }).click();
-  await expect(page.getByRole('link', { name: 'Algebra avancée' })).toBeVisible();
+  await expect(page.getByTestId('resource-title-5')).toBeVisible();
 
-  // Ensure the "Ouvrir" action exists on a card
-  await expect(page.getByRole('link', { name: /Ouvrir/i }).first()).toBeVisible();
+  // Ensure the "Ouvrir" action exists on a card (stable role selector)
+  await expect(page.getByRole('link', { name: /^Ouvrir/ }).first()).toBeVisible();
+  await cap.attach('console.student.resources.json');
 });
-

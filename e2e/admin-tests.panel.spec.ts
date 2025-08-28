@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole, quarantineIfNotVisible, disableAnimations } from './helpers';
 
 // Test E2E stable du panneau de diagnostics admin
 // On intercepte les endpoints afin d'éviter les dépendances réseau et flakiness
@@ -8,6 +8,8 @@ const RUN = process.env.E2E_RUN === '1';
 
 (RUN ? test.describe : test.describe.skip)('Admin Tests Panel (E2E)', () => {
   test('affiche le statut et permet de tester email/paiements', async ({ page }) => {
+    const cap = captureConsole(page, test.info());
+    await disableAnimations(page);
     await loginAs(page, 'admin@nexus.com', 'password123');
 
     // Stub des endpoints GET de configuration/health
@@ -93,18 +95,14 @@ const RUN = process.env.E2E_RUN === '1';
     try { await page.goto('/dashboard/admin/tests', { waitUntil: 'domcontentloaded' }); } catch {}
 
     // Si la page n'est pas prête rapidement, quarantiner ce test (flaky selon environnements)
-    try {
-      await expect(page.getByText('Tests Système')).toBeVisible({ timeout: 3000 });
-    } catch {
-      test.skip(true, 'Quarantined: admin tests panel header not visible in time on this environment');
-    }
+    await quarantineIfNotVisible(page, '[data-testid="admin-tests-header"]', 3000, 'admin tests panel header not visible in time on this environment');
 
     // Attendre le header de page, puis valider les sections (avec fallback de navigation)
     try {
-      await expect(page.getByText('Tests Système')).toBeVisible({ timeout: 20000 });
+      await expect(page.getByTestId('admin-tests-header')).toBeVisible({ timeout: 20000 });
     } catch {
       try { await page.goto('/dashboard/admin/tests', { waitUntil: 'domcontentloaded' }); } catch {}
-      await expect(page.getByText('Tests Système')).toBeVisible({ timeout: 20000 });
+      await expect(page.getByTestId('admin-tests-header')).toBeVisible({ timeout: 20000 });
     }
     await expect(page.getByText('Statut Système')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Base de données')).toBeVisible({ timeout: 15000 });
@@ -125,6 +123,8 @@ const RUN = process.env.E2E_RUN === '1';
     await page.getByLabel('Référence paiement').fill('TEST-REF');
     await page.getByRole('button', { name: 'Vérifier statut' }).click();
     await expect(page.getByText(/Statut: completed/)).toBeVisible();
+
+    await cap.attach('console.admin.json');
   });
 });
 

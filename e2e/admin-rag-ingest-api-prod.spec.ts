@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole } from './helpers';
 
 // E2E ingestion via API from the browser context to reuse auth cookies
 
@@ -8,6 +8,7 @@ const SKIP_RAG = !process.env.OPENAI_API_KEY;
 test.describe('RAG ingestion API - production server', () => {
   test.skip(SKIP_RAG, 'Skipping RAG ingestion tests: OPENAI_API_KEY not set');
   test('admin can ingest via /api/admin/rag-ingest and list documents', async ({ page }) => {
+    const cap = captureConsole(page, test.info());
     // Ensure authenticated ADMIN session (programmatic credentials sign-in)
     // 1) Fetch CSRF token
     const csrfRes = await page.request.get('/api/auth/csrf');
@@ -100,6 +101,7 @@ test.describe('RAG ingestion API - production server', () => {
     try { docs = JSON.parse(listResult.text).documents || []; } catch {}
     const hasDemo = docs.some(d => (d?.metadata?.titre || '').includes('Demo Ingestion'));
     expect(hasDemo).toBeTruthy();
+    await cap.attach('console.admin.rag.ingest.api.json');
   });
 });
 

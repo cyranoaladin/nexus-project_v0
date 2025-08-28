@@ -1,10 +1,5 @@
-export type DomainKey =
-  | "Calcul littéral & équations"
-  | "Fonctions & graphes"
-  | "Géométrie vectorielle & repérée"
-  | "Trigonométrie"
-  | "Probabilités & statistiques"
-  | "Algorithmique & logique";
+// Allow flexible domain keys across different levels (Première, Terminale)
+export type DomainKey = string;
 
 export type QcmOption = { key: string; label: string };
 export type QcmQuestion = {

@@ -66,7 +66,8 @@ export default function DashboardParent() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [showBookingDialog, setShowBookingDialog] = useState(false);
-  const [bilans, setBilans] = useState<{ id: string; createdAt: string }[]>([]);
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null }[]>([]);
+  const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -430,23 +431,30 @@ export default function DashboardParent() {
                 {/* Bilans de l’élève */}
                 <Card className="mt-6">
                   <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                      Bilans de l’élève
+                    <CardTitle className="flex items-center justify-between w-full">
+                      <span className="flex items-center">
+                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                        Bilans de l’élève
+                      </span>
+                      <div className="w-44">
+                        <Select value={niveauFilter} onValueChange={(v: any) => setNiveauFilter(v)}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Niveau" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Tous">Tous</SelectItem>
+                            <SelectItem value="Première">Première</SelectItem>
+                            <SelectItem value="Terminale">Terminale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {bilans.length === 0 ? (
                       <p className="text-sm text-gray-600">Aucun bilan pour cet élève.</p>
                     ) : (
-                      <ul className="text-sm space-y-2">
-                        {bilans.map((b) => (
-                          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
-                            <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
-                            <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">Télécharger PDF</a>
-                          </li>
-                        ))}
-                      </ul>
+                      <ParentBilanList bilans={bilans} niveauFilter={niveauFilter} />
                     )}
                   </CardContent>
                 </Card>
@@ -477,5 +485,118 @@ export default function DashboardParent() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
+  if (!n) return '—';
+  const s = n.toLowerCase();
+  if (s.includes('premiere') || s.includes('première')) return 'Première';
+  if (s.includes('terminale')) return 'Terminale';
+  return (n as any) as 'Première' | 'Terminale' | '—';
+}
+
+function ParentBilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+  const latestTerminale = bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale');
+  const filtered = bilans.filter(b => niveauFilter === 'Tous' ? true : normalizeNiveau(b.niveau) === niveauFilter);
+  const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (filtered.length === 0) return <p className="text-sm text-gray-600">Aucun bilan pour ce filtre.</p>;
+
+  if (niveauFilter === 'Tous') {
+    const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
+    const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
+    const autres = byDateDesc(filtered.filter(b => ['Première','Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
+
+    const renderList = (list: typeof bilans) => (
+      <ul className="text-sm space-y-2">
+        {list.map((b) => {
+          const niv = normalizeNiveau(b.niveau);
+          const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+          const pct = (b as any).percent as number | null | undefined;
+          return (
+            <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+              <span className="flex items-center gap-2">
+                <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                {niv !== '—' && (
+                  <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                    {niv}
+                  </Badge>
+                )}
+                {typeof pct === 'number' && (
+                  <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+                )}
+                {isLatestTerm && (
+                  <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+
+    return (
+      <div className="space-y-4">
+        {terminale.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Terminale</div>
+            {renderList(terminale as any)}
+          </div>
+        )}
+        {premiere.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Première</div>
+            {renderList(premiere as any)}
+          </div>
+        )}
+        {autres.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Autres</div>
+            {renderList(autres as any)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const sorted = byDateDesc(filtered);
+
+  return (
+    <ul className="text-sm space-y-2">
+      {sorted.map((b) => {
+        const niv = normalizeNiveau(b.niveau);
+        const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+        const pct = (b as any).percent as number | null | undefined;
+        return (
+          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+            <span className="flex items-center gap-2">
+              <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+              {niv !== '—' && (
+                <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                  {niv}
+                </Badge>
+              )}
+              {typeof pct === 'number' && (
+                <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+              )}
+              {isLatestTerm && (
+                <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+              )}
+            </span>
+            <span className="flex items-center gap-2">
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

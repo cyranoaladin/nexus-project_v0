@@ -1,9 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole } from './helpers';
 
 test.describe('i18n and accessibility', () => {
   test('Switch locale and run an accessibility scan on a dashboard page', async ({ page, browserName }) => {
+    const cap = captureConsole(page, test.info());
     await loginAs(page, 'marie.dupont@nexus.com', 'password123');
     await page.goto('/dashboard/eleve');
     await page.waitForLoadState('networkidle');
@@ -19,5 +20,6 @@ test.describe('i18n and accessibility', () => {
     const results = await new AxeBuilder({ page }).include('body').analyze();
     const critical = (results.violations || []).filter(v => ['critical'].includes((v.impact || '').toLowerCase()));
     expect(critical.length).toBe(0);
+    await cap.attach('console.i18n-a11y.json');
   });
 });

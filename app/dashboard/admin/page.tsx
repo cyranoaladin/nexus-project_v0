@@ -124,6 +124,7 @@ export default function DashboardAdmin() {
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-gray-600 hover:text-gray-900"
+              data-testid="logout-button"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -309,7 +310,7 @@ export default function DashboardAdmin() {
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4" asChild>
                   <Link href="/dashboard/admin/users">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3" data-testid="admin-users-title">
                       <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Gestion Utilisateurs</p>

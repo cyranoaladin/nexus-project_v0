@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole, disableAnimations } from './helpers';
+import type { Page, Route, Dialog, Response } from '@playwright/test';
 
-async function completeQcmStep(page) {
+async function completeQcmStep(page: Page) {
   // Wait for wizard to be ready by a stable test id
   await Promise.race([
     page.waitForSelector('[data-testid="wizard-qcm"]', { timeout: 30000 }),
@@ -24,7 +25,7 @@ async function completeQcmStep(page) {
   // Use the unified E2E primary-next control to advance deterministically
   const primaryNext = page.getByTestId('wizard-primary-next');
   await expect(primaryNext).toBeVisible({ timeout: 30000 });
-  await primaryNext.click();
+  try { await primaryNext.click(); } catch { await primaryNext.click({ force: true }); }
 
   // Short settle and check; if still on step 1, fallback to in-step next
   const stepIndicator = page.getByTestId('wizard-step-indicator');
@@ -50,7 +51,7 @@ async function completeQcmStep(page) {
   ]);
 }
 
-async function completePedagoStep(page) {
+async function completePedagoStep(page: Page) {
   await expect(page.locator('[data-testid="wizard-pedago"]')).toBeVisible({ timeout: 30000 });
   await page.getByLabel('Motivation principale').fill('examens');
   await page.getByLabel("Style d’apprentissage").fill('visuel');
@@ -80,28 +81,29 @@ async function completePedagoStep(page) {
   await expect(page.getByRole('heading', { level: 3, name: 'Résultats' })).toBeVisible({ timeout: 30000 });
 }
 
-async function submitAndVerifyPdf(page) {
+async function submitAndVerifyPdf(page: Page) {
   // Dismiss any alert dialog that may appear after save
-  page.once('dialog', async (d) => { try { await d.dismiss(); } catch {} });
+page.once('dialog', async (d: Dialog) => { try { await d.dismiss(); } catch {} });
 
   // Stub submit endpoint to return a predictable ID and stub resulting PDF download
   const pdfId = 'e2e-TEST';
-  await page.route('**/api/bilan/submit', async (route) => {
+await page.route('**/api/bilan/submit', async (route: Route) => {
     if (route.request().method() === 'POST') {
       await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ bilanId: pdfId }) });
       return;
     }
     await route.fallback();
   });
-  await page.route(`**/api/bilan/pdf/${pdfId}`, async (route) => {
+await page.route(`**/api/bilan/pdf/${pdfId}*`, async (route: Route) => {
     await route.fulfill({ status: 200, headers: { 'content-type': 'application/pdf' }, body: '%PDF-1.4\n% E2E stub PDF' });
   });
 
-  const submitReqPromise = page.waitForRequest((req) => req.url().includes('/api/bilan/submit') && req.method() === 'POST');
-  await page.getByRole('button', { name: 'Enregistrer & Envoyer par e‑mail' }).click();
+const submitRespPromise = page.waitForResponse((r: Response) => r.url().includes('/api/bilan/submit') && r.request().method() === 'POST' && r.status() >= 200 && r.status() < 300);
+  await page.getByTestId('bilan-submit').click();
 
-  // Ensure the submit request was actually sent
-  const submitReq = await submitReqPromise;
+  // Ensure the submit request was actually sent and succeeded
+  const submitResp = await submitRespPromise;
+  const submitReq = submitResp.request();
   try {
     const body = submitReq.postData();
     if (body) {
@@ -110,14 +112,17 @@ async function submitAndVerifyPdf(page) {
     }
   } catch {}
 
+  // Optionally settle network after submit
+  try { await page.waitForLoadState('networkidle', { timeout: 2000 }); } catch {}
+
   // Wait for the PDF link to appear which indicates successful save
-  const pdfLink = page.locator('a[href^="/api/bilan/pdf/"]');
+  const pdfLink = page.getByTestId('bilan-pdf-link');
   await expect(pdfLink).toBeVisible({ timeout: 60000 });
 
   // Validate the link target and content-type via API request (avoid new tab complexities)
   const href = (await pdfLink.getAttribute('href')) || '';
   expect(href).toMatch(/\/api\/bilan\/pdf\//);
-  const resp = await page.evaluate(async (url) => {
+const resp = await page.evaluate(async (url: string) => {
     try {
       const r = await fetch(url, { method: 'GET' });
       return { ok: r.ok, ct: r.headers.get('content-type') || '' };
@@ -127,13 +132,45 @@ async function submitAndVerifyPdf(page) {
   }, href);
   expect(resp.ok).toBeTruthy();
   expect(resp.ct.toLowerCase()).toContain('application/pdf');
+
+  // Verify parent variant also returns PDF
+  const parentLink = page.getByTestId('bilan-pdf-parent-link');
+  await expect(parentLink).toBeVisible();
+  const parentHref = (await parentLink.getAttribute('href')) || '';
+  expect(parentHref).toMatch(/variant=parent/);
+const respParent = await page.evaluate(async (url: string) => {
+    try {
+      const r = await fetch(url, { method: 'GET' });
+      return { ok: r.ok, ct: r.headers.get('content-type') || '' };
+    } catch {
+      return { ok: false, ct: '' };
+    }
+  }, parentHref);
+  expect(respParent.ok).toBeTruthy();
+  expect(respParent.ct.toLowerCase()).toContain('application/pdf');
+
+  // Verify élève variant also returns PDF
+  const eleveLink = page.getByTestId('bilan-pdf-eleve-link');
+  await expect(eleveLink).toBeVisible();
+  const eleveHref = (await eleveLink.getAttribute('href')) || '';
+  expect(eleveHref).toMatch(/variant=eleve/);
+const respEleve = await page.evaluate(async (url: string) => {
+    try {
+      const r = await fetch(url, { method: 'GET' });
+      return { ok: r.ok, ct: r.headers.get('content-type') || '' };
+    } catch {
+      return { ok: false, ct: '' };
+    }
+  }, eleveHref);
+  expect(respEleve.ok).toBeTruthy();
+  expect(respEleve.ct.toLowerCase()).toContain('application/pdf');
 }
 
 const EXTERNAL = !!process.env.E2E_NO_SERVER;
 
 const maybe = EXTERNAL ? test.skip : test;
 
-async function ensureWizardLoaded(page: any, who: 'student' | 'parent') {
+async function ensureWizardLoaded(page: Page, who: 'student' | 'parent') {
   if (who === 'student') {
     // Prefer going through the legacy /bilan-gratuit page then CTA to ensure client session is ready
     try { await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' }); } catch {}
@@ -173,43 +210,67 @@ async function ensureWizardLoaded(page: any, who: 'student' | 'parent') {
 
 test.describe('Bilan Wizard E2E', () => {
   maybe('student can complete wizard and download PDF', async ({ page }) => {
-    // Ensure session established via dashboard before heading to wizard
-    await loginAs(page, 'marie.dupont@nexus.com', 'password123');
-    // Skip dashboard hop; loginAs already established session
+    const cap = captureConsole(page, test.info());
+    try {
+      await disableAnimations(page);
+      // Ensure session established via dashboard before heading to wizard
+      await loginAs(page, 'marie.dupont@nexus.com', 'password123');
+      // Skip dashboard hop; loginAs already established session
 
-    // Navigate directly to wizard and ensure it loads
-    await ensureWizardLoaded(page, 'student');
+      // Navigate directly to wizard and ensure it loads
+      await ensureWizardLoaded(page, 'student');
 
-    await completeQcmStep(page);
-    await completePedagoStep(page);
-    await submitAndVerifyPdf(page);
+      await test.step('Complete QCM', async () => {
+        await completeQcmStep(page);
+      });
+      await test.step('Complete Pedago and compute results', async () => {
+        await completePedagoStep(page);
+      });
+      await test.step('Submit and verify PDFs', async () => {
+        await submitAndVerifyPdf(page);
+      });
+    } finally {
+      await cap.attach('console.student.json');
+    }
   });
 
   maybe('parent selects child, completes wizard, and downloads PDF', async ({ page }) => {
-    await loginAs(page, 'parent.dupont@nexus.com', 'password123');
-    // Skip dashboard hop; loginAs already established session
+    const cap = captureConsole(page, test.info());
+    try {
+      await disableAnimations(page);
+      await loginAs(page, 'parent.dupont@nexus.com', 'password123');
+      // Skip dashboard hop; loginAs already established session
 
-    // Parent: navigate directly to wizard and ensure it loads
-    await ensureWizardLoaded(page, 'parent');
+      // Parent: navigate directly to wizard and ensure it loads
+      await ensureWizardLoaded(page, 'parent');
 
-    // Parent should see the child selector; open and choose "Marie Dupont"
-    const trigger = page.getByTestId('wizard-child-select-trigger');
-    if (await trigger.count()) {
-      await trigger.click();
-      // Select option by visible text (Radix Select renders a listbox/option)
-      const option = page.getByRole('option', { name: /Marie\s+Dupont/i }).first();
-      if (await option.count()) {
-        await option.click();
-      } else {
-        // Fallback: click by text
-        await page.getByText(/Marie\s+Dupont/i).first().click();
+      // Parent should see the child selector; open and choose "Marie Dupont"
+      const trigger = page.getByTestId('wizard-child-select-trigger');
+      if (await trigger.count()) {
+        await trigger.click();
+        // Select option by visible text (Radix Select renders a listbox/option)
+        const option = page.getByRole('option', { name: /Marie\s+Dupont/i }).first();
+        if (await option.count()) {
+          await option.click();
+        } else {
+          // Fallback: click by text
+          await page.getByText(/Marie\s+Dupont/i).first().click();
+        }
+        // Ensure the trigger now shows the selected child
+        await expect(trigger).toContainText(/Marie\s+Dupont/i, { timeout: 5000 });
       }
-      // Ensure the trigger now shows the selected child
-      await expect(trigger).toContainText(/Marie\s+Dupont/i, { timeout: 5000 });
-    }
 
-    await completeQcmStep(page);
-    await completePedagoStep(page);
-    await submitAndVerifyPdf(page);
+      await test.step('Complete QCM', async () => {
+        await completeQcmStep(page);
+      });
+      await test.step('Complete Pedago and compute results', async () => {
+        await completePedagoStep(page);
+      });
+      await test.step('Submit and verify PDFs', async () => {
+        await submitAndVerifyPdf(page);
+      });
+    } finally {
+      await cap.attach('console.parent.json');
+    }
   });
 });

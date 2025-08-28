@@ -1,21 +1,7 @@
 import { Providers } from "@/components/providers";
 import 'katex/dist/katex.min.css';
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Nexus Réussite - Pédagogie Augmentée",
@@ -30,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${inter.variable} ${poppins.variable} antialiased bg-white text-bleu-nuit`}>
+      <body className={`antialiased bg-white text-bleu-nuit`}>
         <Providers>
           {children}
         </Providers>

@@ -1,8 +1,8 @@
+import { prisma } from '@/lib/prisma';
 import { Subject } from '@prisma/client';
 import OpenAI from 'openai';
-import { prisma } from './prisma';
 
-function getOpenAI(): { chat: { completions: { create: (args: any) => Promise<{ choices: { message: { content: string } }[] }> } } } {
+function getOpenAI(): { chat: { completions: { create: (args: any) => Promise<{ choices: { message: { content: string; }; }[]; }>; }; }; } {
   const apiKey = process.env.OPENAI_API_KEY;
   if (apiKey && apiKey.trim().length > 0) {
     const client = new OpenAI({ apiKey });
@@ -112,10 +112,11 @@ export async function generateAriaResponse(
 
     // Appel à OpenAI
     const completion = await getOpenAI().chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages,
       max_tokens: 1000,
-      temperature: 0.7
+      temperature: 0.7,
+      user: studentId ? `student:${studentId}` : undefined,
     });
 
     return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';

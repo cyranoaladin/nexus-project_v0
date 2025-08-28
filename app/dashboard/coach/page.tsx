@@ -110,7 +110,7 @@ export default function DashboardCoach() {
               <div className="flex items-center space-x-2">
                 <BookOpen className="w-8 h-8 text-blue-600" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-gray-900" data-testid="coach-dashboard-title">
                     {data?.coach.pseudonym || session?.user.firstName}
                   </h1>
                   <p className="text-sm text-gray-500">Espace Coach</p>
@@ -148,6 +148,7 @@ export default function DashboardCoach() {
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-gray-600 hover:text-gray-900"
+              data-testid="logout-button"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion

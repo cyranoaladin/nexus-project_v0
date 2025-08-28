@@ -5,17 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-export default function QCMSeconde({ answers, onChange, onNext }: { answers: Record<string, any>; onChange: (a: any) => void; onNext: () => void; }) {
+export default function QCMSeconde({ answers, onChange, onNext, questions }: { answers: Record<string, any>; onChange: (a: any) => void; onNext: () => void; questions?: typeof QCM_QUESTIONS; }) {
   const setAnswer = (id: string, value: any) => onChange({ ...answers, [id]: value });
+  const qs = questions || QCM_QUESTIONS;
 
   return (
     <div className="space-y-4" data-testid="wizard-qcm">
       <Card className="border border-slate-200">
         <CardHeader>
-          <CardTitle className="text-base">Volet 1 — QCM Seconde (démo)</CardTitle>
+          <CardTitle className="text-base">Volet 1 — QCM (démo)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {QCM_QUESTIONS.map((q) => (
+          {qs.map((q) => (
             <div key={q.id} className="space-y-2 p-3 rounded-md bg-white border">
               <div className="text-sm font-medium">{q.id}. {q.prompt}</div>
               {q.type === "single" ? (

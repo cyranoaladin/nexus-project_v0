@@ -41,12 +41,16 @@ export default function ResultsPanel({ result, onPrev, onSubmit }: { result: any
       <div className="flex flex-wrap gap-3 justify-between">
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => onPrev()}>Précédent</Button>
-          <Button onClick={() => onSubmit({ emailStudent: true, emailParent: true })}>Enregistrer & Envoyer par e‑mail</Button>
+          <Button data-testid="bilan-submit" onClick={() => onSubmit({ emailStudent: true, emailParent: true })}>Enregistrer & Envoyer par e‑mail</Button>
         </div>
         {downloadHref ? (
-          <a className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={downloadHref} target="_blank" rel="noreferrer">Télécharger PDF</a>
+          <div className="flex items-center gap-2 flex-wrap">
+            <a data-testid="bilan-pdf-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={downloadHref} target="_blank" rel="noreferrer">PDF Standard</a>
+            <a data-testid="bilan-pdf-parent-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={`${downloadHref}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+            <a data-testid="bilan-pdf-eleve-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={`${downloadHref}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+          </div>
         ) : (
-          <span className="text-sm text-gray-500">PDF disponible après enregistrement</span>
+          <span data-testid="bilan-pdf-pending" className="text-sm text-gray-500">PDF disponible après enregistrement</span>
         )}
       </div>
     </div>

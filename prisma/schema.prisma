@@ -80,6 +80,12 @@ model Bilan {
   studentId     String
   student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  // Métadonnées bilan
+  subject       String?   // MATHEMATIQUES, etc.
+  niveau        String?   // Premiere, Terminale
+  statut        String?   // scolarise_fr, candidat_libre, etc.
+
+  // Données du bilan
   qcmRaw        Json
   qcmScores     Json     // { total, totalMax, byDomain: {points,max,percent} }
   pedagoRaw     Json

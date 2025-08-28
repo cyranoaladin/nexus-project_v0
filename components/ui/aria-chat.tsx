@@ -405,7 +405,7 @@ export function AriaChat() {
                   )}
 
                   {showSubscriptionPrompt && (
-                    <div className="bg-yellow-100 border border-yellow-200 rounded-xl p-6 text-center">
+                    <div className="bg-yellow-100 border border-yellow-200 rounded-xl p-6 text-center" data-testid="subscription-prompt">
                       <p className="text-sm text-yellow-800 mb-4 font-medium">
                         Votre limite quotidienne d'utilisation de l'IA a été atteinte.
                         <br />

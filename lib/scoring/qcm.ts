@@ -6,7 +6,7 @@ export type DomainScore = { points: number; max: number; percent: number };
 export type QcmScore = {
   total: number;
   totalMax: number;
-  byDomain: Record<DomainKey, DomainScore>;
+  byDomain: Record<string, DomainScore>;
 };
 
 function normalizeFree(v: string | string[] | undefined): string {

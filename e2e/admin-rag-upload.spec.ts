@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole } from './helpers';
 
 test.describe('Admin RAG Upload', () => {
   test('parse metadata and ingest document', async ({ page, browserName, context }) => {
+    const cap = captureConsole(page, test.info());
     await loginAs(page, 'admin@nexus.com');
     try { await page.goto('/dashboard/admin/rag-management', { waitUntil: 'domcontentloaded' }); } catch {}
     try { await page.waitForURL('**/dashboard/admin/rag-management', { timeout: 15000 }); } catch {}
@@ -45,6 +46,7 @@ test.describe('Admin RAG Upload', () => {
       buffer: Buffer.from(mdContent, 'utf-8')
     });
 
+    await expect(page.getByTestId('rag-analyse')).toBeEnabled({ timeout: 15000 });
     await page.getByTestId('rag-analyse').click();
 
     await expect(page.getByTestId('rag-meta-titre')).toHaveValue('Suites numériques');
@@ -58,5 +60,6 @@ test.describe('Admin RAG Upload', () => {
 
     await page.getByTestId('rag-ingest').click();
     await expect(page.getByText('Document ingéré avec succès')).toBeVisible();
+    await cap.attach('console.admin.rag.upload.json');
   });
 });

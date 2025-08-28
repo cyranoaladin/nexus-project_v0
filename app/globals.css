@@ -3,6 +3,9 @@
 :root {
   --background: #FFFFFF;
   --foreground: #0F172A;
+  /* Offline-safe local font fallbacks */
+  --font-inter: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-poppins: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 @theme inline {

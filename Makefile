@@ -32,3 +32,4 @@ seed:
 
 restart:
 	$(COMPOSE) up -d --force-recreate
+

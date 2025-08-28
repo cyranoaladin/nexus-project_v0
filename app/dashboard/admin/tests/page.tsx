@@ -230,7 +230,7 @@ export default function AdminTestsPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tests Système</h1>
+          <h1 className="text-2xl font-bold text-gray-900" data-testid="admin-tests-header">Tests Système</h1>
           <p className="text-gray-600 text-sm">Diagnostic rapide des composants critiques</p>
         </div>
 

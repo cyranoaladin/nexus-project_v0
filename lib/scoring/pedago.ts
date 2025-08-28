@@ -46,7 +46,7 @@ export function analyzePedago(a: PedagoAnswers): PedagoProfile {
 }
 
 export type DomainSynthesis = {
-  domain: DomainKey;
+  domain: string;
   percent: number;
 };
 
@@ -60,7 +60,8 @@ export type FinalSynthesis = {
 
 export function synthesize(
   domains: DomainSynthesis[],
-  pedago: PedagoProfile
+  pedago: PedagoProfile,
+  opts?: { statut?: string }
 ): FinalSynthesis {
   const forces = domains.filter(d => d.percent >= 75).map(d => d.domain);
   const faiblesses = domains.filter(d => d.percent < 50).map(d => d.domain);
@@ -81,20 +82,36 @@ export function synthesize(
     );
   }
 
-  // Règles simples d’offre
-  let primary = "Cortex"; // autonome & homogène
-  const alternatives: string[] = ["Studio Flex"];
-  let reasoning = "Profil équilibré recommandé pour Cortex (autonomie) et Studio Flex en renfort.";
-
+  // Règles de décision (matrice Nexus)
   const avg = domains.reduce((s, d) => s + d.percent, 0) / Math.max(1, domains.length);
-  if (faiblesses.length >= 2 || avg < 55) {
+  const weak = faiblesses.length;
+  const autonomieFaible = pedago.expectations?.includes('guidage') || pedago.expectations?.includes('suivi');
+  const motivationFaible = (pedago.motivation || '').toLowerCase().includes('faible');
+
+  let primary = "Cortex";
+  const alternatives: string[] = [];
+  let reasoning = "Profil autonome et homogène: Cortex (IA 24/7) recommandé.";
+
+  if ((opts?.statut || '').toLowerCase().includes('candidat')) {
+    primary = "Odyssée Candidat Libre";
+    reasoning = "Statut candidat libre: besoin d’un cadre complet qui remplace le lycée.";
+    alternatives.push("Académies");
+  } else if (avg >= 70 && weak <= 1 && !autonomieFaible) {
+    primary = "Cortex";
+    alternatives.push("Académies");
+    reasoning = "Très bon niveau et autonomie: Cortex convient; Académies pour perfectionnement ciblé.";
+  } else if (avg >= 55 && weak <= 2 && !motivationFaible) {
+    primary = "Studio Flex";
+    alternatives.push("Cortex", "Académies");
+    reasoning = "Niveau correct avec 1–2 lacunes: Studio Flex en renfort ciblé, Cortex/Académies en complément.";
+  } else if (avg >= 40 && weak >= 2) {
     primary = "Académies";
     alternatives.push("Odyssée");
-    reasoning = "Plusieurs domaines fragiles: accompagnement intensif via Académies. Odyssée si objectif mention/Parcoursup.";
-  } else if (faiblesses.length === 1 || avg < 65) {
-    primary = "Studio Flex";
-    alternatives.push("Académies");
-    reasoning = "Une ou deux lacunes ciblées: Studio Flex pour interventions ponctuelles. Académies si besoin d’intensif.";
+    reasoning = "Plusieurs faiblesses: stage intensif Académies; Odyssée si projet mention/Parcoursup.";
+  } else if (avg < 55 || autonomieFaible || motivationFaible) {
+    primary = "Odyssée";
+    alternatives.push("Studio Flex");
+    reasoning = "Besoin d’un suivi structurant: Odyssée recommandé, Flex pour renfort ponctuel.";
   }
 
   return { forces, faiblesses, risques, feuilleDeRoute, offers: { primary, alternatives, reasoning } };

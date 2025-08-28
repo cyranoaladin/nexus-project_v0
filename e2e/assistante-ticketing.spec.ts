@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { loginAs } from './helpers';
+import { loginAs, captureConsole } from './helpers';
 
 test.describe('Assistante ticketing', () => {
   test('Assistante dashboard opens and can access support/tickets area', async ({ page, browserName }) => {
+    const cap = captureConsole(page, test.info());
     test.skip(browserName === 'firefox', 'Stabilisation Firefox: variations d’UI/heading non déterministes');
     test.slow();
     await loginAs(page, 'assistante@nexus.com', 'password123');
@@ -37,5 +38,6 @@ test.describe('Assistante ticketing', () => {
       await expect(page.locator('input[type="email"]')).toBeVisible();
       await expect(page.locator('input[type="password"]')).toBeVisible();
     }
+    await cap.attach('console.assistante.ticketing.json');
   });
 });

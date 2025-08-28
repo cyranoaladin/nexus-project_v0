@@ -4,9 +4,19 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import QCMSeconde from "./QCMSeconde";
 import PedagoSurvey from "./PedagoSurvey";
+import PedagoSurveyNSI from "./PedagoSurveyNSI";
 import ResultsPanel from "./ResultsPanel";
 import { scoreQCM } from "@/lib/scoring/qcm";
 import { analyzePedago, synthesize } from "@/lib/scoring/pedago";
+import { QCM_PREMIERE_QUESTIONS } from "@/lib/scoring/premiere";
+import { QCM_TERMINALE_QUESTIONS } from "@/lib/scoring/terminale";
+import { QCM_NSI_PREMIERE_QUESTIONS } from "@/lib/scoring/premiere_nsi";
+import { QCM_NSI_TERMINALE_QUESTIONS } from "@/lib/scoring/terminale_nsi";
+import { buildPdfPayloadNSIPremiere } from "@/lib/scoring/adapter_nsi_premiere";
+import { buildPedagoPayloadNSIPremiere } from "@/lib/scoring/adapter_nsi_pedago";
+import { buildPdfPayloadNSITerminale } from "@/lib/scoring/adapter_nsi_terminale";
+import nsiSurveyPremiere from "@/data/pedago_survey_nsi_premiere.json";
+import nsiSurveyTerminale from "@/data/pedago_survey_nsi_terminale.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,6 +30,9 @@ export default function BilanWizard() {
   const [pedagoAnswers, setPedagoAnswers] = useState<any>({});
   const [result, setResult] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subject, setSubject] = useState<string>('MATHEMATIQUES');
+  const [niveau, setNiveau] = useState<string>('Premiere');
+  const [statut, setStatut] = useState<string>('scolarise_fr');
   const studentId = (session?.user as any)?.studentId as string | undefined;
   const [children, setChildren] = useState<{ id: string; firstName?: string; lastName?: string }[]>([]);
   const [targetStudentId, setTargetStudentId] = useState<string | undefined>(studentId);
@@ -62,13 +75,53 @@ export default function BilanWizard() {
   const next = () => setStep((s) => (s < 3 ? ((s + 1) as 1 | 2 | 3) : s));
   const prev = () => setStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s));
 
+  const currentQuestions = subject === 'NSI'
+    ? (niveau === 'Premiere' ? QCM_NSI_PREMIERE_QUESTIONS : QCM_NSI_TERMINALE_QUESTIONS)
+    : (niveau === 'Terminale' ? QCM_TERMINALE_QUESTIONS : QCM_PREMIERE_QUESTIONS);
+
   const compute = () => {
-    const qcmScores = scoreQCM(qcmAnswers);
+    // Branche NSI Première
+    if (subject === 'NSI' && niveau === 'Premiere') {
+      const qcmScores = scoreQCM(qcmAnswers, QCM_NSI_PREMIERE_QUESTIONS as any);
+      const pedago = buildPedagoPayloadNSIPremiere((nsiSurveyPremiere as any), pedagoAnswers || {});
+      const qcmPayload = buildPdfPayloadNSIPremiere(qcmScores as any);
+      const synthesis = {
+        forces: qcmPayload.forces,
+        faiblesses: qcmPayload.faiblesses,
+        feuilleDeRoute: qcmPayload.feuilleDeRoute,
+        risques: pedago.pedagoProfile?.flags || [],
+        offers: qcmPayload.offers,
+      };
+      const offers = qcmPayload.offers;
+      setResult({ qcmScores, pedagoProfile: pedago.pedagoProfile, pedagoScores: pedago.pedagoScores, pedagoModality: pedago.pedagoModality, synthesis, offers, meta: { subject, niveau, statut } });
+      setStep(3);
+      return;
+    }
+    // Branche NSI Terminale
+    if (subject === 'NSI' && niveau === 'Terminale') {
+      const qcmScores = scoreQCM(qcmAnswers, QCM_NSI_TERMINALE_QUESTIONS as any);
+      const pedago = buildPedagoPayloadNSIPremiere((nsiSurveyTerminale as any), pedagoAnswers || {});
+      const qcmPayload = buildPdfPayloadNSITerminale(qcmScores as any);
+      const synthesis = {
+        forces: qcmPayload.forces,
+        faiblesses: qcmPayload.faiblesses,
+        feuilleDeRoute: qcmPayload.feuilleDeRoute,
+        risques: pedago.pedagoProfile?.flags || [],
+        offers: qcmPayload.offers,
+      };
+      const offers = qcmPayload.offers;
+      setResult({ qcmScores, pedagoProfile: pedago.pedagoProfile, pedagoScores: pedago.pedagoScores, pedagoModality: pedago.pedagoModality, synthesis, offers, meta: { subject, niveau, statut } });
+      setStep(3);
+      return;
+    }
+
+    // Branche Maths existante
+    const qcmScores = scoreQCM(qcmAnswers, currentQuestions as any);
     const pedagoProfile = analyzePedago(pedagoAnswers || {});
     const domains = Object.entries(qcmScores.byDomain).map(([domain, ds]: any) => ({ domain, percent: ds.percent }));
-    const synthesis = synthesize(domains as any, pedagoProfile);
+    const synthesis = synthesize(domains as any, pedagoProfile, { statut });
     const offers = synthesis.offers;
-    setResult({ qcmScores, pedagoProfile, synthesis, offers });
+    setResult({ qcmScores, pedagoProfile, synthesis, offers, meta: { subject, niveau, statut } });
     setStep(3);
   };
 
@@ -86,6 +139,9 @@ export default function BilanWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           studentId: sid || 'E2E_FAKE_STUDENT_ID',
+          subject,
+          niveau,
+          statut,
           qcmRaw: qcmAnswers,
           pedagoRaw: pedagoAnswers,
           qcmScores: result.qcmScores,
@@ -113,9 +169,45 @@ export default function BilanWizard() {
       <div data-testid="wizard-step-indicator" className="sr-only">{step}</div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Bilan gratuit — Entrée en Première</CardTitle>
+          <CardTitle className="text-lg">Bilan gratuit — Entrée en {niveau}</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Métadonnées sujet/niveau/statut */}
+          <div className="mb-4 p-4 border rounded bg-slate-50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <Label>Matière</Label>
+                <Select value={subject} onValueChange={setSubject}>
+                  <SelectTrigger className="w-full" data-testid="wizard-subject"><SelectValue placeholder="Matière" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MATHEMATIQUES">Mathématiques</SelectItem>
+                  <SelectItem value="NSI">NSI</SelectItem>
+                </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Niveau</Label>
+                <Select value={niveau} onValueChange={setNiveau}>
+                  <SelectTrigger className="w-full" data-testid="wizard-niveau"><SelectValue placeholder="Niveau" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Premiere">Première</SelectItem>
+                    <SelectItem value="Terminale">Terminale</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Statut</Label>
+                <Select value={statut} onValueChange={setStatut}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Statut" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="scolarise_fr">Scolarisé (enseignement FR)</SelectItem>
+                    <SelectItem value="candidat_libre">Candidat libre</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
           {/* Parent/selector banner */}
           {(!studentId || role === 'PARENT') && (
             <div className="mb-4 p-4 border rounded bg-yellow-50">
@@ -142,10 +234,20 @@ export default function BilanWizard() {
           )}
 
           {step === 1 && (
-            <QCMSeconde answers={qcmAnswers} onChange={setQcmAnswers} onNext={() => next()} />
+            <QCMSeconde answers={qcmAnswers} onChange={setQcmAnswers} onNext={() => next()} questions={currentQuestions as any} />
           )}
           {step === 2 && (
-            <PedagoSurvey answers={pedagoAnswers} onChange={setPedagoAnswers} onPrev={() => prev()} onNext={() => compute()} />
+            subject === 'NSI' ? (
+              <PedagoSurveyNSI
+                answers={pedagoAnswers}
+                survey={niveau === 'Premiere' ? (nsiSurveyPremiere as any) : (nsiSurveyTerminale as any)}
+                onChange={setPedagoAnswers}
+                onPrev={() => prev()}
+                onNext={() => compute()}
+              />
+            ) : (
+              <PedagoSurvey answers={pedagoAnswers} onChange={setPedagoAnswers} onPrev={() => prev()} onNext={() => compute()} />
+            )
           )}
           {step === 3 && (
             <ResultsPanel
@@ -161,14 +263,24 @@ export default function BilanWizard() {
           {isSubmitting && <p className="text-sm text-gray-500 mt-2">Enregistrement…</p>}
 
           {isE2E && (
-            <div className="fixed bottom-4 right-4 z-50">
-              <Button
-                data-testid="wizard-primary-next"
-                onClick={() => (step === 1 ? next() : step === 2 ? compute() : undefined)}
-              >
-                E2E Next
-              </Button>
-            </div>
+            <>
+              <div className="fixed bottom-4 right-4 z-50">
+                <Button
+                  data-testid="wizard-primary-next"
+                  onClick={() => (step === 1 ? next() : step === 2 ? compute() : undefined)}
+                >
+                  E2E Next
+                </Button>
+              </div>
+              <div className="fixed bottom-4 left-4 z-50 flex gap-2">
+                <Button size="sm" variant="outline" data-testid="e2e-set-nsi" onClick={() => setSubject('NSI')}>NSI</Button>
+                <Button size="sm" variant="outline" data-testid="e2e-set-maths" onClick={() => setSubject('MATHEMATIQUES')}>Maths</Button>
+                <Button size="sm" variant="outline" data-testid="e2e-set-premiere" onClick={() => setNiveau('Premiere')}>Première</Button>
+                <Button size="sm" variant="outline" data-testid="e2e-set-terminale" onClick={() => setNiveau('Terminale')}>Terminale</Button>
+                <Button size="sm" variant="secondary" data-testid="e2e-goto-pedago" onClick={() => setStep(2)}>Goto Pedago</Button>
+                <Button size="sm" variant="secondary" data-testid="e2e-compute" onClick={() => compute()}>Compute</Button>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
