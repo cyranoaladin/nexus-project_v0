@@ -1,4 +1,6 @@
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
 const base = process.env.BASE_URL || 'http://localhost:3003';
 
