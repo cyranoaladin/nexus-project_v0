@@ -1,15 +1,19 @@
-import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.development' });
 dotenv.config({ path: '.env.local' });
 
 const base = process.env.BASE_URL || 'http://localhost:3003';
+const DEV_TOKEN = process.env.DEV_TOKEN;
+const headers = DEV_TOKEN ? { Authorization: `Bearer ${DEV_TOKEN}` } : {};
 
 async function head(headers) {
   return Object.fromEntries([...headers.entries()].map(([k, v]) => [k.toLowerCase(), v]));
 }
 
 async function fetchPdf(url) {
-  const r = await fetch(url);
+  const r = await fetch(url, { headers });
   const h = await head(r.headers);
   const buf = Buffer.from(await r.arrayBuffer());
   return { status: r.status, contentType: h['content-type'], size: buf.length };
@@ -31,5 +35,3 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(2); });
-
-
