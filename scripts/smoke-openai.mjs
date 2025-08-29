@@ -1,5 +1,15 @@
 import OpenAI from 'openai';
-import { selectModel } from '../lib/aria/openai.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
+function selectModel() {
+  const env = process.env.NODE_ENV || 'development';
+  if (env === 'production') {
+    if (!process.env.OPENAI_MODEL) throw new Error('OPENAI_MODEL required in production');
+    return String(process.env.OPENAI_MODEL);
+  }
+  return process.env.OPENAI_MODEL || 'gpt-latest';
+}
 
 async function main() {
   const apiKey = process.env.OPENAI_API_KEY;
