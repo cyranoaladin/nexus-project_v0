@@ -18,6 +18,16 @@ const chatRequestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Validation ENV au démarrage (mode, clés, etc.)
+    try {
+      const { validateAriaEnv, computeAriaMode } = await import('@/lib/aria/env-validate');
+      validateAriaEnv();
+      const mode = computeAriaMode();
+      console.log(`[ARIA][Boot] mode=${mode}`);
+    } catch (e) {
+      console.error('[ARIA][ENV] Validation failed:', e);
+      return NextResponse.json({ error: 'Configuration invalide: ' + String((e as any)?.message || e) }, { status: 500 });
+    }
     // Rate limit (IP + route)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const { rateLimit } = await import('@/lib/rate-limit');
@@ -26,7 +36,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
     }
 
-    const session = await getServerSession(authOptions);
+    let session = await getServerSession(authOptions);
+    // E2E bypass: désactivé en mode live (ARIA_LIVE=1)
+    if ((!session?.user?.id || !session.user.studentId || !session.user.parentId)
+      && (process.env.ARIA_LIVE !== '1')
+      && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1')) {
+      const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
+      if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
+      session = {
+        user: { id: 'e2e-user', studentId: first.id, parentId: first.parentId },
+      } as any;
+    }
     if (!session?.user?.id || !session.user.studentId || !session.user.parentId) {
       return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
     }
