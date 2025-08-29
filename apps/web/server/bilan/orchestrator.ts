@@ -3,18 +3,51 @@ import fs from 'fs';
 import Mustache from 'mustache';
 import path from 'path';
 import { openai } from '../openai/client';
+import { selectModel, getFallbackModel } from '../openai/select';
 import { buildMessages } from '../openai/promptBuilders';
 import { BilanOutSchema } from './schema';
 
 export async function generateBilan({ variant, student, qcm, volet2, traceUserId }: any) {
+  if (process.env.TEST_PDF_FAKE === '1' && process.env.ARIA_LIVE !== '1') {
+    const dummy = {
+      intro_text: 'Intro test',
+      diagnostic_text: 'Diagnostic test',
+      profile_text: 'Profil test',
+      roadmap_text: 'Feuille de route test',
+      offers_text: 'Offres test',
+      conclusion_text: 'Conclusion test',
+      table_domain_rows: [
+        { domain: 'Algèbre', points: 8, max: 10, masteryPct: 80, remark: 'OK' },
+        { domain: 'Analyse', points: 7, max: 10, masteryPct: 70 },
+      ],
+    };
+    return BilanOutSchema.parse(dummy);
+  }
   const client = openai();
   const messages = buildMessages({ variant, student, qcm, volet2, outSchema: BilanOutSchema });
-  const resp = await client.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    temperature: 0.3,
-    messages: messages as any,
-    user: traceUserId ? `student:${traceUserId}` : undefined,
-  });
+  let resp: any;
+  const primaryModel = selectModel();
+  const fallbackModel = getFallbackModel();
+  try {
+    resp = await client.chat.completions.create({
+      model: primaryModel,
+      temperature: 0.3,
+      messages: messages as any,
+      user: traceUserId ? `student:${traceUserId}` : undefined,
+    });
+  } catch (err) {
+    if (fallbackModel) {
+      console.warn(`[BILAN][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
+      resp = await client.chat.completions.create({
+        model: fallbackModel,
+        temperature: 0.3,
+        messages: messages as any,
+        user: traceUserId ? `student:${traceUserId}` : undefined,
+      });
+    } else {
+      throw err;
+    }
+  }
   const raw = resp.choices[0]?.message?.content || '{}';
   const jsonText = raw.match(/\{[\s\S]*\}/)?.[0] || '{}';
   const parsed = JSON.parse(jsonText);

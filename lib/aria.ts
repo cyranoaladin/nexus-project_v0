@@ -111,13 +111,32 @@ export async function generateAriaResponse(
     ];
 
     // Appel à OpenAI
-    const completion = await getOpenAI().chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      messages,
-      max_tokens: 1000,
-      temperature: 0.7,
-      user: studentId ? `student:${studentId}` : undefined,
-    });
+    const { selectModel, getFallbackModel } = await import('./aria/openai');
+    const primaryModel = selectModel();
+    const fallbackModel = getFallbackModel();
+    let completion: any;
+    try {
+      completion = await getOpenAI().chat.completions.create({
+        model: primaryModel,
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+        user: studentId ? `student:${studentId}` : undefined,
+      });
+    } catch (primaryErr) {
+      if (fallbackModel) {
+        console.warn(`[ARIA][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
+        completion = await getOpenAI().chat.completions.create({
+          model: fallbackModel,
+          messages,
+          max_tokens: 1000,
+          temperature: 0.7,
+          user: studentId ? `student:${studentId}` : undefined,
+        });
+      } else {
+        throw primaryErr;
+      }
+    }
 
     return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
 
