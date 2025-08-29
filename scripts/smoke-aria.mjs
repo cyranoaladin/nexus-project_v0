@@ -10,7 +10,16 @@ const headers = DEV_TOKEN ? { Authorization: `Bearer ${DEV_TOKEN}` } : {};
 
 async function main() {
   const t0 = Date.now();
-  const h = await fetch(`${base}/api/aria/health`, { headers }).then((r) => r.json());
+  // attendre health (10 tentatives)
+  let h;
+  for (let i = 0; i < 10; i++) {
+    try {
+      const r = await fetch(`${base}/api/aria/health`, { headers });
+      if (r.ok) { h = await r.json(); break; }
+    } catch {}
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  if (!h) throw new Error('ARIA health not reachable');
   const t1 = Date.now();
   const t2 = Date.now();
   const chat = await fetch(`${base}/api/aria/chat`, {

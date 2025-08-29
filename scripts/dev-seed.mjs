@@ -3,9 +3,9 @@ config({ path: '.env' });
 config({ path: '.env.development' });
 config({ path: '.env.local' });
 
+import jwt from 'jsonwebtoken';
 import fs from 'node:fs';
 import path from 'node:path';
-import jwt from 'jsonwebtoken';
 
 function issueDevToken(payload, exp = '12h') {
   const secret = process.env.NEXTAUTH_SECRET;
@@ -19,6 +19,17 @@ async function main() {
 
   const { PrismaClient } = await import('@prisma/client');
   const prisma = new PrismaClient();
+
+  // Attendre la disponibilité DB (10 tentatives ~10s)
+  for (let i = 0; i < 10; i++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      break;
+    } catch (e) {
+      if (i === 9) throw new Error('DB not ready after 10s');
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
   try {
     // Admin (service)
     const admin = await prisma.user.upsert({
@@ -99,7 +110,7 @@ async function main() {
       }
     } catch {}
 
-    console.log(JSON.stringify({
+    const out = {
       ok: true,
       wrote_env: wrote,
       admin: { id: admin.id, email: admin.email },
@@ -107,12 +118,16 @@ async function main() {
       student: { id: eleve.id, userId: eleveUser.id, email: eleveUser.email },
       bilans: { bilanA: bilanA.id, bilanB: bilanB.id },
       dev_token: token,
-    }, null, 2));
+    };
+    console.log(JSON.stringify(out, null, 2));
+
+    // Écrire un fichier d’artefact pour les smokes
+    try {
+      fs.writeFileSync(path.join(process.cwd(), '.nexus-seed.json'), JSON.stringify(out, null, 2));
+    } catch {}
   } finally {
     await prisma.$disconnect();
   }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
-
-

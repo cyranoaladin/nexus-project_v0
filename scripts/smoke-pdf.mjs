@@ -20,9 +20,13 @@ async function fetchPdf(url) {
 }
 
 async function main() {
+  // lire seed artefact (optionnel)
+  let seed;
+  try { seed = JSON.parse(require('fs').readFileSync('.nexus-seed.json','utf8')); } catch {}
+  const studentQuery = seed?.student?.id ? `&studentId=${seed.student.id}` : '';
   const urls = [
-    `${base}/api/bilan/pdf?niveau=premiere&variant=general`,
-    `${base}/api/bilan/pdf?niveau=premiere&variant=parent`,
+    `${base}/api/bilan/pdf?niveau=premiere&variant=general${studentQuery}`,
+    `${base}/api/bilan/pdf?niveau=premiere&variant=parent${studentQuery}`,
   ];
   const out = [];
   for (const u of urls) {
