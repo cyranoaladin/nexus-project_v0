@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    container_name: nexus_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nexus_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_dev"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata_dev:
+
+
