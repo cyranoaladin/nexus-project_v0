@@ -31,7 +31,8 @@
     "docker:logs": "docker-compose logs -f",
     "smoke:openai": "node scripts/smoke-openai.mjs",
     "smoke:aria": "node scripts/smoke-aria.mjs",
-    "smoke:pdf": "node scripts/smoke-pdf.mjs"
+    "smoke:pdf": "node scripts/smoke-pdf.mjs",
+    "dev-seed": "node scripts/dev-seed.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
