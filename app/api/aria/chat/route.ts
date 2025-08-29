@@ -36,19 +36,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
     }
 
-    let session = await getServerSession(authOptions);
-    // E2E bypass: désactivé en mode live (ARIA_LIVE=1)
-    if ((!session?.user?.id || !session.user.studentId || !session.user.parentId)
-      && (process.env.ARIA_LIVE !== '1')
-      && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1')) {
+    const auth = await (await import('@/lib/api/auth')).getAuthFromRequest(req as any);
+    let studentId: string | undefined;
+    let parentId: string | undefined;
+    if (auth?.via === 'dev-token' && process.env.NODE_ENV !== 'production') {
+      // Choisir un élève/parent par défaut en dev
       const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
       if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
-      session = {
-        user: { id: 'e2e-user', studentId: first.id, parentId: first.parentId },
-      } as any;
-    }
-    if (!session?.user?.id || !session.user.studentId || !session.user.parentId) {
-      return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
+      studentId = first.id as any;
+      parentId = first.parentId as any;
+    } else {
+      let session = await getServerSession(authOptions);
+      // E2E bypass: désactivé en mode live (ARIA_LIVE=1)
+      if ((!session?.user?.id || !session.user.studentId || !session.user.parentId)
+        && (process.env.ARIA_LIVE !== '1')
+        && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1')) {
+        const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
+        if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
+        session = {
+          user: { id: 'e2e-user', studentId: first.id, parentId: first.parentId },
+        } as any;
+      }
+      if (!session?.user?.id || !session.user.studentId || !session.user.parentId) {
+        return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
+      }
+      studentId = session.user.studentId as any;
+      parentId = session.user.parentId as any;
     }
 
     // Parsing JSON standard (compatible avec tests)
@@ -66,7 +79,6 @@ export async function POST(req: NextRequest) {
     }
 
     const { message, subject } = parsedBody.data;
-    const { studentId, parentId } = session.user;
 
     // Freemium limit: max 5 requests per day per student
     const today = new Date().toISOString().split('T')[0];
@@ -93,7 +105,7 @@ export async function POST(req: NextRequest) {
     await prisma.student.update({ where: { id: studentId }, data: { freemiumUsage: nextUsage as any } });
 
     // Instancier l'orchestrateur avec la logique moderne
-    const orchestrator = new AriaOrchestrator(studentId, parentId);
+    const orchestrator = new AriaOrchestrator(studentId!, parentId!);
 
     // Gérer la requête de bout en bout
     const { response, documentUrl } = await orchestrator.handleQuery(message, subject);

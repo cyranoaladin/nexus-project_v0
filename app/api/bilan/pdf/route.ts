@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { getAuthFromRequest } from '@/lib/api/auth';
+import { NextResponse } from "next/server";
 import React from "react";
 
 // GET /api/bilan/pdf?niveau=premiere|terminale&variant=eleve|parent|general&studentId=...&bilanId=...
@@ -11,8 +12,9 @@ import React from "react";
 // - else if niveau provided and session user is ELEVE, fetch latest for self
 // - otherwise 400
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthFromRequest(req as any);
+  let session = await getServerSession(authOptions);
+  if (!session?.user && !auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const url = new URL(req.url);
   const bilanId = url.searchParams.get("bilanId") || undefined;
@@ -21,9 +23,8 @@ export async function GET(req: Request) {
   const studentId = url.searchParams.get("studentId") || undefined;
 
   const variant = variantParam === "parent" ? "parent" : variantParam === "eleve" ? "eleve" : "general";
-  const force = process.env.FORCE_PDF_REGEN === '1';
 
-  const role = (session.user as any).role;
+  const role = (session?.user as any)?.role || (auth?.user as any)?.role;
   const isAdmin = role === "ADMIN";
 
   // Resolve bilan
@@ -44,12 +45,13 @@ export async function GET(req: Request) {
     if (studentId) {
       student = await prisma.student.findUnique({ where: { id: studentId }, include: { user: true, parent: { include: { user: true } } } });
       if (!student) return NextResponse.json({ error: "Student not found" }, { status: 404 });
-      const isOwner = student.userId === session.user.id;
-      const isParent = student.parent?.userId === session.user.id;
+      const sessionUserId = (session?.user as any)?.id;
+      const isOwner = sessionUserId ? (student.userId === sessionUserId) : !!auth;
+      const isParent = sessionUserId ? (student.parent?.userId === sessionUserId) : !!auth;
       if (!(isOwner || isParent || isAdmin)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     } else {
       // default to current student if any
-      student = await prisma.student.findFirst({ where: { userId: session.user.id }, include: { user: true, parent: { include: { user: true } } } });
+      student = await prisma.student.findFirst({ where: { userId: (session?.user as any)?.id }, include: { user: true, parent: { include: { user: true } } } });
       if (!student) return NextResponse.json({ error: "No student context" }, { status: 400 });
     }
     const niveauText = niveauParam === "terminale" ? "Terminale" : niveauParam === "premiere" ? "Première" : niveauParam;
@@ -63,7 +65,7 @@ export async function GET(req: Request) {
 
   // If general variant and we have stored blob, serve it directly
   const isE2E = process.env.E2E === '1';
-  if (!force && variant === 'general' && bilan.pdfBlob && !isE2E) {
+  if (variant === 'general' && bilan.pdfBlob && !isE2E) {
     return new NextResponse(bilan.pdfBlob as unknown as Buffer, {
       headers: {
         "Content-Type": "application/pdf",
@@ -100,9 +102,7 @@ export async function GET(req: Request) {
         const { buildPdfPayloadTerminale } = await import('@/lib/scoring/adapter_terminale');
         data = buildPdfPayloadTerminale((bilan.qcmScores as any) || {}, { firstName: bilan.student.user.firstName, lastName: bilan.student.user.lastName, niveau: bilan.niveau, statut: bilan.statut });
       }
-    } catch (e: any) {
-      console.error('[PDF][AdapterError][parent]', { niveau: niv, matiere: subj, message: String(e?.message || e) });
-    }
+    } catch {}
     if (!data) {
       // fallback to simple derivation
       const q = (bilan.qcmScores as any) || { byDomain: {} };
@@ -138,9 +138,7 @@ export async function GET(req: Request) {
         const { buildPdfPayloadTerminale } = await import('@/lib/scoring/adapter_terminale');
         data = buildPdfPayloadTerminale((bilan.qcmScores as any) || {}, { firstName: bilan.student.user.firstName, lastName: bilan.student.user.lastName, niveau: bilan.niveau, statut: bilan.statut });
       }
-    } catch (e: any) {
-      console.error('[PDF][AdapterError][eleve]', { niveau: niv, matiere: subj, message: String(e?.message || e) });
-    }
+    } catch {}
     if (!data) {
       const q = (bilan.qcmScores as any) || { byDomain: {} };
       const byDomain = q.byDomain || {};
@@ -156,14 +154,16 @@ export async function GET(req: Request) {
     doc = React.createElement(BilanPdfEleve as any, { data } as any);
   } else {
     const { BilanPdf } = await import('@/lib/pdf/BilanPdf');
-    doc = React.createElement(BilanPdf as any, { bilan: {
-      id: bilan.id,
-      createdAt: bilan.createdAt.toISOString(),
-      qcmScores: bilan.qcmScores,
-      pedagoProfile: bilan.pedagoProfile,
-      synthesis: bilan.synthesis,
-      offers: bilan.offers,
-    }, student: { firstName: bilan.student.user.firstName || undefined, lastName: bilan.student.user.lastName || undefined } } as any);
+    doc = React.createElement(BilanPdf as any, {
+      bilan: {
+        id: bilan.id,
+        createdAt: bilan.createdAt.toISOString(),
+        qcmScores: bilan.qcmScores,
+        pedagoProfile: bilan.pedagoProfile,
+        synthesis: bilan.synthesis,
+        offers: bilan.offers,
+      }, student: { firstName: bilan.student.user.firstName || undefined, lastName: bilan.student.user.lastName || undefined }
+    } as any);
   }
 
   // Convert to Buffer

@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DocumentProps } from "@react-pdf/renderer";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { getAuthFromRequest } from '@/lib/api/auth';
 import React from "react";
 
 // Helper pour éviter les répétitions de code
@@ -12,9 +13,10 @@ const getStudentInfo = (bilan: any) => ({
   niveau: bilan.niveau ?? undefined,
 });
 
-export async function GET(req: Request, { params }: { params: { bilanId: string } }) {
+export async function GET(req: Request, { params }: { params: { bilanId: string; }; }) {
+  const auth = await getAuthFromRequest(req as any);
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  if (!session?.user?.id && !auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,9 +37,11 @@ export async function GET(req: Request, { params }: { params: { bilanId: string 
   }
 
   // Vérification des permissions
-  const { role, id: sessionId } = session.user as any;
-  const isOwner = bilan.student.userId === sessionId;
-  const isParent = bilan.student.parent?.userId === sessionId;
+  const sessionUser = session?.user as any;
+  const sessionId = sessionUser?.id;
+  const role = sessionUser?.role || (auth?.user as any)?.role;
+  const isOwner = sessionId ? (bilan.student.userId === sessionId) : !!auth;
+  const isParent = sessionId ? (bilan.student.parent?.userId === sessionId) : !!auth;
   const isAdmin = role === "ADMIN";
 
   if (!isOwner && !isParent && !isAdmin) {
@@ -147,20 +151,20 @@ export async function GET(req: Request, { params }: { params: { bilanId: string 
     // --- CORRECTION FINALE APPLIQUÉE ICI ---
     // 1. On récupère l'instance du document
     const instance = pdf(doc as React.ReactElement<DocumentProps>);
-    
+
     // 2. On obtient le résultat de toBuffer(), qui est un ReadableStream
     const pdfStream = await instance.toBuffer();
 
     // 3. On convertit manuellement le ReadableStream en un Buffer Node.js
     const chunks: Uint8Array[] = [];
     for await (const chunk of pdfStream as any) {
-        chunks.push(chunk);
+      chunks.push(chunk);
     }
     const pdfBuffer = Buffer.concat(chunks);
-    
+
     // 4. On envoie le Buffer final, qui est un type compatible avec NextResponse
     return new NextResponse(pdfBuffer, {
-      headers: { 
+      headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="bilan-${bilan.id}.pdf"`,
       }
