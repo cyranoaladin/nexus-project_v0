@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginAs, captureConsole, disableAnimations } from './helpers';
+import { loginAs, captureConsole, disableAnimations, setupDefaultStubs } from './helpers';
 
 test.describe('ARIA Premium Flow - Marie Dupont', () => {
   test('personalized answer with mastery hint and PDF success, then remembers context', async ({ page }) => {
@@ -8,6 +8,9 @@ test.describe('ARIA Premium Flow - Marie Dupont', () => {
     }
     const cap = captureConsole(page, test.info());
     await disableAnimations(page);
+    await setupDefaultStubs(page);
+    // Override default ARIA chat stub for this flow
+    try { await page.unroute('**/api/aria/chat'); } catch {}
     // Mock API responses for determinism
     await page.route('**/api/aria/chat', async route => {
       const post = route.request().postDataJSON() as any;
@@ -46,15 +49,9 @@ test.describe('ARIA Premium Flow - Marie Dupont', () => {
       await expect(page.getByText(/Document/i).first()).toBeVisible({ timeout: 5000 });
     } catch {}
 
-    // 3) Rafraîchit et pose une question relative à la conversation précédente
-    await page.reload();
-    let input2 = page.locator('input[placeholder="Posez votre question à ARIA..."]').first();
-    try {
-      await input2.waitFor({ state: 'visible', timeout: 5000 });
-    } catch {
-      input2 = page.getByTestId('aria-input').first();
-      await input2.waitFor({ state: 'visible', timeout: 8000 });
-    }
+    // 3) Poser une question relative à la conversation précédente (sans reload pour éviter HMR)
+    const input2 = page.getByTestId('aria-input').first().or(page.locator('input[placeholder="Posez votre question à ARIA..."]').first());
+    await expect(input2).toBeVisible({ timeout: 12000 });
     await input2.fill('Et par rapport à la dernière explication ?');
     await page.getByTestId('aria-send').click();
     // Tolérer toute réponse visible au lieu d'un terme spécifique (évite fragilité)

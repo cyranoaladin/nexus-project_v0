@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
 
     // Vérification de la signature (sécurité)
-    const signatureHeader = request.headers.get('x-konnect-signature') || request.headers.get('X-Konnect-Signature');
+    const signatureHeader = (request.headers as any).get?.('x-konnect-signature') || (request.headers as any).get?.('X-Konnect-Signature');
     const secret = process.env.KONNECT_WEBHOOK_SECRET;
 
     if (!secret || !signatureHeader) {
@@ -27,20 +27,25 @@ export async function POST(request: NextRequest) {
       .update(rawBody, 'utf8')
       .digest('hex');
 
-    if (!safeEqual(signatureHeader, computed)) {
+    if (!safeEqual(String(signatureHeader), computed)) {
       return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
     }
 
     const body = JSON.parse(rawBody);
 
     // Validation basique du webhook Konnect
-    const { payment_id, status, amount, currency } = body;
+    const { payment_id, status } = body;
 
     if (!payment_id || !status) {
       return NextResponse.json(
         { error: 'Données webhook invalides' },
         { status: 400 }
       );
+    }
+
+    const idempotencyKey: string = String(body.transaction_id || payment_id || '').trim();
+    if (!idempotencyKey) {
+      return NextResponse.json({ error: 'Clé idempotente manquante' }, { status: 400 });
     }
 
     // Récupérer le paiement
@@ -66,17 +71,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const existingProcessed: string[] = Array.isArray((payment.metadata as any)?.processedKeys)
+      ? ((payment.metadata as any).processedKeys as string[])
+      : [];
+
+    // Idempotence: déjà traité ?
+    if (existingProcessed.includes(idempotencyKey)) {
+      return NextResponse.json({ success: true, idempotent: true });
+    }
+
     if (status === 'completed') {
-      // Mettre à jour le statut du paiement
+      // Mettre à jour le statut du paiement + marquer la clé comme traitée
+      const nextMetaCompleted = {
+        ...((payment.metadata as Record<string, any>) || {}),
+        konnectTransactionId: body.transaction_id || payment_id,
+        completedAt: new Date().toISOString(),
+        processedKeys: [...existingProcessed, idempotencyKey],
+      } as any;
+
       await prisma.payment.update({
         where: { id: payment_id },
         data: {
           status: 'COMPLETED',
-          metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            konnectTransactionId: body.transaction_id || payment_id,
-            completedAt: new Date().toISOString()
-          }
+          metadata: nextMetaCompleted as any,
         }
       });
 
@@ -161,10 +178,17 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({ success: true });
     } else if (status === 'failed') {
-      // Mettre à jour le statut du paiement
+      const nextMetaFailed = {
+        ...((payment.metadata as Record<string, any>) || {}),
+        konnectTransactionId: body.transaction_id || payment_id,
+        failedAt: new Date().toISOString(),
+        processedKeys: [...existingProcessed, idempotencyKey],
+      } as any;
+
+      // Mettre à jour le statut du paiement + marquer traité
       await prisma.payment.update({
         where: { id: payment_id },
-        data: { status: 'FAILED' }
+        data: { status: 'FAILED', metadata: nextMetaFailed as any }
       });
 
       return NextResponse.json({ success: true });

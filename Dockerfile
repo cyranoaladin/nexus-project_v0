@@ -14,9 +14,8 @@ RUN apk add --no-cache openssl
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# On installe TOUTES les dépendances, y compris les devDependencies, car nous en avons besoin pour le build.
-# Ajout d'un timeout plus long pour les réseaux instables et utilisation de 'npm install'.
-RUN npm install --network-timeout=1000000
+# Installer toutes les dépendances avec npm ci pour des builds reproductibles
+RUN npm ci --no-audit --no-fund --network-timeout=1000000
 
 
 # === ÉTAPE 3: Construction de l'Application (Build) ===
@@ -51,7 +50,7 @@ RUN addgroup -S nodejs || true && adduser -S node -G nodejs || true
 
 # [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
 COPY --from=builder /app/package.json /app/package-lock.json* ./
-RUN npm install --omit=dev --network-timeout=1000000 \
+RUN npm ci --omit=dev --no-audit --no-fund --network-timeout=1000000 \
   && npm install prisma tsx --no-save --network-timeout=1000000
 
 # On copie les artefacts de build depuis l'étape "builder".

@@ -267,3 +267,69 @@ export async function installDefaultNetworkStubs(
     } catch {}
   }
 }
+
+// Comprehensive default stubs for dashboards and common endpoints
+export async function setupDefaultStubs(page: Page) {
+  try {
+    // Student/Eleve dashboard
+    const studentPayload = {
+      student: { id: 's1', name: 'Marie Dupont' },
+      credits: { balance: 8 },
+      nextSession: null,
+      recentSessions: [],
+      ariaStats: { totalConversations: 3 },
+    };
+    await page.route('**/api/student/dashboard', async route => {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(studentPayload) });
+    });
+    await page.route('**/api/eleve/dashboard', async route => {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(studentPayload) });
+    });
+  } catch {}
+
+  try {
+    // Coach dashboard
+    await page.route('**/api/coach/dashboard', async route => {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          coach: { id: 'c1', pseudonym: 'Hélios', specialties: ['Mathématiques'] },
+          stats: { todaySessions: 0, weekSessions: 0, totalStudents: 0 },
+          weekStats: { totalSessions: 0, completedSessions: 0, upcomingSessions: 0 },
+          weekSessions: [],
+          todaySessions: [],
+          uniqueStudentsCount: 0,
+          students: [],
+        }),
+      });
+    });
+  } catch {}
+
+  try {
+    // Admin endpoints - generic stubs
+    await page.route('**/api/admin/**', async route => {
+      // Return a generic OK JSON to avoid noise; pages should not block on these
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, items: [] }) });
+    });
+  } catch {}
+
+  try {
+    // Student bilans list
+    await page.route('**/api/students/*/bilans', async route => {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+    });
+  } catch {}
+
+  try {
+    // Health endpoints often polled
+    await page.route('**/api/health', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, db: 'up', userCount: 1 }) }));
+  } catch {}
+
+  try {
+    // ARIA chat default quick stub (can be overridden in specific tests with page.unroute)
+    await page.route('**/api/aria/chat', async route => {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ response: 'Réponse rapide (stub)' }) });
+    });
+  } catch {}
+}

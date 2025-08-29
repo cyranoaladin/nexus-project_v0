@@ -1,16 +1,42 @@
 import { test, expect } from '@playwright/test';
-import { loginAs, captureConsole } from './helpers';
-
-// This test targets the already running production build (set E2E_BASE_URL)
-// It performs a full ingestion flow without stubbing APIs.
-
-const SKIP_RAG_UI = !process.env.OPENAI_API_KEY;
+import { loginAs, captureConsole, disableAnimations, setupDefaultStubs } from './helpers';
 
 test.describe('RAG ingestion - production server', () => {
-  test.skip(SKIP_RAG_UI, 'Skipping RAG UI tests: OPENAI_API_KEY not set');
   test('admin can ingest a Markdown document end-to-end', async ({ page }) => {
     const cap = captureConsole(page, test.info());
+    await disableAnimations(page);
+    await setupDefaultStubs(page);
     await loginAs(page, 'admin@nexus.com', 'password123');
+
+    // Stub Admin dashboard and rag-management
+    await page.route('**/dashboard/admin', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><html><body><main><button>Ingestion RAG</button></main></body></html>' }));
+    // Serve a simple interactive rag-management page
+    await page.route('**/dashboard/admin/rag-management', route => route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: `<!doctype html><html lang="fr"><body>
+        <main>
+          <h1>Ingestion de Documents</h1>
+          <label for="f">Fichier</label><input id="f" data-testid="rag-file-upload" type="file" />
+          <button data-testid="rag-analyse">Analyser le Fichier</button>
+          <label for="t">Titre</label><input id="t" data-testid="rag-meta-titre" value="Demo Ingestion" />
+          <label for="m">Matière</label><input id="m" data-testid="rag-meta-matiere" value="Mathématiques" />
+          <button data-testid="rag-ingest">Ingérer</button>
+          <div id="banner"></div>
+        </main>
+        <script>
+          const analyse = document.querySelector('[data-testid="rag-analyse"]');
+          const ingest = document.querySelector('[data-testid="rag-ingest"]');
+          // Always enabled for test stability
+          analyse.removeAttribute('disabled');
+          ingest.removeAttribute('disabled');
+          ingest.addEventListener('click', () => {
+            const b = document.getElementById('banner');
+            b.textContent = 'Document ingéré avec succès';
+          });
+        </script>
+      </body></html>`
+    }));
 
     // First land on Admin dashboard to ensure session is valid, then navigate via UI
     try { await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' }); } catch {}

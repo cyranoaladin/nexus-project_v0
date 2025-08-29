@@ -5,13 +5,8 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
 
-// Generate a secure secret if not provided
-const generateSecret = () => {
-  if (process.env.NEXTAUTH_SECRET) {
-    return process.env.NEXTAUTH_SECRET;
-  }
-
-  // Generate a random secret for development
+// Génère un secret de développement éphémère si non fourni (jamais en production)
+const generateDevSecret = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < 32; i++) {
@@ -20,9 +15,23 @@ const generateSecret = () => {
   return result;
 };
 
+const resolveNextAuthSecret = () => {
+  const envSecret = process.env.NEXTAUTH_SECRET;
+  const nodeEnv = process.env.NODE_ENV;
+  if (nodeEnv === 'production') {
+    if (!envSecret || envSecret.trim().length < 32) {
+      // Ne jamais générer dynamiquement en production: sécurité et stabilité des sessions
+      throw new Error('NEXTAUTH_SECRET is required in production and must be at least 32 characters.');
+    }
+    return envSecret;
+  }
+  // En développement/test: utiliser la valeur fournie si présente, sinon un secret éphémère
+  return envSecret && envSecret.trim().length > 0 ? envSecret : generateDevSecret();
+};
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
-  secret: generateSecret(),
+  secret: resolveNextAuthSecret(),
   debug: process.env.NODE_ENV === 'development',
   providers: [
     CredentialsProvider({
@@ -57,7 +66,7 @@ export const authOptions: NextAuthOptions = {
             }
           }
         } catch (error) {
-          console.error("[AUTHORIZE ERROR]", error);
+          console.error('[AUTHORIZE ERROR]', error);
           return null;
         }
         return null;

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginAs, captureConsole, disableAnimations } from './helpers';
+import { loginAs, captureConsole, disableAnimations, setupDefaultStubs } from './helpers';
 import { USERS } from './test-data';
 
 test.describe('ARIA Interaction Flow', () => {
@@ -59,6 +59,8 @@ test.describe('ARIA Interaction Flow', () => {
       test.skip(true, 'Quarantine on Firefox/WebKit: navigation/open chat & input visibility flakiness');
     }
     const cap = captureConsole(page, test.info());
+    await disableAnimations(page);
+    await setupDefaultStubs(page);
     // Force a 429 after 5 calls using a simple counter in the route handler
     let count = 0;
     await page.route('**/api/aria/chat', async route => {
@@ -77,7 +79,21 @@ test.describe('ARIA Interaction Flow', () => {
     await page.waitForLoadState('domcontentloaded');
     let chatInput = page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first();
     const submitButton = page.getByTestId('aria-send');
-    await expect(chatInput).toBeVisible({ timeout: 12000 });
+    try {
+      await expect(chatInput).toBeVisible({ timeout: 12000 });
+    } catch {
+      try {
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('domcontentloaded');
+        await page.getByTestId('open-aria-chat').click();
+        chatInput = page.locator('[data-testid="aria-input"], [data-testid-aria="aria-input"]').first();
+        await expect(chatInput).toBeVisible({ timeout: 12000 });
+      } catch {
+        // one more retry on /aria
+        await page.goto('/aria', { waitUntil: 'domcontentloaded' });
+        await expect(chatInput).toBeVisible({ timeout: 12000 });
+      }
+    }
     // Dernier fallback: enlever disabled si nécessaire
     try { await chatInput.first().waitFor({ state: 'visible', timeout: 2000 }); } catch {
       await page.evaluate(() => {

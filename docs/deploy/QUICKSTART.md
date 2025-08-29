@@ -10,7 +10,7 @@ Steps:
 1. Copy env template and adjust if needed
 
 ```bash
-cp env.local.template .env.local
+cp env.local.example .env.local
 ```
 
 1. Build and start

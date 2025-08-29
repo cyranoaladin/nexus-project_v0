@@ -7,7 +7,7 @@ const path = require('path');
 console.log('🔍 Checking NextAuth Configuration...\n');
 
 // Check for environment files
-const envFiles = ['.env', '.env.local', '.env.development'];
+const envFiles = ['.env.local', '.env', '.env.development'];
 let envFileFound = false;
 
 envFiles.forEach(file => {
@@ -35,24 +35,31 @@ envFiles.forEach(file => {
 });
 
 if (!envFileFound) {
-  console.log('\n📝 Creating .env.local file...');
+  console.log('\n📝 Creating .env.local file (PostgreSQL dev)...');
   
   const envContent = `# =============================================================================
-# CONFIGURATION DATABASE (SQLite pour développement)
+# CONFIGURATION DATABASE (PostgreSQL pour développement)
 # =============================================================================
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public
 
 # =============================================================================
 # CONFIGURATION NEXTAUTH
 # =============================================================================
-NEXTAUTH_URL="http://localhost:3002"
-NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development-change-in-production"
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=change_me_in_development
+
+# =============================================================================
+# SERVICES IA LOCAUX
+# =============================================================================
+LLM_SERVICE_URL=http://localhost:8003
+PDF_GENERATOR_SERVICE_URL=http://localhost:8002
+RAG_SERVICE_URL=http://localhost:8001
 
 # =============================================================================
 # CONFIGURATION ENVIRONNEMENT
 # =============================================================================
-NODE_ENV="development"
-NEXT_PUBLIC_APP_URL="http://localhost:3002"
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 `;
 
   fs.writeFileSync(path.join(process.cwd(), '.env.local'), envContent);
@@ -60,13 +67,14 @@ NEXT_PUBLIC_APP_URL="http://localhost:3002"
 }
 
 console.log('\n🎯 Next Steps:');
-console.log('1. Restart your development server');
-console.log('2. Clear browser cookies and localStorage');
-console.log('3. Try logging in again');
+console.log('1. Restart your development server (npm run dev)');
+console.log('2. Ensure PostgreSQL is running on port 5433');
+console.log('3. Run: npx prisma generate && npm run db:push && npm run db:seed');
 
-console.log('\n📋 Manual Environment Setup:');
-console.log('Create a .env.local file in your project root with:');
-console.log('NEXTAUTH_URL="http://localhost:3002"');
-console.log('NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development"');
-console.log('DATABASE_URL="file:./prisma/dev.db"');
-console.log('NODE_ENV="development"'); 
+console.log('\n📋 Manual Environment Setup (sample):');
+console.log('NEXTAUTH_URL=http://localhost:3000');
+console.log('NEXTAUTH_SECRET=change_me_in_development');
+console.log('DATABASE_URL=postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public');
+console.log('LLM_SERVICE_URL=http://localhost:8003');
+console.log('PDF_GENERATOR_SERVICE_URL=http://localhost:8002');
+console.log('RAG_SERVICE_URL=http://localhost:8001');

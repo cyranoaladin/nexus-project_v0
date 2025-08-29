@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Volet pédagogique NSI — Terminale",
+    "niveau": "Terminale",
+    "scale": { "type": "likert", "min": 1, "max": 5, "labels": ["Pas du tout", "Plutôt pas", "Mitigé", "Plutôt oui", "Tout à fait"] },
+    "domainsOrder": [
+      "Motivation", "Methodes", "Organisation", "ProfilCognitif", "Collaboration", "StressExam", "Outils", "Difficultes", "Orientation"
+    ]
+  },
+  "questions": [
+    {"id":"P1","domain":"Motivation","type":"likert","weight":2,"reverse":false,"statement":"Je vise une bonne mention au Bac et un projet en informatique/ingénierie."},
+    {"id":"P2","domain":"Motivation","type":"likert","weight":2,"reverse":false,"statement":"La programmation est un domaine qui me motive réellement."},
+    {"id":"P3","domain":"Motivation","type":"likert","weight":2,"reverse":false,"statement":"Je me projette dans des études supérieures liées au numérique."},
+
+    {"id":"P4","domain":"Methodes","type":"likert","weight":2,"reverse":false,"statement":"Quand je bloque, je consulte la documentation officielle (ex. docs.python.org)."},
+    {"id":"P5","domain":"Methodes","type":"likert","weight":2,"reverse":false,"statement":"Je décompose les problèmes en sous‑problèmes testables."},
+    {"id":"P6","domain":"Methodes","type":"likert","weight":2,"reverse":false,"statement":"Je crée de petits tests (assert/pytest) pour vérifier mes fonctions."},
+    {"id":"P7","domain":"Methodes","type":"likert","weight":2,"reverse":true,"statement":"Je recopie du code sans chercher à comprendre."},
+
+    {"id":"P8","domain":"Organisation","type":"likert","weight":2,"reverse":false,"statement":"Je planifie chaque semaine un créneau dédié à la NSI."},
+    {"id":"P9","domain":"Organisation","type":"likert","weight":2,"reverse":false,"statement":"Je rends mes exercices/projets à l’heure."},
+    {"id":"P10","domain":"Organisation","type":"likert","weight":2,"reverse":false,"statement":"J’utilise Git (versions, push/pull) pour mes projets."},
+
+    {"id":"P11","domain":"ProfilCognitif","type":"likert","weight":2,"reverse":false,"statement":"Je comprends mieux avec des schémas/diagrammes (visuel)."},
+    {"id":"P12","domain":"ProfilCognitif","type":"likert","weight":2,"reverse":false,"statement":"Je comprends mieux avec des explications orales (auditif)."},
+    {"id":"P13","domain":"ProfilCognitif","type":"likert","weight":2,"reverse":false,"statement":"J’apprends surtout en expérimentant par la pratique (kinesthésique)."},
+
+    {"id":"P14","domain":"Collaboration","type":"likert","weight":2,"reverse":false,"statement":"J’aime travailler en binôme (pair programming)."},
+    {"id":"P15","domain":"Collaboration","type":"likert","weight":2,"reverse":false,"statement":"Je sais expliquer mon code et donner du feedback."},
+
+    {"id":"P16","domain":"StressExam","type":"likert","weight":2,"reverse":true,"statement":"En évaluation, le stress me fait perdre mes moyens."},
+    {"id":"P17","domain":"StressExam","type":"likert","weight":2,"reverse":false,"statement":"Je gère correctement mon temps et mes priorités."},
+
+    {"id":"P18","domain":"Outils","type":"likert","weight":2,"reverse":false,"statement":"Je suis à l’aise avec l’IDE, l’exécution et la lecture des messages d’erreur."},
+    {"id":"P19","domain":"Outils","type":"likert","weight":2,"reverse":false,"statement":"Je peux installer/configurer Python et des dépendances si nécessaire."},
+
+    {"id":"P20","domain":"Difficultes","type":"likert","weight":2,"reverse":true,"statement":"J’ai du mal à rester concentré longtemps sur un problème."},
+    {"id":"P21","domain":"Difficultes","type":"likert","weight":2,"reverse":true,"statement":"L’abstraction (structures, algorithmes) me pose souvent problème."},
+    {"id":"P22","domain":"Difficultes","type":"likert","weight":2,"reverse":true,"statement":"J’éprouve de l’anxiété face aux consignes techniques."},
+
+    {"id":"P23","domain":"Orientation","type":"single","weight":2,"statement":"Après la Terminale, j’aimerais :","options":["Informatique/ingénierie","Autre filière scientifique","Filière non scientifique","Indécis"]},
+    {"id":"P24","domain":"Orientation","type":"single","weight":2,"statement":"Mon objectif principal cette année :","options":["Progresser en programmation","Valider la spécialité","Optimiser le contrôle continu","Préparer Parcoursup"]},
+
+    {"id":"P25","domain":"Methodes","type":"likert","weight":2,"reverse":false,"statement":"Je commente/documente mes fonctions et modules (docstrings)."},
+    {"id":"P26","domain":"Organisation","type":"likert","weight":2,"reverse":false,"statement":"Je garde des notes structurées (Markdown/Notion) sur mes apprentissages."},
+    {"id":"P27","domain":"Collaboration","type":"likert","weight":2,"reverse":false,"statement":"Je demande de l’aide efficacement (message clair, code minimal reproductible)."},
+    {"id":"P28","domain":"Outils","type":"likert","weight":2,"reverse":false,"statement":"Je sais utiliser un dépôt Git distant (push/pull)."},
+    {"id":"P29","domain":"Motivation","type":"likert","weight":2,"reverse":false,"statement":"Je suis prêt(e) à travailler régulièrement (2–3 h/semaine) en dehors de la classe."},
+    {"id":"P30","domain":"Difficultes","type":"multi","weight":2,"statement":"Je signale des besoins spécifiques afin d’adapter l’accompagnement :","options":["Dyslexie/Dysorthographie","TDAH ou concentration","Anxiété importante","Autre (à préciser)"]}
+  ]
+}
+

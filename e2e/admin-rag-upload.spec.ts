@@ -46,7 +46,8 @@ test.describe('Admin RAG Upload', () => {
       buffer: Buffer.from(mdContent, 'utf-8')
     });
 
-    await expect(page.getByTestId('rag-analyse')).toBeEnabled({ timeout: 15000 });
+    // Donner plus de temps à l'analyse de métadonnées côté client
+    await expect(page.getByTestId('rag-analyse')).toBeEnabled({ timeout: 30000 });
     await page.getByTestId('rag-analyse').click();
 
     await expect(page.getByTestId('rag-meta-titre')).toHaveValue('Suites numériques');

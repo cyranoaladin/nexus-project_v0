@@ -1,0 +1,210 @@
+{
+  "meta": {
+    "title": "Volet 2 — Questionnaire pédagogique enrichi",
+    "version": "1.0.0",
+    "locale": "fr-FR",
+    "targets": ["Première", "Terminale"],
+    "tracks": ["Maths", "NSI"],
+    "notes": "Questionnaire d'orientation pédagogique. Outil de dialogue, pas un diagnostic médical." ,
+    "sectionsOrder": [
+      "A_Contexte",
+      "B_OrganisationTemps",
+      "C_Methodologie",
+      "D_MotivationProjection",
+      "E_RessentiConfiance",
+      "F_ContexteEnv",
+      "G_Depistage",
+      "H_SyntheseAuto"
+    ]
+  },
+  "likertPresets": {
+    "FREQ4": ["Jamais", "Rarement", "Souvent", "Très souvent"],
+    "AGREE5": ["Pas du tout d'accord", "Plutôt pas d'accord", "Neutre", "Plutôt d'accord", "Tout à fait d'accord"],
+    "CONF4": ["Faible", "Moyenne", "Bonne", "Très bonne"],
+    "MOTIV5": ["Très faible", "Faible", "Moyenne", "Bonne", "Très élevée"],
+    "STRESS5": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé"]
+  },
+  "optionsPresets": {
+    "TIME_SLOTS": ["Matin", "Après-midi", "Soir"],
+    "YES_NO": ["Oui", "Non"],
+    "HOURS_WEEK": ["0 h", "<1 h", "1–3 h", "3–5 h", "5–8 h", ">8 h"],
+    "ESTABLISHMENT": ["Lycée français (France)", "Lycée AEFE (étranger)", "Candidat libre / CNED", "Autre"],
+    "PLANS": ["Aucun", "PAP", "PPS", "PAI", "Je ne sais pas"],
+    "TOOLS": ["Agenda numérique (Google Calendar/Apple/Outlook)", "Notion/Trello", "Cahier/fiches papier", "Todoist/Asana", "Aucun"],
+    "HELP_CHANNELS": ["Professeur", "Famille", "Pairs (amis)", "IA ARIA", "Soutien extérieur (cours)"],
+    "VARK": ["Visuel", "Auditif", "Lire/Écrire", "Kinesthésique"],
+    "KOLB": ["Expérience concrète", "Observation réfléchie", "Conceptualisation abstraite", "Expérimentation active"],
+    "STATUS": ["Scolarisé", "Candidat libre"],
+    "CONSTRAINTS": ["Sport-études", "Activité artistique intensive", "Engagement associatif", "Situation familiale particulière", "Santé", "Aucune"]
+  },
+  "sections": {
+    "A_Contexte": {
+      "label": "Section A — Contexte & Antécédents",
+      "items": [
+        {"id": "A1", "type": "single", "label": "Type d'établissement", "optionsRef": "ESTABLISHMENT", "required": true},
+        {"id": "A2", "type": "text", "label": "Classe et spécialités suivies cette année", "placeholder": "Ex. Terminale, Spé Maths + NSI", "required": true},
+        {"id": "A3", "type": "single", "label": "Statut", "optionsRef": "STATUS", "required": true},
+        {"id": "A4", "type": "single", "label": "Redoublement antérieur", "options": ["Oui", "Non"], "required": true},
+        {"id": "A4b", "type": "text", "label": "Si oui, préciser la classe et la raison (optionnel)", "visibleIf": {"A4": "Oui"}},
+        {"id": "A5", "type": "single", "label": "Plan d'accompagnement scolaire", "optionsRef": "PLANS", "required": true},
+        {"id": "A6", "type": "single", "label": "Suivi par un spécialiste (orthophoniste, psy, neuropsy, etc.)", "optionsRef": "YES_NO", "required": true},
+        {"id": "A6b", "type": "text", "label": "Si oui, préciser (optionnel)", "visibleIf": {"A6": "Oui"}}
+      ]
+    },
+    "B_OrganisationTemps": {
+      "label": "Section B — Organisation & Gestion du temps",
+      "items": [
+        {"id": "B1", "type": "single", "label": "Comment organises-tu ton travail hebdomadaire ?", "options": ["Planning écrit détaillé", "Organisation mentale (sans planning)", "Au jour le jour", "Je ne planifie que les évaluations importantes"], "required": true},
+        {"id": "B2a", "type": "single", "label": "Devoirs (hors révisions) — heures/semaine", "optionsRef": "HOURS_WEEK", "required": true},
+        {"id": "B2b", "type": "single", "label": "Révisions personnelles — heures/semaine", "optionsRef": "HOURS_WEEK", "required": true},
+        {"id": "B2c", "type": "single", "label": "Projets personnels/programmation (NSI) — heures/semaine", "optionsRef": "HOURS_WEEK"},
+        {"id": "B3", "type": "multi", "label": "Créneaux où tu es le plus efficace", "optionsRef": "TIME_SLOTS", "max": 2},
+        {"id": "B4", "type": "text", "label": "Décris ton environnement de travail (calme, matériel, distractions)", "maxlength": 350},
+        {"id": "B5", "type": "multi", "label": "Outils utilisés pour t'organiser", "optionsRef": "TOOLS", "min": 0, "max": 3},
+        {"id": "B6", "type": "single", "label": "Sommeil moyen par nuit", "options": ["<6 h", "6–7 h", "7–8 h", ">8 h"]},
+        {"id": "B7", "type": "single", "label": "Temps d'écran quotidien (hors travail)", "options": ["<1 h", "1–2 h", "2–3 h", "3–4 h", ">4 h"]}
+      ]
+    },
+    "C_Methodologie": {
+      "label": "Section C — Méthodologie & Habitudes d'apprentissage",
+      "items": [
+        {"id": "C1", "type": "single", "label": "Prise de notes en cours", "options": ["Tout noter mot à mot", "Idées principales/mots-clés", "Je complète après le cours", "Je travaille sur le polycopié"]},
+        {"id": "C2", "type": "multi", "label": "Préférences d'apprentissage (VARK)", "optionsRef": "VARK", "max": 2},
+        {"id": "C3", "type": "multi", "label": "Cycle d'apprentissage préféré (Kolb)", "optionsRef": "KOLB", "max": 2},
+        {"id": "C4", "type": "multi", "label": "Stratégies de mémorisation utilisées", "options": ["Relire/surligner", "Fiches de synthèse", "Quiz/cartes mémoire (spaced repetition)", "Reformuler/enseigner à quelqu'un", "Exercices d'application"], "max": 3},
+        {"id": "C5", "type": "single", "label": "Face à une difficulté dans un exercice, ta première réaction", "options": ["Persévérer seul longtemps", "Changer de méthode", "Demander de l'aide rapidement", "Passer à autre chose"]},
+        {"id": "C6", "type": "text", "label": "Explique avec tes mots la différence entre 'apprendre par cœur' et 'comprendre'", "maxlength": 400},
+        {"id": "C7", "type": "text", "label": "Face à un chapitre long, quelles étapes suis-tu ?", "placeholder": "Ex. lire → résumer → exercices → quiz → révision finale", "maxlength": 400},
+        {"id": "C8", "type": "likert", "label": "Je sais m'auto‑évaluer (me tester, relire mes erreurs, ajuster mes méthodes)", "scaleRef": "AGREE5"}
+      ]
+    },
+    "D_MotivationProjection": {
+      "label": "Section D — Motivation & Projection",
+      "items": [
+        {"id": "D1", "type": "multi", "label": "Ce qui te motive le plus (choisir jusqu'à 2)", "options": ["Bonnes notes", "Faire plaisir aux parents/profs", "Plaisir d'apprendre/comprendre", "Projet précis (Bac, études, métier)", "Autre"], "max": 2},
+        {"id": "D1b", "type": "text", "label": "Si 'Autre', préciser", "visibleIf": {"D1": "Autre"}},
+        {"id": "D2", "type": "single", "label": "Vision de l'intelligence", "options": ["Innée", "Se développe avec le travail"]},
+        {"id": "D3", "type": "likert", "label": "Mon niveau de motivation actuel", "scaleRef": "MOTIV5"},
+        {"id": "D4", "type": "text", "label": "Projet(s) après le Bac (idées, filières, métiers)", "maxlength": 300},
+        {"id": "D5", "type": "text", "label": "Matière/activité choisie par plaisir (et pourquoi)", "maxlength": 250}
+      ]
+    },
+    "E_RessentiConfiance": {
+      "label": "Section E — Ressenti personnel & confiance",
+      "items": [
+        {"id": "E1", "type": "single", "label": "Après une mauvaise note, tu as tendance à…", "options": ["Analyser les erreurs", "Mettre en cause l'épreuve/la notation", "Éviter d'y penser", "Perdre confiance dans la matière"]},
+        {"id": "E2", "type": "single", "label": "Facilité à demander de l'aide", "options": ["Oui, facilement", "Seulement à certains", "Rarement", "Jamais"]},
+        {"id": "E3", "type": "likert", "label": "Confiance scolaire actuelle", "scaleRef": "CONF4"},
+        {"id": "E4", "type": "likert", "label": "Stress ressenti avant/pendant les évaluations", "scaleRef": "STRESS5"},
+        {"id": "E5", "type": "multi", "label": "Ressources d'aide que tu utilises déjà", "optionsRef": "HELP_CHANNELS", "max": 3},
+        {"id": "E6", "type": "single", "label": "As-tu déjà utilisé l'IA ARIA de Nexus ?", "optionsRef": "YES_NO"},
+        {"id": "E6b", "type": "likert", "label": "Si oui : ARIA m'aide à progresser efficacement", "scaleRef": "AGREE5", "visibleIf": {"E6": "Oui"}}
+      ]
+    },
+    "F_ContexteEnv": {
+      "label": "Section F — Facteurs contextuels & environnement",
+      "items": [
+        {"id": "F1", "type": "multi", "label": "À la maison, je dispose de…", "options": ["Espace calme dédié", "Ordinateur adapté", "Internet stable", "Soutien familial", "Aucun de ces éléments"], "max": 4},
+        {"id": "F2", "type": "single", "label": "Contrainte(s) particulière(s) d'organisation", "optionsRef": "CONSTRAINTS"},
+        {"id": "F2b", "type": "text", "label": "Si contrainte, préciser (horaires, déplacements, compétitions…)", "visibleIf": {"F2": ["Sport-études", "Activité artistique intensive", "Engagement associatif", "Situation familiale particulière", "Santé"]}},
+        {"id": "F3", "type": "single", "label": "Tu es expatrié ou en cursus AEFE ?", "optionsRef": "YES_NO"}
+      ]
+    },
+    "G_Depistage": {
+      "label": "Section G — Dépistage (auto‑évaluation, non médical)",
+      "items": [
+        {"id": "G1", "type": "likert", "label": "Je dois relire plusieurs fois une phrase pour la comprendre", "scaleRef": "FREQ4"},
+        {"id": "G2", "type": "likert", "label": "Je confonds des lettres proches (b/d, p/q)", "scaleRef": "FREQ4"},
+        {"id": "G3", "type": "likert", "label": "Mon écriture est difficilement lisible (même pour moi)", "scaleRef": "FREQ4"},
+        {"id": "G4", "type": "likert", "label": "J'ai du mal à rester concentré plus de 15 minutes d'affilée", "scaleRef": "FREQ4"},
+        {"id": "G5", "type": "likert", "label": "J'oublie rapidement des consignes données oralement", "scaleRef": "FREQ4"},
+        {"id": "G6", "type": "likert", "label": "J'ai du mal à structurer mes idées quand je dois rédiger", "scaleRef": "FREQ4"}
+      ]
+    },
+    "H_SyntheseAuto": {
+      "label": "Section H — Éléments pour synthèse automatique (calcul d'indices)",
+      "items": [
+        {"id": "H1", "type": "likert", "label": "Je me sens capable de suivre un planning que je crée moi‑même", "scaleRef": "AGREE5"},
+        {"id": "H2", "type": "likert", "label": "Je sais transformer une mauvaise note en plan d'action concret", "scaleRef": "AGREE5"}
+      ]
+    }
+  },
+  "indices": [
+    {
+      "id": "IDX_AUTONOMIE",
+      "label": "Autonomie d'apprentissage",
+      "formula": "mean( mapLikert(AGREE5, [C8, H1, H2]) )",
+      "interpretation": [
+        {"range": "[0,2.0]", "text": "Autonomie à structurer : besoin d'un cadre et d'un suivi rapproché."},
+        {"range": "]2.0,3.5]", "text": "Autonomie intermédiaire : routines à stabiliser, coaching ponctuel utile."},
+        {"range": "]3.5,5]", "text": "Bonne autonomie : Cortex + objectifs ambitieux possibles."}
+      ]
+    },
+    {
+      "id": "IDX_ORGANISATION",
+      "label": "Organisation & gestion du temps",
+      "formula": "scorePlan(B1) + scoreHours([B2a,B2b]) + scoreSleep(B6) - scoreScreen(B7)",
+      "scale": {"min": 0, "max": 10},
+      "interpretation": [
+        {"range": "[0,4]", "text": "Organisation fragile : proposer planning guidé + Studio Flex."},
+        {"range": "]4,7]", "text": "Organisation correcte : consolider avec outils numériques et rituels."},
+        {"range": "]7,10]", "text": "Organisation solide : autonomie compatible avec Cortex."}
+      ]
+    },
+    {
+      "id": "IDX_MOTIVATION",
+      "label": "Motivation perçue",
+      "formula": "mapLikert(MOTIV5, [D3])",
+      "scale": {"min": 1, "max": 5},
+      "interpretation": [
+        {"range": "[1,2]", "text": "Motivation faible : activer leviers projet/valeur, objectifs courts."},
+        {"range": "]2,4]", "text": "Motivation moyenne : donner des gains rapides, feedbacks fréquents."},
+        {"range": "]4,5]", "text": "Motivation élevée : autoriser accélération (Académies/avancé)."}
+      ]
+    },
+    {
+      "id": "IDX_STRESS",
+      "label": "Stress aux évaluations",
+      "formula": "mapLikert(STRESS5, [E4])",
+      "interpretation": [
+        {"range": "[1,2]", "text": "Stress faible à modéré : OK."},
+        {"range": "]2,4]", "text": "Stress notable : proposer techniques (respiration, rétro‑planning, sujets blancs)."},
+        {"range": "]4,5]", "text": "Stress élevé : intégrer coaching méthodo + simulations encadrées."}
+      ]
+    },
+    {
+      "id": "IDX_SUSPECT_DYS",
+      "label": "Signaux d'appel DYS/TDAH (auto‑perçus)",
+      "formula": "mean( mapLikert(FREQ4, [G1,G2,G3,G4,G5,G6]) )",
+      "interpretation": [
+        {"range": "[0,1.5]", "text": "Peu de signaux."},
+        {"range": "]1.5,2.5]", "text": "Surveiller, ajuster l'ergonomie et les consignes."},
+        {"range": "]2.5,4]", "text": "Plusieurs signaux : conseiller avis professionnel (orthophoniste/neuropsy)."}
+      ]
+    }
+  ],
+  "export": {
+    "analyticsKeys": ["IDX_AUTONOMIE", "IDX_ORGANISATION", "IDX_MOTIVATION", "IDX_STRESS", "IDX_SUSPECT_DYS"],
+    "mapping": {
+      "portraitPedagogique": ["C2", "C3", "C4", "C6", "C7", "E1", "E3", "E4"],
+      "contexte": ["A1", "A2", "A3", "A5", "A6"],
+      "organisation": ["B1", "B2a", "B2b", "B2c", "B3", "B5", "B6", "B7"],
+      "motivation": ["D1", "D2", "D3", "D4"],
+      "environnement": ["F1", "F2", "F3"],
+      "depistage": ["G1", "G2", "G3", "G4", "G5", "G6"]
+    },
+    "pdfHints": {
+      "radars": [
+        {"title": "Indices pédagogiques", "axes": ["Autonomie", "Organisation", "Motivation", "Stress"], "valuesFrom": ["IDX_AUTONOMIE", "IDX_ORGANISATION", "IDX_MOTIVATION", "IDX_STRESS"]}
+      ],
+      "badges": [
+        {"id": "BADGE_AUTONOME", "visibleIf": {"IDX_AUTONOMIE": ">=3.8"}, "label": "Autonomie solide"},
+        {"id": "BADGE_ORGA", "visibleIf": {"IDX_ORGANISATION": ">=7"}, "label": "Organisation efficace"},
+        {"id": "BADGE_PERSO", "visibleIf": {"E1": "Analyser les erreurs"}, "label": "Capacité de feedback"}
+      ]
+    }
+  }
+}
+
+
+

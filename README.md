@@ -194,7 +194,7 @@ npm run db:seed
 
 ### Variables d'Environnement
 
-- Fichier `.env.local` à créer depuis `env.local.template` ou `env.example`.
+- Fichier `.env.local` à créer depuis `env.local.example` ou `env.example`.
 - Variables clés:
 
 ```env

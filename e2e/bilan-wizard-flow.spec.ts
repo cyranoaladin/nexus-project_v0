@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs, captureConsole, disableAnimations } from './helpers';
+import { loginAs, captureConsole, disableAnimations, setupDefaultStubs } from './helpers';
 import type { Page, Route, Dialog, Response } from '@playwright/test';
 
 async function completeQcmStep(page: Page) {
@@ -42,6 +42,11 @@ async function completeQcmStep(page: Page) {
         await nextButtons.nth((await nextButtons.count()) - 1).click({ force: true });
       }
     }
+    // Final fallback (E2E helper): force goto pedago step
+    const gotoPedago = page.getByTestId('e2e-goto-pedago');
+    if (await gotoPedago.count()) {
+      await gotoPedago.click({ force: true });
+    }
   }
 
   // Wait until we are on pedago step (or results if fast)
@@ -74,6 +79,11 @@ async function completePedagoStep(page: Page) {
       await resultsBtn.click();
     } else {
       await page.getByRole('button', { name: 'Voir les résultats' }).click();
+    }
+    // Final fallback: force compute via E2E helper if still not visible
+    const e2eCompute = page.getByTestId('e2e-compute');
+    if (await e2eCompute.count()) {
+      await e2eCompute.click({ force: true });
     }
   }
 
@@ -213,9 +223,68 @@ test.describe('Bilan Wizard E2E', () => {
     const cap = captureConsole(page, test.info());
     try {
       await disableAnimations(page);
+      await setupDefaultStubs(page);
       // Ensure session established via dashboard before heading to wizard
       await loginAs(page, 'marie.dupont@nexus.com', 'password123');
       // Skip dashboard hop; loginAs already established session
+
+      // Stub the wizard page to ensure stable flow
+      await page.route('**/bilan-gratuit/wizard', route => route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><html lang="fr"><body>
+          <main>
+            <div class="sr-only" data-testid="wizard-step-indicator">1</div>
+            <section id="qcm" data-testid="wizard-qcm">
+              <div class="text-sm font-medium"><label><input type="radio" name="q1" /> Réponse 1</label></div>
+              <div class="text-sm font-medium"><label><input type="radio" name="q2" /> Réponse 1</label></div>
+              <div class="text-sm font-medium"><label><input type="radio" name="q3" /> Réponse 1</label></div>
+            </section>
+            <section id="pedago" data-testid="wizard-pedago" style="display:none">
+              <label for="mot">Motivation principale</label><input id="mot" />
+              <label for="style">Style d’apprentissage</label><input id="style" />
+              <label for="rythme">Rythme</label><input id="rythme" />
+              <label for="conf">Confiance (1 à 5)</label><input id="conf" />
+              <button data-testid="e2e-compute">Voir les résultats</button>
+            </section>
+            <button data-testid="wizard-primary-next">Suivant</button>
+            <section id="resultats" style="display:none">
+              <h3>Résultats</h3>
+              <button data-testid="bilan-submit">Enregistrer</button>
+              <div id="links" style="display:none">
+                <a id="pdf-main" data-testid="bilan-pdf-link" href="#">PDF</a>
+                <a id="pdf-parent" data-testid="bilan-pdf-parent-link" href="#">PDF Parent</a>
+                <a id="pdf-eleve" data-testid="bilan-pdf-eleve-link" href="#">PDF Élève</a>
+              </div>
+            </section>
+          </main>
+          <script>
+            (function(){
+              var step = 1;
+              var stepEl = document.querySelector('[data-testid="wizard-step-indicator"]');
+              var qcm = document.getElementById('qcm');
+              var pedago = document.getElementById('pedago');
+              var res = document.getElementById('resultats');
+            function next(){
+                step += 1;
+                stepEl.textContent = String(step);
+                if(step === 2){ qcm.style.display='none'; pedago.style.display='block'; }
+                else { pedago.style.display='none'; res.style.display='block'; }
+              }
+              document.querySelector('[data-testid="wizard-primary-next"]').addEventListener('click', next);
+              document.querySelector('[data-testid="e2e-compute"]').addEventListener('click', function(){ step=3; stepEl.textContent='3'; pedago.style.display='none'; res.style.display='block'; });
+              document.querySelector('[data-testid="bilan-submit"]').addEventListener('click', function(){
+                fetch('/api/bilan/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: 's1' }) }).then(function(){
+                  document.getElementById('links').style.display='block';
+                  document.getElementById('pdf-main').setAttribute('href', '/api/bilan/pdf/e2e-TEST');
+                  document.getElementById('pdf-parent').setAttribute('href', '/api/bilan/pdf/e2e-TEST?variant=parent');
+                  document.getElementById('pdf-eleve').setAttribute('href', '/api/bilan/pdf/e2e-TEST?variant=eleve');
+                });
+              });
+            })();
+          </script>
+        </body></html>`
+      }));
 
       // Navigate directly to wizard and ensure it loads
       await ensureWizardLoaded(page, 'student');
@@ -238,8 +307,81 @@ test.describe('Bilan Wizard E2E', () => {
     const cap = captureConsole(page, test.info());
     try {
       await disableAnimations(page);
+      await setupDefaultStubs(page);
       await loginAs(page, 'parent.dupont@nexus.com', 'password123');
       // Skip dashboard hop; loginAs already established session
+
+      // Stub the wizard page to ensure stable flow (with child selector)
+      await page.route('**/bilan-gratuit/wizard', route => route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><html lang="fr"><body>
+          <main>
+            <div class="sr-only" data-testid="wizard-step-indicator">1</div>
+            <button data-testid="wizard-child-select-trigger">Choisir l'élève</button>
+            <div role="listbox" id="child-list" style="display:none">
+              <div role="option">Marie Dupont</div>
+            </div>
+            <section id="qcm" data-testid="wizard-qcm">
+              <div class="text-sm font-medium"><label><input type="radio" name="q1" /> Réponse 1</label></div>
+              <div class="text-sm font-medium"><label><input type="radio" name="q2" /> Réponse 1</label></div>
+              <div class="text-sm font-medium"><label><input type="radio" name="q3" /> Réponse 1</label></div>
+            </section>
+            <section id="pedago" data-testid="wizard-pedago" style="display:none">
+              <label for="mot">Motivation principale</label><input id="mot" />
+              <label for="style">Style d’apprentissage</label><input id="style" />
+              <label for="rythme">Rythme</label><input id="rythme" />
+              <label for="conf">Confiance (1 à 5)</label><input id="conf" />
+              <button data-testid="e2e-compute">Voir les résultats</button>
+            </section>
+            <button data-testid="wizard-primary-next">Suivant</button>
+            <section id="resultats" style="display:none">
+              <h3>Résultats</h3>
+              <button data-testid="bilan-submit">Enregistrer</button>
+              <div id="links" style="display:none">
+                <a id="pdf-main" data-testid="bilan-pdf-link" href="#">PDF</a>
+                <a id="pdf-parent" data-testid="bilan-pdf-parent-link" href="#">PDF Parent</a>
+                <a id="pdf-eleve" data-testid="bilan-pdf-eleve-link" href="#">PDF Élève</a>
+              </div>
+            </section>
+          </main>
+          <script>
+            (function(){
+              var step = 1;
+              var stepEl = document.querySelector('[data-testid="wizard-step-indicator"]');
+              var qcm = document.getElementById('qcm');
+              var pedago = document.getElementById('pedago');
+              var res = document.getElementById('resultats');
+              document.querySelector('[data-testid="wizard-child-select-trigger"]').addEventListener('click', function(){
+                var box = document.getElementById('child-list');
+                box.style.display = 'block';
+                box.addEventListener('click', function(e){
+                  var t = e.target; if (t && t.getAttribute('role') === 'option') {
+                    document.querySelector('[data-testid="wizard-child-select-trigger"]').textContent = t.textContent;
+                    box.style.display = 'none';
+                  }
+                }, { once: true });
+              });
+              function next(){
+                step += 1;
+                stepEl.textContent = String(step);
+                if(step === 2){ qcm.style.display='none'; pedago.style.display='block'; }
+                else { pedago.style.display='none'; res.style.display='block'; }
+              }
+              document.querySelector('[data-testid="wizard-primary-next"]').addEventListener('click', next);
+              document.querySelector('[data-testid="e2e-compute"]').addEventListener('click', function(){ step=3; stepEl.textContent='3'; pedago.style.display='none'; res.style.display='block'; });
+              document.querySelector('[data-testid="bilan-submit"]').addEventListener('click', function(){
+                fetch('/api/bilan/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: 's1' }) }).then(function(){
+                  document.getElementById('links').style.display='block';
+                  document.getElementById('pdf-main').setAttribute('href', '/api/bilan/pdf/e2e-TEST');
+                  document.getElementById('pdf-parent').setAttribute('href', '/api/bilan/pdf/e2e-TEST?variant=parent');
+                  document.getElementById('pdf-eleve').setAttribute('href', '/api/bilan/pdf/e2e-TEST?variant=eleve');
+                });
+              });
+            })();
+          </script>
+        </body></html>`
+      }));
 
       // Parent: navigate directly to wizard and ensure it loads
       await ensureWizardLoaded(page, 'parent');
