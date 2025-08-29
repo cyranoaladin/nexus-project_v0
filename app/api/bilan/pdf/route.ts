@@ -1,7 +1,7 @@
+import { getAuthFromRequest } from '@/lib/api/auth';
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { getAuthFromRequest } from '@/lib/api/auth';
 import { NextResponse } from "next/server";
 import React from "react";
 
@@ -50,8 +50,12 @@ export async function GET(req: Request) {
       const isParent = sessionUserId ? (student.parent?.userId === sessionUserId) : !!auth;
       if (!(isOwner || isParent || isAdmin)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     } else {
-      // default to current student if any
-      student = await prisma.student.findFirst({ where: { userId: (session?.user as any)?.id }, include: { user: true, parent: { include: { user: true } } } });
+      // default to current student if any (session) OR first student (dev-token)
+      if ((session?.user as any)?.id) {
+        student = await prisma.student.findFirst({ where: { userId: (session?.user as any)?.id }, include: { user: true, parent: { include: { user: true } } } });
+      } else {
+        student = await prisma.student.findFirst({ include: { user: true, parent: { include: { user: true } } } });
+      }
       if (!student) return NextResponse.json({ error: "No student context" }, { status: 400 });
     }
     const niveauText = niveauParam === "terminale" ? "Terminale" : niveauParam === "premiere" ? "Première" : niveauParam;
