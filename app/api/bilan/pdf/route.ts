@@ -21,6 +21,7 @@ export async function GET(req: Request) {
   const studentId = url.searchParams.get("studentId") || undefined;
 
   const variant = variantParam === "parent" ? "parent" : variantParam === "eleve" ? "eleve" : "general";
+  const force = process.env.FORCE_PDF_REGEN === '1';
 
   const role = (session.user as any).role;
   const isAdmin = role === "ADMIN";
@@ -62,7 +63,7 @@ export async function GET(req: Request) {
 
   // If general variant and we have stored blob, serve it directly
   const isE2E = process.env.E2E === '1';
-  if (variant === 'general' && bilan.pdfBlob && !isE2E) {
+  if (!force && variant === 'general' && bilan.pdfBlob && !isE2E) {
     return new NextResponse(bilan.pdfBlob as unknown as Buffer, {
       headers: {
         "Content-Type": "application/pdf",
@@ -99,7 +100,9 @@ export async function GET(req: Request) {
         const { buildPdfPayloadTerminale } = await import('@/lib/scoring/adapter_terminale');
         data = buildPdfPayloadTerminale((bilan.qcmScores as any) || {}, { firstName: bilan.student.user.firstName, lastName: bilan.student.user.lastName, niveau: bilan.niveau, statut: bilan.statut });
       }
-    } catch {}
+    } catch (e: any) {
+      console.error('[PDF][AdapterError][parent]', { niveau: niv, matiere: subj, message: String(e?.message || e) });
+    }
     if (!data) {
       // fallback to simple derivation
       const q = (bilan.qcmScores as any) || { byDomain: {} };
@@ -135,7 +138,9 @@ export async function GET(req: Request) {
         const { buildPdfPayloadTerminale } = await import('@/lib/scoring/adapter_terminale');
         data = buildPdfPayloadTerminale((bilan.qcmScores as any) || {}, { firstName: bilan.student.user.firstName, lastName: bilan.student.user.lastName, niveau: bilan.niveau, statut: bilan.statut });
       }
-    } catch {}
+    } catch (e: any) {
+      console.error('[PDF][AdapterError][eleve]', { niveau: niv, matiere: subj, message: String(e?.message || e) });
+    }
     if (!data) {
       const q = (bilan.qcmScores as any) || { byDomain: {} };
       const byDomain = q.byDomain || {};
