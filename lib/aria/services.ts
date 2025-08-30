@@ -67,6 +67,57 @@ interface LLMResponse {
 
 export const llm_service = {
   generate_response: (data: LLMRequest): Promise<LLMResponse> => {
+    // Mode DEV direct: bypass microservice et utilise OpenAI côté Node si demandé
+    if (process.env.DIRECT_OPENAI_DEV === '1' && (process.env.OPENAI_API_KEY || '').trim().length > 0 && process.env.USE_LLM_SERVICE !== '1') {
+      return (async () => {
+        try {
+          const { default: OpenAI } = await import('openai');
+          const { selectModel, getFallbackModel } = await import('./openai');
+          const { getGenerationParams, getSystemPrefix } = await import('./policy');
+          const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+          const system = data.system_prompt || getSystemPrefix();
+          const messages: any[] = [
+            { role: 'system', content: system },
+            { role: 'user', content: data.requete_actuelle },
+          ];
+          const primaryModel = selectModel();
+          const fallbackModel = getFallbackModel();
+          const gen = getGenerationParams('tutor');
+          try {
+            const resp = await client.chat.completions.create({
+              model: primaryModel,
+              temperature: gen.temperature,
+              top_p: gen.top_p,
+              presence_penalty: gen.presence_penalty,
+              max_tokens: gen.max_tokens,
+              messages,
+            });
+            const text = (resp as any).choices?.[0]?.message?.content || '';
+            return { response: text } as LLMResponse;
+          } catch (errPrimary) {
+            if (fallbackModel) {
+              console.warn(`[ARIA][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
+              const resp2 = await client.chat.completions.create({
+                model: fallbackModel,
+                temperature: gen.temperature,
+                top_p: gen.top_p,
+                presence_penalty: gen.presence_penalty,
+                max_tokens: gen.max_tokens,
+                messages,
+              });
+              const text2 = (resp2 as any).choices?.[0]?.message?.content || '';
+              return { response: text2 } as LLMResponse;
+            }
+            throw errPrimary;
+          }
+        } catch (error) {
+          console.error('[DIRECT_OPENAI_DEV_ERROR]', error);
+          // Fallback HTTP microservice
+          return await postRequest<LLMResponse>(`${LLM_SERVICE_URL}/chat`, data);
+        }
+      })();
+    }
+    // Comportement normal: passer par le microservice Python
     return postRequest<LLMResponse>(`${LLM_SERVICE_URL}/chat`, data);
   },
 };
