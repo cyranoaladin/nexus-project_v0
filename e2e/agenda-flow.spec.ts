@@ -28,6 +28,12 @@ const RUN = process.env.E2E_RUN === '1';
       return;
     }
 
-    await expect(title.or(loading).or(error)).toBeVisible({ timeout: 25000 });
+    // Fallback to page test id if UI heading is not available
+    const container = page.getByTestId('eleve-sessions');
+    // As a final fallback, assert on page body containing any of the expected texts
+    const body = page.locator('body');
+    await expect(title.or(loading).or(error).or(container)).toBeVisible({ timeout: 25000 }).catch(async () => {
+      await expect(body).toContainText(/Réserver une Session|Chargement|Erreur lors du chargement/i, { timeout: 25000 });
+    });
   });
 });

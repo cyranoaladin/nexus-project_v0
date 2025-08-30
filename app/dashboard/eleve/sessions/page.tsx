@@ -22,11 +22,11 @@ export default async function EleveSessionsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6" data-testid="eleve-sessions">
-      <h1 className="text-2xl font-semibold mb-4">Réserver une Session</h1>
+      <h1 className="text-2xl font-semibold mb-4" data-testid="eleve-sessions-title">Réserver une Session</h1>
       {sessions.length === 0 ? (
-        <p className="text-gray-600">Aucune session.</p>
+        <p className="text-gray-600" data-testid="no-sessions">Aucune session.</p>
       ) : (
-        <div className="border rounded-md overflow-x-auto">
+        <div className="border rounded-md overflow-x-auto" data-testid="sessions-table">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -39,7 +39,7 @@ export default async function EleveSessionsPage() {
             </thead>
             <tbody>
               {sessions.map((s) => (
-                <tr key={s.id} className="border-t">
+                <tr key={s.id} className="border-t" data-testid={`session-row-${s.id}`}>
                   <td className="p-2">{new Date(s.scheduledAt).toLocaleDateString('fr-FR')}</td>
                   <td className="p-2">
                     {new Date(s.scheduledAt).toLocaleTimeString('fr-FR', {

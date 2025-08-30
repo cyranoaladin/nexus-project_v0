@@ -1,5 +1,4 @@
 // Integration test setup for Node.js environment
-
 // Increase default timeout for slower integration tests
 jest.setTimeout(15000);
 
@@ -120,4 +119,7 @@ jest.mock('bcryptjs', () => ({ hash: jest.fn().mockResolvedValue('hashed-passwor
 
 // Env
 process.env.NODE_ENV = 'test';
-process.env.NEXTAUTH_SECRET = 'test-secret';
+try {
+  const { randomUUID } = require('crypto');
+  if (!process.env.NEXTAUTH_SECRET) process.env.NEXTAUTH_SECRET = randomUUID();
+} catch {}

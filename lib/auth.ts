@@ -1,6 +1,6 @@
 import { UserRole } from '@/types/enums';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import bcrypt from 'bcryptjs';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import bcryptjs from 'bcryptjs';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (user && user.password) {
-            const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+            const isPasswordValid = await bcryptjs.compare(credentials.password, user.password);
 
             if (isPasswordValid) {
               return {
@@ -62,8 +62,10 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('[AUTHORIZE ERROR]', error);
-          return null;
+          // Au lieu de retourner null, on lance une erreur pour que le client soit notifié
+          throw new Error('An internal error occurred during authentication.');
         }
+        // Si on arrive ici, c'est que l'utilisateur n'a pas été trouvé ou que le mdp est invalide
         return null;
       },
     }),
@@ -90,12 +92,35 @@ export const authOptions: NextAuthOptions = {
             token.parentId = studentProfile.parentId;
           }
         }
+        
+        // Si l'utilisateur est un parent, on cherche le premier élève associé pour simplifier l'accès
+        if (user.role === UserRole.PARENT) {
+          const parentProfile = await prisma.parentProfile.findUnique({
+            where: { userId: user.id },
+            include: {
+              children: {
+                select: { id: true },
+                take: 1, // On ne prend que le premier élève
+              },
+            },
+          });
+          if (parentProfile) {
+            token.parentId = parentProfile.id;
+            if (parentProfile.children && parentProfile.children.length > 0) {
+              token.studentId = parentProfile.children[0].id;
+            }
+          }
+        }
+      }
+      // Support tokens created externally (e.g., E2E) where `sub` exists but `id` is missing
+      if (!('id' in token) && token?.sub) {
+        (token as any).id = token.sub;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
+        session.user.id = ((token as any).id || (token as any).sub) as string;
         session.user.role = token.role as UserRole;
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
