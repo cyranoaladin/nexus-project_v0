@@ -6,6 +6,9 @@ import { Subject } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Intent } from '@/lib/aria/policy';
+import { getGenerationParams, getSystemPrefix } from '@/lib/aria/policy';
+import { sanitizeLog } from '@/lib/log/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,16 +17,18 @@ const chatRequestSchema = z.object({
   subject: z.nativeEnum(Subject, {
     errorMap: () => ({ message: "La matière fournie est invalide." }),
   }),
+  intent: z.enum(["tutor", "summary", "pdf"]).default("tutor"),
 });
 
 export async function POST(req: NextRequest) {
   try {
     // Validation ENV au démarrage (mode, clés, etc.)
+    let ariaMode: string = 'unknown';
     try {
       const { validateAriaEnv, computeAriaMode } = await import('@/lib/aria/env-validate');
       validateAriaEnv();
-      const mode = computeAriaMode();
-      console.log(`[ARIA][Boot] mode=${mode}`);
+      ariaMode = computeAriaMode();
+      console.log(`[ARIA][Boot] mode=${ariaMode}`);
     } catch (e) {
       console.error('[ARIA][ENV] Validation failed:', e);
       return NextResponse.json({ error: 'Configuration invalide: ' + String((e as any)?.message || e) }, { status: 500 });
@@ -78,7 +83,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Requête invalide", details: parsedBody.error.flatten() }, { status: 400 });
     }
 
-    const { message, subject } = parsedBody.data;
+    const { message, subject, intent } = parsedBody.data as { message: string; subject: Subject; intent: Intent };
 
     // Freemium limit: max 5 requests per day per student
     const today = new Date().toISOString().split('T')[0];
@@ -108,6 +113,26 @@ export async function POST(req: NextRequest) {
     const url = new URL(req.url);
     const wantStream = url.searchParams.get('stream') === 'true';
     if (wantStream) {
+      // En mode service, on ne streame pas (pour l'instant): on émet une erreur SSE claire
+      if (ariaMode === 'service') {
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ code: 'stream_not_available_in_service_mode' })}\n\n`));
+            controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ reason: 'service_mode' })}\n\n`));
+            controller.close();
+          }
+        });
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+            ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
+          },
+        });
+      }
       const encoder = new TextEncoder();
       const keepAliveMs = 15000;
       const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 30000);
@@ -118,13 +143,13 @@ export async function POST(req: NextRequest) {
 
       const stream = new ReadableStream<Uint8Array>({
         async start(controller) {
-          const send = (obj: any) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
           const sendEvent = (event: string, obj: any = {}) => controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(obj)}\n\n`));
           const ping = () => controller.enqueue(encoder.encode(`:\n\n`));
           const heartbeat = setInterval(ping, keepAliveMs);
           const startedAt = Date.now();
           let usedModel = modelPrimary;
           let attempt = 0;
+          let tokenIndex = 0;
 
           const runOnce = async (model: string) => {
             const { default: OpenAI } = await import('openai');
@@ -132,12 +157,16 @@ export async function POST(req: NextRequest) {
             const controllerAbort = new AbortController();
             const timer = setTimeout(() => controllerAbort.abort(), timeoutMs);
             try {
-              const sys = `Tu es ARIA. Réponds par petits tokens (FR).`;
+              const sys = getSystemPrefix();
+              const gen = getGenerationParams(intent);
               // @ts-ignore stream: true support
               const resp = await (client as any).chat.completions.create({
                 model,
                 stream: true,
-                temperature: 0.2,
+                temperature: gen.temperature,
+                top_p: gen.top_p,
+                presence_penalty: gen.presence_penalty,
+                max_tokens: gen.max_tokens,
                 messages: [
                   { role: 'system', content: sys },
                   { role: 'user', content: `Matière: ${subject}\n\nQuestion: ${message}` },
@@ -146,12 +175,14 @@ export async function POST(req: NextRequest) {
 
               for await (const chunk of resp) {
                 const delta = chunk?.choices?.[0]?.delta?.content || '';
-                if (delta) send({ token: delta });
+                if (delta) {
+                  sendEvent('token', { text: delta, index: tokenIndex++ });
+                }
               }
               clearTimeout(timer);
               const ms = Date.now() - startedAt;
-              console.log(`[ARIA][chat] model=${model} fallback=${modelFallback || 'null'} stream=true ms=${ms}`);
-              sendEvent('done');
+              console.log(sanitizeLog(`[ARIA][chat] intent=${intent} model=${model} fallback=${modelFallback || 'null'} stream=true ms=${ms} tokens=${tokenIndex}`));
+              sendEvent('done', { usage: { prompt: null, completion: tokenIndex }, model, latency_ms: ms });
               controller.close();
             } catch (err: any) {
               clearTimeout(timer);
@@ -168,9 +199,9 @@ export async function POST(req: NextRequest) {
               attempt++;
               const retriable = attempt <= retriesMax;
               if (!retriable) {
-                console.error('[ARIA][chat][stream] error:', String(err?.message || err));
-                send({ error: 'timeout_or_upstream_error' });
-                sendEvent('done');
+                console.error(sanitizeLog(`[ARIA][chat][stream] error: ${String(err?.message || err)}`));
+                sendEvent('error', { code: 'timeout_or_upstream_error' });
+                sendEvent('done', { reason: 'error' });
                 controller.close();
                 break;
               }
@@ -186,6 +217,7 @@ export async function POST(req: NextRequest) {
           'Cache-Control': 'no-cache, no-transform',
           'Connection': 'keep-alive',
           'X-Accel-Buffering': 'no',
+          ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
         },
       });
     }
