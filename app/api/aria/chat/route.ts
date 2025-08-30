@@ -13,14 +13,19 @@ export const runtime = 'nodejs';
 // Validation centralisée via shared schemas
 
 export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
+  const reqId = Math.random().toString(36).slice(2);
   try {
     // Rate limit (IP + route)
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    console.info('[ARIA_CHAT_START]', { reqId, ip, ts: new Date(startedAt).toISOString() });
     const { rateLimit } = await import('@/lib/rate-limit');
     const { getRateLimitConfig } = await import('@/lib/rate-limit.config');
     const rlConf = getRateLimitConfig('ARIA_CHAT', { windowMs: 60_000, max: 30 });
     const check = await rateLimit(rlConf)(`aria_chat:${ip}`);
     if (!check.ok) {
+      const duration = Date.now() - startedAt;
+      console.warn('[ARIA_CHAT_RATE_LIMIT]', { reqId, durationMs: duration });
       return NextResponse.json(
         { error: 'Trop de requêtes, réessayez plus tard.' },
         { status: 429 }
@@ -74,9 +79,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { message, subject, attachments } = parsedBody.data;
+    const { message, subject, attachments, forcePdf, docTitle, docDescription } =
+      parsedBody.data as any;
     const studentId = effectiveStudentId;
     const parentId = effectiveParentId;
+
+    // Forcer intention PDF si demandé explicitement côté UI
+    let finalMessage = String(message || '');
+    if (forcePdf && !/(\bpdf\b|\bfiche\b|\bdocument\b)/i.test(finalMessage)) {
+      finalMessage = `PDF: ${finalMessage}`;
+    }
 
     if (!allowBypass) {
       // Freemium limit: max 5 requests per day per student
@@ -117,19 +129,62 @@ export async function POST(req: NextRequest) {
     const orchestrator = new AriaOrchestrator(studentId, parentId);
 
     // Gérer la requête de bout en bout
-    const { response, documentUrl } = await orchestrator.handleQuery(
-      message,
+    const { response, documentUrl, wasFakeLocal } = await orchestrator.handleQuery(
+      finalMessage,
       subject as unknown as PrismaSubject,
       attachments || []
     );
+
+    const durationOk = Date.now() - startedAt;
+    console.info('[ARIA_CHAT_OK]', { reqId, durationMs: durationOk, hasDoc: !!documentUrl });
+
+    // Enregistrer le document généré si disponible
+    if (documentUrl) {
+      try {
+        const title =
+          (docTitle && String(docTitle).trim()) ||
+          (finalMessage || '').slice(0, 80) ||
+          `Document ARIA – ${String(subject)}`;
+        const description = (docDescription && String(docDescription).trim()) || null;
+        await prisma.generatedDocument.create({
+          data: {
+            studentId,
+            title,
+            description,
+            url: documentUrl,
+            subject: subject as any,
+          },
+        });
+      } catch (e) {
+        console.warn('[ARIA_DOC_SAVE_WARN]', e);
+      }
+    }
 
     // Retourner la réponse et l'éventuel URL du document
     return NextResponse.json({
       response,
       documentUrl,
+      fakeLocal: !!wasFakeLocal,
     });
   } catch (error: any) {
-    console.error('[API_ARIA_CHAT_ERROR]', error);
+    const durationErr = Date.now() - startedAt;
+    console.error('[API_ARIA_CHAT_ERROR]', { reqId, durationMs: durationErr, error: String(error?.message || error) });
+    const msg = String(error?.message || '').toUpperCase();
+    const code = String((error as any)?.code || '').toUpperCase();
+
+    // Distinguer les timeouts LLM vs PDF pour un feedback précis côté UI
+    if (msg.includes('PDF_REQUEST_TIMEOUT')) {
+      return NextResponse.json(
+        { error: 'Timeout PDF: délai dépassé.' },
+        { status: 504 }
+      );
+    }
+    if (code === 'ETIMEDOUT' || msg.includes('LLM_REQUEST_TIMEOUT') || msg.includes('GENERIC_REQUEST_TIMEOUT') || msg.includes('ABORT')) {
+      return NextResponse.json(
+        { error: 'Timeout LLM: délai dépassé.' },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
       { error: 'Une erreur est survenue lors de la communication avec ARIA.' },
       { status: 500 }

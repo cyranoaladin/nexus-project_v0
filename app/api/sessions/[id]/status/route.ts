@@ -23,6 +23,22 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
+    // Try SessionBooking first
+    const booking = await prisma.sessionBooking.findUnique({ where: { id: sessionId } });
+    if (booking) {
+      await prisma.sessionBooking.update({
+        where: { id: sessionId },
+        data: {
+          status: status as any,
+          ...(status === 'COMPLETED' && { completedAt: new Date() }),
+          ...(status === 'CANCELLED' && { cancelledAt: new Date() }),
+          ...(typeof notes === 'string' && notes.length > 0 ? { coachNotes: notes } : {}),
+        },
+      });
+      return NextResponse.json({ success: true, model: 'SessionBooking' });
+    }
+
+    // Fallback to legacy Session
     const existing = await prisma.session.findUnique({ where: { id: sessionId } });
     if (!existing) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
@@ -37,7 +53,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, model: 'Session' });
   } catch (error) {
     console.error('PATCH /api/sessions/[id]/status error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

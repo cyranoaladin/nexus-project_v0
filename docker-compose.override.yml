@@ -6,7 +6,7 @@
 # - IMAGE_TAG (ex: v1.2.3)
 
 services:
-  next-app:
+  app:
     image: ${REGISTRY}/${IMAGE_PREFIX}-app:${IMAGE_TAG}
 
   rag_service:

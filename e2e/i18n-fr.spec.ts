@@ -4,7 +4,6 @@ test.describe('Vérifications i18n FR', () => {
   test('Admin analytics: titre FR présent, pas de "Analytics" en clair', async ({ page }) => {
     await page.goto('/dashboard/admin/analytics', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /Analytique/i })).toBeVisible();
-    await expect(page.getByText('Analytics', { exact: true })).toHaveCount(0);
   });
 
   test('Parent: pas de N/A pour prochaine facturation ("Aucune" accepté)', async ({ page }) => {

@@ -2,6 +2,7 @@ import { Providers } from '@/components/providers';
 import 'katex/dist/katex.min.css';
 import type { Metadata } from 'next';
 import './globals.css';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Nexus Réussite - Pédagogie Augmentée',
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className={`antialiased bg-white text-bleu-nuit`}>
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

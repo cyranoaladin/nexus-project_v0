@@ -18,6 +18,21 @@ describe('Admin Dashboard - systemHealth toggles', () => {
     sessionNow,
     sessionPrev,
     totals = {} as any,
+  }: {
+    revenueNow: number;
+    revenuePrev: number;
+    activeSubs: number;
+    sessionNow: number;
+    sessionPrev: number;
+    totals?: {
+      totalUsers?: number;
+      totalAssistants?: number;
+      totalStudents?: number;
+      totalCoaches?: number;
+      totalParents?: number;
+      totalSubscriptions?: number;
+      totalSessions?: number;
+    };
   }) {
     (prisma as any).user = (prisma as any).user || {};
     (prisma as any).student = (prisma as any).student || {};
@@ -62,6 +77,14 @@ describe('Admin Dashboard - systemHealth toggles', () => {
       sessionPrev: 5,
     });
 
+    // Stubs manquants pour les listes utilisées par le route handler
+    (prisma as any).payment.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).user.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).sessionBooking = (prisma as any).sessionBooking || {};
+    (prisma as any).subscriptionRequest = (prisma as any).subscriptionRequest || {};
+    (prisma as any).sessionBooking.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).subscriptionRequest.findMany = jest.fn().mockResolvedValue([]);
+
     const { GET } = require('@/app/api/admin/dashboard/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/dashboard'));
     const json = await res.json();
@@ -73,6 +96,14 @@ describe('Admin Dashboard - systemHealth toggles', () => {
 
   it('marks all as inactive when values are zero', async () => {
     mockCounts({ revenueNow: 0, revenuePrev: 0, activeSubs: 0, sessionNow: 0, sessionPrev: 0 });
+
+    // Stubs manquants pour les listes utilisées par le route handler
+    (prisma as any).payment.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).user.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).sessionBooking = (prisma as any).sessionBooking || {};
+    (prisma as any).subscriptionRequest = (prisma as any).subscriptionRequest || {};
+    (prisma as any).sessionBooking.findMany = jest.fn().mockResolvedValue([]);
+    (prisma as any).subscriptionRequest.findMany = jest.fn().mockResolvedValue([]);
 
     const { GET } = require('@/app/api/admin/dashboard/route');
     const res = await GET(new NextRequest('http://localhost/api/admin/dashboard'));

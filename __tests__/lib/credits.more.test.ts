@@ -51,7 +51,8 @@ describe('lib/credits additional coverage', () => {
     const res = await allocateMonthlyCredits('s1', 4);
     expect(res.type).toBe('MONTHLY_ALLOCATION');
     expect(res.amount).toBe(4);
-    expect(new Date(res.expiresAt).getTime()).toBeGreaterThan(Date.now());
+    expect(res.expiresAt).toBeTruthy();
+    expect(new Date(res.expiresAt as Date).getTime()).toBeGreaterThan(Date.now());
   });
 
   it('canCancelBooking enforces 48h for ATELIER_GROUPE and 24h otherwise', () => {

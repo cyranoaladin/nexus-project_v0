@@ -51,9 +51,12 @@ enum Subject {
 // Énumération des statuts de session
 enum SessionStatus {
   SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
   COMPLETED
   CANCELLED
   NO_SHOW
+  RESCHEDULED
 }
 
 // Énumération des types de paiement
@@ -93,6 +96,20 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
+
+  // Coach specific relations
+  coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
+  coachSessions      SessionBooking[]    @relation("CoachSessions")
+
+  // Student specific relations
+  studentSessions    SessionBooking[]    @relation("StudentSessions")
+
+  // Parent specific relations
+  parentSessions     SessionBooking[]    @relation("ParentSessions")
+
+  // Notification relations
+  notifications      SessionNotification[] @relation("UserNotifications")
+  genericNotifications Notification[] @relation("GenericNotifications")
 
   @@map("users")
 }
@@ -142,6 +159,18 @@ model Student {
   school    String?
   birthDate DateTime?
 
+  // Crédits et sessions
+  credits            Int @default(0)
+  totalSessions      Int @default(0)
+  completedSessions  Int @default(0)
+
+  // Suivi d'usage freemium ARIA
+  freemiumUsage Json?
+
+  // Garantie Bac
+  guaranteeEligible  Boolean   @default(false)
+  guaranteeActivatedAt DateTime?
+
   // Relations
   subscriptions    Subscription[]
   creditTransactions CreditTransaction[]
@@ -149,6 +178,10 @@ model Student {
   ariaConversations AriaConversation[]
   badges           StudentBadge[]
   reports          StudentReport[]
+  subscriptionRequests SubscriptionRequest[]
+  generatedDocuments GeneratedDocument[]
+  bilans           Bilan[]
+  bilanPremiumReports BilanPremium[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -220,7 +253,7 @@ model CreditTransaction {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   // Détails de la transaction
-  type        String // MONTHLY_ALLOCATION, PURCHASE, USAGE, REFUND, EXPIRATION
+  type        CreditTransactionType // enum
   amount      Float  // Peut être négatif pour les utilisations
   description String
 
@@ -306,7 +339,7 @@ model Badge {
   id          String @id @default(cuid())
   name        String @unique
   description String
-  category    String // ASSIDUITE, PROGRESSION, CURIOSITE
+  category    BadgeCategory
   icon        String?
   condition   String // Condition d'obtention
 
@@ -372,11 +405,11 @@ model Payment {
 
   // Statut et méthode
   status PaymentStatus @default(PENDING)
-  method String? // "konnect", "wise", "manual"
+  method PaymentMethod?
 
   // Métadonnées
   externalId String? // ID de transaction externe
-  metadata   String? // JSON string pour SQLite
+  metadata   Json?   // Données supplémentaires
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -420,4 +453,376 @@ model PedagogicalContent {
   updatedAt DateTime @updatedAt
 
   @@map("pedagogical_contents")
-} 
+}
+
+// Add these models to your existing schema
+
+// Coach Availability Management
+model CoachAvailability {
+  id          String   @id @default(cuid())
+  coachId     String
+  coach       User     @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
+
+  // Day of week (0 = Sunday, 1 = Monday, etc.)
+  dayOfWeek   Int
+  startTime   String   // "09:00"
+  endTime     String   // "10:00" (slots are enforced as 1 hour)
+
+  // Modality of the availability
+  modality    AvailabilityModality @default(ONLINE)
+
+  // For specific dates (holidays, special availability)
+  specificDate DateTime?
+  isAvailable Boolean  @default(true)
+
+  // Recurring pattern
+  isRecurring Boolean  @default(true)
+  validFrom   DateTime @default(now())
+  validUntil  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([coachId, dayOfWeek, startTime, endTime, specificDate, modality])
+  @@index([coachId, dayOfWeek])
+  @@index([coachId, specificDate])
+}
+
+// Session Booking Management
+model SessionBooking {
+  id            String           @id @default(cuid())
+
+  // Participants
+  studentId     String
+  student       User             @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  coachId       String
+  coach         User             @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        User?            @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
+
+  // Session Details
+  subject       Subject
+  title         String
+  description   String?
+
+  // Scheduling
+  scheduledDate DateTime
+  startTime     String           // "14:00"
+  endTime       String           // "15:00"
+  duration      Int              // Duration in minutes
+
+  // Status Management
+  status        SessionStatus    @default(SCHEDULED)
+
+  // Session Type
+  type          SessionType      @default(INDIVIDUAL)
+  modality      SessionModality  @default(ONLINE)
+
+  // Location/Meeting Info
+  meetingUrl    String?
+  meetingId     String?
+  location      String?
+
+  // Credits & Payment
+  creditsUsed   Int              @default(1)
+
+  // Feedback & Notes
+  coachNotes    String?
+  studentNotes  String?
+  rating        Int?             // 1-5 stars
+  feedback      String?
+
+  // Attendance
+  studentAttended Boolean?
+  coachAttended   Boolean        @default(true)
+
+  // Timestamps
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  // Relations
+  notifications SessionNotification[]
+  reminders     SessionReminder[]
+
+  @@index([studentId, scheduledDate])
+  @@index([coachId, scheduledDate])
+  @@index([status, scheduledDate])
+  @@index([scheduledDate])
+}
+
+// Notification System
+model SessionNotification {
+  id          String             @id @default(cuid())
+  sessionId   String
+  session     SessionBooking     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Recipients
+  userId      String
+  user        User               @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification Details
+  type        NotificationType
+  title       String
+  message     String
+
+  // Status
+  status      NotificationStatus @default(PENDING)
+  sentAt      DateTime?
+  readAt      DateTime?
+
+  // Delivery Method
+  method      NotificationMethod @default(EMAIL)
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([userId, status])
+  @@index([sessionId])
+}
+
+// Reminder System
+model SessionReminder {
+  id          String         @id @default(cuid())
+  sessionId   String
+  session     SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Reminder Timing
+  reminderType ReminderType
+  scheduledFor DateTime
+
+  // Status
+  sent        Boolean        @default(false)
+  sentAt      DateTime?
+
+  createdAt   DateTime       @default(now())
+
+  @@index([scheduledFor, sent])
+  @@index([sessionId])
+}
+
+// Modèle pour les notifications système
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // ID de l'utilisateur qui reçoit la notification
+  user        User     @relation(name: "GenericNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  userRole    UserRole // Rôle de l'utilisateur (ASSISTANTE, ADMIN, etc.)
+  type        GenericNotificationType
+  title       String
+  message     String
+  data        String   // JSON string pour données supplémentaires
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+// Modèle pour les demandes de modification d'abonnement
+model SubscriptionRequest {
+  id              String   @id @default(cuid())
+  studentId       String
+  requestType     SubscriptionRequestType
+  planName        String?
+  monthlyPrice    Float
+  reason          String?
+  status          SubscriptionRequestStatus
+  requestedBy     String
+  requestedByEmail String
+  processedBy     String?
+  processedAt     DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("subscription_requests")
+}
+
+// Modèle Document généré par ARIA
+model GeneratedDocument {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title     String
+  description String?
+  url       String
+  subject   Subject
+  createdAt DateTime @default(now())
+
+  @@index([studentId, createdAt])
+  @@map("generated_documents")
+}
+
+// Enums
+
+enum AvailabilityModality {
+  ONLINE
+  IN_PERSON
+}
+
+enum SessionType {
+  INDIVIDUAL
+  GROUP
+  MASTERCLASS
+}
+
+enum SessionModality {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum NotificationType {
+  SESSION_BOOKED
+  SESSION_CONFIRMED
+  SESSION_REMINDER
+  SESSION_CANCELLED
+  SESSION_RESCHEDULED
+  SESSION_COMPLETED
+  COACH_ASSIGNED
+  PAYMENT_REQUIRED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum NotificationMethod {
+  EMAIL
+  SMS
+  IN_APP
+  PUSH
+}
+
+enum ReminderType {
+  ONE_DAY_BEFORE
+  TWO_HOURS_BEFORE
+  THIRTY_MINUTES_BEFORE
+  SESSION_STARTING
+}
+
+enum PaymentMethod {
+  KONNECT
+  WISE
+  MANUAL
+}
+
+enum BadgeCategory {
+  ASSIDUITE
+  PROGRESSION
+  CURIOSITE
+}
+
+enum CreditTransactionType {
+  MONTHLY_ALLOCATION
+  PURCHASE
+  USAGE
+  REFUND
+  EXPIRATION
+  CREDIT_REQUEST
+  CREDIT_ADD
+  CREDIT_REJECTED
+}
+
+enum SubscriptionRequestType {
+  PLAN_CHANGE
+  ARIA_ADDON
+  INVOICE_DETAILS
+}
+
+enum SubscriptionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GenericNotificationType {
+  SUBSCRIPTION_REQUEST
+  CREDIT_REQUEST
+}
+
+// === Bilan (Academic & Pedagogical Assessment) ===
+model Bilan {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  subject      Subject
+  level        String?  // 'premiere' | 'terminale' (extensible)
+  statut       String?  // 'scolarise_fr' | 'candidat_libre'
+
+  // Raw inputs and computed data
+  qcmAnswers    Json?
+  qcmScores     Json?   // { byDomain: { [domain]: { points, max, percent } }, scoreGlobal, weakDomains, ... }
+  pedagoProfile Json?   // { style, organisation, motivation, difficultes, attentes, ... }
+  synthesis     Json?   // { forces: string[], faiblesses: string[], feuilleDeRoute: string[], text?: string }
+  offers        Json?   // { primary: string, alternatives: string[], reasoning: string }
+
+  // Relations
+  mailLogs     MailLog[]
+
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([studentId, createdAt])
+  @@map("bilans")
+}
+
+// === MailLog (Email delivery journal for Bilan PDFs) ===
+model MailLog {
+  id         String   @id @default(cuid())
+  bilanId    String
+  bilan      Bilan    @relation(fields: [bilanId], references: [id], onDelete: Cascade)
+
+  userId     String   // sender id (élève/parent/staff)
+  variant    String   // 'standard' | 'parent' | 'eleve'
+  recipients String   // CSV of emails
+  subject    String
+  status     String   // 'SENT' | 'FAILED'
+  messageId  String?
+  error      String?
+
+  createdAt  DateTime @default(now())
+
+  @@index([bilanId, createdAt])
+  @@map("mail_logs")
+}
+
+// === Premium Bilan Generation ===
+model BilanPremium {
+  id        String    @id @default(cuid())
+  studentId String
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  variant   BilanVariant // PARENT / ELEVE
+  status    JobStatus @default(PENDING)
+  meta      Json // qcm summary, indices, version, etc.
+  volet2Summary Json?   // Pour stocker les résultats du Volet 2
+  pdfUrl    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([studentId, variant])
+  @@map("bilan_premium_reports")
+}
+
+enum BilanVariant {
+  PARENT
+  ELEVE
+}
+
+enum JobStatus {
+  PENDING
+  GENERATING
+  COMPILING
+  READY
+  FAILED
+}

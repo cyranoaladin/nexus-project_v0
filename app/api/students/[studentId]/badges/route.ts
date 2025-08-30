@@ -12,18 +12,26 @@ export async function GET(request: NextRequest, { params }: { params: { studentI
   }
 
   try {
-    // Pour l'instant, nous retournons une liste vide.
-    // La logique de récupération des badges sera implémentée plus tard.
-    const badges = await prisma.studentBadge.findMany({
+    const studentBadges = await prisma.studentBadge.findMany({
       where: {
-        studentId: studentId,
+        studentId,
       },
       include: {
         badge: true,
       },
+      orderBy: { earnedAt: 'desc' },
     });
 
-    return NextResponse.json(badges);
+    const badges = (studentBadges || []).map((sb) => ({
+      id: sb.id,
+      name: sb.badge?.name || 'Badge',
+      description: sb.badge?.description || '',
+      category: sb.badge?.category || 'ASSIDUITE',
+      icon: sb.badge?.icon || '🏅',
+      unlockedAt: sb.earnedAt,
+    }));
+
+    return NextResponse.json({ badges });
   } catch (error) {
     console.error(`Error fetching badges for student ${studentId}:`, error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

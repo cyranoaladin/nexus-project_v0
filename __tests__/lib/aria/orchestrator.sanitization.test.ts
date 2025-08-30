@@ -3,16 +3,17 @@ import { llm_service, pdf_generator_service } from '@/lib/aria/services';
 import { prisma } from '@/lib/prisma';
 
 describe('AriaOrchestrator LaTeX sanitization and RAG catch branches', () => {
+  const OLD = { PDF_REMOTE_DISABLED: process.env.PDF_REMOTE_DISABLED } as any;
+  beforeAll(() => { process.env.PDF_REMOTE_DISABLED = '0'; });
+  afterAll(() => { process.env.PDF_REMOTE_DISABLED = OLD.PDF_REMOTE_DISABLED; });
   beforeEach(() => {
     jest.clearAllMocks();
     (prisma as any).student = {
-      findUnique: jest
-        .fn()
-        .mockResolvedValue({
-          id: 's1',
-          user: { firstName: 'A', lastName: 'B' },
-          parent: { user: { firstName: 'P', lastName: 'Q' } },
-        }),
+      findUnique: jest.fn().mockResolvedValue({
+        id: 's1',
+        user: { firstName: 'A', lastName: 'B' },
+        parent: { user: { firstName: 'P', lastName: 'Q' } },
+      }),
     };
     (prisma as any).ariaMessage = {
       findMany: jest.fn().mockResolvedValue([]),
@@ -38,12 +39,10 @@ describe('AriaOrchestrator LaTeX sanitization and RAG catch branches', () => {
   });
 
   it('fallback minimalFromText escapes special chars and newlines', async () => {
-    (llm_service as any).generate_response = jest
-      .fn()
-      .mockResolvedValue({
-        response: 'Texte avec # et % et & et { }\nligne 2',
-        contenu_latex: 'bad',
-      });
+    (llm_service as any).generate_response = jest.fn().mockResolvedValue({
+      response: 'Texte avec # et % et & et { }\nligne 2',
+      contenu_latex: 'bad',
+    });
     (pdf_generator_service as any).generate_pdf = jest
       .fn()
       .mockRejectedValueOnce(new Error('fail1'))

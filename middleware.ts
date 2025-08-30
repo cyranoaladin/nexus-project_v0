@@ -54,7 +54,8 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token || process.env.E2E === '1',
+      authorized: ({ token }) =>
+        !!token || process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1',
     },
   }
 );

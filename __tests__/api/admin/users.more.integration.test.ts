@@ -22,19 +22,17 @@ describe('API /api/admin/users additional branches', () => {
   });
 
   it('GET applies role and search filters and returns formatted users', async () => {
-    (prisma as any).user.findMany = jest
-      .fn()
-      .mockResolvedValue([
-        {
-          id: 'u1',
-          email: 'a@a.com',
-          firstName: 'Alice',
-          lastName: 'A',
-          role: 'COACH',
-          createdAt: new Date(),
-          coachProfile: { id: 'cp1' },
-        },
-      ]);
+    (prisma as any).user.findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'u1',
+        email: 'a@a.com',
+        firstName: 'Alice',
+        lastName: 'A',
+        role: 'COACH',
+        createdAt: new Date(),
+        coachProfile: { id: 'cp1' },
+      },
+    ]);
     (prisma as any).user.count = jest.fn().mockResolvedValue(1);
 
     const { GET } = require('@/app/api/admin/users/route');

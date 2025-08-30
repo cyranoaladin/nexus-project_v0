@@ -41,14 +41,12 @@ describe('API /api/aria/chat Integration Tests', () => {
     jest.clearAllMocks();
 
     // Mocker les fonctions Prisma utilisées par le handler et l'orchestrateur
-    (prisma as any).student.findUnique = jest
-      .fn()
-      .mockImplementation(async () => ({
-        id: studentId,
-        freemiumUsage: freemiumState,
-        user: { firstName: 'Aria', lastName: 'Test' },
-        parent: { user: { firstName: 'Parent', lastName: 'Test' } },
-      }));
+    (prisma as any).student.findUnique = jest.fn().mockImplementation(async () => ({
+      id: studentId,
+      freemiumUsage: freemiumState,
+      user: { firstName: 'Aria', lastName: 'Test' },
+      parent: { user: { firstName: 'Parent', lastName: 'Test' } },
+    }));
     (prisma as any).ariaConversation.findFirst = jest.fn().mockResolvedValue(null);
     (prisma as any).ariaConversation.create = jest.fn().mockResolvedValue({ id: 'conv-1' });
     (prisma as any).ariaMessage.findMany = jest.fn().mockResolvedValue([]);
@@ -181,13 +179,11 @@ describe('API /api/aria/chat Integration Tests', () => {
     nextAuth.getServerSession.mockResolvedValue({
       user: { id: 'user-student-ctx', role: 'ELEVE', studentId: 's-ctx', parentId: 'p-ctx' },
     });
-    (prisma as any).student.findUnique = jest
-      .fn()
-      .mockResolvedValue({
-        id: 's-ctx',
-        user: { firstName: 'Ctx', lastName: 'User' },
-        parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-ctx' },
-      });
+    (prisma as any).student.findUnique = jest.fn().mockResolvedValue({
+      id: 's-ctx',
+      user: { firstName: 'Ctx', lastName: 'User' },
+      parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-ctx' },
+    });
     (prisma as any).ariaMessage.findMany = jest.fn().mockResolvedValue([]);
     (prisma as any).assessment = { findMany: jest.fn().mockResolvedValue([]) };
     (prisma as any).mastery = {
@@ -224,13 +220,11 @@ describe('API /api/aria/chat Integration Tests', () => {
     nextAuth.getServerSession.mockResolvedValue({
       user: { id: 'user-student-ctx', role: 'ELEVE', studentId: 's-ctx2', parentId: 'p-ctx2' },
     });
-    (prisma as any).student.findUnique = jest
-      .fn()
-      .mockResolvedValue({
-        id: 's-ctx2',
-        user: { firstName: 'Ctx', lastName: 'User' },
-        parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-ctx2' },
-      });
+    (prisma as any).student.findUnique = jest.fn().mockResolvedValue({
+      id: 's-ctx2',
+      user: { firstName: 'Ctx', lastName: 'User' },
+      parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-ctx2' },
+    });
     (prisma as any).ariaMessage.findMany = jest.fn().mockResolvedValue([]);
     (prisma as any).mastery = {
       findMany: jest
@@ -261,13 +255,11 @@ describe('API /api/aria/chat Integration Tests', () => {
     nextAuth.getServerSession.mockResolvedValue({
       user: { id: 'user-student-rag', role: 'ELEVE', studentId: 's-rag', parentId: 'p-rag' },
     });
-    (prisma as any).student.findUnique = jest
-      .fn()
-      .mockResolvedValue({
-        id: 's-rag',
-        user: { firstName: 'R', lastName: 'A' },
-        parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-rag' },
-      });
+    (prisma as any).student.findUnique = jest.fn().mockResolvedValue({
+      id: 's-rag',
+      user: { firstName: 'R', lastName: 'A' },
+      parent: { user: { firstName: 'P', lastName: 'U' }, id: 'p-rag' },
+    });
     (prisma as any).ariaMessage.findMany = jest.fn().mockResolvedValue([]);
     const longText =
       '# Titre\n' +

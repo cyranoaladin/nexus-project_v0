@@ -1,1 +1,36 @@
-bash: ligne 1: playwright : commande introuvable
+
+Running 32 tests using 1 worker
+
+[1A[2K[1/32] [firefox] › e2e/a11y.spec.ts:7:5 › a11y: ARIA page has no serious/critical violations
+[1A[2K[2/32] [firefox] › e2e/admin-debug-pdf.spec.ts:7:7 › Admin Debug PDF (ARIA) › generates a PDF and exposes a valid download URL
+[1A[2K[3/32] [firefox] › e2e/admin-rag-upload.spec.ts:5:7 › Admin RAG Upload › parse metadata and ingest document
+[1A[2K[4/32] [firefox] › e2e/agenda-flow.spec.ts:5:7 › Agenda Flow › Student sessions page renders
+[1A[2K[5/32] [firefox] › e2e/aria-freemium-flow.spec.ts:5:7 › ARIA Freemium Flow - Lucas Dupont › shows subscription prompt after 6 questions
+[1A[2K[6/32] [firefox] › e2e/aria-interaction.spec.ts:6:7 › ARIA Interaction Flow › should not allow unauthenticated users to use ARIA
+[1A[2K[7/32] [firefox] › e2e/aria-interaction.spec.ts:13:7 › ARIA Interaction Flow › should allow authenticated users to ask a question
+[1A[2K[8/32] [firefox] › e2e/aria-interaction.spec.ts:67:7 › ARIA Interaction Flow › should respect freemium limits by returning a 429 status
+[1A[2K[9/32] [firefox] › e2e/aria-pdf-download.spec.ts:6:7 › ARIA PDF download button › shows a Télécharger le PDF button with a valid href
+[1A[2K[10/32] [firefox] › e2e/aria-premium-flow.spec.ts:5:7 › ARIA Premium Flow - Marie Dupont › personalized answer with mastery hint and PDF success, then remembers context
+[1A[2K[11/32] [firefox] › e2e/assistante-ticketing.spec.ts:5:7 › Assistante ticketing › Assistante dashboard opens and can access support/tickets area
+[1A[2K[12/32] [firefox] › e2e/auth-flow.spec.ts:5:7 › Auth Flow › Login page loads and allows typing
+[1A[2K[13/32] [firefox] › e2e/auth-flow.spec.ts:14:7 › Auth Flow › La page de connexion ne doit avoir aucune violation d'accessibilité critique
+[1A[2K[14/32] [firefox] › e2e/auth-rbac-guards.spec.ts:5:7 › RBAC Guards › Parent cannot access /aria (403 or redirect)
+[1A[2K[15/32] [firefox] › e2e/bilan-flow.spec.ts:7:5 › Bilan flow: start -> qcm -> profil -> rapport -> pdf
+[1A[2K[16/32] [firefox] › e2e/coach-session-flow.spec.ts:5:7 › Coach session flow › Coach dashboard opens and can schedule a session entry
+[1A[2K[17/32] [firefox] › e2e/crawl.spec.ts:6:5 › crawl buttons & links on key pages
+[1A[2K[18/32] [firefox] › e2e/error-resilience.spec.ts:5:7 › Error resilience › Simulated rag_service outage produces graceful degradation in ARIA
+[1A[2K[19/32] [firefox] › e2e/full-journey.spec.ts:12:7 › Parcours complets critiques › Accueil et navigation de base
+[1A[2K[20/32] [firefox] › e2e/full-journey.spec.ts:25:7 › Parcours complets critiques › Bilan gratuit - formulaire accessible
+[1A[2K[21/32] [firefox] › e2e/full-journey.spec.ts:33:7 › Parcours complets critiques › Authentication - écran de connexion accessible
+[1A[2K[22/32] [firefox] › e2e/full-journey.spec.ts:38:7 › Parcours complets critiques › ARIA+ - présence du composant chat
+[1A[2K[23/32] [firefox] › e2e/i18n-a11y.spec.ts:6:7 › i18n and accessibility › Switch locale and run an accessibility scan on a dashboard page
+[1A[2K[24/32] [firefox] › e2e/i18n-fr.spec.ts:4:7 › Vérifications i18n FR › Admin analytics: titre FR présent, pas de "Analytics" en clair
+[1A[2K[25/32] [firefox] › e2e/i18n-fr.spec.ts:9:7 › Vérifications i18n FR › Parent: pas de N/A pour prochaine facturation ("Aucune" accepté)
+[1A[2K[26/32] [firefox] › e2e/mobile-responsive.spec.ts:5:7 › Mobile responsive › Chat UI usable on iPhone viewport
+[1A[2K[27/32] [firefox] › e2e/parent-portal.spec.ts:5:7 › Parent portal › Parent sees two children and basic dashboard loads
+[1A[2K[28/32] [firefox] › e2e/payments-flow.spec.ts:6:7 › Payments Flow › Konnect demo page renders
+[1A[2K[29/32] [firefox] › e2e/session-booking-flow.spec.ts:5:7 › Session Booking Flow (E2E, smoke) › Parent reaches booking UI via dashboard tab (E2E mode)
+[1A[2K[30/32] [firefox] › e2e/subscriptions-aria.spec.ts:4:7 › Subscriptions and ARIA+ › ARIA chat widget present on dashboard
+[1A[2K[31/32] [firefox] › e2e/upload-a11y.spec.ts:9:7 › Upload Analyse - Accessibilité › La page de gestion RAG (upload) ne doit avoir aucune violation critique
+[1A[2K[32/32] [firefox] › e2e/upload-analyse.spec.ts:6:7 › Uploads Analyse › rejects unauthenticated upload
+[1A[2K  32 passed (1.5m)

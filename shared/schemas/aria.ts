@@ -5,6 +5,9 @@ export const AriaChatRequestSchema = z.object({
   message: z.string().min(1, 'Le message ne peut pas être vide.'),
   subject: zSubject,
   attachments: z.array(zAttachment).optional().default([]),
+  forcePdf: z.boolean().optional().default(false),
+  docTitle: z.string().max(120).optional(),
+  docDescription: z.string().max(500).optional(),
 });
 
 export const AriaChatResponseSchema = z.object({

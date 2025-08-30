@@ -55,6 +55,7 @@ export function AriaChat() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasAriaAccess, setHasAriaAccess] = useState(false);
   const [showSubscriptionPrompt, setShowSubscriptionPrompt] = useState(false);
+  const [fakeLocal, setFakeLocal] = useState(false);
 
   useEffect(() => {
     if (session?.user.role === 'ELEVE') {
@@ -115,6 +116,7 @@ export function AriaChat() {
       });
 
       const result = await response.json();
+      setFakeLocal(!!result?.fakeLocal);
 
       if (response.status === 429) {
         // Limite de requêtes atteinte
@@ -286,6 +288,11 @@ export function AriaChat() {
                       <CardTitle className="text-xl font-bold">ARIA</CardTitle>
                       <p className="text-sm text-white/90">Assistant IA Pédagogique 24/7</p>
                     </div>
+                    {fakeLocal && (
+                      <span className="ml-2 px-2 py-0.5 text-xs rounded bg-yellow-100 text-yellow-800 border border-yellow-300">
+                        Fake local
+                      </span>
+                    )}
                   </div>
                   <Button
                     variant="ghost"

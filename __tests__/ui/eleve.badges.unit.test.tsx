@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { waitForElementToBeRemoved } from '@testing-library/dom';
 import DashboardEleve from '@/app/dashboard/eleve/page';
 
 jest.mock('next-auth/react', () => ({
@@ -33,6 +34,10 @@ global.fetch = jest.fn().mockResolvedValue({
 describe('Dashboard Élève - badges', () => {
   it('affiche les badges renvoyés par l’API', async () => {
     render((<DashboardEleve />) as any);
-    expect(await screen.findByText(/ASSIDUITE_BRONZE/i)).toBeInTheDocument();
+    // wait for main page loading to disappear
+    try {
+      await waitForElementToBeRemoved(() => screen.getByText(/Chargement de votre espace/i), { timeout: 3000 });
+    } catch {}
+    await waitFor(() => expect(screen.getAllByText(/ASSIDUITE_BRONZE/i).length).toBeGreaterThan(0));
   });
 });

@@ -29,6 +29,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 // Helper pour formater les prix
 const formatPrice = (price: number) => `${price} TND`;
@@ -196,6 +197,11 @@ function ARIAInteractiveModule() {
   const { data: session } = useSession();
   const router = useRouter();
   const [selectedSubjects, setSelectedSubjects] = useState(['maths']);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Pour simplifier, on suppose que le parent a un élève.
+  // Dans une vraie app, on aurait un sélecteur d'élève.
+  const studentId = (session?.user as any)?.studentId;
 
   const toggleSubject = (subjectId: string) => {
     if (selectedSubjects.includes(subjectId)) {
@@ -212,16 +218,56 @@ function ARIAInteractiveModule() {
   const isPackBetter = additionalSubjects >= 2;
   const savings = additionalCost - packPrice;
 
-  const handleProceed = () => {
-    const subjectsParam = selectedSubjects.join(',');
-    const price = isPackBetter ? packPrice : additionalCost;
-    const target = `/dashboard/parent/abonnements?subjects=${encodeURIComponent(subjectsParam)}&price=${price}`;
+  const handleProceed = async () => {
     if (!session) {
+      const target = `/offres`; // Rediriger ici après connexion
       const cb = encodeURIComponent(target);
       router.push(`/auth/signin?callbackUrl=${cb}`);
       return;
     }
-    router.push(target);
+
+    if (!studentId) {
+      toast.error("Profil élève non trouvé", { description: "Impossible de faire la demande sans élève associé."});
+      return;
+    }
+
+    setIsLoading(true);
+    const price = isPackBetter ? packPrice : additionalCost;
+    
+    try {
+      const response = await fetch('/api/subscriptions/request-aria', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentId,
+          subjects: selectedSubjects,
+          price,
+          isPack: isPackBetter,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Une erreur est survenue.');
+      }
+
+      toast.success('Demande envoyée !', {
+        description: "Votre demande d'abonnement ARIA a été transmise. Un assistant la traitera bientôt.",
+        action: {
+          label: 'Voir mes demandes',
+          onClick: () => router.push('/dashboard/parent/abonnements'),
+        },
+      });
+      // Optionnel: rediriger après un court délai
+      setTimeout(() => router.push('/dashboard/parent/abonnements'), 3000);
+
+    } catch (error: any) {
+      toast.error('Échec de la demande', { description: error.message });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -338,9 +384,10 @@ function ARIAInteractiveModule() {
 
           <Button
             onClick={handleProceed}
+            disabled={isLoading}
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           >
-            {isPackBetter ? 'Choisir le Pack Toutes Matières' : 'Ajouter à mon Abonnement'}
+            {isLoading ? 'Envoi en cours...' : (isPackBetter ? 'Choisir le Pack Toutes Matières' : 'Ajouter à mon Abonnement')}
           </Button>
         </div>
       </div>

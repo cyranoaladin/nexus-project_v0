@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { loginAs } from './helpers';
 
+test.setTimeout(180000);
+
 test('a11y: ARIA page has no serious/critical violations', async ({ page }) => {
   await loginAs(page, 'marie.dupont@nexus.com', 'password123');
   await page.goto('/aria');

@@ -6,6 +6,8 @@ import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { MessageRenderer } from './MessageRenderer';
 import { SubscriptionPrompt } from './SubscriptionPrompt';
+import { Button } from '@/components/ui/button';
+import { Toaster, toast } from 'sonner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -28,9 +30,18 @@ export function ChatWindow() {
   const [currentSubject, setCurrentSubject] = useState('MATHEMATIQUES'); // Valeur par défaut valide et conforme à l'enum
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [lastPdfUrl, setLastPdfUrl] = useState<string | null>(null);
+  const [pdfMode, setPdfMode] = useState<boolean>(false);
+  const [fakeLocal, setFakeLocal] = useState<boolean>(false);
+  const [docTitle, setDocTitle] = useState<string>('');
+  const [docDescription, setDocDescription] = useState<string>('');
 
   useEffect(() => {
     setHydrated(true);
+    try {
+      const saved = localStorage.getItem('aria_pdf_mode');
+      if (saved != null) setPdfMode(saved === '1');
+    } catch {}
   }, []);
 
   async function handleUpload(files: FileList | null) {
@@ -65,6 +76,60 @@ export function ChatWindow() {
     }
   }
 
+  const callAria = async (payload: any) => {
+    try {
+      const res = await fetch('/api/aria/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 429) {
+        setShowSubscriptionPrompt(true);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: "Vous avez atteint votre limite pour aujourd'hui." },
+        ]);
+        return null;
+      }
+
+      if (!res.ok) {
+        throw new Error(`Erreur API: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setFakeLocal(!!data?.fakeLocal);
+      const assistantMessage: Message = { role: 'assistant', content: data.response };
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      if (data.documentUrl) {
+        const url = String(data.documentUrl);
+        setLastPdfUrl(url);
+        const linkMsg: Message = {
+          role: 'assistant',
+          content: `PDF généré: [Télécharger le document](${url})`,
+        };
+        setMessages((prev) => [...prev, linkMsg]);
+        // Toast de notification
+        toast.success('PDF prêt', {
+          action: {
+            label: 'Télécharger',
+            onClick: () => window.open(url, '_blank', 'noopener'),
+          },
+        });
+      }
+      return data;
+    } catch (error) {
+      console.error("Erreur lors de l'appel API:", error);
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: 'Désolé, une erreur est survenue. Veuillez réessayer.',
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -74,50 +139,36 @@ export function ChatWindow() {
     setInput('');
     setIsLoading(true);
 
-    try {
-      const res = await fetch('/api/aria/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input, subject: currentSubject, attachments }),
-      });
-
-      if (res.status === 429) {
-        setShowSubscriptionPrompt(true);
-        setMessages((prev) => [
-          ...prev,
-          { role: 'assistant', content: "Vous avez atteint votre limite pour aujourd'hui." },
-        ]);
-        setIsLoading(false); // Correction : S'assurer de désactiver le chargement
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`Erreur API: ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      const assistantMessage: Message = { role: 'assistant', content: data.response };
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      // Afficher un lien PDF lorsque disponible
-      if (data.documentUrl) {
-        const linkMsg: Message = {
-          role: 'assistant',
-          content: `PDF généré: [Télécharger le document](${data.documentUrl})`,
-        };
-        setMessages((prev) => [...prev, linkMsg]);
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'Désolé, une erreur est survenue. Veuillez réessayer.',
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+    const payload: any = {
+      message: userMessage.content,
+      subject: currentSubject,
+      attachments,
+      forcePdf: pdfMode,
+    };
+    if (pdfMode) {
+      if (docTitle?.trim()) payload.docTitle = docTitle.trim();
+      if (docDescription?.trim()) payload.docDescription = docDescription.trim();
     }
+    const res = await callAria(payload);
+    setIsLoading(false);
+    return res;
   };
+
+  async function handleExportPdf() {
+    if (!input.trim() || isLoading) return;
+    const msg = input;
+    // Ajoute un message utilisateur dans l'historique
+    const userMessage: Message = { role: 'user', content: msg + ' (Export PDF)' };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    const payload: any = { message: msg, subject: currentSubject, attachments, forcePdf: true };
+    if (docTitle?.trim()) payload.docTitle = docTitle.trim();
+    if (docDescription?.trim()) payload.docDescription = docDescription.trim();
+    const res = await callAria(payload);
+    setIsLoading(false);
+    return res;
+  }
 
   if (!hydrated) {
     return null;
@@ -136,6 +187,7 @@ export function ChatWindow() {
       className="bg-white border border-gray-200 rounded-lg shadow-lg max-w-4xl mx-auto"
       data-testid="nexus-aria-container"
     >
+      <Toaster position="top-right" richColors />
       {/* Mascotte ARIA */}
       <div className="p-4 flex items-center gap-3">
         <Image
@@ -147,6 +199,11 @@ export function ChatWindow() {
           data-testid="nexus-aria-mascotte"
         />
         <div className="text-sm text-gray-600">Assistant ARIA</div>
+        {fakeLocal && (
+          <span className="ml-2 px-2 py-0.5 text-xs rounded bg-yellow-100 text-yellow-800 border border-yellow-300">
+            Fake local
+          </span>
+        )}
       </div>
       {showSubscriptionPrompt && (
         <div data-testid="nexus-subscription-prompt">
@@ -189,6 +246,42 @@ export function ChatWindow() {
             data-testid="nexus-upload-input"
           />
         </div>
+        <div className="mt-3 flex items-center gap-3">
+          <label className="text-sm font-semibold" htmlFor="pdf-mode">
+            Mode PDF
+          </label>
+          <input
+            id="pdf-mode"
+            type="checkbox"
+            checked={pdfMode}
+            onChange={(e) => {
+              setPdfMode(e.target.checked);
+              try {
+                localStorage.setItem('aria_pdf_mode', e.target.checked ? '1' : '0');
+              } catch {}
+            }}
+          />
+          <span className="text-xs text-gray-500">Force l'export PDF pour chaque requête</span>
+        </div>
+        {/* Métadonnées PDF (titre/description) */}
+        <div className="mt-3 grid grid-cols-1 gap-2">
+          <input
+            type="text"
+            placeholder="Titre du document (optionnel)"
+            value={docTitle}
+            onChange={(e) => setDocTitle(e.target.value)}
+            className="p-2 border rounded-md"
+            aria-label="Titre du document"
+          />
+          <input
+            type="text"
+            placeholder="Description (optionnel)"
+            value={docDescription}
+            onChange={(e) => setDocDescription(e.target.value)}
+            className="p-2 border rounded-md"
+            aria-label="Description du document"
+          />
+        </div>
         {attachments.length > 0 && (
           <div className="mt-2 text-sm text-gray-700">
             Pièces jointes:
@@ -211,11 +304,26 @@ export function ChatWindow() {
         )}
       </div>
 
+      {/* Zone de messages */}
       <div
         className="h-[60vh] overflow-y-auto p-6 space-y-4"
         data-testid="aria-messages"
         data-testid-aria="aria-messages"
       >
+        {/* Bandeau de téléchargement PDF si disponible */}
+        {lastPdfUrl && (
+          <div className="flex justify-end">
+            <a href={lastPdfUrl} target="_blank" rel="noreferrer" download>
+              <Button
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                data-testid="aria-download-pdf"
+              >
+                Télécharger le PDF
+              </Button>
+            </a>
+          </div>
+        )}
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -237,7 +345,7 @@ export function ChatWindow() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t flex items-center">
+      <form onSubmit={handleSubmit} className="p-4 border-t flex items-center gap-2">
         <input
           type="text"
           value={input}
@@ -255,10 +363,19 @@ export function ChatWindow() {
           data-testid="aria-send"
           data-testid-nexus="nexus-aria-send"
           disabled={isE2E ? false : isLoading}
-          className="bg-bleu-primaire text-white p-3 rounded-r-lg font-bold hover:bg-opacity-90 disabled:bg-gray-400"
+          className="bg-bleu-primaire text-white p-3 rounded-lg font-bold hover:bg-opacity-90 disabled:bg-gray-400"
         >
           Envoyer
         </button>
+        <Button
+          type="button"
+          onClick={handleExportPdf}
+          disabled={isLoading}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white"
+          data-testid="aria-export-pdf"
+        >
+          Exporter en PDF
+        </Button>
       </form>
     </div>
   );

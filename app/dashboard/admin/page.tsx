@@ -18,13 +18,29 @@ import {
   Shield,
   TestTube,
   Users,
+  FileText,
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import nextDynamic from 'next/dynamic';
+import {
+  ResponsiveContainer,
+  LineChart as RLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  BarChart as RBarChart,
+  Bar,
+} from 'recharts';
 
+interface GrowthPoint {
+  date: string;
+  value: number;
+}
 interface DashboardData {
   totalUsers: number;
   totalStudents: number;
@@ -34,8 +50,8 @@ interface DashboardData {
   revenueLast30Days: number;
   totalSubscriptions: number;
   recentActivities: any[];
-  userGrowth: any[];
-  revenueGrowth: any[];
+  userGrowth: GrowthPoint[];
+  revenueGrowth: GrowthPoint[];
   totalAssistants: number;
   thisMonthSessions: number;
   sessionGrowthPercent: number;
@@ -282,6 +298,71 @@ function DashboardAdmin() {
               </Card>
             </div>
 
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-sm md:text-base">
+                    <BarChart className="w-4 h-4 md:w-5 md:h-5 mr-2 text-green-600" />
+                    Revenu – 30 derniers jours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div style={{ width: '100%', height: 260 }}>
+                    <ResponsiveContainer>
+                      <RBarChart
+                        data={data?.revenueGrowth || []}
+                        margin={{ top: 8, right: 16, left: -20, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={6} />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip
+                          formatter={(v: any) => [`${v} TND`, 'Revenu']}
+                          labelFormatter={(l) => `Jour: ${l}`}
+                        />
+                        <Bar dataKey="value" fill="#16a34a" radius={[4, 4, 0, 0]} />
+                      </RBarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-sm md:text-base">
+                    <Users className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
+                    Nouveaux utilisateurs – 30 derniers jours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div style={{ width: '100%', height: 260 }}>
+                    <ResponsiveContainer>
+                      <RLineChart
+                        data={data?.userGrowth || []}
+                        margin={{ top: 8, right: 16, left: -20, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={6} />
+                        <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                        <Tooltip
+                          formatter={(v: any) => [`${v}`, 'Utilisateurs']}
+                          labelFormatter={(l) => `Jour: ${l}`}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#2563eb"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      </RLineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Main Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
               {/* Outils d'Administration */}
@@ -373,10 +454,46 @@ function DashboardAdmin() {
                     >
                       <Link href="/dashboard/admin/analytics">
                         <div className="flex items-center space-x-3">
-                          <BarChart className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                          <BarChart className="w-4 h-4 md:w-5 md:h-5 text_green-600" />
                           <div className="text-left">
                             <p className="font-medium text-sm md:text-base">Analytique</p>
                             <p className="text-xs md:text-sm text-gray-500">Métriques détaillées</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full justify_start h-auto p-3 md:p-4"
+                      asChild
+                    >
+                      <Link href="/dashboard/admin/debug/pdf">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
+                          <div className="text-left">
+                            <p className="font-medium text-sm md:text-base">Debug PDF (ARIA)</p>
+                            <p className="text-xs md:text-sm text-gray-500">
+                              Générer un PDF distant
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full justify_start h-auto p-3 md:p-4"
+                      asChild
+                    >
+                      <Link href="/dashboard/admin/settings/aria">
+                        <div className="flex items-center space-x-3">
+                          <Settings className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                          <div className="text-left">
+                            <p className="font-medium text-sm md:text-base">Paramètres ARIA</p>
+                            <p className="text-xs md:text-sm text-gray-500">
+                              Contenu dense (amplification)
+                            </p>
                           </div>
                         </div>
                       </Link>

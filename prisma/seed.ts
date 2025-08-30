@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -233,7 +233,7 @@ async function main() {
         currency: 'TND',
         description: 'Revenus mois en cours',
         status: 'COMPLETED',
-        method: 'manual',
+        method: 'MANUAL',
         createdAt: now,
       },
       {
@@ -243,7 +243,7 @@ async function main() {
         currency: 'TND',
         description: 'Crédits',
         status: 'COMPLETED',
-        method: 'manual',
+        method: 'MANUAL',
         createdAt: now,
       },
       {
@@ -253,7 +253,7 @@ async function main() {
         currency: 'TND',
         description: 'Revenus mois dernier',
         status: 'COMPLETED',
-        method: 'manual',
+        method: 'MANUAL',
         createdAt: lastMonth,
       },
       {
@@ -263,7 +263,7 @@ async function main() {
         currency: 'TND',
         description: 'Paiement en anomalie',
         status: 'FAILED',
-        method: 'manual',
+        method: 'MANUAL',
         createdAt: now,
       },
     ],
@@ -353,7 +353,7 @@ async function seedPayments() {
         userId: adminUser.id,
         amount: 100,
         status: 'COMPLETED',
-        method: 'TEST',
+        method: 'MANUAL',
         type: 'SPECIAL_PACK',
         description: 'Paiement de test initial',
         externalId: 'seed-payment-1',
@@ -653,7 +653,7 @@ async function extendedSeeds() {
         amount: 250,
         description: 'Hybride mois en cours',
         status: 'PENDING',
-        method: 'konnect',
+        method: 'KONNECT',
       },
       {
         userId: parentVar.id,
@@ -661,7 +661,7 @@ async function extendedSeeds() {
         amount: 100,
         description: 'Pack crédits',
         status: 'REFUNDED',
-        method: 'manual',
+        method: 'MANUAL',
       },
       {
         userId: parentVar.id,
@@ -669,7 +669,7 @@ async function extendedSeeds() {
         amount: 150,
         description: 'Pack spécial',
         status: 'COMPLETED',
-        method: 'manual',
+        method: 'MANUAL',
       },
     ],
   });

@@ -64,18 +64,16 @@ describe('Admin Users API', () => {
     // S'assurer que ces propriétés sont bien des fonctions mockées
     // Forcer explicitement les mocks Prisma pour ce test
     (prisma as any).user.findUnique = jest.fn().mockResolvedValue(null);
-    (prisma as any).user.create = jest
-      .fn()
-      .mockResolvedValue({
-        id: 'u2',
-        email: 'coach@test.com',
-        firstName: 'C',
-        lastName: 'H',
-        role: 'COACH',
-        coachProfile: { id: 'cp1' },
-        studentProfile: null,
-        parentProfile: null,
-      });
+    (prisma as any).user.create = jest.fn().mockResolvedValue({
+      id: 'u2',
+      email: 'coach@test.com',
+      firstName: 'C',
+      lastName: 'H',
+      role: 'COACH',
+      coachProfile: { id: 'cp1' },
+      studentProfile: null,
+      parentProfile: null,
+    });
 
     const payload = {
       email: 'coach@test.com',

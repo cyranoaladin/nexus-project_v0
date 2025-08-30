@@ -24,6 +24,7 @@ const availabilitySchema = z.object({
           endTime: z
             .string()
             .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+          modality: z.enum(['ONLINE', 'IN_PERSON']).default('ONLINE'),
           isAvailable: z.boolean().default(true),
         })
       ),
@@ -42,6 +43,7 @@ const specificDateSchema = z.object({
         .string()
         .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
       endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+      modality: z.enum(['ONLINE', 'IN_PERSON']).default('ONLINE'),
       isAvailable: z.boolean().default(true),
     })
   ),
@@ -49,6 +51,12 @@ const specificDateSchema = z.object({
 
 function isEndAfterStart(startTime: string, endTime: string): boolean {
   return startTime < endTime;
+}
+
+function isExactlyOneHour(startTime: string, endTime: string): boolean {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  return eh * 60 + em - (sh * 60 + sm) === 60;
 }
 
 export async function POST(req: NextRequest) {
@@ -77,7 +85,7 @@ export async function POST(req: NextRequest) {
               { status: 400 }
             );
           }
-          const key = `${day.dayOfWeek}|${slot.startTime}|${slot.endTime}|weekly`;
+          const key = `${day.dayOfWeek}|${slot.startTime}|${slot.endTime}|${slot.modality}|weekly`;
           if (uniqueKeys.has(key)) {
             return NextResponse.json(
               { error: `Duplicate slot ${slot.startTime}-${slot.endTime} on day ${day.dayOfWeek}` },
@@ -107,6 +115,7 @@ export async function POST(req: NextRequest) {
             dayOfWeek: day.dayOfWeek,
             startTime: normalizeTime(slot.startTime),
             endTime: normalizeTime(slot.endTime),
+            modality: slot.modality,
             isAvailable: slot.isAvailable,
             isRecurring: true,
             validFrom: validatedData.validFrom ? new Date(validatedData.validFrom) : new Date(),
@@ -153,7 +162,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        const key = `${specificDate.toDateString()}|${slot.startTime}|${slot.endTime}|specific`;
+        const key = `${specificDate.toDateString()}|${slot.startTime}|${slot.endTime}|${slot.modality}|specific`;
         if (uniqueKeys.has(key)) {
           return NextResponse.json(
             {
@@ -179,6 +188,7 @@ export async function POST(req: NextRequest) {
         dayOfWeek: specificDate.getDay(),
         startTime: normalizeTime(slot.startTime),
         endTime: normalizeTime(slot.endTime),
+        modality: slot.modality,
         isAvailable: slot.isAvailable,
         isRecurring: false,
         specificDate: specificDate,
@@ -243,7 +253,7 @@ export async function GET(req: NextRequest) {
     const coachId = searchParams.get('coachId') || session.user.id;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
-    const modalityFilter = searchParams.get('modality'); // ONLINE | IN_PERSON | HYBRID (ignored) | undefined
+    const modalityFilter = searchParams.get('modality'); // ONLINE | IN_PERSON | undefined
 
     // Only coaches can view their own availability, others can view any coach's availability
     if (session.user.role === 'COACH' && coachId !== session.user.id) {
@@ -258,6 +268,9 @@ export async function GET(req: NextRequest) {
       coachId: coachId,
       isAvailable: true,
     };
+    if (modalityFilter && (modalityFilter === 'ONLINE' || modalityFilter === 'IN_PERSON')) {
+      whereConditions.modality = modalityFilter;
+    }
 
     if (startDate && endDate) {
       whereConditions.OR = [
@@ -355,7 +368,7 @@ function generateAvailableSlots(
   opts?: {
     canOnline: boolean;
     canInPerson: boolean;
-    modalityFilter?: 'ONLINE' | 'IN_PERSON' | 'HYBRID' | undefined;
+    modalityFilter?: 'ONLINE' | 'IN_PERSON' | undefined;
   }
 ) {
   if (!startDate || !endDate) return [];
@@ -387,39 +400,44 @@ function generateAvailableSlots(
       (booking) => new Date(booking.scheduledDate).toDateString() === date.toDateString()
     );
 
-    // Generate hour-long slots from availability
+    // Process availability slots directly without splitting them
     for (const av of dayAvailability) {
-      const hourSegments = splitIntoHourSegments(av.startTime, av.endTime);
-      for (const seg of hourSegments) {
-        // Booking overlap check on this hour segment
-        const isBooked = dayBookings.some(
-          (booking) => booking.startTime < seg.end && booking.endTime > seg.start
-        );
-        if (isBooked) continue;
+      // Check for any booking that overlaps with the availability slot
+      const isBooked = dayBookings.some(
+        (booking) => booking.startTime < av.endTime && booking.endTime > av.startTime
+      );
+      if (isBooked) continue;
 
-        // Business hours check
-        const segStartHour = parseInt(seg.start.split(':')[0]);
-        const segEndHour = parseInt(seg.end.split(':')[0]);
-        if (segStartHour < 8 || segEndHour > 20) continue;
+      // Business hours check
+      const startHour = parseInt(av.startTime.split(':')[0]);
+      const endHour = parseInt(av.endTime.split(':')[0]);
+      if (startHour < 8 || endHour > 20) continue;
 
-        // Determine modality options
-        const canOnline = opts?.canOnline ?? true;
-        const canInPerson = opts?.canInPerson ?? true;
+      // Determine modality to expose for this slot
+      const avModality: 'ONLINE' | 'IN_PERSON' | undefined = (av as any).modality;
+      const canOnline = opts?.canOnline ?? true;
+      const canInPerson = opts?.canInPerson ?? true;
 
-        const maybePush = (modality: 'ONLINE' | 'IN_PERSON') => {
-          if (opts?.modalityFilter && opts.modalityFilter !== modality) return;
-          slots.push({
-            date: dateStr,
-            dayOfWeek,
-            startTime: seg.start,
-            endTime: seg.end,
-            duration: 60,
-            modality,
-            isRecurring: av.isRecurring,
-            specificDate: av.specificDate,
-          });
-        };
+      const maybePush = (modality: 'ONLINE' | 'IN_PERSON') => {
+        if (opts?.modalityFilter && opts.modalityFilter !== modality) return;
+        slots.push({
+          date: dateStr,
+          dayOfWeek,
+          startTime: av.startTime,
+          endTime: av.endTime,
+          duration: calculateDuration(av.startTime, av.endTime),
+          modality,
+          isRecurring: av.isRecurring,
+          specificDate: av.specificDate,
+        });
+      };
 
+      if (avModality === 'ONLINE') {
+        if (canOnline) maybePush('ONLINE');
+      } else if (avModality === 'IN_PERSON') {
+        if (canInPerson) maybePush('IN_PERSON');
+      } else {
+        // Fallback legacy: expose both based on coach capability
         if (canOnline) maybePush('ONLINE');
         if (canInPerson) maybePush('IN_PERSON');
       }
@@ -431,28 +449,6 @@ function generateAvailableSlots(
     if (dateCompare !== 0) return dateCompare;
     return a.startTime.localeCompare(b.startTime);
   });
-}
-
-function splitIntoHourSegments(start: string, end: string): Array<{ start: string; end: string }> {
-  const res: Array<{ start: string; end: string }> = [];
-  const toMinutes = (t: string) => {
-    const [hh, mm] = t.split(':').map(Number);
-    return hh * 60 + mm;
-  };
-  const toTime = (m: number) => {
-    const hh = Math.floor(m / 60);
-    const mm = m % 60;
-    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
-  };
-  let cur = toMinutes(start);
-  const endM = toMinutes(end);
-  while (cur + 60 <= endM) {
-    const segStart = toTime(cur);
-    const segEnd = toTime(cur + 60);
-    res.push({ start: segStart, end: segEnd });
-    cur += 60;
-  }
-  return res;
 }
 
 function calculateDuration(startTime: string, endTime: string): number {

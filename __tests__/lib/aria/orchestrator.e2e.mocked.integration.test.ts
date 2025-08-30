@@ -20,6 +20,9 @@ jest.mock('@/lib/aria/services', () => ({
 global.fetch = jest.fn();
 
 describe('E2E orchestrator flow (mocked HTTP interactions)', () => {
+  const OLD = { PDF_REMOTE_DISABLED: process.env.PDF_REMOTE_DISABLED } as any;
+  beforeAll(() => { process.env.PDF_REMOTE_DISABLED = '0'; });
+  afterAll(() => { process.env.PDF_REMOTE_DISABLED = OLD.PDF_REMOTE_DISABLED; });
   beforeEach(() => {
     jest.clearAllMocks();
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({

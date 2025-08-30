@@ -4,7 +4,7 @@
 #   export PREV_IMAGE_TAG=v1.2.2
 
 services:
-  next-app:
+  app:
     image: ${REGISTRY}/${IMAGE_PREFIX}-app:${PREV_IMAGE_TAG}
 
   rag_service:

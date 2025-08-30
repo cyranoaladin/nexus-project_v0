@@ -47,12 +47,10 @@ describe('API /api/aria/chat branches', () => {
     jest.doMock('@/lib/rate-limit', () => ({ rateLimit: () => () => ({ ok: true }) }));
     const fakePrisma = {
       student: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValue({
-            id: 's1',
-            freemiumUsage: { date: new Date().toISOString().split('T')[0], requestsToday: 5 },
-          }),
+        findUnique: jest.fn().mockResolvedValue({
+          id: 's1',
+          freemiumUsage: { date: new Date().toISOString().split('T')[0], requestsToday: 5 },
+        }),
         update: jest.fn(),
       },
     } as any;
@@ -73,12 +71,10 @@ describe('API /api/aria/chat branches', () => {
     jest.doMock('@/lib/rate-limit', () => ({ rateLimit: () => () => ({ ok: true }) }));
     const fakePrisma2 = {
       student: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValue({
-            id: 's1',
-            freemiumUsage: { date: new Date().toISOString().split('T')[0], requestsToday: 2 },
-          }),
+        findUnique: jest.fn().mockResolvedValue({
+          id: 's1',
+          freemiumUsage: { date: new Date().toISOString().split('T')[0], requestsToday: 2 },
+        }),
         update: jest.fn().mockResolvedValue({}),
       },
     } as any;

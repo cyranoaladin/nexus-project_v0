@@ -66,7 +66,43 @@ Ce projet est configuré pour un développement local robuste et cohérent via *
 
 ---
 
+### Scripts utilitaires (local)
+
+- Démarrer l’infra (DB + microservices):
+  - `npm run dev:infra`
+- Démarrer l’app en arrière-plan (et l’infra):
+  - `npm run dev:bg`
+- Arrêter l’app en arrière-plan:
+  - `npm run dev:stop`
+- Vérifier la santé:
+  - `npm run health:check`
+- Réinitialiser et remplir la base:
+  - `npm run db:reset:full`
+- Seed uniquement:
+  - `npm run seed:full`
+- Seed disponibilités (app en cours):
+  - `npm run seed:avail`
+- Smoke tests rapides:
+  - `npm run smoke` (Chromium, ~6–8s)
+  - `npm run smoke:all` (Chromium/Firefox/WebKit)
+
+Pour la liste des comptes de test, voir `docs/TEST_ACCOUNTS.md`.
+
+Pour un démarrage premium immédiat (one‑liner):
+
+- `npm run dev:premium` (démarre l’infra, reset/seed, disponibilités, serveur dev, health check, smoke)
+
+Consultez `docs/PREMIUM_RUNBOOK.md` pour les détails.
+
 ## 4. Lignes Directrices Techniques & Attentes
+
+### Fonctionnalité « Bilan gratuit » (Maths — Entrée en Première)
+
+La fonctionnalité est documentée dans `docs/BILAN_FEATURE.md`.
+
+Parcours: Dashboard Élève → Bilan gratuit → QCM → Profil → Rapport → PDF/Email.
+
+Nécessite: `@react-pdf/renderer`, variables SMTP pour l’envoi des PDF.
 
 - **Stack Technique :** Le projet est solidement ancré sur **Next.js 14 (App Router), TypeScript, et Tailwind CSS**. Merci de respecter cette stack.
 - **Qualité du Code :** Nous attendons un code propre, bien structuré, commenté si nécessaire, et suivant les meilleures pratiques de l'écosystème React/Next.js. La maintenabilité est une priorité.

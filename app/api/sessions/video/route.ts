@@ -1,8 +1,8 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-// Removed import of SessionStatus due to lint error
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { SessionStatus } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,19 +22,14 @@ export async function POST(request: NextRequest) {
     const bookingSession = await prisma.session.findFirst({
       where: {
         id: sessionId,
-        OR: [{ studentId: session.user.id }, { coachId: session.user.id }],
+        OR: [
+          { student: { userId: session.user.id } },
+          { coach: { userId: session.user.id } },
+        ],
       },
       include: {
-        student: {
-          include: {
-            user: true,
-          },
-        },
-        coach: {
-          include: {
-            user: true,
-          },
-        },
+        student: { include: { user: true } },
+        coach: { include: { user: true } },
       },
     });
 
@@ -42,34 +37,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Session non trouvée' }, { status: 404 });
     }
 
-    // Vérifier que la session est programmée pour maintenant ou dans le passé récent
+    // Vérifier que la session est proche de l'horaire prévu ou déjà en cours
     const now = new Date();
     const sessionStart = new Date(bookingSession.scheduledAt);
     const timeDifference = Math.abs(now.getTime() - sessionStart.getTime());
     const fifteenMinutes = 15 * 60 * 1000;
 
-    if (timeDifference > fifteenMinutes && bookingSession.status !== 'SCHEDULED') {
-      return NextResponse.json(
-        {
-          error: "La session n'est pas encore disponible ou a expiré",
-        },
-        { status: 400 }
-      );
+    if (timeDifference > fifteenMinutes && bookingSession.status !== SessionStatus.IN_PROGRESS) {
+      return NextResponse.json({ error: "La session n'est pas encore disponible ou a expiré" }, { status: 400 });
     }
 
     switch (action) {
-      case 'JOIN':
+      case 'JOIN': {
         // Marquer la session comme en cours si elle ne l'est pas déjà
-        if (bookingSession.status === 'SCHEDULED') {
+        if (bookingSession.status === SessionStatus.SCHEDULED) {
           await prisma.session.update({
             where: { id: sessionId },
-            data: {
-              status: 'SCHEDULED', // Garder SCHEDULED car il n'y a pas IN_PROGRESS
-            },
+            data: { status: SessionStatus.IN_PROGRESS },
           });
         }
 
-        // Générer les informations de la room Jitsi selon les directives CTO
+        // Générer les informations de la room Jitsi
         const uuid = crypto.randomUUID();
         const roomName = `nexus-reussite-session-${sessionId}-${uuid}`;
         const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
@@ -86,27 +74,18 @@ export async function POST(request: NextRequest) {
             subject: bookingSession.subject,
             scheduledAt: bookingSession.scheduledAt,
             duration: bookingSession.duration,
-            status: 'SCHEDULED',
+            status: SessionStatus.IN_PROGRESS,
             isHost: session.user.role === 'COACH',
           },
         });
-
-      case 'LEAVE':
-        // Marquer la session comme terminée
+      }
+      case 'LEAVE': {
         await prisma.session.update({
           where: { id: sessionId },
-          data: {
-            status: 'COMPLETED',
-          },
+          data: { status: SessionStatus.COMPLETED },
         });
-
-        // TODO: Logique de crédits si nécessaire
-
-        return NextResponse.json({
-          success: true,
-          message: 'Session terminée avec succès',
-        });
-
+        return NextResponse.json({ success: true, message: 'Session terminée avec succès' });
+      }
       default:
         return NextResponse.json({ error: 'Action non supportée' }, { status: 400 });
     }

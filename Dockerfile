@@ -1,59 +1,58 @@
 # Fichier: Dockerfile
-# Version: 2.1 (Finalisé pour la production avec Prisma)
+# Version: 2.2 (Production avec Prisma, builds reproductibles)
 
 # === ÉTAPE 1: Image de Base ===
-# On part d'une image Node.js version 18, basée sur Alpine Linux (légère et sécurisée).
+# On part d'une image Node.js 22, basée sur Alpine Linux (légère et sécurisée).
 # On la nomme "base" pour pouvoir s'y référer plus tard.
 FROM node:22-alpine AS base
-# On installe les dépendances système nécessaires pour Prisma
+# Dépendances système minimales (Prisma/OpenSSL)
 RUN apk add --no-cache openssl
 
-
-# === ÉTAPE 2: Installation des Dépendances ===
-# On utilise l'image "base" pour cette étape et on la nomme "deps".
+# === ÉTAPE 2: Installation des Dépendances (npm ci) ===
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# Utilise les dépendances locales pour éviter les erreurs réseau lors du build Docker
-COPY node_modules ./node_modules
-
+RUN npm ci
 
 # === ÉTAPE 3: Construction de l'Application (Build) ===
-# On repart de l'image "base" et on nomme cette étape "builder".
 FROM base AS builder
 WORKDIR /app
-# On copie les dépendances et le package.json de l'étape précédente.
+# Copie des dépendances installées
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
-# On copie le schéma Prisma pour pouvoir générer le client.
+# Génération du client Prisma avant build
 COPY prisma ./prisma/
-# On génère le client Prisma.
 RUN npx prisma generate
-# On copie le reste du code de l'application.
+# Copie du code et build Next.js
 COPY . .
-# On lance le build de Next.js.
 RUN npm run build
 
+# === ÉTAPE 3bis: Image utilitaire pour DB setup (optionnelle) ===
+FROM base AS dbsetup
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY prisma ./prisma
 
-# === ÉTAPE 4: Création de l'Image Finale de Production ===
-# On repart d'une image "base" propre pour avoir une image finale légère.
+# === ÉTAPE 4: Image Finale de Production ===
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Sécurité: utiliser l'utilisateur non-root; créer le groupe si besoin
+# Sécurité: utilisateur non-root
 RUN addgroup -S nodejs || true && adduser -S node -G nodejs || true
 
-# [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
+# Réutiliser node_modules puis supprimer les devDeps
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/package.json /app/package-lock.json* ./
-RUN npm install --omit=dev --network-timeout=1000000
+RUN npm prune --omit=dev || true
 
-# On copie les artefacts de build depuis l'étape "builder".
+# Artefacts de build Next.js
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# On copie le client Prisma et le schéma.
+# Prisma client et schéma
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
 

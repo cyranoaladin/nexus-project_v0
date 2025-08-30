@@ -105,15 +105,14 @@ test.describe('ARIA Interaction Flow', () => {
     // Poser 6 questions pour dépasser la limite de 5 (sans assertions fragiles sur disabled/enabled)
     for (let i = 0; i < 6; i++) {
       await chatInput.first().fill(`Question numéro ${i + 1}`);
-      const waitResp = page.waitForResponse((r) => r.url().includes('/api/aria/chat'));
       try {
         await expect(submitButton).toBeEnabled({ timeout: 5000 });
         await submitButton.click();
       } catch {
         await page.keyboard.press('Enter');
       }
-      await waitResp;
-      await page.waitForTimeout(250);
+      // Attendre le traitement réseau sans bloquer strictement sur waitForResponse
+      await page.waitForTimeout(400);
     }
 
     // Vérifier que le dernier appel a bien renvoyé une erreur 429

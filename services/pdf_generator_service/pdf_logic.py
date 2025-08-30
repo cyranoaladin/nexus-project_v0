@@ -4,6 +4,7 @@
 
 from typing import Any, Dict
 from textwrap import dedent
+import re
 
 
 class GenerateurTemplatesLaTeX:
@@ -19,16 +20,50 @@ class GenerateurTemplatesLaTeX:
         except Exception:
             return False
 
+    def _normalize_math_text(self, s: str) -> str:
+        """
+        Normalisations pour améliorer la compatibilité de compilation:
+        - Convertit \( ... \) -> $ ... $, \[ ... \] -> $$ ... $$
+        - Nettoie les espaces dans \mathbb{R} (et similaires)
+        - Remplace les apostrophes/quotes typographiques par ASCII
+        - Enlève les espaces insécables et les zero-width spaces
+        - Sanitize basique d'ordres dangereux (write18, input)
+        """
+        text = s or ""
+        # Unifications d'espaces et de caractères spéciaux
+        text = text.replace("\u00A0", " ")  # NBSP -> espace
+        text = text.replace("\u200B", "")   # zero-width space
+        # Quotes typographiques -> ASCII
+        text = text.replace("’", "'").replace("‚", "'").replace("‘", "'")
+        text = text.replace("“", '"').replace("”", '"')
+        # \( ... \) => $ ... $ ; \[ ... \] => $$ ... $$ (non-gourmand)
+        try:
+            text = re.sub(r"\\\(\s*([\s\S]*?)\s*\\\)", r"$\1$", text)
+            text = re.sub(r"\\\[\s*([\s\S]*?)\s*\\\]", r"$$\1$$", text)
+        except Exception:
+            pass
+        # \mathbb {R} -> \mathbb{R}
+        try:
+            text = re.sub(r"\\mathbb\s*\{\s*([A-Za-z0-9]+)\s*\}", r"\\mathbb{\1}", text)
+            text = re.sub(r"\\mathbb\s+([A-Za-z0-9])\b", r"\\mathbb{\1}", text)
+        except Exception:
+            pass
+        # Sanitize ordres interdits
+        text = re.sub(r"\\write18", "", text)
+        text = re.sub(r"\\input\{[^}]*\}", "", text)
+        return text
+
     def _prepare_contenu(self, contenu: str) -> str:
         """
         Rend le contenu plus robuste:
+        - Normalisations math/quotes/espaces
         - Si des \\item sont présents sans environnement de liste, entourer par itemize
         - Si aucune commande LaTeX n'est détectée, laisser tel quel (sera du texte simple)
         """
-        content = contenu or ""
-        # Ne pas toucher aux documents complets
+        content = self._normalize_math_text(contenu or "")
+        # Ne pas entourer si document complet
         if self._is_full_latex_doc(content):
-            return content
+            return self._normalize_math_text(content)
         has_item = "\\item" in content
         has_env_itemize = ("\\begin{itemize}" in content) and (
             "\\end{itemize}" in content
@@ -49,9 +84,9 @@ class GenerateurTemplatesLaTeX:
         nom_eleve: str,
         options: Dict[str, Any],
     ) -> str:
-        # Si le contenu est déjà un document LaTeX complet, le rendre tel quel
+        # Si le contenu est déjà un document LaTeX complet, l'assainir et le retourner
         if self._is_full_latex_doc(contenu):
-            return contenu
+            return self._normalize_math_text(contenu)
         contenu = self._prepare_contenu(contenu)
         if type_document == 'cours':
             return self._template_cours(contenu, matiere, nom_eleve, options)
@@ -69,7 +104,10 @@ class GenerateurTemplatesLaTeX:
             \usepackage{lmodern}
             \usepackage{geometry}
             \usepackage{fancyhdr}
+            % Maths étendues
             \usepackage{amsmath,amssymb}
+            \usepackage{amsfonts}
+            \usepackage{mathtools}
             \usepackage{microtype}
             \usepackage{xcolor}
             \usepackage{hyperref}
@@ -129,7 +167,7 @@ class GenerateurTemplatesLaTeX:
             \maketitle
             \tableofcontents
             \newpage
-            \section*{{Contenu}}
+            \section{{Contenu}}
             {contenu}
             \end{{document}}
         """
@@ -158,7 +196,7 @@ class GenerateurTemplatesLaTeX:
             \maketitle
             \tableofcontents
             \newpage
-            \section*{{Points clés}}
+            \section{{Points clés}}
             {contenu}
             \end{{document}}
         """

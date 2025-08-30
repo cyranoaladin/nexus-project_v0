@@ -1,6 +1,7 @@
 import { AriaOrchestrator } from '@/lib/aria/orchestrator';
 import { llm_service } from '@/lib/aria/services';
 import { prisma } from '@/lib/prisma';
+import { Subject } from '@prisma/client';
 
 // Mock the entire prisma module
 jest.mock('@/lib/prisma', () => ({
@@ -45,16 +46,16 @@ describe('AriaOrchestrator Integration Tests', () => {
     (prisma.ariaMessage.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'm1' });
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'c1' });
-    (prisma.assessment.findMany as jest.Mock).mockResolvedValue([]);
-    (prisma.mastery.findMany as jest.Mock).mockResolvedValue([]);
-    (prisma.document.findMany as jest.Mock).mockResolvedValue([]);
-    (prisma.subscription.findMany as jest.Mock).mockResolvedValue([]);
+    ((prisma as any).assessment.findMany as jest.Mock).mockResolvedValue([]);
+    ((prisma as any).mastery.findMany as jest.Mock).mockResolvedValue([]);
+    ((prisma as any).document.findMany as jest.Mock).mockResolvedValue([]);
+    ((prisma as any).subscription.findMany as jest.Mock).mockResolvedValue([]);
     (llm_service.generate_response as jest.Mock).mockResolvedValue({ response: 'Bonjour!' });
   });
 
   // Tâche 1: Test de la "Mémoire à Long Terme"
   it("devrait appeler toutes les fonctions Prisma nécessaires pour construire le contexte complet de l'élève", async () => {
-    await orchestrator.handleQuery(query);
+    await orchestrator.handleQuery(query, Subject.MATHEMATIQUES);
 
     // Verify that each Prisma function was called once to build the context
     expect(prisma.student.findUnique).toHaveBeenCalledWith({
@@ -72,11 +73,11 @@ describe('AriaOrchestrator Integration Tests', () => {
     });
     expect(prisma.ariaMessage.findMany).toHaveBeenCalledTimes(1);
     // Appels complémentaires (assessments, mastery, documents, subscriptions)
-    expect(prisma.assessment.findMany).toHaveBeenCalledWith({ where: { studentId } });
-    expect(prisma.mastery.findMany).toHaveBeenCalledWith({ where: { studentId } });
-    expect(prisma.document.findMany).toHaveBeenCalledWith({ where: { studentId } });
+    expect((prisma as any).assessment.findMany).toHaveBeenCalledWith({ where: { studentId } });
+    expect((prisma as any).mastery.findMany).toHaveBeenCalledWith({ where: { studentId } });
+    expect((prisma as any).document.findMany).toHaveBeenCalledWith({ where: { studentId } });
     // subscription et autres via any-cast dans orchestrator
-    expect(prisma.subscription.findMany).toHaveBeenCalledWith({ where: { studentId } });
+    expect((prisma as any).subscription.findMany).toHaveBeenCalledWith({ where: { studentId } });
   });
 
   // Tâche 4: Test de la Boucle d'Auto-Amélioration du RAG
@@ -94,7 +95,7 @@ describe('AriaOrchestrator Integration Tests', () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    await orchestrator.handleQuery(query as any);
+    await orchestrator.handleQuery(query as any, Subject.MATHEMATIQUES);
 
     // Vérifie l'appel à /ingest du RAG service
     expect(global.fetch).toHaveBeenCalled();
@@ -107,12 +108,12 @@ describe('AriaOrchestrator Integration Tests', () => {
 
   // Décisionnelle: STANDARD quand <= 1 faiblesse
   it('devrait construire des decision_hints en mode STANDARD avec <= 1 faiblesse', async () => {
-    (prisma.mastery.findMany as jest.Mock).mockResolvedValue([
+    ((prisma as any).mastery.findMany as jest.Mock).mockResolvedValue([
       { concept: 'Dérivées', score: 0.4 },
       { concept: 'Limites', score: 0.9 },
     ]);
 
-    await orchestrator.handleQuery(query as any);
+    await orchestrator.handleQuery(query as any, Subject.MATHEMATIQUES);
 
     expect(llm_service.generate_response).toHaveBeenCalledTimes(1);
     const callArg = (llm_service.generate_response as jest.Mock).mock.calls[0][0];
@@ -124,14 +125,14 @@ describe('AriaOrchestrator Integration Tests', () => {
 
   // Décisionnelle: REMEDIATION_GUIDEE quand >= 2 faiblesses
   it('devrait construire des decision_hints en mode REMEDIATION_GUIDEE avec >= 2 faiblesses', async () => {
-    (prisma.mastery.findMany as jest.Mock).mockResolvedValue([
+    ((prisma as any).mastery.findMany as jest.Mock).mockResolvedValue([
       { concept: 'Dérivées', score: 0.4 },
       { concept: 'Limites', score: 0.3 },
       { concept: 'Intégrales', score: 0.2 },
       { concept: 'Equations', score: 0.9 },
     ]);
 
-    await orchestrator.handleQuery(query as any);
+    await orchestrator.handleQuery(query as any, Subject.MATHEMATIQUES);
 
     expect(llm_service.generate_response).toHaveBeenCalledTimes(1);
     const callArg = (llm_service.generate_response as jest.Mock).mock.calls[0][0];

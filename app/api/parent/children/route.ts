@@ -3,6 +3,14 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+
+const addChildSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  grade: z.string().min(1, 'Grade is required'),
+  school: z.string().optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {

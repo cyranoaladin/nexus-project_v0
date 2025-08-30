@@ -1,7 +1,9 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
-    container_name: nexus_db_prod
+    container_name: nexus_db
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -19,127 +21,66 @@ services:
     networks:
       - nexus_network
 
-  db_setup:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: builder
-    container_name: db_setup_job
-    restart: 'no'
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-    command: sh -lc "npx prisma db push && npm run db:seed"
-    networks:
-      - nexus_network
-
   rag_service:
     build:
       context: ./services/rag_service
-    container_name: rag_service_prod
-    restart: always
-    environment:
-      - ENABLE_EMBEDDINGS=${ENABLE_EMBEDDINGS}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_EMBEDDINGS_MODEL=${OPENAI_EMBEDDINGS_MODEL}
-    volumes:
-      - rag_storage:/app/storage
+    container_name: nexus_rag_service
     ports:
-      - '8001:8000'
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          "python -c 'import urllib.request; import sys;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "8000:8000"
     networks:
       - nexus_network
-
-  pdf_generator_service:
-    build:
-      context: ./services/pdf_generator_service
-    container_name: pdf_generator_service_prod
-    restart: always
-    environment:
-      - PUBLIC_BASE_URL=http://localhost:8002
-    ports:
-      - '8002:8000'
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - nexus_network
+    restart: on-failure
 
   llm_service:
     build:
       context: ./services/llm_service
-    container_name: llm_service_prod
-    restart: always
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - LLM_MODEL=${LLM_MODEL}
+    container_name: nexus_llm_service
     ports:
-      - '8003:8000'
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'",
-        ]
+      - "8001:8000"
     networks:
       - nexus_network
+    restart: on-failure
 
-  next-app:
+  pdf_generator_service:
+    build:
+      context: ./services/pdf_generator_service
+    container_name: nexus_pdf_generator_service
+    ports:
+      - "8002:8000"
+    networks:
+      - nexus_network
+    restart: on-failure
+
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-      network: host
-    container_name: next_app_prod
+    container_name: nexus_app
     restart: always
-    depends_on:
-      db:
-        condition: service_healthy
-      db_setup:
-        condition: service_completed_successfully
-      rag_service:
-        condition: service_healthy
-      pdf_generator_service:
-        condition: service_healthy
-      llm_service:
-        condition: service_healthy
+    ports:
+      - "3000:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - NEXT_PUBLIC_E2E=1
       - RAG_SERVICE_URL=http://rag_service:8000
       - PDF_GENERATOR_SERVICE_URL=http://pdf_generator_service:8000
       - LLM_SERVICE_URL=http://llm_service:8000
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health || exit 1']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    ports:
-      - '3000:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+      rag_service:
+        condition: service_started
+      llm_service:
+        condition: service_started
+      pdf_generator_service:
+        condition: service_started
     networks:
       - nexus_network
 
 volumes:
   nexus_db_data:
-  rag_storage:
 
 networks:
   nexus_network:

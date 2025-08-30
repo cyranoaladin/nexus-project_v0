@@ -40,15 +40,13 @@ describe('Konnect webhook signature', () => {
     jest.doMock('@/lib/prisma', () => ({
       prisma: {
         payment: {
-          findUnique: jest
-            .fn()
-            .mockResolvedValue({
-              id: 'pay_1',
-              status: 'PENDING',
-              type: 'SUBSCRIPTION',
-              metadata: { studentId: 's1', itemKey: 'PLAN' },
-              user: {},
-            }),
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'pay_1',
+            status: 'PENDING',
+            type: 'SUBSCRIPTION',
+            metadata: { studentId: 's1', itemKey: 'PLAN' },
+            user: {},
+          }),
           update: jest.fn().mockResolvedValue({}),
         },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 's1' }) },

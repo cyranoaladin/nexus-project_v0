@@ -1,8 +1,8 @@
 import { rateLimit } from '@/lib/rate-limit';
 
 describe('rateLimit', () => {
-  it('allows up to max hits within window and then blocks', () => {
-    const rl = rateLimit({ windowMs: 1000, max: 3 });
+  it('allows up to max hits within window and then blocks', async () => {
+    const rl = rateLimit({ windowMs: 1000, max: 3 }) as (key: string) => any;
     const key = 'test:ip';
 
     expect(rl(key).ok).toBe(true); // 1

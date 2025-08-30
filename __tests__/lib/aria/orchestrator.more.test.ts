@@ -3,19 +3,20 @@ import { llm_service, pdf_generator_service } from '@/lib/aria/services';
 import { prisma } from '@/lib/prisma';
 
 describe('AriaOrchestrator branch coverage', () => {
+  const OLD = { PDF_REMOTE_DISABLED: process.env.PDF_REMOTE_DISABLED } as any;
+  beforeAll(() => { process.env.PDF_REMOTE_DISABLED = '0'; });
+  afterAll(() => { process.env.PDF_REMOTE_DISABLED = OLD.PDF_REMOTE_DISABLED; });
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('generates PDF when query requests it and LLM returns latex', async () => {
     (prisma as any).student = {
-      findUnique: jest
-        .fn()
-        .mockResolvedValue({
-          id: 's1',
-          user: { firstName: 'A', lastName: 'B' },
-          parent: { user: { firstName: 'P', lastName: 'Q' } },
-        }),
+      findUnique: jest.fn().mockResolvedValue({
+        id: 's1',
+        user: { firstName: 'A', lastName: 'B' },
+        parent: { user: { firstName: 'P', lastName: 'Q' } },
+      }),
     };
     (prisma as any).ariaMessage = {
       findMany: jest.fn().mockResolvedValue([]),
@@ -51,12 +52,10 @@ describe('AriaOrchestrator branch coverage', () => {
       findFirst: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({ id: 'c1' }),
     };
-    (llm_service as any).generate_response = jest
-      .fn()
-      .mockResolvedValue({
-        response: 'texte suffisant pour fallback'.repeat(20),
-        contenu_latex: 'bad\\write18',
-      });
+    (llm_service as any).generate_response = jest.fn().mockResolvedValue({
+      response: 'texte suffisant pour fallback'.repeat(20),
+      contenu_latex: 'bad\\write18',
+    });
     (pdf_generator_service as any).generate_pdf = jest
       .fn()
       .mockRejectedValueOnce(new Error('fail compile 1'))

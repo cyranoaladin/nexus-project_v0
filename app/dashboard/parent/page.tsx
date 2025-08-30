@@ -42,6 +42,12 @@ interface Session {
   type: 'COURS_ONLINE' | 'PRESENTIEL';
 }
 
+interface Bilan {
+  id: string;
+  subject: string;
+  createdAt: string;
+}
+
 interface SubscriptionDetails {
   planName: string;
   monthlyPrice: number;
@@ -64,6 +70,7 @@ interface Child {
   };
   sessions: Session[];
   subjectProgress: Record<string, number>;
+  bilans: Bilan[];
   subscriptionDetails?: SubscriptionDetails;
 }
 
@@ -415,6 +422,56 @@ function DashboardParent() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Rapports de Bilan */}
+            {currentChild && currentChild.bilans && currentChild.bilans.length > 0 && (
+              <Card className="mb-6 sm:mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-600" />
+                    <span className="text-base sm:text-lg">Rapports de Bilan</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {currentChild.bilans.map((bilan) => (
+                      <div
+                        key={bilan.id}
+                        className="flex items-center justify-between p-3 bg-purple-50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">
+                            Bilan de {bilan.subject}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Complété le{' '}
+                            {(() => {
+                              const d = new Date(bilan.createdAt);
+                              const day = String(d.getDate()).padStart(2, '0');
+                              const month = String(d.getMonth() + 1).padStart(2, '0');
+                              const year = d.getFullYear();
+                              return `${day}/${month}/${year}`;
+                            })()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            window.open(
+                              `/api/bilan/pdf/${bilan.id}?variant=parent`,
+                              '_blank'
+                            )
+                          }
+                        >
+                          Télécharger
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Section Abonnement et Facturation */}
             <Card className="mb-6 sm:mb-8">

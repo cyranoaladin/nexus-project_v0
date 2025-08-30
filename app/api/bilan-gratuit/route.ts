@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { UserRole } from '@/types/enums';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {

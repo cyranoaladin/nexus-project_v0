@@ -16,13 +16,18 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Video,
+  MapPin,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+type SlotModality = 'ONLINE' | 'IN_PERSON';
 
 interface TimeSlot {
   startTime: string;
   endTime: string;
   isAvailable: boolean;
+  modality: SlotModality;
 }
 
 interface DaySchedule {
@@ -45,13 +50,13 @@ const DAYS_OF_WEEK = [
   { value: 0, label: 'Dimanche', shortLabel: 'Dim' },
 ];
 
-const DEFAULT_SLOTS = [
-  { startTime: '09:00', endTime: '10:00', isAvailable: true },
-  { startTime: '10:00', endTime: '11:00', isAvailable: true },
-  { startTime: '11:00', endTime: '12:00', isAvailable: true },
-  { startTime: '14:00', endTime: '15:00', isAvailable: true },
-  { startTime: '15:00', endTime: '16:00', isAvailable: true },
-  { startTime: '16:00', endTime: '17:00', isAvailable: true },
+const DEFAULT_SLOTS: TimeSlot[] = [
+  { startTime: '09:00', endTime: '10:00', isAvailable: true, modality: 'ONLINE' },
+  { startTime: '10:00', endTime: '11:00', isAvailable: true, modality: 'ONLINE' },
+  { startTime: '11:00', endTime: '12:00', isAvailable: true, modality: 'ONLINE' },
+  { startTime: '14:00', endTime: '15:00', isAvailable: true, modality: 'ONLINE' },
+  { startTime: '15:00', endTime: '16:00', isAvailable: true, modality: 'ONLINE' },
+  { startTime: '16:00', endTime: '17:00', isAvailable: true, modality: 'ONLINE' },
 ];
 
 export default function CoachAvailability({
@@ -94,7 +99,15 @@ export default function CoachAvailability({
 
           return {
             dayOfWeek: day.value,
-            slots: daySlots.length > 0 ? daySlots : [],
+            slots:
+              daySlots.length > 0
+                ? daySlots.map((s: any) => ({
+                    startTime: s.startTime,
+                    endTime: s.endTime,
+                    isAvailable: s.isAvailable,
+                    modality: (s.modality as SlotModality) || 'ONLINE',
+                  }))
+                : [],
           };
         });
 
@@ -118,7 +131,10 @@ export default function CoachAvailability({
         day.dayOfWeek === dayOfWeek
           ? {
               ...day,
-              slots: [...day.slots, { startTime: '09:00', endTime: '10:00', isAvailable: true }],
+              slots: [
+                ...day.slots,
+                { startTime: '09:00', endTime: '10:00', isAvailable: true, modality: 'ONLINE' },
+              ],
             }
           : day
       )
@@ -145,16 +161,14 @@ export default function CoachAvailability({
     value: any
   ) => {
     setWeeklySchedule((prev) =>
-      prev.map((day) =>
-        day.dayOfWeek === dayOfWeek
-          ? {
-              ...day,
-              slots: day.slots.map((slot, index) =>
-                index === slotIndex ? { ...slot, [field]: value } : slot
-              ),
-            }
-          : day
-      )
+      prev.map((day) => {
+        if (day.dayOfWeek !== dayOfWeek) return day;
+        const nextSlots = day.slots.map((slot, index) => {
+          if (index !== slotIndex) return slot;
+          return { ...slot, [field]: value };
+        });
+        return { ...day, slots: nextSlots };
+      })
     );
   };
 
@@ -215,7 +229,7 @@ export default function CoachAvailability({
   const addSpecificSlot = () => {
     setSpecificSlots((prev) => [
       ...prev,
-      { startTime: '09:00', endTime: '10:00', isAvailable: true },
+      { startTime: '09:00', endTime: '10:00', isAvailable: true, modality: 'ONLINE' },
     ]);
   };
 
@@ -225,7 +239,10 @@ export default function CoachAvailability({
 
   const updateSpecificSlot = (index: number, field: keyof TimeSlot, value: any) => {
     setSpecificSlots((prev) =>
-      prev.map((slot, i) => (i === index ? { ...slot, [field]: value } : slot))
+      prev.map((slot, i) => {
+        if (i !== index) return slot;
+        return i === index ? { ...slot, [field]: value } : slot;
+      })
     );
   };
 
@@ -417,14 +434,42 @@ export default function CoachAvailability({
                                   />
                                 </div>
 
-                                <div className="flex items-center space-x-2">
-                                  <Label className="text-xs">Disponible</Label>
-                                  <Switch
-                                    checked={slot.isAvailable}
-                                    onCheckedChange={(checked: boolean) =>
-                                      updateTimeSlot(day.value, index, 'isAvailable', checked)
-                                    }
-                                  />
+                                <div className="flex items-center space-x-3">
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant={slot.modality === 'ONLINE' ? 'default' : 'outline'}
+                                      className="text-xs"
+                                      onClick={() =>
+                                        updateTimeSlot(day.value, index, 'modality', 'ONLINE')
+                                      }
+                                    >
+                                      <Video className="w-3 h-3 mr-1" /> Visio
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant={
+                                        slot.modality === 'IN_PERSON' ? 'default' : 'outline'
+                                      }
+                                      className="text-xs"
+                                      onClick={() =>
+                                        updateTimeSlot(day.value, index, 'modality', 'IN_PERSON')
+                                      }
+                                    >
+                                      <MapPin className="w-3 h-3 mr-1" /> Présentiel
+                                    </Button>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Label className="text-xs">Disponible</Label>
+                                    <Switch
+                                      checked={slot.isAvailable}
+                                      onCheckedChange={(checked: boolean) =>
+                                        updateTimeSlot(day.value, index, 'isAvailable', checked)
+                                      }
+                                    />
+                                  </div>
                                 </div>
 
                                 <Button
@@ -540,14 +585,36 @@ export default function CoachAvailability({
                               />
                             </div>
 
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Disponible</Label>
-                              <Switch
-                                checked={slot.isAvailable}
-                                onCheckedChange={(checked: boolean) =>
-                                  updateSpecificSlot(index, 'isAvailable', checked)
-                                }
-                              />
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={slot.modality === 'ONLINE' ? 'default' : 'outline'}
+                                  className="text-xs"
+                                  onClick={() => updateSpecificSlot(index, 'modality', 'ONLINE')}
+                                >
+                                  <Video className="w-3 h-3 mr-1" /> Visio
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={slot.modality === 'IN_PERSON' ? 'default' : 'outline'}
+                                  className="text-xs"
+                                  onClick={() => updateSpecificSlot(index, 'modality', 'IN_PERSON')}
+                                >
+                                  <MapPin className="w-3 h-3 mr-1" /> Présentiel
+                                </Button>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Label className="text-xs">Disponible</Label>
+                                <Switch
+                                  checked={slot.isAvailable}
+                                  onCheckedChange={(checked: boolean) =>
+                                    updateSpecificSlot(index, 'isAvailable', checked)
+                                  }
+                                />
+                              </div>
                             </div>
 
                             <Button

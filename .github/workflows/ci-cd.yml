@@ -40,6 +40,18 @@ jobs:
       - name: Unit/Integration tests with coverage
         run: npm run test:coverage
 
+      - name: Start PDF generator service (docker compose)
+        run: |
+          docker compose -f docker-compose.yml up -d --build pdf_generator_service
+
+      - name: Run PDF generator integration test
+        run: npm run test:integration -- __tests__/api/pdf-generator.test.ts
+
+      - name: Stop PDF generator service
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml rm -fsv pdf_generator_service || true
+
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -192,9 +204,9 @@ jobs:
             docker compose up -d
             # Healthchecks
             curl -fsS http://localhost:3000/api/health || (echo "App healthcheck failed" && exit 1)
-            curl -fsS http://localhost:8001/health || (echo "RAG healthcheck failed" && exit 1)
+            curl -fsS http://localhost:8000/health || (echo "RAG healthcheck failed" && exit 1)
             curl -fsS http://localhost:8002/health || (echo "PDF healthcheck failed" && exit 1)
-            curl -fsS http://localhost:8003/health || (echo "LLM healthcheck failed" && exit 1)
+            curl -fsS http://localhost:8001/health || (echo "LLM healthcheck failed" && exit 1)
 
       - name: Rollback on failure
         if: failure()

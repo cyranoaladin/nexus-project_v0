@@ -1,11 +1,13 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Award, Medal, Star, Trophy, Zap } from 'lucide-react';
-import { useEffect, useState, useCallback } from 'react';
+import { Award, Medal, Star, Trophy, Zap, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Badge } from './badge';
 import { Button } from './button';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
+import { toast } from 'sonner';
 
 interface UserBadge {
   id: string;
@@ -20,11 +22,34 @@ interface UserBadge {
 interface BadgeWidgetProps {
   studentId: string;
   className?: string;
+  defaultShowAll?: boolean;
+  filterCategory?: string; // 'ALL' | 'ASSIDUITE' | 'PROGRESSION' | 'ARIA' | 'CURIOSITE'
+  initialBadges?: any[]; // optional, to avoid fetching when badges are already available
 }
+
+const canonicalCategory = (category: string) => {
+  const c = String(category || '').toUpperCase();
+  if (c === 'CURIOSITE') return 'ARIA';
+  return c;
+};
+
+const formatCategoryLabel = (category: string) => {
+  const c = canonicalCategory(category);
+  switch (c) {
+    case 'ASSIDUITE':
+      return 'Assiduité';
+    case 'PROGRESSION':
+      return 'Progression';
+    case 'ARIA':
+      return 'Curiosité';
+    default:
+      return c.charAt(0) + c.slice(1).toLowerCase();
+  }
+};
 
 // Icônes par catégorie de badge
 const getCategoryIcon = (category: string) => {
-  switch (category) {
+  switch (canonicalCategory(category)) {
     case 'ASSIDUITE':
       return <Zap className="w-4 h-4" />;
     case 'PROGRESSION':
@@ -38,7 +63,7 @@ const getCategoryIcon = (category: string) => {
 
 // Couleurs par catégorie
 const getCategoryColor = (category: string) => {
-  switch (category) {
+  switch (canonicalCategory(category)) {
     case 'ASSIDUITE':
       return 'text-blue-600 bg-blue-50 border-blue-200';
     case 'PROGRESSION':
@@ -50,20 +75,41 @@ const getCategoryColor = (category: string) => {
   }
 };
 
-export function BadgeWidget({ studentId, className = '' }: BadgeWidgetProps) {
-  const [badges, setBadges] = useState<UserBadge[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
+export function BadgeWidget({ studentId, className = '', defaultShowAll = false, filterCategory, initialBadges }: BadgeWidgetProps) {
+  const normalizeBadges = (input: any): UserBadge[] => {
+    const arr = Array.isArray(input) ? input : input?.badges;
+    if (!Array.isArray(arr)) return [];
+    return arr.map((b: any) => ({
+      id: String(b.id ?? b.badgeId ?? Math.random()),
+      name: String(b.name ?? b.badge?.name ?? ''),
+      description: String(b.description ?? b.badge?.description ?? ''),
+      category: String(b.category ?? b.badge?.category ?? 'ASSIDUITE'),
+      icon: String(b.icon ?? b.badge?.icon ?? '🏅'),
+      unlockedAt: b.unlockedAt ? new Date(b.unlockedAt) : (b.earnedAt ? new Date(b.earnedAt) : new Date()),
+      isNew: !!b.isNew,
+    }));
+  };
+  const initialNormalized = Array.isArray(initialBadges) ? normalizeBadges(initialBadges) : [];
+  const [badges, setBadges] = useState<UserBadge[]>(initialNormalized);
+  const [loading, setLoading] = useState(!Array.isArray(initialBadges));
+  const [showAll, setShowAll] = useState(!!defaultShowAll);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(Array.isArray(initialBadges) ? new Date() : null);
+  const lastClickRef = useRef<number>(0);
 
-  const loadBadges = useCallback(async () => {
+
+  const loadBadges = useCallback(async (manual: boolean = false) => {
+    setLoading(true);
     try {
       const response = await fetch(`/api/students/${studentId}/badges`);
       if (response.ok) {
         const data = await response.json();
-        setBadges(data.badges || []);
+        setBadges(normalizeBadges(data));
+        setUpdatedAt(new Date());
+        if (manual) toast.success('Badges mis à jour', { duration: 1200, icon: <CheckCircle className="w-4 h-4 text-green-600" /> });
       }
     } catch (error) {
       console.error('Erreur lors du chargement des badges:', error);
+      if (manual) toast.error('Échec de l’actualisation des badges', { description: 'Réessayez dans un instant.', duration: 2500, icon: <AlertCircle className="w-4 h-4 text-red-600" /> });
       // Données de démonstration en cas d'erreur
       setBadges([
         {
@@ -98,25 +144,30 @@ export function BadgeWidget({ studentId, className = '' }: BadgeWidgetProps) {
   }, [studentId]);
 
   useEffect(() => {
-    loadBadges();
-  }, [loadBadges]);
+    if (!Array.isArray(initialBadges)) {
+      loadBadges(false);
+    }
+  }, [loadBadges, initialBadges]);
 
-  const recentBadges = badges.slice(0, 3);
-  const displayBadges = showAll ? badges : recentBadges;
+  const filterNorm = (filterCategory ? canonicalCategory(filterCategory) : 'ALL') as string;
+  const baseBadges = filterNorm === 'ALL' ? badges : badges.filter((b) => canonicalCategory(b.category) === filterNorm);
+  const recentBadges = baseBadges.slice(0, 3);
+  const displayBadges = showAll ? baseBadges : recentBadges;
 
   if (loading) {
     return (
       <Card className={className}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            <span>Mes Badges</span>
+          <CardTitle className="text-lg flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              <span>Mes Badges</span>
+            </div>
+            <Loader2 aria-hidden className="w-4 h-4 animate-spin text-gray-400" />
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-20">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          </div>
+          <div className="h-4" />
         </CardContent>
       </Card>
     );
@@ -133,16 +184,38 @@ export function BadgeWidget({ studentId, className = '' }: BadgeWidgetProps) {
               {badges.length}
             </Badge>
           </div>
-          {badges.length > 3 && (
+          <div className="flex items-center gap-2">
+            {updatedAt && (
+              <span
+                className="text-[10px] md:text-xs text-gray-400"
+                title={`Dernière mise à jour le ${updatedAt.toLocaleDateString('fr-FR')} à ${updatedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
+              >
+                MAJ {updatedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowAll(!showAll)}
+              onClick={() => { const now = Date.now(); if (now - lastClickRef.current < 600) return; lastClickRef.current = now; loadBadges(true); }}
+              disabled={loading}
               className="text-xs"
             >
-              {showAll ? 'Réduire' : 'Voir tout'}
+              Actualiser
             </Button>
-          )}
+            {badges.length > 3 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAll(!showAll)}
+                className="text-xs"
+              >
+                {showAll ? 'Réduire' : 'Voir tout'}
+              </Button>
+            )}
+            <Link href="/dashboard/eleve/badges" className="text-xs text-blue-600 hover:underline">
+              Page complète
+            </Link>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -181,9 +254,25 @@ export function BadgeWidget({ studentId, className = '' }: BadgeWidgetProps) {
                   <div className="text-2xl">{badge.icon}</div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2">
                       <h4 className="font-medium text-sm truncate">{badge.name}</h4>
                       {getCategoryIcon(badge.category)}
+                      <Link href={`/dashboard/eleve/badges?cat=${canonicalCategory(badge.category)}`}>
+                        <Badge
+                          variant="outline"
+                          className={
+                            canonicalCategory(badge.category) === 'ASSIDUITE'
+                              ? 'border-blue-600 text-blue-600 uppercase tracking-wide'
+                              : canonicalCategory(badge.category) === 'PROGRESSION'
+                              ? 'border-green-600 text-green-600 uppercase tracking-wide'
+                              : canonicalCategory(badge.category) === 'ARIA'
+                              ? 'border-purple-600 text-purple-600 uppercase tracking-wide'
+                              : 'border-gray-600 text-gray-600 uppercase tracking-wide'
+                          }
+                        >
+                          {formatCategoryLabel(badge.category)}
+                        </Badge>
+                      </Link>
                     </div>
                     <p className="text-xs text-gray-600 mt-1 line-clamp-2">{badge.description}</p>
                     <p className="text-xs text-gray-500 mt-1">

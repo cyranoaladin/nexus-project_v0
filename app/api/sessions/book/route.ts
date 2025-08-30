@@ -200,40 +200,22 @@ export async function POST(request: NextRequest) {
         throw { http: 400, msg: "Ce créneau n'est plus disponible" };
       }
 
-      const booking = (tx as any).sessionBooking?.create
-        ? await (tx as any).sessionBooking.create({
-            data: {
-              studentId: student?.userId || session.user.id, // allow in tests
-              coachId: bodyWithDefaults.coachId, // userId of coach
-              parentId: bodyWithDefaults.parentId || null,
-              subject: bodyWithDefaults.subject as any,
-              title: bodyWithDefaults.title,
-              description: bodyWithDefaults.description,
-              scheduledDate: new Date(bodyWithDefaults.scheduledDate),
-              startTime: bodyWithDefaults.startTime,
-              endTime,
-              duration: bodyWithDefaults.duration,
-              status: 'SCHEDULED' as any,
-              type: bodyWithDefaults.type as any,
-              modality: bodyWithDefaults.modality as any,
-              creditsUsed: bodyWithDefaults.creditsToUse,
-            },
-          })
-        : undefined;
-
-      const sessionStart = startDateTime;
-      const createdSession = await tx.session.create({
+      const booking = await (tx as any).sessionBooking.create({
         data: {
-          studentId: bodyWithDefaults.studentId,
-          coachId: coachProfile.id,
-          type: toServiceType(bodyWithDefaults.type, bodyWithDefaults.modality) as any,
+          studentId: student?.userId || session.user.id, // allow in tests
+          coachId: bodyWithDefaults.coachId, // userId of coach
+          parentId: bodyWithDefaults.parentId || null,
           subject: bodyWithDefaults.subject as any,
           title: bodyWithDefaults.title,
           description: bodyWithDefaults.description,
-          scheduledAt: sessionStart,
+          scheduledDate: new Date(bodyWithDefaults.scheduledDate),
+          startTime: bodyWithDefaults.startTime,
+          endTime,
           duration: bodyWithDefaults.duration,
-          creditCost: bodyWithDefaults.creditsToUse,
-          status: 'SCHEDULED',
+          status: 'SCHEDULED' as any,
+          type: bodyWithDefaults.type as any,
+          modality: bodyWithDefaults.modality as any,
+          creditsUsed: bodyWithDefaults.creditsToUse,
         },
       });
 
@@ -243,16 +225,16 @@ export async function POST(request: NextRequest) {
           type: 'USAGE',
           amount: -Math.abs(bodyWithDefaults.creditsToUse),
           description: `Réservation session ${bodyWithDefaults.subject} (${bodyWithDefaults.startTime}-${endTime})`,
-          sessionId: createdSession.id,
+          sessionId: booking.id,
         },
       });
 
-      return { booking, session: createdSession };
+      return { booking, session: undefined };
     });
 
     return NextResponse.json({
       success: true,
-      sessionId: result.session.id,
+      sessionId: result.booking?.id,
       bookingId: result.booking?.id,
     });
   } catch (error) {

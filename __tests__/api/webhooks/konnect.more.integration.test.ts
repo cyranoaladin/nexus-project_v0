@@ -52,14 +52,12 @@ describe('API /api/webhooks/konnect additional branches', () => {
   });
 
   it('handles completed subscription and allocates credits', async () => {
-    (prisma as any).payment.findUnique = jest
-      .fn()
-      .mockResolvedValue({
-        id: 'p1',
-        status: 'PENDING',
-        type: 'SUBSCRIPTION',
-        metadata: { studentId: 's1', itemKey: 'ACCÈS PLATEFORME' },
-      });
+    (prisma as any).payment.findUnique = jest.fn().mockResolvedValue({
+      id: 'p1',
+      status: 'PENDING',
+      type: 'SUBSCRIPTION',
+      metadata: { studentId: 's1', itemKey: 'ACCÈS PLATEFORME' },
+    });
     (prisma as any).payment.update = jest.fn().mockResolvedValue({});
     (prisma as any).student.findUnique = jest.fn().mockResolvedValue({ id: 's1' });
     (prisma as any).subscription.updateMany = jest.fn().mockResolvedValue({});

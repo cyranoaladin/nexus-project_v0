@@ -29,6 +29,13 @@ describe('Admin Dashboard API', () => {
     (prisma.session.count as any) = jest.fn();
     (prisma as any).payment = (prisma as any).payment || {};
     (prisma as any).payment.aggregate = jest.fn();
+    // Stubs findMany utilisés par le route handler
+    ;(prisma as any).payment.findMany = jest.fn().mockResolvedValue([]);
+    ;(prisma as any).user.findMany = jest.fn().mockResolvedValue([]);
+    ;(prisma as any).sessionBooking = (prisma as any).sessionBooking || {};
+    ;(prisma as any).subscriptionRequest = (prisma as any).subscriptionRequest || {};
+    ;(prisma as any).sessionBooking.findMany = jest.fn().mockResolvedValue([]);
+    ;(prisma as any).subscriptionRequest.findMany = jest.fn().mockResolvedValue([]);
 
     (prisma.user.count as jest.Mock).mockResolvedValueOnce(10).mockResolvedValueOnce(1); // totalUsers, assistants
     (prisma.student.count as jest.Mock).mockResolvedValue(5);

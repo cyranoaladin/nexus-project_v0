@@ -1,5 +1,0 @@
-
-Running 1 test using 1 worker
-
-[1A[2K[1/1] [webkit] › e2e/aria-freemium-flow.spec.ts:5:7 › ARIA Freemium Flow - Lucas Dupont › shows subscription prompt after 6 questions
-[1A[2K  1 passed (41.8s)

@@ -38,16 +38,14 @@ describe('API /api/admin/users PUT branches', () => {
   });
 
   it('PUT updates non-coach without coachProfile branch', async () => {
-    (prisma as any).user.update = jest
-      .fn()
-      .mockResolvedValue({
-        id: 'u1',
-        email: 'e@e.com',
-        firstName: 'A',
-        lastName: 'B',
-        role: 'ELEVE',
-        coachProfile: null,
-      });
+    (prisma as any).user.update = jest.fn().mockResolvedValue({
+      id: 'u1',
+      email: 'e@e.com',
+      firstName: 'A',
+      lastName: 'B',
+      role: 'ELEVE',
+      coachProfile: null,
+    });
     const { PUT } = require('@/app/api/admin/users/route');
     const payload = { id: 'u1', firstName: 'New', role: 'ELEVE' };
     const res = await PUT(
@@ -63,16 +61,14 @@ describe('API /api/admin/users PUT branches', () => {
   });
 
   it('PUT updates coach with profileData (upsert branch present)', async () => {
-    (prisma as any).user.update = jest
-      .fn()
-      .mockImplementation(async ({ data }: any) => ({
-        id: 'u2',
-        email: 'c@c.com',
-        firstName: 'C',
-        lastName: 'D',
-        role: 'COACH',
-        coachProfile: { id: 'cp1', pseudonym: data.coachProfile.upsert.create.pseudonym },
-      }));
+    (prisma as any).user.update = jest.fn().mockImplementation(async ({ data }: any) => ({
+      id: 'u2',
+      email: 'c@c.com',
+      firstName: 'C',
+      lastName: 'D',
+      role: 'COACH',
+      coachProfile: { id: 'cp1', pseudonym: data.coachProfile.upsert.create.pseudonym },
+    }));
     const { PUT } = require('@/app/api/admin/users/route');
     const payload = {
       id: 'u2',
