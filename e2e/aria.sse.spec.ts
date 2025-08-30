@@ -1,7 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import fs from 'fs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:3003';
+const BASE_TIMEOUT = process.env.BASE_URL_TIMEOUT || process.env.BASE_URL || 'http://localhost:3004';
+const BASE_FB_OK = process.env.BASE_URL_FBOK || process.env.BASE_URL || 'http://localhost:3005';
+const BASE_FB_FAIL = process.env.BASE_URL_FBFAIL || process.env.BASE_URL || 'http://localhost:3006';
+const BASE_PROD = process.env.BASE_URL_PROD || process.env.BASE_URL || 'http://localhost:3007';
 
 function readDevToken(): string | undefined {
   try {
@@ -13,7 +17,7 @@ function readDevToken(): string | undefined {
   }
 }
 
-async function consumeSSE(url: string, init: RequestInit & { abortAfterTokens?: number } = {}) {
+async function consumeSSE(url: string, init: RequestInit & { abortAfterTokens?: number; } = {}) {
   const ctrl = new AbortController();
   const tokens: string[] = [];
   const res = await fetch(url, { ...init, signal: ctrl.signal });
@@ -97,6 +101,63 @@ test.describe('ARIA SSE (real)', () => {
     expect(tokens.length).toBeGreaterThanOrEqual(5);
     console.log('[SSE][abort_excerpt]', events.slice(0, 6).map(e => e.event));
   });
+
+  test('timeout then retry with success (fallback optional)', async () => {
+    const token = readDevToken();
+    test.skip(!token, 'DEV_TOKEN required. Run npm run dev-seed');
+    const { events, tokens } = await consumeSSE(`${BASE_TIMEOUT}/api/aria/chat?stream=true`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message: 'Explique la dérivée', subject: 'MATHEMATIQUES', intent: 'summary' }),
+    });
+    expect(tokens.length).toBeGreaterThan(0);
+    expect(events[events.length - 1]?.event).toBe('done');
+  });
+
+  test('primary timeout/error then fallback success', async () => {
+    const token = readDevToken();
+    test.skip(!token, 'DEV_TOKEN required. Run npm run dev-seed');
+    const { events, tokens } = await consumeSSE(`${BASE_FB_OK}/api/aria/chat?stream=true`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message: 'Rappelle la loi des grands nombres', subject: 'MATHEMATIQUES', intent: 'tutor' }),
+    });
+    expect(tokens.length).toBeGreaterThan(0);
+    expect(events[events.length - 1]?.event).toBe('done');
+  });
+
+  test('primary and fallback both fail → error then done', async () => {
+    const token = readDevToken();
+    test.skip(!token, 'DEV_TOKEN required. Run npm run dev-seed');
+    const { events } = await consumeSSE(`${BASE_FB_FAIL}/api/aria/chat?stream=true`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message: 'Test erreurs intentionnelles', subject: 'NSI', intent: 'tutor' }),
+    });
+    const hasError = events.some(e => e.event === 'error');
+    expect(hasError).toBe(true);
+    expect(events[events.length - 1]?.event).toBe('done');
+  });
+
+  test('production ignores dev-token → 401/403', async () => {
+    const token = readDevToken() || '';
+    const res = await fetch(`${BASE_PROD}/api/aria/chat?stream=true`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message: 'prod mode check', subject: 'NSI', intent: 'tutor' }),
+    });
+    expect([401, 403]).toContain(res.status);
+  });
 });
-
-
