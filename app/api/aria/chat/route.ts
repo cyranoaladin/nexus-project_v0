@@ -1,14 +1,14 @@
 // app/api/aria/chat/route.ts
 import { AriaOrchestrator } from '@/lib/aria/orchestrator';
+import type { Intent } from '@/lib/aria/policy';
+import { getGenerationParams, getSystemPrefix } from '@/lib/aria/policy';
 import { authOptions } from '@/lib/auth';
+import { sanitizeLog } from '@/lib/log/sanitize';
 import { prisma } from '@/lib/prisma';
 import { Subject } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import type { Intent } from '@/lib/aria/policy';
-import { getGenerationParams, getSystemPrefix } from '@/lib/aria/policy';
-import { sanitizeLog } from '@/lib/log/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Requête invalide", details: parsedBody.error.flatten() }, { status: 400 });
     }
 
-    const { message, subject, intent } = parsedBody.data as { message: string; subject: Subject; intent: Intent };
+    const { message, subject, intent } = parsedBody.data as { message: string; subject: Subject; intent: Intent; };
 
     // Freemium limit: max 5 requests per day per student
     const today = new Date().toISOString().split('T')[0];
@@ -141,11 +141,13 @@ export async function POST(req: NextRequest) {
       const modelPrimary = selectModel();
       const modelFallback = getFallbackModel();
 
+      let heartbeatRef: any;
       const stream = new ReadableStream<Uint8Array>({
         async start(controller) {
           const sendEvent = (event: string, obj: any = {}) => controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(obj)}\n\n`));
           const ping = () => controller.enqueue(encoder.encode(`:\n\n`));
           const heartbeat = setInterval(ping, keepAliveMs);
+          heartbeatRef = heartbeat;
           const startedAt = Date.now();
           let usedModel = modelPrimary;
           let attempt = 0;
@@ -208,6 +210,14 @@ export async function POST(req: NextRequest) {
             }
           }
           clearInterval(heartbeat);
+        }
+        ,
+        cancel(reason) {
+          try {
+            if (heartbeatRef) clearInterval(heartbeatRef);
+            const { sanitizeLog } = require('@/lib/log/sanitize');
+            console.log(sanitizeLog(`[ARIA][chat][stream] cancel reason=${String(reason || '')}`));
+          } catch {}
         }
       });
 
