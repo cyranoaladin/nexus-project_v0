@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { computeAriaMode, validateAriaEnv } from './env-validate';
 
 describe('env-validate', () => {
@@ -23,10 +23,10 @@ describe('env-validate', () => {
   it('throws when production without OPENAI_MODEL', () => {
     const prevNode = process.env.NODE_ENV;
     const prevModel = process.env.OPENAI_MODEL;
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     delete process.env.OPENAI_MODEL;
     expect(() => validateAriaEnv()).toThrow();
-    process.env.NODE_ENV = prevNode;
+    if (prevNode != null) vi.stubEnv('NODE_ENV', prevNode);
     process.env.OPENAI_MODEL = prevModel;
   });
 
@@ -39,5 +39,3 @@ describe('env-validate', () => {
     process.env.OPENAI_API_KEY = prev.KEY;
   });
 });
-
-

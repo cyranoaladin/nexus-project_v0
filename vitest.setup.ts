@@ -1,7 +1,5 @@
-import { beforeAll } from 'vitest';
+import { beforeAll, vi } from 'vitest';
 
 beforeAll(() => {
-  process.env.NODE_ENV = process.env.NODE_ENV || 'test';
+  if (!process.env.NODE_ENV) vi.stubEnv('NODE_ENV', 'test');
 });
-
-
