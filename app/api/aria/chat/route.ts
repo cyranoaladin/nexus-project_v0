@@ -104,17 +104,96 @@ export async function POST(req: NextRequest) {
     }
     await prisma.student.update({ where: { id: studentId }, data: { freemiumUsage: nextUsage as any } });
 
-    // Instancier l'orchestrateur avec la logique moderne
+    // Streaming SSE si demandé
+    const url = new URL(req.url);
+    const wantStream = url.searchParams.get('stream') === 'true';
+    if (wantStream) {
+      const encoder = new TextEncoder();
+      const keepAliveMs = 15000;
+      const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 30000);
+      const retriesMax = Number(process.env.RETRIES || 1);
+      const { selectModel, getFallbackModel } = await import('@/lib/aria/openai');
+      const modelPrimary = selectModel();
+      const modelFallback = getFallbackModel();
+
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          const send = (obj: any) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+          const sendEvent = (event: string, obj: any = {}) => controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(obj)}\n\n`));
+          const ping = () => controller.enqueue(encoder.encode(`:\n\n`));
+          const heartbeat = setInterval(ping, keepAliveMs);
+          const startedAt = Date.now();
+          let usedModel = modelPrimary;
+          let attempt = 0;
+
+          const runOnce = async (model: string) => {
+            const { default: OpenAI } = await import('openai');
+            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            const controllerAbort = new AbortController();
+            const timer = setTimeout(() => controllerAbort.abort(), timeoutMs);
+            try {
+              const sys = `Tu es ARIA. Réponds par petits tokens (FR).`;
+              // @ts-ignore stream: true support
+              const resp = await (client as any).chat.completions.create({
+                model,
+                stream: true,
+                temperature: 0.2,
+                messages: [
+                  { role: 'system', content: sys },
+                  { role: 'user', content: `Matière: ${subject}\n\nQuestion: ${message}` },
+                ],
+              }, { signal: controllerAbort.signal });
+
+              for await (const chunk of resp) {
+                const delta = chunk?.choices?.[0]?.delta?.content || '';
+                if (delta) send({ token: delta });
+              }
+              clearTimeout(timer);
+              const ms = Date.now() - startedAt;
+              console.log(`[ARIA][chat] model=${model} fallback=${modelFallback || 'null'} stream=true ms=${ms}`);
+              sendEvent('done');
+              controller.close();
+            } catch (err: any) {
+              clearTimeout(timer);
+              throw err;
+            }
+          };
+
+          while (true) {
+            try {
+              usedModel = attempt === 0 ? modelPrimary : (modelFallback || modelPrimary);
+              await runOnce(usedModel);
+              break;
+            } catch (err: any) {
+              attempt++;
+              const retriable = attempt <= retriesMax;
+              if (!retriable) {
+                console.error('[ARIA][chat][stream] error:', String(err?.message || err));
+                send({ error: 'timeout_or_upstream_error' });
+                sendEvent('done');
+                controller.close();
+                break;
+              }
+            }
+          }
+          clearInterval(heartbeat);
+        }
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    }
+
+    // Mode non-stream: orchestrateur habituel
     const orchestrator = new AriaOrchestrator(studentId!, parentId!);
-
-    // Gérer la requête de bout en bout
     const { response, documentUrl } = await orchestrator.handleQuery(message, subject);
-
-    // Retourner la réponse et l'éventuel URL du document
-    return NextResponse.json({
-      response,
-      documentUrl,
-    });
+    return NextResponse.json({ response, documentUrl });
 
   } catch (error: any) {
     try {
