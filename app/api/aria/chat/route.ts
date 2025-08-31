@@ -9,8 +9,10 @@ import { Subject } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { isE2E } from '@/lib/env/e2e';
 
 export const dynamic = 'force-dynamic';
+let e2eBypassLogged = false;
 
 const chatRequestSchema = z.object({
   message: z.string().min(1, "Le message ne peut pas être vide."),
@@ -33,18 +35,63 @@ export async function POST(req: NextRequest) {
       console.error('[ARIA][ENV] Validation failed:', e);
       return NextResponse.json({ error: 'Configuration invalide: ' + String((e as any)?.message || e) }, { status: 500 });
     }
-    // Rate limit (IP + route)
+    // Determine if stream requested (need early for E2E controls)
+    const urlEarly = new URL(req.url);
+    const wantStreamEarly = urlEarly.searchParams.get('stream') === 'true';
+    const wantStubHeader = req.headers.get('x-e2e-stub') === '1';
+    const prodLike = req.headers.get('x-prod-like') === '1';
+
+    // Rate limit (IP + route) with E2E bypass
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const { rateLimit } = await import('@/lib/rate-limit');
-    const check = rateLimit({ windowMs: 60_000, max: 30 })(`aria_chat:${ip}`);
-    if (!check.ok) {
-      return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+    if (isE2E()) {
+      if (!e2eBypassLogged) {
+        console.info('[E2E] SSE rate-limit bypass active');
+        e2eBypassLogged = true;
+      }
+      // No-op limiter in E2E
+    } else {
+      const { rateLimit } = await import('@/lib/rate-limit');
+      const check = rateLimit({ windowMs: 60_000, max: 30 })(`aria_chat:${ip}`);
+      if (!check.ok) {
+        return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+      }
+    }
+
+    // If streaming + E2E and explicit stub header, short-circuit to stub SSE
+    if (wantStreamEarly && isE2E() && process.env.ARIA_LIVE !== '1' && wantStubHeader) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          console.info('[E2E] SSE stub stream active (header-gated)');
+          const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+          // Emit a series of tokens with small delays so tests can abort mid-stream
+          for (let i = 0; i < 20; i++) {
+            controller.enqueue(encoder.encode(`event: token\ndata: ${JSON.stringify({ text: `token-${i}`, index: i })}\n\n`));
+            await sleep(15);
+          }
+          controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ usage: { prompt: null, completion: 20 }, model: 'stub-e2e', latency_ms: 0 })}\n\n`));
+          controller.close();
+        }
+      });
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+          ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
+        },
+      });
     }
 
     const auth = await (await import('@/lib/api/auth')).getAuthFromRequest(req as any);
     let studentId: string | undefined;
     let parentId: string | undefined;
     if (auth?.via === 'dev-token' && process.env.NODE_ENV !== 'production') {
+      // In E2E without stub header, simulate prod-like rejection of dev-token
+      if (isE2E() && wantStreamEarly && prodLike) {
+        return NextResponse.json({ error: 'DEV_TOKEN not allowed in prod-like checks' }, { status: 401 });
+      }
       // Choisir un élève/parent par défaut en dev
       const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
       if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
@@ -52,10 +99,9 @@ export async function POST(req: NextRequest) {
       parentId = first.parentId as any;
     } else {
       let session = await getServerSession(authOptions);
-      // E2E bypass: désactivé en mode live (ARIA_LIVE=1)
-      if ((!session?.user?.id || !session.user.studentId || !session.user.parentId)
-        && (process.env.ARIA_LIVE !== '1')
-        && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1')) {
+      // E2E bypass: désactivé en mode live (ARIA_LIVE=1) et pour les checks "prod-like" (pas de stub header)
+      const allowE2EFallback = (process.env.ARIA_LIVE !== '1') && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1') && !prodLike;
+      if ((!session?.user?.id || !session.user.studentId || !session.user.parentId) && allowE2EFallback) {
         const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
         if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
         session = {
@@ -85,29 +131,34 @@ export async function POST(req: NextRequest) {
 
     const { message, subject, intent } = parsedBody.data as { message: string; subject: Subject; intent: Intent; };
 
-    // Freemium limit: max 5 requests per day per student
+    // Freemium limit: max 5 requests per day per student (skip in E2E when streaming)
     const today = new Date().toISOString().split('T')[0];
-    const student = await prisma.student.findUnique({ where: { id: studentId } });
-    const usage = (student as any)?.freemiumUsage as { requestsToday?: number; date?: string; } | null;
+    const skipFreemium = isE2E() && wantStreamEarly;
+    if (!skipFreemium) {
+      const student = await prisma.student.findUnique({ where: { id: studentId } });
+      const usage = (student as any)?.freemiumUsage as { requestsToday?: number; date?: string; } | null;
 
-    if (usage && usage.date === today && (usage.requestsToday ?? 0) >= 5) {
-      return NextResponse.json({
-        error: 'Limite de requêtes freemium atteinte. Réessayez demain.',
-        cta: {
-          label: 'Souscrire à ARIA+',
-          url: '/dashboard/parent/abonnements',
-        },
-      }, { status: 429 });
-    }
+      if (usage && usage.date === today && (usage.requestsToday ?? 0) >= 5) {
+        return NextResponse.json({
+          error: 'Limite de requêtes freemium atteinte. Réessayez demain.',
+          cta: {
+            label: 'Souscrire à ARIA+',
+            url: '/dashboard/parent/abonnements',
+          },
+        }, { status: 429 });
+      }
 
-    // Update usage: reset if new day, else increment
-    let nextUsage: { requestsToday: number; date: string; };
-    if (!usage || usage.date !== today) {
-      nextUsage = { requestsToday: 1, date: today };
+      // Update usage: reset if new day, else increment
+      let nextUsage: { requestsToday: number; date: string; };
+      if (!usage || usage.date !== today) {
+        nextUsage = { requestsToday: 1, date: today };
+      } else {
+        nextUsage = { requestsToday: (usage.requestsToday ?? 0) + 1, date: today };
+      }
+      await prisma.student.update({ where: { id: studentId }, data: { freemiumUsage: nextUsage as any } });
     } else {
-      nextUsage = { requestsToday: (usage.requestsToday ?? 0) + 1, date: today };
+      // No-op in E2E streaming path
     }
-    await prisma.student.update({ where: { id: studentId }, data: { freemiumUsage: nextUsage as any } });
 
     // Streaming SSE si demandé
     const url = new URL(req.url);
