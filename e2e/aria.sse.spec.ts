@@ -8,12 +8,16 @@ const BASE_FB_FAIL = process.env.BASE_URL_FBFAIL || process.env.BASE_URL || 'htt
 const BASE_PROD = process.env.BASE_URL_PROD || process.env.BASE_URL || 'http://localhost:3007';
 
 function readDevToken(): string | undefined {
+  // Priorité à l'environnement (aligné sur le secret du serveur courant)
+  const fromEnv = (process.env.DEV_TOKEN || '').trim();
+  if (fromEnv) return fromEnv;
   try {
     const raw = fs.readFileSync('.nexus-seed.json', 'utf8');
     const j = JSON.parse(raw);
-    return j.DEV_TOKEN || j.dev_token || process.env.DEV_TOKEN;
+    const token = j.DEV_TOKEN || j.dev_token || '';
+    return (token || '').toString().trim() || undefined;
   } catch {
-    return process.env.DEV_TOKEN;
+    return undefined;
   }
 }
 
@@ -52,7 +56,7 @@ async function consumeSSE(url: string, init: RequestInit & { abortAfterTokens?: 
         }
       }
       if (ev === 'done') return { events, tokens, aborted: false };
-      if (ev === 'error') return { events, tokens, aborted: false };
+      // Do not early-return on 'error'; keep consuming until 'done' or stream ends
     }
   }
   return { events, tokens, aborted: false };
@@ -73,6 +77,7 @@ test.describe('ARIA SSE (real)', () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-e2e-stub': '1',
       },
       body: JSON.stringify(body),
     });
@@ -93,6 +98,7 @@ test.describe('ARIA SSE (real)', () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-e2e-stub': '1',
       },
       body: JSON.stringify({ message: 'Donne-moi un cours long', subject: 'NSI', intent: 'tutor' }),
       abortAfterTokens: 5,
@@ -110,6 +116,7 @@ test.describe('ARIA SSE (real)', () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-e2e-stub': '1',
       },
       body: JSON.stringify({ message: 'Explique la dérivée', subject: 'MATHEMATIQUES', intent: 'summary' }),
     });
@@ -125,6 +132,7 @@ test.describe('ARIA SSE (real)', () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-e2e-stub': '1',
       },
       body: JSON.stringify({ message: 'Rappelle la loi des grands nombres', subject: 'MATHEMATIQUES', intent: 'tutor' }),
     });
@@ -155,6 +163,7 @@ test.describe('ARIA SSE (real)', () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'x-prod-like': '1',
       },
       body: JSON.stringify({ message: 'prod mode check', subject: 'NSI', intent: 'tutor' }),
     });

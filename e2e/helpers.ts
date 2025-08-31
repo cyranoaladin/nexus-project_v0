@@ -11,6 +11,49 @@ export async function loginAs(page: Page, email: string, password?: string) {
       if (e.includes('parent')) return 'PARENT';
       return 'ELEVE';
     })();
+
+    const rolePath = role === 'ADMIN' ? 'admin'
+      : role === 'ASSISTANTE' ? 'assistante'
+        : role === 'COACH' ? 'coach'
+          : role === 'PARENT' ? 'parent'
+            : 'eleve';
+
+    // Prefer real session cookie via test login API (more realistic than stubbing)
+    try {
+      const r = await page.request.post('/api/test/login', { data: { role } });
+      if (r.ok()) {
+        // Poll session readiness to avoid race conditions (with small backoff)
+        const backoffs = [100, 150, 200];
+        for (const ms of backoffs) {
+          try {
+            const sess = await page.request.get('/api/auth/session', { headers: { 'Cache-Control': 'no-store' } });
+            if (sess.ok()) {
+              const j = await sess.json();
+              if (j?.user?.role) break;
+            }
+          } catch {}
+          await page.waitForTimeout(ms);
+        }
+        const deadline = Date.now() + 4000;
+        while (Date.now() < deadline) {
+          try {
+            const sess = await page.request.get('/api/auth/session', { headers: { 'Cache-Control': 'no-store' } });
+            if (sess.ok()) {
+              const j = await sess.json();
+              if (j?.user?.role) break;
+            }
+          } catch {}
+          await page.waitForTimeout(150);
+        }
+        await page.goto(`/dashboard/${rolePath}`, { waitUntil: 'domcontentloaded' });
+        try {
+          await page.waitForSelector('[data-testid="logout-button"]', { state: 'visible', timeout: 3000 });
+          return; // real session established
+        } catch {}
+      }
+    } catch {}
+
+    // Fallback: stub session endpoint and proceed
     await page.route('**/api/auth/session', route => {
       route.fulfill({
         status: 200,
@@ -28,14 +71,9 @@ export async function loginAs(page: Page, email: string, password?: string) {
         })
       });
     });
-    const rolePath = role === 'ADMIN' ? 'admin'
-      : role === 'ASSISTANTE' ? 'assistante'
-        : role === 'COACH' ? 'coach'
-          : role === 'PARENT' ? 'parent'
-            : 'eleve';
     await page.goto(`/dashboard/${rolePath}`, { waitUntil: 'domcontentloaded' });
     try {
-      await page.waitForSelector('[data-testid="logout-button"]', { state: 'visible', timeout: 3000 });
+      await page.waitForSelector('[data-testid":"logout-button"]', { state: 'visible', timeout: 3000 });
       return; // session UI visible, skip credential flow
     } catch {}
   } catch {}
