@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -16,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month'; // month, quarter, year
-    const _type = searchParams.get('type') || 'all'; // all, revenue, users, sessions
+    const type = searchParams.get('type') || 'all'; // all, revenue, users, sessions
 
     const now = new Date();
     let startDate: Date;
@@ -129,35 +131,35 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Format revenue data
-    const formattedRevenueData = revenueData.map((item) => ({
+    const formattedRevenueData = revenueData.map((item: any) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       amount: item._sum.amount || 0,
       count: item._count.id
     }));
 
     // Format user growth data
-    const formattedUserGrowthData = userGrowthData.map((item) => ({
+    const formattedUserGrowthData = userGrowthData.map((item: any) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       role: item.role,
       count: item._count.id
     }));
 
     // Format session data
-    const formattedSessionData = sessionData.map((item) => ({
+    const formattedSessionData = sessionData.map((item: any) => ({
       date: item.scheduledAt.toISOString().slice(0, 10),
       status: item.status,
       count: item._count.id
     }));
 
     // Format subscription data
-    const formattedSubscriptionData = subscriptionData.map((item) => ({
+    const formattedSubscriptionData = subscriptionData.map((item: any) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       status: item.status,
       count: item._count.id
     }));
 
     // Format credit transaction data
-    const formattedCreditData = creditTransactionData.map((item) => ({
+    const formattedCreditData = creditTransactionData.map((item: any) => ({
       date: item.createdAt.toISOString().slice(0, 10),
       type: item.type,
       amount: item._sum.amount || 0,
@@ -165,7 +167,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Format recent activities
-    const formattedRecentActivities = recentActivities.map((activity) => ({
+    const formattedRecentActivities = recentActivities.map((activity: any) => ({
       id: activity.id,
       type: 'session',
       title: `Session ${activity.subject}`,
@@ -181,10 +183,10 @@ export async function GET(request: NextRequest) {
     }));
 
     // Calculate summary statistics
-    const totalRevenue = formattedRevenueData.reduce((sum: number, item) => sum + item.amount, 0);
-    const totalUsers = formattedUserGrowthData.reduce((sum: number, item) => sum + item.count, 0);
-    const totalSessions = formattedSessionData.reduce((sum: number, item) => sum + item.count, 0);
-    const totalSubscriptions = formattedSubscriptionData.reduce((sum: number, item) => sum + item.count, 0);
+    const totalRevenue = formattedRevenueData.reduce((sum: number, item: any) => sum + item.amount, 0);
+    const totalUsers = formattedUserGrowthData.reduce((sum: number, item: any) => sum + item.count, 0);
+    const totalSessions = formattedSessionData.reduce((sum: number, item: any) => sum + item.count, 0);
+    const totalSubscriptions = formattedSubscriptionData.reduce((sum: number, item: any) => sum + item.count, 0);
 
     const analyticsData = {
       period,

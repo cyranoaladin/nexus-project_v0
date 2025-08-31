@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -29,10 +31,14 @@ export async function GET(request: NextRequest) {
       subscriptions,
       creditTransactions
     ] = await Promise.all([
-      // Sessions (SessionBooking)
-      prisma.sessionBooking.findMany({
+      // Sessions
+      prisma.session.findMany({
         take: 50,
-        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
+        orderBy: { createdAt: 'desc' },
+        include: {
+          student: { include: { user: true } },
+          coach: { include: { user: true } }
+        }
       }),
 
       // Users
@@ -63,21 +69,23 @@ export async function GET(request: NextRequest) {
     // Format all activities
     const allActivities = [
       // Format sessions
-      ...sessions.map((a) => ({
-        id: a.id,
+      ...sessions.map((activity: any) => ({
+        id: activity.id,
         type: 'session',
-        title: `Session ${a.subject}`,
-        description: '',
-        time: a.scheduledDate,
-        status: a.status,
-        studentName: '',
-        coachName: '',
-        subject: a.subject,
-        action: a.status
+        title: `Session ${activity.subject}`,
+        description: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'} avec ${activity.coach?.pseudonym || 'Unknown Coach'}`,
+        time: activity.createdAt,
+        status: activity.status,
+        studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
+        coachName: activity.coach?.pseudonym || 'Unknown Coach',
+        subject: activity.subject,
+        action: activity.status === 'COMPLETED' ? 'Session terminée' :
+          activity.status === 'SCHEDULED' ? 'Session programmée' :
+            activity.status === 'CANCELLED' ? 'Session annulée' : 'Session en cours'
       })),
 
       // Format new users
-      ...users.map((user) => ({
+      ...users.map((user: any) => ({
         id: user.id,
         type: 'user',
         title: `Nouvel utilisateur: ${user.firstName} ${user.lastName}`,
@@ -91,7 +99,7 @@ export async function GET(request: NextRequest) {
       })),
 
       // Format new subscriptions
-      ...subscriptions.map((subscription) => ({
+      ...subscriptions.map((subscription: any) => ({
         id: subscription.id,
         type: 'subscription',
         title: `Nouvel abonnement: ${subscription.planName}`,
@@ -105,7 +113,7 @@ export async function GET(request: NextRequest) {
       })),
 
       // Format credit transactions
-      ...creditTransactions.map((transaction) => ({
+      ...creditTransactions.map((transaction: any) => ({
         id: transaction.id,
         type: 'credit',
         title: `Transaction crédit: ${transaction.type}`,

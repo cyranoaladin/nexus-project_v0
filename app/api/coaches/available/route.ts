@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session || session.user.role !== 'ELEVE' && session.user.role !== 'PARENT' ) {
+
+    if (!session || session.user.role !== 'ELEVE' && session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -64,11 +66,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching available coaches:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error'
       },
       { status: 500 }
     );
   }
-} 
+}

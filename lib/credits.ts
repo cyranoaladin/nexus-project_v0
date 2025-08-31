@@ -22,8 +22,8 @@ export function calculateCreditCost(serviceType: ServiceType): number {
 }
 
 // Vérification du solde de crédits
+import { prisma } from './prisma';
 export async function checkCreditBalance(studentId: string, requiredCredits: number): Promise<boolean> {
-  const { prisma } = await import('./prisma');
 
   const transactions = await prisma.creditTransaction.findMany({
     where: {
@@ -42,7 +42,6 @@ export async function checkCreditBalance(studentId: string, requiredCredits: num
 
 // Débit des crédits pour une session
 export async function debitCredits(studentId: string, amount: number, sessionId: string, description: string) {
-  const { prisma } = await import('./prisma');
 
   return await prisma.creditTransaction.create({
     data: {
@@ -57,7 +56,6 @@ export async function debitCredits(studentId: string, amount: number, sessionId:
 
 // Remboursement de crédits (annulation)
 export async function refundCredits(studentId: string, amount: number, sessionId: string, description: string) {
-  const { prisma } = await import('./prisma');
 
   return await prisma.creditTransaction.create({
     data: {
@@ -70,43 +68,8 @@ export async function refundCredits(studentId: string, amount: number, sessionId
   });
 }
 
-// Remboursement basé sur une SessionBooking (protégé contre double remboursement)
-export async function refundSessionBookingById(sessionBookingId: string, reason?: string) {
-  const { prisma } = await import('./prisma');
-
-  const booking = await prisma.sessionBooking.findUnique({ where: { id: sessionBookingId } });
-  if (!booking) return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
-
-  // Règle: rembourser seulement si annulée ET non déjà remboursée
-  if (booking.status !== 'CANCELLED') {
-    return { ok: false, reason: 'NOT_CANCELLED' as const };
-  }
-
-  const existing = await prisma.creditTransaction.findFirst({ where: { sessionId: sessionBookingId, type: 'REFUND' } });
-  if (existing) {
-    return { ok: true, alreadyRefunded: true as const };
-  }
-
-  // Trouver l'entité Student (id) via userId de la booking
-  const studentEntity = await prisma.student.findFirst({ where: { userId: booking.studentId } });
-  if (!studentEntity) return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
-
-  const created = await prisma.creditTransaction.create({
-    data: {
-      studentId: studentEntity.id,
-      type: 'REFUND',
-      amount: booking.creditsUsed,
-      description: reason ? `Refund: ${reason}` : `Refund: cancellation ${booking.title ?? ''}`,
-      sessionId: sessionBookingId
-    }
-  });
-
-  return { ok: true, transaction: created };
-}
-
 // Attribution des crédits mensuels
 export async function allocateMonthlyCredits(studentId: string, credits: number) {
-  const { prisma } = await import('./prisma');
 
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 2); // Expire dans 2 mois (report 1 mois)
@@ -124,7 +87,6 @@ export async function allocateMonthlyCredits(studentId: string, credits: number)
 
 // Expiration des crédits reportés
 export async function expireOldCredits() {
-  const { prisma } = await import('./prisma');
 
   const expiredTransactions = await prisma.creditTransaction.findMany({
     where: {
@@ -142,5 +104,21 @@ export async function expireOldCredits() {
         description: `Expiration de ${transaction.amount} crédits reportés`
       }
     });
+  }
+}
+
+// Logique d'annulation de réservation
+export function canCancelBooking(sessionDate: Date, serviceType: ServiceType): boolean {
+  const now = new Date();
+  const sessionTime = sessionDate.getTime();
+  const currentTime = now.getTime();
+  const hoursDifference = (sessionTime - currentTime) / (1000 * 60 * 60);
+
+  if (serviceType === 'ATELIER_GROUPE') {
+    // Annulation possible jusqu'à 48h avant pour les ateliers de groupe
+    return hoursDifference > 48;
+  } else {
+    // Annulation possible jusqu'à 24h avant pour les autres cours
+    return hoursDifference > 24;
   }
 }

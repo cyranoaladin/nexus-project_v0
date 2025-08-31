@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -94,43 +94,7 @@ export default function SessionBooking({
   const [descriptionError, setDescriptionError] = useState('');
 
   // Load coaches when subject changes
-  useEffect(() => {
-    if (subject) {
-      loadCoaches();
-    } else {
-      setCoaches([]);
-      setSelectedCoach('');
-    }
-  }, [subject]);
-
-  // Load available slots when coach and week change
-  useEffect(() => {
-    if (selectedCoach && selectedWeek) {
-      loadAvailableSlots();
-    } else {
-      setAvailableSlots([]);
-    }
-  }, [selectedCoach, selectedWeek]);
-
-  // Validate title length
-  useEffect(() => {
-    if (title.length > 100) {
-      setTitleError('Le titre ne peut pas dépasser 100 caractères');
-    } else {
-      setTitleError('');
-    }
-  }, [title]);
-
-  // Validate description length
-  useEffect(() => {
-    if (description.length > 500) {
-      setDescriptionError('La description ne peut pas dépasser 500 caractères');
-    } else {
-      setDescriptionError('');
-    }
-  }, [description]);
-
-  const loadCoaches = async () => {
+  const loadCoaches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -147,9 +111,9 @@ export default function SessionBooking({
     } finally {
       setLoading(false);
     }
-  };
+  }, [subject]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -180,7 +144,45 @@ export default function SessionBooking({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCoach, selectedWeek, coaches]);
+
+  // Load coaches when subject changes
+  useEffect(() => {
+    if (subject) {
+      loadCoaches();
+    } else {
+      setCoaches([]);
+      setSelectedCoach('');
+    }
+  }, [subject, loadCoaches]);
+
+  // Load available slots when coach and week change
+  useEffect(() => {
+    if (selectedCoach && selectedWeek) {
+      loadAvailableSlots();
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [selectedCoach, selectedWeek, loadAvailableSlots]);
+
+  // Validate title length
+  useEffect(() => {
+    if (title.length > 100) {
+      setTitleError('Le titre ne peut pas dépasser 100 caractères');
+    } else {
+      setTitleError('');
+    }
+  }, [title]);
+
+  // Validate description length
+  useEffect(() => {
+    if (description.length > 500) {
+      setDescriptionError('La description ne peut pas dépasser 500 caractères');
+    } else {
+      setDescriptionError('');
+    }
+  }, [description]);
+
 
 
 

@@ -6,13 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-// import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -98,6 +97,7 @@ export default function SignInPage() {
                       placeholder="votre.email@exemple.com"
                       required
                       className="mt-2 h-12"
+                      data-testid="signin-email"
                     />
                   </div>
 
@@ -122,10 +122,12 @@ export default function SignInPage() {
                         placeholder="Votre mot de passe"
                         required
                         className="h-12 pr-12"
+                        data-testid="signin-password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
                       >
                         {showPassword ? (
@@ -138,13 +140,12 @@ export default function SignInPage() {
                   </div>
 
                   {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                    <div
                       className="bg-red-50 border border-red-200 rounded-lg p-4"
+                      data-testid="signin-error"
                     >
                       <p className="text-red-800 text-sm font-medium">{error}</p>
-                    </motion.div>
+                    </div>
                   )}
 
                   <Button

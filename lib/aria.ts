@@ -1,27 +1,57 @@
-import { Subject } from '@/types/enums';
+import { prisma } from '@/lib/prisma';
+import { Subject } from '@prisma/client';
 import OpenAI from 'openai';
-import { prisma } from './prisma';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+function getOpenAI(): { chat: { completions: { create: (args: any) => Promise<{ choices: { message: { content: string; }; }[]; }>; }; }; } {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (apiKey && apiKey.trim().length > 0) {
+    const client = new OpenAI({ apiKey });
+    // Adapter pour retourner une forme homogène
+    return {
+      chat: {
+        completions: {
+          create: async (args: any) => {
+            const res = await (client as any).chat.completions.create(args);
+            return res;
+          },
+        },
+      },
+    } as any;
+  }
+  // Fallback sûr sans clé: renvoyer une réponse simulée
+  return {
+    chat: {
+      completions: {
+        create: async (_args: any) => ({ choices: [{ message: { content: 'Réponse simulée.' } }] }),
+      },
+    },
+  } as any;
+}
 
 // Système de prompt pour ARIA
 const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
 
 RÈGLES IMPORTANTES :
-1. Tu ne réponds QUE sur la matière demandée par l'élève
-2. Tes réponses sont basées sur la base de connaissances Nexus Réussite
-3. Tu adaptes ton niveau au lycée (Seconde, Première, Terminale)
-4. Tu es bienveillant, encourageant et pédagogue
-5. Tu proposes toujours des exemples concrets
-6. Si tu ne sais pas, tu le dis et suggères de contacter un coach
+1. Tu ne réponds QUE sur la matière demandée par l'élève.
+2. Tes réponses sont basées sur la base de connaissances Nexus Réussite fournie dans le contexte.
+3. Tu adaptes ton niveau au lycée (Seconde, Première, Terminale).
+4. Tu es bienveillant, encourageant et pédagogue.
+5. Tu proposes toujours des exemples concrets et détaillés.
+6. Si tu ne sais pas, tu le dis et suggères de contacter un coach.
 
 STYLE :
-- Utilise un ton amical mais professionnel
-- Structure tes réponses clairement
-- Utilise des émojis avec parcimonie
-- Propose des exercices ou des méthodes pratiques
+- Utilise un ton amical mais professionnel.
+- Structure tes réponses clairement avec des titres et des listes.
+- Utilise des émojis avec parcimonie pour illustrer tes points.
+- Propose des exercices ou des méthodes pratiques à la fin de tes explications.
+
+FORMAT SPÉCIFIQUE "FICHE DE COURS" :
+Si un élève demande une "fiche de cours", "résumé de cours", ou un sujet similaire, tu dois générer une réponse particulièrement structurée. Utilise le format Markdown suivant :
+- Un titre principal (ex: "# 📝 Fiche de Cours : [Nom du Chapitre]").
+- Des sections claires avec des sous-titres (ex: "## 1. Concepts Clés", "## 2. Formules Essentielles", "## 3. Exemple Concret", "## 4. Exercice d'Application").
+- Utilise des listes à puces pour les définitions.
+- Encadre les formules mathématiques avec des backticks simples pour le LaTeX en ligne (ex: \`\\( E = mc^2 \\)\`).
+- Conclus toujours par un encouragement.
 
 Tu représentes l'excellence de Nexus Réussite.`;
 
@@ -32,11 +62,9 @@ async function searchKnowledgeBase(query: string, subject: Subject, limit: numbe
 
   const contents = await prisma.pedagogicalContent.findMany({
     where: {
-      subject,
       OR: [
         { title: { contains: query } },
-        { content: { contains: query } },
-        { tags: { contains: query } } // Changé de hasSome à contains pour JSON string
+        { content: { contains: query } }
       ]
     },
     take: limit,
@@ -83,17 +111,41 @@ export async function generateAriaResponse(
     ];
 
     // Appel à OpenAI
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages,
-      max_tokens: 1000,
-      temperature: 0.7
-    });
+    const { selectModel, getFallbackModel } = await import('./aria/openai');
+    const primaryModel = selectModel();
+    const fallbackModel = getFallbackModel();
+    let completion: any;
+    try {
+      completion = await getOpenAI().chat.completions.create({
+        model: primaryModel,
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+        user: studentId ? `student:${studentId}` : undefined,
+      });
+    } catch (primaryErr) {
+      if (fallbackModel) {
+        console.warn(`[ARIA][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
+        completion = await getOpenAI().chat.completions.create({
+          model: fallbackModel,
+          messages,
+          max_tokens: 1000,
+          temperature: 0.7,
+          user: studentId ? `student:${studentId}` : undefined,
+        });
+      } else {
+        throw primaryErr;
+      }
+    }
 
     return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
 
   } catch (error) {
     console.error('Erreur ARIA:', error);
+    // Si c'est une erreur de permission, on la relance pour que l'API renvoie un statut d'erreur
+    if (error instanceof OpenAI.APIError && error.status === 403) {
+      throw error;
+    }
     return 'Je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.';
   }
 }
@@ -118,8 +170,7 @@ export async function saveAriaConversation(
     conversation = await prisma.ariaConversation.create({
       data: {
         studentId,
-        subject,
-        title: userMessage.substring(0, 50) + '...'
+        subject
       }
     });
   }

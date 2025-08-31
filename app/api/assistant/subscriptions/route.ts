@@ -1,12 +1,13 @@
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { SubscriptionStatus } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
+    
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
+    
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { subscriptionId, action, reason: _reason } = body;
+    const { subscriptionId, action, reason } = body;
 
     if (!subscriptionId || !action) {
       return NextResponse.json(
@@ -154,15 +155,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // status must be a valid SubscriptionStatus from schema
-    let newStatus: 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED';
+    let newStatus: SubscriptionStatus;
     let creditAmount: number = 0;
 
     if (action === 'approve') {
-      newStatus = 'ACTIVE';
+      newStatus = SubscriptionStatus.ACTIVE;
       creditAmount = subscription.creditsPerMonth || 0;
     } else if (action === 'reject') {
-      newStatus = 'INACTIVE';
+      newStatus = SubscriptionStatus.CANCELLED;
     } else {
       return NextResponse.json(
         { error: 'Invalid action' },
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
       subscription: {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
-        message: action === 'approve'
+        message: action === 'approve' 
           ? 'Abonnement approuvé et crédits ajoutés'
           : 'Abonnement rejeté'
       }
@@ -208,4 +208,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+} 

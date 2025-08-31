@@ -144,21 +144,22 @@ describe('Validation Schemas', () => {
   });
 
   describe('sessionBookingSchema', () => {
+    // Génère une date valide pour les tests, 3 heures dans le futur
+    const futureDate = new Date();
+    futureDate.setHours(futureDate.getHours() + 3);
+
     const validSessionData = {
       coachId: 'coach-123',
       subject: 'MATHEMATIQUES' as Subject,
       type: 'COURS_ONLINE',
-      scheduledAt: '2024-12-15T14:00:00.000Z',
+      scheduledAt: futureDate.toISOString(),
       duration: 60,
       title: 'Cours de mathématiques',
       description: 'Révision des équations du second degré'
     };
 
     it('should pass validation with valid session data', () => {
-      // Pour éviter l'échec lié à la règle des 2h, décale la date de test dans le futur
-      const future = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
-      const data = { ...validSessionData, scheduledAt: future };
-      const result = sessionBookingSchema.safeParse(data);
+      const result = sessionBookingSchema.safeParse(validSessionData);
       expect(result.success).toBe(true);
     });
 

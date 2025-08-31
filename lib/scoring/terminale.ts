@@ -1,0 +1,91 @@
+import { QcmQuestion } from "./qcmData";
+
+// Raw JSON structure as per BILAN_TERMINALE_MATHS.md (full set transformed to QcmQuestion[])
+const RAW = {
+  meta: {
+    title: "Bilan d'entrée Terminale — Mathématiques",
+    niveau: "Terminale",
+    base: "Programme de Première (pré-requis)",
+    totalQuestions: 40,
+    domainsOrder: [
+      "AlgebreFonctions",
+      "Analyse",
+      "Suites",
+      "GeometriePlan",
+      "ProbabilitesStat",
+      "AlgoLogique",
+    ],
+  },
+  questions: [
+    { id: "Q1", domain: "AlgebreFonctions", label: "Résoudre x^2 − 5x + 6 = 0.", weight: 2, type: "single", options: ["{1,6}","{2,3}","{−2,−3}","∅"], correct: [1] },
+    { id: "Q2", domain: "AlgebreFonctions", label: "Signe de (x−1)(x+4).", weight: 2, type: "single", options: ["+ sur x<−4 et x>1","+ sur −4<x<1","− sur x<−4 et x>1","toujours +"], correct: [0] },
+    { id: "Q3", domain: "AlgebreFonctions", label: "Forme canonique de x^2 + 4x + 1.", weight: 2, type: "single", options: ["(x+2)^2 − 3","(x−2)^2 + 3","(x+2)^2 + 3","(x−2)^2 − 3"], correct: [0] },
+    { id: "Q4", domain: "AlgebreFonctions", label: "Somme des racines de x^2 − 7x + 10.", weight: 1, type: "single", options: ["7","−7","10","−10"], correct: [0] },
+    { id: "Q5", domain: "AlgebreFonctions", label: "Factoriser x^2 − 9x.", weight: 2, type: "single", options: ["x(x−9)","(x−3)^2","(x−9)^2","(x−3)(x−6)"], correct: [0] },
+    { id: "Q6", domain: "AlgebreFonctions", label: "Résoudre (x−1)^2 ≤ 9.", weight: 2, type: "single", options: ["[−2,4]","[−4,2]","[−8,10]","[1,10]"], correct: [0] },
+    { id: "Q7", domain: "AlgebreFonctions", label: "Zéros de f(x)= −x^2 + 4x.", weight: 2, type: "single", options: ["0 et 4","2","4","0"], correct: [0] },
+    { id: "Q8", domain: "AlgebreFonctions", label: "Minimum de x^2 + 4x + 5 sur R.", weight: 3, type: "single", options: ["1 en x=−2","5 en x=0","0 en x=0","1 en x=2"], correct: [0] },
+    { id: "Q9", domain: "AlgebreFonctions", label: "Si x,y sont racines de t^2 − 5t + 6, alors x+y et xy = ?", weight: 2, type: "single", options: ["5 et 6","6 et 5","−5 et 6","5 et −6"], correct: [0] },
+    { id: "Q10", domain: "AlgebreFonctions", label: "Domaine de g(x) = (2x+1)/(x−3).", weight: 2, type: "single", options: ["R","R\\{3}","R\\{−1/2}","(0,+∞)"], correct: [1] },
+
+    { id: "Q11", domain: "Analyse", label: "Le nombre dérivé est la pente de la tangente au graphe en a.", weight: 3, type: "single", options: ["Vrai","Faux"], correct: [0] },
+    { id: "Q12", domain: "Analyse", label: "Si f'(x)>0 sur un intervalle, f y est…", weight: 2, type: "single", options: ["décroissante","constante","croissante","indéterminée"], correct: [2] },
+    { id: "Q13", domain: "Analyse", label: "Dérivée de f(x)=x^2−3x+2.", weight: 2, type: "single", options: ["2x−3","x−3","2x","2x+3"], correct: [0] },
+    { id: "Q14", domain: "Analyse", label: "Dérivée de h(x)=√x (x>0).", weight: 2, type: "single", options: ["1/(2√x)","1/√x","2√x","0"], correct: [0] },
+    { id: "Q15", domain: "Analyse", label: "Si f(x)=e^x alors f'(x)= ?", weight: 3, type: "single", options: ["x e^x","e^x","ln x","1/x"], correct: [1] },
+    { id: "Q16", domain: "Analyse", label: "Résoudre e^x = 1.", weight: 2, type: "single", options: ["x=0","x=1","x=ln 1","A et C"], correct: [3] },
+    { id: "Q17", domain: "Analyse", label: "Si f'(2)=0 et f''(2)>0, alors en x=2 :", weight: 2, type: "single", options: ["maximum local","minimum local","point d’inflexion","rien de concluant"], correct: [1] },
+    { id: "Q18", domain: "Analyse", label: "Dérivée de k(x)=1/x (x≠0).", weight: 2, type: "single", options: ["1","−1/x^2","1/x^2","−1/x"], correct: [1] },
+    { id: "Q19", domain: "Analyse", label: "Tangente : si f'(a)=m, équation locale ≈ ?", weight: 3, type: "single", options: ["y=f(a)+m(x−a)","y=m(x−a)","y=f(a)","y=mx"], correct: [0] },
+    { id: "Q20", domain: "Analyse", label: "Si f(x)=x^3, f'(x)= ?", weight: 2, type: "single", options: ["3x^2","x^2","3x","x^3"], correct: [0] },
+    { id: "Q21", domain: "Analyse", label: "F(x)=e^{2x}, F'(x)= ?", weight: 3, type: "single", options: ["2e^{2x}","e^{2x}","2x e^x","0"], correct: [0] },
+    { id: "Q22", domain: "Analyse", label: "Zéros de f(x)=x^2−1 et signe sur R.", weight: 2, type: "single", options: ["zéros ±1, f≥0 hors (−1,1)","zéro 0, f≥0 partout","zéros ±1, f≤0 hors (−1,1)","pas de zéro"], correct: [0] },
+
+    { id: "Q23", domain: "Suites", label: "Suite arithmétique : u_{n+1}=u_n+3, u_0=2. Donner u_n.", weight: 2, type: "single", options: ["2+3n","2·3^n","3+2n","2−3n"], correct: [0] },
+    { id: "Q24", domain: "Suites", label: "Suite géométrique : v_{n+1}=1.1 v_n, v_0=100. v_n = ?", weight: 2, type: "single", options: ["100·1.1^n","100+1.1n","1.1^{n+100}","100·n^{1.1}"], correct: [0] },
+    { id: "Q25", domain: "Suites", label: "Somme 1+2+…+n = ?", weight: 2, type: "single", options: ["n(n+1)/2","n^2","2n","(n−1)n/2"], correct: [0] },
+    { id: "Q26", domain: "Suites", label: "Somme 1+q+…+q^n (q≠1) = ?", weight: 2, type: "single", options: ["(q^{n+1}−1)/(q−1)","(1−q^{n+1})/(1−q)","A et B équivalentes","nq/2"], correct: [2] },
+    { id: "Q27", domain: "Suites", label: "Sens de variation de u_n=5−2n.", weight: 2, type: "single", options: ["croissante","décroissante","constante","périodique"], correct: [1] },
+    { id: "Q28", domain: "Suites", label: "Croissance à taux constant → modèle le plus adapté :", weight: 2, type: "single", options: ["arithmétique","géométrique","quadratique","aléatoire"], correct: [1] },
+
+    { id: "Q29", domain: "GeometriePlan", label: "Vecteur AB si A(1,2), B(4,−1).", weight: 2, type: "single", options: ["(3,−3)","(−3,3)","(5,1)","(3,1)"], correct: [0] },
+    { id: "Q30", domain: "GeometriePlan", label: "Produit scalaire ⟨(2,−1),(1,3)⟩ = ?", weight: 2, type: "single", options: ["−1","2·1 + (−1)·3 = −1","5","1"], correct: [1] },
+    { id: "Q31", domain: "GeometriePlan", label: "Équation d’une droite de pente 2 passant par A(1,3).", weight: 2, type: "single", options: ["y=2x+1","y=2x+3","y=2(x−1)+3","A et C"], correct: [3] },
+    { id: "Q32", domain: "GeometriePlan", label: "Les vecteurs (2,−4) et (−1,2) sont colinéaires ?", weight: 2, type: "single", options: ["Oui","Non"], correct: [0] },
+    { id: "Q33", domain: "GeometriePlan", label: "Distance AB si A(0,0), B(3,4).", weight: 2, type: "single", options: ["5","7","√13","4"], correct: [0] },
+    { id: "Q34", domain: "GeometriePlan", label: "Angle droit si produit scalaire…", weight: 2, type: "single", options: [">0","=0","<0","quelconque"], correct: [1] },
+
+    { id: "Q35", domain: "ProbabilitesStat", label: "Une urne : 3 rouges, 2 bleues. Tirage d’une boule. P(rouge) ?", weight: 2, type: "single", options: ["3/5","2/5","1/2","3/2"], correct: [0] },
+    { id: "Q36", domain: "ProbabilitesStat", label: "Deux tirages successifs avec remise. P(rouge puis bleu) ?", weight: 2, type: "single", options: ["3/5·2/5","3/5·2/4","2/5·3/5","3/5"], correct: [0] },
+    { id: "Q37", domain: "ProbabilitesStat", label: "Fréquence relative ≈ probabilité…", weight: 2, type: "single", options: ["toujours égale","s’en approche quand le nombre d’essais augmente","indépendante","impossible"], correct: [1] },
+    { id: "Q38", domain: "ProbabilitesStat", label: "X=nb de rouges en 3 tirages avec remise : loi ?", weight: 2, type: "single", options: ["uniforme","binomiale","géométrique","normale"], correct: [1] },
+
+    { id: "Q39", domain: "AlgoLogique", label: "Algorithme : u ← 2; pour i=1..n : u ← u+3 ; afficher u ⇒ ?", weight: 2, type: "single", options: ["2+3n","2·3^n","3+2n","5n"], correct: [0] },
+    { id: "Q40", domain: "AlgoLogique", label: "Tableur : A1=1, A2=2, A_{k+1}=A_k + A_{k-1} ⇒ suite de type ?", weight: 2, type: "single", options: ["arithmétique","géométrique","Fibonacci-like","constante"], correct: [2] },
+  ],
+} as const;
+
+function idxToKey(idx: number): string { return ["A","B","C","D"][idx] ?? "A"; }
+
+function domainLabelTerm(d: string): string {
+  switch (d) {
+    case 'AlgebreFonctions': return 'Algèbre & Fonctions';
+    case 'Analyse': return 'Analyse';
+    case 'Suites': return 'Suites';
+    case 'GeometriePlan': return 'Géométrie (plan)';
+    case 'ProbabilitesStat': return 'Probabilités & Statistiques';
+    case 'AlgoLogique': return 'Algorithmique & Logique';
+    default: return d;
+  }
+}
+
+export const QCM_TERMINALE_QUESTIONS: QcmQuestion[] = RAW.questions.map((q) => ({
+  id: q.id,
+  domain: domainLabelTerm(q.domain),
+  weight: q.weight,
+  prompt: q.label,
+  type: "single",
+  options: (q.options || []).map((label: string, i: number) => ({ key: idxToKey(i), label })),
+  correct: idxToKey((q.correct && q.correct[0]) ?? 0),
+}));
+

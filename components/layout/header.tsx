@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,11 +34,15 @@ export function Header() {
 
   const navigation = [
     { name: "Accueil", href: "/" },
+    { name: "Assistant IA", href: "/aria" },
     { name: "Notre Équipe", href: "/equipe" },
     { name: "Offres & Tarifs", href: "/offres" },
     { name: "Notre Centre", href: "/notre-centre" },
     { name: "Contact", href: "/contact" },
   ];
+
+  const { data: session } = useSession();
+  const bilanHref = session?.user?.studentId ? "/bilan-gratuit/wizard" : "/bilan-gratuit";
 
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-slate-200 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm' : 'bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60'}`}>
@@ -50,7 +55,8 @@ export function Header() {
               alt="Nexus Réussite"
               width={48}
               height={48}
-              className="h-10 w-10 md:h-12 md:w-12"
+              className="h-10 md:h-12"
+              style={{ width: 'auto' }}
               priority
             />
             <div className="font-bold text-xl md:text-2xl">
@@ -81,7 +87,7 @@ export function Header() {
               </Link>
             </Button>
             <Button asChild size="sm" className="px-4">
-              <Link href="/bilan-gratuit">
+              <Link href={bilanHref}>
                 Bilan Gratuit
               </Link>
             </Button>
@@ -121,7 +127,7 @@ export function Header() {
                 </Link>
               </Button>
               <Button asChild className="w-full">
-                <Link href="/bilan-gratuit" onClick={() => setIsMenuOpen(false)}>
+                <Link href={bilanHref} onClick={() => setIsMenuOpen(false)}>
                   Bilan Gratuit
                 </Link>
               </Button>

@@ -4,22 +4,23 @@ import { UserRole } from '@/types/enums';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    console.log('Received request body:', body);
+    // Parse JSON de manière fiable
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
 
-    // Validation des données
+    // Validation des données avec Zod
     const validatedData = bilanGratuitSchema.parse(body);
-    console.log('Validated data:', validatedData);
 
     // Vérifier si l'email parent existe déjà
-    let existingUser = null;
-    try {
-      existingUser = await prisma.user.findUnique({ where: { email: validatedData.parentEmail } });
-    } catch (dbErr) {
-      console.error('DB check failed, attempting to initialize sqlite file path:', dbErr);
-    }
+    const existingUser = await prisma.user.findUnique({
+      where: { email: validatedData.parentEmail }
+    });
 
     if (existingUser) {
       return NextResponse.json(
@@ -30,6 +31,9 @@ export async function POST(request: NextRequest) {
 
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(validatedData.parentPassword, 12);
+
+    // Générer un email unique pour l'élève
+    const uniqueStudentEmail = `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}.${Date.now()}@nexus-student.local`;
 
     // Transaction pour créer parent et élève
     const result = await prisma.$transaction(async (tx) => {
@@ -42,7 +46,6 @@ export async function POST(request: NextRequest) {
           firstName: validatedData.parentFirstName,
           lastName: validatedData.parentLastName,
           phone: validatedData.parentPhone,
-          // isActive retiré: champ non présent sur User
         }
       });
 
@@ -56,21 +59,11 @@ export async function POST(request: NextRequest) {
       // Créer le compte élève
       const studentUser = await tx.user.create({
         data: {
-          email: `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}@nexus-student.local`,
+          email: uniqueStudentEmail,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
           lastName: validatedData.studentLastName,
-          password: hashedPassword
-        }
-      });
-
-      // Créer le profil élève
-      const studentProfile = await tx.studentProfile.create({
-        data: {
-          userId: studentUser.id,
-          grade: validatedData.studentGrade,
-          school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          password: hashedPassword, // L'élève utilise le même mot de passe que le parent initialement
         }
       });
 
@@ -81,49 +74,47 @@ export async function POST(request: NextRequest) {
           userId: studentUser.id,
           grade: validatedData.studentGrade,
           school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
+          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null,
         }
       });
+
+      // Le StudentProfile n'est plus nécessaire car les infos sont dans Student.
+      // Si le modèle l'exige toujours, il faudrait le créer ici.
+      // Pour la simplification, nous considérons que Student est suffisant.
 
       return { parentUser, studentUser, student };
     });
 
-    // TODO: Envoyer email de bienvenue
-    // TODO: Créer une tâche pour l'assistante (nouveau bilan à traiter)
-
-    // Envoyer email de bienvenue
-    try {
-      const { sendWelcomeParentEmail } = await import('@/lib/email');
-      await sendWelcomeParentEmail(
-        result.parentUser.email,
-        `${result.parentUser.firstName} ${result.parentUser.lastName}`,
-        `${result.studentUser.firstName} ${result.studentUser.lastName}`
-      );
-    } catch (emailError) {
-      console.error('Erreur envoi email de bienvenue:', emailError);
-      // Ne pas faire échouer l'inscription si l'email ne part pas
-    }
+    // TODO: Implémenter un système de notification fiable pour l'assistante.
+    // TODO: Mettre en place un vrai service d'emailing (ex: Resend, Postmark).
 
     return NextResponse.json({
       success: true,
-      message: 'Inscription réussie ! Vous recevrez un email de confirmation sous 24h.',
-      parentId: result.parentUser.id,
-      studentId: result.student.id
-    });
+      message: 'Inscription au bilan gratuit réussie.',
+      user: { id: result.parentUser.id, email: result.parentUser.email },
+    }, { status: 201 });
 
   } catch (error) {
-    console.error('Erreur inscription bilan gratuit:', error);
+    console.error('[BILAN_GRATUIT_ERROR]', error);
 
     if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json(
-        { error: 'Données invalides', details: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: false,
+        error: 'Données invalides.',
+        details: (error as any).issues,
+      }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    if (error instanceof Error && error.message.includes('Unique constraint failed')) {
+      return NextResponse.json({
+        success: false,
+        error: 'Un utilisateur avec cet email existe déjà.',
+      }, { status: 409 });
+    }
+
+    return NextResponse.json({
+      success: false,
+      error: 'Une erreur interne est survenue.',
+    }, { status: 500 });
   }
 }

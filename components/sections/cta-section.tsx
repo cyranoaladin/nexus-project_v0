@@ -78,6 +78,7 @@ export function CTASection() {
             <Button
               asChild
               className="bg-white text-blue-600 hover:bg-gray-100 shadow-2xl group font-bold h-16 px-8 text-lg transform transition-all duration-300 hover:scale-105"
+              data-testid="cta-signup"
             >
               <Link href="/bilan-gratuit">
                 Commencer mon Bilan Stratégique Gratuit

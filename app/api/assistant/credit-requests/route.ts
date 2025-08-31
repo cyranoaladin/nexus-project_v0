@@ -79,7 +79,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await request.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: any;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const { requestId, action, reason } = body;
 
     if (!requestId || !action) {

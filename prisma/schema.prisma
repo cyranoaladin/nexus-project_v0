@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -72,6 +72,34 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+// --- Bilan pédagogique et QCM ---
+model Bilan {
+  id            String   @id @default(cuid())
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Métadonnées bilan
+  subject       String?   // MATHEMATIQUES, etc.
+  niveau        String?   // Premiere, Terminale
+  statut        String?   // scolarise_fr, candidat_libre, etc.
+
+  // Données du bilan
+  qcmRaw        Json
+  qcmScores     Json     // { total, totalMax, byDomain: {points,max,percent} }
+  pedagoRaw     Json
+  pedagoProfile Json     // VAK/Kolb/rythme/motivation/difficultés/attentes
+  synthesis     Json     // forces/faiblesses/risques/feuilleDeRoute
+  offers        Json     // { primary, alternatives, reasoning }
+
+  pdfUrl        String?
+  pdfBlob       Bytes?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("bilans")
 }
 
 // Modèle Utilisateur principal
@@ -163,6 +191,13 @@ model Student {
   totalSessions      Int @default(0)
   completedSessions  Int @default(0)
 
+  // Suivi d'usage freemium ARIA
+  freemiumUsage Json?
+
+  // Garantie Bac
+  guaranteeEligible  Boolean   @default(false)
+  guaranteeActivatedAt DateTime?
+
   // Relations
   subscriptions    Subscription[]
   creditTransactions CreditTransaction[]
@@ -171,6 +206,7 @@ model Student {
   badges           StudentBadge[]
   reports          StudentReport[]
   subscriptionRequests SubscriptionRequest[]
+  bilans           Bilan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -397,7 +433,7 @@ model Payment {
   method String? // "konnect", "wise", "manual"
 
   // Métadonnées
-  externalId String? // ID de transaction externe
+  externalId String? @unique // ID de transaction externe
   metadata   Json?   // Données supplémentaires
 
   createdAt DateTime @default(now())
@@ -672,4 +708,20 @@ enum ReminderType {
   TWO_HOURS_BEFORE
   THIRTY_MINUTES_BEFORE
   SESSION_STARTING
+}
+
+// Product & Pricing configuration
+model ProductPricing {
+  id          String   @id @default(cuid())
+  itemType    String   // SUBSCRIPTION | ADDON | PACK
+  itemKey     String   // e.g. HYBRIDE, IMMERSION, ARIA_SUBJECT, CREDITS_10
+  amount      Int      // Prix en TND
+  currency    String   @default("TND")
+  description String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([itemType, itemKey])
+  @@map("product_pricing")
 }

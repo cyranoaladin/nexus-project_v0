@@ -21,7 +21,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await request.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: unknown;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const { studentId, newPlan } = changeSubscriptionSchema.parse(body);
 
     // Vérifier que le plan existe
@@ -60,16 +72,27 @@ export async function POST(request: NextRequest) {
 
     // Créer une demande de changement d'abonnement
     // (sera activée après paiement)
-    const pendingSubscription = await prisma.subscription.create({
-      data: {
-        studentId,
-        planName: newPlan,
-        monthlyPrice: planData.price,
-        creditsPerMonth: planData.credits,
-        status: 'INACTIVE', // Sera activé après paiement
-        startDate: new Date(),
-        ariaSubjects: JSON.stringify(['MATHEMATIQUES']) // Par défaut en JSON
+    const pendingSubscription = await prisma.$transaction(async (tx) => {
+      const created = await tx.subscription.create({
+        data: {
+          studentId,
+          planName: newPlan,
+          monthlyPrice: planData.price,
+          creditsPerMonth: planData.credits,
+          status: 'INACTIVE',
+          startDate: new Date(),
+          ariaSubjects: JSON.stringify(['MATHEMATIQUES'])
+        }
+      });
+      // Eligibilité garantie: plans annuels
+      const isAnnual = /ANNUEL/i.test(newPlan) || ['IMMERSION_ANNUEL', 'HYBRIDE_ANNUEL', 'PREMIUM_ANNUEL'].includes(newPlan);
+      if (isAnnual) {
+        await tx.student.update({
+          where: { id: student.id },
+          data: { guaranteeEligible: true }
+        });
       }
+      return created;
     });
 
     return NextResponse.json({

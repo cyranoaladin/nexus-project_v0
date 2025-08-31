@@ -81,7 +81,19 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await request.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: any;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const { requestId, action, reason } = body;
 
     if (!requestId || !action) {
@@ -136,13 +148,21 @@ export async function PATCH(request: NextRequest) {
         status: action,
         processedBy: `${session.user.firstName} ${session.user.lastName}`,
         processedAt: new Date(),
-        ...(action === 'REJECTED' ? { rejectionReason: reason ?? '' } : {})
+        rejectionReason: action === 'REJECTED' ? reason : null
       }
     });
 
     // If approved, apply the changes
     if (action === 'APPROVED') {
       if (subscriptionRequest.requestType === 'PLAN_CHANGE') {
+        // Check if planName is provided
+        if (!subscriptionRequest.planName) {
+          return NextResponse.json(
+            { error: 'Plan name is required for plan change requests' },
+            { status: 400 }
+          );
+        }
+
         // Update subscription
         await prisma.subscription.updateMany({
           where: {
@@ -150,21 +170,60 @@ export async function PATCH(request: NextRequest) {
             status: 'ACTIVE'
           },
           data: {
-            ...(subscriptionRequest.planName != null && { planName: subscriptionRequest.planName }),
-            ...(subscriptionRequest.monthlyPrice != null && { monthlyPrice: subscriptionRequest.monthlyPrice }),
+            planName: subscriptionRequest.planName,
+            monthlyPrice: subscriptionRequest.monthlyPrice,
             updatedAt: new Date()
           }
         });
       } else if (subscriptionRequest.requestType === 'ARIA_ADDON') {
-        // Add ARIA addon to active subscription (schema: Subscription.ariaSubjects/ariaCost)
-        await prisma.subscription.updateMany({
-          where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
+        // Check if planName is provided
+        if (!subscriptionRequest.planName) {
+          return NextResponse.json(
+            { error: 'Plan name is required for ARIA addon requests' },
+            { status: 400 }
+          );
+        }
+
+        // Add ARIA addon to subscription
+        const currentSubscription = await prisma.subscription.findFirst({
+          where: {
+            studentId: subscriptionRequest.studentId,
+            status: 'ACTIVE'
+          }
+        });
+
+        if (currentSubscription) {
+          const currentAriaSubjects = JSON.parse(currentSubscription.ariaSubjects || '[]');
+          const newAriaSubjects = [...currentAriaSubjects, subscriptionRequest.planName];
+
+          await prisma.subscription.update({
+            where: { id: currentSubscription.id },
+            data: {
+              ariaSubjects: JSON.stringify(newAriaSubjects),
+              updatedAt: new Date()
+            }
+          });
+        }
+      }
+    }
+
+    // Garantie Bac: activer si un abonnement premium est actif
+    try {
+      const activeSub = await prisma.subscription.findFirst({
+        where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' }
+      });
+      if (activeSub && ['IMMERSION', 'HYBRIDE'].includes(activeSub.planName)) {
+        await prisma.student.update({
+          where: { id: subscriptionRequest.studentId },
           data: {
-            ariaSubjects: subscriptionRequest.planName ? JSON.stringify([subscriptionRequest.planName]) : undefined,
-            ariaCost: subscriptionRequest.monthlyPrice ?? 0
+            guaranteeEligible: true,
+            guaranteeActivatedAt: new Date(),
           }
         });
       }
+    } catch (e) {
+      // Ne pas bloquer la requête pour un échec non-critique
     }
 
     return NextResponse.json({

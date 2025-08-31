@@ -3,6 +3,39 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const createUserSchema = z.object({
+  email: z.string().email(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  role: z.enum(['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE']),
+  password: z.string().min(8),
+  profileData: z
+    .object({
+      pseudonym: z.string().optional(),
+      subjects: z.array(z.string()).optional(),
+      description: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
+});
+
+const updateUserSchema = z.object({
+  id: z.string().min(1),
+  email: z.string().email().optional(),
+  firstName: z.string().min(1).optional(),
+  lastName: z.string().min(1).optional(),
+  role: z.enum(['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE']).optional(),
+  profileData: z
+    .object({
+      pseudonym: z.string().optional(),
+      subjects: z.array(z.string()).optional(),
+      description: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -96,15 +129,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { email, firstName, lastName, role, password, profileData } = body;
-
-    if (!email || !firstName || !lastName || !role || !password) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    // Respecter le Content-Type requis par les tests
+    const contentType = request.headers.get('content-type');
+    if (contentType && !contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
     }
+    let body: unknown;
+    try { body = await request.json(); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
+    const parsed = createUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+    }
+    const { email, firstName, lastName, role, password, profileData } = parsed.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -133,7 +171,9 @@ export async function POST(request: NextRequest) {
           coachProfile: {
             create: {
               pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-              subjects: JSON.stringify(profileData.subjects || [])
+              subjects: JSON.stringify(profileData.subjects || []),
+              description: profileData.description || '',
+              title: profileData.title || ''
             }
           }
         } : {}),
@@ -142,7 +182,9 @@ export async function POST(request: NextRequest) {
         } : {})
       },
       include: {
-        coachProfile: true
+        coachProfile: true,
+        studentProfile: true,
+        parentProfile: true
       }
     });
 
@@ -179,15 +221,20 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { id, email, firstName, lastName, role, profileData } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+    // Respecter le Content-Type requis par les tests
+    const contentType2 = request.headers.get('content-type');
+    if (contentType2 && !contentType2.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
     }
+    let body: unknown;
+    try { body = await request.json(); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
+    const parsed = updateUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload', details: parsed.error.flatten() }, { status: 400 });
+    }
+    const { id, email, firstName, lastName, role, profileData } = parsed.data;
 
     // Update user
     const updatedUser = await prisma.user.update({
@@ -202,18 +249,24 @@ export async function PUT(request: NextRequest) {
             upsert: {
               create: {
                 pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-                subjects: JSON.stringify(profileData.subjects || [])
+                subjects: JSON.stringify(profileData.subjects || []),
+                description: profileData.description || '',
+                title: profileData.title || ''
               },
               update: {
                 pseudonym: profileData.pseudonym,
-                subjects: profileData.subjects ? JSON.stringify(profileData.subjects) : undefined
+                subjects: JSON.stringify(profileData.subjects || []),
+                description: profileData.description,
+                title: profileData.title
               }
             }
           }
         } : {})
       },
       include: {
-        coachProfile: true
+        coachProfile: true,
+        studentProfile: true,
+        parentProfile: true
       }
     });
 

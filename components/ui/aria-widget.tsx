@@ -48,7 +48,6 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
     if (!userEmail.trim()) return;
 
     // TODO: Enregistrer l'email en base avec tag "Prospect via Quiz IA"
-    console.log('Email capturé :', userEmail, 'Tag: Prospect via Quiz IA');
 
     setMessages(prev => [...prev, {
       role: 'assistant',
@@ -107,8 +106,8 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
               >
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 ${message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-800'
                     }`}
                 >
                   {message.role === 'assistant' && (

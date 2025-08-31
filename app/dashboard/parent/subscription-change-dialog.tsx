@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CreditCard, AlertCircle } from "lucide-react";
+import { AlertCircle, CreditCard, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface SubscriptionPlan {
   name: string;
@@ -50,7 +49,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.newPlan) {
       alert("Veuillez sélectionner un nouveau plan");
       return;
@@ -99,9 +98,9 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+        <Button variant={currentPlan === 'AUCUN' ? 'default' : 'outline'} size="sm" className="text-xs sm:text-sm w-full">
           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-          Modifier
+          {currentPlan === 'AUCUN' ? "Choisir une Formule" : "Modifier la Formule"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -121,7 +120,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
               {currentPlan}
             </p>
           </div>
-          
+
           <div>
             <Label htmlFor="newPlan">Nouvelle Formule *</Label>
             <Select value={formData.newPlan} onValueChange={(value) => setFormData({ ...formData, newPlan: value })}>
@@ -140,7 +139,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label htmlFor="reason">Raison du changement (optionnel)</Label>
             <Textarea
@@ -163,8 +162,8 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1"
               disabled={loading}
             >
@@ -180,9 +179,9 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
                 </>
               )}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1"
               disabled={loading}
@@ -194,4 +193,4 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -1,124 +1,300 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { AriaMessage } from '@prisma/client'
-import { z } from 'zod'
-import { Subject } from '@/types/enums'
-import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
-import { checkAndAwardBadges } from '@/lib/badges'
+// app/api/aria/chat/route.ts
+import { AriaOrchestrator } from '@/lib/aria/orchestrator';
+import type { Intent } from '@/lib/aria/policy';
+import { getGenerationParams, getSystemPrefix } from '@/lib/aria/policy';
+import { authOptions } from '@/lib/auth';
+import { sanitizeLog } from '@/lib/log/sanitize';
+import { prisma } from '@/lib/prisma';
+import { Subject } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { isE2E } from '@/lib/env/e2e';
 
-// Schema de validation pour les messages ARIA
-const ariaMessageSchema = z.object({
-  conversationId: z.string().optional(),
-  subject: z.nativeEnum(Subject),
-  content: z.string().min(1, 'Message requis').max(1000, 'Message trop long')
-})
+export const dynamic = 'force-dynamic';
+let e2eBypassLogged = false;
 
-export async function POST(request: NextRequest) {
+const chatRequestSchema = z.object({
+  message: z.string().min(1, "Le message ne peut pas être vide."),
+  subject: z.nativeEnum(Subject, {
+    errorMap: () => ({ message: "La matière fournie est invalide." }),
+  }),
+  intent: z.enum(["tutor", "summary", "pdf"]).default("tutor"),
+});
+
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session || session.user.role !== 'ELEVE') {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      )
+    // Validation ENV au démarrage (mode, clés, etc.)
+    let ariaMode: string = 'unknown';
+    try {
+      const { validateAriaEnv, computeAriaMode } = await import('@/lib/aria/env-validate');
+      validateAriaEnv();
+      ariaMode = computeAriaMode();
+      console.log(`[ARIA][Boot] mode=${ariaMode}`);
+    } catch (e) {
+      console.error('[ARIA][ENV] Validation failed:', e);
+      return NextResponse.json({ error: 'Configuration invalide: ' + String((e as any)?.message || e) }, { status: 500 });
     }
-    
-    const body = await request.json()
-    const validatedData = ariaMessageSchema.parse(body)
-    
-    // Récupérer l'élève
-    const student = await prisma.student.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        subscriptions: {
-          where: { status: 'ACTIVE' },
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        }
+    // Determine if stream requested (need early for E2E controls)
+    const urlEarly = new URL(req.url);
+    const wantStreamEarly = urlEarly.searchParams.get('stream') === 'true';
+    const wantStubHeader = req.headers.get('x-e2e-stub') === '1';
+    const prodLike = req.headers.get('x-prod-like') === '1';
+
+    // Rate limit (IP + route) with E2E bypass
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (isE2E()) {
+      if (!e2eBypassLogged) {
+        console.info('[E2E] SSE rate-limit bypass active');
+        e2eBypassLogged = true;
       }
-    })
-    
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Profil élève non trouvé' },
-        { status: 404 }
-      )
+      // No-op limiter in E2E
+    } else {
+      const { rateLimit } = await import('@/lib/rate-limit');
+      const check = rateLimit({ windowMs: 60_000, max: 30 })(`aria_chat:${ip}`);
+      if (!check.ok) {
+        return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard.' }, { status: 429 });
+      }
     }
-    
-    // Vérifier l'accès à ARIA pour cette matière
-    const activeSubscription = student.subscriptions[0]
-    if (!activeSubscription || !activeSubscription.ariaSubjects.includes(validatedData.subject)) {
-      return NextResponse.json(
-        { error: 'Accès ARIA non autorisé pour cette matière' },
-        { status: 403 }
-      )
+
+    // If streaming + E2E and explicit stub header, short-circuit to stub SSE
+    if (wantStreamEarly && isE2E() && process.env.ARIA_LIVE !== '1' && wantStubHeader) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          console.info('[E2E] SSE stub stream active (header-gated)');
+          const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+          // Emit a series of tokens with small delays so tests can abort mid-stream
+          for (let i = 0; i < 20; i++) {
+            controller.enqueue(encoder.encode(`event: token\ndata: ${JSON.stringify({ text: `token-${i}`, index: i })}\n\n`));
+            await sleep(15);
+          }
+          controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ usage: { prompt: null, completion: 20 }, model: 'stub-e2e', latency_ms: 0 })}\n\n`));
+          controller.close();
+        }
+      });
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+          ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
+        },
+      });
     }
-    
-    // Récupérer l'historique de conversation si fourni
-    let conversationHistory: Array<{ role: string; content: string }> = []
-    
-    if (validatedData.conversationId) {
-      const messages = await prisma.ariaMessage.findMany({
-        where: { conversationId: validatedData.conversationId },
-        orderBy: { createdAt: 'asc' },
-        take: 10 // Limiter l'historique
-      })
-      
-      conversationHistory = messages.map((msg: AriaMessage) => ({
-        role: msg.role,
-        content: msg.content
-      }))
+
+    const auth = await (await import('@/lib/api/auth')).getAuthFromRequest(req as any);
+    let studentId: string | undefined;
+    let parentId: string | undefined;
+    if (auth?.via === 'dev-token' && process.env.NODE_ENV !== 'production') {
+      // In E2E without stub header, simulate prod-like rejection of dev-token
+      if (isE2E() && wantStreamEarly && prodLike) {
+        return NextResponse.json({ error: 'DEV_TOKEN not allowed in prod-like checks' }, { status: 401 });
+      }
+      // Choisir un élève/parent par défaut en dev
+      const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
+      if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
+      studentId = first.id as any;
+      parentId = first.parentId as any;
+    } else {
+      let session = await getServerSession(authOptions);
+      // E2E bypass: désactivé en mode live (ARIA_LIVE=1) et pour les checks "prod-like" (pas de stub header)
+      const allowE2EFallback = (process.env.ARIA_LIVE !== '1') && (process.env.E2E === '1' || process.env.NEXT_PUBLIC_E2E === '1') && !prodLike;
+      if ((!session?.user?.id || !session.user.studentId || !session.user.parentId) && allowE2EFallback) {
+        const first = await prisma.student.findFirst({ select: { id: true, parentId: true } });
+        if (!first) return NextResponse.json({ error: 'Aucun élève en base' }, { status: 500 });
+        session = {
+          user: { id: 'e2e-user', studentId: first.id, parentId: first.parentId },
+        } as any;
+      }
+      if (!session?.user?.id || !session.user.studentId || !session.user.parentId) {
+        return NextResponse.json({ error: "Non authentifié ou profil élève incomplet." }, { status: 401 });
+      }
+      studentId = session.user.studentId as any;
+      parentId = session.user.parentId as any;
     }
-    
-    // Générer la réponse ARIA
-    const ariaResponse = await generateAriaResponse(
-      student.id,
-      validatedData.subject,
-      validatedData.content,
-      conversationHistory
-    )
-    
-    // Sauvegarder la conversation
-    const { conversation, ariaMessage } = await saveAriaConversation(
-      student.id,
-      validatedData.subject,
-      validatedData.content,
-      ariaResponse,
-      validatedData.conversationId
-    )
-    
-    // Vérifier et attribuer des badges
-    const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')
-    await checkAndAwardBadges(student.id, 'aria_question_count')
-    
-    return NextResponse.json({
-      success: true,
-      conversation: {
-        id: conversation.id,
-        subject: conversation.subject,
-        title: conversation.title
-      },
-      message: {
-        id: ariaMessage.id,
-        content: ariaResponse,
-        createdAt: ariaMessage.createdAt
-      },
-      newBadges: newBadges.map(badge => ({
-        name: badge.badge.name,
-        description: badge.badge.description,
-        icon: badge.badge.icon
-      }))
-    })
-    
-  } catch (error) {
-    console.error('Erreur chat ARIA:', error)
-    
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+
+    // Parsing JSON standard (compatible avec tests)
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
+
+    const parsedBody = chatRequestSchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: "Requête invalide", details: parsedBody.error.flatten() }, { status: 400 });
+    }
+
+    const { message, subject, intent } = parsedBody.data as { message: string; subject: Subject; intent: Intent; };
+
+    // Freemium limit: max 5 requests per day per student (skip in E2E when streaming)
+    const today = new Date().toISOString().split('T')[0];
+    const skipFreemium = isE2E() && wantStreamEarly;
+    if (!skipFreemium) {
+      const student = await prisma.student.findUnique({ where: { id: studentId } });
+      const usage = (student as any)?.freemiumUsage as { requestsToday?: number; date?: string; } | null;
+
+      if (usage && usage.date === today && (usage.requestsToday ?? 0) >= 5) {
+        return NextResponse.json({
+          error: 'Limite de requêtes freemium atteinte. Réessayez demain.',
+          cta: {
+            label: 'Souscrire à ARIA+',
+            url: '/dashboard/parent/abonnements',
+          },
+        }, { status: 429 });
+      }
+
+      // Update usage: reset if new day, else increment
+      let nextUsage: { requestsToday: number; date: string; };
+      if (!usage || usage.date !== today) {
+        nextUsage = { requestsToday: 1, date: today };
+      } else {
+        nextUsage = { requestsToday: (usage.requestsToday ?? 0) + 1, date: today };
+      }
+      await prisma.student.update({ where: { id: studentId }, data: { freemiumUsage: nextUsage as any } });
+    } else {
+      // No-op in E2E streaming path
+    }
+
+    // Streaming SSE si demandé
+    const url = new URL(req.url);
+    const wantStream = url.searchParams.get('stream') === 'true';
+    if (wantStream) {
+      // En mode service, on ne streame pas (pour l'instant): on émet une erreur SSE claire
+      if (ariaMode === 'service') {
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ code: 'stream_not_available_in_service_mode' })}\n\n`));
+            controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ reason: 'service_mode' })}\n\n`));
+            controller.close();
+          }
+        });
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+            ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
+          },
+        });
+      }
+      const encoder = new TextEncoder();
+      const keepAliveMs = 15000;
+      const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 30000);
+      const retriesMax = Number(process.env.RETRIES || 1);
+      const { selectModel, getFallbackModel } = await import('@/lib/aria/openai');
+      const modelPrimary = selectModel();
+      const modelFallback = getFallbackModel();
+
+      let heartbeatRef: any;
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          const sendEvent = (event: string, obj: any = {}) => controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(obj)}\n\n`));
+          const ping = () => controller.enqueue(encoder.encode(`:\n\n`));
+          const heartbeat = setInterval(ping, keepAliveMs);
+          heartbeatRef = heartbeat;
+          const startedAt = Date.now();
+          let usedModel = modelPrimary;
+          let attempt = 0;
+          let tokenIndex = 0;
+
+          const runOnce = async (model: string) => {
+            const { default: OpenAI } = await import('openai');
+            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            const controllerAbort = new AbortController();
+            const timer = setTimeout(() => controllerAbort.abort(), timeoutMs);
+            try {
+              const sys = getSystemPrefix();
+              const gen = getGenerationParams(intent);
+              // @ts-ignore stream: true support
+              const resp = await (client as any).chat.completions.create({
+                model,
+                stream: true,
+                temperature: gen.temperature,
+                top_p: gen.top_p,
+                presence_penalty: gen.presence_penalty,
+                max_tokens: gen.max_tokens,
+                messages: [
+                  { role: 'system', content: sys },
+                  { role: 'user', content: `Matière: ${subject}\n\nQuestion: ${message}` },
+                ],
+              }, { signal: controllerAbort.signal });
+
+              for await (const chunk of resp) {
+                const delta = chunk?.choices?.[0]?.delta?.content || '';
+                if (delta) {
+                  sendEvent('token', { text: delta, index: tokenIndex++ });
+                }
+              }
+              clearTimeout(timer);
+              const ms = Date.now() - startedAt;
+              console.log(sanitizeLog(`[ARIA][chat] intent=${intent} model=${model} fallback=${modelFallback || 'null'} stream=true ms=${ms} tokens=${tokenIndex}`));
+              sendEvent('done', { usage: { prompt: null, completion: tokenIndex }, model, latency_ms: ms });
+              controller.close();
+            } catch (err: any) {
+              clearTimeout(timer);
+              throw err;
+            }
+          };
+
+          while (true) {
+            try {
+              usedModel = attempt === 0 ? modelPrimary : (modelFallback || modelPrimary);
+              await runOnce(usedModel);
+              break;
+            } catch (err: any) {
+              attempt++;
+              const retriable = attempt <= retriesMax;
+              if (!retriable) {
+                console.error(sanitizeLog(`[ARIA][chat][stream] error: ${String(err?.message || err)}`));
+                sendEvent('error', { code: 'timeout_or_upstream_error' });
+                sendEvent('done', { reason: 'error' });
+                controller.close();
+                break;
+              }
+            }
+          }
+          clearInterval(heartbeat);
+        }
+        ,
+        cancel(reason) {
+          try {
+            if (heartbeatRef) clearInterval(heartbeatRef);
+            const { sanitizeLog } = require('@/lib/log/sanitize');
+            console.log(sanitizeLog(`[ARIA][chat][stream] cancel reason=${String(reason || '')}`));
+          } catch {}
+        }
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+          ...(process.env.NODE_ENV !== 'production' ? { 'Access-Control-Allow-Origin': '*' } : {}),
+        },
+      });
+    }
+
+    // Mode non-stream: orchestrateur habituel
+    const orchestrator = new AriaOrchestrator(studentId!, parentId!);
+    const { response, documentUrl } = await orchestrator.handleQuery(message, subject);
+    return NextResponse.json({ response, documentUrl });
+
+  } catch (error: any) {
+    try {
+      const { logger } = await import('@/lib/logger');
+      logger.error({ err: String(error) }, 'API_ARIA_CHAT_ERROR');
+    } catch {
+      console.error('[API_ARIA_CHAT_ERROR]', error);
+    }
+    return NextResponse.json({ error: "Une erreur est survenue lors de la communication avec ARIA." }, { status: 500 });
   }
 }

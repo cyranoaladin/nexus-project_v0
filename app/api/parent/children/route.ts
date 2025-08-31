@@ -1,13 +1,13 @@
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-// bcrypt inutilisé ici
+import { authOptions } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
+    
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -90,7 +90,7 @@ export async function GET(_request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
+    
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -98,7 +98,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 });
+    }
+    let raw = '';
+    try { raw = await request.text(); } catch { raw = ''; }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 });
+    }
+    let body: any;
+    try { body = JSON.parse(raw); } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 });
+    }
     const {
       firstName,
       lastName,
@@ -203,4 +215,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+} 

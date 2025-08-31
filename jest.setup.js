@@ -1,95 +1,50 @@
 import '@testing-library/jest-dom';
+import 'whatwg-fetch';
 
-// Mock Prisma client
-jest.mock('./lib/prisma', () => ({
-  prisma: {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-    },
-    student: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-    },
-    parentProfile: {
-      create: jest.fn(),
-    },
-    studentProfile: {
-      create: jest.fn(),
-    },
-    session: {
-      create: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    creditTransaction: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-    },
-    coachProfile: {
-      findFirst: jest.fn(),
-    },
-    $transaction: jest.fn(),
+// Robust Prisma mock for UI tests (returns jest.fn for any model method)
+const createModelMock = () => ({
+  findMany: jest.fn(),
+  findUnique: jest.fn(),
+  findFirst: jest.fn(),
+  create: jest.fn(),
+  createMany: jest.fn(),
+  update: jest.fn(),
+  updateMany: jest.fn(),
+  upsert: jest.fn(),
+  delete: jest.fn(),
+  deleteMany: jest.fn(),
+  count: jest.fn(),
+  groupBy: jest.fn(),
+  aggregate: jest.fn(),
+});
+const prismaProxy = new Proxy({}, {
+  get(target, prop) {
+    if (!target[prop]) {
+      if (prop === '$transaction' || prop === '$queryRaw') {
+        target[prop] = jest.fn();
+      } else {
+        target[prop] = createModelMock();
+      }
+    }
+    return target[prop];
   },
-}));
+});
 
-// Mock Next Auth
+jest.mock('@/lib/prisma', () => ({ prisma: prismaProxy }));
+
+// Mock Next Auth (server)
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
 }));
 
-// Mock Radix Select used in tests to behave like native select
-jest.mock('@/components/ui/select', () => {
-  const React = require('react');
-  const Select = ({ children, value, onValueChange, ...props }) => (
-    <select {...props} value={value} onChange={(e) => onValueChange?.(e.target.value)}>{children}</select>
-  );
-  const SelectTrigger = ({ children, ...props }) => <div {...props}>{children}</div>;
-  const SelectValue = ({ placeholder }) => <option value="">{placeholder}</option>;
-  const SelectContent = ({ children }) => <>{children}</>;
-  const SelectItem = ({ value, children }) => <option value={value}>{children}</option>;
-  return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };
-});
-
-// Mock Radix Checkbox to behave like native checkbox
-jest.mock('@/components/ui/checkbox', () => {
-  const React = require('react');
-  return {
-    Checkbox: function Checkbox({ id, checked, onCheckedChange, ...props }) {
-      return (
-        <input
-          type="checkbox"
-          id={id}
-          checked={!!checked}
-          onChange={(e) => onCheckedChange?.(e.target.checked)}
-          {...props}
-        />
-      );
-    },
-  };
-});
-
-// Silence presence animations in tests
-jest.mock('@radix-ui/react-presence', () => ({
-  Presence: ({ children }) => children,
+// Mock Next Auth (client) for UI tests to avoid spinner states
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({ data: { user: { id: 'admin1', role: 'ADMIN', email: 'admin@nexus.com' } }, status: 'authenticated' }),
 }));
+
+// Mock authOptions used on server imports that might leak into UI bundles
+jest.mock('@/lib/auth', () => ({ authOptions: { providers: [], adapter: {} } }));
 
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NODE_ENV = 'test';
-
-// Mock window.alert for jsdom environment (force override, JS-safe)
-if (typeof globalThis !== 'undefined') {
-  if (!globalThis.window) globalThis.window = {};
-  // Always override to avoid jsdom "not implemented" error
-  globalThis.alert = jest.fn();
-  globalThis.window.alert = globalThis.alert;
-}
-
-// jest.setup.js
-// Polyfill IntersectionObserver pour Jest/jsdom (Node global)
-global.IntersectionObserver = global.IntersectionObserver || class {
-  constructor() {}
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};

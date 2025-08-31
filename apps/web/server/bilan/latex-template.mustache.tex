@@ -1,0 +1,59 @@
+% !TeX program = xelatex
+\documentclass[11pt]{article}
+\usepackage{geometry}\geometry{margin=22mm}
+\usepackage{fontspec}\setmainfont{Inter}
+\usepackage{xcolor}\definecolor{nxPrimary}{HTML}{0F172A}\definecolor{nxAccent}{HTML}{2563EB}\definecolor{nxSoft}{HTML}{F8FAFC}
+\usepackage{graphicx}\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=nxAccent, urlcolor=nxAccent}
+\usepackage{titlesec}\titleformat{\section}{\large\bfseries\color{nxPrimary}}{\thesection}{0.5em}{}
+\usepackage{array, booktabs, tabularx}
+\usepackage[most]{tcolorbox}\tcbset{colback=nxSoft,colframe=nxAccent,boxrule=0.5pt,arc=2mm}
+\newcommand{\badge}[1]{\tcbox[colback=white,colframe=nxAccent,boxrule=0.3pt,arc=1mm]{\footnotesize #1}}
+
+\begin{document}
+\begin{tcolorbox}
+\begin{minipage}{0.75\linewidth}
+  {\Large \textbf{Rapport de Bilan — Nexus Réussite}}\\[2pt]
+  \textbf{Élève:} {{student_name}} \quad \textbf{Niveau:} {{level}} \quad \textbf{Spécialités:} {{subjects}} \\
+  \textbf{Statut:} {{status}}
+\end{minipage}\hfill
+\begin{minipage}{0.22\linewidth}
+  \includegraphics[width=\linewidth]{logo_nexus.pdf}
+\end{minipage}
+\end{tcolorbox}
+
+\section{Introduction}
+{{intro_text}}
+
+\section{Diagnostic académique}
+\begin{tcolorbox}
+\textbf{Résultat global :} {{qcm_total}} / {{qcm_max}} \hfill Score : {{score_global}}\%
+\end{tcolorbox}
+{{diagnostic_text}}
+
+\subsection*{Scores par domaine}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedleft\arraybackslash}p{22mm}>{\raggedleft\arraybackslash}p{22mm}X@{}}
+\toprule
+Domaine & Points & Maîtrise & Remarques \\
+\midrule
+{{table_domain_rows}}
+\bottomrule
+\end{tabularx}
+
+\section{Profil pédagogique}
+{{profile_text}}
+
+\section{Visuels}
+\includegraphics[width=0.8\linewidth]{ {{fig_radar_path}} } \\
+Badges: {{badges_tex}}
+
+\section{Feuille de route}
+{{roadmap_text}}
+
+\section{Offres Nexus recommandées}
+{{offers_text}}
+
+\section{Conclusion}
+{{conclusion_text}}
+
+\end{document}

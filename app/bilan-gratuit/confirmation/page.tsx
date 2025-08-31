@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle, Clock, Mail, Phone } from "lucide-react";
-import Link from "next/link";
+import { motion } from "framer-motion"
+import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { CheckCircle, Clock, Mail, Phone, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export default function ConfirmationPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-
+      
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <motion.div
@@ -46,7 +46,7 @@ export default function ConfirmationPage() {
               transition={{ delay: 0.4 }}
               className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto"
             >
-              Votre demande de bilan stratégique gratuit a été enregistrée avec succès.
+              Votre demande de bilan stratégique gratuit a été enregistrée avec succès. 
               Notre équipe va analyser votre profil et vous contacter très prochainement.
             </motion.p>
 
@@ -108,7 +108,7 @@ export default function ConfirmationPage() {
                     Vérifiez votre boîte email
                   </h3>
                   <p className="text-blue-800 text-sm">
-                    Un email de confirmation a été envoyé avec vos identifiants de connexion.
+                    Un email de confirmation a été envoyé avec vos identifiants de connexion. 
                     Si vous ne le trouvez pas, pensez à vérifier vos spams.
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export default function ConfirmationPage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-
+              
               <Button asChild variant="outline" size="lg">
                 <Link href="/contact">
                   Nous Contacter
@@ -149,8 +149,8 @@ export default function ConfirmationPage() {
                   +216 12 345 678
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-primary-500 font-medium hover:underline">
-                  contact@nexusreussite.academy
+                <a href="mailto:contact@nexus-reussite.tn" className="text-primary-500 font-medium hover:underline">
+                  contact@nexus-reussite.tn
                 </a>
               </p>
             </motion.div>
@@ -160,5 +160,5 @@ export default function ConfirmationPage() {
 
       <Footer />
     </div>
-  );
+  )
 }

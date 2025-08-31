@@ -1,47 +1,12 @@
 {
-  "root": true,
   "extends": [
     "next/core-web-vitals",
-    "next/typescript"
+    "plugin:jsx-a11y/recommended"
+  ],
+  "plugins": [
+    "jsx-a11y"
   ],
   "rules": {
-    "@typescript-eslint/no-empty-object-type": "off",
-    "@typescript-eslint/no-explicit-any": "warn",
     "react/no-unescaped-entities": "off"
-  },
-  "overrides": [
-    {
-      "files": [
-        "app/api/**/*.{ts,tsx}"
-      ],
-      "rules": {
-        "@typescript-eslint/no-unused-vars": [
-          "error",
-          {
-            "args": "none",
-            "varsIgnorePattern": "^_"
-          }
-        ],
-        "@typescript-eslint/no-explicit-any": "warn"
-      }
-    },
-    {
-      "files": [
-        "components/**/*.{ts,tsx}",
-        "app/**/*.{ts,tsx}",
-        "lib/**/*.{ts,tsx}"
-      ],
-      "rules": {
-        "@next/next/no-img-element": "off",
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            "args": "none",
-            "varsIgnorePattern": "^_"
-          }
-        ],
-        "@typescript-eslint/no-explicit-any": "warn"
-      }
-    }
-  ]
+  }
 }

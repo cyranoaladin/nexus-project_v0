@@ -13,7 +13,7 @@ export function ComparisonTableSection() {
     {
       criteria: "Connaissance du Programme",
       standard: "Maîtrise approximative des attentes.",
-      nexus: "Nos coachs ont enseigné dans des lycées français à l'étranger."
+      nexus: "Expérience avérée dans le réseau AEFE."
     },
     {
       criteria: "Expertise NSI",

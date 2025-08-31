@@ -1,12 +1,22 @@
-import { calculateCreditCost, checkCreditBalance, debitCredits, refundCredits } from '../../lib/credits';
+import { calculateCreditCost, canCancelBooking, checkCreditBalance, debitCredits, refundCredits } from '../../lib/credits';
 import { prisma } from '../../lib/prisma';
 import { ServiceType } from '../../types/enums';
 
-// On utilise des spies typés au lieu de caster le client
+// Mock the prisma module
+jest.mock('../../lib/prisma');
 
 describe('Credits System', () => {
+  let mockPrisma: jest.Mocked<typeof prisma>;
+
   beforeEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
+    mockPrisma = {
+      creditTransaction: {
+        findMany: jest.fn(),
+        create: jest.fn(),
+      },
+    } as unknown as jest.Mocked<typeof prisma>;
+    jest.requireMock('../../lib/prisma').prisma = mockPrisma;
   });
 
   describe('calculateCreditCost', () => {
@@ -39,11 +49,11 @@ describe('Credits System', () => {
         { amount: 3, expiresAt: new Date(Date.now() + 86400000) } // expires tomorrow
       ];
 
-      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
 
       const result = await checkCreditBalance('student-123', 5);
       expect(result).toBe(true);
-      expect(prisma.creditTransaction.findMany).toHaveBeenCalledWith({
+      expect(mockPrisma.creditTransaction.findMany).toHaveBeenCalledWith({
         where: {
           studentId: 'student-123',
           OR: [
@@ -57,12 +67,12 @@ describe('Credits System', () => {
     it('should return false when student has insufficient credits', async () => {
       const mockTransactions = [
         { amount: 2, expiresAt: null },
-        { amount: -1, expiresAt: null }
+        { amount: -1, expiresAt: null } // Solde = 1
       ];
 
-      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
 
-      const result = await checkCreditBalance('student-123', 5);
+      const result = await checkCreditBalance('student-123', 5); // Demande de 5 crédits
       expect(result).toBe(false);
     });
 
@@ -72,7 +82,7 @@ describe('Credits System', () => {
         { amount: -2, expiresAt: null }
       ];
 
-      jest.spyOn(prisma.creditTransaction, 'findMany').mockResolvedValue(mockTransactions as any);
+      (mockPrisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockTransactions as any);
 
       const result = await checkCreditBalance('student-123', 2);
       expect(result).toBe(true);
@@ -90,12 +100,13 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
-      jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
+      // Configuration explicite du mock pour ce test
+      (mockPrisma.creditTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
 
       const result = await debitCredits('student-123', 1.25, 'session-123', 'Test session booking');
 
       expect(result).toEqual(mockTransaction);
-      expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
+      expect(mockPrisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
           type: 'USAGE',
@@ -118,12 +129,13 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
-      jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
+      // Configuration explicite du mock pour ce test
+      (mockPrisma.creditTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
 
       const result = await refundCredits('student-123', 1.25, 'session-123', 'Session cancellation refund');
 
       expect(result).toEqual(mockTransaction);
-      expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
+      expect(mockPrisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
           type: 'REFUND',
@@ -137,19 +149,29 @@ describe('Credits System', () => {
 });
 
 describe('Booking Cancellation Logic', () => {
-  // Note: These tests would require implementation of canCancelBooking function
-  // which doesn't exist yet in the credits.ts file
   describe('canCancelBooking', () => {
-    it.skip('should return true if cancellation is 25 hours before a particular course', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return true if cancellation is 25 hours before a particular course', () => {
+      const sessionDate = new Date(Date.now() + 25 * 60 * 60 * 1000); // Dans 25 heures
+      const result = canCancelBooking(sessionDate, 'COURS_ONLINE' as ServiceType);
+      expect(result).toBe(true);
     });
 
-    it.skip('should return false if cancellation is 23 hours before a particular course', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return false if cancellation is 23 hours before a particular course', () => {
+      const sessionDate = new Date(Date.now() + 23 * 60 * 60 * 1000); // Dans 23 heures
+      const result = canCancelBooking(sessionDate, 'COURS_PRESENTIEL' as ServiceType);
+      expect(result).toBe(false);
     });
 
-    it.skip('should return false if cancellation is 47 hours before a group workshop', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return true if cancellation is 49 hours before a group workshop', () => {
+      const sessionDate = new Date(Date.now() + 49 * 60 * 60 * 1000); // Dans 49 heures
+      const result = canCancelBooking(sessionDate, 'ATELIER_GROUPE' as ServiceType);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if cancellation is 47 hours before a group workshop', () => {
+      const sessionDate = new Date(Date.now() + 47 * 60 * 60 * 1000); // Dans 47 heures
+      const result = canCancelBooking(sessionDate, 'ATELIER_GROUPE' as ServiceType);
+      expect(result).toBe(false);
     });
   });
 });

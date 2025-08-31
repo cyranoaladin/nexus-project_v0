@@ -1,113 +1,121 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, Settings, Plus, AlertCircle, BookOpen, Target, Clock } from "lucide-react"
-import { signOut } from "next-auth/react"
-import AddChildDialog from "./add-child-dialog"
-import CreditPurchaseDialog from "./credit-purchase-dialog"
-import SubscriptionChangeDialog from "./subscription-change-dialog"
-import AriaAddonDialog from "./aria-addon-dialog"
-import InvoiceDetailsDialog from "./invoice-details-dialog"
-import SessionBooking from "@/components/ui/session-booking"
-import { Footer } from "@/components/layout/footer"
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
+import { Footer } from "@/components/layout/footer";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SessionBooking from "@/components/ui/session-booking";
+import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users, FileText } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import AddChildDialog from "./add-child-dialog";
+import { AriaAddonDialog } from "./aria-addon-dialog";
+import CreditPurchaseDialog from "./credit-purchase-dialog";
+import InvoiceDetailsDialog from "./invoice-details-dialog";
+import SubscriptionChangeDialog from "./subscription-change-dialog";
+
+interface Session {
+  id: string;
+  subject: string;
+  scheduledAt: string;
+  coachName: string;
+  type: 'COURS_ONLINE' | 'PRESENTIEL';
+}
+
+interface SubscriptionDetails {
+  planName: string;
+  monthlyPrice: number;
+  endDate: string;
+  status: string;
+  startDate: string;
+}
+
+interface Child {
+  id: string;
+  firstName: string;
+  lastName: string;
+  grade: string;
+  credits: number;
+  subscription: string;
+  progress: number;
+  nextSession?: {
+    subject: string;
+    scheduledAt: string;
+  };
+  sessions: Session[];
+  subjectProgress: Record<string, number>;
+  subscriptionDetails?: SubscriptionDetails;
+}
 
 interface ParentDashboardData {
-  parent: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  children: Array<{
-    id: string;
-    firstName: string;
-    lastName: string;
-    grade: string;
-    school: string;
-    credits: number;
-    subscription: string;
-    subscriptionDetails: {
-      planName: string;
-      monthlyPrice: number;
-      status: string;
-      startDate: string;
-      endDate: string;
-    } | null;
-    nextSession: {
-      id: string;
-      subject: string;
-      scheduledAt: string;
-      coachName: string;
-      type: string;
-      status: string;
-    } | null;
-    progress: number;
-    subjectProgress: Record<string, number>;
-    sessions: Array<{
-      id: string;
-      subject: string;
-      scheduledAt: string;
-      coachName: string;
-      type: string;
-      status: string;
-      duration: number;
-    }>;
-  }>;
+  parent: any;
+  children: Child[];
 }
 
 export default function DashboardParent() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [selectedChild, setSelectedChild] = useState<string>("")
-  const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard')
-  const [showBookingDialog, setShowBookingDialog] = useState(false)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [selectedChild, setSelectedChild] = useState<string>("");
+  const [data, setData] = useState<ParentDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null }[]>([]);
+  const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
 
-  const refreshDashboardData = async () => {
+  const refreshDashboardData = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch('/api/parent/dashboard')
-      
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/parent/dashboard');
+
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data')
+        throw new Error('Failed to fetch dashboard data');
       }
-      
-      const data = await response.json()
-      setDashboardData(data)
-      
+
+      const data = await response.json();
+      setData(data);
+
       if (data.children.length > 0 && !selectedChild) {
-        setSelectedChild(data.children[0].id)
+        setSelectedChild(data.children[0].id);
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      console.error('Error fetching dashboard data:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  }, [selectedChild]);
+
+  useEffect(() => {
+    if (!selectedChild) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/students/${selectedChild}/bilans`, { cache: 'no-store' });
+        if (res.ok) setBilans(await res.json());
+      } catch {}
+    })();
+  }, [selectedChild]);
 
 
 
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") return;
 
     if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin")
-      return
+      router.push("/auth/signin");
+      return;
     }
 
-    refreshDashboardData()
-  }, [session, status, router])
+    refreshDashboardData();
+  }, [session, status, router, refreshDashboardData]);
 
   if (status === "loading" || loading) {
     return (
@@ -117,7 +125,7 @@ export default function DashboardParent() {
           <p className="text-gray-600">Chargement de votre espace...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -127,18 +135,18 @@ export default function DashboardParent() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
-  const currentChild = dashboardData?.children.find((child: any) => child.id === selectedChild)
+  const currentChild = data?.children.find((child) => child.id === selectedChild);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -156,26 +164,24 @@ export default function DashboardParent() {
                   <p className="text-xs sm:text-sm text-gray-500">Espace Parent</p>
                 </div>
               </div>
-              
+
               {/* Navigation Tabs */}
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-4">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
-                    activeTab === 'dashboard'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${activeTab === 'dashboard'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Tableau de Bord
                 </button>
                 <button
                   onClick={() => setActiveTab('booking')}
-                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
-                    activeTab === 'booking'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${activeTab === 'booking'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Réserver Session
                 </button>
@@ -209,7 +215,7 @@ export default function DashboardParent() {
                     Suivez les progrès et gérez l'accompagnement de vos enfants.
                   </p>
                 </div>
-                
+
                 {/* Sélecteur Multi-Enfants */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
@@ -222,7 +228,7 @@ export default function DashboardParent() {
                         <SelectValue placeholder="Sélectionner un enfant" />
                       </SelectTrigger>
                       <SelectContent>
-                        {dashboardData?.children.map((child: any) => (
+                        {data?.children.map((child) => (
                           <SelectItem key={child.id} value={child.id}>
                             {child.firstName} {child.lastName} - {child.grade}
                           </SelectItem>
@@ -252,26 +258,26 @@ export default function DashboardParent() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   <div className="text-center space-y-1">
                     <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                      {currentChild?.credits}
+                      {currentChild?.credits ?? 0}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600">Crédits disponibles</p>
                   </div>
                   <div className="text-center space-y-1">
                     <div className="text-xl sm:text-2xl font-bold text-green-600">
-                      {currentChild?.subscription}
+                      {currentChild?.subscription === 'AUCUN' ? 'Aucune' : currentChild?.subscription}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600">Formule actuelle</p>
                   </div>
                   <div className="text-center space-y-1">
                     <div className="text-xl sm:text-2xl font-bold text-purple-600">
-                      {currentChild?.progress}%
+                      {Number(currentChild?.progress ?? 0).toFixed(0)}%
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600">Progression</p>
                   </div>
                   <div className="text-center space-y-1">
                     <div className="text-xs sm:text-sm font-medium text-gray-900">
-                      {currentChild?.nextSession ? 
-                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` : 
+                      {currentChild?.nextSession ?
+                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` :
                         'Aucune session'
                       }
                     </div>
@@ -294,7 +300,7 @@ export default function DashboardParent() {
                 <CardContent>
                   <div className="space-y-3 sm:space-y-4">
                     {currentChild?.sessions && currentChild?.sessions.length > 0 ? (
-                      currentChild?.sessions.map((session: any) => (
+                      currentChild?.sessions.map((session: Session) => (
                         <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
                           <div className="flex-1">
                             <p className="font-medium text-gray-900 text-sm sm:text-base">{session.subject}</p>
@@ -330,17 +336,17 @@ export default function DashboardParent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 sm:space-y-4">
-                    {currentChild?.subjectProgress && Object.keys(currentChild?.subjectProgress).length > 0 ? (
-                      Object.entries(currentChild?.subjectProgress).map(([subject, progress]) => (
+                    {currentChild?.subjectProgress && Object.keys(currentChild.subjectProgress).length > 0 ? (
+                      Object.entries(currentChild.subjectProgress).map(([subject, progress]: [string, number]) => (
                         <div key={subject}>
                           <div className="flex justify-between text-xs sm:text-sm mb-1">
                             <span>{subject}</span>
-                            <span>{progress}%</span>
+                            <span>{progress.toFixed(0)}%</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-300" 
-                              style={{ 
+                            <div
+                              className="h-2 rounded-full transition-all duration-300"
+                              style={{
                                 width: `${progress}%`,
                                 backgroundColor: progress > 80 ? '#10B981' : progress > 60 ? '#3B82F6' : progress > 40 ? '#F59E0B' : '#EF4444'
                               }}
@@ -373,15 +379,15 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Formule Actuelle</h3>
                     <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
-                      {currentChild?.subscriptionDetails?.planName || currentChild?.subscription}
+                      {currentChild?.subscriptionDetails?.planName || "Aucune formule"}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND/mois
                     </p>
-                    <SubscriptionChangeDialog 
+                    <SubscriptionChangeDialog
                       studentId={currentChild?.id ?? ''}
                       studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
-                      currentPlan={currentChild?.subscriptionDetails?.planName || currentChild?.subscription || 'Aucune formule'}
+                      currentPlan={currentChild?.subscriptionDetails?.planName || currentChild?.subscription || 'AUCUN'}
                       onRequestComplete={refreshDashboardData}
                     />
                   </div>
@@ -390,15 +396,15 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Prochaine Facturation</h3>
                     <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
-                      {currentChild?.subscriptionDetails?.endDate ? 
-                        new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : 
+                      {currentChild?.subscriptionDetails?.endDate ?
+                        new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) :
                         'N/A'
                       }
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND
                     </p>
-                    <InvoiceDetailsDialog 
+                    <InvoiceDetailsDialog
                       subscriptionDetails={currentChild?.subscriptionDetails || null}
                       studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
                     />
@@ -408,19 +414,50 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Actions</h3>
                     <div className="space-y-2">
-                      <CreditPurchaseDialog 
+                      <CreditPurchaseDialog
                         studentId={currentChild?.id ?? ''}
                         studentName={`${currentChild?.firstName ?? ''} ${currentChild?.lastName ?? ''}`}
                         onPurchaseComplete={refreshDashboardData}
                       />
-                      <AriaAddonDialog 
+                      <AriaAddonDialog
                         studentId={currentChild?.id ?? ''}
                         studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
-                        onRequestComplete={refreshDashboardData}
+                        onSuccess={refreshDashboardData}
                       />
                     </div>
                   </div>
                 </div>
+
+                {/* Bilans de l’élève */}
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between w-full">
+                      <span className="flex items-center">
+                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                        Bilans de l’élève
+                      </span>
+                      <div className="w-44">
+                        <Select value={niveauFilter} onValueChange={(v: any) => setNiveauFilter(v)}>
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Niveau" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Tous">Tous</SelectItem>
+                            <SelectItem value="Première">Première</SelectItem>
+                            <SelectItem value="Terminale">Terminale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {bilans.length === 0 ? (
+                      <p className="text-sm text-gray-600">Aucun bilan pour cet élève.</p>
+                    ) : (
+                      <ParentBilanList bilans={bilans} niveauFilter={niveauFilter} />
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Note importante */}
                 <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -438,8 +475,8 @@ export default function DashboardParent() {
             studentId={currentChild?.id}
             parentId={session?.user?.id}
             userCredits={currentChild?.credits}
-            onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
+            onBookingComplete={() => {
+              // Re-fetch data to update credits, etc.
               refreshDashboardData();
               setActiveTab('dashboard');
             }}
@@ -448,5 +485,118 @@ export default function DashboardParent() {
       </main>
       <Footer />
     </div>
-  )
+  );
+}
+
+function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
+  if (!n) return '—';
+  const s = n.toLowerCase();
+  if (s.includes('premiere') || s.includes('première')) return 'Première';
+  if (s.includes('terminale')) return 'Terminale';
+  return (n as any) as 'Première' | 'Terminale' | '—';
+}
+
+function ParentBilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+  const latestTerminale = bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale');
+  const filtered = bilans.filter(b => niveauFilter === 'Tous' ? true : normalizeNiveau(b.niveau) === niveauFilter);
+  const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (filtered.length === 0) return <p className="text-sm text-gray-600">Aucun bilan pour ce filtre.</p>;
+
+  if (niveauFilter === 'Tous') {
+    const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
+    const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
+    const autres = byDateDesc(filtered.filter(b => ['Première','Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
+
+    const renderList = (list: typeof bilans) => (
+      <ul className="text-sm space-y-2">
+        {list.map((b) => {
+          const niv = normalizeNiveau(b.niveau);
+          const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+          const pct = (b as any).percent as number | null | undefined;
+          return (
+            <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+              <span className="flex items-center gap-2">
+                <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                {niv !== '—' && (
+                  <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                    {niv}
+                  </Badge>
+                )}
+                {typeof pct === 'number' && (
+                  <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+                )}
+                {isLatestTerm && (
+                  <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+                <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+
+    return (
+      <div className="space-y-4">
+        {terminale.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Terminale</div>
+            {renderList(terminale as any)}
+          </div>
+        )}
+        {premiere.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Première</div>
+            {renderList(premiere as any)}
+          </div>
+        )}
+        {autres.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Autres</div>
+            {renderList(autres as any)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const sorted = byDateDesc(filtered);
+
+  return (
+    <ul className="text-sm space-y-2">
+      {sorted.map((b) => {
+        const niv = normalizeNiveau(b.niveau);
+        const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+        const pct = (b as any).percent as number | null | undefined;
+        return (
+          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+            <span className="flex items-center gap-2">
+              <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+              {niv !== '—' && (
+                <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                  {niv}
+                </Badge>
+              )}
+              {typeof pct === 'number' && (
+                <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+              )}
+              {isLatestTerm && (
+                <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+              )}
+            </span>
+            <span className="flex items-center gap-2">
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }

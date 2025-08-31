@@ -135,15 +135,14 @@ export async function sendWelcomeEmail(user: any) {
     const template = EMAIL_TEMPLATES.WELCOME;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: user.email,
       subject: template.subject,
       html: template.html(user)
     });
 
-    console.log(`Email de bienvenue envoyé à ${user.email}`);
   } catch (error) {
-    console.error('Erreur envoi email bienvenue:', error);
+    console.error('Error sending welcome email:', error);
     throw error;
   }
 }
@@ -153,7 +152,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
     const template = EMAIL_TEMPLATES.SESSION_CONFIRMATION;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: student.email,
       subject: template.subject,
       html: template.html(session, student, coach)
@@ -188,9 +187,8 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
       });
     }
 
-    console.log(`Email de confirmation envoyé pour session ${session.id}`);
   } catch (error) {
-    console.error('Erreur envoi email confirmation:', error);
+    console.error(`Error sending confirmation email for session ${session.id}:`, error);
     throw error;
   }
 }
@@ -200,15 +198,14 @@ export async function sendSessionReminderEmail(session: any, student: any, video
     const template = EMAIL_TEMPLATES.SESSION_REMINDER;
 
     await transporter.sendMail({
-      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM || process.env.EMAIL_FROM || 'contact@nexusreussite.academy'}>`,
       to: student.email,
       subject: template.subject,
       html: template.html(session, student, videoLink)
     });
 
-    console.log(`Rappel de session envoyé pour ${session.id}`);
   } catch (error) {
-    console.error('Erreur envoi rappel session:', error);
+    console.error(`Error sending reminder for session ${session.id}:`, error);
     throw error;
   }
 }
@@ -243,9 +240,9 @@ export async function sendScheduledReminders() {
       };
     };
 
-    const upcomingSessions = await prisma.sessionBooking.findMany({
+    const upcomingSessions = await prisma.session.findMany({
       where: {
-        scheduledDate: {
+        scheduledAt: {
           gte: fiveMinutesFromOneHour,
           lte: oneHourFromNow
         },
@@ -253,7 +250,19 @@ export async function sendScheduledReminders() {
         // reminderSent field needs to be added to the Prisma schema first
         // reminderSent: false
       },
-    }) as any[];
+      include: {
+        student: {
+          include: {
+            user: true
+          }
+        },
+        coach: {
+          include: {
+            user: true
+          }
+        }
+      }
+    }) as SessionWithRelations[];
 
     for (const session of upcomingSessions) {
       const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
@@ -266,7 +275,7 @@ export async function sendScheduledReminders() {
 
       // Marquer le rappel comme envoyé
       // Uncomment after adding reminderSent field to Prisma schema
-      await prisma.sessionBooking.update({
+      await prisma.session.update({
         where: { id: session.id },
         data: {
           // reminderSent: true
@@ -275,8 +284,7 @@ export async function sendScheduledReminders() {
       });
     }
 
-    console.log(`${upcomingSessions.length} rappels de session envoyés`);
   } catch (error) {
-    console.error('Erreur envoi rappels automatiques:', error);
+    console.error('Error sending session reminders:', error);
   }
 }

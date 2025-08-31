@@ -16,7 +16,7 @@ export function Footer() {
                 width={40}
                 height={40}
                 className="h-8 md:h-10"
-                style={{ width: 'auto' }}
+                style={{ width: 'auto', height: 'auto' }}
               />
               <div className="font-bold text-lg md:text-xl">
                 <span className="text-blue-300">Nexus</span>
@@ -27,13 +27,13 @@ export function Footer() {
               La plateforme de <span className="text-blue-300 font-semibold">pédagogie augmentée</span> de référence pour la <span className="text-blue-300 font-semibold">réussite au Baccalauréat</span> et l'<span className="text-blue-300 font-semibold">excellence à Parcoursup</span>.
             </p>
             <div className="flex space-x-3 md:space-x-4">
-              <a href="#" className="text-blue-300 hover:text-white transition-colors">
+              <a href="#" aria-label="Facebook" className="text-blue-300 hover:text-white transition-colors">
                 <Facebook className="h-4 w-4 md:h-5 md:w-5" />
               </a>
-              <a href="#" className="text-blue-300 hover:text-white transition-colors">
+              <a href="#" aria-label="Instagram" className="text-blue-300 hover:text-white transition-colors">
                 <Instagram className="h-4 w-4 md:h-5 md:w-5" />
               </a>
-              <a href="#" className="text-blue-300 hover:text-white transition-colors">
+              <a href="#" aria-label="LinkedIn" className="text-blue-300 hover:text-white transition-colors">
                 <Linkedin className="h-4 w-4 md:h-5 md:w-5" />
               </a>
             </div>

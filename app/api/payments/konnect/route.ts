@@ -1,30 +1,57 @@
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 
 const konnectPaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
   key: z.string(),
   studentId: z.string(),
-  amount: z.number(),
-  description: z.string()
-});
+  // Idempotency key support (header or body)
+  idempotencyKey: z.string().optional(),
+})
+
+function mapPaymentType(t: 'subscription' | 'addon' | 'pack') {
+  if (t === 'subscription') return 'SUBSCRIPTION' as const
+  if (t === 'pack') return 'CREDIT_PACK' as const
+  return 'SPECIAL_PACK' as const // addon (ARIA+)
+}
+
+async function fetchPricing(type: 'subscription' | 'addon' | 'pack', key: string) {
+  const itemType = type.toUpperCase()
+  const pricing = await prisma.productPricing.findUnique({
+    where: { itemType_itemKey: { itemType, itemKey: key } as any },
+  })
+  if (!pricing || pricing.active === false || pricing.currency !== 'TND') return null
+  return { amount: pricing.amount, description: pricing.description }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
+    const session = await getServerSession(authOptions)
+    
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Accès non autorisé' },
         { status: 401 }
-      );
+      )
     }
-
-    const body = await request.json();
-    const validatedData = konnectPaymentSchema.parse(body);
+    
+    const contentType = request.headers.get('content-type') || ''
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type invalide. Utilisez application/json.' }, { status: 415 })
+    }
+    let raw = ''
+    try { raw = await request.text() } catch { raw = '' }
+    if (!raw || raw.trim().length === 0) {
+      return NextResponse.json({ error: 'Requête invalide: corps vide.' }, { status: 400 })
+    }
+    let body: unknown
+    try { body = JSON.parse(raw) } catch {
+      return NextResponse.json({ error: 'Requête invalide: JSON mal formé.' }, { status: 400 })
+    }
+    const validatedData = konnectPaymentSchema.parse(body)
 
     // Vérifier que l'élève appartient au parent
     const student = await prisma.student.findFirst({
@@ -34,75 +61,78 @@ export async function POST(request: NextRequest) {
           userId: session.user.id
         }
       }
-    });
-
+    })
+    
     if (!student) {
       return NextResponse.json(
         { error: 'Élève non trouvé ou non autorisé' },
         { status: 404 }
-      );
+      )
     }
 
-    // Créer l'enregistrement de paiement
-    const mappedType = validatedData.type === 'subscription'
-      ? 'SUBSCRIPTION'
-      : validatedData.type === 'addon'
-        ? 'SPECIAL_PACK'
-        : 'CREDIT_PACK';
+    // Tarification dynamique
+    const pricing = await fetchPricing(validatedData.type, validatedData.key)
+    if (!pricing) {
+      return NextResponse.json({ error: 'Article inconnu, inactif ou non tarifé' }, { status: 400 })
+    }
+
+    const idempotencyKey = request.headers.get('Idempotency-Key') || validatedData.idempotencyKey || undefined
+
+    // Idempotency: si clé fournie, renvoyer le paiement existant s'il existe
+    if (idempotencyKey) {
+      const existing = await prisma.payment.findUnique({ where: { externalId: idempotencyKey } })
+      if (existing) {
+        // Validation minimale de cohérence
+        const sameUser = existing.userId === session.user.id
+        const sameAmount = Number(existing.amount) === Number(pricing.amount)
+        const sameMethod = existing.method === 'konnect'
+        if (!sameUser || !sameAmount || !sameMethod) {
+          return NextResponse.json({ error: 'Clé d\'idempotence déjà utilisée pour un autre paiement' }, { status: 409 })
+        }
+        return NextResponse.json({
+          success: true,
+          paymentId: existing.id,
+          paymentUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${existing.id}`,
+          message: 'Session de paiement Konnect récupérée (idempotent)'
+        })
+      }
+    }
+
+    // Créer l'enregistrement de paiement (PENDING)
     const payment = await prisma.payment.create({
       data: {
         userId: session.user.id,
-        type: mappedType,
-        amount: validatedData.amount,
+        type: mapPaymentType(validatedData.type) as any,
+        amount: pricing.amount,
         currency: 'TND',
-        description: validatedData.description,
+        description: pricing.description,
         status: 'PENDING',
         method: 'konnect',
+        externalId: idempotencyKey,
         metadata: {
           studentId: validatedData.studentId,
           itemKey: validatedData.key,
-          itemType: validatedData.type
-        }
+          itemType: validatedData.type,
+          idempotencyKey: idempotencyKey || null,
+        } as any,
       }
-    });
+    })
 
-    // TODO: Intégrer avec l'API Konnect réelle
-    // Pour le MVP, on simule la création d'une session de paiement
-    const konnectPaymentUrl = `https://api.konnect.network/api/v2/payments/${payment.id}/init`;
-
-    // En production, vous feriez un appel à l'API Konnect ici
-    // const konnectResponse = await fetch('https://api.konnect.network/api/v2/payments/init', {
-    //   method: 'POST',
-    //   headers: {
-    //     'x-api-key': process.env.KONNECT_API_SECRET!,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({
-    //     receiverWalletId: process.env.KONNECT_WALLET_ID,
-    //     amount: validatedData.amount * 1000, // Konnect utilise les millimes
-    //     token: "TND",
-    //     type: "immediate",
-    //     description: validatedData.description,
-    //     acceptedPaymentMethods: ["wallet", "bank_card", "e_DINAR"],
-    //     successUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/success?paymentId=${payment.id}`,
-    //     failUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/failed?paymentId=${payment.id}`,
-    //     theme: "light"
-    //   })
-    // })
+    // NOTE: Intégration Konnect réelle à brancher ici (appel API avec header Idempotency-Key, etc.)
 
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
       paymentUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`,
       message: 'Session de paiement Konnect créée'
-    });
-
+    })
+    
   } catch (error) {
-    console.error('Erreur paiement Konnect:', error);
-
+    console.error('Erreur paiement Konnect:', error)
+    
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
-    );
+    )
   }
 }

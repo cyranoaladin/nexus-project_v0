@@ -85,7 +85,7 @@ export class SessionBookingService {
       select: { subjects: true }
     });
 
-    const coachSubjects: string[] = coachProfile ? JSON.parse(coachProfile.subjects || '[]') : [];
+    const coachSubjects = coachProfile ? JSON.parse(coachProfile.subjects || '[]') : [];
 
     // Get existing bookings
     const bookedSlots = await prisma.sessionBooking.findMany({
@@ -112,11 +112,20 @@ export class SessionBookingService {
       const dayOfWeek = currentDate.getDay();
 
       // Check for specific date availability first
-      const specificAvailability = availability.filter((av: any) => av.specificDate && new Date(av.specificDate).toDateString() === currentDate.toDateString());
+      const specificAvailability = availability.filter(
+        (av: { specificDate: Date | null; }) =>
+          av.specificDate &&
+          av.specificDate.toDateString() === currentDate.toDateString()
+      );
 
       // If no specific availability, check recurring availability
       const recurringAvailability = specificAvailability.length === 0
-        ? availability.filter((av: any) => av.isRecurring && av.dayOfWeek === dayOfWeek && (!av.validFrom || new Date(av.validFrom) <= currentDate) && (!av.validUntil || new Date(av.validUntil) >= currentDate))
+        ? availability.filter(
+          (av: any) => av.isRecurring &&
+            av.dayOfWeek === dayOfWeek &&
+            (!av.validFrom || av.validFrom <= currentDate) &&
+            (!av.validUntil || av.validUntil >= currentDate)
+        )
         : [];
 
       const dayAvailability = [...specificAvailability, ...recurringAvailability];
@@ -166,19 +175,38 @@ export class SessionBookingService {
     startDate: Date,
     endDate: Date
   ): Promise<any[]> {
-    const coaches = await prisma.coachProfile.findMany({
+    const coaches = await prisma.user.findMany({
       where: {
-        subjects: {
-          contains: subject
+        role: 'COACH',
+        coachProfile: {
+          subjects: {
+            contains: subject
+          }
         }
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true
+        coachProfile: true,
+        coachAvailabilities: {
+          where: {
+            isAvailable: true,
+            OR: [
+              {
+                isRecurring: true,
+                specificDate: null,
+                validFrom: { lte: endDate },
+                OR: [
+                  { validUntil: null },
+                  { validUntil: { gte: startDate } }
+                ]
+              },
+              {
+                isRecurring: false,
+                specificDate: {
+                  gte: startDate,
+                  lte: endDate
+                }
+              }
+            ]
           }
         }
       }
@@ -186,14 +214,14 @@ export class SessionBookingService {
 
     // Filter coaches who have actual availability and format response
     return coaches
-      // Keep coaches; availability is derived via getAvailableSlots
+      .filter((coach: { coachAvailabilities: any[]; }) => coach.coachAvailabilities.length > 0)
       .map((coach: any) => ({
-        id: coach.user.id,
-        firstName: coach.user.firstName,
-        lastName: coach.user.lastName,
-        email: coach.user.email,
-        coachSubjects: JSON.parse(coach.subjects || '[]'),
-        coachAvailabilities: []
+        id: coach.id,
+        firstName: coach.firstName,
+        lastName: coach.lastName,
+        email: coach.email,
+        coachSubjects: JSON.parse(coach.coachProfile?.subjects || '[]'),
+        coachAvailabilities: coach.coachAvailabilities
       }));
   }
 
@@ -208,7 +236,7 @@ export class SessionBookingService {
         data.scheduledDate,
         data.startTime,
         data.endTime,
-        tx
+        tx as any
       );
 
       if (!isAvailable) {
@@ -467,7 +495,9 @@ export class SessionBookingService {
       });
     }
 
-    await tx.sessionNotification.createMany({ data: notifications as any });
+    await tx.sessionNotification.createMany({
+      data: notifications
+    });
   }
 
   private static async createSessionReminders(session: any, tx: any): Promise<void> {
@@ -491,16 +521,16 @@ export class SessionBookingService {
       }
     ];
 
-    await tx.sessionReminder.createMany({ data: reminders as any });
+    await tx.sessionReminder.createMany({
+      data: reminders
+    });
   }
 
   private static async createStatusChangeNotifications(session: any, status: string): Promise<void> {
     // Implementation for status change notifications
-    console.log(`Session ${session.id} status changed to ${status}`);
   }
 
   private static async sendReminder(reminder: any): Promise<void> {
     // Implementation for sending reminders
-    console.log(`Sending reminder for session ${reminder.sessionId}`);
   }
 }

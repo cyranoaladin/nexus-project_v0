@@ -1,50 +1,33 @@
 "use client";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Phone, Users, Plus, Settings, UserPlus, Menu, X } from "lucide-react";
+import NotificationBell from "@/components/ui/notification-bell";
+import SessionManagement from "@/components/ui/session-management";
+import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Menu, Phone, Settings, UserPlus, Users, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import NotificationBell from "@/components/ui/notification-bell";
-import SessionManagement from "@/components/ui/session-management";
 
-interface AssistantDashboardData {
-  stats: {
-    totalStudents: number;
-    totalCoaches: number;
-    totalSessions: number;
-    totalRevenue: number;
-    pendingBilans: number;
-    pendingPayments: number;
-    pendingCreditRequests: number;
-    pendingSubscriptionRequests: number;
-  };
-  todaySessions: Array<{
-    id: string;
-    studentName: string;
-    coachName: string;
-    subject: string;
-    time: string;
-    status: string;
-    type: string;
-  }>;
-  recentActivities: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    time: string;
-    status: string;
-  }>;
+interface DashboardData {
+  totalStudents: number;
+  totalCoaches: number;
+  thisMonthSessions: number;
+  thisMonthRevenue: number;
+  pendingSubscriptionRequests: any[];
+  pendingCreditRequests: any[];
+  todaySessions: any[];
 }
 
 export default function DashboardAssistante() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [dashboardData, setDashboardData] = useState<AssistantDashboardData | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,15 +45,15 @@ export default function DashboardAssistante() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/assistant/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
-        
+
         const data = await response.json();
-        setDashboardData(data);
+        setData(data);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -100,8 +83,8 @@ export default function DashboardAssistante() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -128,7 +111,7 @@ export default function DashboardAssistante() {
                     <p className="text-xs md:text-sm text-gray-500">Supervision des sessions</p>
                   </div>
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -138,7 +121,7 @@ export default function DashboardAssistante() {
                   ← Retour au tableau de bord
                 </Button>
               </div>
-              
+
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -176,22 +159,27 @@ export default function DashboardAssistante() {
                 </div>
               </div>
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <NotificationBell />
+              <Link href="/dashboard/admin/rag-management">
+                <Button variant="ghost" className="text-gray-600 hover:text-gray-900 relative">
+                  Ingestion RAG
+                </Button>
+              </Link>
               <Link href="/dashboard/assistante/subscription-requests">
                 <Button variant="ghost" className="text-gray-600 hover:text-gray-900 relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
-                  {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                  {(data?.pendingSubscriptionRequests?.length ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
-                      {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 9
+                      {(data?.pendingSubscriptionRequests?.length ?? 0) > 9
                         ? '9+'
-                        : dashboardData?.stats?.pendingSubscriptionRequests ?? 0}
+                        : data?.pendingSubscriptionRequests?.length ?? 0}
                     </Badge>
                   )}
                 </Button>
@@ -200,14 +188,14 @@ export default function DashboardAssistante() {
                 <Button variant="ghost" className="text-gray-600 hover:text-gray-900 relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes de Crédits
-                  {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                  {(data?.pendingCreditRequests?.length ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
-                      {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
+                      {(data?.pendingCreditRequests?.length ?? 0) > 9
                         ? '9+'
-                        : dashboardData?.stats?.pendingCreditRequests ?? 0}
+                        : data?.pendingCreditRequests?.length ?? 0}
                     </Badge>
                   )}
                 </Button>
@@ -246,14 +234,14 @@ export default function DashboardAssistante() {
                 <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900 relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
-                  {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                  {(data?.pendingSubscriptionRequests?.length ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
                       className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
-                      {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 9
+                      {(data?.pendingSubscriptionRequests?.length ?? 0) > 9
                         ? '9+'
-                        : dashboardData?.stats?.pendingSubscriptionRequests ?? 0}
+                        : data?.pendingSubscriptionRequests?.length ?? 0}
                     </Badge>
                   )}
                 </Button>
@@ -262,14 +250,14 @@ export default function DashboardAssistante() {
                 <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900 relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes de Crédits
-                  {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                  {(data?.pendingCreditRequests?.length ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
                       className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
-                      {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
+                      {(data?.pendingCreditRequests?.length ?? 0) > 9
                         ? '9+'
-                        : dashboardData?.stats?.pendingCreditRequests ?? 0}
+                        : data?.pendingCreditRequests?.length ?? 0}
                     </Badge>
                   )}
                 </Button>
@@ -300,7 +288,7 @@ export default function DashboardAssistante() {
         </div>
 
         {/* Alertes et Tâches Urgentes */}
-        {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 ? (
+        {(data?.pendingSubscriptionRequests?.length || 0) > 0 || (data?.pendingCreditRequests?.length || 0) > 0 ? (
           <div className="mb-6 md:mb-8">
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>
@@ -311,29 +299,18 @@ export default function DashboardAssistante() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                  {(dashboardData?.stats?.pendingBilans || 0) > 0 && (
+                  {(data?.pendingSubscriptionRequests?.length || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900 text-sm md:text-base">Nouveaux bilans gratuits</p>
-                        <p className="text-xs md:text-sm text-gray-600">À traiter sous 24h</p>
+                        <p className="font-medium text-gray-900 text-sm md:text-base">Demandes d'abonnement</p>
+                        <p className="text-xs md:text-sm text-gray-600">À approuver</p>
                       </div>
                       <Badge variant="destructive">
-                        {dashboardData?.stats?.pendingBilans || 0}
+                        {data?.pendingSubscriptionRequests?.length || 0}
                       </Badge>
                     </div>
                   )}
-                  {(dashboardData?.stats?.pendingPayments || 0) > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm md:text-base">Paiements à valider</p>
-                        <p className="text-xs md:text-sm text-gray-600">Virements Wise</p>
-                      </div>
-                      <Badge variant="destructive">
-                        {dashboardData?.stats?.pendingPayments || 0}
-                      </Badge>
-                    </div>
-                  )}
-                  {(dashboardData?.stats?.pendingCreditRequests || 0) > 0 && (
+                  {(data?.pendingCreditRequests?.length || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900 text-sm md:text-base">Demandes de crédits</p>
@@ -341,27 +318,9 @@ export default function DashboardAssistante() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant="destructive">
-                          {dashboardData?.stats?.pendingCreditRequests || 0}
+                          {data?.pendingCreditRequests?.length || 0}
                         </Badge>
                         <Link href="/dashboard/assistante/credit-requests">
-                          <Button variant="outline" size="sm" className="text-xs">
-                            Voir
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                  {(dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm md:text-base">Demandes d'abonnement</p>
-                        <p className="text-xs md:text-sm text-gray-600">À approuver</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="destructive">
-                          {dashboardData?.stats?.pendingSubscriptionRequests || 0}
-                        </Badge>
-                        <Link href="/dashboard/assistante/subscription-requests">
                           <Button variant="outline" size="sm" className="text-xs">
                             Voir
                           </Button>
@@ -384,10 +343,10 @@ export default function DashboardAssistante() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-blue-600">
-                {dashboardData?.stats?.totalStudents || 0}
+                {data?.totalStudents || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {dashboardData?.stats?.totalCoaches || 0} coachs actifs
+                {data?.totalCoaches || 0} coachs actifs
               </p>
             </CardContent>
           </Card>
@@ -399,7 +358,7 @@ export default function DashboardAssistante() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-green-600">
-                {dashboardData?.stats?.totalRevenue?.toLocaleString() || 0} TND
+                {data?.thisMonthRevenue?.toLocaleString() || 0} TND
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Ce mois-ci
@@ -414,10 +373,10 @@ export default function DashboardAssistante() {
             </CardHeader>
             <CardContent>
               <div className="text-xl md:text-2xl font-bold text-purple-600">
-                {dashboardData?.todaySessions?.length || 0}
+                {data?.thisMonthSessions || 0}
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Sessions aujourd'hui
+                Sessions ce mois-ci
               </p>
             </CardContent>
           </Card>
@@ -441,7 +400,7 @@ export default function DashboardAssistante() {
                     <span className="text-xs text-gray-500 text-center">Créer et gérer les coachs</span>
                   </Button>
                 </Link>
-                
+
                 <Link href="/dashboard/assistante/credits">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
                     <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -449,7 +408,7 @@ export default function DashboardAssistante() {
                     <span className="text-xs text-gray-500 text-center">Ajouter/Retirer des crédits</span>
                   </Button>
                 </Link>
-                
+
                 <Link href="/dashboard/assistante/students">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
@@ -480,9 +439,9 @@ export default function DashboardAssistante() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {dashboardData?.todaySessions && dashboardData.todaySessions.length > 0 ? (
+              {data?.todaySessions && data.todaySessions.length > 0 ? (
                 <div className="space-y-3">
-                  {dashboardData.todaySessions.map((session: any) => (
+                  {data.todaySessions.map((session: any) => (
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -497,7 +456,7 @@ export default function DashboardAssistante() {
                       <Badge
                         variant={
                           session.status === 'SCHEDULED' ? 'default' :
-                          session.status === 'COMPLETED' ? 'outline' : 'destructive'
+                            session.status === 'COMPLETED' ? 'outline' : 'destructive'
                         }
                         className="ml-2 text-xs"
                       >

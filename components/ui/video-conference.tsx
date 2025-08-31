@@ -50,8 +50,7 @@ export function VideoConference({
       }
     };
 
-    // Utiliser ts-expect-error car l'API est injectée par le script Jitsi
-    // @ts-expect-error JitsiMeetExternalAPI is provided at runtime
+    // @ts-ignore - JitsiMeetExternalAPI est chargé dynamiquement
     const api = new window.JitsiMeetExternalAPI(domain, options);
 
     return () => {

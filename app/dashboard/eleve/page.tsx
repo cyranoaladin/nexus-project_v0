@@ -1,80 +1,25 @@
 "use client";
 
-import { BadgeWidget } from "@/components/ui/badge-widget";
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Calendar, CreditCard, Loader2, LogOut, MessageCircle, User, Video, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SessionBooking from "@/components/ui/session-booking";
+import { AlertCircle, BookOpen, Calendar, CreditCard, FileText, Loader2, LogOut, MessageCircle, User, Video } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import SessionBooking from "@/components/ui/session-booking";
+import { useEffect, useMemo, useState } from "react";
 
 interface DashboardData {
-  student: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    grade: string;
-    school: string;
-  };
-  credits: {
-    balance: number;
-    transactions: Array<{
-      id: string;
-      type: string;
-      amount: number;
-      description: string;
-      createdAt: string;
-    }>;
-  };
-  nextSession: {
-    id: string;
-    title: string;
-    subject: string;
-    scheduledAt: string;
-    duration: number;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  } | null;
-  recentSessions: Array<{
-    id: string;
-    title: string;
-    subject: string;
-    status: string;
-    scheduledAt: string;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  }>;
-  ariaStats: {
-    messagesToday: number;
-    totalConversations: number;
-  };
-  badges: Array<{
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    earnedAt: string;
-  }>;
-  achievements?: {
-    earnedBadges: number;
-    recentBadges: Array<{
-      id: string;
-      name: string;
-      description: string;
-      icon: string;
-      color: string;
-      earnedAt: string;
-    }>;
-  };
+  student: any;
+  credits: { balance: number; };
+  nextSession: any | null;
+  recentSessions: any[];
+  ariaStats: { totalConversations: number; };
 }
 
 export default function DashboardEleve() {
@@ -84,6 +29,8 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null; }[]>([]);
+  const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
 
   useEffect(() => {
     if (status === "loading") return;
@@ -97,13 +44,13 @@ export default function DashboardEleve() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/student/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
-        
+
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
@@ -116,6 +63,16 @@ export default function DashboardEleve() {
 
     fetchDashboardData();
   }, [session, status, router]);
+
+  useEffect(() => {
+    if (!session?.user?.studentId) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/students/${session.user.studentId}/bilans`, { cache: 'no-store' });
+        if (res.ok) setBilans(await res.json());
+      } catch {}
+    })();
+  }, [session?.user?.studentId]);
 
   if (status === "loading" || loading) {
     return (
@@ -135,8 +92,8 @@ export default function DashboardEleve() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -156,32 +113,30 @@ export default function DashboardEleve() {
               <div className="flex items-center space-x-2">
                 <User className="w-8 h-8 text-blue-600" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-gray-900" data-testid="student-courses-title">
                     {session?.user.firstName} {session?.user.lastName}
                   </h1>
                   <p className="text-sm text-gray-500">Espace Élève</p>
                 </div>
               </div>
-              
+
               {/* Navigation Tabs */}
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-8">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'dashboard'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'dashboard'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Tableau de Bord
                 </button>
                 <button
                   onClick={() => setActiveTab('booking')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'booking'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'booking'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Réserver Session
                 </button>
@@ -191,6 +146,7 @@ export default function DashboardEleve() {
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-gray-600 hover:text-gray-900"
+              data-testid="logout-button"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -200,7 +156,7 @@ export default function DashboardEleve() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main role="main" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
           <>
             {/* Welcome Section */}
@@ -241,9 +197,9 @@ export default function DashboardEleve() {
                   {dashboardData?.nextSession ? (
                     <>
                       <div className="text-xl font-bold text-gray-900">
-                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', { 
-                          day: '2-digit', 
-                          month: 'short' 
+                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: 'short'
                         })}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">
@@ -271,10 +227,10 @@ export default function DashboardEleve() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl font-bold text-purple-600">
-                    {dashboardData?.achievements?.earnedBadges || 0} badges
+                    {dashboardData?.ariaStats?.totalConversations || 0} conversations
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
-                    Obtenus ce mois
+                    Avec ARIA
                   </p>
                 </CardContent>
               </Card>
@@ -294,45 +250,44 @@ export default function DashboardEleve() {
                   {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
                     <div className="space-y-4">
                       {dashboardData.recentSessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{session.title}</h4>
-                            <p className="text-sm text-gray-600">{session.subject}</p>
-                            <p className="text-sm font-medium text-blue-600">
-                              {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              session.status === 'completed' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {session.status}
-                            </span>
-                          </div>
-                        </div>
+                        <div key={session.id}>{/* Affichage session */}</div>
                       ))}
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Aucune session récente
-                      </h3>
-                      <p className="text-gray-500">
-                        Vos sessions apparaîtront ici une fois programmées.
-                      </p>
-                      <Button 
-                        onClick={() => setActiveTab('booking')}
-                        className="mt-4"
-                      >
-                        Réserver une session
-                      </Button>
+                      <p>Aucune session récente.</p>
                     </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Mes Bilans */}
+              <Card className="mb-8">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Mes Bilans</CardTitle>
+                  <FileText className="h-4 w-4 text-blue-600" />
+                </CardHeader>
+                <CardContent>
+                  {/* Filtres */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs text-gray-500">Filtrer par niveau</div>
+                    <div className="w-44">
+                      <Select value={niveauFilter} onValueChange={(v: any) => setNiveauFilter(v)}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Niveau" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Tous">Tous</SelectItem>
+                          <SelectItem value="Première">Première</SelectItem>
+                          <SelectItem value="Terminale">Terminale</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {bilans.length === 0 ? (
+                    <p className="text-sm text-gray-600" data-testid="no-bilans-fallback">Aucun bilan pour le moment.</p>
+                  ) : (
+                    <BilanList bilans={bilans} niveauFilter={niveauFilter} />
                   )}
                 </CardContent>
               </Card>
@@ -346,10 +301,7 @@ export default function DashboardEleve() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <BadgeWidget
-                    studentId={dashboardData?.student.id || ""}
-                    className="h-fit"
-                  />
+                  <p className="text-sm text-muted-foreground">La section des badges est en cours de développement.</p>
                 </CardContent>
               </Card>
             </div>
@@ -360,9 +312,9 @@ export default function DashboardEleve() {
                 <CardTitle>Actions Rapides</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button 
-                    variant="outline" 
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Button
+                    variant="outline"
                     className="h-auto p-4 flex flex-col items-center space-y-2"
                     onClick={() => setActiveTab('booking')}
                   >
@@ -381,6 +333,12 @@ export default function DashboardEleve() {
                       <span>Ressources Pédagogiques</span>
                     </Button>
                   </Link>
+                  <Link href="/aria">
+                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-pink-500 text-pink-600 hover:bg-pink-50 hover:text-pink-700">
+                      <MessageCircle className="w-6 h-6" />
+                      <span>Discuter avec ARIA</span>
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -392,7 +350,6 @@ export default function DashboardEleve() {
             studentId={session!.user.id}
             userCredits={dashboardData.credits.balance}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
               // Refresh dashboard data
               window.location.reload();
               setActiveTab('dashboard');
@@ -401,5 +358,125 @@ export default function DashboardEleve() {
         )}
       </main>
     </div>
+  );
+}
+
+// Helpers and small components in the same file for simplicity
+function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
+  if (!n) return '—';
+  const s = n.toLowerCase();
+  if (s.includes('premiere') || s.includes('première')) return 'Première';
+  if (s.includes('terminale')) return 'Terminale';
+  return (n as any) as 'Première' | 'Terminale' | '—';
+}
+
+function BilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null; }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+  const latestTerminale = useMemo(() => bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale'), [bilans]);
+  const filtered = useMemo(() => bilans.filter(b => {
+    if (niveauFilter === 'Tous') return true;
+    return normalizeNiveau(b.niveau) === niveauFilter;
+  }), [bilans, niveauFilter]);
+
+  const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (filtered.length === 0) {
+    return <p className="text-sm text-gray-600">Aucun bilan pour ce filtre.</p>;
+  }
+
+  if (niveauFilter === 'Tous') {
+    const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
+    const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
+    const autres = byDateDesc(filtered.filter(b => ['Première', 'Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
+
+    const renderList = (list: typeof bilans) => (
+      <ul className="text-sm space-y-2">
+        {list.map((b) => {
+          const niv = normalizeNiveau(b.niveau);
+          const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+          const pct = (b as any).percent as number | null | undefined;
+          return (
+            <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+              <span className="flex items-center gap-2">
+                <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+                {niv !== '—' && (
+                  <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                    {niv}
+                  </Badge>
+                )}
+                {typeof pct === 'number' && (
+                  <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+                )}
+                {isLatestTerm && (
+                  <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+                <a data-testid="bilan-pdf-link" className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+
+    return (
+      <div className="space-y-4">
+        {terminale.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Terminale</div>
+            {renderList(terminale as any)}
+          </div>
+        )}
+        {premiere.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Première</div>
+            {renderList(premiere as any)}
+          </div>
+        )}
+        {autres.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-gray-500 mb-1">Autres</div>
+            {renderList(autres as any)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const sorted = byDateDesc(filtered);
+
+  return (
+    <ul className="text-sm space-y-2">
+      {sorted.map((b) => {
+        const niv = normalizeNiveau(b.niveau);
+        const isLatestTerm = latestTerminale && latestTerminale.id === b.id;
+        const pct = (b as any).percent as number | null | undefined;
+        return (
+          <li key={b.id} className="flex items-center justify-between border-b last:border-b-0 py-2">
+            <span className="flex items-center gap-2">
+              <span>{new Date(b.createdAt).toLocaleDateString('fr-FR')}</span>
+              {niv !== '—' && (
+                <Badge variant="outline" className={niv === 'Terminale' ? 'border-emerald-300 text-emerald-700' : 'border-blue-300 text-blue-700'}>
+                  {niv}
+                </Badge>
+              )}
+              {typeof pct === 'number' && (
+                <Badge variant="outline" className="border-gray-300 text-gray-700">{pct}%</Badge>
+              )}
+              {isLatestTerm && (
+                <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200">Nouveau Terminale</Badge>
+              )}
+            </span>
+            <span className="flex items-center gap-2">
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}`} target="_blank" rel="noreferrer">PDF Standard</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+              <a className="text-blue-600 hover:underline" href={`/api/bilan/pdf/${b.id}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

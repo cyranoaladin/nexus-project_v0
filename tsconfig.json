@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "types": [
+      "node",
+      "jest",
+      "@testing-library/jest-dom"
+    ],
     "target": "ES2017",
     "lib": [
       "dom",
@@ -35,6 +41,12 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "__tests__",
+    "__tests__/**/*",
+    "e2e",
+    "e2e/**/*",
+    "jest.setup.js",
+    "jest.setup.integration.js"
   ]
 }

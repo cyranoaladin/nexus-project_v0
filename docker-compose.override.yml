@@ -1,0 +1,20 @@
+# docker-compose.override.yml (production, sur VPS)
+# Remplace les images build locales par celles du registry et fixe le tag.
+# Variables attendues dans l'environnement VPS:
+# - REGISTRY (ex: ghcr.io/org)
+# - IMAGE_PREFIX (ex: nexus)
+# - IMAGE_TAG (ex: v1.2.3)
+
+services:
+  next-app:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-app:${IMAGE_TAG}
+
+  rag_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-rag:${IMAGE_TAG}
+
+  llm_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-llm:${IMAGE_TAG}
+
+  pdf_generator_service:
+    image: ${REGISTRY}/${IMAGE_PREFIX}-pdf:${IMAGE_TAG}
+
