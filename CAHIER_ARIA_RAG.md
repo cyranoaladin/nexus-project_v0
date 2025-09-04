@@ -387,7 +387,7 @@ EMBEDDING_MODEL="text-embedding-3-small" # Pour 1536 dimensions
 VECTOR_DIM=1536 # Correspond à text-embedding-3-small
 
 # Hugging Face (optionnel pour le développement)
-HUGGINGFACE_HUB_TOKEN="votre-token-optionnel"
+HUGGINGFACE_HUB_TOKEN="YOUR_HF_TOKEN"
 
 # GCP Vision (pour l'OCR, si le provider est "gcp")
 OCR_PROVIDER=gcp # "gcp" ou "tesseract"
@@ -1821,7 +1821,7 @@ export default function AriaChatPage() {
     OPENAI_MODEL_GEN="gpt-4o" # Ou un autre GPT-4 pour la génération de documents
 
     # Hugging Face (Optionnel en prod si modèles locaux lourds)
-    HUGGINGFACE_HUB_TOKEN="hf_VOTRE_TOKEN_PROD"
+HUGGINGFACE_HUB_TOKEN="YOUR_HF_TOKEN"
 
     # GCP Vision (CLÉS DE PRODUCTION pour OCR)
     OCR_PROVIDER=gcp
