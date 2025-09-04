@@ -1,0 +1,64 @@
+name: Data Invariants
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start Postgres (Docker Compose)
+        run: |
+          docker compose up -d db
+
+      - name: Wait for DB ready
+        run: |
+          for i in {1..60}; do
+            if docker compose exec -T db pg_isready -U postgres -d ${POSTGRES_DB:-nexus_dev}; then exit 0; fi
+            sleep 2
+          done
+          echo "DB did not become ready" >&2
+          exit 1
+
+      - name: Apply Prisma migrations
+        run: |
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/${{ env.POSTGRES_DB || 'nexus_dev' }}?schema=public
+
+      - name: Check credit_wallets balance vs credit_tx sum
+        run: |
+          set -e
+          SQL="WITH sums AS (SELECT \"walletId\", COALESCE(SUM(delta),0) AS tx_sum FROM credit_tx GROUP BY \"walletId\") SELECT w.id, w.balance, COALESCE(s.tx_sum,0) AS tx_sum FROM credit_wallets w LEFT JOIN sums s ON s.\"walletId\"=w.id WHERE w.balance <> COALESCE(s.tx_sum,0) LIMIT 1;"
+          ROWS=$(docker compose exec -T db psql -U postgres -d nexus_dev -t -c "$SQL" | sed '/^$/d' | wc -l)
+          echo "wallet_mismatch_rows=${ROWS}"
+          if [ "$ROWS" -gt 0 ]; then
+            echo "Invariant failed: some credit_wallets.balance != sum(credit_tx.delta)" >&2
+            exit 1
+          fi
+
+      - name: Check duplicate credit_tx (provider, externalId) when externalId IS NOT NULL
+        run: |
+          set -e
+          DUPES=$(docker compose exec -T db psql -U postgres -d nexus_dev -t -c "SELECT COUNT(*) FROM (SELECT provider, \"externalId\", COUNT(*) c FROM credit_tx WHERE \"externalId\" IS NOT NULL GROUP BY 1,2 HAVING COUNT(*)>1) d" | tr -d '[:space:]')
+          echo "credit_tx_duplicate_tuples=${DUPES}"
+          if [ "${DUPES}" != "0" ]; then
+            echo "Found duplicate (provider, externalId) tuples in credit_tx" >&2
+            exit 1
+          fi
+
+      - name: Upload compose logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-invariants-logs
+          path: |
+            **/ops-check-docker-logs.txt
+
