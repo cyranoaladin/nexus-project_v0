@@ -95,7 +95,7 @@ function ARIAInteractiveModule() {
       <div className="flex items-center mb-8">
         <div className="relative w-20 h-20 mr-6 flex-shrink-0">
           <Image
-            src="/images/aria.png"
+            src="/images/mascotte_aria.png"
             alt="ARIA - Assistant IA"
             width={80}
             height={80}
@@ -211,10 +211,10 @@ function ARIAInteractiveModule() {
           <Button
             disabled={additionalSubjects === 0}
             className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${additionalSubjects === 0
-                ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                : isPackBetter
-                  ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              : isPackBetter
+                ? 'bg-red-500 hover:bg-red-600 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             asChild={additionalSubjects > 0}
           >

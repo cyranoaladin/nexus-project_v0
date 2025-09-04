@@ -1,0 +1,374 @@
+[
+  { "id":"S-CM-01","domain":"const_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{corps pur} est :",
+    "choices":[
+      {"k":"A","latex":"un seul type d'espèce chimique","correct":true},
+      {"k":"B","latex":"un mélange homogène d'espèces"},
+      {"k":"C","latex":"un mélange hétérogène"},
+      {"k":"D","latex":"toute solution aqueuse"}
+    ],
+    "explanation_latex":"Définition de corps pur (Seconde)."
+  },
+  { "id":"S-CM-02","domain":"const_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Une solution aqueuse est un \\textbf{mélange} :",
+    "choices":[
+      {"k":"A","latex":"hétérogène"},
+      {"k":"B","latex":"homogène","correct":true},
+      {"k":"C","latex":"de gaz uniquement"},
+      {"k":"D","latex":"de solides uniquement"}
+    ],
+    "explanation_latex":"Solution = mélange homogène (soluté+solvant)."
+  },
+  { "id":"S-CM-03","domain":"const_matiere","type":"numeric","difficulty":"A","weight":1,
+    "prompt_latex":"Une solution contient $m=5\\,\\text{g}$ de soluté dans $V=250\\,\\text{mL}$. Donner la \\textbf{concentration en masse} $c_m$ (g·L$^{-1}$).",
+    "answer_latex":"c_m=\\dfrac{5}{0{,}250}=20\\,\\text{g·L}^{-1}",
+    "explanation_latex":"$c_m=\\dfrac{m}{V}$ avec $V$ en L."
+  },
+  { "id":"S-CM-04","domain":"const_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"La masse volumique de l’eau liquide est proche de :",
+    "choices":[
+      {"k":"A","latex":"$10\\,\\text{kg·m}^{-3}$"},
+      {"k":"B","latex":"$1{,}0\\,\\text{kg·m}^{-3}$"},
+      {"k":"C","latex":"$1000\\,\\text{kg·m}^{-3}$","correct":true},
+      {"k":"D","latex":"$10^4\\,\\text{kg·m}^{-3}$"}
+    ],
+    "explanation_latex":"Ordre de grandeur attendu (Seconde)."
+  },
+  { "id":"S-CM-05","domain":"const_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Lors d’une \\textbf{dissolution}, on mélange :",
+    "choices":[
+      {"k":"A","latex":"deux solides"},
+      {"k":"B","latex":"un soluté et un solvant","correct":true},
+      {"k":"C","latex":"deux solvants seulement"},
+      {"k":"D","latex":"deux gaz uniquement"}
+    ],
+    "explanation_latex":"Définition opérationnelle."
+  },
+  { "id":"S-CM-06","domain":"const_matiere","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"La \\textbf{composition volumique de l’air} sec est (ordre de grandeur) :",
+    "choices":[
+      {"k":"A","latex":"N$_2$ 21\\%, O$_2$ 78\\%"},
+      {"k":"B","latex":"N$_2$ 78\\%, O$_2$ 21\\%","correct":true},
+      {"k":"C","latex":"N$_2$ 50\\%, O$_2$ 50\\%"},
+      {"k":"D","latex":"O$_2$ 30\\%, CO$_2$ 70\\%"}
+    ],
+    "explanation_latex":"Repère de Seconde."
+  },
+  { "id":"S-CM-07","domain":"const_matiere","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Un test chimique courant pour mettre en évidence le \\textbf{CO$_2$} est :",
+    "choices":[
+      {"k":"A","latex":"eau iodée"},
+      {"k":"B","latex":"eau de chaux","correct":true},
+      {"k":"C","latex":"papier tournesol rouge"},
+      {"k":"D","latex":"test du dihydrogène à la flamme"}
+    ],
+    "explanation_latex":"Eau de chaux qui se trouble."
+  },
+
+  { "id":"S-TM-08","domain":"transfo_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{changement d’état} est une transformation :",
+    "choices":[
+      {"k":"A","latex":"chimique"},
+      {"k":"B","latex":"physique","correct":true},
+      {"k":"C","latex":"nucléaire"},
+      {"k":"D","latex":"ionique"}
+    ],
+    "explanation_latex":"Physique : l’espèce reste la même."
+  },
+  { "id":"S-TM-09","domain":"transfo_matiere","type":"numeric","difficulty":"B","weight":2,
+    "prompt_latex":"On solidifie $m=200\\,\\text{g}$ d’eau ($L_f=334\\,\\text{kJ·kg}^{-1}$). Calculer l’énergie \\textbf{libérée} $E$.",
+    "answer_latex":"E=m\\,L_f=0{,}200\\times 334\\,\\text{kJ}=66{,}8\\,\\text{kJ}",
+    "explanation_latex":"Solidification exothermique."
+  },
+  { "id":"S-TM-10","domain":"transfo_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Une \\textbf{réaction chimique} modélise :",
+    "choices":[
+      {"k":"A","latex":"une réorganisation d’atomes","correct":true},
+      {"k":"B","latex":"un changement d’état"},
+      {"k":"C","latex":"une variation de référentiel"},
+      {"k":"D","latex":"une mesure d’intensité sonore"}
+    ],
+    "explanation_latex":"Redistribution des atomes."
+  },
+  { "id":"S-TM-11","domain":"transfo_matiere","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le \\textbf{réactif limitant} est celui qui :",
+    "choices":[
+      {"k":"A","latex":"a la plus grande masse initiale"},
+      {"k":"B","latex":"s’épuise le premier","correct":true},
+      {"k":"C","latex":"ne réagit pas"},
+      {"k":"D","latex":"est spectateur"}
+    ],
+    "explanation_latex":"Notion de limitation."
+  },
+  { "id":"S-TM-12","domain":"transfo_matiere","type":"short","difficulty":"B","weight":2,
+    "prompt_latex":"Écrire l’équation de \\textbf{combustion} complète du \\textbf{méthane} CH$_4$ dans le dioxygène.",
+    "answer_latex":"\\text{CH}_4 + 2\\,\\text{O}_2 \\rightarrow \\text{CO}_2 + 2\\,\\text{H}_2\\text{O}",
+    "explanation_latex":"Bilan atomes C, H, O."
+  },
+  { "id":"S-TM-13","domain":"transfo_matiere","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Lors d’une \\textbf{corrosion acide} d’un métal, on observe souvent un \\textbf{dégagement de} :",
+    "choices":[
+      {"k":"A","latex":"CO$_2$"},
+      {"k":"B","latex":"H$_2$","correct":true},
+      {"k":"C","latex":"O$_3$"},
+      {"k":"D","latex":"N$_2$"}
+    ],
+    "explanation_latex":"Réaction acide/métal : dihydrogène."
+  },
+  { "id":"S-TM-14","domain":"transfo_matiere","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Une transformation \\textbf{exothermique} :",
+    "choices":[
+      {"k":"A","latex":"absorbe de l’énergie"},
+      {"k":"B","latex":"libère de l’énergie","correct":true},
+      {"k":"C","latex":"ne change pas d’énergie"},
+      {"k":"D","latex":"ne dépend pas des quantités de matière"}
+    ],
+    "explanation_latex":"Signe de l’échange énergétique."
+  },
+  { "id":"S-TM-15","domain":"transfo_matiere","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans une \\textbf{dissolution} d’un sel ionique, l’eau :",
+    "choices":[
+      {"k":"A","latex":"ne joue aucun rôle"},
+      {"k":"B","latex":"dissocie le réseau ionique et \\textbf{solvate} les ions","correct":true},
+      {"k":"C","latex":"transforme le sel en métal"},
+      {"k":"D","latex":"produit un gaz"}
+    ],
+    "explanation_latex":"Rôle du solvant polaire (Seconde)."
+  },
+  { "id":"S-TM-16","domain":"transfo_matiere","type":"numeric","difficulty":"B","weight":2,
+    "prompt_latex":"On mélange $n(\\text{HCl})=0{,}10\\,\\text{mol}$ à $n(\\text{NaOH})=0{,}08\\,\\text{mol}$ (réaction totale). Le réactif limitant est :",
+    "answer_latex":"\\text{NaOH} (0{,}08<0{,}10) ;\\; n_{final}(\\text{HCl})=0{,}02\\,\\text{mol}",
+    "explanation_latex":"Comparaison stœchiométrique 1:1."
+  },
+
+  { "id":"S-MV-17","domain":"mouvements","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"La \\textbf{vitesse moyenne} sur $\\Delta t$ s’écrit :",
+    "choices":[
+      {"k":"A","latex":"\\vec v=\\dfrac{\\Delta \\vec r}{\\Delta t}","correct":true},
+      {"k":"B","latex":"\\vec v=\\Delta t\\,\\Delta \\vec r"},
+      {"k":"C","latex":"\\vec v=\\dfrac{\\Delta t}{\\Delta \\vec r}"},
+      {"k":"D","latex":"\\vec v=\\vec r\\,\\Delta t"}
+    ],
+    "explanation_latex":"Définition vectorielle."
+  },
+  { "id":"S-MV-18","domain":"mouvements","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{mouvement rectiligne uniforme} a :",
+    "choices":[
+      {"k":"A","latex":"vitesse constante","correct":true},
+      {"k":"B","latex":"accélération constante non nulle"},
+      {"k":"C","latex":"trajectoire circulaire"},
+      {"k":"D","latex":"vitesse nulle"}
+    ],
+    "explanation_latex":"Définition MRU."
+  },
+  { "id":"S-MV-19","domain":"mouvements","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le \\textbf{principe d’inertie} (1ère loi de Newton) stipule que :",
+    "choices":[
+      {"k":"A","latex":"Sans force, pas de mouvement"},
+      {"k":"B","latex":"Si la somme des forces est nulle, le mouvement est rectiligne uniforme","correct":true},
+      {"k":"C","latex":"Toute force crée un cercle"},
+      {"k":"D","latex":"La masse varie avec la vitesse"}
+    ],
+    "explanation_latex":"Cas $\\sum \\vec F=\\vec 0$."
+  },
+  { "id":"S-MV-20","domain":"mouvements","type":"numeric","difficulty":"A","weight":1,
+    "prompt_latex":"Un mobile parcourt $\\Delta x=36\\,\\text{m}$ en $\\Delta t=3\\,\\text{s}$ de manière uniforme. Sa vitesse scalaire est :",
+    "answer_latex":"v=12\\,\\text{m·s}^{-1}",
+    "explanation_latex":"$v=\\Delta x/\\Delta t$."
+  },
+  { "id":"S-MV-21","domain":"mouvements","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans une représentation vectorielle, une \\textbf{force} est définie par :",
+    "choices":[
+      {"k":"A","latex":"norme, direction, sens","correct":true},
+      {"k":"B","latex":"seule la norme"},
+      {"k":"C","latex":"seul le sens"},
+      {"k":"D","latex":"seule la direction"}
+    ],
+    "explanation_latex":"Caractéristiques d’un vecteur force."
+  },
+  { "id":"S-MV-22","domain":"mouvements","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Le \\textbf{poids} près de la Terre s’écrit :",
+    "choices":[
+      {"k":"A","latex":"$\\vec P=m\\vec g$","correct":true},
+      {"k":"B","latex":"$\\vec P=\\dfrac{\\vec g}{m}$"},
+      {"k":"C","latex":"$\\vec P=m\\vec v$"},
+      {"k":"D","latex":"$\\vec P=\\vec 0$"}
+    ],
+    "explanation_latex":"Modèle usuel (Seconde)."
+  },
+  { "id":"S-MV-23","domain":"mouvements","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Deux forces opposées de même norme :",
+    "choices":[
+      {"k":"A","latex":"s’additionnent"},
+      {"k":"B","latex":"se compensent","correct":true},
+      {"k":"C","latex":"créent toujours une rotation"},
+      {"k":"D","latex":"créent un MRUA"}
+    ],
+    "explanation_latex":"$\\sum \\vec F=\\vec 0$."
+  },
+  { "id":"S-MV-24","domain":"mouvements","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Citer un outil pour filmer/traiter un mouvement en TP.",
+    "answer_latex":"Smartphone (vidéo) ou logiciel de traitement d’images.",
+    "explanation_latex":"Conseillé au programme."
+  },
+
+  { "id":"S-ON-25","domain":"ondes","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Le son \\textbf{nécessite} :",
+    "choices":[
+      {"k":"A","latex":"un milieu matériel","correct":true},
+      {"k":"B","latex":"le vide absolu"},
+      {"k":"C","latex":"un champ électrique"},
+      {"k":"D","latex":"une température négative"}
+    ],
+    "explanation_latex":"Onde mécanique (Seconde)."
+  },
+  { "id":"S-ON-26","domain":"ondes","type":"numeric","difficulty":"A","weight":1,
+    "prompt_latex":"Vitesse du son dans l’air (ordre de grandeur, m·s$^{-1}$).",
+    "answer_latex":"\\approx 340",
+    "explanation_latex":"Repère de base."
+  },
+  { "id":"S-ON-27","domain":"ondes","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"La \\textbf{fréquence} d’un son :",
+    "choices":[
+      {"k":"A","latex":"se mesure en pascals"},
+      {"k":"B","latex":"se mesure en hertz","correct":true},
+      {"k":"C","latex":"est une vitesse"},
+      {"k":"D","latex":"est une intensité"}
+    ],
+    "explanation_latex":"Unité Hz."
+  },
+  { "id":"S-ON-28","domain":"ondes","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Une \\textbf{caisse de résonance} :",
+    "choices":[
+      {"k":"A","latex":"absorbe le son"},
+      {"k":"B","latex":"amplifie par couplage le rayonnement sonore","correct":true},
+      {"k":"C","latex":"refroidit l’air"},
+      {"k":"D","latex":"crée un signal électrique"}
+    ],
+    "explanation_latex":"Émission et perception du son."
+  },
+  { "id":"S-ON-29","domain":"ondes","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Un dB (décibel) est une échelle :",
+    "choices":[
+      {"k":"A","latex":"linéaire"},
+      {"k":"B","latex":"non linéaire (logarithmique)","correct":true},
+      {"k":"C","latex":"thermique"},
+      {"k":"D","latex":"de vitesse"}
+    ],
+    "explanation_latex":"Sensibilisation (Seconde)."
+  },
+  { "id":"S-ON-30","domain":"ondes","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{ultrason} :",
+    "choices":[
+      {"k":"A","latex":"a une fréquence $<20$ Hz"},
+      {"k":"B","latex":"a une fréquence $>20$ kHz","correct":true},
+      {"k":"C","latex":"est visible"},
+      {"k":"D","latex":"ne se propage pas dans l’eau"}
+    ],
+    "explanation_latex":"Définition usuelle."
+  },
+  { "id":"S-ON-31","domain":"ondes","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Citer un domaine d’application des ultrasons.",
+    "answer_latex":"Échographie médicale (imagerie).",
+    "explanation_latex":"Exemple de contexte."
+  },
+
+  { "id":"S-ME-32","domain":"mesures","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Une \\textbf{série de mesures} est exploitée avec :",
+    "choices":[
+      {"k":"A","latex":"médiane uniquement"},
+      {"k":"B","latex":"moyenne et écart-type","correct":true},
+      {"k":"C","latex":"variance seule"},
+      {"k":"D","latex":"rien, une valeur suffit"}
+    ],
+    "explanation_latex":"Programme mesures/incertitudes."
+  },
+  { "id":"S-ME-33","domain":"mesures","type":"numeric","difficulty":"A","weight":1,
+    "prompt_latex":"On mesure (en mL) : 10, 11, 9, 10. Donner la \\textbf{moyenne}.",
+    "answer_latex":"10",
+    "explanation_latex":"(10+11+9+10)/4=10."
+  },
+  { "id":"S-ME-34","domain":"mesures","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"L’\\textbf{incertitude-type} (Seconde) traduit :",
+    "choices":[
+      {"k":"A","latex":"l’erreur de l’élève"},
+      {"k":"B","latex":"la dispersion raisonnable des valeurs","correct":true},
+      {"k":"C","latex":"l’unité du SI"},
+      {"k":"D","latex":"une grandeur vectorielle"}
+    ],
+    "explanation_latex":"Sensibilisation à la variabilité."
+  },
+  { "id":"S-ME-35","domain":"mesures","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{histogramme} permet :",
+    "choices":[
+      {"k":"A","latex":"de calculer une vitesse"},
+      {"k":"B","latex":"de visualiser la distribution des mesures","correct":true},
+      {"k":"C","latex":"de représenter une réaction chimique"},
+      {"k":"D","latex":"de tracer un vecteur vitesse"}
+    ],
+    "explanation_latex":"Outil statistique simple."
+  },
+  { "id":"S-ME-36","domain":"mesures","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le choix de la \\textbf{verrerie} (pipette, fiole jaugée) influe surtout sur :",
+    "choices":[
+      {"k":"A","latex":"la couleur de la solution"},
+      {"k":"B","latex":"l’incertitude sur le volume mesuré","correct":true},
+      {"k":"C","latex":"la masse volumique de l’eau"},
+      {"k":"D","latex":"la vitesse du son"}
+    ],
+    "explanation_latex":"Lié aux mesures et incertitudes."
+  },
+
+  { "id":"S-MIC-37","domain":"chimie_micro","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{ion} est une entité :",
+    "choices":[
+      {"k":"A","latex":"neutre"},
+      {"k":"B","latex":"chargée","correct":true},
+      {"k":"C","latex":"toujours gazeuse"},
+      {"k":"D","latex":"qui n’a pas d’électrons"}
+    ],
+    "explanation_latex":"Définition."
+  },
+  { "id":"S-MIC-38","domain":"chimie_micro","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Un \\textbf{cation} résulte :",
+    "choices":[
+      {"k":"A","latex":"d’un gain d’électrons"},
+      {"k":"B","latex":"d’une perte d’électrons","correct":true},
+      {"k":"C","latex":"d’un gain de neutrons"},
+      {"k":"D","latex":"d’une perte de protons"}
+    ],
+    "explanation_latex":"Charge positive."
+  },
+  { "id":"S-MIC-39","domain":"chimie_micro","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Les \\textbf{gaz nobles} sont stables car :",
+    "choices":[
+      {"k":"A","latex":"leur noyau est lourd"},
+      {"k":"B","latex":"leur couche de valence est saturée","correct":true},
+      {"k":"C","latex":"ils sont liquides à T ambiante"},
+      {"k":"D","latex":"ils sont métalliques"}
+    ],
+    "explanation_latex":"Lien configuration/ stabilité."
+  },
+  { "id":"S-MIC-40","domain":"chimie_micro","type":"short","difficulty":"B","weight":2,
+    "prompt_latex":"Compléter : l’ion chlorure est noté \\_\\_ et l’ion sodium \\_\\_.",
+    "answer_latex":"Cl^- \\quad \\text{et}\\quad Na^+",
+    "explanation_latex":"Ions monoatomiques courants."
+  },
+
+  { "id":"S-MINI-41","domain":"transfo_matiere","type":"short","difficulty":"C","weight":2,
+    "prompt_latex":"On dissout $m=2{,}5\\,\\text{g}$ de NaCl dans $V=100\\,\\text{mL}$. Calculer $c_m$ et indiquer soluté/solvant.",
+    "answer_latex":"c_m=\\dfrac{2{,}5}{0{,}100}=25\\,\\text{g·L}^{-1};\\; soluté : NaCl, solvant : eau.",
+    "explanation_latex":"Dissolution + unité."
+  },
+  { "id":"S-MINI-42","domain":"mouvements","type":"short","difficulty":"C","weight":2,
+    "prompt_latex":"Un point a les positions $x(0)=0$, $x(1)=3$, $x(2)=7$ (m). Donner la vitesse moyenne sur $[0,2]$ et conclure sur l’uniformité.",
+    "answer_latex":"v_m=\\dfrac{7-0}{2}=3{,}5\\,\\text{m·s}^{-1}$ ; non uniforme (vitesses par intervalles différentes).",
+    "explanation_latex":"Comparaison par intervalles."
+  },
+  { "id":"S-MINI-43","domain":"mesures","type":"short","difficulty":"C","weight":2,
+    "prompt_latex":"On mesure (g) : 9{,}9 ; 10{,}1 ; 10{,}0 ; 9{,}8. Donner moyenne et commenter l’\\textbf{incertitude-type} qualitativement.",
+    "answer_latex":"\\bar x=9{,}95\\,\\text{g}$ ; dispersion faible \\Rightarrow incertitude-type petite.",
+    "explanation_latex":"Qualitatif Seconde."
+  }
+]
+

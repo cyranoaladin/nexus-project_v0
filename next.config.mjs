@@ -18,6 +18,25 @@ const nextConfig = {
     ppr: false,
   },
 
+  // --- AJOUT POUR LA COMPATIBILITÉ AVEC LES MODULES NATIFS ---
+  webpack: (config, { isServer }) => {
+    // Cette configuration est essentielle pour que les bibliothèques d'IA comme
+    // `@xenova/transformers` (qui utilise `onnxruntime-node`) fonctionnent côté serveur.
+
+    // On dit à Next.js de ne pas essayer d'empaqueter ce module natif.
+    // Il sera chargé directement par Node.js au moment de l'exécution.
+    config.externals.push('onnxruntime-node');
+
+    // On ajoute une règle pour que Webpack sache comment gérer les fichiers binaires `.node`.
+    config.module.rules.push({
+      test: /\.node$/,
+      use: 'node-loader',
+    });
+
+    return config;
+  },
+  // --- FIN DE L'AJOUT ---
+
   // En-têtes de sécurité (appliqués par Next; compléter côté reverse proxy)
   async headers() {
     const isProd = process.env.NODE_ENV === 'production';

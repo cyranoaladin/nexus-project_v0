@@ -1,3 +1,1 @@
-export { selectModel, getFallbackModel } from '@/lib/aria/openai';
-
-
+export { getFallbackModel, selectModel } from '@/lib/aria/openai';

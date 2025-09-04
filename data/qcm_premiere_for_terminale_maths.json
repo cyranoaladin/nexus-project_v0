@@ -1,0 +1,379 @@
+[
+  { "id":"P-AN-01", "domain":"analyse", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Soit $f(x)=2x^2-4x+1$. $f'(x)$ vaut :",
+    "choices":[
+      {"k":"A","latex":"4x-4","correct":true},
+      {"k":"B","latex":"2x-4"},
+      {"k":"C","latex":"2x+1"},
+      {"k":"D","latex":"4x+1"}
+    ],
+    "explanation_latex":"Dérivée de $ax^2+bx+c$ : $2ax+b$."
+  },
+  { "id":"P-AN-02", "domain":"analyse", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Pour $f(x)=x^2-6x+5$, l’abscisse du sommet vaut :",
+    "choices":[
+      {"k":"A","latex":"-3"},
+      {"k":"B","latex":"3","correct":true},
+      {"k":"C","latex":"\\dfrac{5}{2}"},
+      {"k":"D","latex":"2"}
+    ],
+    "explanation_latex":"Sommet $x_S=-\\frac{b}{2a}=\\frac{6}{2}=3$."
+  },
+  { "id":"P-AN-03", "domain":"analyse", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"La tangente au graphe de $f$ au point $x=a$ a pour équation :",
+    "choices":[
+      {"k":"A","latex":"y=f(a)x+f'(a)"},
+      {"k":"B","latex":"y=f'(a)(x-a)+f(a)","correct":true},
+      {"k":"C","latex":"y=f(a)(x-a)+f'(a)"},
+      {"k":"D","latex":"y=f'(x)(x-a)+f(a)"}
+    ],
+    "explanation_latex":"Formule de la tangente en $a$."
+  },
+  { "id":"P-AN-04", "domain":"analyse", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Si $f'(x) > 0$ sur un intervalle $I$, alors $f$ sur $I$ est :",
+    "choices":[
+      {"k":"A","latex":"décroissante"},
+      {"k":"B","latex":"constante"},
+      {"k":"C","latex":"croissante","correct":true},
+      {"k":"D","latex":"convexe"}
+    ],
+    "explanation_latex":"Signe de la dérivée $\\Rightarrow$ sens de variation."
+  },
+  { "id":"P-AN-05", "domain":"analyse", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Soit $f(x)=x^3-3x^2$. Le signe de $f'(x)$ sur $\\mathbb{R}$ détermine :",
+    "choices":[
+      {"k":"A","latex":"la convexité"},
+      {"k":"B","latex":"les variations","correct":true},
+      {"k":"C","latex":"le domaine de définition"},
+      {"k":"D","latex":"la parité"}
+    ],
+    "explanation_latex":"$f'(x)=3x^2-6x=3x(x-2)$."
+  },
+  { "id":"P-AN-06", "domain":"analyse", "type":"numeric", "difficulty":"B", "weight":2,
+    "prompt_latex":"Pour $f(x)=e^{x}-2x$, résoudre $f'(x)=0$.",
+    "answer_latex":"e^{x}=2 \\;\\Rightarrow\\; x=\\ln 2",
+    "explanation_latex":"$f'(x)=e^x-2$."
+  },
+  { "id":"P-AN-07", "domain":"analyse", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"La fonction exponentielle vérifie :",
+    "choices":[
+      {"k":"A","latex":"(e^{x})' = e^{x}","correct":true},
+      {"k":"B","latex":"(e^{x})' = x e^{x}"},
+      {"k":"C","latex":"(e^{x})' = 1"},
+      {"k":"D","latex":"(e^{x})' = e^{-x}"}
+    ],
+    "explanation_latex":"Propriété fondamentale de $e^x$."
+  },
+  { "id":"P-AN-08", "domain":"analyse", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Résoudre $e^{x}=5$ :",
+    "choices":[
+      {"k":"A","latex":"x=5"},
+      {"k":"B","latex":"x=\\ln 5","correct":true},
+      {"k":"C","latex":"x=\\log_{10}5"},
+      {"k":"D","latex":"x=\\dfrac{1}{5}"}
+    ],
+    "explanation_latex":"Définition du logarithme népérien."
+  },
+  { "id":"P-AN-09", "domain":"analyse", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Si $f$ admet un minimum local en $x_0$ et si $f$ est dérivable, alors :",
+    "choices":[
+      {"k":"A","latex":"forcément $f''(x_0)>0$"},
+      {"k":"B","latex":"$f'(x_0)=0$","correct":true},
+      {"k":"C","latex":"$f'(x_0)<0$"},
+      {"k":"D","latex":"$f'(x_0)>0$"}
+    ],
+    "explanation_latex":"Condition nécessaire (non suffisante) d’extrémum local."
+  },
+  { "id":"P-AN-10", "domain":"analyse", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Croissance de $e^{x}$ sur $\\mathbb{R}$ :",
+    "choices":[
+      {"k":"A","latex":"décroissante"},
+      {"k":"B","latex":"croissante","correct":true},
+      {"k":"C","latex":"constante"},
+      {"k":"D","latex":"périodique"}
+    ],
+    "explanation_latex":"$e^{x}$ est strictement croissante."
+  },
+
+  { "id":"P-SU-11", "domain":"suites", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Suite arithmétique $(u_n)$ de raison $r$ :",
+    "choices":[
+      {"k":"A","latex":"u_{n+1}=ru_n"},
+      {"k":"B","latex":"u_n=u_0+nr","correct":true},
+      {"k":"C","latex":"u_{n+1}=u_n+r^n"},
+      {"k":"D","latex":"u_n=u_0 r^n"}
+    ],
+    "explanation_latex":"Forme explicite arithmétique."
+  },
+  { "id":"P-SU-12", "domain":"suites", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Suite géométrique $(v_n)$ de raison $q$ :",
+    "choices":[
+      {"k":"A","latex":"v_{n+1}=v_n+q"},
+      {"k":"B","latex":"v_n=v_0+qn"},
+      {"k":"C","latex":"v_{n+1}=q v_n","correct":true},
+      {"k":"D","latex":"v_n=v_0+q^n"}
+    ],
+    "explanation_latex":"Définition récurrente."
+  },
+  { "id":"P-SU-13", "domain":"suites", "type":"numeric", "difficulty":"A", "weight":1,
+    "prompt_latex":"Pour $(u_n)$ arithmétique, $u_0=3$, $r=2$. Donner $u_5$.",
+    "answer_latex":"u_5=3+5\\cdot 2=13",
+    "explanation_latex":"Formule explicite."
+  },
+  { "id":"P-SU-14", "domain":"suites", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"$(v_n)$ géométrique, $v_0=4$, $q=\\tfrac{1}{2}$. Alors :",
+    "choices":[
+      {"k":"A","latex":"v_n=4\\cdot 2^n"},
+      {"k":"B","latex":"v_n=4\\cdot \\left(\\tfrac{1}{2}\\right)^n","correct":true},
+      {"k":"C","latex":"v_n=4+n/2"},
+      {"k":"D","latex":"v_n=2^n"}
+    ],
+    "explanation_latex":"Formule explicite géométrique."
+  },
+  { "id":"P-SU-15", "domain":"suites", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Si $(u_n)$ est telle que $u_{n+1}-u_n\\ge 0$ pour tout $n$, alors $(u_n)$ est :",
+    "choices":[
+      {"k":"A","latex":"majorée"},
+      {"k":"B","latex":"arithmétique"},
+      {"k":"C","latex":"croissante","correct":true},
+      {"k":"D","latex":"géométrique"}
+    ],
+    "explanation_latex":"Différence non négative $\\Rightarrow$ croissance."
+  },
+  { "id":"P-SU-16", "domain":"suites", "type":"numeric", "difficulty":"B", "weight":2,
+    "prompt_latex":"Suite $u_{n+1}=\\dfrac{u_n+3}{2}$, $u_0=1$. Calculer $u_1$ et $u_2$.",
+    "answer_latex":"u_1=2,\\; u_2=\\dfrac{5}{2}",
+    "explanation_latex":"Application de la récurrence."
+  },
+  { "id":"P-SU-17", "domain":"suites", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Pour $u_{n+1}=au_n+b$ avec $|a|<1$, on dit souvent que $(u_n)$ :",
+    "choices":[
+      {"k":"A","latex":"diverge toujours"},
+      {"k":"B","latex":"est périodique"},
+      {"k":"C","latex":"tend vers une limite","correct":true},
+      {"k":"D","latex":"est arithmétique"}
+    ],
+    "explanation_latex":"Contraction affine (intuition sur stabilité)."
+  },
+  { "id":"P-SU-18", "domain":"suites", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Si $(v_n)$ est géométrique de $q>1$, alors $(v_n)$ est :",
+    "choices":[
+      {"k":"A","latex":"décroissante"},
+      {"k":"B","latex":"croissante","correct":true},
+      {"k":"C","latex":"bornée"},
+      {"k":"D","latex":"alternée"}
+    ],
+    "explanation_latex":"Croissance si $q>1$."
+  },
+
+  { "id":"P-ALG-19", "domain":"algebre", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Racines de $x^2-5x+6=0$ :",
+    "choices":[
+      {"k":"A","latex":"1 et 6"},
+      {"k":"B","latex":"2 et 3","correct":true},
+      {"k":"C","latex":"-2 et 3"},
+      {"k":"D","latex":"-1 et -6"}
+    ],
+    "explanation_latex":"Factorisation $(x-2)(x-3)$."
+  },
+  { "id":"P-ALG-20", "domain":"algebre", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"L’équation $x^2+2x+5=0$ :",
+    "choices":[
+      {"k":"A","latex":"a 2 racines réelles"},
+      {"k":"B","latex":"n’a pas de racine réelle","correct":true},
+      {"k":"C","latex":"a une racine double réelle"},
+      {"k":"D","latex":"est factorisable sur $\\mathbb{R}$"}
+    ],
+    "explanation_latex":"$\\Delta=4-20<0$."
+  },
+  { "id":"P-ALG-21", "domain":"algebre", "type":"numeric", "difficulty":"B", "weight":2,
+    "prompt_latex":"Résoudre $\\; e^{x}=3x$ sur $\\mathbb{R}$ (nombre de solutions réelles) :",
+    "answer_latex":"2\\;\\text{solutions (par variations comparées)}",
+    "explanation_latex":"Étude de $f(x)=e^x$ et $g(x)=3x$ ; existence par TVI + variations."
+  },
+  { "id":"P-ALG-22", "domain":"algebre", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Si $ax^2+bx+c$ admet un minimum global et $a>0$, alors :",
+    "choices":[
+      {"k":"A","latex":"$b=0$"},
+      {"k":"B","latex":"$f'(x_S)=0$","correct":true},
+      {"k":"C","latex":"$c=0$"},
+      {"k":"D","latex":"$\\Delta<0$"}
+    ],
+    "explanation_latex":"Condition d’extremum pour une quadratique convexe."
+  },
+  { "id":"P-ALG-23", "domain":"algebre", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Équation $\\ln x = 1$ :",
+    "choices":[
+      {"k":"A","latex":"$x=1$"},
+      {"k":"B","latex":"$x=e$","correct":true},
+      {"k":"C","latex":"$x=\\dfrac{1}{e}$"},
+      {"k":"D","latex":"aucune solution"}
+    ],
+    "explanation_latex":"Définition $\\ln e=1$."
+  },
+  { "id":"P-ALG-24", "domain":"algebre", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Domaine de définition de $\\ln(x-2)$ :",
+    "choices":[
+      {"k":"A","latex":"$x\\in\\mathbb{R}$"},
+      {"k":"B","latex":"$x>2$","correct":true},
+      {"k":"C","latex":"$x\\ge 2$"},
+      {"k":"D","latex":"$x<2$"}
+    ],
+    "explanation_latex":"Argument du logarithme strictement positif."
+  },
+
+  { "id":"P-GEO-25", "domain":"geometrie", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Pente de la droite passant par $(1,2)$ et $(3,6)$ :",
+    "choices":[
+      {"k":"A","latex":"1"},
+      {"k":"B","latex":"2","correct":true},
+      {"k":"C","latex":"3"},
+      {"k":"D","latex":"4"}
+    ],
+    "explanation_latex":"$\\dfrac{6-2}{3-1}=2$."
+  },
+  { "id":"P-GEO-26", "domain":"geometrie", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Équation réduite de la droite de pente $-\\tfrac{1}{2}$ passant par $(0,3)$ :",
+    "choices":[
+      {"k":"A","latex":"y= -\\tfrac{1}{2}x + 3","correct":true},
+      {"k":"B","latex":"y= \\tfrac{1}{2}x + 3"},
+      {"k":"C","latex":"y= -2x + 3"},
+      {"k":"D","latex":"y= -\\tfrac{1}{2}x - 3"}
+    ],
+    "explanation_latex":"Forme $y=mx+p$."
+  },
+  { "id":"P-GEO-27", "domain":"geometrie", "type":"numeric", "difficulty":"A", "weight":1,
+    "prompt_latex":"Distance $AB$ pour $A(0,0)$, $B(3,4)$ :",
+    "answer_latex":"5",
+    "explanation_latex":"Pythagore."
+  },
+  { "id":"P-GEO-28", "domain":"geometrie", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Forme cartésienne d’une droite de vecteur directeur $(a,b)$ et passant par $(x_0,y_0)$ :",
+    "choices":[
+      {"k":"A","latex":"a(x-x_0)+b(y-y_0)=0","correct":true},
+      {"k":"B","latex":"ax+by=0"},
+      {"k":"C","latex":"x=x_0+a"},
+      {"k":"D","latex":"y=y_0+b"}
+    ],
+    "explanation_latex":"Équation paramétrique/implicite équivalente."
+  },
+  { "id":"P-GEO-29", "domain":"geometrie", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Condition d’orthogonalité de deux droites $ax+by+c=0$ et $a'x+b'y+c'=0$ :",
+    "choices":[
+      {"k":"A","latex":"$aa'+bb'=0$","correct":true},
+      {"k":"B","latex":"$ab'=a'b$"},
+      {"k":"C","latex":"$a=a'$ et $b=b'$"},
+      {"k":"D","latex":"$c=c'$"}
+    ],
+    "explanation_latex":"Produit scalaire des vecteurs normaux."
+  },
+
+  { "id":"P-PS-30", "domain":"proba_stats", "type":"numeric", "difficulty":"A", "weight":2,
+    "prompt_latex":"Fréquence d’une valeur apparaissant 12 fois sur 60 observations :",
+    "answer_latex":"0{,}2",
+    "explanation_latex":"$12/60=0{,}2$."
+  },
+  { "id":"P-PS-31", "domain":"proba_stats", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"Dans un tirage équiprobable d’un dé équilibré, $P(\\text{pair})$ =",
+    "choices":[
+      {"k":"A","latex":"\\tfrac{1}{3}"},
+      {"k":"B","latex":"\\tfrac{1}{2}","correct":true},
+      {"k":"C","latex":"\\tfrac{2}{3}"},
+      {"k":"D","latex":"\\tfrac{1}{6}"}
+    ],
+    "explanation_latex":"Cas favorables 3 sur 6."
+  },
+  { "id":"P-PS-32", "domain":"proba_stats", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Deux tirages successifs avec remise d’une urne (3 rouges, 2 bleues). $P(\\text{1 rouge puis 1 bleue})$ :",
+    "choices":[
+      {"k":"A","latex":"\\tfrac{3}{5}\\cdot\\tfrac{1}{2}"},
+      {"k":"B","latex":"\\tfrac{3}{5}\\cdot\\tfrac{2}{5}","correct":true},
+      {"k":"C","latex":"\\tfrac{3}{5}\\cdot\\tfrac{2}{4}"},
+      {"k":"D","latex":"\\tfrac{2}{5}\\cdot\\tfrac{3}{5}"}
+    ],
+    "explanation_latex":"Indépendance par remise : $\\frac{3}{5}\\times\\frac{2}{5}$."
+  },
+  { "id":"P-PS-33", "domain":"proba_stats", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"Événements $A$ et $B$ indépendants. Alors :",
+    "choices":[
+      {"k":"A","latex":"$P(A\\cap B)=P(A)+P(B)$"},
+      {"k":"B","latex":"$P(A\\cap B)=P(A)P(B)$","correct":true},
+      {"k":"C","latex":"$P(A\\cap B)=\\min(P(A),P(B))$"},
+      {"k":"D","latex":"$P(A\\cap B)=\\max(P(A),P(B))$"}
+    ],
+    "explanation_latex":"Définition de l’indépendance (basique)."
+  },
+  { "id":"P-PS-34", "domain":"proba_stats", "type":"numeric", "difficulty":"A", "weight":1,
+    "prompt_latex":"Moyenne de la série $10,12,14,20$ :",
+    "answer_latex":"14",
+    "explanation_latex":"Somme/4."
+  },
+  { "id":"P-PS-35", "domain":"proba_stats", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"L’écart-type est nul ssi toutes les valeurs sont :",
+    "choices":[
+      {"k":"A","latex":"positives"},
+      {"k":"B","latex":"différentes"},
+      {"k":"C","latex":"identiques","correct":true},
+      {"k":"D","latex":"croissantes"}
+    ],
+    "explanation_latex":"Dispersion nulle."
+  },
+  { "id":"P-PS-36", "domain":"proba_stats", "type":"mcq", "difficulty":"A", "weight":1,
+    "prompt_latex":"La médiane d’une série ordonnée est :",
+    "choices":[
+      {"k":"A","latex":"la moyenne"},
+      {"k":"B","latex":"la valeur centrale","correct":true},
+      {"k":"C","latex":"la valeur minimale"},
+      {"k":"D","latex":"la valeur maximale"}
+    ],
+    "explanation_latex":"Définition."
+  },
+
+  { "id":"P-ALGO-37", "domain":"algo_logique", "type":"short", "difficulty":"A", "weight":1,
+    "prompt_latex":"En Python, écrire une boucle qui affiche les entiers de 0 à 3 inclus.",
+    "answer_latex":"\\texttt{for i in range(4): print(i)}",
+    "explanation_latex":"Range(4) produit 0,1,2,3."
+  },
+  { "id":"P-ALGO-38", "domain":"algo_logique", "type":"short", "difficulty":"A", "weight":1,
+    "prompt_latex":"Écrire la condition Python testant $x\\ge 0$.",
+    "answer_latex":"\\texttt{if x >= 0:}",
+    "explanation_latex":"Syntaxe de base."
+  },
+  { "id":"P-ALGO-39", "domain":"algo_logique", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"La contraposée de “Si $P$ alors $Q$” est :",
+    "choices":[
+      {"k":"A","latex":"Si $Q$ alors $P$"},
+      {"k":"B","latex":"Si non $Q$ alors non $P$","correct":true},
+      {"k":"C","latex":"$P$ et $Q$"},
+      {"k":"D","latex":"$P$ ou $Q$"}
+    ],
+    "explanation_latex":"Équivalence logique importante pour la démonstration."
+  },
+  { "id":"P-ALGO-40", "domain":"algo_logique", "type":"mcq", "difficulty":"B", "weight":2,
+    "prompt_latex":"En Python, la somme des éléments d’une liste \\texttt{L} se calcule par :",
+    "choices":[
+      {"k":"A","latex":"\\texttt{sum(L)}","correct":true},
+      {"k":"B","latex":"\\texttt{add(L)}"},
+      {"k":"C","latex":"\\texttt{L.sum()}"},
+      {"k":"D","latex":"\\texttt{reduce(L)}"}
+    ],
+    "explanation_latex":"Fonction native."
+  },
+
+  { "id":"P-MINI-41", "domain":"analyse", "type":"short", "difficulty":"C", "weight":3,
+    "prompt_latex":"Étudier les variations de $f(x)=x^3-3x$ sur $\\mathbb{R}$ (dérivée, tableau).",
+    "answer_latex":"f'(x)=3(x^2-1)=3(x-1)(x+1);\\; décroît sur (-\\infty,-1), croît sur (-1,1), décroît sur (1,\\infty).",
+    "explanation_latex":"Signe de $f'$ par intervalles."
+  },
+  { "id":"P-MINI-42", "domain":"suites", "type":"short", "difficulty":"C", "weight":3,
+    "prompt_latex":"Suite $u_{n+1}=\\dfrac{u_n+2}{2}$, $u_0=0$. Calculer $u_1, u_2$ et conjecturer la limite.",
+    "answer_latex":"u_1=1,\\; u_2=\\tfrac{3}{2};\\; limite conjecturée : 2.",
+    "explanation_latex":"Point fixe $L=\\tfrac{L+2}{2}\\Rightarrow L=2$."
+  },
+  { "id":"P-MINI-43", "domain":"proba_stats", "type":"short", "difficulty":"C", "weight":2,
+    "prompt_latex":"Une série centrée en 12 a son écart-type multiplié par 3 si toutes les données sont multipliées par $k$. Donner $k$.",
+    "answer_latex":"k=3",
+    "explanation_latex":"Écart-type homogène de degré 1."
+  }
+]
+

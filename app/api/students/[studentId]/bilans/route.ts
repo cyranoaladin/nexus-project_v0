@@ -23,7 +23,7 @@ export async function GET(_: Request, { params }: { params: { studentId: string;
   const bilansRaw = await prisma.bilan.findMany({
     where: { studentId: params.studentId },
     orderBy: { createdAt: 'desc' },
-    select: { id: true, createdAt: true, niveau: true, qcmScores: true }
+    select: { id: true, createdAt: true, niveau: true, subject: true, qcmScores: true }
   });
 
   const bilans = bilansRaw.map((b) => {
@@ -34,7 +34,7 @@ export async function GET(_: Request, { params }: { params: { studentId: string;
         percent = Math.round((100 * s.total) / s.totalMax);
       }
     } catch {}
-    return { id: b.id, createdAt: b.createdAt, niveau: (b as any).niveau as string | null, percent };
+    return { id: b.id, createdAt: b.createdAt, niveau: (b as any).niveau as string | null, subject: (b as any).subject as string | null, percent };
   });
 
   return NextResponse.json(bilans);

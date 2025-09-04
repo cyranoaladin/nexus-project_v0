@@ -1,10 +1,10 @@
 "use client";
 
+import BilanWizard from "@/components/bilan/BilanWizard";
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import BilanWizard from "@/components/bilan/BilanWizard";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { useEffect } from "react";
 
 export default function BilanWizardPage() {

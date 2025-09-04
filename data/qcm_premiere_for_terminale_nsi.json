@@ -1,63 +1,767 @@
-{
-  "meta": {
-    "title": "Bilan d'entrée Terminale — NSI",
-    "niveau": "Terminale",
-    "base": "Prérequis Première NSI",
-    "totalQuestions": 40,
-    "domainsOrder": [
-      "TypesBase","TypesConstruits","Algo","LangagePython","TablesDonnees","IHMWeb","Reseaux","ArchOS","HistoireEthique"
-    ]
+[
+  
+  {
+    "id": "NSI1-DON-Q1",
+    "domain": "donnees",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "En base 2, la valeur binaire 101101 vaut (en base 10) :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "45",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "43"
+      },
+      {
+        "k": "C",
+        "latex": "41"
+      },
+      {
+        "k": "D",
+        "latex": "47"
+      }
+    ],
+    "explanation_latex": "1*32+0*16+1*8+1*4+0*2+1*1=45."
   },
-  "questions": [
-    {"id":"Q1","domain":"TypesBase","weight":2,"critical":true,"type":"single","statement":"Combien de valeurs différentes peut représenter un octet ?","options":["128","255","256","512"],"answer":2},
-    {"id":"Q2","domain":"TypesBase","weight":2,"critical":false,"type":"single","statement":"Écrire (101101)_2 en base 10.","options":["45","46","53","54"],"answer":0},
-    {"id":"Q3","domain":"TypesBase","weight":2,"critical":true,"type":"single","statement":"La valeur booléenne de l’expression Python: (True and not False) or False est :","options":["True","False","Erreur","None"],"answer":0},
-    {"id":"Q4","domain":"TypesBase","weight":2,"critical":false,"type":"single","statement":"0.1 + 0.2 == 0.3 en Python vaut généralement False car :","options":["arrondi des entiers","représentation flottante binaire","bug de l’interpréteur","priorité des opérateurs"],"answer":1},
-
-    {"id":"Q5","domain":"TypesConstruits","weight":2,"critical":true,"type":"single","statement":"Quelle structure permet un accès par clé en Python ?","options":["liste","tuple","dictionnaire","ensemble ordonné"],"answer":2},
-    {"id":"Q6","domain":"TypesConstruits","weight":2,"critical":false,"type":"single","statement":"Soit t=(3,4). Que fait l’instruction t[0]=5 ?","options":["t devient (5,4)","IndexError","TypeError","Aucun effet"],"answer":2},
-    {"id":"Q7","domain":"TypesConstruits","weight":2,"critical":false,"type":"single","statement":"Quelle compréhension de liste produit [0,1,4,9]?","options":["[i*i for i in range(4)]","[i^2 for i in 4]","comprehension(i*i,0..4)","map(square,4)"],"answer":0},
-    {"id":"Q8","domain":"TypesConstruits","weight":3,"critical":true,"type":"single","statement":"Que renvoie d.get('cle', 0) si 'cle' n’existe pas ?","options":["None","0","Erreur","'cle'"],"answer":1},
-
-    {"id":"Q9","domain":"Algo","weight":3,"critical":true,"type":"single","statement":"La complexité moyenne de la recherche dichotomique dans un tableau trié est :","options":["O(n)","O(log n)","O(n log n)","O(1)"],"answer":1},
-    {"id":"Q10","domain":"Algo","weight":2,"critical":false,"type":"single","statement":"Que fait `return` dans une fonction ?","options":["affiche une valeur","termine la fonction et renvoie une valeur","met en pause la fonction","déclare une variable globale"],"answer":1},
-    {"id":"Q11","domain":"Algo","weight":2,"critical":false,"type":"single","statement":"Dans une boucle `for i in range(3):`, les valeurs prises par i sont :","options":["0,1","1,2,3","0,1,2","1,2"],"answer":2},
-    {"id":"Q12","domain":"Algo","weight":2,"critical":false,"type":"single","statement":"Quel algorithme trie en O(n^2) dans le pire cas ?","options":["Tri fusion","Tri rapide (pire cas)","Tri par insertion","Tri comptage"],"answer":2},
-
-    {"id":"Q13","domain":"LangagePython","weight":2,"critical":true,"type":"single","statement":"Quelle est la bonne signature ?","options":["def f(x,y):","func f(x,y)","define f(x,y)","def f: (x,y)"],"answer":0},
-    {"id":"Q14","domain":"LangagePython","weight":2,"critical":false,"type":"single","statement":"`assert x>0` sert principalement à :","options":["mesurer le temps","documenter le code","vérifier une condition durant l’exécution","formater l’affichage"],"answer":2},
-    {"id":"Q15","domain":"LangagePython","weight":2,"critical":false,"type":"single","statement":"`try/except` permet :","options":["d’optimiser le code","de gérer les exceptions","de définir des tests unitaires","de créer un itérateur"],"answer":1},
-    {"id":"Q16","domain":"LangagePython","weight":3,"critical":true,"type":"single","statement":"`if a is b` en Python teste :","options":["l’égalité de valeur","l’identité (même objet)","la comparaison lexicale","le type"],"answer":1},
-
-    {"id":"Q17","domain":"TablesDonnees","weight":2,"critical":false,"type":"single","statement":"Quel séparateur est le plus courant dans un CSV européen ?","options":[";",",","\t","|"],"answer":0},
-    {"id":"Q18","domain":"TablesDonnees","weight":2,"critical":false,"type":"single","statement":"Filtrer une table en Python se fait typiquement avec :","options":["map","filter","reduce","compile"],"answer":1},
-    {"id":"Q19","domain":"TablesDonnees","weight":2,"critical":false,"type":"single","statement":"Trier une liste de p‑uplets par clé 'age' :","options":["sorted(L, key='age')","sorted(L, key=lambda x: x['age'])","L.sortby('age')","tri(L,'age')"],"answer":1},
-    {"id":"Q20","domain":"TablesDonnees","weight":3,"critical":true,"type":"single","statement":"Fusionner deux tables sur l’identifiant commun revient à :","options":["concaténer les colonnes sans condition","faire une jointure sur la clé","mélanger aléatoirement","supprimer les doublons"],"answer":1},
-
-    {"id":"Q21","domain":"IHMWeb","weight":2,"critical":false,"type":"single","statement":"Dans une page Web, HTML décrit…","options":["le style","la structure/contenu","la logique serveur","les requêtes SQL"],"answer":1},
-    {"id":"Q22","domain":"IHMWeb","weight":2,"critical":false,"type":"single","statement":"Une requête GET est plutôt utilisée pour :","options":["envoyer un mot de passe","récupérer une ressource","uploader un fichier volumineux","ouvrir une connexion TCP"],"answer":1},
-    {"id":"Q23","domain":"IHMWeb","weight":3,"critical":true,"type":"single","statement":"Côté client vs serveur :","options":["HTML/CSS/JS côté serveur uniquement","JS s’exécute côté client (navigateur)","Python s’exécute toujours côté client","SQL s’exécute dans le navigateur"],"answer":1},
-    {"id":"Q24","domain":"IHMWeb","weight":2,"critical":false,"type":"single","statement":"But principal des cookies :","options":["stocker des mots de passe en clair","persister des informations de session","accélérer le CPU","bloquer le protocole HTTP"],"answer":1},
-
-    {"id":"Q25","domain":"Reseaux","weight":2,"critical":true,"type":"single","statement":"Le protocole qui associe un nom de domaine à une adresse IP est :","options":["HTTP","DNS","TCP","ARP"],"answer":1},
-    {"id":"Q26","domain":"Reseaux","weight":2,"critical":false,"type":"single","statement":"Quel couple est juste ?","options":["TCP/fiabilité — IP/chiffrement","TCP/fiabilité — IP/acheminement","HTTP/chiffrement — TCP/routage","DNS/chiffrement — HTTP/acheminement"],"answer":1},
-    {"id":"Q27","domain":"Reseaux","weight":2,"critical":false,"type":"single","statement":"Dans une URL, `https://` indique :","options":["protocole HTTP sans chiffrement","protocole HTTP sur TLS (chiffré)","protocole FTP","adresse IP privée"],"answer":1},
-    {"id":"Q28","domain":"Reseaux","weight":3,"critical":true,"type":"single","statement":"Une requête HTTP contient typiquement :","options":["uniquement le corps","méthode + chemin + en‑têtes","les tables SQL","du code Python exécutable"],"answer":1},
-
-    {"id":"Q29","domain":"ArchOS","weight":2,"critical":false,"type":"single","statement":"Quel composant stocke les programmes et données de façon persistante ?","options":["RAM","CPU","SSD/HDD","GPU"],"answer":2},
-    {"id":"Q30","domain":"ArchOS","weight":2,"critical":false,"type":"single","statement":"Un système d’exploitation gère notamment :","options":["uniquement l’affichage","processeur, mémoire, fichiers, E/S","les pages HTML","les routeurs Internet"],"answer":1},
-    {"id":"Q31","domain":"ArchOS","weight":3,"critical":true,"type":"single","statement":"Sous un OS type Unix, la commande pour lister les fichiers est :","options":["cat","ls","ps","top"],"answer":1},
-    {"id":"Q32","domain":"ArchOS","weight":2,"critical":false,"type":"single","statement":"Sur Linux, `chmod 640 fichier` signifie :","options":["propriétaire rw-, groupe r--, autres ---","propriétaire r--, groupe rw-, autres ---","propriétaire rwx, groupe r-x, autres ---","propriétaire rw-, groupe --- , autres r--"],"answer":0},
-
-    {"id":"Q33","domain":"HistoireEthique","weight":2,"critical":false,"type":"single","statement":"La ‘machine universelle’ (1936) est due à :","options":["Shannon","Turing","Von Neumann","Hopper"],"answer":1},
-    {"id":"Q34","domain":"HistoireEthique","weight":2,"critical":false,"type":"single","statement":"Le RGPD traite principalement :","options":["de la vitesse des réseaux","de la protection des données personnelles","du chiffrement quantique","des licences open‑source"],"answer":1},
-    {"id":"Q35","domain":"HistoireEthique","weight":2,"critical":false,"type":"single","statement":"Un exemple d’usage responsable en ligne est :","options":["partager des mdp","respecter le droit d’auteur/licences","installer des malwares pour tester","désactiver les mises à jour"],"answer":1},
-    {"id":"Q36","domain":"HistoireEthique","weight":2,"critical":false,"type":"single","statement":"Repère historique : premiers ordinateurs opérationnels ~","options":["1910","1948","1969","1984"],"answer":1},
-
-    {"id":"Q37","domain":"Algo","weight":3,"critical":true,"type":"single","statement":"Quel invariant de boucle est pertinent pour un tri par insertion ?","options":["préfixe gauche toujours trié","suffixe droit trié","liste entière triée à chaque itération","aucun"],"answer":0},
-    {"id":"Q38","domain":"LangagePython","weight":3,"critical":true,"type":"single","statement":"Quel test unitaire minimal ?","options":["print(f(2))","assert f(2)==4","timeit(f)","help(f)"],"answer":1},
-    {"id":"Q39","domain":"TablesDonnees","weight":2,"critical":false,"type":"single","statement":"Charger un CSV en Python sans bibliothèque externe se fait avec :","options":["os","csv","json","re"],"answer":1},
-    {"id":"Q40","domain":"Reseaux","weight":3,"critical":true,"type":"single","statement":"Le modèle client‑serveur sur le Web implique :","options":["le client exécute SQL sur la base distante","le serveur répond à des requêtes HTTP du client","le client envoie du code Python au serveur pour exécution directe","aucune communication établie"],"answer":1}
-  ]
-}
-
+  {
+    "id": "NSI1-DON-Q2",
+    "domain": "donnees",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "En binaire signé (complément à 2 sur 8 bits), l’intervalle représentable est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "[-255, +255]"
+      },
+      {
+        "k": "B",
+        "latex": "[-128, +127]",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "[0, 255]"
+      },
+      {
+        "k": "D",
+        "latex": "[-127, +128]"
+      }
+    ],
+    "explanation_latex": "Sur n bits : [-2^{n-1},2^{n-1}-1]."
+  },
+  {
+    "id": "NSI1-DON-Q3",
+    "domain": "donnees",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Pourquoi $0.1 + 0.2 \\neq 0.3$ en flottant binaire ?",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Bug du langage"
+      },
+      {
+        "k": "B",
+        "latex": "Arrondi et représentation binaire finie",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Addition non associative"
+      },
+      {
+        "k": "D",
+        "latex": "Division par 0 implicite"
+      }
+    ],
+    "explanation_latex": "Certaines décimales n'ont pas de représentation binaire finie."
+  },
+  {
+    "id": "NSI1-DON-Q4",
+    "domain": "donnees",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Quel encodage permet d’unifier la plupart des écritures ?",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "ASCII"
+      },
+      {
+        "k": "B",
+        "latex": "ISO-8859-1"
+      },
+      {
+        "k": "C",
+        "latex": "Unicode/UTF-8",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "EBCDIC"
+      }
+    ],
+    "explanation_latex": "UTF-8 est l'encodage Unicode le plus courant."
+  },
+  {
+    "id": "NSI1-DON-Q5",
+    "domain": "donnees",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Dans Python, un dictionnaire est approprié pour :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Conserver l’ordre strict d’insertion (seulement)"
+      },
+      {
+        "k": "B",
+        "latex": "Associer des clés à des valeurs",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Parcourir en O(1) toutes les valeurs"
+      },
+      {
+        "k": "D",
+        "latex": "Calculs vectoriels rapides"
+      }
+    ],
+    "explanation_latex": "Map clé\\rightarrow valeur ; recherche moyenne O(1)."
+  },
+  {
+    "id": "NSI1-DON-Q6",
+    "domain": "donnees",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "En Python, écrire une compréhension de liste créant la liste [0,2,4,6] :",
+    "answer_latex": "[2*i for i in range(4)]",
+    "explanation_latex": "Compréhension simple sur range(4)."
+  },
+  {
+    "id": "NSI1-TABLE-Q7",
+    "domain": "tables",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Une « table » de données au sens NSI Première est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Une base relationnelle SQL complète"
+      },
+      {
+        "k": "B",
+        "latex": "Un tableau de p-uplets nommés (ou dicts)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Un graphe orienté"
+      },
+      {
+        "k": "D",
+        "latex": "Un fichier binaire compressé"
+      }
+    ],
+    "explanation_latex": "Tables = listes de p-uplets nommés pour préparer la BD en Terminale."
+  },
+  {
+    "id": "NSI1-TABLE-Q8",
+    "domain": "tables",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Pour filtrer les lignes d’une table selon un prédicat logique, on utilise :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Une expression booléenne sur chaque ligne",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "Un tri aléatoire"
+      },
+      {
+        "k": "C",
+        "latex": "Un chiffrement préalable"
+      },
+      {
+        "k": "D",
+        "latex": "Une compilation en C"
+      }
+    ],
+    "explanation_latex": "Filtrage = sélection par expression (WHERE-like)."
+  },
+  {
+    "id": "NSI1-TABLE-Q9",
+    "domain": "tables",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Écrire en Python le filtrage des personnes majeures (age\\ge 18) dans une liste de dicts 'rows' :",
+    "answer_latex": "[r for r in rows if r['age']>=18]",
+    "explanation_latex": "Sélection par compréhension de liste."
+  },
+  {
+    "id": "NSI1-ALGO-Q10",
+    "domain": "algorithmique",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Le coût d’une recherche séquentielle dans un tableau non trié (pire cas) est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "O(1)"
+      },
+      {
+        "k": "B",
+        "latex": "O(n)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "O(\\log n)"
+      },
+      {
+        "k": "D",
+        "latex": "O(n\\log n)"
+      }
+    ],
+    "explanation_latex": "Parcours complet dans le pire cas."
+  },
+  {
+    "id": "NSI1-ALGO-Q11",
+    "domain": "algorithmique",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "La recherche dichotomique nécessite :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Un tableau non trié"
+      },
+      {
+        "k": "B",
+        "latex": "Un tableau trié",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Des clés uniques (obligatoire)"
+      },
+      {
+        "k": "D",
+        "latex": "Des indices négatifs"
+      }
+    ],
+    "explanation_latex": "Précondition : données triées."
+  },
+  {
+    "id": "NSI1-ALGO-Q12",
+    "domain": "algorithmique",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Le tri par insertion a un coût en pire cas :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "O(n)"
+      },
+      {
+        "k": "B",
+        "latex": "O(\\log n)"
+      },
+      {
+        "k": "C",
+        "latex": "O(n^2)",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "O(n\\log n)"
+      }
+    ],
+    "explanation_latex": "Insertion/selection quadratiques en pire cas."
+  },
+  {
+    "id": "NSI1-ALGO-Q13",
+    "domain": "algorithmique",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Donner un invariant de boucle possible pour un tri par insertion.",
+    "answer_latex": "Après i itérations, le sous-tableau [0..i) est trié.",
+    "explanation_latex": "Invariant classique du tri par insertion."
+  },
+  {
+    "id": "NSI1-ALGO-Q14",
+    "domain": "algorithmique",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Dans l’algorithme k plus proches voisins (k-NN), la prédiction est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "La moyenne des classes"
+      },
+      {
+        "k": "B",
+        "latex": "La classe majoritaire parmi les k voisins",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "La classe du voisin le plus éloigné"
+      },
+      {
+        "k": "D",
+        "latex": "La classe la plus rare"
+      }
+    ],
+    "explanation_latex": "Vote majoritaire sur les k plus proches voisins."
+  },
+  {
+    "id": "NSI1-PROG-Q15",
+    "domain": "programmation",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Une « spécification » de fonction sert à :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Minifier le code"
+      },
+      {
+        "k": "B",
+        "latex": "Décrire préconditions/postconditions",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Optimiser le binaire"
+      },
+      {
+        "k": "D",
+        "latex": "Générer l’interface HTML"
+      }
+    ],
+    "explanation_latex": "Contrat : arguments attendus, résultats, effets."
+  },
+  {
+    "id": "NSI1-PROG-Q16",
+    "domain": "programmation",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Écrire une assertion Python garantissant que n est strictement positif.",
+    "answer_latex": "assert n>0",
+    "explanation_latex": "Assertion = garde d’exécution."
+  },
+  {
+    "id": "NSI1-PROG-Q17",
+    "domain": "programmation",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Dans un module Python, __name__ vaut '__main__' lorsque :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Le module est importé"
+      },
+      {
+        "k": "B",
+        "latex": "Le module est exécuté directement",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "La version de Python > 3.10"
+      },
+      {
+        "k": "D",
+        "latex": "Le module contient une classe Main"
+      }
+    ],
+    "explanation_latex": "Point d’entrée script."
+  },
+  {
+    "id": "NSI1-PROG-Q18",
+    "domain": "programmation",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Écrire un test unitaire (pytest) vérifiant que f(3)==7.",
+    "answer_latex": "def test_f():\n    assert f(3)==7",
+    "explanation_latex": "Test minimal sous pytest."
+  },
+  {
+    "id": "NSI1-WEB-Q19",
+    "domain": "web_ihm",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Dans une IHM Web, un « événement » typique est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "compilation"
+      },
+      {
+        "k": "B",
+        "latex": "clic",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "sérialisation mémoire"
+      },
+      {
+        "k": "D",
+        "latex": "pagination disque"
+      }
+    ],
+    "explanation_latex": "Clic, input, submit, etc."
+  },
+  {
+    "id": "NSI1-WEB-Q20",
+    "domain": "web_ihm",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Différence principale entre GET et POST :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "GET chiffre toujours en HTTPS, POST non"
+      },
+      {
+        "k": "B",
+        "latex": "GET met les paramètres dans l’URL ; POST dans le corps",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "GET modifie la BD ; POST jamais"
+      },
+      {
+        "k": "D",
+        "latex": "Aucune"
+      }
+    ],
+    "explanation_latex": "GET=paramètres URL ; POST=corps."
+  },
+  {
+    "id": "NSI1-WEB-Q21",
+    "domain": "web_ihm",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Dans un dialogue client/serveur, on distingue :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Ce qui s’exécute côté client vs côté serveur",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "Seulement des traitements côté serveur"
+      },
+      {
+        "k": "C",
+        "latex": "Seulement des traitements côté client"
+      },
+      {
+        "k": "D",
+        "latex": "Aucun état de session possible"
+      }
+    ],
+    "explanation_latex": "Répartition des rôles et des états."
+  },
+  {
+    "id": "NSI1-ARCH-Q22",
+    "domain": "arch_os_reseaux",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Le modèle de Von Neumann décrit :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Un réseau pair-à-pair"
+      },
+      {
+        "k": "B",
+        "latex": "Une architecture avec mémoire, UC et unité de contrôle",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Un protocole mail"
+      },
+      {
+        "k": "D",
+        "latex": "Un modèle d’IHM"
+      }
+    ],
+    "explanation_latex": "Séparation UC/mémoire/E/S."
+  },
+  {
+    "id": "NSI1-ARCH-Q23",
+    "domain": "arch_os_reseaux",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Le système d’exploitation gère notamment :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Le routage intercontinental"
+      },
+      {
+        "k": "B",
+        "latex": "La création/ordonnancement de processus",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Le chiffrement SSL seul"
+      },
+      {
+        "k": "D",
+        "latex": "Le partitionnement RAID matériel"
+      }
+    ],
+    "explanation_latex": "Gestion processus/ressources, E/S, etc."
+  },
+  {
+    "id": "NSI1-ARCH-Q24",
+    "domain": "arch_os_reseaux",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Sur un réseau, encapsulation en paquets signifie :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Compression zip"
+      },
+      {
+        "k": "B",
+        "latex": "Découpage des données avec en-têtes de protocole",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Chiffrement systématique"
+      },
+      {
+        "k": "D",
+        "latex": "Aucun contrôle d’erreur"
+      }
+    ],
+    "explanation_latex": "Trames/paquets/segments avec métadonnées."
+  },
+  {
+    "id": "NSI1-ARCH-Q25",
+    "domain": "arch_os_reseaux",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Le « bit alterné » sert à :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Accélérer la 3D"
+      },
+      {
+        "k": "B",
+        "latex": "Récupérer des pertes de paquets (ARQ simple)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Coder en UTF-32"
+      },
+      {
+        "k": "D",
+        "latex": "Allouer la mémoire"
+      }
+    ],
+    "explanation_latex": "Protocole simple d’acquittement/relance."
+  },
+  {
+    "id": "NSI1-PROG-Q26",
+    "domain": "programmation",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Écrire une fonction Python récursive fact(n) qui renvoie n! (n≥0) ; base 0!=1.",
+    "answer_latex": "def fact(n):\n    return 1 if n==0 else n*fact(n-1)",
+    "explanation_latex": "Définition récursive classique ; à ne pas utiliser pour n trop grand en pratique."
+  },
+  {
+    "id": "NSI1-PROG-Q27",
+    "domain": "programmation",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Dans un projet Python, la « modularité » vise notamment :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "À coller tout dans un seul fichier"
+      },
+      {
+        "k": "B",
+        "latex": "À séparer en modules réutilisables testables",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "À supprimer les tests"
+      },
+      {
+        "k": "D",
+        "latex": "À remplacer la documentation"
+      }
+    ],
+    "explanation_latex": "Séparation des responsabilités, réutilisation, testabilité."
+  },
+  {
+    "id": "NSI1-ALGO-Q28",
+    "domain": "algorithmique",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "La terminaison d’une boucle non bornée est usuellement prouvée par :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Un invariant"
+      },
+      {
+        "k": "B",
+        "latex": "Un variant décroissant borné",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Un commentaire TODO"
+      },
+      {
+        "k": "D",
+        "latex": "Un print dans la boucle"
+      }
+    ],
+    "explanation_latex": "Variant >0 qui décroît garantit la terminaison."
+  },
+  {
+    "id": "NSI1-WEB-Q29",
+    "domain": "web_ihm",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Citer 2 exemples d’événements DOM courants.",
+    "answer_latex": "click, input (ou submit, change, keydown, etc.)",
+    "explanation_latex": "Événements standards IHM."
+  },
+  {
+    "id": "NSI1-DON-Q30",
+    "domain": "donnees",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Écrire en Python la création d’un p-uplet (tuple) nommés avec name='Ada', year=1843 (via dict).",
+    "answer_latex": "{'name':'Ada','year':1843}",
+    "explanation_latex": "Un enregistrement peut être modélisé par un dict clé/valeur."
+  },
+  {
+    "id": "NSI1-TABLE-Q31",
+    "domain": "tables",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Fusionner deux tables (liste de dicts) selon une clé commune revient à :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Concaténer les chaînes"
+      },
+      {
+        "k": "B",
+        "latex": "Réaliser un appariement par clé (join)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "Tronquer les colonnes"
+      },
+      {
+        "k": "D",
+        "latex": "Compresser en gzip"
+      }
+    ],
+    "explanation_latex": "Join par clé ; préfigure JOIN SQL vu en Terminale."
+  },
+  {
+    "id": "NSI1-PROG-Q32",
+    "domain": "programmation",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Écrire une signature (docstring) simple pour une fonction somme(a,b) décrivant arguments et retour.",
+    "answer_latex": "def somme(a,b):\n    \"\"\"Retourne a+b ; a,b nombres (int/float).\"\"\"\n    return a+b",
+    "explanation_latex": "Spécification/le contrat dans la docstring."
+  },
+  {
+    "id": "NSI1-MINI-Q33",
+    "domain": "mini_ex",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "(Mini) Sur une table de films (dicts : titre, annee, duree), écrire un code Python qui : (a) filtre annee>=2000 ; (b) trie par duree décroissante ; (c) renvoie les titres.",
+    "answer_latex": "f=[r for r in films if r['annee']>=2000]\nres=[r['titre'] for r in sorted(f,key=lambda x:x['duree'],reverse=True)]",
+    "explanation_latex": "Filtrage, tri, projection."
+  },
+  {
+    "id": "NSI1-MINI-Q34",
+    "domain": "mini_ex",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "(Mini) Écrire une recherche dichotomique en Python qui renvoie l’indice d’une valeur v dans un tableau trié t (ou -1).",
+    "answer_latex": "def binsearch(t,v):\n    l,r=0,len(t)-1\n    while l<=r:\n        m=(l+r)//2\n        if t[m]==v: return m\n        if t[m]<v: l=m+1\n        else: r=m-1\n    return -1",
+    "explanation_latex": "Précondition : t trié ; boucle avec variant."
+  },
+  {
+    "id": "NSI1-MINI-Q35",
+    "domain": "mini_ex",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "(Mini) Écrire un test pytest pour la fonction précédente et un cas bord (valeur absente).",
+    "answer_latex": "def test_binsearch():\n    t=[1,3,5,7]\n    assert binsearch(t,5)==2\n    assert binsearch(t,2)==-1",
+    "explanation_latex": "Cas présent/absent."
+  }
+]

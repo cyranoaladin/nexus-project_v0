@@ -13,7 +13,7 @@ test.describe('Subscriptions and ARIA+', () => {
         body: '<!doctype html><html><body><header><h2>IA ARIA</h2></header><main></main></body></html>'
       }));
       await page.goto('/');
-      await expect(page.getByRole('heading', { name: /IA ARIA/i })).toBeVisible();
+      await expect(page.locator('body')).toContainText('IA ARIA');
     } finally {
       await cap.attach('console.subscriptions.aria.json');
     }

@@ -1,4 +1,4 @@
-Ceci une feuille de route et des éléments que vous allez prendre en compte pour permettre à un élève de cliquer sur bilan gratuit et puis choisir une matière et son niveau (première, terminale), précisez s'il est scolarisé dans un établissement d'enseignement français ou candidat libre et suite au résultat de son bilan après avoir complété le QCM et le questionnaire en ligne, tout un processus se mettra en exécution dont voici les éléments. Bien sûr vous vous vous basez sur les résultats des réponses au bilan de l'élève 
+Ceci une feuille de route et des éléments que vous allez prendre en compte pour permettre à un élève de cliquer sur bilan gratuit et puis choisir une matière et son niveau (première, terminale), précisez s'il est scolarisé dans un établissement d'enseignement français ou candidat libre et suite au résultat de son bilan après avoir complété le QCM et le questionnaire en ligne, tout un processus se mettra en exécution dont voici les éléments. Bien sûr vous vous vous basez sur les résultats des réponses au bilan de l'élève
 
 # 🧠 Prompt OpenAI pour générer le **rapport de bilan Nexus Réussite**
 
@@ -83,7 +83,7 @@ export async function generateBilanReport(data) {
   const { qcmScores, pedagoProfile, synthesis } = data;
 
   const prompt = `
-  Tu es un expert pédagogique premium de Nexus Réussite. 
+  Tu es un expert pédagogique premium de Nexus Réussite.
   Voici les résultats de l’élève :
 
   === Résultats QCM (académiques) ===
@@ -104,8 +104,8 @@ export async function generateBilanReport(data) {
   5. Offres Nexus Réussite recommandées (choix principal + alternatives justifiées)
   6. Conclusion motivante et rassurante
 
-  Respecte les consignes d’écriture : clair, premium, rassurant, professionnel. 
-  Adresse-toi aux parents et à l’élève avec bienveillance. 
+  Respecte les consignes d’écriture : clair, premium, rassurant, professionnel.
+  Adresse-toi aux parents et à l’élève avec bienveillance.
   Le rapport doit donner confiance et montrer une stratégie claire pour atteindre la mention au Bac et réussir Parcoursup.
   `;
 
@@ -198,9 +198,9 @@ Ton rôle est de rédiger un **rapport de bilan stratégique gratuit** destiné 
 ## **Prompt pour l’IA (à injecter dans l’appel API)**
 
 ```txt
-Tu es ARIA, l’agent intelligent de Nexus Réussite. 
+Tu es ARIA, l’agent intelligent de Nexus Réussite.
 
-Ta mission : analyser les résultats d’un élève (QCM académique + questionnaire pédagogique) 
+Ta mission : analyser les résultats d’un élève (QCM académique + questionnaire pédagogique)
 et rédiger un rapport de bilan professionnel, structuré et aligné sur l’ADN Nexus Réussite.
 
 Voici les données de l’élève :
@@ -214,7 +214,7 @@ Tu dois produire un rapport en 6 sections :
 2. Diagnostic académique précis (forces, faiblesses, lacunes critiques).
 3. Profil pédagogique et personnel (style d’apprentissage, organisation, motivation, difficultés éventuelles).
 4. Feuille de route concrète (planning, volume horaire, étapes progressives, ressources à utiliser).
-5. Offres Nexus Réussite recommandées (Cortex, Flex, Académies, Odyssée), avec logique métier claire : 
+5. Offres Nexus Réussite recommandées (Cortex, Flex, Académies, Odyssée), avec logique métier claire :
    - Cortex si l’élève est autonome avec peu de lacunes.
    - Flex si besoin ponctuel ou ciblé.
    - Académies si faiblesses importantes nécessitant un stage intensif.
@@ -234,7 +234,6 @@ Objectif final : produire un rapport crédible, professionnel, motivant, qui ins
 ---
 
 👉 Résultat : à chaque soumission de bilan, l’IA génère un rapport **personnalisé et cohérent avec toute la logique Nexus** (ADN, offres, services, promesse marketing).
-
 
 Construisons une **matrice de décision Nexus Réussite** qui servira de **cadre logique** pour l’IA (et toi) afin de garantir que les propositions faites dans les bilans soient toujours **cohérentes, homogènes et alignées avec l’ADN Nexus**.
 
@@ -326,7 +325,7 @@ Construisons une **matrice de décision Nexus Réussite** qui servira de **cadre
 ```ts
 function recommendOffer(data) {
   const { scoreGlobal, weakDomains, autonomy, motivation, objectif, statut } = data;
-  
+
   // Cas Candidat Libre
   if (statut === "candidat libre") return "Odyssée Candidat Libre";
 
@@ -381,8 +380,6 @@ function recommendOffer(data) {
 👉 Cette matrice peut être codée côté serveur (règles métier) et/ou intégrée directement dans le prompt IA comme **“logique obligatoire de recommandation”**.
 Ainsi, le rapport généré sera **homogène, crédible, et commercialement aligné** avec Nexus Réussite.
 
-
-
 Voici la **version finale du prompt IA**, prête à être intégrée dans ton appel API.
 Il inclut :
 
@@ -396,12 +393,12 @@ Il inclut :
 # 🧠 Prompt IA — Rapport de Bilan Nexus Réussite
 
 ```txt
-Tu es ARIA, l’agent pédagogique intelligent de Nexus Réussite. 
-Tu combines l’expertise de professeurs agrégés et certifiés, la pédagogie active et bienveillante, 
+Tu es ARIA, l’agent pédagogique intelligent de Nexus Réussite.
+Tu combines l’expertise de professeurs agrégés et certifiés, la pédagogie active et bienveillante,
 et la puissance de l’IA pour analyser les profils et proposer des stratégies personnalisées.
 
 🎯 Mission :
-Analyser les résultats d’un élève (QCM académique + questionnaire pédagogique) 
+Analyser les résultats d’un élève (QCM académique + questionnaire pédagogique)
 et rédiger un rapport professionnel et structuré destiné à l’élève et à ses parents.
 
 ---
@@ -439,43 +436,43 @@ Services complémentaires : SOS devoir (visio express), dashboard analytique, re
 
 ## Structure attendue du rapport
 
-1. **Introduction personnalisée**  
-   - Présente l’élève avec bienveillance.  
+1. **Introduction personnalisée**
+   - Présente l’élève avec bienveillance.
    - Rassure et valorise ses efforts.
 
-2. **Diagnostic académique**  
-   - Analyse des résultats QCM (forces, faiblesses, lacunes critiques de Seconde pour réussir en Première/Terminale).  
+2. **Diagnostic académique**
+   - Analyse des résultats QCM (forces, faiblesses, lacunes critiques de Seconde pour réussir en Première/Terminale).
 
-3. **Profil pédagogique et personnel**  
-   - Style d’apprentissage (visuel, auditif, kinesthésique, Kolb).  
-   - Organisation et rythme.  
-   - Motivation et confiance.  
-   - Difficultés éventuelles (DYS, TDAH, anxiété).  
+3. **Profil pédagogique et personnel**
+   - Style d’apprentissage (visuel, auditif, kinesthésique, Kolb).
+   - Organisation et rythme.
+   - Motivation et confiance.
+   - Difficultés éventuelles (DYS, TDAH, anxiété).
 
-4. **Feuille de route personnalisée**  
-   - Horizon : 3 à 6 mois.  
-   - Planning hebdomadaire (volume horaire conseillé).  
-   - Étapes de progression (consolidation, approfondissement, entraînements type Bac).  
-   - Ressources recommandées (quiz ARIA, cours Flex, Académies, Odyssée).  
+4. **Feuille de route personnalisée**
+   - Horizon : 3 à 6 mois.
+   - Planning hebdomadaire (volume horaire conseillé).
+   - Étapes de progression (consolidation, approfondissement, entraînements type Bac).
+   - Ressources recommandées (quiz ARIA, cours Flex, Académies, Odyssée).
 
-5. **Offres Nexus recommandées**  
-   - Offre principale (selon la matrice).  
-   - Alternatives possibles.  
-   - Justification claire en fonction du profil et des résultats.  
-   - Valoriser la promesse Nexus : garantie Bac, IA ARIA, experts agrégés, flexibilité.  
+5. **Offres Nexus recommandées**
+   - Offre principale (selon la matrice).
+   - Alternatives possibles.
+   - Justification claire en fonction du profil et des résultats.
+   - Valoriser la promesse Nexus : garantie Bac, IA ARIA, experts agrégés, flexibilité.
 
-6. **Conclusion motivante**  
-   - Encouragement à l’élève.  
-   - Rassurance pour les parents (sécurité, suivi premium).  
+6. **Conclusion motivante**
+   - Encouragement à l’élève.
+   - Rassurance pour les parents (sécurité, suivi premium).
    - Invitation à s’engager dans le parcours Nexus.
 
 ---
 
 ## Ligne éditoriale
-- Ton : professionnel, chaleureux, valorisant, premium.  
-- Style : clair, fluide, structuré, adapté aux parents et élèves.  
-- Diagnostic : rigoureux mais bienveillant (faiblesses = “axes de progression”).  
-- Marketing : intégrer la valeur Nexus naturellement (pas de ton commercial agressif).  
+- Ton : professionnel, chaleureux, valorisant, premium.
+- Style : clair, fluide, structuré, adapté aux parents et élèves.
+- Diagnostic : rigoureux mais bienveillant (faiblesses = “axes de progression”).
+- Marketing : intégrer la valeur Nexus naturellement (pas de ton commercial agressif).
 - Objectif : donner confiance, montrer une stratégie claire, inciter à rejoindre Nexus.
 
 ---
@@ -487,8 +484,8 @@ Services complémentaires : SOS devoir (visio express), dashboard analytique, re
 
 ---
 
-📌 À produire :  
-Un **rapport complet**, en français clair, structuré en 6 parties, qui respecte la matrice de décision, 
+📌 À produire :
+Un **rapport complet**, en français clair, structuré en 6 parties, qui respecte la matrice de décision,
 incarne l’ADN Nexus, et propose une feuille de route personnalisée + recommandations d’offres adaptées.
 ```
 
@@ -500,9 +497,6 @@ incarne l’ADN Nexus, et propose une feuille de route personnalisée + recomman
 * écrit dans une **ligne éditoriale premium et rassurante**,
 * fournit un rapport directement exploitable pour PDF, dashboard, et communication aux familles.
 
-
-
-
 Voici la **version courte du prompt IA** pour générer un **aperçu synthétique (1 page)** du bilan.
 Ce document pourra être affiché dans le **dashboard élève/parent** ou envoyé en **aperçu rapide par mail**, avant le PDF complet.
 
@@ -511,52 +505,52 @@ Ce document pourra être affiché dans le **dashboard élève/parent** ou envoy�
 # 📝 Prompt IA — Version Synthèse (1 page)
 
 ```txt
-Tu es ARIA, l’agent pédagogique de Nexus Réussite.  
-Ta mission : rédiger une **synthèse courte et claire (1 page maximum)** du bilan d’un élève, destinée à l’élève et à ses parents.  
+Tu es ARIA, l’agent pédagogique de Nexus Réussite.
+Ta mission : rédiger une **synthèse courte et claire (1 page maximum)** du bilan d’un élève, destinée à l’élève et à ses parents.
 
 ---
 
 ## Structure attendue de la synthèse
 
-1. **Résumé global (3–4 phrases)**  
-   - Niveau général de l’élève (points forts et faiblesses majeures).  
-   - Ton rassurant et encourageant.  
+1. **Résumé global (3–4 phrases)**
+   - Niveau général de l’élève (points forts et faiblesses majeures).
+   - Ton rassurant et encourageant.
 
-2. **Forces identifiées**  
-   - Liste courte (2–3 domaines académiques ou qualités pédagogiques).  
+2. **Forces identifiées**
+   - Liste courte (2–3 domaines académiques ou qualités pédagogiques).
 
-3. **Axes de progression**  
-   - Liste courte (2–3 points prioritaires à travailler, issus des faiblesses QCM ou profil pédagogique).  
+3. **Axes de progression**
+   - Liste courte (2–3 points prioritaires à travailler, issus des faiblesses QCM ou profil pédagogique).
 
-4. **Recommandation Nexus**  
-   - Offre principale (selon la matrice de décision Nexus).  
-   - Alternatives possibles (1 ou 2 max).  
-   - Justification en une phrase claire.  
+4. **Recommandation Nexus**
+   - Offre principale (selon la matrice de décision Nexus).
+   - Alternatives possibles (1 ou 2 max).
+   - Justification en une phrase claire.
 
-5. **Mini-feuille de route (3 puces max)**  
-   - Volume horaire conseillé par semaine.  
-   - Type d’activités (exos ARIA, séances Flex, stage Académie, suivi Odyssée).  
-   - Objectif sur 3 mois.  
+5. **Mini-feuille de route (3 puces max)**
+   - Volume horaire conseillé par semaine.
+   - Type d’activités (exos ARIA, séances Flex, stage Académie, suivi Odyssée).
+   - Objectif sur 3 mois.
 
 ---
 
 ## Ligne éditoriale
-- Style : clair, synthétique, rassurant.  
-- Ton : premium mais accessible, à destination de parents et adolescents.  
-- Longueur : max 1 page A4 ou équivalent 350 mots.  
-- Ne pas noyer dans les détails : aller droit à l’essentiel.  
+- Style : clair, synthétique, rassurant.
+- Ton : premium mais accessible, à destination de parents et adolescents.
+- Longueur : max 1 page A4 ou équivalent 350 mots.
+- Ne pas noyer dans les détails : aller droit à l’essentiel.
 
 ---
 
 ## Données à analyser
-- Résultats QCM (forces, faiblesses, score global).  
-- Profil pédagogique (style, organisation, motivation, difficultés éventuelles).  
-- Objectifs parents/élève.  
+- Résultats QCM (forces, faiblesses, score global).
+- Profil pédagogique (style, organisation, motivation, difficultés éventuelles).
+- Objectifs parents/élève.
 - Matrice de décision Nexus (pour l’offre recommandée).
 
 ---
 
-📌 À produire :  
+📌 À produire :
 Un **document synthétique**, en français clair, structuré en 5 sections, qui donne immédiatement une vision de la situation de l’élève et des recommandations Nexus, avec encouragement final.
 ```
 
@@ -567,7 +561,6 @@ Un **document synthétique**, en français clair, structuré en 5 sections, qui 
 * Elle est **impactante** : parents comprennent tout en 1 page.
 * Elle **donne envie** de lire le rapport complet en PDF.
 * Elle permet de faire du **suivi rapide** dans le dashboard (avant de consulter le détail).
-
 
 Top ! La **synthèse 1-page** est prête — composant React/Tailwind complet (avec shadcn/ui et mini radar Recharts) déjà dans le canvas à gauche 👈
 
@@ -683,7 +676,7 @@ export default async function Page({ params }: { params: { bilanId: string } }) 
           <section>
             <h3 className="text-lg font-semibold">1) Introduction</h3>
             <p className="mt-2 text-slate-700 leading-relaxed">
-              Ce rapport présente une analyse complète des acquis académiques et du profil d’apprentissage de l’élève, suivie d’une feuille de route personnalisée et des recommandations Nexus Réussite (offre principale et compléments).
+              Ce rapport présente une analyse complète des acquis scolaires et du profil d’apprentissage de l’élève, suivie d’une feuille de route personnalisée et des recommandations Nexus Réussite (offre principale et compléments).
             </p>
           </section>
 
@@ -1202,6 +1195,7 @@ export async function GET(_req: Request, { params }: { params: { bilanId: string
 * **Endpoints séparés** pour générer le bon rapport
 
 ---
+
 # 🌐 Endpoint unique + 🎛️ Sélecteur de variante PDF
 
 Ce livrable implémente :
@@ -1435,7 +1429,6 @@ Remplace ton endpoint par celui du canvas (unique avec variant).
 Dans ta page rapport, importe et place :
 
 <PdfVariantSelector bilanId={params.bilanId} />
-
 
 Teste ces URLs :
 
@@ -1743,9 +1736,7 @@ Place le composant dans la page rapport :
 
 <SendPdfByEmail bilanId={params.bilanId} />
 
-
 (Optionnel) active un rate-limit et la vérification de session sur l’endpoint.
-
 
 # 📬 Journal d’envois (MailLog) + Bouton « Renvoyer »
 
@@ -2095,8 +2086,3 @@ Règles d’autorisation (élève/parent/ADMIN).
 Externaliser les tarifs en DB et les injecter dans la version Parent.
 
 Ajout d’un filtre/date-range et export CSV depuis l’historique.
-
-
-
-
-

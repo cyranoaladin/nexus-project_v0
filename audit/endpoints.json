@@ -1,0 +1,1908 @@
+[
+  {
+    "file": "app/api/admin/activities/route.ts",
+    "path": "/api/admin/activities",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/analytics/route.ts",
+    "path": "/api/admin/analytics",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/audit/route.ts",
+    "path": "/api/admin/audit",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/dashboard/route.ts",
+    "path": "/api/admin/dashboard",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/payments/records/route.ts",
+    "path": "/api/admin/payments/records",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/queue/ingest/route.ts",
+    "path": "/api/admin/queue/ingest",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/rag-ingest/route.ts",
+    "path": "/api/admin/rag-ingest",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/admin/rag/documents/route.ts",
+    "path": "/api/admin/rag/documents",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE",
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/rag/ingest/route.ts",
+    "path": "/api/admin/rag/ingest",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/admin/rag/ingestions/route.ts",
+    "path": "/api/admin/rag/ingestions",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE",
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/admin/subscriptions/route.ts",
+    "path": "/api/admin/subscriptions",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/admin/test-email/route.ts",
+    "path": "/api/admin/test-email",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/admin/test-payments/route.ts",
+    "path": "/api/admin/test-payments",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/admin/users/route.ts",
+    "path": "/api/admin/users",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE",
+      "COACH",
+      "PARENT",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/aria/chat/route.ts",
+    "path": "/api/aria/chat",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": true,
+    "input": [
+      "application/json",
+      "query"
+    ],
+    "output": [
+      "text/event-stream",
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/aria/feedback/route.ts",
+    "path": "/api/aria/feedback",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/aria/health/route.ts",
+    "path": "/api/aria/health",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/assistant/coaches/[id]/route.ts",
+    "path": "/api/assistant/coaches/:id",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/assistant/coaches/route.ts",
+    "path": "/api/assistant/coaches",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE",
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/assistant/credit-requests/route.ts",
+    "path": "/api/assistant/credit-requests",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/assistant/dashboard/route.ts",
+    "path": "/api/assistant/dashboard",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/assistant/payments/route.ts",
+    "path": "/api/assistant/payments",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/assistant/students/credits/route.ts",
+    "path": "/api/assistant/students/credits",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/assistant/subscription-requests/route.ts",
+    "path": "/api/assistant/subscription-requests",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/assistant/subscriptions/route.ts",
+    "path": "/api/assistant/subscriptions",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/auth/[...nextauth]/route.ts",
+    "path": "/api/auth/:...nextauth",
+    "methods": [
+      "ANY"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan-gratuit/route.ts",
+    "path": "/api/bilan-gratuit",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/[bilanId]/submit-answers/route.ts",
+    "path": "/api/bilan/:bilanId/submit-answers",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/email/[bilanId]/route.ts",
+    "path": "/api/bilan/email/:bilanId",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/generate-report-text/route.ts",
+    "path": "/api/bilan/generate-report-text",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/bilan/generate-summary-text/route.ts",
+    "path": "/api/bilan/generate-summary-text",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/bilan/generate/route.ts",
+    "path": "/api/bilan/generate",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json",
+      "query"
+    ],
+    "output": [
+      "application/pdf",
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/bilan/pdf/[id]/route.ts",
+    "path": "/api/bilan/pdf/:id",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/pdf/route.ts",
+    "path": "/api/bilan/pdf",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/pdf",
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/bilan/questionnaire-structure/route.ts",
+    "path": "/api/bilan/questionnaire-structure",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/questionnaire/route.ts",
+    "path": "/api/bilan/questionnaire",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/start/route.ts",
+    "path": "/api/bilan/start",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json",
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilan/submit/route.ts",
+    "path": "/api/bilan/submit",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilans/[id]/download/route.ts",
+    "path": "/api/bilans/:id/download",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/pdf"
+    ]
+  },
+  {
+    "file": "app/api/bilans/[id]/status/route.ts",
+    "path": "/api/bilans/:id/status",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/bilans/generate/route.ts",
+    "path": "/api/bilans/generate",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/billing/policy/route.ts",
+    "path": "/api/billing/policy",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/coach/dashboard/route.ts",
+    "path": "/api/coach/dashboard",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/coaches/availability/route.ts",
+    "path": "/api/coaches/availability",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/coaches/available/route.ts",
+    "path": "/api/coaches/available",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/consistency/route.ts",
+    "path": "/api/consistency",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/context/build/route.ts",
+    "path": "/api/context/build",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/packs/[id]/route.ts",
+    "path": "/api/credits/packs/:id",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/packs/route.ts",
+    "path": "/api/credits/packs",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/spend/route.ts",
+    "path": "/api/credits/spend",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/usage/[key]/route.ts",
+    "path": "/api/credits/usage/:key",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/usage/route.ts",
+    "path": "/api/credits/usage",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/credits/wallet/route.ts",
+    "path": "/api/credits/wallet",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/dev/seed-bilan/route.ts",
+    "path": "/api/dev/seed-bilan",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "PARENT",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/fbfail/api/aria/chat/route.ts",
+    "path": "/api/fbfail/api/aria/chat",
+    "methods": [
+      "ANY"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/fbfail/aria/chat/route.ts",
+    "path": "/api/fbfail/aria/chat",
+    "methods": [
+      "ANY"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/health/route.ts",
+    "path": "/api/health",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/legal/[slug]/route.ts",
+    "path": "/api/legal/:slug",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json",
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/legal/route.ts",
+    "path": "/api/legal",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/messages/conversations/route.ts",
+    "path": "/api/messages/conversations",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/messages/send/route.ts",
+    "path": "/api/messages/send",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE",
+      "COACH",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/notifications/route.ts",
+    "path": "/api/notifications",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/offers/bindings/route.ts",
+    "path": "/api/offers/bindings",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/parent/children/route.ts",
+    "path": "/api/parent/children",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/parent/credit-request/route.ts",
+    "path": "/api/parent/credit-request",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/parent/dashboard/route.ts",
+    "path": "/api/parent/dashboard",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/parent/subscription-requests/route.ts",
+    "path": "/api/parent/subscription-requests",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE",
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/parent/subscriptions/route.ts",
+    "path": "/api/parent/subscriptions",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/payments/cash/cancel/route.ts",
+    "path": "/api/payments/cash/cancel",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/cash/confirm/route.ts",
+    "path": "/api/payments/cash/confirm",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/cash/pending/route.ts",
+    "path": "/api/payments/cash/pending",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/cash/reserve/route.ts",
+    "path": "/api/payments/cash/reserve",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/checkout/route.ts",
+    "path": "/api/payments/checkout",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/konnect/intent/route.ts",
+    "path": "/api/payments/konnect/intent",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/konnect/route.ts",
+    "path": "/api/payments/konnect",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/payments/settings/route.ts",
+    "path": "/api/payments/settings",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/validate/route.ts",
+    "path": "/api/payments/validate",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/payments/webhook/route.ts",
+    "path": "/api/payments/webhook",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json",
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/wire/info/route.ts",
+    "path": "/api/payments/wire/info",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/wise/confirm/route.ts",
+    "path": "/api/payments/wise/confirm",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/payments/wise/route.ts",
+    "path": "/api/payments/wise",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/pricing/[id]/route.ts",
+    "path": "/api/pricing/:id",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/pricing/route.ts",
+    "path": "/api/pricing",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/pricing/stream/route.ts",
+    "path": "/api/pricing/stream",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "text/event-stream"
+    ]
+  },
+  {
+    "file": "app/api/rag/docs/route.ts",
+    "path": "/api/rag/docs",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/rag/jobs/route.ts",
+    "path": "/api/rag/jobs",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/rag/search/route.ts",
+    "path": "/api/rag/search",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/rag/upload/route.ts",
+    "path": "/api/rag/upload",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE",
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "multipart/form-data"
+    ],
+    "output": [
+      "application/pdf",
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/revalidate/route.ts",
+    "path": "/api/revalidate",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [
+      "ADMIN",
+      "ASSISTANTE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/sessions/book/route.ts",
+    "path": "/api/sessions/book",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/sessions/cancel/route.ts",
+    "path": "/api/sessions/cancel",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ASSISTANTE",
+      "COACH",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/sessions/video/route.ts",
+    "path": "/api/sessions/video",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "COACH"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/status/route.ts",
+    "path": "/api/status",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/student/credits/route.ts",
+    "path": "/api/student/credits",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/student/dashboard/route.ts",
+    "path": "/api/student/dashboard",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/student/profile/route.ts",
+    "path": "/api/student/profile",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/student/resources/route.ts",
+    "path": "/api/student/resources",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "query"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/student/sessions/route.ts",
+    "path": "/api/student/sessions",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/students/[studentId]/badges/route.ts",
+    "path": "/api/students/:studentId/badges",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT",
+      "ELEVE"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/students/[studentId]/bilans/route.ts",
+    "path": "/api/students/:studentId/bilans",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "ADMIN"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/subscriptions/aria-addon/route.ts",
+    "path": "/api/subscriptions/aria-addon",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/subscriptions/change/route.ts",
+    "path": "/api/subscriptions/change",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [
+      "PARENT"
+    ],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/json"
+    ]
+  },
+  {
+    "file": "app/api/test/login/route.ts",
+    "path": "/api/test/login",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "application/json"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "app/api/uploads/analyse/route.ts",
+    "path": "/api/uploads/analyse",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": true,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "application/pdf"
+    ]
+  },
+  {
+    "file": "app/api/webhooks/konnect/route.ts",
+    "path": "/api/webhooks/konnect",
+    "methods": [
+      "POST"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "apps/web/app/api/bilans/[id]/download/route.ts",
+    "path": "/api/bilans/:id/download",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  },
+  {
+    "file": "apps/web/app/api/bilans/[id]/status/route.ts",
+    "path": "/api/bilans/:id/status",
+    "methods": [
+      "GET"
+    ],
+    "requiresAuth": false,
+    "rolesAllowed": [],
+    "rateLimit": false,
+    "input": [
+      "auto"
+    ],
+    "output": [
+      "auto"
+    ]
+  }
+]

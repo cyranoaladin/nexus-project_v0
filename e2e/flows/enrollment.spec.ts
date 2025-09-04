@@ -49,7 +49,9 @@ test.describe('Flow - Inscription élève à un cours', () => {
     await page.route('**/api/auth/session', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { email: coachCreds.email || coachCreds.fallbackEmail }, expires: '2099-01-01T00:00:00.000Z' }) }));
 
     // 1) Coach crée un cours via l'UI (stubbé)
-    await loginBestEffort(page, coachCreds.email, coachCreds.fallbackEmail, coachCreds.password);
+    if (process.env.E2E !== '1') {
+      await loginBestEffort(page, coachCreds.email, coachCreds.fallbackEmail, coachCreds.password);
+    }
 
     // Stub de la page de création de cours
     await page.route('**/dashboard/courses/new', route => route.fulfill({
@@ -105,7 +107,9 @@ test.describe('Flow - Inscription élève à un cours', () => {
 
     // 3) Élève se connecte (stub session again to ensure success)
     await page.route('**/api/auth/session', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { email: eleveCreds.email || eleveCreds.fallbackEmail }, expires: '2099-01-01T00:00:00.000Z' }) }));
-    await loginBestEffort(page, eleveCreds.email, eleveCreds.fallbackEmail, eleveCreds.password);
+    if (process.env.E2E !== '1') {
+      await loginBestEffort(page, eleveCreds.email, eleveCreds.fallbackEmail, eleveCreds.password);
+    }
 
     // Stub de la page du cours pour inscription
     await page.route('**/dashboard/courses/*', route => route.fulfill({

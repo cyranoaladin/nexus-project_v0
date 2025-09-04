@@ -261,4 +261,3 @@ export function buildPdfPayloadPremiere(results: Results) {
 4. Côté Next.js, consommer `results.json` avec `buildPdfPayloadPremiere` et alimenter vos PDF (variante Parent/Élève) + dashboard.
 
 **Livré :** JSON (40q) ✅ · Python scoring+radar ✅ · Adapter TS ✅
-

@@ -12,6 +12,10 @@
 
 # Playwright
 playwright-report/
+playwright-report.tgz
+# Test artifacts
+test-results/
+test-results.tgz
 
 # Reports
 reports/
@@ -58,3 +62,7 @@ next-env.d.ts
 
 /app/generated/prisma
 .env
+
+# local python venv and logs
+/.venv
+/.logs/

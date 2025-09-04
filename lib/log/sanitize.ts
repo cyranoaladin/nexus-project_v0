@@ -30,5 +30,3 @@ export function safeStringify(obj: unknown): string {
     }
   }
 }
-
-

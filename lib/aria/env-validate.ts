@@ -15,6 +15,12 @@ export function validateAriaEnv(): void {
       throw new Error('OPENAI_MODEL required in production');
     }
   }
+  // Intention explicite de l'utilisateur: DIRECT_OPENAI_DEV=1 sans clé → erreur claire
+  if (process.env.DIRECT_OPENAI_DEV === '1' && process.env.USE_LLM_SERVICE !== '1') {
+    if (!(process.env.OPENAI_API_KEY || '').trim()) {
+      throw new Error('OPENAI_API_KEY required when DIRECT_OPENAI_DEV=1');
+    }
+  }
   if (mode === 'direct') {
     if (!(process.env.OPENAI_API_KEY || '').trim()) {
       throw new Error('OPENAI_API_KEY required for DIRECT_OPENAI_DEV=1');
@@ -28,5 +34,3 @@ export function validateAriaEnv(): void {
     }
   }
 }
-
-

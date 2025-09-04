@@ -1,0 +1,10 @@
+# Web framework
+fastapi
+uvicorn[standard]
+pydantic
+
+# Core AI library
+sentence-transformers
+
+# sentence-transformers a besoin de PyTorch
+torch

@@ -30,7 +30,7 @@ export default function DashboardEleve() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null; }[]>([]);
-  const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
+  const [matiereFilter, setMatiereFilter] = useState<'Toutes' | 'Mathématiques' | 'NSI'>('Toutes');
 
   useEffect(() => {
     if (status === "loading") return;
@@ -270,24 +270,29 @@ export default function DashboardEleve() {
                 <CardContent>
                   {/* Filtres */}
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-xs text-gray-500">Filtrer par niveau</div>
+                    <div className="text-xs text-gray-500">Filtrer par matière</div>
                     <div className="w-44">
-                      <Select value={niveauFilter} onValueChange={(v: any) => setNiveauFilter(v)}>
+                      <Select value={matiereFilter} onValueChange={(v: any) => setMatiereFilter(v)}>
                         <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Niveau" />
+                          <SelectValue placeholder="Matière" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Tous">Tous</SelectItem>
-                          <SelectItem value="Première">Première</SelectItem>
-                          <SelectItem value="Terminale">Terminale</SelectItem>
+                          <SelectItem value="Toutes">Toutes</SelectItem>
+                          <SelectItem value="Mathématiques">Mathématiques</SelectItem>
+                          <SelectItem value="NSI">NSI</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                   {bilans.length === 0 ? (
-                    <p className="text-sm text-gray-600" data-testid="no-bilans-fallback">Aucun bilan pour le moment.</p>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600" data-testid="no-bilans-fallback">Aucun bilan pour le moment.</p>
+                      <Link href="/bilan-gratuit/wizard">
+                        <Button size="sm" className="mt-1">Commencer mon Bilan</Button>
+                      </Link>
+                    </div>
                   ) : (
-                    <BilanList bilans={bilans} niveauFilter={niveauFilter} />
+                    <BilanList bilans={bilans} matiereFilter={matiereFilter} />
                   )}
                 </CardContent>
               </Card>
@@ -339,6 +344,12 @@ export default function DashboardEleve() {
                       <span>Discuter avec ARIA</span>
                     </Button>
                   </Link>
+                  <Link href="/bilan-gratuit/wizard">
+                    <Button className="w-full h-auto p-4 flex flex-col items-center space-y-2">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                      <span>Commencer un Bilan</span>
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -370,12 +381,15 @@ function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
   return (n as any) as 'Première' | 'Terminale' | '—';
 }
 
-function BilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null; }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+function BilanList({ bilans, matiereFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; subject?: string | null; percent?: number | null; }[]; matiereFilter: 'Toutes' | 'Mathématiques' | 'NSI'; }) {
   const latestTerminale = useMemo(() => bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale'), [bilans]);
   const filtered = useMemo(() => bilans.filter(b => {
-    if (niveauFilter === 'Tous') return true;
-    return normalizeNiveau(b.niveau) === niveauFilter;
-  }), [bilans, niveauFilter]);
+    if (matiereFilter === 'Toutes') return true;
+    const subj = (b.subject || '').toUpperCase();
+    if (matiereFilter === 'Mathématiques') return subj === 'MATHEMATIQUES';
+    if (matiereFilter === 'NSI') return subj === 'NSI';
+    return true;
+  }), [bilans, matiereFilter]);
 
   const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -383,7 +397,7 @@ function BilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: 
     return <p className="text-sm text-gray-600">Aucun bilan pour ce filtre.</p>;
   }
 
-  if (niveauFilter === 'Tous') {
+  if (matiereFilter === 'Toutes') {
     const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
     const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
     const autres = byDateDesc(filtered.filter(b => ['Première', 'Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));

@@ -27,5 +27,3 @@ export function getSystemPrefix(): string {
     'Si une instruction est hors cadre ou dangereuse, refuse poliment et explique pourquoi.',
   ].join(' ');
 }
-
-

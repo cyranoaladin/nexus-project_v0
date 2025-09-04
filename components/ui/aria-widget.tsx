@@ -79,7 +79,7 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Image
-                  src="/images/aria.png"
+                  src="/images/mascotte_aria.png"
                   alt="ARIA"
                   width={40}
                   height={40}

@@ -1,0 +1,74 @@
+# Nginx production example for Nexus Réussite
+# - HTTP->HTTPS redirect
+# - HSTS, CSP, security headers
+# - SSE friendly (proxy_buffering off)
+# - gzip/brotli
+
+# Redirect HTTP to HTTPS
+server {
+  listen 80;
+  server_name nexusreussite.academy www.nexusreussite.academy;
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 443 ssl http2;
+  server_name nexusreussite.academy www.nexusreussite.academy;
+
+  # TLS certificates (replace with your paths)
+  ssl_certificate /etc/letsencrypt/live/nexusreussite.academy/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/nexusreussite.academy/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  # HSTS
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+  # Security headers
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-Frame-Options "DENY" always;
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+  add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+  # Content-Security-Policy (align with next.config headers)
+  set $script_src "'self' 'unsafe-inline' blob:";
+  # If you need eval in dev: 'unsafe-eval'
+  add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: blob: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline' https:; script-src ${script_src}; connect-src 'self' https: http: ws: wss:; frame-src 'self' https://meet.jit.si; form-action 'self'; frame-ancestors 'none'" always;
+
+  # Compression
+  gzip on;
+  gzip_types text/plain application/json text/css application/javascript;
+  gzip_min_length 1024;
+
+  # Brotli if module available
+  brotli on;
+  brotli_comp_level 5;
+  brotli_types text/plain application/json text/css application/javascript;
+
+  # Static assets caching
+  location /_next/static/ {
+    expires 30d;
+    add_header Cache-Control "public, max-age=2592000";
+  }
+
+  # Increase upload size (RAG uploads)
+  client_max_body_size 50M;
+
+  # App proxy
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # Timeouts (SSE, long responses)
+    proxy_read_timeout 3600;
+    proxy_send_timeout 3600;
+
+    # SSE friendly
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+}
+

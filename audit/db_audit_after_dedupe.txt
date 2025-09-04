@@ -1,0 +1,15 @@
+WARNING:  database "nexus_dev" has a collation version mismatch
+DETAIL:  The database was created using collation version 2.41, but the operating system provides version 2.36.
+HINT:  Rebuild all objects in this database that use the default collation and run ALTER DATABASE nexus_dev REFRESH COLLATION VERSION, or build PostgreSQL with the right library version.
+DO
+DO
+psql:audit-db/sql_checks.sql:40: ERROR:  column s.coachid does not exist
+LINE 3:     LEFT JOIN coach_profiles cp ON cp.id = s.coachId
+                                                   ^
+HINT:  Perhaps you meant to reference the column "s.coachId".
+QUERY:  EXISTS (
+    SELECT 1 FROM sessions s
+    LEFT JOIN coach_profiles cp ON cp.id = s.coachId
+    WHERE cp.id IS NULL
+  )
+CONTEXT:  PL/pgSQL function inline_code_block line 2 at IF

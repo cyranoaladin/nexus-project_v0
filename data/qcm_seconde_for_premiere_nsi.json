@@ -1,0 +1,347 @@
+[
+  { "id":"NSI-PY-01","domain":"python_basics","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"En Python, que vaut l'expression \\texttt{3//2} ?",
+    "choices":[
+      {"k":"A","latex":"1.5"},
+      {"k":"B","latex":"1","correct":true},
+      {"k":"C","latex":"2"},
+      {"k":"D","latex":"0"}
+    ],
+    "explanation_latex":"\\texttt{//} = division entière (quotient)."
+  },
+  { "id":"NSI-PY-02","domain":"python_basics","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Quelle structure convient pour stocker une suite modifiable de valeurs ?",
+    "choices":[
+      {"k":"A","latex":"\\texttt{tuple}"},
+      {"k":"B","latex":"\\texttt{list}","correct":true},
+      {"k":"C","latex":"\\texttt{str}"},
+      {"k":"D","latex":"\\texttt{frozenset}"}
+    ],
+    "explanation_latex":"En Python, \\texttt{list} est mutable ; \\texttt{tuple} est immuable."
+  },
+  { "id":"NSI-PY-03","domain":"python_basics","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Que renvoie \\texttt{len({1,2,2,3})} ?",
+    "choices":[
+      {"k":"A","latex":"4"},
+      {"k":"B","latex":"3","correct":true},
+      {"k":"C","latex":"2"},
+      {"k":"D","latex":"Erreur"}
+    ],
+    "explanation_latex":"\\texttt{set} supprime les doublons."
+  },
+  { "id":"NSI-PY-04","domain":"python_basics","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Compléter : afficher 0 à 4 inclus.",
+    "choices":[
+      {"k":"A","latex":"\\texttt{for i in range(0,5): print(i)}","correct":true},
+      {"k":"B","latex":"\\texttt{for i in range(5): print(i+1)}"},
+      {"k":"C","latex":"\\texttt{for i in [0..4]: print(i)}"},
+      {"k":"D","latex":"\\texttt{while i<5: print(i)}"}
+    ],
+    "explanation_latex":"\\texttt{range(0,5)} génère 0,1,2,3,4."
+  },
+  { "id":"NSI-PY-05","domain":"python_basics","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans \\texttt{d={'a':2,'b':5}}, quelle écriture lit la valeur associée à 'b' ?",
+    "choices":[
+      {"k":"A","latex":"\\texttt{d(’b’)}"},
+      {"k":"B","latex":"\\texttt{d['b']}","correct":true},
+      {"k":"C","latex":"\\texttt{d.get['b']}"},
+      {"k":"D","latex":"\\texttt{d->'b'}"}
+    ],
+    "explanation_latex":"Accès dictionnaire : crochets."
+  },
+
+  { "id":"NSI-DAT-06","domain":"donnees_encodage","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Quel encodage couvre l’essentiel des écritures du monde moderne ?",
+    "choices":[
+      {"k":"A","latex":"ASCII"},
+      {"k":"B","latex":"ISO-8859-1"},
+      {"k":"C","latex":"Unicode/UTF-8","correct":true},
+      {"k":"D","latex":"BCD"}
+    ],
+    "explanation_latex":"UTF-8 est l’encodage courant d’Unicode."
+  },
+  { "id":"NSI-DAT-07","domain":"donnees_encodage","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Combien de bits pour 1 octet ?",
+    "choices":[
+      {"k":"A","latex":"4"},
+      {"k":"B","latex":"8","correct":true},
+      {"k":"C","latex":"16"},
+      {"k":"D","latex":"10"}
+    ],
+    "explanation_latex":"1 octet = 8 bits."
+  },
+  { "id":"NSI-DAT-08","domain":"donnees_encodage","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Passer de binaire à hexadécimal consiste à :",
+    "choices":[
+      {"k":"A","latex":"Additionner les bits 4 à 4"},
+      {"k":"B","latex":"Grouper les bits 4 à 4","correct":true},
+      {"k":"C","latex":"Diviser par 4"},
+      {"k":"D","latex":"Aucune"}
+    ],
+    "explanation_latex":"1 hex digit = 4 bits."
+  },
+
+  { "id":"NSI-WEB-09","domain":"web_http","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"\\textbf{HTTP} : quelle méthode est typiquement utilisée pour envoyer un formulaire (données sensibles) ?",
+    "choices":[
+      {"k":"A","latex":"GET"},
+      {"k":"B","latex":"POST","correct":true},
+      {"k":"C","latex":"PUT"},
+      {"k":"D","latex":"HEAD"}
+    ],
+    "explanation_latex":"POST dans le corps, mieux pour non-idempotent/confidentiel."
+  },
+  { "id":"NSI-WEB-10","domain":"web_http","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Que signifie l’URL commençant par \\texttt{https://} ?",
+    "choices":[
+      {"k":"A","latex":"Site gratuit"},
+      {"k":"B","latex":"Chiffrement TLS/SSL actif","correct":true},
+      {"k":"C","latex":"Pas de cookies"},
+      {"k":"D","latex":"IPv6 obligatoire"}
+    ],
+    "explanation_latex":"HTTPS = HTTP sur TLS."
+  },
+  { "id":"NSI-WEB-11","domain":"web_http","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans une requête GET, les paramètres sont transmis :",
+    "choices":[
+      {"k":"A","latex":"Dans le corps"},
+      {"k":"B","latex":"Dans l’URL après ?","correct":true},
+      {"k":"C","latex":"Dans l’en-tête \\texttt{Cookie}"},
+      {"k":"D","latex":"Jamais"}
+    ],
+    "explanation_latex":"Ex : \\texttt{/page?user=...}"
+  },
+
+  { "id":"NSI-NET-12","domain":"internet_reseaux","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Rôle d’IP vs TCP :",
+    "choices":[
+      {"k":"A","latex":"IP = fiabilité ; TCP = adressage"},
+      {"k":"B","latex":"IP = adressage/acheminement ; TCP = fiabilité","correct":true},
+      {"k":"C","latex":"IP = chiffrement ; TCP = routage"},
+      {"k":"D","latex":"Aucun"}
+    ],
+    "explanation_latex":"IP transporte les paquets, TCP assure l’intégrité/ordre."
+  },
+  { "id":"NSI-NET-13","domain":"internet_reseaux","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"DNS sert à :",
+    "choices":[
+      {"k":"A","latex":"Traduire nom de domaine \\(\\to\\) adresse IP","correct":true},
+      {"k":"B","latex":"Chiffrer le trafic"},
+      {"k":"C","latex":"Compresser les pages"},
+      {"k":"D","latex":"Bloquer la publicité"}
+    ],
+    "explanation_latex":"Système de noms de domaine."
+  },
+  { "id":"NSI-NET-14","domain":"internet_reseaux","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le routage par paquets :",
+    "choices":[
+      {"k":"A","latex":"Garantit le délai"},
+      {"k":"B","latex":"Peut emprunter des chemins différents","correct":true},
+      {"k":"C","latex":"N’existe qu’en local"},
+      {"k":"D","latex":"Toujours chiffré"}
+    ],
+    "explanation_latex":"Pas de garantie temporelle (cf. vade-mecum SNT)."
+  },
+
+  { "id":"NSI-TAB-15","domain":"tables_csv","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Lire un fichier CSV en Python (sans pandas) :",
+    "choices":[
+      {"k":"A","latex":"\\texttt{open}+\\texttt{split(',')}"},
+      {"k":"B","latex":"\\texttt{csv.reader}","correct":true},
+      {"k":"C","latex":"\\texttt{json.load}"},
+      {"k":"D","latex":"\\texttt{pickle.load}"}
+    ],
+    "explanation_latex":"Le module standard \\texttt{csv} est adapté."
+  },
+  { "id":"NSI-TAB-16","domain":"tables_csv","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Filtrer des lignes sur une condition revient à :",
+    "choices":[
+      {"k":"A","latex":"Changer l’encodage"},
+      {"k":"B","latex":"Appliquer un prédicat ligne par ligne","correct":true},
+      {"k":"C","latex":"Trier par index"},
+      {"k":"D","latex":"Concaténer les colonnes"}
+    ],
+    "explanation_latex":"Recherche \\& filtrage (logique propositionnelle)."
+  },
+  { "id":"NSI-TAB-17","domain":"tables_csv","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Fusionner deux tables A et B sur un identifiant commun :",
+    "choices":[
+      {"k":"A","latex":"Une jointure sur clé","correct":true},
+      {"k":"B","latex":"Un tri"},
+      {"k":"C","latex":"Un hash MD5"},
+      {"k":"D","latex":"Un XOR"}
+    ],
+    "explanation_latex":"Notion de domaine de valeurs & clé commune."
+  },
+
+  { "id":"NSI-LOG-18","domain":"logique_algo","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"\\(P \\lor Q\\) signifie :",
+    "choices":[
+      {"k":"A","latex":"P et Q"},
+      {"k":"B","latex":"P ou Q (au moins un)","correct":true},
+      {"k":"C","latex":"ni P ni Q"},
+      {"k":"D","latex":"P implique Q"}
+    ],
+    "explanation_latex":"OU inclusif."
+  },
+  { "id":"NSI-LOG-19","domain":"logique_algo","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Vérité de \\(\\lnot(P \\land Q)\\) est équivalente à :",
+    "choices":[
+      {"k":"A","latex":"\\(\\lnot P \\lor \\lnot Q\\)","correct":true},
+      {"k":"B","latex":"\\(P \\lor Q\\)"},
+      {"k":"C","latex":"\\(\\lnot P \\land \\lnot Q\\)"},
+      {"k":"D","latex":"\\(P \\Rightarrow Q\\)"}
+    ],
+    "explanation_latex":"Lois de De Morgan."
+  },
+  { "id":"NSI-LOG-20","domain":"logique_algo","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Complexité : un algorithme en \\(O(n^2)\\) est plus coûteux que \\(O(n\\log n)\\) pour de grands \\(n\\).",
+    "choices":[
+      {"k":"A","latex":"Vrai","correct":true},
+      {"k":"B","latex":"Faux"}
+    ],
+    "explanation_latex":"Croissance asymptotique."
+  },
+
+  { "id":"NSI-IHM-21","domain":"ihm_web","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans une page Web, HTML décrit…, CSS décrit…",
+    "choices":[
+      {"k":"A","latex":"HTML = style, CSS = structure"},
+      {"k":"B","latex":"HTML = structure, CSS = style","correct":true},
+      {"k":"C","latex":"HTML = réseau, CSS = protocole"},
+      {"k":"D","latex":"Aucune"}
+    ],
+    "explanation_latex":"Séparation contenu/style."
+  },
+  { "id":"NSI-IHM-22","domain":"ihm_web","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"La gestion d’événements en IHM Web (clic, saisie) relève surtout de :",
+    "choices":[
+      {"k":"A","latex":"HTML"},
+      {"k":"B","latex":"CSS"},
+      {"k":"C","latex":"JavaScript","correct":true},
+      {"k":"D","latex":"DNS"}
+    ],
+    "explanation_latex":"Handlers JS sur éléments DOM."
+  },
+
+  { "id":"NSI-CYB-23","domain":"cyber_hygiene","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Lequel \\textbf{n’améliore pas} la sécurité de votre compte ?",
+    "choices":[
+      {"k":"A","latex":"2FA/MFA"},
+      {"k":"B","latex":"Mots de passe uniques et longs"},
+      {"k":"C","latex":"Notez votre mot de passe sur un post-it visible","correct":true},
+      {"k":"D","latex":"Gestionnaire de mots de passe"}
+    ],
+    "explanation_latex":"Hygiène numérique (vade-mecum : usages responsables)."
+  },
+  { "id":"NSI-CYB-24","domain":"cyber_hygiene","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Cookies et vie privée : quel réglage \\textbf{réduit} le pistage ?",
+    "choices":[
+      {"k":"A","latex":"Autoriser tiers sans restriction"},
+      {"k":"B","latex":"Bloquer cookies tiers","correct":true},
+      {"k":"C","latex":"Désactiver HTTPS"},
+      {"k":"D","latex":"Désactiver le pare-feu"}
+    ],
+    "explanation_latex":"Réglages de confidentialité navigateur."
+  },
+
+  { "id":"NSI-PY-25","domain":"python_basics","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Quelle compréhension de liste construit les carrés de 0 à 4 ?",
+    "choices":[
+      {"k":"A","latex":"\\texttt{[i*i for i in range(5)]}","correct":true},
+      {"k":"B","latex":"\\texttt{(i*i for i in range(5))}"},
+      {"k":"C","latex":"\\texttt{[i^2 for i in 5]}"},
+      {"k":"D","latex":"\\texttt{list(i*i, 0,5)}"}
+    ],
+    "explanation_latex":"Syntaxe Python des compréhensions."
+  },
+  { "id":"NSI-PY-26","domain":"python_basics","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"\\texttt{sorted([('b',2),('a',3)], key=lambda x: x[0])} trie par :",
+    "choices":[
+      {"k":"A","latex":"Deuxième champ"},
+      {"k":"B","latex":"Premier champ","correct":true},
+      {"k":"C","latex":"Valeur absolue"},
+      {"k":"D","latex":"Longueur du tuple"}
+    ],
+    "explanation_latex":"\\texttt{key} choisit la clé de tri."
+  },
+  { "id":"NSI-PY-27","domain":"python_basics","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Quelle est la sortie ? \\texttt{s='NSI'; print(s[::-1])}",
+    "choices":[
+      {"k":"A","latex":"NSI"},
+      {"k":"B","latex":"ISN","correct":true},
+      {"k":"C","latex":"Erreur"},
+      {"k":"D","latex":"''"}
+    ],
+    "explanation_latex":"Tranche avec pas négatif \\(\\Rightarrow\\) renversement."
+  },
+
+  { "id":"NSI-TAB-28","domain":"tables_csv","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans un CSV, le séparateur le plus courant est :",
+    "choices":[
+      {"k":"A","latex":";"},
+      {"k":"B","latex":"," ,"correct":true},
+      {"k":"C","latex":"\\t"},
+      {"k":"D","latex":"|"}
+    ],
+    "explanation_latex":"Comma-Separated Values."
+  },
+  { "id":"NSI-WEB-29","domain":"web_http","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le paramètre d’un formulaire sensible (mot de passe) devrait être envoyé :",
+    "choices":[
+      {"k":"A","latex":"en GET, en clair"},
+      {"k":"B","latex":"en POST + HTTPS","correct":true},
+      {"k":"C","latex":"en HEAD"},
+      {"k":"D","latex":"en UDP"}
+    ],
+    "explanation_latex":"Combiner POST et HTTPS."
+  },
+  { "id":"NSI-NET-30","domain":"internet_reseaux","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Pair-à-pair (P2P) :",
+    "choices":[
+      {"k":"A","latex":"Un seul serveur central"},
+      {"k":"B","latex":"Les pairs sont clients et serveurs","correct":true},
+      {"k":"C","latex":"Uniquement local"},
+      {"k":"D","latex":"Toujours chiffré"}
+    ],
+    "explanation_latex":"Topologie logique P2P (vade-mecum SNT)."
+  },
+
+  { "id":"NSI-LOG-31","domain":"logique_algo","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Quelle table de vérité correspond au OU exclusif (XOR) ?",
+    "choices":[
+      {"k":"A","latex":"Vrai si P et Q"},
+      {"k":"B","latex":"Vrai si exactement un des deux est vrai","correct":true},
+      {"k":"C","latex":"Toujours vrai"},
+      {"k":"D","latex":"Toujours faux"}
+    ],
+    "explanation_latex":"Définition XOR."
+  },
+  { "id":"NSI-IHM-32","domain":"ihm_web","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Associer un gestionnaire de clic (JS) sur un bouton d’ID 'go' :",
+    "choices":[
+      {"k":"A","latex":"\\texttt{document.getElementById('go').onclick = handler;}","correct":true},
+      {"k":"B","latex":"\\texttt{<go onClick=handler/>}"},
+      {"k":"C","latex":"\\texttt{window.click=handler}"},
+      {"k":"D","latex":"\\texttt{CSS: :active{handler}}" }
+    ],
+    "explanation_latex":"Programmation événementielle côté client."
+  },
+
+  { "id":"NSI-MINI-33","domain":"python_basics","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"Écrire une fonction Python \\texttt{est_pair(n)} renvoyant \\texttt{True} si n est pair.",
+    "answer_latex":"\\texttt{def est_pair(n): return n % 2 == 0}",
+    "explanation_latex":"Utiliser l’opérateur modulo."
+  },
+  { "id":"NSI-MINI-34","domain":"tables_csv","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"En Python, lire un fichier \\texttt{notes.csv} et afficher les lignes dont la colonne 'moyenne' \\(>\\) 12.",
+    "answer_latex":"\\texttt{import csv;\\nwith open('notes.csv') as f:\\n r=csv.DictReader(f);\\n for row in r:\\n  if float(row['moyenne'])>12: print(row)}",
+    "explanation_latex":"\\texttt{DictReader} + filtrage sur un prédicat."
+  },
+  { "id":"NSI-MINI-35","domain":"web_http","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"Expliquer différence GET/POST et pourquoi utiliser HTTPS pour un login.",
+    "answer_latex":"GET met les paramètres dans l’URL (visibles/cachables), POST les place dans le corps. HTTPS chiffre la session pour confidentialité et intégrité.",
+    "explanation_latex":"Bonnes pratiques IHM Web + sécurité."
+  }
+]
+

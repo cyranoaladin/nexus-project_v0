@@ -1,0 +1,158 @@
+openapi: 3.1.0
+info:
+  title: Nexus Réussite API
+  version: 1.0.0
+  description: >-
+    Spécification initiale des endpoints critiques (ARIA, RAG, Bilans, Paiements, Health).
+    À étendre durant la Phase 2 pour couvrir l’exhaustivité d'app/api/**.
+servers:
+  - url: https://nexusreussite.academy
+    description: Production
+  - url: http://localhost:3003
+    description: Local dev
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    AriaChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1 }
+        subject:
+          type: string
+          enum: [MATHEMATIQUES, NSI, FRANCAIS, PHILOSOPHIE, HISTOIRE_GEO, ANGLAIS, ESPAGNOL, PHYSIQUE_CHIMIE, SVT, SES]
+        stream: { type: boolean, default: false }
+    AriaChatResponse:
+      type: object
+      properties:
+        response: { type: string }
+        documentUrl: { type: string, format: uri }
+    RAGIngestResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+paths:
+  /api/health:
+    get:
+      summary: Health probe
+      responses:
+        '200':
+          description: OK
+  /api/aria/chat:
+    post:
+      summary: Chat ARIA (JSON) et SSE si stream=true
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: stream
+          schema: { type: boolean }
+          required: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AriaChatRequest' }
+      responses:
+        '200':
+          description: Réponse JSON (mode non-stream)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AriaChatResponse' }
+        '401': { description: Non authentifié }
+        '429': { description: Freemium limit atteint }
+        '500': { description: Erreur interne }
+  /api/rag/upload:
+    post:
+      summary: Upload d’un document au RAG (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+        '403': { description: Interdit }
+  /api/rag/jobs:
+    get:
+      summary: Liste des jobs d’ingestion
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+  /api/rag/docs:
+    get:
+      summary: Liste des documents RAG publiés
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+  /api/bilan/generate-report-text:
+    post:
+      summary: Génération du texte du rapport bilan
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+  /api/bilan/generate-summary-text:
+    post:
+      summary: Génération du résumé texte du bilan
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+  /api/bilan/{bilanId}/submit-answers:
+    post:
+      summary: Soumission des réponses (QCM + pédago)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: bilanId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+  /api/bilan/pdf/{id}:
+    get:
+      summary: Téléchargement PDF bilan
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: variant
+          required: false
+          schema:
+            type: string
+            enum: [standard, parent, eleve, nexus]
+      responses:
+        '200': { description: PDF stream }
+        '401': { description: Non authentifié }
+  /api/admin/payments/records:
+    get:
+      summary: Listing des paiements (admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+        '403': { description: Interdit }
+  /api/context/build:
+    get:
+      summary: Construit le contexte ARIA pour un utilisateur
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { description: Non authentifié }
+        '403': { description: Interdit }
+

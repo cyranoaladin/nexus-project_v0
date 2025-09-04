@@ -1,0 +1,23 @@
+[1A[2K[2m[WebServer] [22m [31m[1m⨯[22m[39m Failed to start server
+
+[1A[2K[2m[WebServer] [22mError: listen EADDRINUSE: address already in use :::3003
+[2m[WebServer] [22m[90m    at Server.setupListenHandle [as _listen2] (node:net:1811:16)[39m
+[2m[WebServer] [22m[90m    at listenInCluster (node:net:1859:12)[39m
+[2m[WebServer] [22m[90m    at Server.listen (node:net:1947:7)[39m
+[2m[WebServer] [22m    at [90m/home/alaeddine/Documents/nexus-project_v0/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:280:16
+[2m[WebServer] [22m    at new Promise (<anonymous>)
+[2m[WebServer] [22m    at startServer [90m(/home/alaeddine/Documents/nexus-project_v0/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:191:11[90m)[39m
+[2m[WebServer] [22m    at [90m/home/alaeddine/Documents/nexus-project_v0/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:310:52
+[2m[WebServer] [22m    at Span.traceAsyncFn [90m(/home/alaeddine/Documents/nexus-project_v0/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:26[90m)[39m
+[2m[WebServer] [22m    at process.<anonymous> [90m(/home/alaeddine/Documents/nexus-project_v0/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:310:35[90m)[39m
+[2m[WebServer] [22m[90m    at process.emit (node:events:517:28)[39m {
+[2m[WebServer] [22m  code: [32m'EADDRINUSE'[39m,
+[2m[WebServer] [22m  errno: [33m-98[39m,
+[2m[WebServer] [22m  syscall: [32m'listen'[39m,
+[2m[WebServer] [22m  address: [32m'::'[39m,
+[2m[WebServer] [22m  port: [33m3003[39m
+[2m[WebServer] [22m}
+
+Error: Process from config.webServer exited early.
+
+[1A[2K

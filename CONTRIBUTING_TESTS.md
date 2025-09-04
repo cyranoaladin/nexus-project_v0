@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD001 MD040 -->
 # CONTRIBUTING – Tests (Nexus Réussite)
 
 ### Philosophie de Test

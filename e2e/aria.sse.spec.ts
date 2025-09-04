@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 import fs from 'fs';
 
-const BASE = process.env.BASE_URL || 'http://localhost:3003';
-const BASE_TIMEOUT = process.env.BASE_URL_TIMEOUT || process.env.BASE_URL || 'http://localhost:3004';
-const BASE_FB_OK = process.env.BASE_URL_FBOK || process.env.BASE_URL || 'http://localhost:3005';
-const BASE_FB_FAIL = process.env.BASE_URL_FBFAIL || process.env.BASE_URL || 'http://localhost:3006';
-const BASE_PROD = process.env.BASE_URL_PROD || process.env.BASE_URL || 'http://localhost:3007';
+const FALLBACK = process.env.E2E_BASE_URL || 'http://localhost:3003';
+const BASE = process.env.BASE_URL || FALLBACK;
+const BASE_TIMEOUT = process.env.BASE_URL_TIMEOUT || process.env.BASE_URL || FALLBACK;
+const BASE_FB_OK = process.env.BASE_URL_FBOK || process.env.BASE_URL || FALLBACK;
+const BASE_FB_FAIL = process.env.BASE_URL_FBFAIL || process.env.BASE_URL || `${FALLBACK}/api/fbfail`;
+const BASE_PROD = process.env.BASE_URL_PROD || process.env.BASE_URL || FALLBACK;
 
 function readDevToken(): string | undefined {
   // Priorité à l'environnement (aligné sur le secret du serveur courant)
@@ -143,11 +144,13 @@ test.describe('ARIA SSE (real)', () => {
   test('primary and fallback both fail → error then done', async () => {
     const token = readDevToken();
     test.skip(!token, 'DEV_TOKEN required. Run npm run dev-seed');
-    const { events } = await consumeSSE(`${BASE_FB_FAIL}/api/aria/chat?stream=true`, {
+    // Add fbfail=1 to guarantee forced error in full run
+    const { events } = await consumeSSE(`${BASE_FB_FAIL}/api/aria/chat?stream=true&fbfail=1`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+'Authorization': `Bearer ${token}`,
+        'x-fbfail': '1',
       },
       body: JSON.stringify({ message: 'Test erreurs intentionnelles', subject: 'NSI', intent: 'tutor' }),
     });

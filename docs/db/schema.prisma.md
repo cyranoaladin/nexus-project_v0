@@ -1,0 +1,981 @@
+# Annexe — Schéma Prisma (canon complet)
+
+La source canonique est `prisma/schema.prisma`. Copie synchronisée ci-dessous pour audit documentaire.
+
+```prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// Énumération des rôles utilisateur
+enum UserRole {
+  ADMIN
+  ASSISTANTE
+  COACH
+  PARENT
+  ELEVE
+}
+
+// Énumération des statuts d'abonnement
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+// Énumération des types de prestations
+enum ServiceType {
+  COURS_ONLINE
+  COURS_PRESENTIEL
+  ATELIER_GROUPE
+}
+
+// Énumération des matières
+enum Subject {
+  MATHEMATIQUES
+  NSI
+  FRANCAIS
+  PHILOSOPHIE
+  HISTOIRE_GEO
+  ANGLAIS
+  ESPAGNOL
+  PHYSIQUE_CHIMIE
+  SVT
+  SES
+}
+
+// Énumération des statuts de session
+enum SessionStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+// Énumération des types de paiement
+enum PaymentType {
+  SUBSCRIPTION
+  CREDIT_PACK
+  SPECIAL_PACK
+}
+
+// Énumération des statuts de paiement
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// --- Bilan pédagogique et QCM ---
+model Bilan {
+  id            String   @id @default(cuid())
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Métadonnées bilan
+  subject       String?   // MATHEMATIQUES, etc.
+  niveau        String?   // Premiere, Terminale
+  statut        String?   // scolarise_fr, candidat_libre, etc.
+
+  // Données du bilan
+  // Réponses brutes
+  qcmRaw        Json
+  pedagoRaw     Json
+
+  // Scores et profils dérivés
+  qcmScores     Json     // { total, totalMax, byDomain: {points,max,percent}, global_mastery_percent? }
+  pedagoProfile Json     // VAK/Kolb/rythme/motivation/difficultés/attentes
+  preAnalyzedData Json?  // Indices IDX_* dérivés du Volet 2
+  synthesis     Json     // forces/faiblesses/risques/feuilleDeRoute
+  offers        Json     // { primary, alternatives, reasoning }
+
+  pdfUrl        String?
+  pdfBlob       Bytes?
+
+  // Textes générés (OpenAI)
+  reportText   String?
+  summaryText  String?
+  generatedAt  DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("bilans")
+}
+
+// Profil pédagogique pérenne par élève (Volet 2 initial)
+model StudentProfileData {
+  id              String   @id @default(cuid())
+  studentId       String   @unique
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  pedagoRawAnswers Json?
+  pedagoProfile    Json?
+  preAnalyzedData  Json?
+  lastUpdatedAt    DateTime @default(now())
+
+  @@map("student_profile_data")
+}
+
+// Modèle Utilisateur principal
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  role      UserRole
+  firstName String?
+  lastName  String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations spécifiques selon le rôle
+  parentProfile ParentProfile?
+  studentProfile StudentProfile?
+  student Student?
+  coachProfile CoachProfile?
+
+  // Relations communes
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+  payments         Payment[]
+
+  // Coach specific relations
+  coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
+  coachSessions      SessionBooking[]    @relation("CoachSessions")
+
+  // Student specific relations
+  studentSessions    SessionBooking[]    @relation("StudentSessions")
+
+  // Parent specific relations
+  parentSessions     SessionBooking[]    @relation("ParentSessions")
+
+  // Notification relations
+  notifications      SessionNotification[] @relation("UserNotifications")
+
+  @@map("users")
+}
+
+// Profil Parent
+model ParentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations spécifiques parent
+  address String?
+  city    String?
+  country String? @default("Tunisie")
+
+  // Relations
+  children Student[]
+
+  @@map("parent_profiles")
+}
+
+// Profil Élève
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations scolaires
+  grade        String? // Classe (Seconde, Première, Terminale)
+  school       String?
+  birthDate    DateTime?
+
+  @@map("student_profiles")
+}
+
+// Modèle Élève (entité métier)
+model Student {
+  id       String @id @default(cuid())
+  parentId String
+  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations scolaires
+  grade     String? // Classe
+  school    String?
+  birthDate DateTime?
+
+  // Crédits et sessions
+  credits            Int @default(0)
+  totalSessions      Int @default(0)
+  completedSessions  Int @default(0)
+
+  // Suivi d'usage freemium ARIA
+  freemiumUsage Json?
+
+  // Garantie Bac
+  guaranteeEligible  Boolean   @default(false)
+  guaranteeActivatedAt DateTime?
+
+  // Relations
+  subscriptions    Subscription[]
+  creditTransactions CreditTransaction[]
+  sessions         Session[]
+  ariaConversations AriaConversation[]
+  badges           StudentBadge[]
+  reports          StudentReport[]
+  memories         Memory[]
+  subscriptionRequests SubscriptionRequest[]
+  bilans           Bilan[]
+  profileData      StudentProfileData?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("students")
+}
+
+// Profil Coach
+model CoachProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations professionnelles
+  title       String? // Agrégé, Certifié, etc.
+  pseudonym   String  @unique // Hélios, Zénon, etc.
+  tag         String? // 🎓 Agrégé, 🎯 Stratège, etc.
+  description String?
+  philosophy  String?
+  expertise   String?
+
+  // Spécialités (JSON string pour SQLite)
+  subjects    String // JSON array des subjects
+
+  // Disponibilités
+  availableOnline     Boolean @default(true)
+  availableInPerson   Boolean @default(true)
+
+  // Relations
+  sessions    Session[]
+  reports     StudentReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coach_profiles")
+}
+
+// Modèle Abonnement
+model Subscription {
+  id        String             @id @default(cuid())
+  studentId String
+  student   Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Détails de l'abonnement
+  planName      String // ACCES_PLATEFORME, HYBRIDE, IMMERSION
+  monthlyPrice  Int    // Prix en TND
+  creditsPerMonth Int  // Crédits inclus par mois
+
+  // Statut et dates
+  status    SubscriptionStatus
+  startDate DateTime
+  endDate   DateTime?
+
+  // Add-ons ARIA (JSON string pour SQLite)
+  ariaSubjects String @default("[]") // JSON array des matières ARIA activées
+  ariaCost     Int       @default(0) // Coût mensuel des add-ons ARIA
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+// Modèle Transaction de Crédits
+model CreditTransaction {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Détails de la transaction
+  type        String // MONTHLY_ALLOCATION, PURCHASE, USAGE, REFUND, EXPIRATION
+  amount      Float  // Peut être négatif pour les utilisations
+  description String
+
+  // Métadonnées
+  sessionId   String? // Si lié à une session
+  expiresAt   DateTime? // Pour les crédits avec expiration
+
+  createdAt DateTime @default(now())
+
+  @@map("credit_transactions")
+}
+
+// Modèle Session (Cours/Ateliers)
+model Session {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id])
+
+  // Détails de la session
+  type        ServiceType
+  subject     Subject
+  title       String
+  description String?
+
+  // Planification
+  scheduledAt DateTime
+  duration    Int      // Durée en minutes
+  location    String?  // Pour le présentiel ou lien visio
+
+  // Coût et statut
+  creditCost Float
+  status     SessionStatus @default(SCHEDULED)
+
+  // Compte-rendu
+  report      String?
+  reportedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+// Modèle Conversation ARIA
+model AriaConversation {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  subject   Subject
+  title     String?
+
+  messages  AriaMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("aria_conversations")
+}
+
+// Modèle Message ARIA
+model AriaMessage {
+  id             String @id @default(cuid())
+  conversationId String
+  conversation   AriaConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role    String // "user" ou "assistant"
+  content String
+
+  // Feedback utilisateur
+  feedback Boolean? // true = 👍, false = 👎, null = pas de feedback
+
+  createdAt DateTime @default(now())
+
+  @@map("aria_messages")
+}
+
+// Modèle Badge
+model Badge {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  category    String // ASSIDUITE, PROGRESSION, CURIOSITE
+  icon        String?
+  condition   String // Condition d'obtention
+
+  // Relations
+  studentBadges StudentBadge[]
+
+  createdAt DateTime @default(now())
+
+  @@map("badges")
+}
+
+// Modèle Attribution de Badge
+model StudentBadge {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  badgeId String
+  badge   Badge  @relation(fields: [badgeId], references: [id])
+
+  earnedAt DateTime @default(now())
+
+  @@unique([studentId, badgeId])
+  @@map("student_badges")
+}
+
+// Modèle Rapport Élève
+model StudentReport {
+  id        String @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id])
+
+  // Contenu du rapport
+  title       String
+  content     String
+  period      String // "Semaine du X", "Mois de Y", etc.
+
+  // Métriques
+  sessionsCount    Int     @default(0)
+  averageGrade     Float?
+  progressNotes    String?
+  recommendations  String?
+
+  createdAt DateTime @default(now())
+
+  @@map("student_reports")
+}
+
+// Modèle Paiement
+model Payment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Détails du paiement
+  type        PaymentType
+  amount      Float
+  currency    String @default("TND")
+  description String
+
+  // Statut et méthode
+  status PaymentStatus @default(PENDING)
+  method String? // "konnect", "wise", "manual"
+
+  // Métadonnées
+  externalId String? @unique // ID de transaction externe
+  metadata   Json?   // Données supplémentaires
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
+}
+
+// Modèle Message (Chat)
+model Message {
+  id         String @id @default(cuid())
+  senderId   String
+  sender     User   @relation("MessageSender", fields: [senderId], references: [id])
+
+  receiverId String
+  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id])
+
+  content    String
+  fileUrl    String? // Pour les pièces jointes
+  fileName   String?
+
+  readAt     DateTime?
+
+  createdAt  DateTime @default(now())
+
+  @@map("messages")
+}
+
+// Modèle Contenu Pédagogique (pour ARIA)
+model PedagogicalContent {
+  id      String  @id @default(cuid())
+  title   String
+  content String
+  subject Subject
+  grade   String? // Niveau scolaire
+
+  // Métadonnées pour la recherche vectorielle (JSON string pour SQLite)
+  embedding String @default("[]") // JSON array pour vecteur d'embedding pour RAG
+  tags      String @default("[]") // JSON array pour tags
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pedagogical_contents")
+}
+
+// --- Mémoire long-terme et RAG ---
+
+enum MemoryKind {
+  EPISODIC
+  SEMANTIC
+  PLAN
+}
+
+model Memory {
+  id        String     @id @default(cuid())
+  studentId String
+  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind      MemoryKind
+  content   String
+  embedding Unsupported("vector(1536)")?
+  meta      Json?
+  createdAt DateTime   @default(now())
+
+  @@index([studentId, kind])
+  @@map("memories")
+}
+
+model UserDocument {
+  id          String   @id @default(cuid())
+  ownerId     String?
+  ownerRole   String?
+  originalName String
+  mime        String
+  storageKey  String   @unique
+  status      String   @default("UPLOADED")
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  assets      KnowledgeAsset[]
+
+  @@map("user_documents")
+}
+
+model KnowledgeAsset {
+  id        String   @id @default(cuid())
+  docId     String
+  doc       UserDocument @relation(fields: [docId], references: [id], onDelete: Cascade)
+  subject   String
+  level     String
+  chunk     String
+  tokens    Int
+  embedding Unsupported("vector(1536)")
+  meta      Json
+  createdAt DateTime @default(now())
+
+  @@index([docId])
+  @@map("knowledge_assets")
+}
+
+model IngestJob {
+  id        String   @id @default(cuid())
+  docId     String
+  status    String   @default("PENDING")
+  step      String   @default("queued")
+  progress  Int      @default(0)
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([docId, status])
+  @@map("ingest_jobs")
+}
+
+// Modèle pour les demandes de modification d'abonnement
+model SubscriptionRequest {
+  id              String   @id @default(cuid())
+  studentId       String
+  requestType     String   // PLAN_CHANGE, ARIA_ADDON, INVOICE_DETAILS
+  planName        String?
+  monthlyPrice    Float
+  reason          String?
+  status          String   // PENDING, APPROVED, REJECTED
+  requestedBy     String
+  requestedByEmail String
+  processedBy     String?
+  processedAt     DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("subscription_requests")
+}
+
+// Modèle pour les notifications système
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // ID de l'utilisateur qui reçoit la notification
+  userRole    UserRole // Rôle de l'utilisateur (ASSISTANTE, ADMIN, etc.)
+  type        String   // SUBSCRIPTION_REQUEST, CREDIT_REQUEST, etc.
+  title       String
+  message     String
+  data        String   // JSON string pour données supplémentaires
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+// Add these models to your existing schema
+
+// Coach Availability Management
+model CoachAvailability {
+  id          String   @id @default(cuid())
+  coachId     String
+  coach       User     @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
+
+  // Day of week (0 = Sunday, 1 = Monday, etc.)
+  dayOfWeek   Int
+  startTime   String   // "09:00"
+  endTime     String   // "17:00"
+
+  // For specific dates (holidays, special availability)
+  specificDate DateTime?
+  isAvailable Boolean  @default(true)
+
+  // Recurring pattern
+  isRecurring Boolean  @default(true)
+  validFrom   DateTime @default(now())
+  validUntil  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([coachId, dayOfWeek, startTime, endTime, specificDate])
+  @@index([coachId, dayOfWeek])
+  @@index([coachId, specificDate])
+}
+
+// Session Booking Management
+model SessionBooking {
+  id            String           @id @default(cuid())
+
+  // Participants
+  studentId     String
+  student       User             @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  coachId       String
+  coach         User             @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        User?            @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
+
+  // Session Details
+  subject       Subject
+  title         String
+  description   String?
+
+  // Scheduling
+  scheduledDate DateTime
+  startTime     String           // "14:00"
+  endTime       String           // "15:00"
+  duration      Int              // Duration in minutes
+
+  // Status Management
+  status        SessionStatus    @default(SCHEDULED)
+
+  // Session Type
+  type          SessionType      @default(INDIVIDUAL)
+  modality      SessionModality  @default(ONLINE)
+
+  // Location/Meeting Info
+  meetingUrl    String?
+  meetingId     String?
+  location      String?
+
+  // Credits & Payment
+  creditsUsed   Int              @default(1)
+
+  // Feedback & Notes
+  coachNotes    String?
+  studentNotes  String?
+  rating        Int?             // 1-5 stars
+  feedback      String?
+
+  // Attendance
+  studentAttended Boolean?
+  coachAttended   Boolean        @default(true)
+
+  // Timestamps
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  // Relations
+  notifications SessionNotification[]
+  reminders     SessionReminder[]
+
+  @@index([studentId, scheduledDate])
+  @@index([coachId, scheduledDate])
+  @@index([status, scheduledDate])
+  @@index([scheduledDate])
+}
+
+// Notification System
+model SessionNotification {
+  id          String             @id @default(cuid())
+  sessionId   String
+  session     SessionBooking     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Recipients
+  userId      String
+  user        User               @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification Details
+  type        NotificationType
+  title       String
+  message     String
+
+  // Status
+  status      NotificationStatus @default(PENDING)
+  sentAt      DateTime?
+  readAt      DateTime?
+
+  // Delivery Method
+  method      NotificationMethod @default(EMAIL)
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([userId, status])
+  @@index([sessionId])
+}
+
+// Reminder System
+model SessionReminder {
+  id          String         @id @default(cuid())
+  sessionId   String
+  session     SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Reminder Timing
+  reminderType ReminderType
+  scheduledFor DateTime
+
+  // Status
+  sent        Boolean        @default(false)
+  sentAt      DateTime?
+
+  createdAt   DateTime       @default(now())
+
+  @@index([scheduledFor, sent])
+  @@index([sessionId])
+}
+
+// Enums
+
+enum SessionType {
+  INDIVIDUAL
+  GROUP
+  MASTERCLASS
+}
+
+enum SessionModality {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum NotificationType {
+  SESSION_BOOKED
+  SESSION_CONFIRMED
+  SESSION_REMINDER
+  SESSION_CANCELLED
+  SESSION_RESCHEDULED
+  SESSION_COMPLETED
+  COACH_ASSIGNED
+  PAYMENT_REQUIRED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum NotificationMethod {
+  EMAIL
+  SMS
+  IN_APP
+  PUSH
+}
+
+enum ReminderType {
+  ONE_DAY_BEFORE
+  TWO_HOURS_BEFORE
+  THIRTY_MINUTES_BEFORE
+  SESSION_STARTING
+}
+
+// Product & Pricing configuration
+model ProductPricing {
+  id          String   @id @default(cuid())
+  itemType    String   // SUBSCRIPTION | ADDON | PACK
+  itemKey     String   // e.g. HYBRIDE, IMMERSION, ARIA_SUBJECT, CREDITS_10
+  amount      Int      // Prix en TND
+  currency    String   @default("TND")
+  description String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([itemType, itemKey])
+  @@map("product_pricing")
+}
+
+// --- Tarification dynamique simple (conforme au cahier des charges v3) ---
+model Pricing {
+  id        Int      @id @default(autoincrement())
+  service   String   // ex: "ARIA", "Studio Flex", "Academies Nexus", "Programme Odyssée"
+  variable  String   // ex: "ARIA_tarif_matiere", "prix_individuel", "prix_stage_groupe8", "Odysee_Premiere"
+  valeur    Float
+  devise    String   @default("TND")
+  updatedAt DateTime @updatedAt
+
+  @@unique([service, variable])
+  @@map("pricing")
+}
+
+// --- Packs de crédits ---
+model CreditPack {
+  id        Int      @id @default(autoincrement())
+  credits   Int
+  priceTnd  Float
+  bonus     Int      @default(0)
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("credit_packs")
+}
+
+// --- Barème d'usage des crédits ---
+model CreditUsage {
+  key       String   @id // ex: SOS_15, SOS_30, SOS_60, COURS_INDIV_HEURE, ARIA_MOIS
+  credits   Int
+  updatedAt DateTime @updatedAt
+
+  @@map("credit_usage")
+}
+
+// --- Paramètres de paiement ---
+model PaymentSettings {
+  id        Int      @id @default(1)
+  allowCard Boolean  @default(true)
+  allowWire Boolean  @default(true)
+  allowCash Boolean  @default(true)
+  iban      String?
+  cashNote  String?
+  updatedAt DateTime @updatedAt
+
+  @@map("payment_settings")
+}
+
+// --- Politique d'échelonnement ---
+model BillingPolicy {
+  id               Int      @id @default(1)
+  annualDepositPct Int      @default(20)
+  scheduleEndISO   String   @default("2026-06-30")
+  updatedAt        DateTime @updatedAt
+
+  @@map("billing_policy")
+}
+
+// --- Liaisons d'offres → variables pricing ---
+model OfferBinding {
+  code       String   @id      // ODYSSEE_TERMINALE, ARIA_MATIERE...
+  label      String
+  includeAria Boolean  @default(false)
+  refs       Json      // tableau { variable, label }
+  updatedAt  DateTime  @updatedAt
+
+  @@map("offer_bindings")
+}
+
+// --- Journal d'audit ---
+model AuditLog {
+  id     Int      @id @default(autoincrement())
+  actor  String
+  action String
+  diff   Json?
+  at     DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// --- Wallet crédits & paiements ---
+model CreditWallet {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+  tx        CreditTx[]
+
+  @@map("credit_wallets")
+}
+
+model CreditTx {
+  id        Int      @id @default(autoincrement())
+  walletId  Int
+  delta     Int
+  reason    String
+  provider  String?
+  externalId String?
+  packId    Int?
+  at        DateTime @default(now())
+  wallet    CreditWallet @relation(fields: [walletId], references: [id])
+
+  @@map("credit_tx")
+}
+
+model PaymentRecord {
+  id         Int      @id @default(autoincrement())
+  provider   String   // konnect|wire|cash
+  externalId String   // konnect payment_ref ou autre référence
+  userId     String
+  packId     Int
+  amountTnd  Float
+  currency   String   @default("TND")
+  status     String   @default("created")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("payment_records")
+}
+
+// --- Pages légales & historisation ---
+model LegalPage {
+  id           Int       @id @default(autoincrement())
+  slug         String    @unique
+  title        String
+  contentMd    String
+  contentHtml  String?
+  placeholders Json?
+  version      Int       @default(1)
+  contentHash  String
+  gitCommit    String?
+  updatedBy    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  versions     LegalVersion[]
+}
+
+model LegalVersion {
+  id           Int       @id @default(autoincrement())
+  pageId       Int
+  slug         String
+  title        String
+  contentMd    String
+  contentHtml  String?
+  version      Int
+  contentHash  String
+  gitCommit    String?
+  editorId     String?
+  createdAt    DateTime  @default(now())
+
+  page         LegalPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([pageId, version])
+}

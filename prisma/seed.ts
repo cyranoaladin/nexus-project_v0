@@ -517,8 +517,8 @@ async function main() {
   if (anyUser) {
     await prisma.notification.createMany({
       data: [
-        { userId: anyUser.id, userRole: 'ADMIN' as any, type: 'PAYMENT_REQUIRED', title: 'Paiement requis', message: 'Un paiement en attente.' , data: '{}' },
-        { userId: anyUser.id, userRole: 'PARENT' as any, type: 'SESSION_REMINDER', title: 'Rappel de session', message: 'Votre session commence bientôt.' , data: '{}' },
+        { userId: anyUser.id, userRole: 'ADMIN' as any, type: 'PAYMENT_REQUIRED', title: 'Paiement requis', message: 'Un paiement en attente.', data: '{}' },
+        { userId: anyUser.id, userRole: 'PARENT' as any, type: 'SESSION_REMINDER', title: 'Rappel de session', message: 'Votre session commence bientôt.', data: '{}' },
       ]
     });
   }
@@ -596,9 +596,9 @@ main()
 // -----------------------------------------------------------------------------
 async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
   // Récupération dynamique des enum Subject
-  const subjects = (await prisma.$queryRaw`SELECT unnest(enum_range(NULL::"Subject"))::text as s`) as { s: string }[] | undefined;
+  const subjects = (await prisma.$queryRaw`SELECT unnest(enum_range(NULL::"Subject"))::text as s`) as { s: string; }[] | undefined;
   const subjectList = subjects?.map((x) => x.s) || [
-    'MATHEMATIQUES','NSI','FRANCAIS','PHILOSOPHIE','HISTOIRE_GEO','ANGLAIS','ESPAGNOL','PHYSIQUE_CHIMIE','SVT','SES'
+    'MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES'
   ];
 
   // Trouver des coachs spécialisés par matière (fallback vers n'importe quel coach)
@@ -639,7 +639,7 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
       },
       {
         email: `eleve.sc${f}.e@nexus.com`, grade: 'Première', credits: 6,
-        subscription: { planName: 'HYBRIDE', status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES','PHYSIQUE_CHIMIE'] },
+        subscription: { planName: 'HYBRIDE', status: 'ACTIVE', ariaSubjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'] },
         secondSubHistory: { planName: 'ACCES_PLATEFORME', status: 'CANCELLED', monthsAgo: 2, ariaSubjects: ['ANGLAIS'] },
         guarantee: true,
       },
@@ -677,7 +677,7 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
         });
       }
       if ((sc as any).secondSubHistory) {
-        const h = (sc as any).secondSubHistory as { planName: string; status: string; monthsAgo: number; ariaSubjects: string[] };
+        const h = (sc as any).secondSubHistory as { planName: string; status: string; monthsAgo: number; ariaSubjects: string[]; };
         const start = new Date(); start.setMonth(start.getMonth() - h.monthsAgo);
         await prisma.subscription.create({
           data: {
@@ -713,9 +713,9 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
       // Sessions (couverture de statuts et types)
       const coachForMath = await findCoachFor('MATHEMATIQUES');
       const coachForNSI = await findCoachFor('NSI');
-      const statuses = ['SCHEDULED','CONFIRMED','IN_PROGRESS','COMPLETED','CANCELLED','NO_SHOW','RESCHEDULED'] as const;
-      const types = ['COURS_ONLINE','COURS_PRESENTIEL','ATELIER_GROUPE'] as const;
-      const subjectsForSessions = ['MATHEMATIQUES','NSI','ANGLAIS','PHYSIQUE_CHIMIE','FRANCAIS','SVT','SES','ESPAGNOL'].filter((s) => subjectList.includes(s));
+      const statuses = ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED'] as const;
+      const types = ['COURS_ONLINE', 'COURS_PRESENTIEL', 'ATELIER_GROUPE'] as const;
+      const subjectsForSessions = ['MATHEMATIQUES', 'NSI', 'ANGLAIS', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'SVT', 'SES', 'ESPAGNOL'].filter((s) => subjectList.includes(s));
       for (let i = 0; i < statuses.length; i++) {
         const s = statuses[i];
         const subj = subjectsForSessions[i % subjectsForSessions.length] as any;
@@ -740,8 +740,8 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
       }
 
       // SessionBooking + notifications/reminders (variété)
-      const bookingStatuses = ['SCHEDULED','CONFIRMED','COMPLETED','CANCELLED','RESCHEDULED','IN_PROGRESS','NO_SHOW'] as const;
-      const modalities = ['ONLINE','IN_PERSON','HYBRID'] as const;
+      const bookingStatuses = ['SCHEDULED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED', 'IN_PROGRESS', 'NO_SHOW'] as const;
+      const modalities = ['ONLINE', 'IN_PERSON', 'HYBRID'] as const;
       for (let i = 0; i < 5; i++) {
         const coachUser = await prisma.user.findFirst({ where: { role: 'COACH' } });
         if (!coachUser) break;
@@ -751,7 +751,7 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
             coachId: coachUser.id,
             parentId: parent.id,
             subject: (subjectList[i % subjectList.length] as any),
-            title: `Booking ${i+1}`,
+            title: `Booking ${i + 1}`,
             scheduledDate: new Date(Date.now() + (i - 2) * 24 * 3600 * 1000),
             startTime: '15:00',
             endTime: '16:00',
@@ -776,24 +776,28 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
       }
 
       // ARIA conversations/messages diversifiées
-      for (const subj of ['MATHEMATIQUES','NSI'].filter((s) => subjectList.includes(s))) {
+      for (const subj of ['MATHEMATIQUES', 'NSI'].filter((s) => subjectList.includes(s))) {
         const conv = await prisma.ariaConversation.create({ data: { studentId: student.id, subject: subj as any, title: `Aide ${subj}` } });
-        await prisma.ariaMessage.createMany({ data: [
-          { conversationId: conv.id, role: 'USER', content: `Question sur ${subj}` },
-          { conversationId: conv.id, role: 'ASSISTANT', content: `Réponse sur ${subj}`, feedback: (subj === 'NSI') ? true : null },
-        ]});
+        await prisma.ariaMessage.createMany({
+          data: [
+            { conversationId: conv.id, role: 'USER', content: `Question sur ${subj}` },
+            { conversationId: conv.id, role: 'ASSISTANT', content: `Réponse sur ${subj}`, feedback: (subj === 'NSI') ? true : null },
+          ]
+        });
       }
 
       // Transactions de crédits (tous types)
-      await prisma.creditTransaction.createMany({ data: [
-        { studentId: student.id, type: 'MONTHLY_ALLOCATION', amount: 8, description: 'Allocation mensuelle' },
-        { studentId: student.id, type: 'PURCHASE', amount: 10, description: 'Achat 10 crédits', expiresAt: new Date(Date.now() + 60*24*3600*1000) },
-        { studentId: student.id, type: 'USAGE', amount: -2, description: 'Cours individuel', sessionId: undefined as any },
-        { studentId: student.id, type: 'REFUND', amount: 1, description: 'Remboursement' },
-        { studentId: student.id, type: 'EXPIRATION', amount: -1, description: 'Expiration crédits', expiresAt: new Date(Date.now() - 1*24*3600*1000) },
-      ]});
+      await prisma.creditTransaction.createMany({
+        data: [
+          { studentId: student.id, type: 'MONTHLY_ALLOCATION', amount: 8, description: 'Allocation mensuelle' },
+          { studentId: student.id, type: 'PURCHASE', amount: 10, description: 'Achat 10 crédits', expiresAt: new Date(Date.now() + 60 * 24 * 3600 * 1000) },
+          { studentId: student.id, type: 'USAGE', amount: -2, description: 'Cours individuel', sessionId: undefined as any },
+          { studentId: student.id, type: 'REFUND', amount: 1, description: 'Remboursement' },
+          { studentId: student.id, type: 'EXPIRATION', amount: -1, description: 'Expiration crédits', expiresAt: new Date(Date.now() - 1 * 24 * 3600 * 1000) },
+        ]
+      });
 
-  // Bilans: couvrir NSI/MATH x Première/Terminale et divers statuts
+      // Bilans: couvrir NSI/MATH x Première/Terminale et divers statuts
       const bilanCombos = [
         { subject: 'NSI', niveau: 'Première', statut: 'scolarise_fr' },
         { subject: 'NSI', niveau: 'Terminale', statut: 'candidat_libre' },
@@ -807,96 +811,106 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
           Langage: { points: 10 + (j % 3), max: 20, percent: Math.min(100, Math.round(((10 + (j % 3)) / 20) * 100)) },
           Donnees: { points: 8 + (j % 5), max: 20, percent: Math.min(100, Math.round(((8 + (j % 5)) / 20) * 100)) },
         } as any;
-        const total = Object.values(byDomain).reduce((s:any,d:any)=>s+d.points,0);
-        const totalMax = Object.values(byDomain).reduce((s:any,d:any)=>s+d.max,0);
-        await prisma.bilan.create({ data: {
-          studentId: student.id,
-          subject: c.subject,
-          niveau: c.niveau,
-          statut: c.statut,
-          qcmRaw: { answered: 35, total: 40, version: 'v1' } as any,
-          qcmScores: { total, totalMax, byDomain } as any,
-          pedagoRaw: { P4: 4, P5: 3, P10: 4 } as any,
-          pedagoProfile: { vak: 'Visuel', autonomie: 'moyenne', organisation: 'bonne', stress: 'moyen', flags: j % 2 ? ['Anxiete'] : [], preferences: { pairProgramming: true, git: j%2===0, tests: true } } as any,
-          synthesis: { forces: ['Logique'], faiblesses: ['Rigueur'], feuilleDeRoute: ['Fiches', 'Exercices'], risques: ['Procrastination'] } as any,
-          offers: { primary: 'Cortex', alternatives: ['Studio Flex','Académies'], reasoning: 'Basé sur les scores et le profil.' } as any,
-          pdfUrl: null,
-          pdfBlob: null,
-        }});
+        const total = Object.values(byDomain).reduce((s: any, d: any) => s + d.points, 0);
+        const totalMax = Object.values(byDomain).reduce((s: any, d: any) => s + d.max, 0);
+        await prisma.bilan.create({
+          data: {
+            studentId: student.id,
+            subject: c.subject,
+            niveau: c.niveau,
+            statut: c.statut,
+            qcmRaw: { answered: 35, total: 40, version: 'v1' } as any,
+            qcmScores: { total, totalMax, byDomain } as any,
+            pedagoRaw: { P4: 4, P5: 3, P10: 4 } as any,
+            pedagoProfile: { vak: 'Visuel', autonomie: 'moyenne', organisation: 'bonne', stress: 'moyen', flags: j % 2 ? ['Anxiete'] : [], preferences: { pairProgramming: true, git: j % 2 === 0, tests: true } } as any,
+            synthesis: { forces: ['Logique'], faiblesses: ['Rigueur'], feuilleDeRoute: ['Fiches', 'Exercices'], risques: ['Procrastination'] } as any,
+            offers: { primary: 'Cortex', alternatives: ['Studio Flex', 'Académies'], reasoning: 'Basé sur les scores et le profil.' } as any,
+            pdfUrl: null,
+            pdfBlob: null,
+          }
+        });
       }
 
       // Bilans supplémentaires NSI avec répartition fine par domaines (Première et Terminale)
       const buildNsiPremiereFine = (shift: number) => {
         const bd: any = {
-          TypesBase: { points: 12 + ((shift+1)%3), max: 20 },
-          TypesConstruits: { points: 11 + ((shift+2)%4), max: 20 },
-          Algo: { points: 13 + (shift%3), max: 20 },
-          LangagePython: { points: 14 + ((shift+1)%3), max: 20 },
-          Traces: { points: 9 + ((shift+2)%5), max: 20 },
-          Donnees: { points: 10 + ((shift+3)%4), max: 20 },
+          TypesBase: { points: 12 + ((shift + 1) % 3), max: 20 },
+          TypesConstruits: { points: 11 + ((shift + 2) % 4), max: 20 },
+          Algo: { points: 13 + (shift % 3), max: 20 },
+          LangagePython: { points: 14 + ((shift + 1) % 3), max: 20 },
+          Traces: { points: 9 + ((shift + 2) % 5), max: 20 },
+          Donnees: { points: 10 + ((shift + 3) % 4), max: 20 },
         };
         for (const k of Object.keys(bd)) bd[k].percent = Math.round(100 * bd[k].points / bd[k].max);
-        const total = Object.values(bd).reduce((s:any,d:any)=>s+d.points,0);
-        const totalMax = Object.values(bd).reduce((s:any,d:any)=>s+d.max,0);
+        const total = Object.values(bd).reduce((s: any, d: any) => s + d.points, 0);
+        const totalMax = Object.values(bd).reduce((s: any, d: any) => s + d.max, 0);
         return { byDomain: bd, total, totalMax };
       };
       const buildNsiTerminaleFine = (shift: number) => {
         const bd: any = {
-          AlgoAvance: { points: 12 + ((shift+2)%5), max: 20 },
-          POO: { points: 11 + (shift%5), max: 20 },
-          Reseaux: { points: 13 + ((shift+3)%4), max: 20 },
-          Systemes: { points: 10 + ((shift+4)%6), max: 20 },
-          BD: { points: 12 + ((shift+1)%4), max: 20 },
-          Web: { points: 9 + (shift%6), max: 20 },
+          AlgoAvance: { points: 12 + ((shift + 2) % 5), max: 20 },
+          POO: { points: 11 + (shift % 5), max: 20 },
+          Reseaux: { points: 13 + ((shift + 3) % 4), max: 20 },
+          Systemes: { points: 10 + ((shift + 4) % 6), max: 20 },
+          BD: { points: 12 + ((shift + 1) % 4), max: 20 },
+          Web: { points: 9 + (shift % 6), max: 20 },
         };
         for (const k of Object.keys(bd)) bd[k].percent = Math.round(100 * bd[k].points / bd[k].max);
-        const total = Object.values(bd).reduce((s:any,d:any)=>s+d.points,0);
-        const totalMax = Object.values(bd).reduce((s:any,d:any)=>s+d.max,0);
+        const total = Object.values(bd).reduce((s: any, d: any) => s + d.points, 0);
+        const totalMax = Object.values(bd).reduce((s: any, d: any) => s + d.max, 0);
         return { byDomain: bd, total, totalMax };
       };
 
       // Créer 2 bilans fines pour NSI Première et 2 pour Terminale avec statuts métiers variés
       for (let sft = 0; sft < 2; sft++) {
         const prem = buildNsiPremiereFine(sft);
-        await prisma.bilan.create({ data: {
-          studentId: student.id,
-          subject: 'NSI',
-          niveau: 'Première',
-          statut: sft === 0 ? 'reorientation' : 'scolarise_fr',
-          qcmRaw: { answered: 38, total: 40, version: 'v1' } as any,
-          qcmScores: prem as any,
-          pedagoRaw: { P4: 5, P5: 4, P10: 4 } as any,
-          pedagoProfile: { vak: 'Visuel', autonomie: 'bonne', organisation: 'moyenne', stress: 'moyen', flags: [], preferences: { pairProgramming: true, git: true, tests: true } } as any,
-          synthesis: { forces: ['Modélisation'], faiblesses: ['Rigueur syntaxique'], feuilleDeRoute: ['Exos Algo', 'TP Python'], risques: [] } as any,
-          offers: { primary: 'Cortex', alternatives: ['Académies'], reasoning: 'Profil autonome, orienté projets.' } as any,
-        }});
-        const term = buildNsiTerminaleFine(sft+1);
-        await prisma.bilan.create({ data: {
-          studentId: student.id,
-          subject: 'NSI',
-          niveau: 'Terminale',
-          statut: sft === 0 ? 'annee_sabbatique' : 'candidat_libre',
-          qcmRaw: { answered: 39, total: 40, version: 'v2' } as any,
-          qcmScores: term as any,
-          pedagoRaw: { P4: 3, P5: 4, P10: 5 } as any,
-          pedagoProfile: { vak: 'Kinesthesique', autonomie: 'moyenne', organisation: 'bonne', stress: 'faible', flags: ['Anxiete'], preferences: { pairProgramming: false, git: true, tests: true } } as any,
-          synthesis: { forces: ['Architecture'], faiblesses: ['Réseaux'], feuilleDeRoute: ['Labs système', 'Ateliers réseau'], risques: ['Procrastination'] } as any,
-          offers: { primary: 'Studio Flex', alternatives: ['Cortex'], reasoning: 'Besoins ciblés sur systèmes/réseaux.' } as any,
-        }});
+        await prisma.bilan.create({
+          data: {
+            studentId: student.id,
+            subject: 'NSI',
+            niveau: 'Première',
+            statut: sft === 0 ? 'reorientation' : 'scolarise_fr',
+            qcmRaw: { answered: 38, total: 40, version: 'v1' } as any,
+            qcmScores: prem as any,
+            pedagoRaw: { P4: 5, P5: 4, P10: 4 } as any,
+            pedagoProfile: { vak: 'Visuel', autonomie: 'bonne', organisation: 'moyenne', stress: 'moyen', flags: [], preferences: { pairProgramming: true, git: true, tests: true } } as any,
+            synthesis: { forces: ['Modélisation'], faiblesses: ['Rigueur syntaxique'], feuilleDeRoute: ['Exos Algo', 'TP Python'], risques: [] } as any,
+            offers: { primary: 'Cortex', alternatives: ['Académies'], reasoning: 'Profil autonome, orienté projets.' } as any,
+          }
+        });
+        const term = buildNsiTerminaleFine(sft + 1);
+        await prisma.bilan.create({
+          data: {
+            studentId: student.id,
+            subject: 'NSI',
+            niveau: 'Terminale',
+            statut: sft === 0 ? 'annee_sabbatique' : 'candidat_libre',
+            qcmRaw: { answered: 39, total: 40, version: 'v2' } as any,
+            qcmScores: term as any,
+            pedagoRaw: { P4: 3, P5: 4, P10: 5 } as any,
+            pedagoProfile: { vak: 'Kinesthesique', autonomie: 'moyenne', organisation: 'bonne', stress: 'faible', flags: ['Anxiete'], preferences: { pairProgramming: false, git: true, tests: true } } as any,
+            synthesis: { forces: ['Architecture'], faiblesses: ['Réseaux'], feuilleDeRoute: ['Labs système', 'Ateliers réseau'], risques: ['Procrastination'] } as any,
+            offers: { primary: 'Studio Flex', alternatives: ['Cortex'], reasoning: 'Besoins ciblés sur systèmes/réseaux.' } as any,
+          }
+        });
       }
 
       // Notifications système génériques pour ces utilisateurs
-      await prisma.notification.createMany({ data: [
-        { userId: student.userId, userRole: 'ELEVE' as any, type: 'SESSION_REMINDER', title: 'Rappel', message: 'Pense à ta session', data: '{}' },
-        { userId: parent.id, userRole: 'PARENT' as any, type: 'PAYMENT_REQUIRED', title: 'Paiement', message: 'Un paiement est requis', data: '{}' },
-      ]});
+      await prisma.notification.createMany({
+        data: [
+          { userId: student.userId, userRole: 'ELEVE' as any, type: 'SESSION_REMINDER', title: 'Rappel', message: 'Pense à ta session', data: '{}' },
+          { userId: parent.id, userRole: 'PARENT' as any, type: 'PAYMENT_REQUIRED', title: 'Paiement', message: 'Un paiement est requis', data: '{}' },
+        ]
+      });
 
       // Paiements variés rattachés au parent
-      await prisma.payment.createMany({ data: [
-        { userId: parent.id, type: 'SUBSCRIPTION' as any, amount: 450, currency: 'TND', description: 'Abonnement Hybride', status: 'COMPLETED' as any, method: 'konnect' },
-        { userId: parent.id, type: 'CREDIT_PACK' as any, amount: 180, currency: 'TND', description: 'Pack 10 crédits', status: 'PENDING' as any, method: 'wise' },
-        { userId: parent.id, type: 'SPECIAL_PACK' as any, amount: 600, currency: 'TND', description: 'Odyssée - acompte', status: 'REFUNDED' as any, method: 'manual' },
-      ]});
+      await prisma.payment.createMany({
+        data: [
+          { userId: parent.id, type: 'SUBSCRIPTION' as any, amount: 450, currency: 'TND', description: 'Abonnement Hybride', status: 'COMPLETED' as any, method: 'konnect' },
+          { userId: parent.id, type: 'CREDIT_PACK' as any, amount: 180, currency: 'TND', description: 'Pack 10 crédits', status: 'PENDING' as any, method: 'wise' },
+          { userId: parent.id, type: 'SPECIAL_PACK' as any, amount: 600, currency: 'TND', description: 'Odyssée - acompte', status: 'REFUNDED' as any, method: 'manual' },
+        ]
+      });
     }
   }
 
@@ -914,7 +928,7 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
     }
     // Indisponibilité spécifique demain
     try {
-      await prisma.coachAvailability.create({ data: { coachId: anyCoachUser.id, dayOfWeek: new Date().getDay(), startTime: '00:00', endTime: '23:59', specificDate: new Date(Date.now() + 24*3600*1000), isAvailable: false, isRecurring: false } });
+      await prisma.coachAvailability.create({ data: { coachId: anyCoachUser.id, dayOfWeek: new Date().getDay(), startTime: '00:00', endTime: '23:59', specificDate: new Date(Date.now() + 24 * 3600 * 1000), isAvailable: false, isRecurring: false } });
     } catch {}
   }
 
@@ -924,15 +938,15 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
 
   // Contenu pédagogique additionnel multi-matières
   const extraContents = [
-    { title: 'Suites arithmétiques', subject: 'MATHEMATIQUES', grade: 'Première', tags: ['suites','arithmetiques'] },
-    { title: 'Structures de données', subject: 'NSI', grade: 'Terminale', tags: ['listes','dictionnaires'] },
-    { title: 'Analyse de texte', subject: 'FRANCAIS', grade: 'Première', tags: ['commentaire','dissertation'] },
-    { title: 'La photosynthèse', subject: 'SVT', grade: 'Seconde', tags: ['svt','photosynthese'] },
-    { title: 'Les marchés et la concurrence', subject: 'SES', grade: 'Première', tags: ['ses','marches'] },
-    { title: 'La Seconde Guerre mondiale', subject: 'HISTOIRE_GEO', grade: 'Terminale', tags: ['histoire','seconde_guerre'] },
-    { title: 'Essay writing', subject: 'ANGLAIS', grade: 'Terminale', tags: ['anglais','essay'] },
-    { title: 'Figuras retóricas', subject: 'ESPAGNOL', grade: 'Première', tags: ['espagnol','retorica'] },
-    { title: 'Philosophie morale', subject: 'PHILOSOPHIE', grade: 'Terminale', tags: ['philo','morale'] },
+    { title: 'Suites arithmétiques', subject: 'MATHEMATIQUES', grade: 'Première', tags: ['suites', 'arithmetiques'] },
+    { title: 'Structures de données', subject: 'NSI', grade: 'Terminale', tags: ['listes', 'dictionnaires'] },
+    { title: 'Analyse de texte', subject: 'FRANCAIS', grade: 'Première', tags: ['commentaire', 'dissertation'] },
+    { title: 'La photosynthèse', subject: 'SVT', grade: 'Seconde', tags: ['svt', 'photosynthese'] },
+    { title: 'Les marchés et la concurrence', subject: 'SES', grade: 'Première', tags: ['ses', 'marches'] },
+    { title: 'La Seconde Guerre mondiale', subject: 'HISTOIRE_GEO', grade: 'Terminale', tags: ['histoire', 'seconde_guerre'] },
+    { title: 'Essay writing', subject: 'ANGLAIS', grade: 'Terminale', tags: ['anglais', 'essay'] },
+    { title: 'Figuras retóricas', subject: 'ESPAGNOL', grade: 'Première', tags: ['espagnol', 'retorica'] },
+    { title: 'Philosophie morale', subject: 'PHILOSOPHIE', grade: 'Terminale', tags: ['philo', 'morale'] },
   ];
   for (const c of extraContents) {
     await prisma.pedagogicalContent.create({ data: { title: c.title, content: `# ${c.title}\nNotes de cours...`, subject: c.subject as any, grade: c.grade, embedding: '[]', tags: JSON.stringify(c.tags) } });
@@ -941,9 +955,11 @@ async function seedVariety(prisma: PrismaClient, hashedPassword: string) {
   // Diversifier les demandes d’abonnement
   const anyStudentForReq = await prisma.student.findFirst();
   if (anyStudentForReq) {
-    await prisma.subscriptionRequest.createMany({ data: [
-      { studentId: anyStudentForReq.id, requestType: 'ARIA_ADDON', planName: null as any, monthlyPrice: 40, status: 'APPROVED', requestedBy: 'parent', requestedByEmail: 'parent@example.com', processedBy: 'assistant', processedAt: new Date() } as any,
-      { studentId: anyStudentForReq.id, requestType: 'PLAN_CHANGE', planName: 'IMMERSION', monthlyPrice: 750, status: 'REJECTED', requestedBy: 'parent', requestedByEmail: 'parent@example.com', rejectionReason: 'Budget', processedBy: 'assistant', processedAt: new Date() } as any,
-    ]});
+    await prisma.subscriptionRequest.createMany({
+      data: [
+        { studentId: anyStudentForReq.id, requestType: 'ARIA_ADDON', planName: null as any, monthlyPrice: 40, status: 'APPROVED', requestedBy: 'parent', requestedByEmail: 'parent@example.com', processedBy: 'assistant', processedAt: new Date() } as any,
+        { studentId: anyStudentForReq.id, requestType: 'PLAN_CHANGE', planName: 'IMMERSION', monthlyPrice: 750, status: 'REJECTED', requestedBy: 'parent', requestedByEmail: 'parent@example.com', rejectionReason: 'Budget', processedBy: 'assistant', processedAt: new Date() } as any,
+      ]
+    });
   }
 }

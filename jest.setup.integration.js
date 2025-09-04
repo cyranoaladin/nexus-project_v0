@@ -108,3 +108,4 @@ global.fetch = jest.fn(async (input, init) => {
 // Env
 process.env.NODE_ENV = 'test';
 process.env.NEXTAUTH_SECRET = 'test-secret';
+process.env.JEST_ENV = 'integration';

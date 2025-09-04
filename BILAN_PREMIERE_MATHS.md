@@ -1,594 +1,322 @@
- le QCM doit **évaluer uniquement le programme de Seconde**, mais en insistant sur :
+## **CAHIER DES CHARGES DÉTAILLÉ – IMPLÉMENTATION DU BILAN D'ENTRÉE EN PREMIÈRE (MATHÉMATIQUES)**
 
-1. Les **acquis généraux** (bases algébriques, équations, fonctions, statistiques, géométrie repérée, trigonométrie).
-2. Les notions de Seconde qui sont **fondamentales pour la Première** :
+**À l'attention de l'Agent IA Cursor (Développement),**
 
-   * Fonctions affines et quadratiques.
-   * Calcul littéral, identités remarquables.
-   * Résolution d’équations/ inéquations.
-   * Notion de variation, lecture graphique.
-   * Trigonométrie de base (cercle trigo, valeurs remarquables).
-   * Probabilités et statistiques (effectifs, fréquences, moyenne, écart-type).
-   * Géométrie vectorielle et produit scalaire.
-   * Bases de l’algorithmique (boucles, conditions).
+**Objet : Implémentation Complète du Bilan Stratégique "Entrée en Première - Mathématiques" (Volets 1 & 2, Rendu HTML/PDF)**
+
+**Contexte :**
+Ce document détaille l'intégralité des spécifications pour l'implémentation du Bilan Stratégique "Entrée en Première - Mathématiques" au sein de la plateforme Nexus Réussite. Il couvre la conception du questionnaire (Volet 1 - QCM Mathématiques de Seconde, Volet 2 - Profil Pédagogique Commun), les algorithmes de scoring, le rendu HTML interactif avec KaTeX, la génération de rapports PDF LaTeX multivariantes, et l'intégration complète dans les workflows existants de l'écosystème Nexus (authentification, gestion des élèves, appels API, stockage).
+
+Ce cahier des charges s'aligne sur la philosophie générale des Bilans Stratégiques Nexus (excellence, personnalisation, données exploitables) et utilise les architectures et les standards techniques déjà définis (Next.js, Prisma, OpenAI, React-PDF, Python pour le radar).
 
 ---
 
-# 📝 **QCM Bilan de fin de Seconde – Entrée en Première (40 questions, corrigé inclus)**
+### **1. Finalité et Principes Pédagogiques du Bilan "Première Maths"**
 
-## Partie 1 – Calcul littéral et équations (8 questions)
-
-**Q1.** Développer : $(x+2)(x-3)$.
-A. $x^2 - x - 6$ B. $x^2 - x + 6$ C. $x^2 - 5x - 6$ D. $x^2 - x - 2$
-👉 Réponse : **A** – (1 pt)
-
-**Q2.** Factoriser : $x^2 - 9$.
-A. $(x-9)(x+1)$ B. $(x-3)(x+3)$ C. $(x-9)(x-1)$ D. $(x-1)(x+9)$
-👉 Réponse : **B** – (1 pt)
-
-**Q3.** Résoudre : $2x+5=11$.
-👉 Réponse : **$x=3$** – (1 pt)
-
-**Q4.** Résoudre : $x^2-5x+6=0$.
-A. $x=2$ ou $x=3$ B. $x=1$ ou $x=6$ C. $x=-2$ ou $x=3$ D. Aucun réel
-👉 Réponse : **A** – (2 pts)
-
-**Q5.** L’équation $3x^2+2x+1=0$ a :
-A. 2 solutions réelles distinctes B. 1 solution double C. Aucune solution réelle D. Une infinité de solutions
-👉 Réponse : **C** – (2 pts)
-
-**Q6.** Résoudre l’inéquation : $2x-3>1$.
-👉 Réponse : **$x>2$** – (1 pt)
-
-**Q7.** Écrire la forme développée de $(x+1)^2$.
-👉 Réponse : **$x^2+2x+1$** – (1 pt)
-
-**Q8.** Trouver le polynôme du second degré qui a pour racines 1 et -2.
-👉 Réponse : **$(x-1)(x+2)=x^2+x-2$** – (2 pts)
+*   **But Principal :** Évaluer, **exclusivement sur le programme de Seconde**, le **niveau de maîtrise des connaissances et compétences** fondamentales en Mathématiques indispensables pour aborder et réussir l'enseignement de spécialité Mathématiques en Première. Il est formellement **interdit** d'inclure des questions du programme de Première.
+*   **Livrables Attendus du Bilan :**
+    1.  **Questionnaire Interactif :** Composé d'un QCM (majoritaire) et de quelques mini-exercices à réponse courte, avec pondération des items.
+    2.  **Diagnostic des Compétences :** Profil détaillé par domaines, visualisé sous forme de **graphique radar**.
+    3.  **Rapport Synthétique et Détaillé (Texte) :** Incluant un diagnostic clair, l'identification des acquis solides, des axes de progression précis, et une feuille de route de remédiation ciblée.
+    4.  **Rapports PDF Professionnels :** Générés via LaTeX (template dédié) en trois variantes (Élève, Parent, Nexus Interne), intégrant le radar.
+    5.  **Rendu HTML Premium :** Affichage interactif du questionnaire et des explications avec un rendu des formules mathématiques de haute qualité via **KaTeX**.
+*   **Référence :** Ce document met à jour la spécification `BILAN_PREMIERE_MATHS.md` existante et doit être mis en œuvre en respect strict du périmètre et des workflows déjà définis pour les Bilans Stratégiques Nexus (gestion dynamique des volets, réutilisation du Volet 2, calcul des indices `IDX_*`, prompts OpenAI, variantes PDF).
 
 ---
 
-## Partie 2 – Fonctions et représentations graphiques (7 questions)
+### **2. Périmètre des Connaissances Évaluées (Volet 1 - Programme de Seconde)**
 
-**Q9.** La fonction affine $f(x)=3x-2$ est :
-A. Croissante B. Décroissante C. Constante D. Non définie
-👉 Réponse : **A** – (1 pt)
+Le QCM cible les piliers du programme de Seconde Générale, avec un accent particulier sur les pré-requis cruciaux pour la Première.
 
-**Q10.** La fonction carré $f(x)=x^2$ est :
-A. Croissante sur $\mathbb{R}$ B. Décroissante sur $\mathbb{R}^+$ C. Croissante sur $[0,+\infty[$ D. Constante
-👉 Réponse : **C** – (1 pt)
+*   **2.1. Domaines Évalués :**
+    1.  **Nombres & Calculs / Calcul Littéral :** Identités remarquables, équations/inéquations 1er/2nd degré, puissances, racines, calcul fractionnaire, notation scientifique.
+    2.  **Fonctions :** Affines & quadratiques, lecture graphique (variations, images, antécédents, zéros), résolution $f(x)=a$, domaine de définition, sommet de parabole.
+    3.  **Géométrie Repérée & Vecteurs :** Coordonnées de points/vecteurs, distance, milieu, équations de droites (pente, alignement), colinéarité, produit scalaire simple (si abordé en Seconde ou notion intuitive de perpendicularité).
+    4.  **Trigonométrie (Bases) :** Cercle trigonométrique (angles remarquables), valeurs de $\cos/\sin$, identité $\sin^2\alpha+\cos^2\alpha=1$, périodicité, parité.
+    5.  **Statistiques & Probabilités :** Effectifs, fréquences, moyenne, médiane, écart-type (intuition de la dispersion), probabilités élémentaires (équiprobabilité, événements indépendants, arbres de probabilité simples).
+    6.  **Algorithmique / Logique :** Boucles/conditions simples (Python ou pseudo-code), utilisation de variables, logique booléenne simple (ET, OU, NON), ensembles (intersection, union).
 
-**Q11.** Une fonction quadratique $f(x)=ax^2+bx+c$ est convexe si :
-👉 Réponse : **$a>0$** – (2 pts, notion importante pour Première)
-
-**Q12.** Résoudre graphiquement : $x^2-1=0$.
-👉 Réponse : **$x=-1$ et $x=1$** – (1 pt)
-
-**Q13.** La parabole $y=x^2-4x+3$ coupe l’axe des abscisses en :
-A. $x=1$ et $x=3$ B. $x=-1$ et $x=3$ C. $x=1$ et $x=-3$ D. $x=0$ et $x=3$
-👉 Réponse : **A** – (2 pts)
-
-**Q14.** La fonction inverse $f(x)=1/x$ est définie sur :
-👉 Réponse : **$\mathbb{R}^*=\mathbb{R}\setminus\{0\}$** – (1 pt)
-
-**Q15.** Le tableau de variation d’une fonction permet de :
-A. Lire ses limites B. Étudier sa croissance/décroissance C. Trouver son équation D. Factoriser
-👉 Réponse : **B** – (1 pt)
+*   **2.2. Interdiction Formelle :** Aucune question ne doit dépasser le programme officiel de Seconde. Les questions sont choisies pour leur rôle de **pré-requis** et leur capacité à **orienter** la remédiation pour la Première, sans évaluer directement les notions de Première.
 
 ---
 
-## Partie 3 – Géométrie vectorielle et repérée (7 questions)
+### **3. Structure Détaillée du Questionnaire**
 
-**Q16.** Soit $\vec{u}(2,1)$ et $\vec{v}(4,2)$. Alors $\vec{v}$ est :
-👉 Réponse : **colinéaire à $\vec{u}$** – (2 pts)
+**3.1. Volume et Types d'Items :**
+*   **Total :** 43 items (40 questions QCM / numériques + 3 mini-exercices courts).
+*   **Type des items :**
+    *   `"mcq"` : Question à choix multiple (avec un seul bon choix `correct: true`).
+    *   `"numeric"` : Réponse numérique courte (vérification exacte ou par intervalle).
+    *   `"short"` : Réponse textuelle courte (pour les mini-exercices ou définitions).
 
-**Q17.** Norme de $(3,4)$ est :
-👉 Réponse : **5** – (1 pt)
+**3.2. Répartition et Pondération par Domaine (Volet 1) :**
 
-**Q18.** Produit scalaire : $(1,2)\cdot(3,4)=?$
-👉 Réponse : **11** – (2 pts)
+| Domaine (Programme de Seconde)    | Nombre de Questions | Points Totaux | Poids Relatif (%) | Spécificités Pré-requis Première                                                                     |
+| :-------------------------------- | :------------------ | ------------: | ----------------: | :--------------------------------------------------------------------------------------------------- |
+| Calcul littéral & équations       | 8                   |            11 |               16% | Factorisation, résolution, inéquations 1er/2nd degré.                                               |
+| Fonctions & représentations       | 7                   |             9 |               13% | Lecture graphique, variations, équation $f(x)=a$.                                                    |
+| Géométrie repérée & vecteurs      | 7                   |            11 |               16% | Coordonnées, droites, produit scalaire simple, colinéarité.                                          |
+| Trigonométrie (bases)             | 5                   |             7 |               10% | Cercle trigo, valeurs remarquables, identité fondamentale.                                           |
+| Probabilités & statistiques       | 7                   |            12 |               17% | Espérance simple, dispersion, probabilités composées.                                                |
+| Algorithmique & logique           | 6                   |             8 |               11% | Boucles, conditions, logique.                                                                        |
+| **Mini-exercices (Réponse courte)** | 3                   |            12 |               17% | Transversal (calcul/démonstration courte, vérifiant la mise en œuvre de plusieurs concepts).         |
+| **TOTAL**                         | **43**              | **70**        | **100%**          |                                                                                                      |
 
-**Q19.** Coordonnées du milieu de A(2,3), B(4,7) :
-👉 Réponse : **(3,5)** – (1 pt)
+*   **Barème par Item :** Les items clés (pré-requis critiques) sont pondérés à 2 ou 3 points. Les automatismes simples à 1 point. Les mini-exercices (items Q41-Q43) sont pondérés à 4 points chacun.
+*   **Notation :** La banque d'items (JSON) inclura les points `weight` pour chaque question.
 
-**Q20.** Équation d’une droite passant par (0,2) de pente 3 :
-👉 Réponse : **$y=3x+2$** – (2 pts)
+**3.3. Contenu Intégral du QCM (Banque d'Items `data/qcm_premiere_maths.json`) :**
+Le fichier JSON `data/qcm_premiere_maths.json` doit contenir l'intégralité des 43 items (40 QCM/numériques/short + 3 mini-exercices) avec leur `id`, `domain`, `type`, `difficulty`, `weight`, `prompt_latex`, `choices` (pour MCQ), `correct` (pour MCQ), `answer_latex` (pour numeric/short), et `explanation_latex`.
 
-**Q21.** L’équation $(x-1)^2+(y-2)^2=9$ représente :
-👉 Réponse : **un cercle de centre (1,2) et rayon 3** – (2 pts)
-
-**Q22.** Deux vecteurs sont orthogonaux si :
-👉 Réponse : **leur produit scalaire vaut 0** – (1 pt)
-
----
-
-## Partie 4 – Trigonométrie (5 questions)
-
-**Q23.** Sur le cercle trigonométrique, le point d’angle $\pi/6$ a pour coordonnées :
-👉 Réponse : **($\sqrt{3}/2, 1/2$)** – (2 pts)
-
-**Q24.** Valeur exacte : $\cos(\pi/3)=?$
-👉 Réponse : **1/2** – (1 pt)
-
-**Q25.** La période de $\sin(x)$ est :
-👉 Réponse : **$2\pi$** – (1 pt)
-
-**Q26.** La fonction cosinus est :
-👉 Réponse : **paire** – (2 pts)
-
-**Q27.** Valeur exacte : $\sin(\pi/2)=?$
-👉 Réponse : **1** – (1 pt)
+> **Note :** La version complète de ce JSON a été fournie et validée précédemment dans notre conversation. Cursor doit l'encoder **à l'identique** dans ce fichier.
 
 ---
 
-## Partie 5 – Probabilités et statistiques (7 questions)
+### **4. Qualité Pédagogique et Psychométrie du Questionnaire**
 
-**Q28.** Une pièce équilibrée : P(Pile)=?
-👉 Réponse : **1/2** – (1 pt)
-
-**Q29.** Loi de probabilité : somme des probabilités = ?
-👉 Réponse : **1** – (1 pt)
-
-**Q30.** Espérance d’une variable X avec P(X=1)=0,4 et P(X=3)=0,6 :
-👉 Réponse : **2,2** – (3 pts, notion clé pour Première)
-
-**Q31.** Moyenne des données : 4, 6, 10, 0.
-👉 Réponse : **5** – (2 pts)
-
-**Q32.** L’écart-type mesure :
-A. La moyenne B. La dispersion C. Le maximum D. La somme
-👉 Réponse : **B** – (2 pts)
-
-**Q33.** Si événements A et B indépendants : P(A∩B)=?
-👉 Réponse : **P(A)×P(B)** – (2 pts)
-
-**Q34.** On lance un dé équilibré. Probabilité d’obtenir un multiple de 2 :
-👉 Réponse : **3/6=1/2** – (1 pt)
+*   **4.1. Couverture et Pertinence :** Chaque domaine doit couvrir les capacités attendues de Seconde, en évitant strictement le hors-programme Première ou les spécificités Terminale.
+*   **4.2. Niveaux de Difficulté :** Les items seront classés A (automatisme), B (application directe), C (problème court/synthétique) pour une granularité du diagnostic.
+*   **4.3. Discrimination et Fiabilité :** Varier les distracteurs pour éviter les réponses aléatoires. Viser un alpha de Cronbach ≥ 0.80 (analyse interne).
+*   **4.4. Équité :** Contenu neutre, sans biais culturel ou sémantique pénalisant.
 
 ---
 
-## Partie 6 – Algorithmique et logique (6 questions)
+### **5. Deuxième Volet — Pédagogique et Personnel (Commun Multi-Matières)**
 
-**Q35.** En Python, `for i in range(3): print(i)` affiche :
-👉 Réponse : **0 1 2** – (1 pt)
+Ce volet sera le même pour toutes les matières et niveaux.
 
-**Q36.** En Python, une condition s’écrit :
-👉 Réponse : **if x>0:** – (1 pt)
-
-**Q37.** L’ensemble $A={1,2,3}, B={2,4}$. Intersection :
-👉 Réponse : **{2}** – (1 pt)
-
-**Q38.** La négation de « Tout entier est pair » est :
-👉 Réponse : **Il existe un entier impair** – (2 pts)
-
-**Q39.** La formule $(P \lor Q)$ signifie :
-👉 Réponse : **P ou Q** – (1 pt)
-
-**Q40.** « Si une figure est un carré alors c’est un rectangle » :
-A. Implication B. Équivalence C. Négation D. Contre-exemple
-👉 Réponse : **A (implication)** – (2 pts)
+*   **5.1. Objectif :** Renseigner les préférences d'apprentissage, l'organisation, les freins (anxiété, temps, matériel), les habitudes (prise de notes, révisions) et les soutiens (famille, pairs).
+*   **5.2. Axes Évalués :** Motivation & ambitions, Confiance & rapport à l'erreur, Style & rythme (VAK/Kolb), Méthodes de travail, Organisation & environnement, Contraintes/Stress/Concentration, Objectifs Bac/Parcoursup.
+*   **5.3. Sortie :** Un `pedagoProfile` structuré et des indices numériques `IDX_*` (ex: `IDX_AUTONOMIE`, `IDX_ORGANISATION`, `IDX_MOTIVATION`, `IDX_STRESS`, `IDX_CONCENTRATION`, `IDX_MEMORISATION`, `IDX_ANALYSE_SYNTHESE`, `IDX_SUSPECT_DYS`) qui alimenteront la matrice de décision des offres Nexus.
+*   **5.4. Contenu :** Les questions sont définies dans le document `CAHIER_CHARGES_BILAN_VOLET2.md` et seront converties en `data/pedago_survey_commun.json`.
+*   **5.5. Réutilisation :** Si le Volet 2 a déjà été rempli par l'élève, ses réponses seront automatiquement réutilisées pour les bilans suivants dans d'autres matières.
 
 ---
 
-# ✅ Barème total : 70 points
+### **6. Spécifications Techniques Détaillées (Génération et Rendu du Bilan)**
 
-* 1 pt = rappel / automatisme simple.
-* 2 pts = compétence importante.
-* 3 pts = notion clé pour la Première.
+**6.1. Modèles Prisma à Mettre à Jour (`prisma/schema.prisma`) :**
+Le schéma doit inclure les modèles `Bilan` et `StudentProfileData` avec les champs appropriés.
 
----
+```prisma
+// Fichier : prisma/schema.prisma
 
-prépare aussi un **tableau radar (profil par domaine : algèbre, fonctions, géométrie, trigo, proba, algo)** pour visualiser le niveau de l’élève à partir de ce QCM ?
+// ... (autres modèles existants)
 
+model Bilan {
+  id                      String    @id @default(cuid())
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id])
 
-un **tableau radar (ou graphique radar)** est idéal pour visualiser les points forts et les faiblesses d’un élève à partir du QCM.
+  studentId               String?
+  student                 Student?  @relation(fields: [studentId], references: [id])
 
-Voici comment on va l’organiser :
+  matiere                 String?   // "Maths"
+  niveau                  String?   // "Première"
 
----
+  qcmRawAnswers           Json?     // Réponses brutes du QCM (Volet 1)
+  pedagoRawAnswers        Json?     // Réponses brutes du questionnaire pédagogique (Volet 2)
 
-## 🛠️ Structure du Bilan Radar
+  qcmScores               Json?     // Résultats calculés du QCM (global, par domaine, lacunes critiques)
+  pedagoProfile           Json?     // Profil pédagogique dérivé du Volet 2 (style, méthodes, etc.)
+  preAnalyzedData         Json?     // Indices calculés (IDX_* : autonomie, motivation, stress, etc.)
+  offers                  Json?     // { primary, alternatives, rationale }
 
-* **Domaines évalués** (issus du QCM Seconde) :
+  reportText              String?   @db.Text  // Texte complet du rapport généré par OpenAI
+  summaryText             String?   @db.Text  // Texte de la synthèse d'une page générée par OpenAI
 
-  1. Calcul littéral & équations (Q1–Q8 → /11 pts)
-  2. Fonctions & représentations graphiques (Q9–Q15 → /9 pts)
-  3. Géométrie vectorielle & repérée (Q16–Q22 → /11 pts)
-  4. Trigonométrie (Q23–Q27 → /7 pts)
-  5. Probabilités & statistiques (Q28–Q34 → /12 pts)
-  6. Algorithmique & logique (Q35–Q40 → /8 pts)
+  generatedAt             DateTime? // Date de génération du rapport complet
+  status                  String    @default("PENDING") // PENDING, GENERATED, ERROR, PROCESSING_QCM, PROCESSING_PEDAGO, PROCESSING_AI_REPORT
 
-* Chaque domaine est **normalisé en %** :
+  variant                 String?   // standard | parent | eleve | nexus
+  mailLogs                MailLog[]
 
-  $$
-  \text{Score%} = \frac{\text{points obtenus}}{\text{points possibles}} \times 100
-  $$
-
-* Le graphique radar (étoilé) montre en un coup d’œil :
-
-  * **Forces** → zones proches de 100%.
-  * **Faiblesses** → zones basses, <50%.
-
----
-
-## 📝 Exemple de tableau (élève fictif)
-
-| Domaine                         | Points obtenus | Points max | % Maîtrise |
-| ------------------------------- | -------------- | ---------- | ---------- |
-| Calcul littéral & équations     | 7              | 11         | 64 %       |
-| Fonctions & représentations     | 4              | 9          | 44 %       |
-| Géométrie vectorielle & repérée | 9              | 11         | 82 %       |
-| Trigonométrie                   | 3              | 7          | 43 %       |
-| Probabilités & statistiques     | 10             | 12         | 83 %       |
-| Algorithmique & logique         | 5              | 8          | 63 %       |
-
----
-
-## 📊 Profil visuel (radar)
-
-Chaque axe correspond à un domaine, et la surface recouverte montre l’équilibre ou le déséquilibre des acquis.
-
-* Exemple : si la **Trigonométrie** est basse, l’élève risque d’être en difficulté en Première (car trigo et analyse se croisent).
-* Si **Proba & Stats** sont solides, cela aidera directement en Terminale.
-
----
-
-génère directement un **graphique radar interactif en Python (matplotlib)** que tu pourras exécuter et utiliser avec les notes réelles de l’élève,
-
-
- voici un **script Python prêt à l’emploi** pour générer un **graphique radar** (matplotlib).
-Tu n’as qu’à remplacer les scores d’exemple par ceux de l’élève. Le script calcule automatiquement les pourcentages, affiche le total, colore les forces/faiblesses et peut **exporter en PNG**.
-
-```python
-# -*- coding: utf-8 -*-
-"""
-Radar QCM Seconde -> Entrée en Première (Maths)
-- Remplacer les scores de l'élève dans `scores_eleve`
-- Lancer: python radar_qcm.py
-- Exporte aussi en PNG (paramètre EXPORT_PATH)
-"""
-
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-
-# ========== PARAMÈTRES GÉNÉRAUX ==========
-DOMAINS = [
-    "Calcul littéral\n& équations",
-    "Fonctions\n& graphes",
-    "Géométrie\nvectorielle/repérée",
-    "Trigonométrie",
-    "Probabilités\n& statistiques",
-    "Algorithmique\n& logique",
-]
-
-# Barème par domaine (conforme au QCM fourni)
-MAX_POINTS = {
-    "Calcul littéral\n& équations": 11,
-    "Fonctions\n& graphes": 9,
-    "Géométrie\nvectorielle/repérée": 11,
-    "Trigonométrie": 7,
-    "Probabilités\n& statistiques": 12,
-    "Algorithmique\n& logique": 8,
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
-# ---- REMPLACE ICI par les résultats réels de l'élève (exemple fictif) ----
-scores_eleve = {
-    "Calcul littéral\n& équations": 7,   # /11
-    "Fonctions\n& graphes": 6,          # /9
-    "Géométrie\nvectorielle/repérée": 9,# /11
-    "Trigonométrie": 3,                 # /7
-    "Probabilités\n& statistiques": 10, # /12
-    "Algorithmique\n& logique": 5,      # /8
+model StudentProfileData { // Stocke les données du Volet 2 pour réutilisation
+  id               String   @id @default(cuid())
+  studentId        String   @unique
+  student          Student  @relation(fields: [studentId], references: [id])
+
+  pedagoRawAnswers Json?    // Réponses brutes du Volet 2
+  pedagoProfile    Json?    // Profil pédagogique dérivé du Volet 2
+  preAnalyzedData  Json?    // Indices IDX_* dérivés du Volet 2
+  lastUpdatedAt    DateTime @default(now())
 }
-# -------------------------------------------------------------------------
 
-# Export PNG (mettre None pour ne pas exporter)
-EXPORT_PATH = "bilan_radar_premiere.png"
-
-# Seuils pour colorer/interpréter (en %)
-THR_WEAK = 50
-THR_STRONG = 75
-
-def percent_scores(scores, max_points):
-    """Transforme points -> pourcentages par domaine (ordre = DOMAINS)."""
-    pct = []
-    for d in DOMAINS:
-        raw = scores.get(d, 0)
-        mx = max_points[d]
-        pct.append(100.0 * raw / mx if mx > 0 else 0.0)
-    return pct
-
-def synthese(scores, max_points):
-    total = sum(scores[d] for d in DOMAINS)
-    total_max = sum(max_points[d] for d in DOMAINS)
-    pct_global = 100.0 * total / total_max if total_max > 0 else 0.0
-    # Interprétation simple
-    if pct_global >= 80:
-        niveau = "Maîtrise très solide"
-    elif pct_global >= 65:
-        niveau = "Bon niveau"
-    elif pct_global >= 50:
-        niveau = "Niveau moyen (lacunes ciblées)"
-    else:
-        niveau = "Fragilités importantes"
-    return total, total_max, pct_global, niveau
-
-def recommandations(scores_pct):
-    """Retourne listes domaines faibles/forts selon seuils."""
-    faibles = [DOMAINS[i] for i, v in enumerate(scores_pct) if v < THR_WEAK]
-    forts = [DOMAINS[i] for i, v in enumerate(scores_pct) if v >= THR_STRONG]
-    return faibles, forts
-
-def radar_chart(pct_values, title, sub_title, show_labels=True):
-    """
-    Trace un radar (0-100%) avec remplissage.
-    pct_values: liste de % (len = N domaines)
-    """
-    N = len(pct_values)
-    angles = np.linspace(0, 2 * math.pi, N, endpoint=False)
-    values = np.array(pct_values)
-    # fermer le polygone
-    angles = np.concatenate([angles, [angles[0]]])
-    values = np.concatenate([values, [values[0]]])
-
-    fig = plt.figure(figsize=(8, 8))
-    ax = plt.subplot(111, polar=True)
-    fig.patch.set_facecolor("white")
-
-    # Grille et limites
-    ax.set_theta_offset(math.pi / 2)
-    ax.set_theta_direction(-1)
-    ax.set_rlabel_position(0)
-    ax.set_ylim(0, 100)
-    ax.set_yticks([25, 50, 75, 100])
-    ax.set_yticklabels(["25%", "50%", "75%", "100%"], fontsize=10)
-
-    # Axes (libellés)
-    if show_labels:
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(DOMAINS, fontsize=10)
-    else:
-        ax.set_xticks([])
-
-    # Couleur graduée selon niveaux
-    color = "#2563eb"  # bleu
-    ax.plot(angles, values, color=color, linewidth=2)
-    ax.fill(angles, values, color=color, alpha=0.25)
-
-    # Cercles de seuils utiles
-    for thr, c in [(THR_WEAK, "#ef4444"), (THR_STRONG, "#10b981")]:
-        ax.plot(np.linspace(0, 2*math.pi, 361), [thr]*361, c=c, lw=0.8, ls="--", alpha=0.8)
-
-    # Titres
-    ax.set_title(title, va="bottom", fontsize=14, fontweight="bold")
-    ax.text(0.5, -0.08, sub_title, transform=ax.transAxes,
-            ha="center", va="center", fontsize=11)
-
-    # Légende des seuils
-    from matplotlib.lines import Line2D
-    custom_lines = [
-        Line2D([0], [0], color="#ef4444", lw=1.2, ls="--"),
-        Line2D([0], [0], color="#10b981", lw=1.2, ls="--"),
-    ]
-    ax.legend(custom_lines, [f"Seuil faiblesse {THR_WEAK}%", f"Seuil force {THR_STRONG}%"],
-              loc="lower left", bbox_to_anchor=(0.05, 0.05), frameon=False, fontsize=9)
-
-    plt.tight_layout()
-    return fig, ax
-
-def main():
-    # Calculs
-    pct = percent_scores(scores_eleve, MAX_POINTS)
-    total, total_max, pct_global, niveau = synthese(scores_eleve, MAX_POINTS)
-    faibles, forts = recommandations(pct)
-
-    # Sous-titre synthétique
-    sub = f"Total: {total}/{total_max}  |  Global: {pct_global:.1f}%  |  Niveau: {niveau}"
-
-    # Titre principal
-    title = "Bilan QCM Seconde — Préparation Entrée en Première (Maths)"
-
-    # Graphique
-    fig, ax = radar_chart(pct, title, sub)
-
-    # Annotations forces/faiblesses (facultatives)
-    y0 = -0.13
-    if faibles:
-        ax.text(0.5, y0, "Points à renforcer: " + ", ".join(faibles),
-                transform=ax.transAxes, ha="center", va="center", fontsize=9, color="#ef4444")
-        y0 -= 0.06
-    if forts:
-        ax.text(0.5, y0, "Forces: " + ", ".join(forts),
-                transform=ax.transAxes, ha="center", va="center", fontsize=9, color="#10b981")
-
-    # Export PNG
-    if EXPORT_PATH:
-        plt.savefig(EXPORT_PATH, dpi=180, bbox_inches="tight")
-        print(f"✅ Exporté: {EXPORT_PATH}")
-
-    plt.show()
-
-if __name__ == "__main__":
-    main()
-```
-
-### Mode d’emploi rapide
-
-1. Installe/assure-toi d’avoir `matplotlib` et `numpy` :
-
-   ```bash
-   pip install matplotlib numpy
-   ```
-2. Colle le script dans un fichier (ex. `radar_qcm.py`).
-3. Remplace dans `scores_eleve` les points par **les résultats réels** (par domaine).
-4. Lance :
-
-   ```bash
-   python radar_qcm.py
-   ```
-5. Le radar s’ouvre et s’exporte en **`bilan_radar_premiere.png`**.
-
- le **bilan académique (QCM radar)** par un **bilan pédagogique et personnel** : c’est une approche holistique qui correspond parfaitement à l’esprit « premium » et individualisé que nous construisons.
-
-👉 Mon idée : construire un **questionnaire structuré en volets**, inspiré de méthodes validées (pédagogie différenciée, profils d’apprentissage, théorie des intelligences multiples de Gardner, styles cognitifs Kolb/VAK, etc.).
-Ce questionnaire sera **diagnostique** : il permettra de dresser un **profil personnel d’apprentissage** afin de proposer une feuille de route optimale.
-
----
-
-# 🧩 **Volet 2 : Bilan pédagogique & profil personnel de l’élève**
-
-## 1. Motivation et ambitions
-
-* Qu’est-ce qui te motive le plus à apprendre les mathématiques ?
-  A. Réussir aux examens
-  B. Comprendre le monde qui m’entoure
-  C. Développer ma logique
-  D. Répondre aux attentes des parents/professeurs
-* Quels sont tes projets pour l’avenir ? (études supérieures, métier envisagé, domaine d’intérêt)
-* Quelle mention vises-tu au Bac ?
-* Quelles sont tes principales craintes en mathématiques ?
-
----
-
-## 2. Confiance et rapport à l’erreur
-
-* Lorsque tu te trompes dans un exercice, quelle est ta réaction habituelle ?
-  A. Je me décourage facilement
-  B. J’essaie de comprendre pourquoi
-  C. J’attends qu’on me donne la solution
-  D. Je recommence avec une autre méthode
-* Sur une échelle de 1 à 5, quelle confiance as-tu en tes capacités mathématiques ?
-
----
-
-## 3. Style et rythme d’apprentissage (référence VAK + Kolb)
-
-* Tu apprends mieux quand :
-  A. Tu écoutes des explications (auditif)
-  B. Tu vois des schémas/vidéos (visuel)
-  C. Tu manipules, écris, testes (kinesthésique)
-* Préfères-tu travailler :
-  A. Par petits pas réguliers
-  B. Par séances longues et intensives
-* Es-tu plus efficace :
-  A. Le matin B. L’après-midi C. Le soir
-
----
-
-## 4. Méthodes de travail
-
-* Comment révises-tu d’habitude ?
-  A. Relire le cours
-  B. Faire beaucoup d’exercices
-  C. Fiches/schémas
-  D. En groupe avec d’autres élèves
-* Utilises-tu déjà :
-
-  * Des quiz interactifs ?
-  * Des vidéos explicatives ?
-  * Des applications de suivi (Anki, Notion, etc.) ?
-
----
-
-## 5. Organisation et gestion du temps
-
-* En moyenne, combien de temps par semaine consacres-tu aux mathématiques en dehors du lycée ?
-* Arrives-tu à respecter un planning de travail ?
-* Quelles matières prennent le plus de ton temps actuellement ?
-
----
-
-## 6. Points forts et difficultés
-
-* Quelles sont tes forces en maths (calcul, logique, raisonnement, résolution de problème…) ?
-* Quelles sont tes faiblesses (gérer la vitesse, les erreurs d’inattention, le raisonnement abstrait, la rédaction…) ?
-* As-tu déjà été identifié avec des **difficultés spécifiques (DYS, TDAH, anxiété scolaire, autres)** ?
-
----
-
-## 7. Ressources personnelles et environnement
-
-* As-tu un espace calme et régulier pour travailler ?
-* As-tu accès facilement à un ordinateur/tablette et à une bonne connexion internet ?
-* Préfères-tu travailler seul ou accompagné ?
-
----
-
-## 8. Feedback sur l’accompagnement attendu
-
-* Préfères-tu :
-  A. Des explications très guidées et progressives
-  B. Être mis(e) en autonomie avec correction ensuite
-  C. Des défis et problèmes ouverts pour progresser
-* Aimerais-tu recevoir :
-
-  * Un suivi hebdomadaire avec objectifs ?
-  * Des bilans mensuels ?
-  * Des exercices supplémentaires à la demande ?
-
----
-
-# 🔎 Résultats attendus
-
-Après analyse des réponses, on pourra dresser :
-
-1. **Profil pédagogique de l’élève** :
-
-   * Style d’apprentissage dominant (visuel, auditif, kinesthésique).
-   * Rythme et conditions de travail optimales.
-   * Niveau de motivation et confiance.
-   * Points forts / points faibles cognitifs.
-2. **Recommandations personnalisées** :
-
-   * Ressources les plus adaptées (exercices, vidéos, fiches, simulations interactives).
-   * Stratégies (travail régulier vs intensif, apprentissage actif, planification).
-   * Précautions pédagogiques en cas de difficultés spécifiques (dys, TDAH…).
-3. **Feuille de route Nexus Premium** :
-
-   * Orientation vers l’un de nos parcours (Cortex, Studio Flex, Académie Nexus, Odyssée).
-   * Plan de travail adapté à son projet Parcoursup.
-
- créér une **page React complète** (volets QCM + pédagogique + résultats/radar + recommandations + envoi PDF/email), prête à intégrer dans ton site. Elle est déjà dans le canvas à côté 👈
-
-### Ce que fait la page
-
-* **Volet 1 (QCM Seconde)** : 40 questions pondérées par domaine, progression, scoring auto.
-* **Volet 2 (profil pédagogique)** : questionnaire structuré (motivation, style VAK, rythme, méthodes, DYS/TDAH, attentes…).
-* **Résultats** : radar (Recharts), synthèse par domaine, forces/faiblesses, et **offres Nexus** proposées automatiquement (Cortex, Studio Flex, Académies, Odyssée).
-* **Soumission** : POST vers `/api/bilan/submit` avec toutes les données (élève, parent, réponses, scores). À traiter côté serveur pour **générer le PDF** et **envoyer les emails**.
-
-### À brancher côté back-end
-
-Crée un endpoint `POST /api/bilan/submit` (ex. Next.js Route Handler) qui :
-
-1. **Génère le PDF** (ex. `@react-pdf/renderer` ou `puppeteer` pour snapshot HTML).
-2. **Envoie les emails** parent/élève (ex. Nodemailer / provider transactionnel).
-3. **Persiste** le bilan dans la base (pour affichage dans les dashboards parent/élève).
-
-Pseudo-handler minimal :
-
-```ts
-// app/api/bilan/submit/route.ts
-import { NextResponse } from "next/server";
-// import nodemailer, prisma, etc.
-
-export async function POST(req: Request) {
-  const payload = await req.json();
-  // 1) Générer PDF (depuis payload)
-  // 2) Envoyer emails avec PDF en PJ
-  // 3) Sauvegarder en DB (élève, scores, réponses)
-  return NextResponse.json({ ok: true });
+model Student { // Assurez-vous que le modèle Student a la relation vers StudentProfileData
+  id          String              @id @default(cuid())
+  // ... autres champs
+  profileData StudentProfileData?
+  // ...
 }
 ```
+*   **Action requise :** Exécuter la migration Prisma : `npx prisma migrate dev --name "bilan_premiere_maths_volets_indices"`
 
-### Intégration UX
+**6.2. Rendu HTML avec KaTeX (Frontend Next.js) :**
+Pour un affichage premium des formules mathématiques dans le questionnaire et les explications.
 
-* **CTA “Bilan gratuit”** sur la home → redirige vers cette page.
-* Si l’élève est connecté, pré-remplir identité (prenom/nom/email). Sinon, forcer **login élève**.
-* Après validation : toasts “PDF envoyé ✅” et lien vers **dashboard** pour revoir le bilan.
+*   **Librairies :** `npm i katex @matejmazur/react-katex remark-math rehype-katex`
+*   **CSS Global (`app/globals.css`) :**
+    ```css
+    @import "katex/dist/katex.min.css";
+    .katex-display { margin: 0.5rem 0; }
+    ```
+*   **Composant React `Latex` :**
+    ```tsx
+    import 'katex/dist/katex.min.css';
+    import TeX from '@matejmazur/react-katex'; // ou react-katex si préféré
+    // Assurez-vous que votre projet est configuré pour le rendre côté serveur si nécessaire
+    export function Latex({ children, block = false }: { children: string; block?: boolean }) {
+      return block ? <TeX block>{children}</TeX> : <TeX>{children}</TeX>;
+    }
+    // Usage: <Latex block>{item.prompt_latex}</Latex>
+    // Pour un rendu Markdown avec LaTeX : intégrer remark-math et rehype-katex dans un parser
+    ```*   **Intégration au Questionnaire UI :** Chaque item affichera son `prompt_latex` et `explanation_latex` via ce composant.
 
+**6.3. Génération PDF via LaTeX (Backend) :**
+Le PDF sera généré à partir d'un template LaTeX rempli avec les données du bilan et compilé.
 
+*   **Principe :** Ne pas utiliser HTML→PDF. Construire directement un fichier `.tex` via un template, y inclure le `reportText` (sectionné) et le `radar.png`, puis compiler.
+*   **Pipeline :**
+    1.  Construire un fichier `.tex` à partir d'un gabarit (Handlebars/EJS ou string template TS) avec les variables du bilan.
+    2.  Inclure les formules au format LaTeX **inchangé**.
+    3.  Compiler via `xelatex`/`latexmk` (nécessite une image Docker `node:alpine` enrichie avec `texlive-full` en production, ou un service dédié).
+    4.  Joindre le `radar.png` généré.
+    5.  **Conseil :** Implémenter une fonction `sanitizeLatex(text: string)` pour neutraliser les caractères spéciaux (`_ % & #`) dans les champs libres.
+*   **Templates LaTeX :** Créer un gabarit principal `lib/pdf/templates/bilan_premiere_maths.tex`.
 
+---
 
+### **7. Calcul des Scores & Profil Radar**
 
+**7.1. Algorithmes de Scoring (TypeScript) :**
+Ces fonctions seront implémentées côté backend (Next.js API).
+
+*   **`lib/scoring/math_qcm_scorer.ts` :**
+    *   **`scoreQCM(qcmQuestions: any[], qcmAnswers: Record<string, any>): ResultsQCM` :** Calcule les points obtenus, les points max et les pourcentages par domaine (`byDomain`), ainsi que le score global (`total`, `totalMax`, `global_mastery_percent`).
+    *   **`inferStrengthsWeaknesses(qcmResults: ResultsQCM, critical_lacunes: string[]): {forces: string[], faiblesses: string[]}` :** Identifie les domaines solides (≥ 75%) et faibles (< 50%), et les lacunes critiques.
+    *   **Seuils :** Faible < 50% ; Solide ≥ 75% ; Moyen : 50–74%.
+    *   **Lacunes Critiques :** La liste `critical_lacunes` (ex: "Factorisation", "Lecture parabole") provient du JSON QCM et est réévaluée si le score du domaine associé est faible.
+*   **`lib/scoring/pedago_indices.ts` :**
+    *   **`scorePedago(survey: PedagoSurvey, answers: Record<string, PedagoAnswer>): PedagoScores` :** Calcule des scores agrégés par domaine pédagogique.
+    *   **`deriveProfile(pedagoScores: PedagoScores): PedagoProfile` :** Dérive un `PedagoProfile` (style VAK, autonomie, organisation, stress, flags DYS/TDAH) et les indices `IDX_*` (`preAnalyzedData`).
+*   **`lib/scoring/offers_decision.ts` :**
+    *   **`chooseOffer(qcmResults: ResultsQCM, pedagoProfile: PedagoProfile, preAnalyzedData: any, eleveData: any): Offers` :** Implémente la matrice de décision complète pour recommander l'offre principale et les alternatives.
+
+**7.2. Génération du Radar PNG (pour PDF et HTML) :**
+
+*   **`server/graphics/radar/buildRadarPng.ts` (ou script Python) :**
+    *   **Logique :** Reçoit les labels de domaine et les pourcentages, utilise `chartjs-node-canvas` (ou `matplotlib` pour Python) pour générer l'image PNG du radar.
+    *   **Stockage :** Sauvegarde l'image dans un répertoire temporaire (ex: `storage/reports/[bilanId]/radar.png`) pour être incluse dans le PDF ou servie via une URL.
+    *   **Livrable :** Fichier `audit/radar_build_script.ts` (ou `.py`).
+
+---
+
+### **8. Rendu du Questionnaire UI/UX (Frontend)**
+
+*   **8.1. Lisibilité et Interactivité :**
+    *   Chaque question (ou mini-exercice) affichée dans un bloc distinct.
+    *   Formules **LaTeX** rendues en **affichage bloc** via KaTeX.
+    *   Options des QCM aérées et cliquables.
+    *   Navigation fluide (précédent/suivant).
+*   **8.2. Accessibilité :**
+    *   Taille de police minimale de 16px, contrastes AA.
+    *   Navigation au clavier, labels ARIA.
+*   **8.3. Fonctionnalités UX :**
+    *   Affichage de la progression (ex: "Question 5/43").
+    *   Affichage du temps estimé pour compléter le questionnaire (optionnel).
+    *   **Sauvegarde automatique** de la progression (auto-save).
+    *   Prévention de l'abandon (boîte de dialogue de confirmation à la fermeture).
+*   **8.4. Retour Élève (Après Soumission) :**
+    *   Affichage direct du **profil radar**, des **forces/faiblesses**, et du **plan d'action court** sur la page de résultats.
+    *   Liens directs vers des fiches/exercices ARIA ciblés.
+
+---
+
+### **9. Génération du Bilan Texte (par OpenAI)**
+
+*   **9.1. Structure du Bilan Texte :**
+    *   Le texte complet du bilan (`reportText`) généré par OpenAI suivra la structure en 6 sections détaillée dans le `CAHIER_CHARGES_BILAN_GRATUIT.md` (§4).
+    *   Le texte de synthèse (`summaryText`) suivra la structure en 5 sections détaillée dans le `CAHIER_CHARGES_BILAN_GRATUIT.md` (§5).
+*   **9.2. Prompts OpenAI :**
+    *   Les prompts spécifiques pour le rapport complet et la synthèse (avec la matrice de décision intégrée et la ligne éditoriale) sont définis dans le `CAHIER_CHARGES_BILAN_GRATUIT.md` (§4, §5).
+*   **9.3. Ligne Éditoriale :** Strictement respectée (professionnel, chaleureux, valorisant, premium, **pas de mention d'IA**, faiblesses = "axes de progression").
+
+---
+
+### **10. Garde-fous de Conformité Programme**
+
+*   **10.1. Sources de Vérité :** Les programmes officiels de Seconde et Première (Physique-Chimie) sont les sources de vérité pour le **bornage des contenus** du QCM.
+*   **10.2. Règle d'Or :** **Absolument aucune question de Première** ne doit être incluse dans le QCM. Le QCM vérifie les pré-requis, il ne sert pas à évaluer des notions du niveau à venir.
+*   **10.3. Revue Pédagogique :** Prévoir une étape de revue systématique des items du QCM par un **enseignant agrégé/certifié** avant toute mise en production.
+
+---
+
+### **11. Intégration à l'Écosystème Nexus (Rappels)**
+
+*   **Backend (API Routes) :**
+    *   `POST /api/bilan/math/seconde/submit` (ou `submit-answers` si générique) : Traite les réponses, calcule les scores/profils, déclenche les générations IA.
+    *   `GET /api/bilan/:id/pdf` : Génère et renvoie le PDF.
+    *   `GET /api/bilan/:id/radar.png` : Renvoie l'image du radar pour HTML ou PDF.
+*   **Worker (`BullMQ`) :** Le `BullMQ worker` sera responsable de calculer les scores, d'appeler `buildRadarPng`, de construire le `.tex`, de compiler le PDF (si fait via le worker), et de déclencher les appels OpenAI.
+*   **Stockage :** `GeneratedDocument` (pour le PDF final), `Bilan` (pour scores, `pedagoProfile`, `reportText`, `summaryText`), `StudentProfileData` (pour la réutilisation du Volet 2).
+*   **Sécurité :** Aucun PII en clair dans les logs, anonymisation de l'ID élève dans `radar.png` si stocké publiquement.
+
+---
+
+### **12. Tests et Qualité (Spécifiques au Bilan "Première Maths")**
+
+*   **12.1. Tests Unitaires :**
+    *   `math_qcm_scorer.unit.test.ts` : Pour la normalisation des barèmes, le calcul des pourcentages par domaine, les niveaux globaux, et l'identification des lacunes critiques.
+    *   `pedago_indices.unit.test.ts` : Pour le mapping des réponses Likert → `IDX_*` et la dérivation du `pedagoProfile`.
+    *   `offers_decision.unit.test.ts` : Pour tester les cas limites de la matrice de décision des offres.
+    *   Tests de sérialisation/désérialisation `.tex` et de la fonction `sanitizeLatex`.
+*   **12.2. Tests d'Intégration (API) :**
+    *   `bilan.submit.integration.test.ts` : Vérifie le flux `GET questionnaire-structure` (Volet 2 requis ou non) et `POST submit-answers` (persistance des réponses, cohérence des `qcmScores`, `IDX_*`, `offers`).
+    *   `bilan.generate_report_text.integration.test.ts` : Vérifie `POST generate-report-text` (appel OpenAI, `reportText` persisté).
+    *   `bilan.pdf.integration.test.ts` : Vérifie `GET pdf` variants (HTTP 200, type `application/pdf`, contenu basique).
+*   **12.3. Tests E2E (Playwright) :**
+    *   `bilan.e2e.spec.ts` : Couvre le parcours complet élève (initier → questionnaire → résultats → PDF/email) de manière déterministe.
+    *   Vérification du rendu LaTeX (KaTeX visible et correct).
+    *   Vérification de la génération du PDF OK (contenu, radar présent, 4 variantes).
+    *   Vérification des validations côté client et serveur.
+*   **12.4. Validation de Contenu :**
+    *   Double relecture humaine (prof + coordinateur pédagogique) pour valider l'exactitude des questions/réponses et la qualité du texte généré par OpenAI.
+*   **12.5. Performance :**
+    *   Compilation PDF < 2s (ciblage local).
+    *   `radar.png` généré < 200KB.
+
+---
+
+### **13. Annexes (Références Spécifiques au Bilan "Première Maths")**
+
+*   **Banque d'Items QCM :** `data/qcm_premiere_maths.json` (JSON complet fourni précédemment, 40 Q + 3 mini-exercices).
+*   **Banque d'Items Volet 2 :** `data/pedago_survey_commun.json` (JSON issu de `CAHIER_CHARGES_BILAN_VOLET2.md`).
+*   **Scripts de Scoring Python :** `scripts/score_radar_premiere.py` (pour la génération du radar si la version Node.js n'est pas choisie).
+*   **Templates LaTeX :** `lib/pdf/templates/bilan_premiere_maths.tex`.
+*   **Adaptateurs TypeScript de Scoring :** `lib/scoring/math_qcm_scorer.ts`, `lib/scoring/pedago_indices.ts`, `lib/scoring/offers_decision.ts`.
+*   **Composants PDF :** `lib/pdf/BilanPdfPremiereFull.tsx`, `BilanPdfPremiereParent.tsx`, `BilanPdfPremiereEleve.tsx`, `BilanPdfPremiereNexus.tsx`.
+
+---
+
+### **14. Check-list d'Acceptation (Avant Merge sur `main`)**
+
+*   **[ ] Conformité Programme :** Aucune question n'est hors programme Seconde.
+*   **[ ] Pondération :** Les items "forts" (pré-requis Première) ont un poids ≥ 2 pts.
+*   **[ ] Volet 2 :** JSON opérationnel, `IDX_*` calculés, réutilisation automatique pour bilans ultérieurs.
+*   **[ ] Rendu Mathématique :** LaTeX propre en HTML (KaTeX) et intact en PDF LaTeX.
+*   **[ ] Radar :** `radar.png` généré et correctement inséré dans le PDF.
+*   **[ ] Rapports IA :** `reportText`/`summaryText` présents en DB, conformes aux prompts, matrice d'offres appliquée, ligne éditoriale respectée.
+*   **[ ] PDFs :** Rendu correct pour les 4 variantes (standard/parent/élève/nexus).
+*   **[ ] Tests :** Unitaires, intégration, E2E verts ; RBAC/rate-limit actifs.
+*   **[ ] Sécurité :** Secrets non versionnés ; Zod env strict.
+*   **[ ] Qualité Pédagogique :** Validation par relecture humaine (enseignant/coordinateur).
+
+---
+
+**Fin du Cahier des Charges Détaillé BILAN_PREMIERE_MATHS.md.**
+
+Cursor, ce document est votre guide pour l'implémentation du Bilan "Première Maths". Il est conçu pour être exhaustif, cohérent et sans redondance. Il intègre tous les détails que nous avons discutés et doit vous permettre de réaliser un travail de la plus haute qualité.

@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,10 +34,12 @@ export function Header() {
 
   const navigation = [
     { name: "Accueil", href: "/" },
-    { name: "Assistant IA", href: "/aria" },
+    { name: "Constructeur de Parcours", href: "/constructeur-parcours" },
+    { name: "Nexus Cortex (ARIA)", href: "/offres/nexus-cortex" },
+    { name: "Offres", href: "/offres" },
     { name: "Notre Équipe", href: "/equipe" },
-    { name: "Offres & Tarifs", href: "/offres" },
     { name: "Notre Centre", href: "/notre-centre" },
+    { name: "Blog", href: "/blog" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -51,7 +53,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 md:space-x-3">
             <Image
-              src="/images/logo.png"
+              src="/images/logo_nexus.png"
               alt="Nexus Réussite"
               width={48}
               height={48}
@@ -88,7 +90,7 @@ export function Header() {
             </Button>
             <Button asChild size="sm" className="px-4">
               <Link href={bilanHref}>
-                Bilan Gratuit
+                Bilan Stratégique Gratuit
               </Link>
             </Button>
           </div>

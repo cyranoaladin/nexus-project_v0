@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "wrote_env": false,
+  "admin": {
+    "id": "cmeze0zwm0000qsq8ltrwyc1b",
+    "email": "admin.dev@nexus.local"
+  },
+  "parent": {
+    "id": "cmeze0zws0001qsq8netfskgc",
+    "email": "parent.dev@nexus.local"
+  },
+  "student": {
+    "id": "cmeze0zx40006qsq8lnwokkiw",
+    "userId": "cmeze0zwz0004qsq8fiud4krq",
+    "email": "eleve.dev@nexus.local"
+  },
+  "bilans": {
+    "bilanA": "cmeze0zx80008qsq8xdai2amb",
+    "bilanB": "cmeze0zxc000aqsq8d1e55svi"
+  },
+  "dev_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWV6ZTB6d20wMDAwcXNxOGx0cnd5YzFiIiwiZW1haWwiOiJhZG1pbi5kZXZAbmV4dXMubG9jYWwiLCJyb2xlIjoiQURNSU4iLCJkZXYiOnRydWUsImlhdCI6MTc1NjYyNjQ0MCwiZXhwIjoxNzU2NjY5NjQwfQ.tSVKMT4JO-bsC3LWl4P5VXKFAeCX0KSGIowi-qTNvNM"
+}

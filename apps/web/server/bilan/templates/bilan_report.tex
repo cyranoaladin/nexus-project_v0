@@ -1,0 +1,140 @@
+% apps/web/server/bilan/templates/bilan_report.tex
+\documentclass[11pt]{article}
+\usepackage[margin=20mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{hyperxmp}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[french]{babel}
+\frenchspacing
+% Font configured in includes/fonts.tex
+% Includes (colors/fonts/charts)
+\input{includes/colors.tex}
+\input{includes/fonts.tex}
+\input{includes/charts.tex}
+\hypersetup{
+  pdftitle={Nexus Réussite — Rapport de Bilan},
+  pdfauthor={ARIA • Nexus Réussite},
+  pdfsubject={Bilan académique et pédagogique premium},
+  pdfkeywords={Nexus, Bilan, NSI, Mathématiques, Parcoursup},
+  colorlinks=true, linkcolor=NexusBlue, urlcolor=NexusBlue
+}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textsf{Nexus Réussite}}
+\rhead{\textsf{\thepage}}
+% Sections compatibles avec la table des matières
+\newcommand{\Section}[1]{%
+  \section*{#1}\addcontentsline{toc}{section}{#1}\vspace{-6pt}%
+}
+
+\begin{document}
+
+% Page de garde
+{\centering
+\vspace*{10mm}
+{\nexusheading\Large\color{NexusSlate} Nexus Réussite}\\[2mm]
+{\Huge\bfseries\color{NexusBlue} Bilan Premium}\\[4mm]
+{\large\color{NexusSlate} {{meta.matiere}} — {{meta.niveau}} — {{meta.statut}}}\\[2mm]
+{\small Généré le: {{meta.createdAtISO}}}\\
+\par}
+\vspace{10mm}
+\hrule height 2pt \color{NexusBlue}
+\vspace{8mm}
+\noindent\textbf{Élève:} {{eleve.firstName}} {{eleve.lastName}}\hfill\textbf{Variant:} {{meta.variant}}
+\vspace{10mm}
+
+% Table des matières
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\Section{Profil}
+\begin{itemize}
+  \item Matière: {{meta.matiere}} — Niveau: {{meta.niveau}} — Statut: {{meta.statut}}
+  \item Etablissement: {{eleve.etab}}
+\end{itemize}
+
+\Section{Forces}
+\begin{itemize}
+{{#forces}}\item {{.}}{{/forces}}
+{{^forces}}\item (Aucune){{/forces}}
+\end{itemize}
+
+\Section{Axes de progression}
+\begin{itemize}
+{{#faiblesses}}\item {{.}}{{/faiblesses}}
+{{^faiblesses}}\item (Aucun){{/faiblesses}}
+\end{itemize}
+
+\Section{Lacunes critiques}
+\begin{itemize}
+{{#lacunes}}\item {{.}}{{/lacunes}}
+{{^lacunes}}\item (Aucune){{/lacunes}}
+\end{itemize}
+
+\Section{Scores par domaine}
+\begin{longtable}{p{60mm} p{25mm}}
+\textbf{Domaine} & \textbf{Maîtrise}\\\hline
+{{#diagnostic_rows}}
+{{label}} & {{percent}}\%\\
+{{/diagnostic_rows}}
+\end{longtable}
+\vspace{2mm}
+\noindent\textbf{Score global:} {{qcm.scoreGlobal}}\%\\[4mm]
+\noindent\textbf{Radar des compétences}\\par
+\RadarFromCoords{ {{radar.coords}} }\\[2mm]
+{\small\textit{Axes:} {{#radar.labels}}{{.}}{{^@last}} • {{/@last}}{{/radar.labels}} }\\[4mm]
+\noindent\textbf{Répartition par domaines}\par
+\BarsFromCoords{ {{bars.labelsCsv}} }{ {{bars.coords}} }
+
+\Section{Profil pédagogique}
+\begin{itemize}
+  \item Style: {{profil.style}} \quad Autonomie: {{profil.autonomie}}
+  \item Organisation: {{profil.organisation}} \quad Stress: {{profil.stress}}
+  \item Flags: {{#profil.flags}}{{.}}, {{/profil.flags}}
+\end{itemize}
+
+\Section{Feuille de route}
+Horizion: {{plan.horizonMois}} mois — Charge hebdo: {{plan.hebdoHeures}} h\\
+\begin{longtable}{p{18mm} p{140mm}}
+\textbf{\#} & \textbf{Étape}\\\hline
+{{#plan_rows}} {{idx}} & {{text}}\\ {{/plan_rows}}
+\end{longtable}
+\vspace{2mm}
+\Section{Feuille de route (8 semaines)}
+\NxsTimelineBars{ {{timeline.c}} }{ {{timeline.d}} }{ {{timeline.t}} }
+\smallskip
+\textbf{Détail par semaine :}\\
+\begin{itemize}
+  \item \textbf{S1} — {{TLdOne}}
+  \item \textbf{S2} — {{TLdTwo}}
+  \item \textbf{S3} — {{TLdThree}}
+  \item \textbf{S4} — {{TLdFour}}
+  \item \textbf{S5} — {{TLdFive}}
+  \item \textbf{S6} — {{TLdSix}}
+  \item \textbf{S7} — {{TLdSeven}}
+  \item \textbf{S8} — {{TLdEight}}
+\end{itemize}
+
+\Section{Offre Nexus recommandée}
+\textbf{Principale:} {{offre.primary}}\\
+\textbf{Alternatives:} {{#offre.alternatives}}{{.}}, {{/offre.alternatives}}\\
+\textbf{Justification:} {{offre.reasoning}}
+
+\Section{Références et extraits}
+\begin{enumerate}
+{{#citations}}
+  \item \textbf{ {{title}} } — \url{ {{src}} }\\ \emph{«\,{{snippet}}\,»}
+{{/citations}}
+{{^citations}}
+  \item (Aucune citation)
+{{/citations}}
+\end{enumerate}
+
+\end{document}

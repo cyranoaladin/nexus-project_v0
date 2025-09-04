@@ -64,7 +64,7 @@ jobs:
         env:
           E2E_RUN: '1'
           CI: '1'
-          E2E_BASE_URL: 'http://localhost:3001'
+          E2E_BASE_URL: 'http://localhost:3003'
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public
         run: npm run test:e2e -- --project=chromium -g "Smoke - Parcours critiques"
 
@@ -103,6 +103,6 @@ jobs:
         env:
           E2E_RUN: '1'
           CI: '1'
-          E2E_BASE_URL: 'http://localhost:3001'
+          E2E_BASE_URL: 'http://localhost:3003'
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_dev?schema=public
         run: npm run test:e2e

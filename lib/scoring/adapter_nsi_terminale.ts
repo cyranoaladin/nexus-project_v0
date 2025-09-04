@@ -1,11 +1,36 @@
 export type Results = {
   total: number;
   totalMax: number;
-  byDomain: Record<string, { points: number; max: number; percent: number }>;
+  byDomain: Record<string, { points: number; max: number; percent: number; }>;
 };
 
-import { NSI_ORDER } from "./terminale_nsi";
-import { nsiDomainToLabel } from "./premiere_nsi";
+// Réplique locale pour éviter d'importer des modules qui chargent des JSON côté SSR
+const NSI_ORDER = [
+  'TypesBase',
+  'TypesConstruits',
+  'Algo',
+  'LangagePython',
+  'TablesDonnees',
+  'IHMWeb',
+  'Reseaux',
+  'ArchOS',
+  'HistoireEthique',
+] as const;
+
+function nsiDomainToLabel(key: string): string {
+  switch (key) {
+    case 'TypesBase': return 'Types de base';
+    case 'TypesConstruits': return 'Types construits';
+    case 'Algo': return 'Algorithmique';
+    case 'LangagePython': return 'Langage Python';
+    case 'TablesDonnees': return 'Tables de données';
+    case 'IHMWeb': return 'IHM Web';
+    case 'Reseaux': return 'Réseaux';
+    case 'ArchOS': return 'Architecture & OS';
+    case 'HistoireEthique': return 'Histoire & Éthique';
+    default: return key;
+  }
+}
 
 export function toScoresByDomainNSITerminale(results: Results) {
   const order = Array.from(NSI_ORDER);
@@ -51,4 +76,3 @@ export function buildPdfPayloadNSITerminale(results: Results) {
   const scoreGlobal = Math.round((results.total / Math.max(1, results.totalMax)) * 100);
   return { scoresByDomain, forces, faiblesses, feuilleDeRoute, offers, scoreGlobal };
 }
-

@@ -26,6 +26,7 @@ export const bilanGratuitSchema = z.object({
   // Informations Élève
   studentFirstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   studentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  studentEmail: z.string().email('Email élève invalide').optional(),
   studentGrade: z.string().min(1, 'Veuillez sélectionner une classe'),
   studentSchool: z.string().optional(),
   studentBirthDate: z.string().optional(),

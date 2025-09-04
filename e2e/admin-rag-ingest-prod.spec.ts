@@ -113,7 +113,7 @@ test.describe('RAG ingestion - production server', () => {
 
     // Ingest without stubbing; expect success banner
     await page.getByTestId('rag-ingest').click();
-    await expect(page.getByText('Document ingéré avec succès')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('body')).toContainText('Document ingéré avec succès');
     await cap.attach('console.admin.rag.ingest.ui.json');
   });
 });

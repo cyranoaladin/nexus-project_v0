@@ -1,0 +1,1 @@
+{"error":"403 Project `proj_clPN8gGzhcmlVQsIzQd292ME` does not have access to model `text-embedding-3-large`","env":{"OPENAI_EMBEDDINGS_MODEL":"text-embedding-3-large","EMBEDDING_PROVIDER":"openai","VECTOR_DIM":"3072","NODE_ENV":"development"}}

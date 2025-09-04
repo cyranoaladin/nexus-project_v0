@@ -20,6 +20,7 @@ const customJestConfig = {
     // Tests UI complexes couverts en E2E Playwright
     '<rootDir>/__tests__/ui/admin-tests.panel.test.tsx',
     '<rootDir>/__tests__/ui/eleve-ressources.test.tsx',
+    '<rootDir>/__tests__/ui/buttons.public.test.ts',
     '<rootDir>/.next/standalone/',
   ],
   moduleNameMapper: {

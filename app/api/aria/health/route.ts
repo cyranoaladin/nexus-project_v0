@@ -16,5 +16,3 @@ export async function GET() {
   }
   return NextResponse.json({ mode, model, fallback });
 }
-
-

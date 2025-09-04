@@ -1,0 +1,578 @@
+@startuml
+hide methods
+skinparam classAttributeIconSize 0
+entity Bilan {
+  id: String
+  studentId: String
+  student: Student
+  subject: String?
+  niveau: String?
+  statut: String?
+  qcmRaw: Json
+  pedagoRaw: Json
+  qcmScores: Json
+}
+entity StudentProfileData {
+  id: String
+  studentId: String
+  student: Student
+  pedagoRawAnswers: Json?
+  pedagoProfile: Json?
+  preAnalyzedData: Json?
+  lastUpdatedAt: DateTime
+}
+entity User {
+  id: String
+  email: String
+  password: String?
+  role: UserRole
+  firstName: String?
+  lastName: String?
+  phone: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+  parentProfile: ParentProfile?
+  studentProfile: StudentProfile?
+  student: Student?
+  coachProfile: CoachProfile?
+  sentMessages: Message[]
+  receivedMessages: Message[]
+  payments: Payment[]
+  coachAvailabilities: CoachAvailability[]
+  coachSessions: SessionBooking[]
+  studentSessions: SessionBooking[]
+  parentSessions: SessionBooking[]
+  notifications: SessionNotification[]
+}
+entity ParentProfile {
+  id: String
+  userId: String
+  user: User
+  address: String?
+  city: String?
+  country: String?
+  children: Student[]
+}
+entity StudentProfile {
+  id: String
+  userId: String
+  user: User
+  grade: String?
+  school: String?
+  birthDate: DateTime?
+}
+entity Student {
+  id: String
+  parentId: String
+  parent: ParentProfile
+  userId: String
+  user: User
+  grade: String?
+  school: String?
+  birthDate: DateTime?
+  credits: Int
+  totalSessions: Int
+  completedSessions: Int
+  freemiumUsage: Json?
+  guaranteeEligible: Boolean
+  guaranteeActivatedAt: DateTime?
+  subscriptions: Subscription[]
+  creditTransactions: CreditTransaction[]
+  sessions: Session[]
+  ariaConversations: AriaConversation[]
+  badges: StudentBadge[]
+  reports: StudentReport[]
+  memories: Memory[]
+  subscriptionRequests: SubscriptionRequest[]
+  bilans: Bilan[]
+  profileData: StudentProfileData?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity CoachProfile {
+  id: String
+  userId: String
+  user: User
+  title: String?
+  pseudonym: String
+  tag: String?
+  description: String?
+  philosophy: String?
+  expertise: String?
+  subjects: String
+  availableOnline: Boolean
+  availableInPerson: Boolean
+  sessions: Session[]
+  reports: StudentReport[]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity Subscription {
+  id: String
+  studentId: String
+  student: Student
+  planName: String
+  monthlyPrice: Int
+  creditsPerMonth: Int
+  status: SubscriptionStatus
+  startDate: DateTime
+  endDate: DateTime?
+  ariaSubjects: String
+  ariaCost: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity CreditTransaction {
+  id: String
+  studentId: String
+  student: Student
+  type: String
+  amount: Float
+  description: String
+  sessionId: String?
+  expiresAt: DateTime?
+  createdAt: DateTime
+}
+entity Session {
+  id: String
+  studentId: String
+  student: Student
+  coachId: String
+  coach: CoachProfile
+  type: ServiceType
+  subject: Subject
+  title: String
+  description: String?
+  scheduledAt: DateTime
+  duration: Int
+  location: String?
+  creditCost: Float
+  status: SessionStatus
+  report: String?
+  reportedAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity AriaConversation {
+  id: String
+  studentId: String
+  student: Student
+  subject: Subject
+  title: String?
+  messages: AriaMessage[]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity AriaMessage {
+  id: String
+  conversationId: String
+  conversation: AriaConversation
+  role: String
+  content: String
+  feedback: Boolean?
+  createdAt: DateTime
+}
+entity Badge {
+  id: String
+  name: String
+  description: String
+  category: String
+  icon: String?
+  condition: String
+  studentBadges: StudentBadge[]
+  createdAt: DateTime
+}
+entity StudentBadge {
+  id: String
+  studentId: String
+  student: Student
+  badgeId: String
+  badge: Badge
+  earnedAt: DateTime
+}
+entity StudentReport {
+  id: String
+  studentId: String
+  student: Student
+  coachId: String
+  coach: CoachProfile
+  title: String
+  content: String
+  period: String
+  sessionsCount: Int
+  averageGrade: Float?
+  progressNotes: String?
+  recommendations: String?
+  createdAt: DateTime
+}
+entity Payment {
+  id: String
+  userId: String
+  user: User
+  type: PaymentType
+  amount: Float
+  currency: String
+  description: String
+  status: PaymentStatus
+  method: String?
+  externalId: String?
+  metadata: Json?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity Message {
+  id: String
+  senderId: String
+  sender: User
+  receiverId: String
+  receiver: User
+  content: String
+  fileUrl: String?
+  fileName: String?
+  readAt: DateTime?
+  createdAt: DateTime
+}
+entity PedagogicalContent {
+  id: String
+  title: String
+  content: String
+  subject: Subject
+  grade: String?
+  embedding: String
+  tags: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity Memory {
+  id: String
+  studentId: String
+  student: Student
+  kind: MemoryKind
+  content: String
+  embedding: Unsupported("vector(3072)")?
+  meta: Json?
+  createdAt: DateTime
+}
+entity UserDocument {
+  id: String
+  ownerId: String?
+  ownerRole: String?
+  originalName: String
+  mime: String
+  storageKey: String
+  status: String
+  meta: Json?
+  createdAt: DateTime
+  assets: KnowledgeAsset[]
+}
+entity KnowledgeAsset {
+  id: String
+  docId: String
+  doc: UserDocument
+  subject: String
+  level: String
+  chunk: String
+  tokens: Int
+  embedding: Unsupported("vector(3072)")
+  meta: Json
+  createdAt: DateTime
+}
+entity IngestJob {
+  id: String
+  docId: String
+  status: String
+  step: String
+  progress: Int
+  error: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity SubscriptionRequest {
+  id: String
+  studentId: String
+  requestType: String
+  planName: String?
+  monthlyPrice: Float
+  reason: String?
+  status: String
+  requestedBy: String
+  requestedByEmail: String
+  processedBy: String?
+  processedAt: DateTime?
+  rejectionReason: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+  student: Student
+}
+entity Notification {
+  id: String
+  userId: String
+  userRole: UserRole
+  type: String
+  title: String
+  message: String
+  data: String
+  read: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity CoachAvailability {
+  id: String
+  coachId: String
+  coach: User
+  dayOfWeek: Int
+  startTime: String
+  endTime: String
+  specificDate: DateTime?
+  isAvailable: Boolean
+  isRecurring: Boolean
+  validFrom: DateTime
+  validUntil: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity SessionBooking {
+  id: String
+  studentId: String
+  student: User
+  coachId: String
+  coach: User
+  parentId: String?
+  parent: User?
+  subject: Subject
+  title: String
+  description: String?
+  scheduledDate: DateTime
+  startTime: String
+  endTime: String
+  duration: Int
+  status: SessionStatus
+  type: SessionType
+  modality: SessionModality
+  meetingUrl: String?
+  meetingId: String?
+  location: String?
+  creditsUsed: Int
+  coachNotes: String?
+  studentNotes: String?
+  rating: Int?
+  feedback: String?
+  studentAttended: Boolean?
+  coachAttended: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+  completedAt: DateTime?
+  cancelledAt: DateTime?
+  notifications: SessionNotification[]
+  reminders: SessionReminder[]
+}
+entity SessionNotification {
+  id: String
+  sessionId: String
+  session: SessionBooking
+  userId: String
+  user: User
+  type: NotificationType
+  title: String
+  message: String
+  status: NotificationStatus
+  sentAt: DateTime?
+  readAt: DateTime?
+  method: NotificationMethod
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity SessionReminder {
+  id: String
+  sessionId: String
+  session: SessionBooking
+  reminderType: ReminderType
+  scheduledFor: DateTime
+  sent: Boolean
+  sentAt: DateTime?
+  createdAt: DateTime
+}
+entity ProductPricing {
+  id: String
+  itemType: String
+  itemKey: String
+  amount: Int
+  currency: String
+  description: String
+  active: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity Pricing {
+  id: Int
+  service: String
+  variable: String
+  valeur: Float
+  devise: String
+  updatedAt: DateTime
+}
+entity CreditPack {
+  id: Int
+  credits: Int
+  priceTnd: Float
+  bonus: Int
+  active: Boolean
+  updatedAt: DateTime
+}
+entity CreditUsage {
+  key: String
+  credits: Int
+  updatedAt: DateTime
+}
+entity PaymentSettings {
+  id: Int
+  allowCard: Boolean
+  allowWire: Boolean
+  allowCash: Boolean
+  iban: String?
+  cashNote: String?
+  updatedAt: DateTime
+}
+entity BillingPolicy {
+  id: Int
+  annualDepositPct: Int
+  scheduleEndISO: String
+  updatedAt: DateTime
+}
+entity OfferBinding {
+  code: String
+  label: String
+  includeAria: Boolean
+  refs: Json
+}
+entity AuditLog {
+  id: Int
+  actor: String
+  action: String
+  diff: Json?
+  at: DateTime
+}
+entity CreditWallet {
+  id: Int
+  userId: String
+  balance: Int
+  updatedAt: DateTime
+  tx: CreditTx[]
+}
+entity CreditTx {
+  id: Int
+  walletId: Int
+  delta: Int
+  reason: String
+  provider: String?
+  externalId: String?
+  packId: Int?
+  at: DateTime
+  wallet: CreditWallet
+}
+entity PaymentRecord {
+  id: Int
+  provider: String
+  externalId: String
+  userId: String
+  packId: Int
+  amountTnd: Float
+  currency: String
+  status: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+entity LegalPage {
+  id: Int
+  slug: String
+  title: String
+  contentMd: String
+  contentHtml: String?
+  placeholders: Json?
+  version: Int
+  contentHash: String
+  gitCommit: String?
+  updatedBy: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+  versions: LegalVersion[]
+}
+entity LegalVersion {
+  id: Int
+  pageId: Int
+  slug: String
+  title: String
+  contentMd: String
+  contentHtml: String?
+  version: Int
+  contentHash: String
+  gitCommit: String?
+  editorId: String?
+  createdAt: DateTime
+  page: LegalPage
+}
+Bilan "1"-- "1" Student : student
+StudentProfileData "1"-- "1" Student : student
+User "1"-- "1" ParentProfile : parentProfile
+User "1"-- "1" StudentProfile : studentProfile
+User "1"-- "1" Student : student
+User "1"-- "1" CoachProfile : coachProfile
+User "*"-- "1" Message : sentMessages
+User "*"-- "1" Message : receivedMessages
+User "*"-- "1" Payment : payments
+User "*"-- "1" CoachAvailability : coachAvailabilities
+User "*"-- "1" SessionBooking : coachSessions
+User "*"-- "1" SessionBooking : studentSessions
+User "*"-- "1" SessionBooking : parentSessions
+User "*"-- "1" SessionNotification : notifications
+ParentProfile "1"-- "1" User : user
+ParentProfile "*"-- "1" Student : children
+StudentProfile "1"-- "1" User : user
+Student "1"-- "1" ParentProfile : parent
+Student "1"-- "1" User : user
+Student "*"-- "1" Subscription : subscriptions
+Student "*"-- "1" CreditTransaction : creditTransactions
+Student "*"-- "1" Session : sessions
+Student "*"-- "1" AriaConversation : ariaConversations
+Student "*"-- "1" StudentBadge : badges
+Student "*"-- "1" StudentReport : reports
+Student "*"-- "1" Memory : memories
+Student "*"-- "1" SubscriptionRequest : subscriptionRequests
+Student "*"-- "1" Bilan : bilans
+Student "1"-- "1" StudentProfileData : profileData
+CoachProfile "1"-- "1" User : user
+CoachProfile "*"-- "1" Session : sessions
+CoachProfile "*"-- "1" StudentReport : reports
+Subscription "1"-- "1" Student : student
+CreditTransaction "1"-- "1" Student : student
+Session "1"-- "1" Student : student
+Session "1"-- "1" CoachProfile : coach
+AriaConversation "1"-- "1" Student : student
+AriaConversation "*"-- "1" AriaMessage : messages
+AriaMessage "1"-- "1" AriaConversation : conversation
+Badge "*"-- "1" StudentBadge : studentBadges
+StudentBadge "1"-- "1" Student : student
+StudentBadge "1"-- "1" Badge : badge
+StudentReport "1"-- "1" Student : student
+StudentReport "1"-- "1" CoachProfile : coach
+Payment "1"-- "1" User : user
+Message "1"-- "1" User : sender
+Message "1"-- "1" User : receiver
+Memory "1"-- "1" Student : student
+UserDocument "*"-- "1" KnowledgeAsset : assets
+KnowledgeAsset "1"-- "1" UserDocument : doc
+SubscriptionRequest "1"-- "1" Student : student
+CoachAvailability "1"-- "1" User : coach
+SessionBooking "1"-- "1" User : student
+SessionBooking "1"-- "1" User : coach
+SessionBooking "1"-- "1" User : parent
+SessionBooking "*"-- "1" SessionNotification : notifications
+SessionBooking "*"-- "1" SessionReminder : reminders
+SessionNotification "1"-- "1" SessionBooking : session
+SessionNotification "1"-- "1" User : user
+SessionReminder "1"-- "1" SessionBooking : session
+CreditWallet "*"-- "1" CreditTx : tx
+CreditTx "1"-- "1" CreditWallet : wallet
+LegalPage "*"-- "1" LegalVersion : versions
+LegalVersion "1"-- "1" LegalPage : page
+@enduml

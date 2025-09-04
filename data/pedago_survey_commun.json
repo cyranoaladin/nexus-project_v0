@@ -1,0 +1,97 @@
+{
+  "version": "v2",
+  "title": "Volet 2 — Profil pédagogique (Commun)",
+  "questions": [
+    {
+      "id": "motivation",
+      "type": "single",
+      "statement": "Motivation principale",
+      "options": [
+        "Réussite examens",
+        "Comprendre en profondeur",
+        "Rattraper retards",
+        "Améliorer méthode"
+      ]
+    },
+    {
+      "id": "style",
+      "type": "single",
+      "statement": "Style d’apprentissage",
+      "options": [
+        "Visuel",
+        "Auditif",
+        "Kinesthésique",
+        "Mixte"
+      ]
+    },
+    {
+      "id": "rythme",
+      "type": "single",
+      "statement": "Rythme de travail souhaité",
+      "options": [
+        "Régulier (2-3x/sem)",
+        "Intensif (stages)",
+        "Mixte"
+      ]
+    },
+    {
+      "id": "confiance",
+      "type": "likert",
+      "scale": 5,
+      "statement": "Confiance actuelle dans la matière"
+    },
+    {
+      "id": "organisation",
+      "type": "multi",
+      "statement": "Organisation actuelle (plusieurs réponses)",
+      "options": [
+        "Fiches",
+        "Cartes mentales",
+        "Exercices guidés",
+        "Exercices en autonomie",
+        "Projets/TP",
+        "Autre"
+      ]
+    },
+    {
+      "id": "difficultes",
+      "type": "multi",
+      "statement": "Difficultés principales (plusieurs réponses)",
+      "options": [
+        "Méthode",
+        "Calcul/Techniques",
+        "Compréhension énoncés",
+        "Gestion du temps",
+        "Stress",
+        "Motivation"
+      ]
+    },
+    {
+      "id": "modalite",
+      "type": "single",
+      "statement": "Modalité préférée",
+      "options": [
+        "Présentiel",
+        "Distanciel",
+        "Hybride"
+      ]
+    },
+    {
+      "id": "objectif",
+      "type": "single",
+      "statement": "Objectif Bac",
+      "options": [
+        "≥ 10",
+        "≥ 12 Mention Assez Bien",
+        "≥ 14 Mention Bien",
+        "≥ 16 Mention Très Bien"
+      ]
+    },
+    {
+      "id": "commentaires",
+      "type": "text",
+      "statement": "Commentaires libres"
+    }
+  ]
+}
+

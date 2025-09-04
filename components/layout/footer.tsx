@@ -11,7 +11,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center space-x-2 mb-3 md:mb-4">
               <Image
-                src="/images/logo.png"
+                src="/images/logo_nexus.png"
                 alt="Nexus Réussite"
                 width={40}
                 height={40}
@@ -44,9 +44,12 @@ export function Footer() {
             <h3 className="font-semibold text-base md:text-lg mb-3 md:mb-4">Navigation</h3>
             <ul className="space-y-1 md:space-y-2">
               <li><Link href="/equipe" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Notre Équipe</Link></li>
-              <li><Link href="/offres" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Offres & Tarifs</Link></li>
+              <li><Link href="/offres" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Offres</Link></li>
               <li><Link href="/notre-centre" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Notre Centre</Link></li>
               <li><Link href="/contact" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Contact</Link></li>
+              <li><Link href="/mentions-legales" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Mentions légales</Link></li>
+              <li><Link href="/politique-confidentialite" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Politique de confidentialité</Link></li>
+              <li><Link href="/cgv" className="text-blue-300 hover:text-white transition-colors text-sm md:text-base">Conditions générales de vente</Link></li>
             </ul>
           </div>
 
@@ -56,7 +59,7 @@ export function Footer() {
             <ul className="space-y-2 md:space-y-3">
               <li className="flex items-center space-x-2">
                 <Phone className="h-3 w-3 md:h-4 md:w-4 text-red-500" />
-                <span className="text-blue-300 text-sm md:text-base">+216 XX XXX XXX</span>
+                <span className="text-blue-300 text-sm md:text-base">+216 28 300 200</span>
               </li>
               <li className="flex items-center space-x-2">
 
@@ -65,7 +68,7 @@ export function Footer() {
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-red-500 mt-1" />
-                <span className="text-blue-300">Centre Urbain Nord<br />Immeuble VENUS, Apt. C13<br />1082 – Tunis</span>
+                <span className="text-blue-300">Rue du Lac Windermere<br />Immeuble Golden Tower, Bloc C, B 5-1<br />1053 – Tunis</span>
 
               </li>
             </ul>

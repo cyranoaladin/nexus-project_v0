@@ -18,9 +18,22 @@ const generateDevSecret = () => {
 const resolveNextAuthSecret = () => {
   const envSecret = process.env.NEXTAUTH_SECRET;
   const nodeEnv = process.env.NODE_ENV;
+  const isNextBuildPhase = typeof process.env.NEXT_PHASE === 'string' && process.env.NEXT_PHASE.includes('phase-production-build');
+
+  // E2E/Playwright: always use a stable, deterministic secret for both encoding/decoding
+  if (process.env.PLAYWRIGHT === '1' || process.env.E2E === '1') {
+    return (envSecret && envSecret.trim().length >= 32)
+      ? envSecret
+      : 'e2e-test-secret-0123456789abcdef0123456789ab'; // >= 32 chars
+  }
+
   if (nodeEnv === 'production') {
     if (!envSecret || envSecret.trim().length < 32) {
-      // Ne jamais générer dynamiquement en production: sécurité et stabilité des sessions
+      // Autoriser un secret placeholder UNIQUEMENT à la compilation (build) pour Docker
+      if (isNextBuildPhase) {
+        return 'build-time-placeholder-secret-0123456789abcdef0123456789ab'; // >= 32 chars
+      }
+      // En exécution (runtime), exigence stricte
       throw new Error('NEXTAUTH_SECRET is required in production and must be at least 32 characters.');
     }
     return envSecret;

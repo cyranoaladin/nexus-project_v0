@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    // E2E bypass: retourner un tableau de bord minimal pour stabiliser les tests
+    // E2E bypass uniquement: en QA, on veut les vraies données
     if (process.env.NEXT_PUBLIC_E2E === '1') {
       return NextResponse.json({
         stats: {

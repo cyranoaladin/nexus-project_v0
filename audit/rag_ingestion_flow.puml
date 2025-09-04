@@ -1,0 +1,28 @@
+@startuml
+actor Admin
+participant Client
+participant UploadAPI as "/api/rag/upload"
+participant OCR as "OCR/Parser"
+participant Chunker
+participant Embed as "Embeddings (OpenAI)"
+participant VectorDB as "pgvector"
+participant Jobs as "Jobs/Queue"
+
+Admin -> Client: Select file + metadata
+Client -> UploadAPI: POST multipart/form-data
+activate UploadAPI
+UploadAPI -> Jobs: enqueue {fileRef, meta}
+UploadAPI --> Client: 202 Accepted {jobId}
+
+== Background Job ==
+Jobs -> OCR: Process file (PDF/Docx → text)
+OCR --> Jobs: extracted text
+Jobs -> Chunker: Split text into chunks
+Chunker --> Jobs: chunks[]
+Jobs -> Embed: Embed chunks (batched)
+Embed --> Jobs: vectors[]
+Jobs -> VectorDB: upsert vectors with docId
+VectorDB --> Jobs: ok
+Jobs -> Client: (optional) webhook/progress
+
+@enduml

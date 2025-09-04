@@ -80,7 +80,9 @@ export function CTASection() {
               className="bg-white text-blue-600 hover:bg-gray-100 shadow-2xl group font-bold h-16 px-8 text-lg transform transition-all duration-300 hover:scale-105"
               data-testid="cta-signup"
             >
-              <Link href="/bilan-gratuit">
+              <Link href="/bilan-gratuit" onClick={() => {
+                window.dispatchEvent(new CustomEvent('lead_bilan_start', { detail: { source: 'cta_section' } }));
+              }}>
                 Commencer mon Bilan Stratégique Gratuit
                 <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>

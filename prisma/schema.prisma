@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 // Énumération des rôles utilisateur
@@ -86,20 +87,42 @@ model Bilan {
   statut        String?   // scolarise_fr, candidat_libre, etc.
 
   // Données du bilan
+  // Réponses brutes
   qcmRaw        Json
-  qcmScores     Json     // { total, totalMax, byDomain: {points,max,percent} }
   pedagoRaw     Json
+
+  // Scores et profils dérivés
+  qcmScores     Json     // { total, totalMax, byDomain: {points,max,percent}, global_mastery_percent? }
   pedagoProfile Json     // VAK/Kolb/rythme/motivation/difficultés/attentes
+  preAnalyzedData Json?  // Indices IDX_* dérivés du Volet 2
   synthesis     Json     // forces/faiblesses/risques/feuilleDeRoute
   offers        Json     // { primary, alternatives, reasoning }
 
   pdfUrl        String?
   pdfBlob       Bytes?
 
+  // Textes générés (OpenAI)
+  reportText   String?
+  summaryText  String?
+  generatedAt  DateTime?
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@map("bilans")
+}
+
+// Profil pédagogique pérenne par élève (Volet 2 initial)
+model StudentProfileData {
+  id              String   @id @default(cuid())
+  studentId       String   @unique
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  pedagoRawAnswers Json?
+  pedagoProfile    Json?
+  preAnalyzedData  Json?
+  lastUpdatedAt    DateTime @default(now())
+
+  @@map("student_profile_data")
 }
 
 // Modèle Utilisateur principal
@@ -205,8 +228,10 @@ model Student {
   ariaConversations AriaConversation[]
   badges           StudentBadge[]
   reports          StudentReport[]
+  memories         Memory[]
   subscriptionRequests SubscriptionRequest[]
   bilans           Bilan[]
+  profileData      StudentProfileData?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -480,6 +505,74 @@ model PedagogicalContent {
   @@map("pedagogical_contents")
 }
 
+// --- Mémoire long-terme et RAG ---
+
+enum MemoryKind {
+  EPISODIC
+  SEMANTIC
+  PLAN
+}
+
+model Memory {
+  id        String     @id @default(cuid())
+  studentId String
+  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind      MemoryKind
+  content   String
+  embedding Unsupported("vector(3072)")?
+  meta      Json?
+  createdAt DateTime   @default(now())
+
+  @@index([studentId, kind])
+  @@map("memories")
+}
+
+model UserDocument {
+  id          String   @id @default(cuid())
+  ownerId     String?
+  ownerRole   String?
+  originalName String
+  mime        String
+  storageKey  String   @unique
+  status      String   @default("UPLOADED")
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  assets      KnowledgeAsset[]
+
+  @@map("user_documents")
+}
+
+model KnowledgeAsset {
+  id        String   @id @default(cuid())
+  docId     String
+  doc       UserDocument @relation(fields: [docId], references: [id], onDelete: Cascade)
+  subject   String
+  level     String
+  chunk     String
+  tokens    Int
+  embedding Unsupported("vector(3072)")
+  meta      Json
+  createdAt DateTime @default(now())
+
+  @@index([docId])
+  @@map("knowledge_assets")
+}
+
+model IngestJob {
+  id        String   @id @default(cuid())
+  docId     String
+  status    String   @default("PENDING")
+  step      String   @default("queued")
+  progress  Int      @default(0)
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([docId, status])
+  @@map("ingest_jobs")
+}
+
 // Modèle pour les demandes de modification d'abonnement
 model SubscriptionRequest {
   id              String   @id @default(cuid())
@@ -724,4 +817,160 @@ model ProductPricing {
 
   @@unique([itemType, itemKey])
   @@map("product_pricing")
+}
+
+// --- Tarification dynamique simple (conforme au cahier des charges v3) ---
+model Pricing {
+  id        Int      @id @default(autoincrement())
+  service   String   // ex: "ARIA", "Studio Flex", "Academies Nexus", "Programme Odyssée"
+  variable  String   // ex: "ARIA_tarif_matiere", "prix_individuel", "prix_stage_groupe8", "Odysee_Premiere"
+  valeur    Float
+  devise    String   @default("TND")
+  updatedAt DateTime @updatedAt
+
+  @@unique([service, variable])
+  @@map("pricing")
+}
+
+// --- Packs de crédits ---
+model CreditPack {
+  id        Int      @id @default(autoincrement())
+  credits   Int
+  priceTnd  Float
+  bonus     Int      @default(0)
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("credit_packs")
+}
+
+// --- Barème d'usage des crédits ---
+model CreditUsage {
+  key       String   @id // ex: SOS_15, SOS_30, SOS_60, COURS_INDIV_HEURE, ARIA_MOIS
+  credits   Int
+  updatedAt DateTime @updatedAt
+
+  @@map("credit_usage")
+}
+
+// --- Paramètres de paiement ---
+model PaymentSettings {
+  id        Int      @id @default(1)
+  allowCard Boolean  @default(true)
+  allowWire Boolean  @default(true)
+  allowCash Boolean  @default(true)
+  iban      String?
+  cashNote  String?
+  updatedAt DateTime @updatedAt
+
+  @@map("payment_settings")
+}
+
+// --- Politique d'échelonnement ---
+model BillingPolicy {
+  id               Int      @id @default(1)
+  annualDepositPct Int      @default(20)
+  scheduleEndISO   String   @default("2026-06-30")
+  updatedAt        DateTime @updatedAt
+
+  @@map("billing_policy")
+}
+
+// --- Liaisons d'offres → variables pricing ---
+model OfferBinding {
+  code       String   @id      // ODYSSEE_TERMINALE, ARIA_MATIERE...
+  label      String
+  includeAria Boolean  @default(false)
+  refs       Json      // tableau { variable, label }
+  updatedAt  DateTime  @updatedAt
+
+  @@map("offer_bindings")
+}
+
+// --- Journal d'audit ---
+model AuditLog {
+  id     Int      @id @default(autoincrement())
+  actor  String
+  action String
+  diff   Json?
+  at     DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// --- Wallet crédits & paiements ---
+model CreditWallet {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+  tx        CreditTx[]
+
+  @@map("credit_wallets")
+}
+
+model CreditTx {
+  id        Int      @id @default(autoincrement())
+  walletId  Int
+  delta     Int
+  reason    String
+  provider  String?
+  externalId String?
+  packId    Int?
+  at        DateTime @default(now())
+  wallet    CreditWallet @relation(fields: [walletId], references: [id])
+
+  @@map("credit_tx")
+}
+
+model PaymentRecord {
+  id         Int      @id @default(autoincrement())
+  provider   String   // konnect|wire|cash
+  externalId String   // konnect payment_ref ou autre référence
+  userId     String
+  packId     Int
+  amountTnd  Float
+  currency   String   @default("TND")
+  status     String   @default("created")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("payment_records")
+}
+
+// --- Pages légales & historisation ---
+model LegalPage {
+  id           Int       @id @default(autoincrement())
+  slug         String    @unique
+  title        String
+  contentMd    String
+  contentHtml  String?
+  placeholders Json?
+  version      Int       @default(1)
+  contentHash  String
+  gitCommit    String?
+  updatedBy    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  versions     LegalVersion[]
+}
+
+model LegalVersion {
+  id           Int       @id @default(autoincrement())
+  pageId       Int
+  slug         String
+  title        String
+  contentMd    String
+  contentHtml  String?
+  version      Int
+  contentHash  String
+  gitCommit    String?
+  editorId     String?
+  createdAt    DateTime  @default(now())
+
+  page         LegalPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([pageId, version])
 }

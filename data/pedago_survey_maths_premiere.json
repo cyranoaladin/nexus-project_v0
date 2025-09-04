@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "title": "Volet pédagogique — Mathématiques (Première)",
+    "matiere": "Mathématiques",
+    "niveau": "Première",
+    "scale": { "type": "likert", "min": 1, "max": 5, "labels": ["Pas du tout", "Plutôt pas", "Mitigé", "Plutôt oui", "Tout à fait"] },
+    "domainsOrder": ["Motivation", "Methodes", "Organisation", "ProfilCognitif", "Collaboration", "StressExam", "Outils", "Difficultes", "Orientation"]
+  },
+  "extendsCommon": true,
+  "questions": [
+    { "id": "M1",  "domain": "Motivation", "type": "likert", "weight": 2, "reverse": false, "statement": "La spécialité Mathématiques m'intéresse et je souhaite y progresser régulièrement." },
+    { "id": "M2",  "domain": "Motivation", "type": "likert", "weight": 2, "reverse": false, "statement": "Je vise une mention au Bac et je sais que la réussite en maths y contribue." },
+    { "id": "M3",  "domain": "Motivation", "type": "single", "weight": 2, "statement": "Mon objectif principal en Première Maths :", "options": ["Consolider les bases (Seconde)", "Monter en puissance méthodologique", "Optimiser le contrôle continu", "Préparer la Terminale"] },
+
+    { "id": "M4",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": false, "statement": "Je lis attentivement les énoncés et souligne les données/clés avant de démarrer." },
+    { "id": "M5",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": false, "statement": "Je rédige des solutions complètes (calculs + justification) et non seulement le résultat." },
+    { "id": "M6",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": true,  "statement": "Je saute souvent des étapes et je perds des points sur la rigueur de rédaction." },
+    { "id": "M7",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": false, "statement": "Je sais choisir une méthode adaptée (factorisation, forme canonique, variation, etc.)." },
+    { "id": "M8",  "domain": "Methodes", "type": "multi",  "weight": 2, "statement": "Mes pratiques utiles (plusieurs réponses) :", "options": ["Fiches méthodes par chapitre", "Exercices ciblés lacunes", "Annales/DS corrigés", "Flashcards (formules)", "Oralisation des raisonnements"] },
+
+    { "id": "M9",  "domain": "Organisation", "type": "likert", "weight": 2, "reverse": false, "statement": "J'organise un planning hebdomadaire (2–3 créneaux) dédié aux maths." },
+    { "id": "M10", "domain": "Organisation", "type": "likert", "weight": 2, "reverse": false, "statement": "Je revois chaque semaine un chapitre ou une technique clé (rituels)." },
+    { "id": "M11", "domain": "Organisation", "type": "single", "weight": 2, "statement": "Suivi de mes progrès :", "options": ["Tableau personnel", "Application/plateforme", "Sans suivi structuré"] },
+
+    { "id": "M12", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "Je retiens mieux avec des schémas/croquis (fonctions, géométrie, trigo)." },
+    { "id": "M13", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "J'apprends efficacement avec des explications orales guidées (tutorat)." },
+    { "id": "M14", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "J'aime expérimenter par essais/erreurs et confronter mes idées aux corrections." },
+
+    { "id": "M15", "domain": "Collaboration", "type": "likert", "weight": 2, "reverse": false, "statement": "Travailler en binôme/groupe m'aide à comprendre et à justifier mes démarches." },
+    { "id": "M16", "domain": "Collaboration", "type": "likert", "weight": 2, "reverse": false, "statement": "Je sais expliquer une solution à quelqu'un d'autre (argumentation claire)." },
+
+    { "id": "M17", "domain": "StressExam", "type": "likert", "weight": 2, "reverse": true,  "statement": "En évaluation, le stress me fait perdre mes moyens en maths." },
+    { "id": "M18", "domain": "StressExam", "type": "likert", "weight": 2, "reverse": false, "statement": "Je gère correctement mon temps (questions faciles d'abord, puis plus techniques)." },
+
+    { "id": "M19", "domain": "Outils", "type": "multi", "weight": 2, "statement": "Outils/ressources utilisés :", "options": ["Calculatrice (mode examen)", "Géogébra/Desmos", "Tableur (stats)", "Banque d'exercices", "Autre"] },
+    { "id": "M20", "domain": "Outils", "type": "likert", "weight": 2, "reverse": false, "statement": "Je maîtrise les fonctions essentielles de la calculatrice (table, régression simple…)." },
+
+    { "id": "M21", "domain": "Difficultes", "type": "multi", "weight": 2, "statement": "Mes difficultés actuelles (plusieurs réponses) :", "options": ["Calcul littéral", "Fonctions/quadratique", "Trigonométrie", "Géométrie repérée/vecteurs", "Stats/Probas", "Rédaction/rigueur", "Organisation/temps"] },
+    { "id": "M22", "domain": "Difficultes", "type": "likert", "weight": 2, "reverse": true,  "statement": "Je me décourage rapidement si un exercice est long." },
+
+    { "id": "M23", "domain": "Orientation", "type": "single", "weight": 2, "statement": "Objectif Bac en maths :", "options": ["≥ 10", "≥ 12", "≥ 14", "≥ 16"] },
+    { "id": "M24", "domain": "Orientation", "type": "single", "weight": 2, "statement": "Après le Bac, je vise plutôt :", "options": ["CPGE/Prépas", "Université (sciences/éco)", "Écoles d'ingénieurs (via Parcoursup)", "Autre/Indécis"] }
+  ]
+}
+

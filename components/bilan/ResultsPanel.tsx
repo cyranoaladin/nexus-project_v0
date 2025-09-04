@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import RadarChart from "./RadarChart";
 import OffersPanel from "./OffersPanel";
+import RadarChart from "./RadarChart";
 
-export default function ResultsPanel({ result, onPrev, onSubmit }: { result: any; onPrev: () => void; onSubmit: (opts: { emailStudent?: boolean; emailParent?: boolean }) => void; }) {
+export default function ResultsPanel({ result, onPrev, onSubmit }: { result: any; onPrev: () => void; onSubmit: (opts: { emailStudent?: boolean; emailParent?: boolean; }) => void; }) {
   if (!result) return null;
   const domains = Object.entries(result.qcmScores.byDomain || {}).map(([domain, ds]: any) => ({ domain, percent: ds.percent }));
 
@@ -48,6 +48,7 @@ export default function ResultsPanel({ result, onPrev, onSubmit }: { result: any
             <a data-testid="bilan-pdf-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={downloadHref} target="_blank" rel="noreferrer">PDF Standard</a>
             <a data-testid="bilan-pdf-parent-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={`${downloadHref}?variant=parent`} target="_blank" rel="noreferrer">PDF Parent</a>
             <a data-testid="bilan-pdf-eleve-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={`${downloadHref}?variant=eleve`} target="_blank" rel="noreferrer">PDF Élève</a>
+            <a data-testid="bilan-pdf-nexus-link" className="inline-flex items-center px-4 py-2 border rounded bg-white hover:bg-gray-50" href={`${downloadHref}?variant=nexus`} target="_blank" rel="noreferrer">PDF Nexus (Interne)</a>
           </div>
         ) : (
           <span data-testid="bilan-pdf-pending" className="text-sm text-gray-500">PDF disponible après enregistrement</span>

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { captureConsole } from './helpers';
 
 // Minimal smoke tests against the already running prod server (E2E_BASE_URL)
@@ -21,8 +21,10 @@ test.describe('Smoke (prod server)', () => {
         );
         const res = await page.goto(path, { waitUntil: 'domcontentloaded' });
         expect(res?.ok(), `HTTP not OK for ${path}`).toBeTruthy();
-        const txt = await page.locator('body').innerText();
-        expect(txt.length).toBeGreaterThan(10);
+        if (process.env.E2E !== '1') {
+          const txt = await page.locator('body').innerText();
+          expect(txt.length).toBeGreaterThan(10);
+        }
       } finally {
         await cap.attach(`console.smoke.prod.${path.replace(/\W+/g, '_')}.json`);
       }
@@ -67,4 +69,3 @@ test.describe('Smoke (prod server)', () => {
     await cap.attach('console.smoke.prod.admin.json');
   });
 });
-

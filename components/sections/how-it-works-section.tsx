@@ -1,5 +1,29 @@
 "use client";
 
+export function HowItWorksSimple() {
+  return (
+    <section className="py-12 md:py-16 bg-white">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Comment ça marche</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="rounded-xl border p-6">
+            <h3 className="font-semibold mb-2">1. Bilan stratégique gratuit</h3>
+            <p className="text-slate-700 text-sm">Diagnostic initial & objectifs.</p>
+          </div>
+          <div className="rounded-xl border p-6">
+            <h3 className="font-semibold mb-2">2. Parcours sur-mesure</h3>
+            <p className="text-slate-700 text-sm">Plan d’action, calendrier, accès ARIA.</p>
+          </div>
+          <div className="rounded-xl border p-6">
+            <h3 className="font-semibold mb-2">3. Mesure & itération</h3>
+            <p className="text-slate-700 text-sm">Tableau de bord, retours enseignants, ajustements.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

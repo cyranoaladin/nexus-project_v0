@@ -1,0 +1,54 @@
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3003". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+
+Running 2 tests using 1 worker
+
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3003". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+[1A[2K[1/2] [chromium] › e2e/bilan-volet2-flow.spec.ts:6:7 › Bilan complet → PDF (flow simulé) › Wizard e2e bypass → compute → submit → endpoints PDF accessibles
+[1A[2K  1) [chromium] › e2e/bilan-volet2-flow.spec.ts:6:7 › Bilan complet → PDF (flow simulé) › Wizard e2e bypass → compute → submit → endpoints PDF accessibles 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      27 |       if (status === 302) {
+      28 |         const direct = await page.request.get(`${BASE}/api/bilan/pdf?bilanId=${bilanId}&variant=${v}&dev=1`);
+    > 29 |         expect([200, 202, 404].includes(direct.status())).toBeTruthy();
+         |                                                           ^
+      30 |       } else {
+      31 |         expect([200, 202, 404].includes(status)).toBeTruthy();
+      32 |       }
+        at /home/alaeddine/Documents/nexus-project_v0/e2e/bilan-volet2-flow.spec.ts:29:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/bilan-volet2-flow-Bilan-co-4f1a5-→-endpoints-PDF-accessibles-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/bilan-volet2-flow-Bilan-co-4f1a5-→-endpoints-PDF-accessibles-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/bilan-volet2-flow-Bilan-co-4f1a5-→-endpoints-PDF-accessibles-chromium/error-context.md
+
+
+[1A[2K[2/2] [chromium] › e2e/bilan.workflow.api.spec.ts:6:7 › Bilan workflow API › login -> start -> submit -> pdf
+[1A[2K  2) [chromium] › e2e/bilan.workflow.api.spec.ts:6:7 › Bilan workflow API › login -> start -> submit -> pdf 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      25 |     // PDF direct (évite 302 intermittents en dev/E2E)
+      26 |     const pdf = await ctx.get(`/api/bilan/pdf?bilanId=${id}&variant=parent&dev=1`);
+    > 27 |     expect(pdf.ok()).toBeTruthy();
+         |                      ^
+      28 |     expect(pdf.headers()['content-type']).toContain('application/pdf');
+      29 |     const buf = await pdf.body();
+      30 |     expect(buf.byteLength).toBeGreaterThan(1000);
+        at /home/alaeddine/Documents/nexus-project_v0/e2e/bilan.workflow.api.spec.ts:27:22
+
+
+[1A[2K  2 failed
+    [chromium] › e2e/bilan-volet2-flow.spec.ts:6:7 › Bilan complet → PDF (flow simulé) › Wizard e2e bypass → compute → submit → endpoints PDF accessibles 
+    [chromium] › e2e/bilan.workflow.api.spec.ts:6:7 › Bilan workflow API › login -> start -> submit -> pdf 

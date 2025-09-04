@@ -1,21 +1,23 @@
 export type Results = {
   total: number;
   totalMax: number;
-  byDomain: Record<string, { points: number; max: number; percent: number }>;
+  byDomain: Record<string, { points: number; max: number; percent: number; }>;
 };
 
 export function toScoresByDomain(results: Results) {
-  const order = [
-    'Algèbre & Fonctions',
-    'Analyse',
-    'Suites',
-    'Géométrie (plan)',
-    'Probabilités & Statistiques',
-    'Algorithmique & Logique',
-  ];
+  // Clés attendues dans le QCM: analyse, suites, algebre, geometrie, proba_stats, algo_logique
+  const prettyMap: Record<string, string> = {
+    algebre: 'Algèbre & Fonctions',
+    analyse: 'Analyse',
+    suites: 'Suites',
+    geometrie: 'Géométrie (plan)',
+    proba_stats: 'Probabilités & Statistiques',
+    algo_logique: 'Algorithmique & Logique',
+  };
+  const preferredOrder = ['algebre', 'analyse', 'suites', 'geometrie', 'proba_stats', 'algo_logique'];
   const keys = results.byDomain ? Object.keys(results.byDomain) : [];
-  const chosen = order.every((k) => keys.includes(k)) ? order : keys;
-  return chosen.map((d) => ({ domain: d, percent: results.byDomain?.[d]?.percent ?? 0 }));
+  const chosen = preferredOrder.every((k) => keys.includes(k)) ? preferredOrder : keys;
+  return chosen.map((k) => ({ domain: prettyMap[k] || k, percent: results.byDomain?.[k]?.percent ?? 0 }));
 }
 
 export function inferStrengthsWeaknesses(results: Results) {
@@ -48,7 +50,7 @@ export function chooseOffer(results: Results) {
   return { primary: 'Odyssée', alternatives: ['Studio Flex'], reasoning: 'Objectif mention / besoin de structuration annuelle.' };
 }
 
-export function buildPdfPayloadTerminale(results: Results, eleve?: { firstName?: string; lastName?: string; niveau?: string; statut?: string }) {
+export function buildPdfPayloadTerminale(results: Results, eleve?: { firstName?: string; lastName?: string; niveau?: string; statut?: string; }) {
   const scoresByDomain = toScoresByDomain(results);
   const { forces, faiblesses } = inferStrengthsWeaknesses(results);
   const feuilleDeRoute = suggestPlanTerminale(results);
@@ -56,4 +58,3 @@ export function buildPdfPayloadTerminale(results: Results, eleve?: { firstName?:
   const scoreGlobal = Math.round((results.total / Math.max(1, results.totalMax)) * 100);
   return { eleve, scoresByDomain, forces, faiblesses, feuilleDeRoute, recommandation, scoreGlobal };
 }
-

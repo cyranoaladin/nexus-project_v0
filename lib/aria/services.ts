@@ -8,6 +8,12 @@ const LLM_SERVICE_URL = process.env.LLM_SERVICE_URL || 'http://localhost:8003';
 const PDF_SERVICE_URL = process.env.PDF_GENERATOR_SERVICE_URL || 'http://localhost:8002';
 const RAG_SERVICE_URL = process.env.RAG_SERVICE_URL || 'http://localhost:8001';
 
+// Pendant les tests (Jest), éviter les logs d'erreur/avertissement tardifs qui provoquent
+// "Cannot log after tests are done". En production, on conserve les logs.
+const SILENCE_TEST_LOGS = !!process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test';
+const logError = (...args: any[]) => { if (!SILENCE_TEST_LOGS) console.error(...args); };
+const logWarn = (...args: any[]) => { if (!SILENCE_TEST_LOGS) console.warn(...args); };
+
 async function postRequest<T>(url: string, body: any): Promise<T> {
   try {
     const response = await fetch(url, {
@@ -20,7 +26,7 @@ async function postRequest<T>(url: string, body: any): Promise<T> {
       const errText = typeof (response as any).text === 'function'
         ? await (response as any).text().catch(() => '')
         : '';
-      console.error(`Erreur HTTP ${response.status} de ${url}: ${errText}`);
+      logError(`Erreur HTTP ${response.status} de ${url}: ${errText}`);
       throw new Error(`Le service a répondu avec une erreur: ${response.status}`);
     }
 
@@ -38,7 +44,7 @@ async function postRequest<T>(url: string, body: any): Promise<T> {
         try {
           return JSON.parse(text) as T;
         } catch {
-          console.warn(`Réponse non-JSON depuis ${url}, corps tronqué: ${text.slice(0, 120)}...`);
+          logWarn(`Réponse non-JSON depuis ${url}, corps tronqué: ${text.slice(0, 120)}...`);
           return {} as T;
         }
       } catch {}
@@ -47,7 +53,7 @@ async function postRequest<T>(url: string, body: any): Promise<T> {
     // Dernier recours
     return {} as T;
   } catch (error) {
-    console.error(`Impossible de contacter le service à ${url}:`, error);
+    logError(`Impossible de contacter le service à ${url}:`, error);
     throw new Error(`Erreur de communication avec un service interne.`);
   }
 }
@@ -96,7 +102,7 @@ export const llm_service = {
             return { response: text } as LLMResponse;
           } catch (errPrimary) {
             if (fallbackModel) {
-              console.warn(`[ARIA][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
+              logWarn(`[ARIA][OpenAI] Primary model failed (${primaryModel}). Retrying with fallback: ${fallbackModel}`);
               const resp2 = await client.chat.completions.create({
                 model: fallbackModel,
                 temperature: gen.temperature,
@@ -111,7 +117,7 @@ export const llm_service = {
             throw errPrimary;
           }
         } catch (error) {
-          console.error('[DIRECT_OPENAI_DEV_ERROR]', error);
+          logError('[DIRECT_OPENAI_DEV_ERROR]', error);
           // Fallback HTTP microservice
           return await postRequest<LLMResponse>(`${LLM_SERVICE_URL}/chat`, data);
         }

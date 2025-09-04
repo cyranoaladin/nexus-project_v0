@@ -1,6 +1,32 @@
-import { DomainKey } from "./qcmData";
+// Simplified scoring adapters for Volet 2 indices
+export type PedagoAnswers = Record<string, any>;
 
-export type PedagoAnswers = {
+export function computeIndices(answers: PedagoAnswers) {
+  // Map some Likert-like fields to normalized scales; placeholders aligned with V2 doc
+  const to01 = (v: any, max: number) => Math.max(0, Math.min(1, Number(v) / max || 0));
+  const idxAutonomie = to01(answers?.B_AUTONOMIE ?? answers?.autonomie, 5) * 5; // 0..5
+  const idxOrganisation = to01(answers?.B_ORGA ?? answers?.organisation, 10) * 10; // 0..10
+  const idxMotivation = to01(answers?.B_MOTIV ?? answers?.motivation, 5) * 5; // 0..5
+  const idxStress = to01(answers?.B_STRESS ?? answers?.stress, 5) * 5; // 0..5
+  const idxConcentration = to01(answers?.B_CONC ?? answers?.concentration, 4) * 4; // 0..4
+  const idxMemorisation = to01(answers?.B_MEMO ?? answers?.memorisation, 4) * 4; // 0..4
+  const idxAnalyseSynthese = to01(answers?.B_ANALYSE ?? answers?.analyse, 4) * 4; // 0..4
+  const idxSuspectDys = to01(answers?.B_DYS ?? answers?.suspect_dys, 4) * 4; // 0..4
+  return {
+    IDX_AUTONOMIE: Number(idxAutonomie.toFixed(2)),
+    IDX_ORGANISATION: Number(idxOrganisation.toFixed(2)),
+    IDX_MOTIVATION: Number(idxMotivation.toFixed(2)),
+    IDX_STRESS: Number(idxStress.toFixed(2)),
+    IDX_CONCENTRATION: Number(idxConcentration.toFixed(2)),
+    IDX_MEMORISATION: Number(idxMemorisation.toFixed(2)),
+    IDX_ANALYSE_SYNTHESE: Number(idxAnalyseSynthese.toFixed(2)),
+    IDX_SUSPECT_DYS: Number(idxSuspectDys.toFixed(2)),
+  };
+}
+
+// Types étendus (facultatifs) pour analyse fine
+export type DomainKey = string;
+export type PedagoAnswersExtended = {
   motivation?: string; // e.g., "examens" | "comprendre" | ...
   projects?: string;
   fears?: string;
@@ -12,7 +38,7 @@ export type PedagoAnswers = {
   weeklyTime?: number; // hours
   planning?: boolean;
   difficulties?: string[]; // ["dys","tdah","anxiete", ...]
-  environment?: { quiet?: boolean; hasDevice?: boolean; alone?: boolean };
+  environment?: { quiet?: boolean; hasDevice?: boolean; alone?: boolean; };
   expectations?: string[]; // ["guidage","autonomie","defis","suivi","bilans","exos"]
 };
 
@@ -27,11 +53,11 @@ export type PedagoProfile = {
   expectations: string[];
 };
 
-export function analyzePedago(a: PedagoAnswers): PedagoProfile {
+export function analyzePedago(a: PedagoAnswersExtended): PedagoProfile {
   const profile: PedagoProfile = {
     style: a.style || "mixte",
     rhythm: a.rhythm || "regulier",
-    motivation: a.motivation || "mixte",
+    motivation: Array.isArray(a.motivation) ? a.motivation.join(", ") : (a.motivation || "mixte"),
     confidence: a.confidence ?? 3,
     risks: a.difficulties || [],
     methods: a.methods || [],
@@ -55,13 +81,13 @@ export type FinalSynthesis = {
   faiblesses: DomainKey[];
   risques: string[];
   feuilleDeRoute: string[];
-  offers: { primary: string; alternatives: string[]; reasoning: string };
+  offers: { primary: string; alternatives: string[]; reasoning: string; };
 };
 
 export function synthesize(
   domains: DomainSynthesis[],
   pedago: PedagoProfile,
-  opts?: { statut?: string }
+  opts?: { statut?: string; }
 ): FinalSynthesis {
   const forces = domains.filter(d => d.percent >= 75).map(d => d.domain);
   const faiblesses = domains.filter(d => d.percent < 50).map(d => d.domain);
@@ -86,7 +112,12 @@ export function synthesize(
   const avg = domains.reduce((s, d) => s + d.percent, 0) / Math.max(1, domains.length);
   const weak = faiblesses.length;
   const autonomieFaible = pedago.expectations?.includes('guidage') || pedago.expectations?.includes('suivi');
-  const motivationFaible = (pedago.motivation || '').toLowerCase().includes('faible');
+  const motivationText = typeof pedago.motivation === 'string'
+    ? pedago.motivation
+    : Array.isArray((pedago as any).motivation)
+      ? (pedago as any).motivation.join(' ')
+      : String((pedago as any).motivation ?? '');
+  const motivationFaible = motivationText.toLowerCase().includes('faible');
 
   let primary = "Cortex";
   const alternatives: string[] = [];
@@ -116,4 +147,3 @@ export function synthesize(
 
   return { forces, faiblesses, risques, feuilleDeRoute, offers: { primary, alternatives, reasoning } };
 }
-

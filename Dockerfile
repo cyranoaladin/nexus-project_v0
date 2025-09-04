@@ -5,8 +5,15 @@
 # On part d'une image Node.js version 18, basée sur Alpine Linux (légère et sécurisée).
 # On la nomme "base" pour pouvoir s'y référer plus tard.
 FROM node:22-alpine AS base
-# On installe les dépendances système nécessaires pour Prisma
-RUN apk add --no-cache openssl
+# On installe les dépendances système nécessaires pour Prisma et node-canvas (chartjs-node-canvas)
+RUN apk add --no-cache \
+  openssl \
+  build-base \
+  cairo-dev \
+  pango-dev \
+  jpeg-dev \
+  giflib-dev \
+  pixman-dev
 
 
 # === ÉTAPE 2: Installation des Dépendances ===
@@ -31,9 +38,15 @@ COPY prisma ./prisma/
 RUN npx prisma generate
 # On copie le reste du code de l'application.
 COPY . .
-# On lance le build de Next.js.
-ENV NEXT_FONT_IGNORE_ERRORS=1
-RUN NEXT_FONT_IGNORE_ERRORS=1 npm run build
+# On lance le build de Next.js en mode E2E (évite les appels réseau au build)
+ENV NEXT_FONT_IGNORE_ERRORS=1 \
+    E2E=1 \
+    NEXT_PUBLIC_E2E=1 \
+    NEXT_TELEMETRY_DISABLED=1 \
+    SKIP_REDIS=1
+# Secrets et URL doivent être fournis via variables d'environnement au runtime
+# (éviter de les définir dans l'image). Voir docker-compose / plateforme d'hébergement.
+RUN npm run build
 
 # Rendre exécutable le script avant de le copier dans l'image finale
 RUN chmod +x start-production.sh
@@ -57,6 +70,8 @@ RUN npm ci --omit=dev --no-audit --no-fund --network-timeout=1000000 \
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+# Inclure les données QCM
+COPY --from=builder /app/data ./data
 
 # On copie le client Prisma et le schéma.
 COPY --from=builder /app/node_modules/.prisma ./.prisma

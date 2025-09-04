@@ -15,7 +15,7 @@ export function ProblemSolutionSection() {
           className="text-center mb-16"
         >
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Le Soutien Scolaire a Évolué. Votre Exigence Aussi.
+            Pourquoi nous ?
           </h2>
         </motion.div>
 
@@ -37,15 +37,15 @@ export function ProblemSolutionSection() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-300/60 rounded-full mb-4">
                     <XCircle className="w-8 h-8 text-gray-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-2">L'Ancienne Méthode</h3>
-                  <p className="text-gray-600">Le Soutien Scolaire Classique : Les Pièges à Éviter</p>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-2">Cours particuliers classiques</h3>
+                  <p className="text-gray-600">Trois écueils fréquents</p>
                 </div>
 
                 <div className="space-y-6 flex-1">
                   <div className="flex items-start space-x-4">
                     <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Un Suivi Opaque</h4>
+                      <h4 className="font-semibold text-gray-800 mb-1">Pas de stratégie globale</h4>
                       <p className="text-gray-600 leading-relaxed">
                         Des heures de cours sans tableau de bord pour mesurer les progrès réels.
                       </p>
@@ -55,7 +55,7 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Des Répétiteurs, pas des Pédagogues</h4>
+                      <h4 className="font-semibold text-gray-800 mb-1">Peu d'expertise pédagogique</h4>
                       <p className="text-gray-600 leading-relaxed">
                         Souvent des intervenants sans certification ni expérience avérée dans l'Éducation Nationale française.
                       </p>
@@ -65,7 +65,7 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Du Bachotage, pas de l'Apprentissage</h4>
+                      <h4 className="font-semibold text-gray-800 mb-1">Bachotage à court terme</h4>
                       <p className="text-gray-600 leading-relaxed">
                         Une mémorisation à court terme qui néglige l'autonomie et les compétences pour le supérieur.
                       </p>
@@ -103,15 +103,15 @@ export function ProblemSolutionSection() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                     <CheckCircle2 className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-blue-900 mb-2">Notre Révolution</h3>
-                  <p className="text-blue-700">L'Écosystème Nexus Réussite : La Solution Tout-en-Un</p>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-2">Nexus Réussite</h3>
+                  <p className="text-blue-700">Trois piliers concrets</p>
                 </div>
 
                 <div className="space-y-6 flex-1">
                   <div className="flex items-start space-x-4">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Un Suivi Analytique</h4>
+                      <h4 className="font-semibold text-blue-900 mb-1">Stratégie + objectifs trimestriels</h4>
                       <p className="text-blue-800 leading-relaxed">
                         Un dashboard qui mesure l'effort, suit la progression et vous donne une visibilité totale.
                       </p>
@@ -121,7 +121,7 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Experts, pas des Amateurs</h4>
+                      <h4 className="font-semibold text-blue-900 mb-1">IA ARIA + profs agrégés</h4>
                       <p className="text-blue-800 leading-relaxed">
                         Une équipe d'Agrégés, de Certifiés et d'experts de l'enseignement français.
                       </p>
@@ -131,22 +131,14 @@ export function ProblemSolutionSection() {
                   <div className="flex items-start space-x-4">
                     <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Compétences, pas du Bachotage</h4>
+                      <h4 className="font-semibold text-blue-900 mb-1">Hybride + Garantie</h4>
                       <p className="text-blue-800 leading-relaxed">
                         Une pédagogie qui vise le Bac ET prépare activement aux exigences des études supérieures.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4">
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Une Flexibilité Maximale</h4>
-                      <p className="text-blue-800 leading-relaxed">
-                        Une plateforme accessible 24/7 et des cours que vous réservez à votre rythme.
-                      </p>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>

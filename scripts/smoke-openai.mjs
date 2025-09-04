@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import OpenAI from 'openai';
 dotenv.config({ path: '.env.local' });
 
 function selectModel() {
@@ -35,5 +35,3 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(2); });
-
-

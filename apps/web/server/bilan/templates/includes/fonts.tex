@@ -1,0 +1,22 @@
+% includes/fonts.tex
+% Requires: \usepackage{fontspec}
+% Ensure XeLaTeX or LuaLaTeX
+\setmainfont{Inter}[
+  Path=fonts/,
+  UprightFont = *-Regular,
+  ItalicFont  = *-Italic,
+  BoldFont    = *-Bold,
+  BoldItalicFont = *-BoldItalic
+]
+\setsansfont{Inter}[
+  Path=fonts/,
+  UprightFont = *-Regular,
+  ItalicFont  = *-Italic,
+  BoldFont    = *-Bold,
+  BoldItalicFont = *-BoldItalic
+]
+\newfontfamily\nexusheading{Inter}[
+  Path=fonts/,
+  UprightFont = *-SemiBold
+]
+

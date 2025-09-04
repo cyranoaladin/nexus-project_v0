@@ -1,0 +1,874 @@
+[
+  {
+    "id": "M2-ALG-Q1",
+    "domain": "algebre",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Développer : $(x+2)(x-3)$.",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "x^2 - x - 6",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "x^2 - x + 6"
+      },
+      {
+        "k": "C",
+        "latex": "x^2 - 5x - 6"
+      },
+      {
+        "k": "D",
+        "latex": "x^2 - x - 2"
+      }
+    ],
+    "explanation_latex": "Double distributivité."
+  },
+  {
+    "id": "M2-ALG-Q2",
+    "domain": "algebre",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Factoriser : $x^2 - 9$.",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "(x-9)(x+1)"
+      },
+      {
+        "k": "B",
+        "latex": "(x-3)(x+3)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "(x-9)(x-1)"
+      },
+      {
+        "k": "D",
+        "latex": "(x-1)(x+9)"
+      }
+    ],
+    "explanation_latex": "Différence de deux carrés."
+  },
+  {
+    "id": "M2-ALG-Q3",
+    "domain": "algebre",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Résoudre : $2x + 5 = 11$.",
+    "answer_latex": "x = 3",
+    "explanation_latex": "Isoler $x$ : $2x=6$ donc $x=3$."
+  },
+  {
+    "id": "M2-ALG-Q4",
+    "domain": "algebre",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Résoudre : $x^2 - 5x + 6 = 0$.",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "x=2 \\text{ ou } x=3",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "x=1 \\text{ ou } x=6"
+      },
+      {
+        "k": "C",
+        "latex": "x=-2 \\text{ ou } x=3"
+      },
+      {
+        "k": "D",
+        "latex": "Aucune solution"
+      }
+    ],
+    "explanation_latex": "Factoriser $(x-2)(x-3)=0$."
+  },
+  {
+    "id": "M2-ALG-Q5",
+    "domain": "algebre",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "L'équation $3x^2+2x+1=0$ admet :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Deux solutions réelles distinctes"
+      },
+      {
+        "k": "B",
+        "latex": "Une solution double"
+      },
+      {
+        "k": "C",
+        "latex": "Aucune solution réelle",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "Une infinité de solutions"
+      }
+    ],
+    "explanation_latex": "Discriminant $\\Delta = 2^2 - 4\\cdot 3\\cdot 1 = -8 < 0$."
+  },
+  {
+    "id": "M2-ALG-Q6",
+    "domain": "algebre",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Résoudre l’inéquation : $2x - 3 > 1$.",
+    "answer_latex": "x > 2",
+    "explanation_latex": "Ajouter 3 puis diviser par 2."
+  },
+  {
+    "id": "M2-ALG-Q7",
+    "domain": "algebre",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Développer : $(x+1)^2$.",
+    "answer_latex": "x^2 + 2x + 1",
+    "explanation_latex": "Identité remarquable $(a+b)^2=a^2+2ab+b^2$."
+  },
+  {
+    "id": "M2-ALG-Q8",
+    "domain": "algebre",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Donner un polynôme de degré 2 admettant pour racines $1$ et $-2$.",
+    "answer_latex": "(x-1)(x+2)=x^2 + x - 2",
+    "explanation_latex": "Si les racines sont $r_1, r_2$ alors $p(x)=k(x-r_1)(x-r_2)$."
+  },
+  {
+    "id": "M2-FCT-Q9",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Soit $f(x)=2x-3$. Calculer $f(4)$.",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "1"
+      },
+      {
+        "k": "B",
+        "latex": "3"
+      },
+      {
+        "k": "C",
+        "latex": "5",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "8"
+      }
+    ],
+    "explanation_latex": "$f(4)=8-3=5$."
+  },
+  {
+    "id": "M2-FCT-Q10",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Pour $g(x)=x^2-4x+1$, l’abscisse du sommet vaut :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "-2"
+      },
+      {
+        "k": "B",
+        "latex": "-1"
+      },
+      {
+        "k": "C",
+        "latex": "1"
+      },
+      {
+        "k": "D",
+        "latex": "2",
+        "correct": true
+      }
+    ],
+    "explanation_latex": "Sommet $x_S=-\\frac{b}{2a}=\\frac{4}{2}=2$."
+  },
+  {
+    "id": "M2-FCT-Q11",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Une parabole coupe l’axe des abscisses en $x=1$ et $x=3$. Une équation possible est :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "y = x^2 + 4x + 3"
+      },
+      {
+        "k": "B",
+        "latex": "y = x^2 - 4x + 3",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "y = x^2 - 2x - 3"
+      },
+      {
+        "k": "D",
+        "latex": "y = x^2 + 2x - 3"
+      }
+    ],
+    "explanation_latex": "$(x-1)(x-3)=x^2-4x+3$."
+  },
+  {
+    "id": "M2-FCT-Q12",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Fonction affine de pente $3$ passant par $(0,2)$ :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "y = 3x - 2"
+      },
+      {
+        "k": "B",
+        "latex": "y = 2x + 3"
+      },
+      {
+        "k": "C",
+        "latex": "y = 3x + 2",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "y = 2x"
+      }
+    ],
+    "explanation_latex": "Forme $y=mx+p$ avec $m=3$, $p=2$."
+  },
+  {
+    "id": "M2-FCT-Q13",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "On a $x:0,1,2$ et $y:1,4,9$. Modèle plausible :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "y = x^2"
+      },
+      {
+        "k": "B",
+        "latex": "y = (x+1)^2",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "y = 2x + 1"
+      },
+      {
+        "k": "D",
+        "latex": "y = x^2 + 2"
+      }
+    ],
+    "explanation_latex": "$0\\mapsto1, 1\\mapsto4, 2\\mapsto9 \\Rightarrow (x+1)^2$."
+  },
+  {
+    "id": "M2-FCT-Q14",
+    "domain": "fonctions",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Pour $h(x)=-x+2$, résoudre $h(x)=5$.",
+    "answer_latex": "x = -3",
+    "explanation_latex": "-x+2=5 \\Rightarrow x=-3$."
+  },
+  {
+    "id": "M2-FCT-Q15",
+    "domain": "fonctions",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Pour $y=x^2-6x+10$, la valeur minimale vaut :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "-1"
+      },
+      {
+        "k": "B",
+        "latex": "0"
+      },
+      {
+        "k": "C",
+        "latex": "1",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "4"
+      }
+    ],
+    "explanation_latex": "Sommet en $x=3$ ; $f(3)=9-18+10=1$."
+  },
+  {
+    "id": "M2-GEO-Q16",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Distance $AB$ avec $A(1,2)$ et $B(4,6)$ :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "3"
+      },
+      {
+        "k": "B",
+        "latex": "4"
+      },
+      {
+        "k": "C",
+        "latex": "5",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "7"
+      }
+    ],
+    "explanation_latex": "$\\sqrt{(4-1)^2+(6-2)^2}=\\sqrt{9+16}=5$."
+  },
+  {
+    "id": "M2-GEO-Q17",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Milieu de $[AB]$ avec $A(2,-1)$, $B(6,3)$ :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "(4,1)",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "(5,1)"
+      },
+      {
+        "k": "C",
+        "latex": "(3,2)"
+      },
+      {
+        "k": "D",
+        "latex": "(8,2)"
+      }
+    ],
+    "explanation_latex": "$((2+6)/2,(-1+3)/2)=(4,1)$."
+  },
+  {
+    "id": "M2-GEO-Q18",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Équation de la droite passant par $(1,2)$ et $(3,6)$ :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "y = 2x",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "y = x + 1"
+      },
+      {
+        "k": "C",
+        "latex": "y = 4x - 2"
+      },
+      {
+        "k": "D",
+        "latex": "y = 2x + 1"
+      }
+    ],
+    "explanation_latex": "Pente $\\frac{6-2}{3-1}=2$ et passe par $(0,0)$."
+  },
+  {
+    "id": "M2-GEO-Q19",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Le vecteur $\\overrightarrow{AB}$ pour $A(1,2)$, $B(4,6)$ vaut :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "(2,3)"
+      },
+      {
+        "k": "B",
+        "latex": "(3,4)",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "(5,8)"
+      },
+      {
+        "k": "D",
+        "latex": "(3,3)"
+      }
+    ],
+    "explanation_latex": "$(4-1,6-2)=(3,4)$."
+  },
+  {
+    "id": "M2-GEO-Q20",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Les vecteurs $(2,4)$ et $(1,2)$ sont :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "orthogonaux"
+      },
+      {
+        "k": "B",
+        "latex": "colinéaires",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "égaux"
+      },
+      {
+        "k": "D",
+        "latex": "quelconques"
+      }
+    ],
+    "explanation_latex": "$(2,4)=2\\cdot(1,2)$."
+  },
+  {
+    "id": "M2-GEO-Q21",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Les points $A(0,0)$, $B(2,3)$, $C(4,6)$ sont-ils alignés ?",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "Oui",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "Non"
+      }
+    ],
+    "explanation_latex": "Pentes $\\frac{3-0}{2-0}=\\frac{6-3}{4-2}=\\frac{3}{2}$."
+  },
+  {
+    "id": "M2-GEO-Q22",
+    "domain": "geometrie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Équation de la droite de pente $-1$ passant par $(2,5)$ :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "y = -x + 7",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "y = x - 7"
+      },
+      {
+        "k": "C",
+        "latex": "y = -x - 7"
+      },
+      {
+        "k": "D",
+        "latex": "y = x + 7"
+      }
+    ],
+    "explanation_latex": "Forme $y=-x+b$ avec $5=-2+b$ donc $b=7$."
+  },
+  {
+    "id": "M2-TRI-Q23",
+    "domain": "trigo",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "\\cos\\left(\\tfrac{\\pi}{3}\\right) =",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "0"
+      },
+      {
+        "k": "B",
+        "latex": "\\tfrac{\\sqrt{2}}{2}"
+      },
+      {
+        "k": "C",
+        "latex": "\\tfrac{1}{2}",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "1"
+      }
+    ],
+    "explanation_latex": "Valeur remarquable."
+  },
+  {
+    "id": "M2-TRI-Q24",
+    "domain": "trigo",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "\\sin\\left(\\tfrac{\\pi}{6}\\right) =",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "\\tfrac{1}{2}",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "\\tfrac{\\sqrt{2}}{2}"
+      },
+      {
+        "k": "C",
+        "latex": "\\tfrac{\\sqrt{3}}{2}"
+      },
+      {
+        "k": "D",
+        "latex": "1"
+      }
+    ],
+    "explanation_latex": "Valeur remarquable."
+  },
+  {
+    "id": "M2-TRI-Q25",
+    "domain": "trigo",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "\\sin\\left(\\tfrac{\\pi}{2}\\right) =",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "0"
+      },
+      {
+        "k": "B",
+        "latex": "1",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "-1"
+      },
+      {
+        "k": "D",
+        "latex": "\\tfrac{\\sqrt{2}}{2}"
+      }
+    ],
+    "explanation_latex": "Valeur remarquable."
+  },
+  {
+    "id": "M2-TRI-Q26",
+    "domain": "trigo",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Sachant $\\cos\\alpha=\\tfrac{3}{5}$ et $\\alpha$ dans le 1er quadrant, alors $\\sin\\alpha=$",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "\\tfrac{4}{5}",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "\\tfrac{4}{3}"
+      },
+      {
+        "k": "C",
+        "latex": "\\tfrac{3}{5}"
+      },
+      {
+        "k": "D",
+        "latex": "\\tfrac{\\sqrt{11}}{5}"
+      }
+    ],
+    "explanation_latex": "Identité $\\sin^2+\\cos^2=1$ et signe positif."
+  },
+  {
+    "id": "M2-TRI-Q27",
+    "domain": "trigo",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Parité des fonctions circulaires :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "\\sin \\text{ est paire}"
+      },
+      {
+        "k": "B",
+        "latex": "\\cos \\text{ est impaire}"
+      },
+      {
+        "k": "C",
+        "latex": "\\sin \\text{ est impaire, } \\cos \\text{ est paire}",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "Aucune"
+      }
+    ],
+    "explanation_latex": "$\\sin(-x)=-\\sin x$, $\\cos(-x)=\\cos x$."
+  },
+  {
+    "id": "M2-PS-Q28",
+    "domain": "proba_stats",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "Moyenne de la série : $10,12,14$.",
+    "answer_latex": "12",
+    "explanation_latex": "$(10+12+14)/3=12$."
+  },
+  {
+    "id": "M2-PS-Q29",
+    "domain": "proba_stats",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "Médiane de la série ordonnée $1,3,5,7,9$.",
+    "answer_latex": "5",
+    "explanation_latex": "Valeur centrale."
+  },
+  {
+    "id": "M2-PS-Q30",
+    "domain": "proba_stats",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "L’écart-type d’une série est nul ssi toutes les valeurs sont :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "positives"
+      },
+      {
+        "k": "B",
+        "latex": "différentes"
+      },
+      {
+        "k": "C",
+        "latex": "identiques",
+        "correct": true
+      },
+      {
+        "k": "D",
+        "latex": "croissantes"
+      }
+    ],
+    "explanation_latex": "Dispersion nulle."
+  },
+  {
+    "id": "M2-PS-Q31",
+    "domain": "proba_stats",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "Une urne contient 3 boules rouges et 2 bleues. Probabilité de tirer une rouge :",
+    "answer_latex": "\\tfrac{3}{5}",
+    "explanation_latex": "Équiprobabilité : $3/5$."
+  },
+  {
+    "id": "M2-PS-Q32",
+    "domain": "proba_stats",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Deux lancers d’une pièce équilibrée. Probabilité d’obtenir exactement une face :",
+    "answer_latex": "\\tfrac{1}{2}",
+    "explanation_latex": "Cas favorables (PF, FP) / 4."
+  },
+  {
+    "id": "M2-PS-Q33",
+    "domain": "proba_stats",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Les événements \"1er lancer face\" et \"2e lancer face\" sont :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "dépendants"
+      },
+      {
+        "k": "B",
+        "latex": "indépendants",
+        "correct": true
+      },
+      {
+        "k": "C",
+        "latex": "incompatibles"
+      },
+      {
+        "k": "D",
+        "latex": "équivalents"
+      }
+    ],
+    "explanation_latex": "Lancers indépendants."
+  },
+  {
+    "id": "M2-PS-Q34",
+    "domain": "proba_stats",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "Dé équilibré. Probabilité d’obtenir un multiple de 2 :",
+    "answer_latex": "\\tfrac{3}{6} = \\tfrac{1}{2}",
+    "explanation_latex": "Pairs : 2,4,6."
+  },
+  {
+    "id": "M2-ALGLOG-Q35",
+    "domain": "algo_logique",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "En Python, que renvoie l’instruction : \\texttt{for i in range(3): print(i)} ?",
+    "answer_latex": "0\\;1\\;2",
+    "explanation_latex": "Range(3) génère 0,1,2."
+  },
+  {
+    "id": "M2-ALGLOG-Q36",
+    "domain": "algo_logique",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Écrire une condition Python vérifiant que $x>0$.",
+    "answer_latex": "\\texttt{if x > 0:}",
+    "explanation_latex": "Syntaxe de base."
+  },
+  {
+    "id": "M2-ALGLOG-Q37",
+    "domain": "algo_logique",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Avec $A=\\{1,2,3\\}$ et $B=\\{2,4\\}$, calculer $A \\cap B$.",
+    "answer_latex": "\\{2\\}",
+    "explanation_latex": "Intersection des éléments communs."
+  },
+  {
+    "id": "M2-ALGLOG-Q38",
+    "domain": "algo_logique",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Donner la négation de la phrase : “Tous les entiers sont pairs.”",
+    "answer_latex": "“Il existe au moins un entier impair.”",
+    "explanation_latex": "Négation d’un quantificateur universel."
+  },
+  {
+    "id": "M2-ALGLOG-Q39",
+    "domain": "algo_logique",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Interpréter $(P \\lor Q)$ en logique propositionnelle.",
+    "answer_latex": "“P \\text{ ou } Q$ (au moins l’un des deux).",
+    "explanation_latex": "Connecteur OR inclusif."
+  },
+  {
+    "id": "M2-ALGLOG-Q40",
+    "domain": "algo_logique",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "La phrase : “Si une figure est un carré, alors c’est un rectangle” est une :",
+    "choices": [
+      {
+        "k": "A",
+        "latex": "implication",
+        "correct": true
+      },
+      {
+        "k": "B",
+        "latex": "équivalence"
+      },
+      {
+        "k": "C",
+        "latex": "négation"
+      },
+      {
+        "k": "D",
+        "latex": "contre-exemple"
+      }
+    ],
+    "explanation_latex": "Forme logique $P \\Rightarrow Q$."
+  },
+  {
+    "id": "M2-MINI-Q41",
+    "domain": "fonctions",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "Soit $f(x)=x^2-4x+3$. (a) Résoudre $f(x)=0$. (b) Donner l’abscisse du sommet et la valeur minimale de $f$.",
+    "answer_latex": "(a)\\; x=1\\;\\text{ou}\\;x=3.\\quad (b)\\; x_S=2,\\; f(2)=-1.",
+    "explanation_latex": "Factoriser $(x-1)(x-3)=0$ ; sommet $x_S=2$ et $f(2)=-1$."
+  },
+  {
+    "id": "M2-MINI-Q42",
+    "domain": "geometrie",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "Points $A(1,2)$, $B(4,-2)$. (a) Milieu de $[AB]$. (b) Distance $AB$. (c) Équation de $(AB)$.",
+    "answer_latex": "(a)\\;\\left(\\tfrac{5}{2},0\\right).\\; (b)\\; AB=5.\\; (c)\\; y=-\\tfrac{4}{3}x+\\tfrac{10}{3}.",
+    "explanation_latex": "Milieu moyenne des coordonnées ; distance par Pythagore ; pente $-4/3$ puis ordonnée à l’origine."
+  },
+  {
+    "id": "M2-MINI-Q43",
+    "domain": "proba_stats",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "Notes : $8,10,10,12,12,12,14$. (a) Moyenne. (b) Médiane. (c) Effet d’ajouter $+2$ à chaque note sur moyenne et écart-type.",
+    "answer_latex": "(a)\\; \\bar{x}=\\tfrac{78}{7}\\approx 11{,}14.\\; (b)\\; 12.\\; (c)\\; moyenne+2,\\; écart\\text{-}type inchangé.",
+    "explanation_latex": "Translation de données : la moyenne se translate, l’écart-type est invariant."
+  }
+]

@@ -147,6 +147,23 @@ export function HeroSection() {
           Nous fusionnons l'expertise de <span className="text-blue-300 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-300 font-semibold">mention au Bac</span> et un <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.
         </motion.p>
 
+        {/* Ancrage Tunisie + badge tricolore */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="flex items-center justify-center gap-3 mb-10"
+        >
+          <div className="flex items-center gap-1" aria-hidden>
+            <span className="inline-block w-3 h-3 rounded-sm bg-blue-600" />
+            <span className="inline-block w-3 h-3 rounded-sm bg-white" />
+            <span className="inline-block w-3 h-3 rounded-sm bg-red-600" />
+          </div>
+          <p className="text-white/90 text-base md:text-lg">
+            Pour les lycéens de l'enseignement français en Tunisie et les candidats libres
+          </p>
+        </motion.div>
+
         {/* Grille de fonctionnalités centrée */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -188,20 +205,40 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center mb-6 md:mb-8"
         >
           <button
+            data-ab-variant={typeof window !== 'undefined' && window.location.search.includes('cta=plan') ? 'plan' : 'bilan'}
             onClick={() => {
-              // TODO: Ouvrir modale bilan gratuit directement
+              const variant = (document.querySelector('[data-ab-variant]') as HTMLElement)?.dataset.abVariant || 'bilan';
+              window.dispatchEvent(new CustomEvent('cta_click', { detail: { id: 'hero_primary', variant } }));
               window.location.href = '/bilan-gratuit';
             }}
             className="btn-primary h-12 md:h-16 px-6 md:px-10 text-base md:text-lg group inline-flex items-center justify-center"
+            aria-label="Commencer mon Bilan Stratégique Gratuit"
+            data-analytics="cta_hero_bilan"
           >
-            Commencer mon Bilan Stratégique Gratuit
+            {(typeof window !== 'undefined' && window.location.search.includes('cta=plan'))
+              ? 'Recevoir mon Plan d’action Personnalisé'
+              : 'Commencer mon Bilan Stratégique Gratuit'}
             <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
           </button>
-          <Link href="/offres">
-            <Button className="btn-secondary h-12 md:h-16 px-6 md:px-10 text-base md:text-lg">
-              Découvrir nos Offres
+          <Link href="/offres/nexus-cortex">
+            <Button className="btn-secondary h-12 md:h-16 px-6 md:px-10 text-base md:text-lg" onClick={() => {
+              window.dispatchEvent(new CustomEvent('cta_click', { detail: { id: 'hero_secondary' } }));
+            }} aria-label="Découvrez ARIA" data-analytics="cta_hero_aria">
+              Découvrez ARIA dès maintenant
             </Button>
           </Link>
+        </motion.div>
+
+        {/* Mention Paiement sécurisé (CB, Virement, Espèces au centre) */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.55 }}
+          className="text-center mb-4"
+        >
+          <p className="text-white/90 text-sm md:text-base">
+            Paiement en ligne sécurisé (CB, Virement, Espèces au centre)
+          </p>
         </motion.div>
 
         {/* Preuve Sociale basée sur l'Expertise - Notre Force : L'Excellence de nos Experts */}

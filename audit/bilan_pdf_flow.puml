@@ -1,0 +1,42 @@
+@startuml
+actor Parent
+actor Student
+participant Client
+participant BilanAPI as "/api/bilan/*"
+participant OpenAI
+participant DB as "Prisma"
+participant PDF as "Renderer"
+
+== Start & Questionnaire ==
+Parent -> Client: Start Bilan (CTA)
+Client -> BilanAPI: POST /api/bilan/start
+BilanAPI -> DB: create bilanDraft
+BilanAPI --> Client: 201 {bilanId}
+
+Client -> BilanAPI: GET /api/bilan/questionnaire
+BilanAPI --> Client: JSON (questions)
+
+== Submit Answers ==
+Student -> Client: Answer questions
+Client -> BilanAPI: POST /api/bilan/:bilanId/submit-answers {answers}
+BilanAPI -> DB: persist answers, compute draft scores
+BilanAPI --> Client: 200 {ok}
+
+== Generate Texts/Summary ==
+Client -> BilanAPI: POST /api/bilan/generate-summary-text {bilanId}
+BilanAPI -> OpenAI: prompt(answers/scores)
+OpenAI --> BilanAPI: summary text
+BilanAPI -> DB: save summary
+
+Client -> BilanAPI: POST /api/bilan/generate-report-text {bilanId}
+BilanAPI -> OpenAI: prompt(detailed)
+OpenAI --> BilanAPI: report sections
+BilanAPI -> DB: save report body
+
+== PDF Generation & Download ==
+Client -> BilanAPI: GET /api/bilan/pdf/:id
+BilanAPI -> PDF: render(report, summary)
+PDF --> BilanAPI: application/pdf
+BilanAPI --> Client: 200 (PDF stream)
+
+@enduml

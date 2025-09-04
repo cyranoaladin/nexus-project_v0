@@ -10,8 +10,11 @@ export async function getAuthFromRequest(req: Request): Promise<{ user: { id: st
 
   // 2) Dev token (dev only)
   if (process.env.NODE_ENV !== 'production') {
-    const auth = req.headers.get('authorization') || '';
-    const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    const h1 = req.headers.get('authorization') || '';
+    const h2 = (req as any)?.headers?.get?.('Authorization') || '';
+    const raw = h1 || h2 || '';
+    const m = /^Bearer\s+(.+)$/i.exec(raw.trim());
+    const token = m ? m[1] : null;
     const dev = verifyDevToken(token || undefined);
     if (dev) return { user: { id: dev.sub, email: dev.email, role: dev.role }, via: 'dev-token' } as any;
   }

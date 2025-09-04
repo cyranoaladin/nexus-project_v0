@@ -11,6 +11,7 @@ import { ArrowRight, Award, Calendar, Check, Clock, Code2, Shield, Sparkles, Tar
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import useSWR from 'swr';
 
 // Helper pour formater les prix
 const formatPrice = (price: number) => `${price} TND`;
@@ -120,38 +121,37 @@ const INTENSIVE_STAGES = [
 const SPECIAL_PACKS = [
   {
     name: 'Pack Parcoursup',
-    description: 'Accompagnement complet pour réussir votre orientation post-bac',
-    price: 600,
+    description: 'Optimisation de dossier et choix stratégiques',
+    pricingKey: 'prix_parcoursup',
+    fallbackPrice: 600,
     features: [
       'Aide à la rédaction des lettres de motivation',
       'Préparation aux entretiens d\'admission',
       'Stratégie de vœux personnalisée',
       'Suivi jusqu\'aux résultats d\'admission',
-      '10 crédits de coaching dédiés'
     ]
   },
   {
     name: 'Pack Grand Oral',
-    description: 'Préparation intensive à l\'épreuve du Grand Oral du Bac',
-    price: 400,
+    description: 'Préparez-vous avec un coach expert, entraînement intensif',
+    pricingKey: 'prix_grand_oral',
+    fallbackPrice: 400,
     features: [
       'Méthodologie complète du Grand Oral',
       'Entraînements en conditions réelles',
       'Coaching prise de parole en public',
       'Aide au choix des questions',
-      '8 crédits de préparation intensive'
     ]
   },
   {
-    name: 'Pack Rattrapage',
-    description: 'Remise à niveau express pour rattraper un retard scolaire',
-    price: 500,
+    name: 'Pack Candidats Libres',
+    description: 'Pack complet avec ARIA + cours + stages',
+    pricingKey: 'prix_pack_libres',
+    fallbackPrice: 0,
     features: [
-      'Diagnostic complet des lacunes',
-      'Plan de rattrapage personnalisé',
-      'Sessions intensives de remise à niveau',
-      'Suivi des progrès hebdomadaire',
-      '15 crédits de soutien ciblé'
+      'ARIA + cours + stages',
+      'Suivi structuré toute l\'année',
+      'Objectifs et reporting mensuels',
     ]
   }
 ];
@@ -194,7 +194,7 @@ function ARIAInteractiveModule() {
       <div className="flex items-center gap-6 mb-8">
         <div className="flex-shrink-0">
           <Image
-            src="/images/aria.png"
+            src="/images/mascotte_aria.png"
             alt="ARIA - Assistant IA"
             width={80}
             height={80}
@@ -315,12 +315,49 @@ function ARIAInteractiveModule() {
   );
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function OffresPage() {
+  const { data: pricingItems } = useSWR<Array<{ variable: string; valeur: number; }>>('/api/pricing', fetcher);
+  const pricingMap: Record<string, number> = pricingItems ? Object.fromEntries(pricingItems.map(i => [i.variable, i.valeur])) : {};
+  const pack50 = pricingMap['pack_50_credits'] ?? (50 * 10);
+  const pack100 = pricingMap['pack_100_credits'] ?? (100 * 10);
+  const pack250 = pricingMap['pack_250_credits'] ?? (250 * 10);
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <main className="bg-gradient-to-br from-gray-50 to-blue-50/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+          {/* Bandeau univers comparatif */}
+          <section className="mb-12 md:mb-16">
+            <div className="text-center mb-8">
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">Les 4 univers Nexus</h2>
+              <p className="text-gray-600">Combinez librement ou laissez le Constructeur recommander selon votre profil.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                { t: 'Nexus Cortex (ARIA)', d: 'Tuteur IA 24/7 (QCM, fiches, plans)', href: '/offres/nexus-cortex' },
+                { t: 'Studio Flex', d: 'À la carte (cours, ateliers, oraux blancs)', href: '/offres/studio-flex' },
+                { t: 'Académies Nexus', d: 'Stages vacances intensifs', href: '/offres/academies-nexus' },
+                { t: 'Programme Odyssée', d: 'Annuel, mention + Parcoursup', href: '/offres/programme-odyssee' },
+              ].map((c) => (
+                <Card key={c.t}>
+                  <CardHeader>
+                    <CardTitle>{c.t}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-3">{c.d}</p>
+                    <Link href={c.href} className="text-blue-600">Découvrir</Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="text-center mt-6">
+              <Link href="/constructeur-parcours" className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                Ouvrir le Constructeur de Parcours
+              </Link>
+            </div>
+          </section>
           {/* Section 1: Titre de la Page */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -374,8 +411,8 @@ export default function OffresPage() {
                   )}
 
                   <Card className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${plan.popular
-                      ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
-                      : 'bg-white border border-slate-200 shadow-lg'
+                    ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
+                    : 'bg-white border border-slate-200 shadow-lg'
                     }`}>
                     <CardHeader className="text-center p-6 md:p-8">
                       <CardTitle className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
@@ -420,8 +457,8 @@ export default function OffresPage() {
                       <Button
                         asChild
                         className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold transition-all duration-300 ${plan.popular
-                            ? 'bg-red-500 hover:bg-red-600 text-white'
-                            : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
+                          ? 'bg-red-500 hover:bg-red-600 text-white'
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
                           }`}
                       >
                         <Link href="/bilan-gratuit">
@@ -569,7 +606,7 @@ export default function OffresPage() {
             </div>
           </motion.section>
 
-          {/* Section 5: Les Packs Spécifiques */}
+          {/* Section 5: Les Packs Spécialisés (contenus_site_v_2) */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -598,7 +635,7 @@ export default function OffresPage() {
                         </div>
                         <div className="text-center sm:text-right">
                           <div className="text-xl md:text-2xl font-bold text-blue-600">
-                            {formatPrice(pack.price)}
+                            {Number.isFinite((pricingMap as any)[(pack as any).pricingKey]) ? formatPrice((pricingMap as any)[(pack as any).pricingKey]) : formatPrice((pack as any).fallbackPrice)}
                           </div>
                         </div>
                       </div>
@@ -624,11 +661,56 @@ export default function OffresPage() {
             </div>
           </motion.section>
 
-          {/* Section 6: Add-ons ARIA */}
+          {/* Section Paiements & Crédits Nexus (contenus_site_v_2) */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.0 }}
+            viewport={{ once: true }}
+            className="mb-12 md:mb-20"
+          >
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Moyens de paiement */}
+              <Card className="bg-white border border-slate-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle>Paiements sécurisés</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 text-slate-700 space-y-1">
+                    <li>Carte bancaire (Visa, Mastercard)</li>
+                    <li>Virement bancaire (IBAN affiché dans l’espace client)</li>
+                    <li>Espèces (paiement au centre, reçu fourni)</li>
+                  </ul>
+                  <p className="text-slate-600 text-sm mt-3">Tous nos paiements sont sécurisés.</p>
+                </CardContent>
+              </Card>
+
+              {/* Crédits Nexus */}
+              <Card className="bg-white border border-slate-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle>Crédits Nexus</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-slate-700 mb-3">Flexibilité totale : achetez des crédits et utilisez-les quand vous voulez.</p>
+                  <p className="text-slate-700 mb-4">1 crédit = 10 TND</p>
+                  <div className="space-y-2 text-slate-800">
+                    <div>50 crédits = <span className="font-semibold">{formatPrice(pack50)}</span></div>
+                    <div>100 crédits = <span className="font-semibold">{formatPrice(pack100)}</span></div>
+                    <div>250 crédits = <span className="font-semibold">{formatPrice(pack250)}</span> <span className="text-slate-500">(+ bonus 10 crédits offerts)</span></div>
+                  </div>
+                  <div className="mt-4">
+                    <Link href="/bilan-gratuit" className="text-blue-600">Charger mon compte en crédits</Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.section>
+
+          {/* Section 6: Add-ons ARIA */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
             viewport={{ once: true }}
             className="mb-12 md:mb-20"
           >

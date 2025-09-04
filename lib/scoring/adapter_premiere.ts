@@ -1,22 +1,31 @@
 export type Results = {
   total: number;
   totalMax: number;
-  byDomain: Record<string, { points: number; max: number; percent: number }>;
+  byDomain: Record<string, { points: number; max: number; percent: number; }>;
 };
 
 export function toScoresByDomain(results: Results) {
-  const order = [
-    "Nombres & Calculs",
-    "Équations / Inéquations",
+  // Domain keys possibles dans le QCM: NombresCalculs, EquationsInequations, Fonctions, GeometrieTrig, ProbaStats, AlgoLogique
+  // Mapping vers libellés lisibles pour le PDF
+  const prettyMap: Record<string, string> = {
+    NombresCalculs: "Nombres & Calculs",
+    EquationsInequations: "Équations / Inéquations",
+    Fonctions: "Fonctions",
+    GeometrieTrig: "Géométrie & Trigonométrie",
+    ProbaStats: "Probabilités & Statistiques",
+    AlgoLogique: "Algorithmique & Logique",
+  };
+  const preferredOrder = [
+    "NombresCalculs",
+    "EquationsInequations",
     "Fonctions",
-    "Géométrie & Trigonométrie",
-    "Probabilités & Statistiques",
-    "Algorithmique & Logique",
+    "GeometrieTrig",
+    "ProbaStats",
+    "AlgoLogique",
   ];
-  // if labels already mapped, preserve order; otherwise fall back on keys order
   const keys = results.byDomain ? Object.keys(results.byDomain) : [];
-  const chosen = order.every((k) => keys.includes(k)) ? order : keys;
-  return chosen.map((d) => ({ domain: d, percent: results.byDomain?.[d]?.percent ?? 0 }));
+  const chosenKeys = preferredOrder.every((k) => keys.includes(k)) ? preferredOrder : keys;
+  return chosenKeys.map((k) => ({ domain: prettyMap[k] || k, percent: results.byDomain?.[k]?.percent ?? 0 }));
 }
 
 export function inferStrengthsWeaknesses(results: Results) {
@@ -49,7 +58,7 @@ export function chooseOffer(results: Results) {
   return { primary: "Odyssée", alternatives: ["Studio Flex"], reasoning: "Objectif mention / besoin de structuration annuelle." };
 }
 
-export function buildPdfPayloadPremiere(results: Results, eleve?: { firstName?: string; lastName?: string; niveau?: string; statut?: string }) {
+export function buildPdfPayloadPremiere(results: Results, eleve?: { firstName?: string; lastName?: string; niveau?: string; statut?: string; }) {
   const scoresByDomain = toScoresByDomain(results);
   const { forces, faiblesses } = inferStrengthsWeaknesses(results);
   const feuilleDeRoute = suggestPlanPremiere(results);
@@ -57,4 +66,3 @@ export function buildPdfPayloadPremiere(results: Results, eleve?: { firstName?: 
   const scoreGlobal = Math.round((results.total / Math.max(1, results.totalMax)) * 100);
   return { eleve, scoresByDomain, forces, faiblesses, feuilleDeRoute, recommandation, scoreGlobal };
 }
-

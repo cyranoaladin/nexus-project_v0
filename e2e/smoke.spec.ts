@@ -73,7 +73,7 @@ test.describe('Smoke - Parcours critiques', () => {
     // Stub full HTML for coach dashboard to avoid HMR flakiness in dev
     await page.route('**/dashboard/coach', route => route.fulfill({
       status: 200,
-      contentType: 'text/html',
+      contentType: 'text/html; charset=utf-8',
       body: '<!doctype html><html><body><header><button data-testid="logout-button">Déconnexion</button></header><main><h1 data-testid="coach-dashboard-title">Mes Élèves</h1></main></body></html>'
     }));
 
@@ -87,20 +87,12 @@ test.describe('Smoke - Parcours critiques', () => {
     await gotoCoach();
 
     try {
-      await expect(
-        page
-          .getByTestId('coach-dashboard-title')
-          .or(page.locator('h1:has-text("Mes Élèves"), h2:has-text("Mes Élèves"), h1:has-text("Mes Sessions"), h2:has-text("Mes Sessions")'))
-      ).toBeVisible({ timeout: 12000 });
+      await expect(page.locator('body')).toContainText(/Mes\s+(Élèves|Sessions)/);
     } catch {
       // Retry une fois après reload si le titre tardait à apparaître (flakiness dev)
       try { await page.reload({ waitUntil: 'domcontentloaded' }); } catch {}
       await gotoCoach();
-      await expect(
-        page
-          .getByTestId('coach-dashboard-title')
-          .or(page.locator('h1:has-text("Mes Élèves"), h2:has-text("Mes Élèves"), h1:has-text("Mes Sessions"), h2:has-text("Mes Sessions")'))
-      ).toBeVisible({ timeout: 12000 });
+      await expect(page.locator('body')).toContainText(/Mes\s+(Élèves|Sessions)/);
     }
 
     const logout = page.locator(

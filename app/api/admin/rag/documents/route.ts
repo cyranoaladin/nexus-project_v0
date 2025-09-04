@@ -1,40 +1,27 @@
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { UserRole } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { requireRole } from '@/lib/api/rbac';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    const role = session?.user?.role as UserRole | undefined;
-    if (!role || !([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH] as UserRole[]).includes(role)) {
-      return NextResponse.json({ error: "Accès non autorisé." }, { status: 403 });
-    }
-
-    // Fetch documents directly from DB for admin listing
-    const rows = await prisma.pedagogicalContent.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    });
-
-    const documents = rows.map((r) => ({
-      document_id: r.id,
-      contenu: r.content,
-      metadata: {
-        titre: r.title,
-        matiere: r.subject,
-        niveau: r.grade ?? undefined,
-        tags: (() => { try { return JSON.parse(r.tags || '[]'); } catch { return []; } })(),
-      },
-    }));
-
-    return NextResponse.json({ documents });
-
-  } catch (error: any) {
-    console.error("[API_RAG_DOCUMENTS_ERROR]", error);
-    return NextResponse.json({ error: "Une erreur interne est survenue." }, { status: 500 });
-  }
+// GET /api/admin/rag/documents
+export async function GET(req: Request) {
+  const guard = await requireRole(req as any, ['ADMIN', 'ASSISTANTE', 'COACH']);
+  if (!guard.ok) return NextResponse.json({ error: guard.message }, { status: guard.status });
+  const items = await (prisma as any).pedagogicalContent.findMany({
+    orderBy: { updatedAt: 'desc' },
+    take: 100,
+    select: { id: true, title: true, content: true, subject: true, grade: true, tags: true },
+  });
+  const documents = items.map((x: any) => ({
+    document_id: x.id,
+    contenu: x.content,
+    metadata: {
+      titre: x.title,
+      matiere: x.subject,
+      niveau: x.grade ?? undefined,
+      mots_cles: (() => { try { return JSON.parse(x.tags || '[]'); } catch { return []; } })(),
+    },
+  }));
+  return NextResponse.json({ documents });
 }

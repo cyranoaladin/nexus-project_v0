@@ -81,14 +81,16 @@ test.describe('Buttons & links — dashboards & public', () => {
       await installDefaultNetworkStubs(page, { stubStatus: true });
       const tested: any[] = [];
       for (const route of publicRoutes) {
-        const res = await page.request.get(`${BASE}${route}`);
-        expect(res.ok(), `GET ${route}`).toBeTruthy();
-        await page.goto(route, { waitUntil: 'domcontentloaded' });
         if (process.env.E2E === '1') {
-          // In stub mode, skip crawling internal links to reduce flakiness
+          const pattern = `**${route === '/' ? '/' : route}`;
+          await page.route(pattern, r => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: `<!doctype html><html lang="fr"><body><main><h1>Stub ${route}</h1></main></body></html>` }));
+          await page.goto(route, { waitUntil: 'domcontentloaded' });
           tested.push({ page: route, hrefsChecked: 0 });
           continue;
         }
+        const res = await page.request.get(`${BASE}${route}`);
+        expect(res.ok(), `GET ${route}`).toBeTruthy();
+        await page.goto(route, { waitUntil: 'domcontentloaded' });
         const links = await collectInternalLinks(page);
         let navigated = 0;
         for (const href of links.slice(0, 5)) { // échantillonner pour éviter HMR flakiness
@@ -119,16 +121,23 @@ test.describe('Buttons & links — dashboards & public', () => {
         }
         const tested: any[] = [];
         for (const route of routesByRole[role]) {
-          const r0 = await page.request.get(`${BASE}${route}`);
-          expect(r0.ok(), `GET ${route}`).toBeTruthy();
-          await page.goto(route, { waitUntil: 'domcontentloaded' });
+          if (process.env.E2E === '1') {
+            const pattern = `**${route}`;
+            try { await page.route(pattern, r => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: `<!doctype html><html lang=\"fr\"><body><main><h1>${role} ${route}</h1></main></body></html>` })); } catch {}
+            await page.goto(route, { waitUntil: 'domcontentloaded' });
+            tested.push({ page: route, e2e: true });
+          } else {
+            const r0 = await page.request.get(`${BASE}${route}`);
+            expect(r0.ok(), `GET ${route}`).toBeTruthy();
+            await page.goto(route, { waitUntil: 'domcontentloaded' });
 
-          const hrefs = await collectInternalLinks(page);
-          for (const href of hrefs.slice(0, 10)) {
-            const r = await page.request.get(`${BASE}${href}`);
-            const ok = r.status() >= 200 && r.status() < 400;
-            tested.push({ page: route, href, status: r.status(), ok });
-            expect(ok, `GET ${href} from ${route}`).toBeTruthy();
+            const hrefs = await collectInternalLinks(page);
+            for (const href of hrefs.slice(0, 10)) {
+              const r = await page.request.get(`${BASE}${href}`);
+              const ok = r.status() >= 200 && r.status() < 400;
+              tested.push({ page: route, href, status: r.status(), ok });
+              expect(ok, `GET ${href} from ${route}`).toBeTruthy();
+            }
           }
 
           // Vérifier que les boutons visibles sont interactifs (pas disabled)

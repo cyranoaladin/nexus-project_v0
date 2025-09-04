@@ -1,10 +1,8 @@
 import cp from "child_process";
 import fs from "fs";
-import path from "path";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - types fournis via @types/mustache si installés
 import Mustache from "mustache";
 import OpenAI from "openai";
+import path from "path";
 import { z } from "zod";
 
 type DomainScore = { domain: string; points: number; max: number; masteryPct: number; note?: string; };
@@ -29,7 +27,7 @@ const OutSchema = z.object({
 
 type BilanOut = z.infer<typeof OutSchema>;
 
-function buildMessages(input: BilanInput): Array<{ role: 'system' | 'user'; content: string; }> {
+function buildMessages(input: BilanInput) {
   const sys = `Tu es ARIA, IA éducative premium. Tu produis un rapport LaTeX professionnel. Réponds en JSON strict.`;
   const user = { student: input.student, qcm: input.qcm, volet2: input.volet2 };
   return [{ role: "system", content: sys }, { role: "user", content: JSON.stringify(user) }];
@@ -37,12 +35,10 @@ function buildMessages(input: BilanInput): Array<{ role: 'system' | 'user'; cont
 
 export async function generateBilanContent(apiKey: string, input: BilanInput): Promise<BilanOut> {
   const client = new OpenAI({ apiKey });
-  const resp = await client.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages: buildMessages(input) as any,
-    temperature: 0.3,
-    user: input?.student?.name ? `student:${input.student.name}` : undefined,
-  });
+  const { selectModel } = await import('./lib/aria/openai');
+  const model = selectModel();
+  const messages = buildMessages(input) as any;
+  const resp = await (client as any).chat.completions.create({ model, messages, temperature: 0.3 });
   const raw = resp.choices[0]?.message?.content || "{}";
   const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || "{}");
   return OutSchema.parse(parsed);

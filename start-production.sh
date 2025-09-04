@@ -7,11 +7,13 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
-echo "Running Prisma migrations..."
+echo "Applying Prisma migrations (deploy)..."
 npx prisma migrate deploy
 
-echo "Seeding database..."
-npx tsx prisma/seed.ts || true
+if [ "${PRISMA_SEED_ON_START:-0}" = "1" ]; then
+  echo "Seeding database (PRISMA_SEED_ON_START=1)..."
+  npx tsx prisma/seed.ts || true
+fi
 
 echo "Starting Next.js standalone server on port 3000"
 exec node server.js

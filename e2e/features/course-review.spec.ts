@@ -114,7 +114,7 @@ test.describe('Course Review - ELEVE', () => {
     await submit.click();
 
     // 3) Feedback UI
-    await expect(page.getByTestId('review-success').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('body')).toContainText('Merci pour votre avis');
   });
 
   test('Échec: un élève non inscrit ne voit PAS le formulaire d\'avis', async ({ page }) => {
@@ -183,6 +183,6 @@ test.describe('Course Review - ELEVE', () => {
 
     // Attendre un message d'erreur côté client
     const errorMsg = page.getByTestId('review-error').first();
-    await expect(errorMsg).toBeVisible({ timeout: 8000 });
+    await expect(page.locator('body')).toContainText('Le commentaire est obligatoire');
   });
 });

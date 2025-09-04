@@ -1,0 +1,29 @@
+@startuml
+actor User
+participant Client
+participant API as "/api/aria/chat"
+participant Auth as "NextAuth"
+participant DB as "Prisma"
+participant OpenAI
+
+== Auth & Rate Limit ==
+User -> Client: Type message
+Client -> API: POST /api/aria/chat?stream=true
+API -> Auth: getServerSession(authOptions)
+API -> DB: Check freemium usage (5/jour)
+alt E2E forced failure (fbfail=1)
+  API --> Client: event: error {code:e2e_forced_failure}
+  API --> Client: event: done
+else Service mode
+  API --> Client: event: error {code:stream_not_available_in_service_mode}
+  API --> Client: event: done
+else Normal streaming
+  API -> OpenAI: stream completions
+  loop tokens
+    OpenAI --> API: token delta
+    API --> Client: event: token {text}
+  end
+  API --> Client: event: done
+end
+@enduml
+

@@ -1,3 +1,5 @@
+import { sendMail } from '@/lib/email';
+import { createStudentInviteToken } from '@/lib/invite';
 import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { UserRole } from '@/types/enums';
@@ -32,8 +34,8 @@ export async function POST(req: NextRequest) {
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(validatedData.parentPassword, 12);
 
-    // Générer un email unique pour l'élève
-    const uniqueStudentEmail = `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}.${Date.now()}@nexus-student.local`;
+    // Email élève: utiliser celui saisi, fallback sur un email généré si absent (sécurité)
+    const uniqueStudentEmail = (validatedData as any).studentEmail?.trim() || `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}.${Date.now()}@nexus-student.local`;
 
     // Transaction pour créer parent et élève
     const result = await prisma.$transaction(async (tx) => {
@@ -87,6 +89,43 @@ export async function POST(req: NextRequest) {
 
     // TODO: Implémenter un système de notification fiable pour l'assistante.
     // TODO: Mettre en place un vrai service d'emailing (ex: Resend, Postmark).
+
+    // Envoyer l'invitation élève avec lien d'activation
+    try {
+      const token = createStudentInviteToken({
+        kind: 'student_invite',
+        studentUserId: result.studentUser.id,
+        parentUserId: result.parentUser.id,
+        studentEmail: (validatedData as any).studentEmail || result.studentUser.email,
+      });
+      const base = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const startUrl = `${base}/bilan/inviter/${encodeURIComponent(token)}`;
+      await sendMail({
+        to: result.studentUser.email,
+        subject: 'Invitation à démarrer le Bilan — Nexus Réussite',
+        html: `<p>Bonjour ${validatedData.studentFirstName},</p>
+               <p>Vous avez été invité(e) à démarrer votre Bilan Stratégique Gratuit.</p>
+               <p><a href="${startUrl}">Commencer le bilan</a></p>
+               <p>Ce lien est valable 48h.</p>`
+      });
+    } catch (e) {
+      console.error('[INVITE_EMAIL_ERROR]', e);
+    }
+
+    // Option: persister un profil pédagogique initial si fourni (volet 2)
+    try {
+      const bodyAny = (validatedData as any);
+      if (bodyAny.pedagoAnswers) {
+        await prisma.memory.create({
+          data: {
+            studentId: result.student.id,
+            kind: 'SEMANTIC',
+            content: 'PEDAGO_PROFILE_BASE',
+            meta: { pedagoAnswers: bodyAny.pedagoAnswers },
+          } as any,
+        });
+      }
+    } catch {}
 
     return NextResponse.json({
       success: true,

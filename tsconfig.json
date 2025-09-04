@@ -3,8 +3,7 @@
     "baseUrl": ".",
     "types": [
       "node",
-      "jest",
-      "@testing-library/jest-dom"
+      "next"
     ],
     "target": "ES2017",
     "lib": [
@@ -42,11 +41,15 @@
   ],
   "exclude": [
     "node_modules",
-    "__tests__",
-    "__tests__/**/*",
     "e2e",
     "e2e/**/*",
     "jest.setup.js",
-    "jest.setup.integration.js"
+    "jest.setup.integration.js",
+    "__tests__",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

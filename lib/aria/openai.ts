@@ -16,5 +16,3 @@ export function selectModel(): string {
 export function getFallbackModel(): string | null {
   return process.env.OPENAI_FALLBACK_MODEL || null;
 }
-
-

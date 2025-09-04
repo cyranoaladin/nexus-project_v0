@@ -246,7 +246,7 @@ export function AriaChat() {
         >
           <div className="flex items-start space-x-2">
             <Image
-              src="/images/aria.png"
+              src="/images/mascotte_aria.png"
               alt="ARIA"
               width={32}
               height={32}
@@ -276,7 +276,7 @@ export function AriaChat() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Image
-                      src="/images/aria.png"
+                      src="/images/mascotte_aria.png"
                       alt="ARIA"
                       width={48}
                       height={48}
@@ -304,7 +304,7 @@ export function AriaChat() {
                   {messages.length === 0 && !isAuthenticated && (
                     <div className="text-center text-bleu-nuit py-12">
                       <Image
-                        src="/images/aria.png"
+                        src="/images/mascotte_aria.png"
                         alt="ARIA"
                         width={80}
                         height={80}
@@ -325,7 +325,7 @@ export function AriaChat() {
                   {messages.length === 0 && isAuthenticated && (
                     <div className="text-center text-bleu-nuit py-12">
                       <Image
-                        src="/images/aria.png"
+                        src="/images/mascotte_aria.png"
                         alt="ARIA"
                         width={80}
                         height={80}

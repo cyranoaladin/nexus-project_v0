@@ -1,5 +1,38 @@
 import nodemailer from 'nodemailer';
 
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER!, pass: process.env.SMTP_PASSWORD! } : undefined,
+});
+
+export async function sendMail({ to, subject, html }: { to: string; subject: string; html: string; }) {
+  const from = process.env.SMTP_FROM || process.env.EMAIL_FROM || 'Nexus Réussite <no-reply@nexus.local>';
+  return transporter.sendMail({ from, to, subject, html });
+}
+
+export async function sendCashReservationEmail(userEmail: string, recordId: number, amountTnd: number) {
+  return sendMail({
+    to: userEmail,
+    subject: 'Nexus Réussite — Réservation Cash créée',
+    html: `<p>Bonjour,</p>
+           <p>Votre réservation <b>#${recordId}</b> d’un montant de <b>${amountTnd} TND</b> a été créée.</p>
+           <p>Merci de régler au centre pour valider.</p>`
+  });
+}
+
+export async function sendCashValidationEmail(userEmail: string, recordId: number, amountTnd: number) {
+  return sendMail({
+    to: userEmail,
+    subject: 'Nexus Réussite — Paiement validé',
+    html: `<p>Bonjour,</p>
+           <p>Votre paiement en espèces pour la réservation <b>#${recordId}</b> a été validé (<b>${amountTnd} TND</b>).</p>
+           <p>Votre compte a été crédité.</p>`
+  });
+}
+
+
 // Configuration SMTP avec fallback pour développement
 const createTransporter = () => {
   // En développement, utiliser un service de test si pas de SMTP configuré

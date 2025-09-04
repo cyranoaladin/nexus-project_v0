@@ -1,0 +1,428 @@
+[
+  {
+    "id": "PC1-MES-Q1",
+    "domain": "mesure_incertitudes",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "On répète 10 mesures indépendantes d'une grandeur $X$. La moyenne $\\bar X$ et l'écart-type $s$ servent à :",
+    "choices": [
+      { "k": "A", "latex": "Estimer une valeur centrale et la dispersion", "correct": true },
+      { "k": "B", "latex": "Éliminer systématiquement les valeurs extrêmes" },
+      { "k": "C", "latex": "Corriger les erreurs systématiques" },
+      { "k": "D", "latex": "Remplacer toute incertitude par 0" }
+    ],
+    "explanation_latex": "Première : histogramme, moyenne, écart-type pour variabilité. (Critère quantitatif approfondi en Terminale.)"
+  },
+  {
+    "id": "PC1-MES-Q2",
+    "domain": "mesure_incertitudes",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "On donne un résultat $x=3{,}21$. Le nombre de chiffres significatifs doit être :",
+    "choices": [
+      { "k": "A", "latex": "Fixé par la précision de l'instrument", "correct": true },
+      { "k": "B", "latex": "Toujours 2" },
+      { "k": "C", "latex": "Toujours 4" },
+      { "k": "D", "latex": "Libre, au choix" }
+    ],
+    "explanation_latex": "Première : écriture du résultat adaptée (chiffres significatifs) ; Terminale introduit incertitudes composées."
+  },
+
+  {
+    "id": "PC1-CHI-Q3",
+    "domain": "chimie_matiere",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 2,
+    "prompt_latex": "On dissout $n=0{,}050\\,\\text{mol}$ de NaCl pour préparer $V=250\\,\\text{mL}$ de solution. Donner $c$ en $\\text{mol}\\cdot\\text{L}^{-1}$.",
+    "answer_latex": "c=0{,}20\\,\\text{mol}\\cdot\\text{L}^{-1}",
+    "explanation_latex": "c=n/V=0,050/0,250=0,20."
+  },
+  {
+    "id": "PC1-CHI-Q4",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Un titrage colorimétrique direct permet de :",
+    "choices": [
+      { "k": "A", "latex": "Déterminer une concentration à partir d'une équivalence", "correct": true },
+      { "k": "B", "latex": "Mesurer une masse volumique" },
+      { "k": "C", "latex": "Identifier une entité par spectre RMN" },
+      { "k": "D", "latex": "Mesurer l'énergie d'activation" }
+    ],
+    "explanation_latex": "Première : titrage direct et repérage de l'équivalence (souvent colorimétrique)."
+  },
+  {
+    "id": "PC1-CHI-Q5",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Lors d'un titrage acide-base, à l'équivalence :",
+    "choices": [
+      { "k": "A", "latex": "n(acide~versée) = n(base~présente)", "correct": true },
+      { "k": "B", "latex": "pH=7 dans tous les cas" },
+      { "k": "C", "latex": "La solution est toujours tampon" },
+      { "k": "D", "latex": "Le soluté titré disparaît seulement à moitié" }
+    ],
+    "explanation_latex": "Condition stœchiométrique à l'équivalence ; pH dépend des couples."
+  },
+  {
+    "id": "PC1-CHI-Q6",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Dans une extraction liquide−liquide, on choisit les solvants selon :",
+    "choices": [
+      { "k": "A", "latex": "Leur miscibilité (phase organique/aqueuse) et solubilité différentielle", "correct": true },
+      { "k": "B", "latex": "Un hasard total" },
+      { "k": "C", "latex": "Toujours l'eau pure" },
+      { "k": "D", "latex": "Un seul critère : la couleur" }
+    ],
+    "explanation_latex": "Première : protocole d'extraction, solubilité/miscibilité guidant le choix."
+  },
+  {
+    "id": "PC1-CHI-Q7",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Le rendement d'une synthèse organique se définit comme :",
+    "choices": [
+      { "k": "A", "latex": "n(obtenue)/n(théorique)", "correct": true },
+      { "k": "B", "latex": "m(soluté)/V(solution)" },
+      { "k": "C", "latex": "Masse molaire/masse" },
+      { "k": "D", "latex": "Toujours 100\\%" }
+    ],
+    "explanation_latex": "Rendement = rapport quantité obtenue / attendue."
+  },
+
+  {
+    "id": "PC1-MVT-Q8",
+    "domain": "mouvement_interactions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "La vitesse instantanée est :",
+    "choices": [
+      { "k": "A", "latex": "La pente de la courbe $x(t)$", "correct": true },
+      { "k": "B", "latex": "La pente de $a(t)$" },
+      { "k": "C", "latex": "Toujours constante" },
+      { "k": "D", "latex": "L'aire sous $x(t)$" }
+    ],
+    "explanation_latex": "Lien dérivation : $v=dx/dt$."
+  },
+  {
+    "id": "PC1-MVT-Q9",
+    "domain": "mouvement_interactions",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Le travail d'une force constante $\\vec F$ sur un trajet rectiligne de longueur $d$ parallèle à $\\vec F$ vaut :",
+    "choices": [
+      { "k": "A", "latex": "0" },
+      { "k": "B", "latex": "$F\\,d$", "correct": true },
+      { "k": "C", "latex": "$F/d$" },
+      { "k": "D", "latex": "$F\\,d^2$" }
+    ],
+    "explanation_latex": "Travail $W=\\vec F\\cdot \\vec{AB}=Fd$ si parallèle."
+  },
+  {
+    "id": "PC1-MVT-Q10",
+    "domain": "mouvement_interactions",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "La deuxième loi de Newton s'écrit :",
+    "choices": [
+      { "k": "A", "latex": "$\\sum \\vec F = m\\,\\vec a$", "correct": true },
+      { "k": "B", "latex": "$\\sum \\vec F = 0$ quel que soit le mouvement" },
+      { "k": "C", "latex": "$\\vec a = 0$ si $\\vec v$ non nul" },
+      { "k": "D", "latex": "$\\vec F = k\\,\\vec v$ toujours" }
+    ],
+    "explanation_latex": "Relation fondamentale de la dynamique."
+  },
+
+  {
+    "id": "PC1-ENE-Q11",
+    "domain": "energie",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Dans un circuit, la puissance électrique instantanée s'exprime :",
+    "choices": [
+      { "k": "A", "latex": "$P=UI$", "correct": true },
+      { "k": "B", "latex": "$P=U/I$" },
+      { "k": "C", "latex": "$P=I/U$" },
+      { "k": "D", "latex": "$P=U^2I^2$" }
+    ],
+    "explanation_latex": "Définition usuelle."
+  },
+  {
+    "id": "PC1-ENE-Q12",
+    "domain": "energie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "L'énergie cinétique $E_c$ d'un solide de masse $m$ animé d'une vitesse $v$ vaut :",
+    "choices": [
+      { "k": "A", "latex": "$E_c=mv^2$" },
+      { "k": "B", "latex": "$E_c=\\tfrac{1}{2}mv^2$", "correct": true },
+      { "k": "C", "latex": "$E_c=\\tfrac{1}{2}m^2v$" },
+      { "k": "D", "latex": "$E_c=Fv$" }
+    ],
+    "explanation_latex": "Formule standard (travail−énergie)."
+  },
+  {
+    "id": "PC1-ENE-Q13",
+    "domain": "energie",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Lors d'un transfert d'énergie électrique sur une durée $\\Delta t$, l'énergie transférée vaut :",
+    "choices": [
+      { "k": "A", "latex": "$E = U I / \\Delta t$" },
+      { "k": "B", "latex": "$E = U I \\Delta t$", "correct": true },
+      { "k": "C", "latex": "$E = U / (I \\Delta t)$" },
+      { "k": "D", "latex": "$E = I / (U \\Delta t)$" }
+    ],
+    "explanation_latex": "$E=\\int P\\,dt=UI\\,\\Delta t$ si $U,I$ constants."
+  },
+
+  {
+    "id": "PC1-OND-Q14",
+    "domain": "ondes_signaux",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "La relation période–fréquence pour une onde sinusoïdale est :",
+    "choices": [
+      { "k": "A", "latex": "$T=f$" },
+      { "k": "B", "latex": "$T=1/f$", "correct": true },
+      { "k": "C", "latex": "$T=2\\pi f$" },
+      { "k": "D", "latex": "$T=\\omega$" }
+    ],
+    "explanation_latex": "$f=1/T$."
+  },
+  {
+    "id": "PC1-OND-Q15",
+    "domain": "ondes_signaux",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Pour une onde progressive de célérité $v$, longueur d'onde $\\lambda$ et fréquence $f$ vérifient :",
+    "choices": [
+      { "k": "A", "latex": "$v=\\lambda f$", "correct": true },
+      { "k": "B", "latex": "$v=\\lambda / f$" },
+      { "k": "C", "latex": "$v=f/\\lambda$" },
+      { "k": "D", "latex": "$v=\\omega f$" }
+    ],
+    "explanation_latex": "Relation de base $v=\\lambda f$."
+  },
+
+  {
+    "id": "PC1-CHI-Q16",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Lors d'un dosage par étalonnage (UV-Visible), l'absorbance $A$ :",
+    "choices": [
+      { "k": "A", "latex": "Est sans lien avec la concentration" },
+      { "k": "B", "latex": "Suit $A=\\epsilon l c$ pour une espèce donnée", "correct": true },
+      { "k": "C", "latex": "Diminue toujours avec $c$" },
+      { "k": "D", "latex": "Ne dépend pas de la cuve" }
+    ],
+    "explanation_latex": "Loi de Beer-Lambert (première)."
+  },
+  {
+    "id": "PC1-CHI-Q17",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Un test de reconnaissance (CCM ou test chimique) sert à :",
+    "choices": [
+      { "k": "A", "latex": "Identifier une famille fonctionnelle ou comparer à un témoin", "correct": true },
+      { "k": "B", "latex": "Mesurer un champ électrique" },
+      { "k": "C", "latex": "Déterminer un moment d'inertie" },
+      { "k": "D", "latex": "Mesurer la célérité d'une onde" }
+    ],
+    "explanation_latex": "Première : protocoles d'identification."
+  },
+
+  {
+    "id": "PC1-MVT-Q18",
+    "domain": "mouvement_interactions",
+    "type": "numeric",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Une masse $m=0{,}50\\,\\text{kg}$ subit une force constante $F=1{,}0\\,\\text{N}$ pendant $2{,}0\\,\\text{s}$ (au repos au départ). Donner $v$ final (sans frottements).",
+    "answer_latex": "v=4{,}0\\,\\text{m}\\cdot\\text{s}^{-1}",
+    "explanation_latex": "a=F/m=2,0 ; v=a\\,t=4,0."
+  },
+  {
+    "id": "PC1-ENE-Q19",
+    "domain": "energie",
+    "type": "numeric",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Un appareil consomme $I=0{,}50\\,\\text{A}$ sous $U=12\\,\\text{V}$ pendant $\\Delta t=30\\,\\text{min}$. Énergie transférée $E$ (en J).",
+    "answer_latex": "E=12\\times 0{,}50\\times 1800=10800\\,\\text{J}",
+    "explanation_latex": "E=UI\\Delta t."
+  },
+  {
+    "id": "PC1-OND-Q20",
+    "domain": "ondes_signaux",
+    "type": "numeric",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Pour $f=2{,}0\\,\\text{kHz}$ et $v=340\\,\\text{m}\\cdot\\text{s}^{-1}$ (onde sonore), calculer $\\lambda$.",
+    "answer_latex": "\\lambda = v/f = 0{,}17\\,\\text{m}",
+    "explanation_latex": "Relation $v=\\lambda f$."
+  },
+
+  {
+    "id": "PC1-MES-Q21",
+    "domain": "mesure_incertitudes",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "L'incertitude-type par une évaluation statistique sur $N$ mesures indépendantes s'obtient à partir de :",
+    "choices": [
+      { "k": "A", "latex": "L'écart-type de l'instrument" },
+      { "k": "B", "latex": "L'écart-type expérimental de l'échantillon", "correct": true },
+      { "k": "C", "latex": "La résolution du capteur uniquement" },
+      { "k": "D", "latex": "La moyenne seule" }
+    ],
+    "explanation_latex": "Première : variabilité/écriture du résultat ; Terminale : critères quantitatifs/évaluations type A/B."
+  },
+
+  {
+    "id": "PC1-CHI-Q22",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Chauffage à reflux et distillation fractionnée sont utilisés pour :",
+    "choices": [
+      { "k": "A", "latex": "Accélérer des transformations et séparer des liquides selon $T_\\text{ébullition}$", "correct": true },
+      { "k": "B", "latex": "Mesurer un champ magnétique" },
+      { "k": "C", "latex": "Mesurer la célérité de la lumière" },
+      { "k": "D", "latex": "Faire une électrolyse" }
+    ],
+    "explanation_latex": "Première : protocoles expérimentaux (chauffage à reflux, distillation)."
+  },
+
+  {
+    "id": "PC1-OND-Q23",
+    "domain": "ondes_signaux",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Un signal enregistré via microcontrôleur permet :",
+    "choices": [
+      { "k": "A", "latex": "De commander/mesurer et de traiter des données expérimentales", "correct": true },
+      { "k": "B", "latex": "Uniquement d'afficher une image" },
+      { "k": "C", "latex": "D'imposer $f=1\\,\\text{GHz}$" },
+      { "k": "D", "latex": "De supprimer tout bruit" }
+    ],
+    "explanation_latex": "Première : dispositifs expérimentaux/numériques (capteurs, interfaces, microcontrôleurs)."
+  },
+
+  {
+    "id": "PC1-MVT-Q24",
+    "domain": "mouvement_interactions",
+    "type": "short",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Énoncer la condition d'équilibre d'un solide soumis à des forces.",
+    "answer_latex": "\\sum \\vec F = \\vec 0",
+    "explanation_latex": "Statique : résultante nulle."
+  },
+
+  {
+    "id": "PC1-ENE-Q25",
+    "domain": "energie",
+    "type": "mcq",
+    "difficulty": "A",
+    "weight": 1,
+    "prompt_latex": "Dans un conducteur ohmique, la loi locale s'écrit :",
+    "choices": [
+      { "k": "A", "latex": "$U=RI$", "correct": true },
+      { "k": "B", "latex": "$U=I/R$" },
+      { "k": "C", "latex": "$R=UI$" },
+      { "k": "D", "latex": "$I=UR^2$" }
+    ],
+    "explanation_latex": "Loi d’Ohm."
+  },
+
+  {
+    "id": "PC1-CHI-Q26",
+    "domain": "chimie_matiere",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "Lors d'un titrage acide fort/base forte, l'indicateur coloré est choisi :",
+    "choices": [
+      { "k": "A", "latex": "Pour que son intervalle de virage contienne le pH d'équivalence", "correct": true },
+      { "k": "B", "latex": "Au hasard" },
+      { "k": "C", "latex": "Toujours le même (phénolphtaléine), quel que soit le couple" },
+      { "k": "D", "latex": "Pour obtenir pH=7" }
+    ],
+    "explanation_latex": "Choix d'indicateur : intervalle de virage adapté."
+  },
+
+  {
+    "id": "PC1-OND-Q27",
+    "domain": "ondes_signaux",
+    "type": "mcq",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "En régime sinusoïdal, un déphasage entre tension et courant :",
+    "choices": [
+      { "k": "A", "latex": "Est toujours nul" },
+      { "k": "B", "latex": "Peut être non nul selon le dipôle (condensateur, bobine)", "correct": true },
+      { "k": "C", "latex": "Dépend seulement de la couleur des fils" },
+      { "k": "D", "latex": "Est égal à $\\pi$ pour une résistance pure" }
+    ],
+    "explanation_latex": "Pré-requis utiles aux études d’AC (Terminale/enseignement sup)."
+  },
+
+  {
+    "id": "PC1-MES-Q28",
+    "domain": "mesure_incertitudes",
+    "type": "short",
+    "difficulty": "B",
+    "weight": 2,
+    "prompt_latex": "On donne $x= (3{,}20 \\pm 0{,}05)$. Écrire correctement le résultat avec un nombre adapté de chiffres significatifs.",
+    "answer_latex": "x = (3{,}20 \\pm 0{,}05)",
+    "explanation_latex": "Cohérence chiffres/incertitude."
+  },
+
+  {
+    "id": "PC1-MINI-Q29",
+    "domain": "chimie_matiere",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "On titre une solution d'acide chlorhydrique par une base forte. (a) Écrire la réaction support. (b) Expliquer le critère de l'équivalence au sens stœchiométrique.",
+    "answer_latex": "(a)\\; \\mathrm{H_3O^+ + HO^- \\to 2 H_2O}.\\quad (b)\\; n(\\mathrm{H_3O^+})=n(\\mathrm{HO^-})~\\text{à l'équivalence}.",
+    "explanation_latex": "Réaction acide-base en solution aqueuse ; équivalence : proportions stœchiométriques."
+  },
+  {
+    "id": "PC1-MINI-Q30",
+    "domain": "mouvement_interactions",
+    "type": "short",
+    "difficulty": "C",
+    "weight": 4,
+    "prompt_latex": "Un mobile (masse $m$) se déplace sans frottement sur un plan horizontal. En utilisant travail–énergie, relier $\\Delta E_c$ au travail des forces.",
+    "answer_latex": "\\Delta E_c = W_{\\text{forces}}",
+    "explanation_latex": "Théorème de l'énergie cinétique (cas simple)."
+  }
+]
+

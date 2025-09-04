@@ -1,23 +1,24 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronLeft, ChevronRight, HelpCircle, Loader2 } from "lucide-react";
 import * as React from "react";
-import { useMemo, useState } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { useForm, Controller, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronLeft, ChevronRight, HelpCircle, Loader2 } from "lucide-react";
 
 // shadcn/ui components
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "./components/ui/progress";
-import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 // Adapter (fourni dans le canvas: volet2_adapter.ts)
 import { normalizeVolet2 } from "./volet2_adapter";
@@ -61,7 +62,7 @@ type Volet2Schema = {
 
 // ==== Composants UI spécifiques ====
 
-function FieldHelp({ children }: { children?: React.ReactNode; }) {
+function FieldHelp({ children }: { children?: React.ReactNode }) {
   if (!children) return null;
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
@@ -123,7 +124,7 @@ function MultiSelect({
   );
 }
 
-function SingleSelect({ name, label, options, control, required }: { name: string; label: string; options: string[]; control: any; required?: boolean; }) {
+function SingleSelect({ name, label, options, control, required }: { name: string; label: string; options: string[]; control: any; required?: boolean }) {
   return (
     <Controller
       control={control}
@@ -145,7 +146,7 @@ function SingleSelect({ name, label, options, control, required }: { name: strin
   );
 }
 
-function Likert({ name, label, scale, control }: { name: string; label: string; scale: string[]; control: any; }) {
+function Likert({ name, label, scale, control }: { name: string; label: string; scale: string[]; control: any }) {
   return (
     <Controller
       control={control}
@@ -167,7 +168,7 @@ function Likert({ name, label, scale, control }: { name: string; label: string; 
   );
 }
 
-function TextField({ name, label, placeholder, control, maxlength }: { name: string; label: string; placeholder?: string; control: any; maxlength?: number; }) {
+function TextField({ name, label, placeholder, control, maxlength }: { name: string; label: string; placeholder?: string; control: any; maxlength?: number }) {
   return (
     <Controller
       control={control}
@@ -221,7 +222,7 @@ function isVisible(item: ItemBase, values: Record<string, any>) {
 
 // ===== Wizard/étapes =====
 
-export default function Volet2Form({ schema }: { schema: Volet2Schema; }) {
+export default function Volet2Form({ schema }: { schema: Volet2Schema }) {
   const [step, setStep] = useState(0);
   const steps = schema.meta.sectionsOrder;
   const zodSchema = useMemo(() => buildZodSchema(schema), [schema]);
@@ -294,7 +295,7 @@ export default function Volet2Form({ schema }: { schema: Volet2Schema; }) {
   );
 }
 
-function SectionForm({ sectionKey, schema, control, values }: { sectionKey: string; schema: Volet2Schema; control: any; values: any; }) {
+function SectionForm({ sectionKey, schema, control, values }: { sectionKey: string; schema: Volet2Schema; control: any; values: any }) {
   const section = schema.sections[sectionKey];
   const getOptions = (it: ItemBase) => (it.optionsRef ? schema.optionsPresets[it.optionsRef] : it.options || []);
   const getScale = (it: ItemBase) => (it.scaleRef ? schema.likertPresets[it.scaleRef] : []);
@@ -330,3 +331,4 @@ function SectionForm({ sectionKey, schema, control, values }: { sectionKey: stri
 // ==== Exemple d'utilisation (à retirer si utilisé en app) ====
 // import schemaJson from "./volet2_schema.json";
 // export function Demo() { return <Volet2Form schema={schemaJson as unknown as Volet2Schema} /> }
+

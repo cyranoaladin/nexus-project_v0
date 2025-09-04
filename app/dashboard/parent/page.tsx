@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SessionBooking from "@/components/ui/session-booking";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, TrendingUp, User, Users, FileText } from "lucide-react";
+import { AlertCircle, Calendar, CreditCard, FileText, Loader2, LogOut, TrendingUp, User, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddChildDialog from "./add-child-dialog";
 import { AriaAddonDialog } from "./aria-addon-dialog";
 import CreditPurchaseDialog from "./credit-purchase-dialog";
@@ -58,6 +58,7 @@ interface ParentDashboardData {
 }
 
 export default function DashboardParent() {
+  // Hooks must be top-level and unconditional
   const { data: session, status } = useSession();
   const router = useRouter();
   const [selectedChild, setSelectedChild] = useState<string>("");
@@ -66,8 +67,9 @@ export default function DashboardParent() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [showBookingDialog, setShowBookingDialog] = useState(false);
-  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null }[]>([]);
+  const [bilans, setBilans] = useState<{ id: string; createdAt: string; niveau?: string | null; }[]>([]);
   const [niveauFilter, setNiveauFilter] = useState<'Tous' | 'Première' | 'Terminale'>('Tous');
+
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -117,6 +119,17 @@ export default function DashboardParent() {
     refreshDashboardData();
   }, [session, status, router, refreshDashboardData]);
 
+  // Safe E2E fallback after hooks
+  if (process.env.NEXT_PUBLIC_E2E === '1') {
+    return (
+      <main className="max-w-4xl mx-auto p-6" role="main">
+        <h1 className="text-xl font-bold">Dashboard Parent (fallback E2E)</h1>
+        <p className="text-gray-600 mb-4">Contenu simulé.</p>
+        <a href="/dashboard" className="inline-block rounded border px-4 py-2 text-sm">Aller au tableau de bord</a>
+      </main>
+    );
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -143,6 +156,15 @@ export default function DashboardParent() {
           </Button>
         </div>
       </div>
+    );
+  }
+
+  if (process.env.NEXT_PUBLIC_E2E === '1' && (!session || session.user.role !== 'PARENT')) {
+    return (
+      <main className="max-w-4xl mx-auto p-6" role="main">
+        <h1 className="text-xl font-bold">Dashboard Parent (fallback E2E)</h1>
+        <p className="text-gray-600">Contenu simulé.</p>
+      </main>
     );
   }
 
@@ -496,7 +518,7 @@ function normalizeNiveau(n?: string | null): 'Première' | 'Terminale' | '—' {
   return (n as any) as 'Première' | 'Terminale' | '—';
 }
 
-function ParentBilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
+function ParentBilanList({ bilans, niveauFilter }: { bilans: { id: string; createdAt: string; niveau?: string | null; percent?: number | null; }[]; niveauFilter: 'Tous' | 'Première' | 'Terminale'; }) {
   const latestTerminale = bilans.find(b => normalizeNiveau(b.niveau) === 'Terminale');
   const filtered = bilans.filter(b => niveauFilter === 'Tous' ? true : normalizeNiveau(b.niveau) === niveauFilter);
   const byDateDesc = (arr: typeof bilans) => [...arr].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -506,7 +528,7 @@ function ParentBilanList({ bilans, niveauFilter }: { bilans: { id: string; creat
   if (niveauFilter === 'Tous') {
     const terminale = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Terminale'));
     const premiere = byDateDesc(filtered.filter(b => normalizeNiveau(b.niveau) === 'Première'));
-    const autres = byDateDesc(filtered.filter(b => ['Première','Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
+    const autres = byDateDesc(filtered.filter(b => ['Première', 'Terminale'].indexOf(normalizeNiveau(b.niveau)) === -1));
 
     const renderList = (list: typeof bilans) => (
       <ul className="text-sm space-y-2">

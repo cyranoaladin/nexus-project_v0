@@ -1,0 +1,268 @@
+
+Running 20 tests using 4 workers
+
+[1A[2K[1/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[2/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[3/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[4/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m2468[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m2479[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m2481[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m2450[39m
+
+[1A[2K[5/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[6/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[7/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[8/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m260[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m271[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m304[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m274[39m
+
+[1A[2K[9/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[10/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[11/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[12/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m328[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m320[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m294[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m221[39m
+
+[1A[2K[13/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[14/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[15/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[16/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][latency_ms] [33m292[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][latency_ms] [33m303[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m254[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m244[39m
+
+[1A[2K[17/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[18/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[19/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[20/20] [chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m332[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][latency_ms] [33m311[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m308[39m
+
+[1A[2K[chromium] › e2e/aria.sse.spec.ts:67:7 › ARIA SSE (real) › happy path: tokens then done
+[SSE][excerpt] [
+  [32m'token:{"text":"E"}'[39m,
+  [32m'token:{"text":"x"}'[39m,
+  [32m'token:{"text":"p"}'[39m,
+  [32m'token:{"text":"l"}'[39m,
+  [32m'token:{"text":"i"}'[39m,
+  [32m'token:{"text":"q"}'[39m
+]
+
+[1A[2K[SSE][latency_ms] [33m279[39m
+
+[1A[2K  20 passed (16.5s)

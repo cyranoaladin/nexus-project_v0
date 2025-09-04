@@ -1,0 +1,76 @@
+% includes/charts.tex
+% Requires: \usepackage{pgfplots}, \usepackage{tikz}
+\pgfplotsset{compat=1.18}
+\definecolor{NexusTeal}{RGB}{12,155,140}
+
+% Draw a radar chart from precomputed polar coordinates.
+% Usage: \RadarFromCoords{ (0,80) (60,65) (120,50) (180,72) (240,90) (300,55) }
+\newcommand{\RadarFromCoords}[2][]{%
+  % #1 extra options, #2 coords string
+  \begin{tikzpicture}
+    \begin{polaraxis}[
+      grid=both,
+      xticklabel style={align=center, text width=2.2cm, font=\small},
+      ymin=0, ymax=100,
+      ytick={0,25,50,75,100},
+      xticklabel style={font=\scriptsize},
+      yticklabel style={font=\scriptsize},
+      axis lines=none,
+      #1
+    ]
+      \addplot+[mark=*, color=NexusBlue, fill=NexusBlue!18] coordinates { #2 } -- cycle;
+    \end{polaraxis}
+  \end{tikzpicture}%
+}
+
+% Draw bars from symbolic x coords and (label,value) coordinates.
+% Usage: \BarsFromCoords{Label A,Label B,Label C}{ (Label A,80) (Label B,65) (Label C,50) }
+\newcommand{\BarsFromCoords}[3][]{%
+  % #1 extra options, #2 labels CSV, #3 coords
+  \begin{tikzpicture}
+    \begin{axis}[
+      ybar,
+      bar width=8pt,
+      ymin=0, ymax=100,
+      xtick=data,
+      symbolic x coords={#2},
+      axis x line*=bottom,
+      axis y line*=left,
+      enlarge x limits=0.2,
+      ylabel={Score},
+      tick label style={font=\scriptsize},
+      #1
+    ]
+      \addplot+[draw=NexusBlue, fill=NexusBlue!25] coordinates{ #3 };
+    \end{axis}
+  \end{tikzpicture}%
+}
+
+% Timeline bars from precomputed coordinates per phase
+% Usage: \NxsTimelineBars{ (S1,1) (S2,0) ... }{ ... }{ ... }
+\newcommand{\NxsTimelineBars}[3]{%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width=\linewidth, height=5.2cm,
+      ybar, bar width=0.55cm,
+      ymin=0, ymax=1,
+      enlarge x limits=0.06,
+      symbolic x coords={S1,S2,S3,S4,S5,S6,S7,S8},
+      xtick=data,
+      ytick={0,0.25,0.5,0.75,1}, yticklabels={0,25,50,75,100},
+      grid=both, minor y tick num=1,
+      ylabel={Intensité}, xlabel={Semaines},
+      legend style={draw=none, at={(0.5,1.05)}, anchor=south, legend columns=-1},
+      axis line style={draw=none},
+      tick style={draw=none},
+    ]
+      \addplot+[draw=none, fill=NexusGreen] coordinates { #1 };
+      \addlegendentry{Consolidation}
+      \addplot+[draw=none, fill=NexusBlue] coordinates { #2 };
+      \addlegendentry{Approfondissement}
+      \addplot+[draw=none, fill=NexusAmber] coordinates { #3 };
+      \addlegendentry{Entraînement}
+    \end{axis}
+  \end{tikzpicture}%
+}
+

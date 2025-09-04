@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   db:
-    image: postgres:15
+    image: pgvector/pgvector:pg16
     container_name: nexus_db_prod
     restart: always
     env_file:
@@ -14,12 +16,51 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-nexus_dev}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-nexus_dev}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - nexus_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: nexus_redis_prod
+    restart: always
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus_network
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-10T01-41-38Z
+    container_name: nexus_minio_prod
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus_network
+
 
   rag_service:
     build:
@@ -31,7 +72,7 @@ services:
     ports:
       - "8001:8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys; sys.exit(0) if urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3).getcode() == 200 else sys.exit(1)'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -46,7 +87,7 @@ services:
     ports:
       - "8002:8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys; sys.exit(0) if urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3).getcode() == 200 else sys.exit(1)'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,7 +104,7 @@ services:
     ports:
       - "8003:8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys;\ntry:\n    urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3)\n    sys.exit(0)\nexcept Exception:\n    sys.exit(1)\n'" ]
+      test: ["CMD-SHELL", "python -c 'import urllib.request; import sys; sys.exit(0) if urllib.request.urlopen(\"http://localhost:8000/health\", timeout=3).getcode() == 200 else sys.exit(1)'"]
     networks:
       - nexus_network
 
@@ -71,7 +112,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      network: host
     container_name: next_app_prod
     restart: always
     depends_on:
@@ -83,33 +123,38 @@ services:
         condition: service_healthy
       llm_service:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     env_file:
       - .env.local
     environment:
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-      - E2E_RUN=${E2E_RUN}
-      - NEXT_PUBLIC_E2E=${NEXT_PUBLIC_E2E}
-      - E2E_BASE_URL=${E2E_BASE_URL}
-      - RAG_SERVICE_URL=http://rag_service:8000
-      - PDF_GENERATOR_SERVICE_URL=http://pdf_generator_service:8000
-      - LLM_SERVICE_URL=http://llm_service:8000
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/nexus_dev?schema=public
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-nexus_dev}?schema=public
+      - SHADOW_DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-nexus_dev}?schema=shadow
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      # Optional pass-through for live ARIA/OpenAI without storing secrets in repo
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ARIA_LIVE=${ARIA_LIVE:-0}
+    command: ["./start-production.sh"]
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:3000/api/health > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - nexus_network
 
 volumes:
   nexus_db_data:
   rag_storage:
+  redis_data:
+  minio_data:
 
 networks:
   nexus_network:

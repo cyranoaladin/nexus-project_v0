@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { getGenerationParams } from './policy';
 
 describe('getGenerationParams', () => {
@@ -27,5 +27,3 @@ describe('getGenerationParams', () => {
     process.env.OPENAI_MAX_TOKENS = prev;
   });
 });
-
-

@@ -1,0 +1,17 @@
+groups:
+- name: nexus.rules
+  rules:
+  - alert: HighErrorRate
+    expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.01
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      summary: Error rate > 1%
+  - alert: SlowAPIp95
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+    for: 10m
+    labels:
+      severity: ticket
+    annotations:
+      summary: p95 > 500ms

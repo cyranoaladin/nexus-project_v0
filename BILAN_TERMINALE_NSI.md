@@ -1,246 +1,470 @@
-Parfait 👍 J’ai maintenant les programmes de **NSI Première** et de **NSI Terminale**.
-Voici un **document complet** qui formalise le **Bilan gratuit NSI Terminale**, avec les deux volets (connaissances & profil pédagogique) et un pipeline technique identique à celui conçu pour Maths et NSI Première.
+Parfait — je vous livre **les deux livrables attendus pour NSI Terminale** :
+
+1. **Un QCM JSON “entrée en Terminale NSI”** (portant uniquement sur le **programme de Première** : types & représentation des données, tableaux/dictionnaires, tables, algorithmique de base, IHM Web, archi/OS/réseaux, langages & programmation).
+2. **Un document “BILAN\_NSI\_TERMINALE.md”** prêt pour Cursor (objectifs, fichiers à créer, endpoints, scoring, rendu PDF, tests, etc.), strictement borné au périmètre **Première → pré-requis Terminale**, aligné sur les programmes officiels. &#x20;
 
 ---
 
-# 📊 Bilan Terminale NSI — QCM + Volet Pédagogique + Pipeline
+# 1) `data/qcm_premiere_for_terminale_nsi.json`
 
-## 1) Objectif
-
-Évaluer un élève entrant en **Terminale NSI** sur :
-
-* **Volet 1 (QCM)** : consolidation des acquis de **Première NSI**, essentiels pour suivre le programme de Terminale.
-* **Volet 2 (Profil pédagogique)** : habitudes de travail, motivations, difficultés éventuelles (DYS, TDAH…), rapport à la programmation, projets et orientation.
-
-Résultat : un **diagnostic clair**, une **feuille de route personnalisée** et une **proposition d’offre Nexus Réussite** adaptée.
-
----
-
-## 2) Volet 1 — QCM Terminale (40 questions pondérées)
-
-**JSON structuré** : `data/qcm_premiere_for_terminale.json`
-
-Extrait (format identique au bilan Première) :
+> **Schéma identique** à vos QCM précédents :
+> `id, domain, type ("mcq" | "numeric" | "short"), difficulty ("A"|"B"|"C"), weight (1..3), prompt_latex (ou texte simple), choices[] (si mcq), answer_latex (si numeric/short), explanation_latex`.
 
 ```json
 [
-  {
-    "id": "Q1",
-    "domain": "Représentation des données",
-    "weight": 2,
-    "statement": "Quel encodage permet de représenter la plupart des langues humaines ?",
-    "options": ["ASCII", "ISO-8859-1", "Unicode", "UTF-7"],
-    "answer": 2,
-    "critical": true
-  },
-  {
-    "id": "Q12",
-    "domain": "Algorithmique",
-    "weight": 3,
-    "statement": "Quelle est la complexité moyenne de la recherche dichotomique ?",
-    "options": ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
-    "answer": 2,
-    "critical": true
-  },
-  {
-    "id": "Q23",
-    "domain": "Langages & Programmation",
-    "weight": 2,
-    "statement": "En Python, que retourne `len({1,2,2,3})` ?",
-    "options": ["3", "4", "Erreur", "None"],
-    "answer": 0,
-    "critical": false
-  },
-  {
-    "id": "Q37",
-    "domain": "Bases de données",
-    "weight": 3,
-    "statement": "En SQL, que fait `SELECT * FROM Eleves WHERE note > 15;` ?",
-    "options": [
-      "Affiche tous les élèves avec note > 15",
-      "Modifie les notes des élèves",
-      "Ajoute une ligne dans la table",
-      "Supprime les élèves avec note ≤ 15"
+  { "id":"NSI1-DON-Q1","domain":"donnees","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"En base 2, la valeur binaire 101101 vaut (en base 10) :",
+    "choices":[
+      {"k":"A","latex":"45","correct":true},
+      {"k":"B","latex":"43"},
+      {"k":"C","latex":"41"},
+      {"k":"D","latex":"47"}
     ],
-    "answer": 0,
-    "critical": true
+    "explanation_latex":"1*32+0*16+1*8+1*4+0*2+1*1=45."},
+
+  { "id":"NSI1-DON-Q2","domain":"donnees","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"En binaire signé (complément à 2 sur 8 bits), l’intervalle représentable est :",
+    "choices":[
+      {"k":"A","latex":"[-255, +255]"},
+      {"k":"B","latex":"[-128, +127]","correct":true},
+      {"k":"C","latex":"[0, 255]"},
+      {"k":"D","latex":"[-127, +128]"}
+    ],
+    "explanation_latex":"Sur n bits : [-2^{n-1},2^{n-1}-1]."},
+
+  { "id":"NSI1-DON-Q3","domain":"donnees","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Pourquoi $0.1 + 0.2 \\neq 0.3$ en flottant binaire ?",
+    "choices":[
+      {"k":"A","latex":"Bug du langage"},
+      {"k":"B","latex":"Arrondi et représentation binaire finie","correct":true},
+      {"k":"C","latex":"Addition non associative"},
+      {"k":"D","latex":"Division par 0 implicite"}
+    ],
+    "explanation_latex":"Certaines décimales n'ont pas de représentation binaire finie."},
+
+  { "id":"NSI1-DON-Q4","domain":"donnees","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Quel encodage permet d’unifier la plupart des écritures ?",
+    "choices":[
+      {"k":"A","latex":"ASCII"},
+      {"k":"B","latex":"ISO-8859-1"},
+      {"k":"C","latex":"Unicode/UTF-8","correct":true},
+      {"k":"D","latex":"EBCDIC"}
+    ],
+    "explanation_latex":"UTF-8 est l'encodage Unicode le plus courant."},
+
+  { "id":"NSI1-DON-Q5","domain":"donnees","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans Python, un dictionnaire est approprié pour :",
+    "choices":[
+      {"k":"A","latex":"Conserver l’ordre strict d’insertion (seulement)"},
+      {"k":"B","latex":"Associer des clés à des valeurs","correct":true},
+      {"k":"C","latex":"Parcourir en O(1) toutes les valeurs"},
+      {"k":"D","latex":"Calculs vectoriels rapides"}
+    ],
+    "explanation_latex":"Map clé\\rightarrow valeur ; recherche moyenne O(1)."},
+
+  { "id":"NSI1-DON-Q6","domain":"donnees","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"En Python, écrire une compréhension de liste créant la liste [0,2,4,6] :",
+    "answer_latex":"[2*i for i in range(4)]",
+    "explanation_latex":"Compréhension simple sur range(4)."},
+
+  { "id":"NSI1-TABLE-Q7","domain":"tables","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Une « table » de données au sens NSI Première est :",
+    "choices":[
+      {"k":"A","latex":"Une base relationnelle SQL complète"},
+      {"k":"B","latex":"Un tableau de p-uplets nommés (ou dicts)","correct":true},
+      {"k":"C","latex":"Un graphe orienté"},
+      {"k":"D","latex":"Un fichier binaire compressé"}
+    ],
+    "explanation_latex":"Tables = listes de p-uplets nommés pour préparer la BD en Terminale."},
+
+  { "id":"NSI1-TABLE-Q8","domain":"tables","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Pour filtrer les lignes d’une table selon un prédicat logique, on utilise :",
+    "choices":[
+      {"k":"A","latex":"Une expression booléenne sur chaque ligne","correct":true},
+      {"k":"B","latex":"Un tri aléatoire"},
+      {"k":"C","latex":"Un chiffrement préalable"},
+      {"k":"D","latex":"Une compilation en C"}
+    ],
+    "explanation_latex":"Filtrage = sélection par expression (WHERE-like)."},
+
+  { "id":"NSI1-TABLE-Q9","domain":"tables","type":"short","difficulty":"B","weight":2,
+    "prompt_latex":"Écrire en Python le filtrage des personnes majeures (age\\ge 18) dans une liste de dicts 'rows' :",
+    "answer_latex":"[r for r in rows if r['age']>=18]",
+    "explanation_latex":"Sélection par compréhension de liste."},
+
+  { "id":"NSI1-ALGO-Q10","domain":"algorithmique","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Le coût d’une recherche séquentielle dans un tableau non trié (pire cas) est :",
+    "choices":[
+      {"k":"A","latex":"O(1)"},
+      {"k":"B","latex":"O(n)","correct":true},
+      {"k":"C","latex":"O(\\log n)"},
+      {"k":"D","latex":"O(n\\log n)"}
+    ],
+    "explanation_latex":"Parcours complet dans le pire cas."},
+
+  { "id":"NSI1-ALGO-Q11","domain":"algorithmique","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"La recherche dichotomique nécessite :",
+    "choices":[
+      {"k":"A","latex":"Un tableau non trié"},
+      {"k":"B","latex":"Un tableau trié","correct":true},
+      {"k":"C","latex":"Des clés uniques (obligatoire)"},
+      {"k":"D","latex":"Des indices négatifs"}
+    ],
+    "explanation_latex":"Précondition : données triées."},
+
+  { "id":"NSI1-ALGO-Q12","domain":"algorithmique","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le tri par insertion a un coût en pire cas :",
+    "choices":[
+      {"k":"A","latex":"O(n)"},
+      {"k":"B","latex":"O(\\log n)"},
+      {"k":"C","latex":"O(n^2)","correct":true},
+      {"k":"D","latex":"O(n\\log n)"}
+    ],
+    "explanation_latex":"Insertion/selection quadratiques en pire cas."},
+
+  { "id":"NSI1-ALGO-Q13","domain":"algorithmique","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Donner un invariant de boucle possible pour un tri par insertion.",
+    "answer_latex":"Après i itérations, le sous-tableau [0..i) est trié.",
+    "explanation_latex":"Invariant classique du tri par insertion."},
+
+  { "id":"NSI1-ALGO-Q14","domain":"algorithmique","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans l’algorithme k plus proches voisins (k-NN), la prédiction est :",
+    "choices":[
+      {"k":"A","latex":"La moyenne des classes"},
+      {"k":"B","latex":"La classe majoritaire parmi les k voisins","correct":true},
+      {"k":"C","latex":"La classe du voisin le plus éloigné"},
+      {"k":"D","latex":"La classe la plus rare"}
+    ],
+    "explanation_latex":"Vote majoritaire sur les k plus proches voisins."},
+
+  { "id":"NSI1-PROG-Q15","domain":"programmation","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Une « spécification » de fonction sert à :",
+    "choices":[
+      {"k":"A","latex":"Minifier le code"},
+      {"k":"B","latex":"Décrire préconditions/postconditions","correct":true},
+      {"k":"C","latex":"Optimiser le binaire"},
+      {"k":"D","latex":"Générer l’interface HTML"}
+    ],
+    "explanation_latex":"Contrat : arguments attendus, résultats, effets."},
+
+  { "id":"NSI1-PROG-Q16","domain":"programmation","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Écrire une assertion Python garantissant que n est strictement positif.",
+    "answer_latex":"assert n>0",
+    "explanation_latex":"Assertion = garde d’exécution."},
+
+  { "id":"NSI1-PROG-Q17","domain":"programmation","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans un module Python, __name__ vaut '__main__' lorsque :",
+    "choices":[
+      {"k":"A","latex":"Le module est importé"},
+      {"k":"B","latex":"Le module est exécuté directement","correct":true},
+      {"k":"C","latex":"La version de Python > 3.10"},
+      {"k":"D","latex":"Le module contient une classe Main"}
+    ],
+    "explanation_latex":"Point d’entrée script."},
+
+  { "id":"NSI1-PROG-Q18","domain":"programmation","type":"short","difficulty":"B","weight":2,
+    "prompt_latex":"Écrire un test unitaire (pytest) vérifiant que f(3)==7.",
+    "answer_latex":"def test_f():\n    assert f(3)==7",
+    "explanation_latex":"Test minimal sous pytest."},
+
+  { "id":"NSI1-WEB-Q19","domain":"web_ihm","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Dans une IHM Web, un « événement » typique est :",
+    "choices":[
+      {"k":"A","latex":"compilation"},
+      {"k":"B","latex":"clic","correct":true},
+      {"k":"C","latex":"sérialisation mémoire"},
+      {"k":"D","latex":"pagination disque"}
+    ],
+    "explanation_latex":"Clic, input, submit, etc."},
+
+  { "id":"NSI1-WEB-Q20","domain":"web_ihm","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Différence principale entre GET et POST :",
+    "choices":[
+      {"k":"A","latex":"GET chiffre toujours en HTTPS, POST non"},
+      {"k":"B","latex":"GET met les paramètres dans l’URL ; POST dans le corps","correct":true},
+      {"k":"C","latex":"GET modifie la BD ; POST jamais"},
+      {"k":"D","latex":"Aucune"}
+    ],
+    "explanation_latex":"GET=paramètres URL ; POST=corps."},
+
+  { "id":"NSI1-WEB-Q21","domain":"web_ihm","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans un dialogue client/serveur, on distingue :",
+    "choices":[
+      {"k":"A","latex":"Ce qui s’exécute côté client vs côté serveur","correct":true},
+      {"k":"B","latex":"Seulement des traitements côté serveur"},
+      {"k":"C","latex":"Seulement des traitements côté client"},
+      {"k":"D","latex":"Aucun état de session possible"}
+    ],
+    "explanation_latex":"Répartition des rôles et des états."},
+
+  { "id":"NSI1-ARCH-Q22","domain":"arch_os_reseaux","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Le modèle de Von Neumann décrit :",
+    "choices":[
+      {"k":"A","latex":"Un réseau pair-à-pair"},
+      {"k":"B","latex":"Une architecture avec mémoire, UC et unité de contrôle","correct":true},
+      {"k":"C","latex":"Un protocole mail"},
+      {"k":"D","latex":"Un modèle d’IHM"}
+    ],
+    "explanation_latex":"Séparation UC/mémoire/E/S."},
+
+  { "id":"NSI1-ARCH-Q23","domain":"arch_os_reseaux","type":"mcq","difficulty":"A","weight":1,
+    "prompt_latex":"Le système d’exploitation gère notamment :",
+    "choices":[
+      {"k":"A","latex":"Le routage intercontinental"},
+      {"k":"B","latex":"La création/ordonnancement de processus","correct":true},
+      {"k":"C","latex":"Le chiffrement SSL seul"},
+      {"k":"D","latex":"Le partitionnement RAID matériel"}
+    ],
+    "explanation_latex":"Gestion processus/ressources, E/S, etc."},
+
+  { "id":"NSI1-ARCH-Q24","domain":"arch_os_reseaux","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Sur un réseau, encapsulation en paquets signifie :",
+    "choices":[
+      {"k":"A","latex":"Compression zip"},
+      {"k":"B","latex":"Découpage des données avec en-têtes de protocole","correct":true},
+      {"k":"C","latex":"Chiffrement systématique"},
+      {"k":"D","latex":"Aucun contrôle d’erreur"}
+    ],
+    "explanation_latex":"Trames/paquets/segments avec métadonnées."},
+
+  { "id":"NSI1-ARCH-Q25","domain":"arch_os_reseaux","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Le « bit alterné » sert à :",
+    "choices":[
+      {"k":"A","latex":"Accélérer la 3D"},
+      {"k":"B","latex":"Récupérer des pertes de paquets (ARQ simple)","correct":true},
+      {"k":"C","latex":"Coder en UTF-32"},
+      {"k":"D","latex":"Allouer la mémoire"}
+    ],
+    "explanation_latex":"Protocole simple d’acquittement/relance."},
+
+  { "id":"NSI1-PROG-Q26","domain":"programmation","type":"short","difficulty":"B","weight":2,
+    "prompt_latex":"Écrire une fonction Python récursive fact(n) qui renvoie n! (n≥0) ; base 0!=1.",
+    "answer_latex":"def fact(n):\n    return 1 if n==0 else n*fact(n-1)",
+    "explanation_latex":"Définition récursive classique ; à ne pas utiliser pour n trop grand en pratique."},
+
+  { "id":"NSI1-PROG-Q27","domain":"programmation","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Dans un projet Python, la « modularité » vise notamment :",
+    "choices":[
+      {"k":"A","latex":"À coller tout dans un seul fichier"},
+      {"k":"B","latex":"À séparer en modules réutilisables testables","correct":true},
+      {"k":"C","latex":"À supprimer les tests"},
+      {"k":"D","latex":"À remplacer la documentation"}
+    ],
+    "explanation_latex":"Séparation des responsabilités, réutilisation, testabilité."},
+
+  { "id":"NSI1-ALGO-Q28","domain":"algorithmique","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"La terminaison d’une boucle non bornée est usuellement prouvée par :",
+    "choices":[
+      {"k":"A","latex":"Un invariant"},
+      {"k":"B","latex":"Un variant décroissant borné","correct":true},
+      {"k":"C","latex":"Un commentaire TODO"},
+      {"k":"D","latex":"Un print dans la boucle"}
+    ],
+    "explanation_latex":"Variant >0 qui décroît garantit la terminaison."},
+
+  { "id":"NSI1-WEB-Q29","domain":"web_ihm","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Citer 2 exemples d’événements DOM courants.",
+    "answer_latex":"click, input (ou submit, change, keydown, etc.)",
+    "explanation_latex":"Événements standards IHM."},
+
+  { "id":"NSI1-DON-Q30","domain":"donnees","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Écrire en Python la création d’un p-uplet (tuple) nommés avec name='Ada', year=1843 (via dict).",
+    "answer_latex":"{'name':'Ada','year':1843}",
+    "explanation_latex":"Un enregistrement peut être modélisé par un dict clé/valeur."},
+
+  { "id":"NSI1-TABLE-Q31","domain":"tables","type":"mcq","difficulty":"B","weight":2,
+    "prompt_latex":"Fusionner deux tables (liste de dicts) selon une clé commune revient à :",
+    "choices":[
+      {"k":"A","latex":"Concaténer les chaînes"},
+      {"k":"B","latex":"Réaliser un appariement par clé (join)","correct":true},
+      {"k":"C","latex":"Tronquer les colonnes"},
+      {"k":"D","latex":"Compresser en gzip"}
+    ],
+    "explanation_latex":"Join par clé ; préfigure JOIN SQL vu en Terminale."},
+
+  { "id":"NSI1-PROG-Q32","domain":"programmation","type":"short","difficulty":"A","weight":1,
+    "prompt_latex":"Écrire une signature (docstring) simple pour une fonction somme(a,b) décrivant arguments et retour.",
+    "answer_latex":"def somme(a,b):\n    \"\"\"Retourne a+b ; a,b nombres (int/float).\"\"\"\n    return a+b",
+    "explanation_latex":"Spécification/le contrat dans la docstring."},
+
+  { "id":"NSI1-MINI-Q33","domain":"mini_ex","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"(Mini) Sur une table de films (dicts : titre, annee, duree), écrire un code Python qui : (a) filtre annee>=2000 ; (b) trie par duree décroissante ; (c) renvoie les titres.",
+    "answer_latex":"f=[r for r in films if r['annee']>=2000]\nres=[r['titre'] for r in sorted(f,key=lambda x:x['duree'],reverse=True)]",
+    "explanation_latex":"Filtrage, tri, projection."},
+
+  { "id":"NSI1-MINI-Q34","domain":"mini_ex","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"(Mini) Écrire une recherche dichotomique en Python qui renvoie l’indice d’une valeur v dans un tableau trié t (ou -1).",
+    "answer_latex":"def binsearch(t,v):\n    l,r=0,len(t)-1\n    while l<=r:\n        m=(l+r)//2\n        if t[m]==v: return m\n        if t[m]<v: l=m+1\n        else: r=m-1\n    return -1",
+    "explanation_latex":"Précondition : t trié ; boucle avec variant."},
+
+  { "id":"NSI1-MINI-Q35","domain":"mini_ex","type":"short","difficulty":"C","weight":4,
+    "prompt_latex":"(Mini) Écrire un test pytest pour la fonction précédente et un cas bord (valeur absente).",
+    "answer_latex":"def test_binsearch():\n    t=[1,3,5,7]\n    assert binsearch(t,5)==2\n    assert binsearch(t,2)==-1",
+    "explanation_latex":"Cas présent/absent."
   }
 ]
 ```
 
-> 40 questions couvrant **Première NSI** : représentation des données, structures de base, tables, IHM web simple, algorithmique, Python, réseaux, projets.
+---
+
+# 2) `BILAN_NSI_TERMINALE.md` (prêt pour Cursor)
+
+## 0) Finalité & bornage
+
+* **But** : évaluer, **exclusivement sur le programme de Première NSI**, les **pré-requis** indispensables pour réussir la **Terminale NSI** (aucune question de Terminale).
+* **Références** : programmes officiels **Première** et **Terminale** (utilisés uniquement pour repérer les pré-requis/continuités), Ministère de l’Éducation nationale. &#x20;
+
+**Sorties** :
+
+1. Scores par domaines + **profil radar** (données/tables, algorithmique, programmation, web/IHM, archi-OS-réseaux).
+2. **Bilan texte** (diagnostic + priorités de remédiation, sans contenu de Terminale).
+3. **PDF LaTeX** (élève/parent/nexus), rendu HTML propre pour les notations (pas de KaTeX obligatoire ici, mais possible pour logique/expressions).
 
 ---
 
-## 3) Volet 2 — Questionnaire Pédagogique NSI
+## 1) Périmètre (Première → pré-requis Terminale)
 
-**JSON structuré** : `data/pedago_nsi_terminale.json`
+* **Représentation & types** : binaire, complément à 2, flottants et limites, encodage texte (UTF-8).&#x20;
+* **Structures & tables** : listes, dicts, p-uplets nommés, import CSV, filtrage, tri, fusion (JOIN conceptuel).&#x20;
+* **Algorithmique de base** : recherche séquentielle, tri insertion/sélection, recherche dichotomique, invariant/variant, k-NN (exemple d’apprentissage).&#x20;
+* **Programmation** : spécification (pré/post), assertions, tests unitaires (pytest), modularité.&#x20;
+* **Web/IHM** : événements, formulaires, GET vs POST, répartition client/serveur.&#x20;
+* **Archi/OS/réseaux** : modèle de Von Neumann, processus/ordonnancement, encapsulation/bit alterné (ARQ simple).&#x20;
 
-Extrait :
+> **Interdit** : contenu terminale (BD relationnelles SQL détaillées, graphes/arbres, récursivité avancée, programmation dynamique, sécurité chiffrement détaillé…), bien que ces thèmes soient mentionnés comme perspectives du cycle terminal.&#x20;
 
-```json
-[
-  {
-    "id": "P1",
-    "category": "Motivation",
-    "question": "Pourquoi avez-vous choisi de poursuivre NSI en Terminale ?",
-    "type": "text"
-  },
-  {
-    "id": "P6",
-    "category": "Pratiques",
-    "question": "Combien de temps consacrez-vous par semaine à la programmation personnelle ?",
-    "type": "single",
-    "options": ["Aucun", "<1h", "1-3h", "3-5h", "5h+"]
-  },
-  {
-    "id": "P12",
-    "category": "Difficultés",
-    "question": "Avez-vous déjà rencontré des difficultés persistantes (syntaxiques, conceptuelles, organisationnelles) ?",
-    "type": "multi",
-    "options": ["Syntaxe", "Algorithmique", "Organisation projet", "Travail en groupe", "Autres"]
-  },
-  {
-    "id": "P18",
-    "category": "Projet",
-    "question": "Quel type de projet vous motive le plus pour cette année de Terminale ?",
-    "type": "single",
-    "options": [
-      "Développement d’un site web avec base de données",
-      "Application mobile",
-      "Projet IA / apprentissage automatique",
-      "Jeu vidéo",
-      "Simulation scientifique"
-    ]
-  }
-]
+---
+
+## 2) Fichiers & arborescence
+
+```
+/data/
+  qcm_premiere_for_terminale_nsi.json      # le QCM 
+  pedago_survey_nsi_terminale.json               # déjà existant (pour la première partie du volet 2)
+  pedago_survey_commun.json                # déjà existant (pour la deuxième partie du volet 2)
+
+/lib/scoring/
+  nsi_qcm_scorer.ts                        # agrégats domaines + niveau global
+  pedago_indices.ts                        # réutilisé (volet commun)
+
+/server/graphics/
+  radar/buildRadarPng.ts                   # Chart.js -> PNG
+
+/lib/pdf/
+  templates/bilan_nsi_terminale.tex        # gabarit XeLaTeX
+  BilanPdfEleve.tsx / Parent / Nexus       # variantes (si déjà factorisées)
+
+/app/(bilan)/
+  bilan/initier/page.tsx
+  bilan/[bilanId]/questionnaire/page.tsx
+  bilan/[bilanId]/resultats/page.tsx
+
+/app/api/bilan/
+  questionnaire-structure/route.ts         # GET
+  [bilanId]/submit-answers/route.ts        # POST
+  generate-report-text/route.ts            # POST
+  generate-summary-text/route.ts           # POST
+  pdf/[bilanId]/route.ts                   # GET?variant=...
+  email/[bilanId]/route.ts                 # POST
 ```
 
 ---
 
-## 4) Pipeline technique (uniformisé)
+## 3) Schéma JSON (items)
 
-### a) **Adaptateur TS (React/Next.js)**
-
-* Wizard `BilanWizard` : étapes QCM → Volet Pédago → Résultats.
-* `lib/scoring/qcm.ts` → calcule scores par domaine + %.
-* `lib/scoring/pedago.ts` → profil élève (style, difficultés, motivation).
-* `lib/scoring/synthese.ts` → forces, faiblesses, risques, feuille de route.
-
-### b) **Script Python radar (matplotlib)**
-
-```python
-from scoring_utils import score_qcm, plot_radar
-
-answers = {...}  # dict réponses élève
-total, max_total, dom_scores = score_qcm(answers, "data/qcm_premiere_for_terminale.json")
-print("Résultat:", total, "/", max_total)
-plot_radar(dom_scores, title="Bilan Terminale NSI")
-```
-
-### c) **PDF React-PDF**
-
-* `variant="parent"` → analyse pédagogique + ROI (coût/temps → bénéfices Bac/Parcoursup).
-* `variant="eleve"` → style gamifié (badges, encouragements, missions).
-
-Exemple :
-
-```tsx
-<BilanPdfNSI bilan={bilan} variant="parent" />
-<BilanPdfNSI bilan={bilan} variant="eleve" />
-```
+Même schéma que vos bilans précédents (cf. QCM fourni).
+**Domaines** : `donnees`, `tables`, `algorithmique`, `programmation`, `web_ihm`, `arch_os_reseaux`, `mini_ex`.
 
 ---
 
-## 5) Sorties attendues
+## 4) Scoring, niveaux & radar
 
-1. **Dashboard élève** : radar, badges, feuille de route (8 semaines).
-2. **Dashboard parent** : analyse pédagogique + ROI (heures de coaching, impact mention).
-3. **PDF auto-généré** : logo Nexus + watermark + version parent/élève.
-4. **Mail automatique** : PDF attaché à élève + parent.
+* **Score item** = `weight` si correct, 0 sinon.
+* **Scores domaine** = somme/maximum → **%** ; **global** = moyenne pondérée domaines.
+* Seuils : **<50%** faible ; **50–74%** moyen ; **≥75%** solide.
+* **Radar** : 5 axes (Données/Tables/Algo/Prog/Web-OS-Réseaux).
+* **Lacunes critiques** : <50% sur Tables/Algo/Prog prioritaire (passage Terminale).
 
 ---
 
-⚡ Résultat :
-Un élève entrant en **Terminale NSI** reçoit un bilan complet sur ses acquis de Première, un diagnostic de son profil de travail, et une feuille de route claire, avec des **offres Nexus Réussite adaptées** (Studio Flex pour soutien ponctuel, Académies pour intensif, Odyssée pour stratégie Bac/Parcoursup, Cortex IA 24/7 pour autonomie).
+## 5) Rendu HTML & PDF
 
-Parfait — voici le **QCM “Première → Terminale NSI” complet (40 questions)**, prêt à consommer par ton pipeline (même format que les autres QCM).
-Domaines couverts : Représentation des données, Algorithmique & Complexité, Python, Structures de données, Bases SQL, Web & IHM, Réseaux & Protocoles, Architecture & OS.
+* **HTML** : rendu simple (expressions logiques, pseudo-code) ; si besoin de formules, **KaTeX** possible (déjà intégré ailleurs).
+* **PDF** : **XeLaTeX** via gabarit `bilan_nsi_terminale.tex` ; insertion `radar.png`, sections texte (`reportText`, `summaryText`), tableau des scores.
 
-```json
-{
-  "meta": {
-    "title": "Bilan d'entrée Terminale — NSI",
-    "niveauCible": "Terminale",
-    "base": "Prérequis de Première NSI",
-    "totalQuestions": 40,
-    "domainsOrder": [
-      "Representations",
-      "AlgoComplexite",
-      "Python",
-      "Structures",
-      "SQL",
-      "WebIHM",
-      "Reseaux",
-      "ArchOS"
-    ],
-    "scoring": "weight per question; critical weighted higher for Terminale"
-  },
-  "questions": [
-    { "id": "Q1", "domain": "Representations", "weight": 2, "critical": true, "type": "single", "statement": "Quel standard permet de représenter la plupart des langues humaines ?", "options": ["ASCII", "ISO-8859-1", "Unicode", "Base64"], "answer": 2 },
-    { "id": "Q2", "domain": "Representations", "weight": 2, "critical": false, "type": "single", "statement": "Quel est l'équivalent hexadécimal de l'octet binaire 1111 0000 ?", "options": ["0x0F", "0xF0", "0xFF", "0xF1"], "answer": 1 },
-    { "id": "Q3", "domain": "Representations", "weight": 2, "critical": false, "type": "single", "statement": "Le code Huffman est un exemple de :", "options": ["Codage à longueur fixe", "Codage à longueur variable", "Chiffrement symétrique", "Hachage"], "answer": 1 },
-    { "id": "Q4", "domain": "Representations", "weight": 2, "critical": false, "type": "single", "statement": "Le hachage SHA-256 produit :", "options": ["Une sortie de taille variable", "Une sortie 256 bits", "Un chiffrement réversible", "Un encodage ASCII"], "answer": 1 },
-    { "id": "Q5", "domain": "Representations", "weight": 3, "critical": true, "type": "single", "statement": "Quel format est le plus adapté pour échanger des données structurées sur le Web ?", "options": ["CSV", "TXT", "JSON", "BMP"], "answer": 2 },
+---
 
-    { "id": "Q6", "domain": "AlgoComplexite", "weight": 3, "critical": true, "type": "single", "statement": "Complexité moyenne de la recherche dichotomique :", "options": ["O(1)", "O(n)", "O(log n)", "O(n log n)"], "answer": 2 },
-    { "id": "Q7", "domain": "AlgoComplexite", "weight": 2, "critical": false, "type": "single", "statement": "Le tri par insertion a une complexité pire cas :", "options": ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"], "answer": 2 },
-    { "id": "Q8", "domain": "AlgoComplexite", "weight": 2, "critical": false, "type": "single", "statement": "Un invariant de boucle est :", "options": ["Une variable globale", "Une propriété vraie à chaque itération", "Une condition d'arrêt", "Un compteur"], "answer": 1 },
-    { "id": "Q9", "domain": "AlgoComplexite", "weight": 2, "critical": false, "type": "single", "statement": "La récursivité nécessite :", "options": ["Toujours moins de mémoire", "Une condition d'arrêt", "Un tri préalable", "Un graphe orienté"], "answer": 1 },
-    { "id": "Q10", "domain": "AlgoComplexite", "weight": 3, "critical": true, "type": "single", "statement": "Dans un graphe pondéré sans arêtes négatives, l'algorithme classique pour plus court chemin depuis une source est :", "options": ["Kruskal", "Prim", "Dijkstra", "Bellman-Ford"], "answer": 2 },
+## 6) Endpoints & workflow
 
-    { "id": "Q11", "domain": "Python", "weight": 2, "critical": false, "type": "single", "statement": "Que vaut `len({1,2,2,3})` en Python ?", "options": ["2", "3", "4", "Erreur"], "answer": 1 },
-    { "id": "Q12", "domain": "Python", "weight": 2, "critical": false, "type": "single", "statement": "Quelle construction crée un itérateur paresseux ?", "options": ["[x*x for x in L]", "(x*x for x in L)", "list(map(f,L))", "set(L)"], "answer": 1 },
-    { "id": "Q13", "domain": "Python", "weight": 2, "critical": true, "type": "single", "statement": "Différence `is` vs `==` :", "options": ["Aucune", "`is` compare l'identité objet, `==` la valeur", "`is` compare la valeur, `==` le type", "`==` compare l'identité"], "answer": 1 },
-    { "id": "Q14", "domain": "Python", "weight": 2, "critical": false, "type": "single", "statement": "Que retourne `dict.get('k',0)` si 'k' absent ?", "options": ["None", "0", "Exception", "'k'"], "answer": 1 },
-    { "id": "Q15", "domain": "Python", "weight": 3, "critical": true, "type": "single", "statement": "Quel est l'intérêt d'un test unitaire (`assert`) ?", "options": ["Mesurer le temps", "Valider automatiquement un comportement", "Remplacer la doc", "Optimiser la mémoire"], "answer": 1 },
+1. `GET /api/bilan/questionnaire-structure?matiere=NSI&niveau=Terminale`
 
-    { "id": "Q16", "domain": "Structures", "weight": 3, "critical": true, "type": "single", "statement": "Une pile (stack) respecte :", "options": ["FIFO", "LIFO", "Tri croissant", "Accès aléatoire O(1)"], "answer": 1 },
-    { "id": "Q17", "domain": "Structures", "weight": 2, "critical": false, "type": "single", "statement": "Complexité moyenne de l'accès par clé dans un dict Python :", "options": ["O(1)", "O(log n)", "O(n)", "O(n log n)"], "answer": 0 },
-    { "id": "Q18", "domain": "Structures", "weight": 2, "critical": false, "type": "single", "statement": "Un arbre binaire de recherche (BST) mal équilibré a une hauteur :", "options": ["Toujours O(log n)", "O(1)", "Pire cas O(n)", "Toujours O(n log n)"], "answer": 2 },
-    { "id": "Q19", "domain": "Structures", "weight": 2, "critical": false, "type": "single", "statement": "Pour détecter une présence rapide dans une grande collection non ordonnée on choisit :", "options": ["liste", "tuple", "ensemble (set)", "liste triée"], "answer": 2 },
-    { "id": "Q20", "domain": "Structures", "weight": 3, "critical": true, "type": "single", "statement": "Une file de priorité implémentée par tas binaire permet :", "options": ["Insertion O(1), extraction O(1)", "Insertion O(log n), extraction O(log n)", "Tri O(1)", "Suppression O(n^2)"], "answer": 1 },
+   * Retourne le **QCM** (volet 1) + flags pour le **volet 2** (commun) si non rempli.
 
-    { "id": "Q21", "domain": "SQL", "weight": 2, "critical": false, "type": "single", "statement": "Clé primaire :", "options": ["Peut contenir des doublons", "Identifie de manière unique chaque ligne", "Toujours textuelle", "Optionnelle si clé étrangère"], "answer": 1 },
-    { "id": "Q22", "domain": "SQL", "weight": 2, "critical": false, "type": "single", "statement": "Que fait `SELECT COUNT(*) FROM T WHERE note>=10;` ?", "options": ["Somme des notes", "Nombre de lignes ayant note>=10", "Moyenne des notes", "Crée une vue"], "answer": 1 },
-    { "id": "Q23", "domain": "SQL", "weight": 3, "critical": true, "type": "single", "statement": "Jointure : récupérer élèves et leurs classes (tables Eleve(id,classe_id), Classe(id,nom)) :", "options": ["SELECT * FROM Eleve JOIN Classe ON id=id", "SELECT * FROM Eleve E JOIN Classe C ON E.classe_id=C.id", "SELECT * FROM Eleve,Classe WHERE classe_id=id AND id=id", "SELECT Eleve.*,Classe.* WHERE Eleve.classe_id"], "answer": 1 },
-    { "id": "Q24", "domain": "SQL", "weight": 2, "critical": false, "type": "single", "statement": "Contrôler l'injection SQL côté serveur se fait notamment par :", "options": ["Concaténation de chaînes", "Requêtes paramétrées (préparées)", "Commentaires SQL", "Compression Gzip"], "answer": 1 },
-    { "id": "Q25", "domain": "SQL", "weight": 3, "critical": true, "type": "single", "statement": "Indexer une colonne augmente en général :", "options": ["La taille et la vitesse des recherches sur cette colonne", "La vitesse d'insertion uniquement", "La compression des lignes", "La sécurité"], "answer": 0 },
+2. `POST /api/bilan/[id]/submit-answers`
 
-    { "id": "Q26", "domain": "WebIHM", "weight": 2, "critical": false, "type": "single", "statement": "Rôle du HTML :", "options": ["Logique métier", "Présentation uniquement", "Structure et contenu", "Requête SQL"], "answer": 2 },
-    { "id": "Q27", "domain": "WebIHM", "weight": 2, "critical": false, "type": "single", "statement": "Une requête GET est surtout utilisée pour :", "options": ["Envoyer un mot de passe", "Récupérer une ressource", "Uploader un gros fichier", "Ouvrir un socket TCP brut"], "answer": 1 },
-    { "id": "Q28", "domain": "WebIHM", "weight": 3, "critical": true, "type": "single", "statement": "Les cookies servent principalement à :", "options": ["Chiffrer le trafic", "Persister de l'état (ex : session)", "Accélérer la CPU", "Éviter le HTTPS"], "answer": 1 },
-    { "id": "Q29", "domain": "WebIHM", "weight": 2, "critical": false, "type": "single", "statement": "Dans le modèle client/serveur Web :", "options": ["Le navigateur exécute Python", "Le serveur répond à des requêtes HTTP du client", "Le client exécute SQL sur le SGBD distant", "Aucune communication"], "answer": 1 },
-    { "id": "Q30", "domain": "WebIHM", "weight": 2, "critical": false, "type": "single", "statement": "Protection CSRF côté serveur :", "options": ["Token synchronisé", "Désactiver CSS", "Changer de port", "Mettre en cache"], "answer": 0 },
+   * Persiste `qcmRawAnswers` (+ `pedagoRawAnswers` si fournis),
+   * Calcule `qcmScores` (`nsi_qcm_scorer.ts`) + `pedagoProfile`/`IDX_*` si volet 2,
+   * Détermine **offers** (si votre matrice s’applique à NSI),
+   * Déclenche `generate-report-text` et `generate-summary-text`.
 
-    { "id": "Q31", "domain": "Reseaux", "weight": 3, "critical": true, "type": "single", "statement": "Le protocole DNS associe :", "options": ["IP → MAC", "Nom de domaine → adresse IP", "HTTP → TLS", "Port → processus"], "answer": 1 },
-    { "id": "Q32", "domain": "Reseaux", "weight": 2, "critical": false, "type": "single", "statement": "HTTPS signifie :", "options": ["HTTP en clair", "HTTP sur TLS (chiffré)", "FTP sécurisé", "SSH"], "answer": 1 },
-    { "id": "Q33", "domain": "Reseaux", "weight": 2, "critical": false, "type": "single", "statement": "Dans TCP, le contrôle de flux sert à :", "options": ["Éviter l'engorgement du réseau", "Partager la bande passante entre processus", "Adapter l'envoi à la capacité du récepteur", "Compresser les paquets"], "answer": 2 },
-    { "id": "Q34", "domain": "Reseaux", "weight": 2, "critical": false, "type": "single", "statement": "Une requête HTTP contient typiquement :", "options": ["Uniquement le corps", "Méthode + chemin + en-têtes", "Du code Python exécuté", "Des tables SQL"], "answer": 1 },
-    { "id": "Q35", "domain": "Reseaux", "weight": 3, "critical": true, "type": "single", "statement": "Adresse IPv4 privée valide :", "options": ["8.8.8.8", "192.168.1.10", "1.1.1.1", "172.33.0.1"], "answer": 1 },
+3. `GET /api/bilan/pdf/[id]?variant=eleve|parent|nexus`
 
-    { "id": "Q36", "domain": "ArchOS", "weight": 2, "critical": false, "type": "single", "statement": "Un OS gère notamment :", "options": ["Uniquement l'affichage", "CPU, mémoire, fichiers, E/S", "Le routage Internet mondial", "Le balisage HTML"], "answer": 1 },
-    { "id": "Q37", "domain": "ArchOS", "weight": 2, "critical": false, "type": "single", "statement": "Commande Unix pour lister les fichiers :", "options": ["cat", "ls", "ps", "top"], "answer": 1 },
-    { "id": "Q38", "domain": "ArchOS", "weight": 2, "critical": false, "type": "single", "statement": "Sur Linux, `chmod 640 f` signifie :", "options": ["rw- r-- ---", "r-- rw- ---", "rwx r-x ---", "rw- --- r--"], "answer": 0 },
-    { "id": "Q39", "domain": "ArchOS", "weight": 3, "critical": true, "type": "single", "statement": "Dans l’architecture de Von Neumann :", "options": ["Code et données partagent la même mémoire", "Le CPU est optionnel", "Les entrées/sorties sont codées en HTML", "Il n'y a pas de bus"], "answer": 0 },
-    { "id": "Q40", "domain": "ArchOS", "weight": 3, "critical": true, "type": "single", "statement": "Pour automatiser des tâches de projet (tests, build) on utilise :", "options": ["Éditeur de texte uniquement", "Scripts/CI (ex. GitHub Actions)", "Un tableur", "Le navigateur"], "answer": 1 }
-  ]
-}
-```
+   * Construit `.tex` + **compile** ; **retourne PDF**.
 
-Souhaites-tu que je génère aussi :
+4. `POST /api/bilan/email/[id]`
 
-* le **script Python** `score_radar_nsi_terminale.py` (copie adaptée de Première) ;
-* l’**adapter TS** `adapter_terminale_nsi.ts` (forces/faiblesses, feuille de route S1–S8, offres Nexus) ;
-* et le **template PDF React-PDF** Parent/Élève pour Terminale ?
+   * Envoie la variante PDF choisie (SMTP config prod validée).
+
+> **Sécurité & prod** : RBAC NextAuth, rate-limit, validation Zod des env, **aucun secret versionné**, headers sécurisés (Nginx conf d’exemple). (Rappels de vos standards.)
+
+---
+
+## 7) Génération du texte de bilan (IA)
+
+* **Entrées** : `qcmScores` + **lignes forces/faiblesses** + (facultatif) `pedagoProfile`.
+* **Rendu ciblé** (pas de jargon IA) :
+
+  * Intro (objectif & périmètre Première),
+  * Synthèse globale (%, niveau),
+  * Domaines : 2–3 phrases diagnostic + priorités,
+  * **Plan de remédiation** (1–2 semaines) ordonné : *Tables → Algo → Prog → Web → OS/Réseaux*.
+* Modèles : `gpt-4o` (prod) / `gpt-4o-mini` (dev), prompts stockés en repo privé, sanitisation.
+
+---
+
+## 8) Tests (unitaires / intégration / E2E)
+
+* **Unitaires** : `nsi_qcm_scorer.ts` (agrégats, seuils), sérialisation `.tex`.
+* **Intégration** : `questionnaire-structure`, `submit-answers` (avec/ sans volet 2), `pdf`.
+* **E2E** : parcours complet élève → résultats → PDF (déterministe).
+* **Qualité** : couverture ≥85% back ; CI “0 vulnérabilité” ; gitleaks pré-commit.
+
+---
+
+## 9) Acceptation (check-list)
+
+* [ ] Aucune question de **Terminale**.
+* [ ] QCM couvre bien **Première** (données, tables, algo, prog, web/IHM, arch/OS/réseaux).&#x20;
+* [ ] Scores domaine + **radar** générés.
+* [ ] Bilan texte cohérent + **PDF** produit (XeLaTeX).
+* [ ] RBAC/rate-limit/validation Zod actifs ; **secrets non versionnés**.
+* [ ] Tests unitaires/intégration/E2E **verts**.
+
+---
+
+### Remarques de conformité programmes
+
+* Le QCM cible strictement **les attendus de Première** pour sécuriser l’entrée en Terminale : types binaires, tables, tris quadratiques, dichotomie, tests/spécification, IHM Web (événements, GET/POST), Von Neumann, processus, encapsulation/bit alterné.&#x20;
+* Les thèmes **Terminale** (SQL relationnel, arbres/graphes, récursivité avancée, PD, chiffrement détaillé…) sont **réservés** au cycle en cours d’année et **ne doivent pas** apparaître dans l’évaluation initiale (au plus, la remédiation textuelle peut les mentionner comme perspective).&#x20;
+
+---
+
+## Ce que vous devez faire
+
+1. **Créer** `data/qcm_premiere_for_terminale_nsi.json` avec le contenu ci-dessus.
+2. **Brancher** `/api/bilan/questionnaire-structure` pour renvoyer ce QCM si `matiere=NSI` & `niveau=Terminale`.
+3. **Implémenter** `nsi_qcm_scorer.ts` (agrégats + niveaux + lacunes) et **radar** (ChartJS NodeCanvas → PNG).
+4. **Ajouter** `templates/bilan_nsi_terminale.tex` et le flux PDF (XeLaTeX).
+5. **Écrire** les **tests** (unit/int/E2E) et passer CI.
+
 

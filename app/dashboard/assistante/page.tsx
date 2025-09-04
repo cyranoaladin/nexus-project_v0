@@ -1,5 +1,4 @@
 "use client";
-
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +24,7 @@ interface DashboardData {
 }
 
 export default function DashboardAssistante() {
+  // AUCUN fallback en QA/prod: la page requiert une session ASSISTANTE
   const { data: session, status } = useSession();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -93,6 +93,8 @@ export default function DashboardAssistante() {
       </div>
     );
   }
+
+  // En conditions normales (QA/prod), pas de fallback: on exige la session ASSISTANTE
 
   if (activeView === 'sessions') {
     return (

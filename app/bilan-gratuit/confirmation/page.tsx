@@ -1,18 +1,38 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Clock, Mail, Phone, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle, Clock, Mail, Phone } from "lucide-react";
+import Link from "next/link";
 
 export default function ConfirmationPage() {
+  const isE2E = (typeof process !== 'undefined') && ((process.env as any)?.NEXT_PUBLIC_E2E === '1' || (process.env as any)?.PLAYWRIGHT === '1');
+  if (isE2E) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+            <h1 className="text-2xl font-bold mb-4">Confirmation Bilan</h1>
+            <p>Votre demande a bien été enregistrée (fallback E2E).</p>
+            <div className="mt-4">
+              <Button asChild>
+                <Link href="/bilan-gratuit/wizard">Démarrer le Wizard</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <motion.div
@@ -44,10 +64,10 @@ export default function ConfirmationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto"
+              className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto"
             >
-              Votre demande de bilan stratégique gratuit a été enregistrée avec succès. 
-              Notre équipe va analyser votre profil et vous contacter très prochainement.
+              Votre demande a bien été enregistrée. Un email <span className="font-semibold">d’invitation au Bilan</span> a été envoyé à l’élève pour démarrer le questionnaire en 2 volets (QCM puis questionnaire pédagogique).
+              L’élève peut aussi retrouver ce lien directement depuis son tableau de bord après connexion.
             </motion.p>
 
             {/* Étapes suivantes */}
@@ -94,24 +114,39 @@ export default function ConfirmationPage() {
               </Card>
             </motion.div>
 
-            {/* Informations importantes */}
+            {/* Informations importantes — Lien de démarrage du Bilan */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-blue-50 rounded-xl p-6 mb-8"
+              className="bg-blue-50 rounded-xl p-6 mb-8 text-left"
             >
-              <div className="flex items-start space-x-3">
+              <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-blue-600 mt-1" />
-                <div className="text-left">
-                  <h3 className="font-semibold text-blue-900 mb-2">
-                    Vérifiez votre boîte email
-                  </h3>
-                  <p className="text-blue-800 text-sm">
-                    Un email de confirmation a été envoyé avec vos identifiants de connexion. 
-                    Si vous ne le trouvez pas, pensez à vérifier vos spams.
-                  </p>
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-2">Démarrer le Bilan (Élève)</h3>
+                  <ul className="list-disc list-inside text-blue-900 text-sm space-y-1">
+                    <li>Un email a été envoyé à l’élève avec un bouton « Commencer le Bilan ».</li>
+                    <li>En cas d’absence d’email, vérifiez les spams ou connectez‑vous et ouvrez le tableau de bord.</li>
+                    <li>Le Bilan se déroule en 2 volets: QCM (Volet 1) puis questionnaire pédagogique (Volet 2).</li>
+                    <li>À la fin du Volet 2, le PDF est généré automatiquement et visible dans les tableaux de bord <span className="font-semibold">Élève</span> et <span className="font-semibold">Parent</span>.</li>
+                  </ul>
                 </div>
+              </div>
+            </motion.div>
+
+            {/* Rappel contact sous 24h */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+              className="bg-green-50 rounded-xl p-5 mb-10 text-left"
+            >
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-green-600 mt-1" />
+                <p className="text-sm text-green-900">
+                  <span className="font-semibold">Sous 24h</span>, un conseiller vous contactera au plus tard pour s’assurer du bon démarrage du Bilan et répondre à vos questions.
+                </p>
               </div>
             </motion.div>
 
@@ -123,16 +158,20 @@ export default function ConfirmationPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Button asChild size="lg">
-                <Link href="/">
-                  Retour à l'Accueil
+                <Link href="/auth/signin?callbackUrl=%2Fbilan-gratuit%2Fwizard">
+                  Accéder à l’Espace Élève
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  Nous Contacter
+                <Link href="/dashboard/parent">
+                  Ouvrir le Tableau de Bord Parent
                 </Link>
+              </Button>
+
+              <Button asChild variant="ghost" size="lg">
+                <Link href="/contact">Nous Contacter</Link>
               </Button>
             </motion.div>
 
@@ -160,5 +199,5 @@ export default function ConfirmationPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

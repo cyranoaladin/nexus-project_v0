@@ -1,3 +1,32 @@
+import { prisma } from '@/lib/prisma';
+
+export async function ensureWallet(userId: string) {
+  let w = await (prisma as any).creditWallet.findUnique({ where: { userId } });
+  if (!w) w = await (prisma as any).creditWallet.create({ data: { userId, balance: 0 } });
+  return w;
+}
+
+export async function spendCredits({ userId, credits, reason, provider, externalId }: { userId: string; credits: number; reason: string; provider?: string; externalId?: string; }) {
+  const w = await ensureWallet(userId);
+  if (externalId) {
+    const dup = await (prisma as any).creditTx.findFirst({ where: { walletId: w.id, externalId } });
+    if (dup) return { balance: (await (prisma as any).creditWallet.findUnique({ where: { id: w.id } }))!.balance, already: true };
+  }
+  return await (prisma as any).$transaction(async (tx: any) => {
+    const fresh = await tx.creditWallet.findUnique({ where: { id: w.id }, select: { id: true, balance: true } });
+    if (!fresh || fresh.balance < credits) {
+      const err: any = new Error('Crédits insuffisants');
+      err.code = 'INSUFFICIENT_CREDITS';
+      err.balance = fresh?.balance ?? 0;
+      err.needed = credits;
+      throw err;
+    }
+    const updated = await tx.creditWallet.update({ where: { id: w.id }, data: { balance: { decrement: credits } }, select: { balance: true } });
+    await tx.creditTx.create({ data: { walletId: w.id, delta: -credits, reason, provider, externalId } });
+    return { balance: updated.balance };
+  });
+}
+
 import { ServiceType } from '@/types/enums';
 
 // Coûts des prestations en crédits
@@ -22,7 +51,6 @@ export function calculateCreditCost(serviceType: ServiceType): number {
 }
 
 // Vérification du solde de crédits
-import { prisma } from './prisma';
 export async function checkCreditBalance(studentId: string, requiredCredits: number): Promise<boolean> {
 
   const transactions = await prisma.creditTransaction.findMany({

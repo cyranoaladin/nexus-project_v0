@@ -1,40 +1,38 @@
-import { logger } from '@/lib/logger';
+import { createLoggerTo } from '@/lib/logger';
 
-describe('logger ConsoleLogger branches', () => {
-  const origLog = console.log;
-  const origWarn = console.warn;
-  const origError = console.error;
-
-  beforeEach(() => {
-    console.log = jest.fn();
-    console.warn = jest.fn();
-    console.error = jest.fn();
-  });
-
-  afterEach(() => {
-    console.log = origLog;
-    console.warn = origWarn;
-    console.error = origError;
-  });
+describe('logger (pino JSON) branches', () => {
+  function capture() {
+    const lines: string[] = [];
+    const dest = { write: (str: string) => { lines.push(String(str)); return true; } } as any;
+    const logger = createLoggerTo(dest);
+    const parse = () => lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) as any[];
+    return { logger, parse };
+  }
 
   it('info with string and object', () => {
+    const { logger, parse } = capture();
     logger.info('hello');
     logger.info({ a: 1 }, 'ctx');
-    expect(console.log).toHaveBeenCalledWith('[INFO] hello');
-    expect((console.log as jest.Mock).mock.calls.some(c => String(c[0]).startsWith('[INFO]') && typeof c[1] === 'object')).toBeTruthy();
+    const recs = parse();
+    expect(recs.some(r => r.level === 30 && r.msg === 'hello')).toBeTruthy();
+    expect(recs.some(r => r.level === 30 && r.msg === 'ctx' && r.a === 1)).toBeTruthy();
   });
 
   it('warn with string and object', () => {
+    const { logger, parse } = capture();
     logger.warn('be careful');
     logger.warn({ w: true }, 'ctx');
-    expect(console.warn).toHaveBeenCalledWith('[WARN] be careful');
-    expect((console.warn as jest.Mock).mock.calls.some(c => String(c[0]).startsWith('[WARN]') && typeof c[1] === 'object')).toBeTruthy();
+    const recs = parse();
+    expect(recs.some(r => r.level === 40 && r.msg === 'be careful')).toBeTruthy();
+    expect(recs.some(r => r.level === 40 && r.msg === 'ctx' && r.w === true)).toBeTruthy();
   });
 
   it('error with string and object', () => {
+    const { logger, parse } = capture();
     logger.error('boom');
     logger.error({ err: 'x' }, 'ctx');
-    expect(console.error).toHaveBeenCalledWith('[ERROR] boom');
-    expect((console.error as jest.Mock).mock.calls.some(c => String(c[0]).startsWith('[ERROR]') && typeof c[1] === 'object')).toBeTruthy();
+    const recs = parse();
+    expect(recs.some(r => r.level === 50 && r.msg === 'boom')).toBeTruthy();
+    expect(recs.some(r => r.level === 50 && r.msg === 'ctx' && r.err === 'x')).toBeTruthy();
   });
 });

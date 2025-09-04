@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "Volet pédagogique — Physique-Chimie (Terminale)",
+    "matiere": "Physique-Chimie",
+    "niveau": "Terminale",
+    "scale": { "type": "likert", "min": 1, "max": 5, "labels": ["Pas du tout", "Plutôt pas", "Mitigé", "Plutôt oui", "Tout à fait"] },
+    "domainsOrder": ["Motivation", "Methodes", "Organisation", "ProfilCognitif", "Collaboration", "StressExam", "Outils", "Difficultes", "Orientation"]
+  },
+  "extendsCommon": true,
+  "questions": [
+    { "id": "PT1",  "domain": "Motivation", "type": "likert", "weight": 2, "reverse": false, "statement": "Je vise une bonne mention et un solide niveau en Physique-Chimie au Bac." },
+    { "id": "PT2",  "domain": "Motivation", "type": "single", "weight": 2, "statement": "Objectif principal cette année :", "options": ["Optimiser le contrôle continu", "Réussir les épreuves finales", "Préparer Parcoursup/dossiers", "Consolider chapitres clés"] },
+    { "id": "PT3",  "domain": "Motivation", "type": "likert", "weight": 2, "reverse": false, "statement": "Je m’engage dans un rythme de travail régulier (2–3 h/sem hors cours)." },
+
+    { "id": "PT4",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": false, "statement": "Je m'entraîne sur des sujets type Bac et j’analyse mes erreurs." },
+    { "id": "PT5",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": false, "statement": "Je structure mes démarches (données, lois, calculs, unités, conclusion)." },
+    { "id": "PT6",  "domain": "Methodes", "type": "likert", "weight": 2, "reverse": true,  "statement": "Je me limite aux formules sans justification physique." },
+    { "id": "PT7",  "domain": "Methodes", "type": "multi",  "weight": 2, "statement": "Pratiques utiles (plusieurs réponses) :", "options": ["Fiches formules + unités", "Exercices ciblés lacunes", "Oral/explication", "Correction active", "Groupes de travail"] },
+
+    { "id": "PT8",  "domain": "Organisation", "type": "likert", "weight": 2, "reverse": false, "statement": "Je planifie révisions par thèmes (mécanique, électricité, chimie, ondes...)." },
+    { "id": "PT9",  "domain": "Organisation", "type": "single", "weight": 2, "statement": "Suivi de progression :", "options": ["Tableur/tableau", "Application/plateforme", "Sans suivi structuré"] },
+    { "id": "PT10", "domain": "Organisation", "type": "likert", "weight": 2, "reverse": false, "statement": "J’identifie les chapitres les plus impactants pour le Bac et je les priorise." },
+
+    { "id": "PT11", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "Schémas, bilans et graphes m'aident à raisonner et à conclure." },
+    { "id": "PT12", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "Les explications orales guidées clarifient les points difficiles." },
+    { "id": "PT13", "domain": "ProfilCognitif", "type": "likert", "weight": 2, "reverse": false, "statement": "Les entraînements chronométrés améliorent mon efficacité." },
+
+    { "id": "PT14", "domain": "Collaboration", "type": "likert", "weight": 2, "reverse": false, "statement": "Le travail en binôme/groupe renforce ma capacité à justifier et convaincre." },
+    { "id": "PT15", "domain": "Collaboration", "type": "likert", "weight": 2, "reverse": false, "statement": "Je sais expliquer une démarche expérimentale/calculée à un pair." },
+
+    { "id": "PT16", "domain": "StressExam", "type": "likert", "weight": 2, "reverse": true,  "statement": "Sous pression, je perds mes repères (unités, ordres de grandeur)." },
+    { "id": "PT17", "domain": "StressExam", "type": "likert", "weight": 2, "reverse": false, "statement": "Je sais gérer le temps et je passe aux questions suivantes en cas de blocage." },
+
+    { "id": "PT18", "domain": "Outils", "type": "multi", "weight": 2, "statement": "Outils mobilisés :", "options": ["Calculatrice (scientifique)", "Tableur (régressions, courbes)", "Simulateurs (PhET…)", "Banque d’annales", "Guides sécurité TP"] },
+    { "id": "PT19", "domain": "Outils", "type": "likert", "weight": 2, "reverse": false, "statement": "Je gère conversions d’unités, ordres de grandeur et incertitudes simples." },
+
+    { "id": "PT20", "domain": "Difficultes", "type": "multi", "weight": 2, "statement": "Mes difficultés (plusieurs réponses) :", "options": ["Mécanique", "Électricité", "Ondes/optique", "Thermo/énergie", "Chimie (quantités, réactions)", "Exploitation de graphes", "Rédaction/rigueur", "Gestion du temps", "Stress"] },
+    { "id": "PT21", "domain": "Difficultes", "type": "likert", "weight": 2, "reverse": true,  "statement": "Je renonce lorsque la donnée est implicite ou incomplète." },
+
+    { "id": "PT22", "domain": "Orientation", "type": "single", "weight": 2, "statement": "Objectif PC au Bac :", "options": ["≥ 10", "≥ 12", "≥ 14", "≥ 16"] },
+    { "id": "PT23", "domain": "Orientation", "type": "single", "weight": 2, "statement": "Après le Bac, je vise :", "options": ["CPGE/Prépas", "Écoles d’ingénieurs", "Santé/Sciences expérimentales", "Autre/Indécis"] }
+  ]
+}
+
