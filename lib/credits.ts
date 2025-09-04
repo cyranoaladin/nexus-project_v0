@@ -1,5 +1,4 @@
 import { ServiceType } from '@/types/enums';
-import { Prisma } from '@prisma/client';
 
 // Coûts des prestations en crédits
 const CREDIT_COSTS = {
