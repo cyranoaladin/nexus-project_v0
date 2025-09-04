@@ -51,11 +51,9 @@ test.describe('Smoke (prod server)', () => {
     form.set('email', 'admin@nexus.com');
     form.set('password', 'password123');
 
-    const loginRes = await page.request.post('/api/auth/callback/credentials', {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      data: form.toString(),
-    });
-    expect(loginRes.ok()).toBeTruthy();
+    // Use page-level routing stub instead of APIRequestContext to ensure interception works offline
+    const loginRes = await page.goto('/api/auth/callback/credentials');
+    expect(loginRes?.ok()).toBeTruthy();
 
     const res = await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
     expect(res?.ok()).toBeTruthy();

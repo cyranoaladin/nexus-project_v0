@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
   if (!rec || rec.provider !== 'cash') return NextResponse.json({ error: 'Réservation introuvable' }, { status: 404 });
   if (rec.status === 'paid') return NextResponse.json({ ok: true, message: 'Déjà validé' });
   await (prisma as any).paymentRecord.update({ where: { id: rec.id }, data: { status: 'paid' } });
-  await creditUserFromPack(rec.userId, rec.packId, 'cash', 'cash-confirm');
+  // Use per-record externalId for idempotency with partial unique index on credit_tx
+  await creditUserFromPack(rec.userId, rec.packId, 'cash', `cash-confirm:${rec.id}`);
   try {
     const email = await getUserEmail(rec.userId);
     if (email) await sendMail({ to: email, subject: 'Nexus — Paiement validé et crédits ajoutés', html: tplCashConfirmed({ recordId: rec.id }) });

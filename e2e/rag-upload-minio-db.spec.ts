@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('RAG Upload → MinIO → DB', () => {
+test.describe('RAG Upload 9 MinIO 9 DB', () => {
+// Skip unless live stack is running (DB/MinIO)
+if (process.env.E2E_LIVE_STACK !== '1') test.skip(true, 'Requires live DB & MinIO');
+
 test('upload PDF stores in MinIO and creates KnowledgeAssets with 3072-d vectors', async ({ page, request }) => {
   const base = process.env.E2E_BASE_URL || process.env.BASE_URL || 'http://localhost:3003';
     // Prépare un faux PDF minimal
