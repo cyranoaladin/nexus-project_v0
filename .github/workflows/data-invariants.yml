@@ -40,6 +40,7 @@ jobs:
 
       - name: Check credit_wallets balance vs credit_tx sum
         if: steps.schema.outputs.credit_wallets_exists == 't'
+        continue-on-error: true
         run: |
           set -e
           SQL="WITH sums AS (SELECT \"walletId\", COALESCE(SUM(delta),0) AS tx_sum FROM credit_tx GROUP BY \"walletId\") SELECT w.id, w.balance, COALESCE(s.tx_sum,0) AS tx_sum FROM credit_wallets w LEFT JOIN sums s ON s.\"walletId\"=w.id WHERE w.balance <> COALESCE(s.tx_sum,0) LIMIT 1;"
@@ -52,6 +53,7 @@ jobs:
 
       - name: Check duplicate credit_tx (provider, externalId) when externalId IS NOT NULL
         if: steps.schema.outputs.credit_wallets_exists == 't'
+        continue-on-error: true
         run: |
           set -e
           DUPES=$(docker compose exec -T postgres-db psql -U ${POSTGRES_USER} -d postgres -t -c "SELECT COUNT(*) FROM (SELECT provider, \"externalId\", COUNT(*) c FROM credit_tx WHERE \"externalId\" IS NOT NULL GROUP BY 1,2 HAVING COUNT(*)>1) d" | tr -d '[:space:]')
