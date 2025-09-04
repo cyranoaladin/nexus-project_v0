@@ -1,4 +1,5 @@
 import { ServiceType } from '@/types/enums';
+import { Prisma } from '@prisma/client';
 
 // Coûts des prestations en crédits
 const CREDIT_COSTS = {
@@ -70,38 +71,60 @@ export async function refundCredits(studentId: string, amount: number, sessionId
   });
 }
 
-// Remboursement basé sur une SessionBooking (protégé contre double remboursement)
+// Remboursement basé sur une SessionBooking (idempotent et sûr en concurrence)
 export async function refundSessionBookingById(sessionBookingId: string, reason?: string) {
   const { prisma } = await import('./prisma');
 
-  const booking = await prisma.sessionBooking.findUnique({ where: { id: sessionBookingId } });
-  if (!booking) return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // Charger la réservation dans la même transaction
+      const booking = await tx.sessionBooking.findUnique({ where: { id: sessionBookingId } });
+      if (!booking) return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
 
-  // Règle: rembourser seulement si annulée ET non déjà remboursée
-  if (booking.status !== 'CANCELLED') {
-    return { ok: false, reason: 'NOT_CANCELLED' as const };
-  }
+      // Règle: rembourser seulement si annulée
+      if (booking.status !== 'CANCELLED') {
+        return { ok: false, reason: 'NOT_CANCELLED' as const };
+      }
 
-  const existing = await prisma.creditTransaction.findFirst({ where: { sessionId: sessionBookingId, type: 'REFUND' } });
-  if (existing) {
-    return { ok: true, alreadyRefunded: true as const };
-  }
+      // Vérifier l'idempotence (un seul REFUND par session)
+      const existing = await tx.creditTransaction.findFirst({ where: { sessionId: sessionBookingId, type: 'REFUND' } });
+      if (existing) {
+        return { ok: true, alreadyRefunded: true as const };
+      }
 
-  // Trouver l'entité Student (id) via userId de la booking
-  const studentEntity = await prisma.student.findFirst({ where: { userId: booking.studentId } });
-  if (!studentEntity) return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
+      // Trouver l'entité Student (id) via userId de la booking
+      const studentEntity = await tx.student.findFirst({ where: { userId: booking.studentId } });
+      if (!studentEntity) return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
 
-  const created = await prisma.creditTransaction.create({
-    data: {
-      studentId: studentEntity.id,
-      type: 'REFUND',
-      amount: booking.creditsUsed,
-      description: reason ? `Refund: ${reason}` : `Refund: cancellation ${booking.title ?? ''}`,
-      sessionId: sessionBookingId
+      const created = await tx.creditTransaction.create({
+        data: {
+          studentId: studentEntity.id,
+          type: 'REFUND',
+          amount: booking.creditsUsed,
+          description: reason ? `Refund: ${reason}` : `Refund: cancellation ${booking.title ?? ''}`,
+          sessionId: sessionBookingId
+        }
+      });
+
+      return { ok: true, transaction: created };
+    }, { isolationLevel: 'Serializable' });
+
+    return result;
+  } catch (err: any) {
+    // En cas de conflit de sérialisation (écriture concurrente), considérer comme idempotent
+    const code = err?.code as string | undefined;
+    const message = (err?.message as string | undefined) ?? '';
+
+    if (code === 'P2034' || /serialization/i.test(message) || /deadlock/i.test(message)) {
+      // Vérifier si le remboursement a été créé par l'autre transaction
+      const existing = await prisma.creditTransaction.findFirst({ where: { sessionId: sessionBookingId, type: 'REFUND' } });
+      if (existing) {
+        return { ok: true, alreadyRefunded: true as const };
+      }
     }
-  });
 
-  return { ok: true, transaction: created };
+    throw err;
+  }
 }
 
 // Attribution des crédits mensuels
