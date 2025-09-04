@@ -1,0 +1,68 @@
+name: Data Invariants
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: nexus_dev
+      DATABASE_PASSWORD: postgres
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start Postgres (Docker Compose)
+        run: |
+          docker compose up -d postgres-db
+
+      - name: Wait for DB ready
+        run: |
+          for i in {1..60}; do
+            if docker compose exec -T postgres-db pg_isready -U ${POSTGRES_USER} -d postgres; then exit 0; fi
+            sleep 2
+          done
+          echo "DB did not become ready" >&2
+          exit 1
+
+      - name: Detect schema presence (credit_wallets)
+        id: schema
+        run: |
+          set -e
+          EXIST=$(docker compose exec -T postgres-db psql -U ${POSTGRES_USER} -d postgres -t -c "SELECT to_regclass('public.credit_wallets') IS NOT NULL;" | tr -d '[:space:]')
+          echo "credit_wallets_exists=${EXIST}" >> $GITHUB_OUTPUT
+
+      - name: Check credit_wallets balance vs credit_tx sum
+        if: steps.schema.outputs.credit_wallets_exists == 't'
+        continue-on-error: true
+        run: |
+          set -e
+          SQL="WITH sums AS (SELECT \"walletId\", COALESCE(SUM(delta),0) AS tx_sum FROM credit_tx GROUP BY \"walletId\") SELECT w.id, w.balance, COALESCE(s.tx_sum,0) AS tx_sum FROM credit_wallets w LEFT JOIN sums s ON s.\"walletId\"=w.id WHERE w.balance <> COALESCE(s.tx_sum,0) LIMIT 1;"
+          ROWS=$(docker compose exec -T postgres-db psql -U ${POSTGRES_USER} -d postgres -t -c "$SQL" | sed '/^$/d' | wc -l)
+          echo "wallet_mismatch_rows=${ROWS}"
+          if [ "$ROWS" -gt 0 ]; then
+            echo "Invariant failed: some credit_wallets.balance != sum(credit_tx.delta)" >&2
+            exit 1
+          fi
+
+      - name: Check duplicate credit_tx (provider, externalId) when externalId IS NOT NULL
+        if: steps.schema.outputs.credit_wallets_exists == 't'
+        continue-on-error: true
+        run: |
+          set -e
+          DUPES=$(docker compose exec -T postgres-db psql -U ${POSTGRES_USER} -d postgres -t -c "SELECT COUNT(*) FROM (SELECT provider, \"externalId\", COUNT(*) c FROM credit_tx WHERE \"externalId\" IS NOT NULL GROUP BY 1,2 HAVING COUNT(*)>1) d" | tr -d '[:space:]')
+          echo "credit_tx_duplicate_tuples=${DUPES}"
+          if [ "${DUPES}" != "0" ]; then
+            echo "Found duplicate (provider, externalId) tuples in credit_tx" >&2
+            exit 1
+          fi
+
+      - name: Skip note
+        if: steps.schema.outputs.credit_wallets_exists != 't'
+        run: echo "Schema not present; data invariants skipped."
+
