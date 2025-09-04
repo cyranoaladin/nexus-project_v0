@@ -34,6 +34,17 @@ jobs:
         run: |
           curl -sS http://localhost:3000/api/health | jq -e '.ok == true'
 
+      - name: Guard against duplicate payment_records
+        run: |
+          set -e
+          # Query DB inside container to avoid exposing credentials
+          DUPES=$(docker compose exec -T db psql -U postgres -d nexus_dev -t -c "SELECT COUNT(*) FROM (SELECT provider, \"externalId\", COUNT(*) c FROM payment_records GROUP BY 1,2 HAVING COUNT(*)>1) d" | tr -d '[:space:]')
+          echo "duplicate_tuples=${DUPES}"
+          if [ "${DUPES}" != "0" ]; then
+            echo "Found duplicate (provider, externalId) tuples in payment_records" >&2
+            exit 1
+          fi
+
       - name: ARIA JSON smoke
         run: |
           curl -sS -X POST http://localhost:3000/api/aria/chat \
@@ -66,4 +77,14 @@ jobs:
 
       - name: Teardown
         if: always()
-        run: docker compose down -v
+        run: |
+          docker compose logs --no-color > ops-check-docker-logs.txt || true
+          docker compose down -v || true
+
+      - name: Upload ops-check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-check-logs
+          path: ops-check-docker-logs.txt
+          retention-days: 7

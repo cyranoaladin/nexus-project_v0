@@ -24,3 +24,4 @@ test.describe('ARIA - Accessibilité (axe-core)', () => {
     expect(results.violations).toEqual([]);
   });
 });
+

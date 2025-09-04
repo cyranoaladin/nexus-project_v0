@@ -12,3 +12,4 @@ test.describe('ARIA API - smoke JSON', () => {
     expect(js.response).toContain('E2E-STUB');
   });
 });
+

@@ -14,3 +14,4 @@ test.describe('Accessibilité (axe-core) — Wizard Bilan', () => {
     expect(results.violations).toEqual([]);
   });
 });
+

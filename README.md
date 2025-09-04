@@ -750,7 +750,7 @@ Invariants:
 
 - Solde portefeuille: `credit_wallets.balance = sum(credit_tx.delta where walletId = X)`.
 - Atomicité: toute écriture de transaction est dans la même transaction DB que la mise à jour de `balance` (à appliquer via service de paiement).
-- Idempotence: `payment_records.externalId UNIQUE` évite doubles écritures.
+- Idempotence: contrainte `UNIQUE(provider, externalId)` sur `payment_records` + upsert garantissent l'absence de doublons (provider, externalId).
 
 Exemple de test (pseudo/Jest):
 

@@ -1,10 +1,14 @@
 import { prisma } from '@/lib/prisma';
+import { upsertPaymentRecord } from '@/lib/payments';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const { provider, userId, packId, amountTnd, successUrl, cancelUrl } = await req.json();
   if (!provider || !userId || !packId || !amountTnd) return NextResponse.json({ error: 'provider,userId,packId,amountTnd requis' }, { status: 400 });
-  const rec = await (prisma as any).paymentRecord.create({ data: { provider, userId, packId: Number(packId), amountTnd: Number(amountTnd), externalId: 'pending' } });
+
+  // Use a unique externalId to avoid collisions and ensure idempotency if retried with same key
+  const externalId = `${provider}:checkout:${userId}:${packId}:${Date.now()}`;
+  const rec = await upsertPaymentRecord(prisma as any, { provider, externalId, userId, packId: Number(packId), amountTnd: Number(amountTnd), status: 'pending' });
 
   // Stripe retiré: paiement carte en TND via Konnect uniquement (bientôt disponible)
   if (provider === 'konnect') {

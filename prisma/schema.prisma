@@ -935,6 +935,7 @@ model PaymentRecord {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@unique([provider, externalId], name: "payment_records_provider_externalId_key")
   @@map("payment_records")
 }
 

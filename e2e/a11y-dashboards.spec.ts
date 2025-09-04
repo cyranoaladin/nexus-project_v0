@@ -22,3 +22,4 @@ test.describe('Accessibilité (axe-core) — Dashboards', () => {
     });
   }
 });
+

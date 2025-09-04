@@ -42,3 +42,4 @@ test.describe('Bilan - email et téléchargement', () => {
     expect([200, 409].includes(mail.status())).toBeTruthy();
   });
 });
+
