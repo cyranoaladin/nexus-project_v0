@@ -1,8 +1,10 @@
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import crypto from 'crypto';
+import { upsertPaymentByExternalId } from '@/lib/payments';
+import { prisma } from '@/lib/prisma';
 
 const konnectPaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -43,53 +45,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer l'enregistrement de paiement
+    // Construire un externalId déterministe pour l'idempotence (même requête => même externalId)
+    const idempotencyKey = `konnect:${session.user.id}:${validatedData.studentId}:${validatedData.type}:${validatedData.key}:${validatedData.amount}`;
+    const externalId = crypto.createHash('sha256').update(idempotencyKey).digest('hex').slice(0, 32);
+
+    // Créer ou récupérer l'enregistrement de paiement (idempotent)
     const mappedType = validatedData.type === 'subscription'
       ? 'SUBSCRIPTION'
       : validatedData.type === 'addon'
         ? 'SPECIAL_PACK'
         : 'CREDIT_PACK';
-    const payment = await prisma.payment.create({
-      data: {
-        userId: session.user.id,
-        type: mappedType,
-        amount: validatedData.amount,
-        currency: 'TND',
-        description: validatedData.description,
-        status: 'PENDING',
-        method: 'konnect',
-        metadata: {
-          studentId: validatedData.studentId,
-          itemKey: validatedData.key,
-          itemType: validatedData.type
-        }
-      }
+
+    const { payment } = await upsertPaymentByExternalId({
+      externalId,
+      method: 'konnect',
+      type: mappedType,
+      userId: session.user.id,
+      amount: validatedData.amount,
+      currency: 'TND',
+      description: validatedData.description,
+      metadata: {
+        studentId: validatedData.studentId,
+        itemKey: validatedData.key,
+        itemType: validatedData.type,
+      },
     });
 
-    // TODO: Intégrer avec l'API Konnect réelle
-    // Pour le MVP, on simule la création d'une session de paiement
-    const konnectPaymentUrl = `https://api.konnect.network/api/v2/payments/${payment.id}/init`;
-
-    // En production, vous feriez un appel à l'API Konnect ici
-    // const konnectResponse = await fetch('https://api.konnect.network/api/v2/payments/init', {
-    //   method: 'POST',
-    //   headers: {
-    //     'x-api-key': process.env.KONNECT_API_SECRET!,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({
-    //     receiverWalletId: process.env.KONNECT_WALLET_ID,
-    //     amount: validatedData.amount * 1000, // Konnect utilise les millimes
-    //     token: "TND",
-    //     type: "immediate",
-    //     description: validatedData.description,
-    //     acceptedPaymentMethods: ["wallet", "bank_card", "e_DINAR"],
-    //     successUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/success?paymentId=${payment.id}`,
-    //     failUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/failed?paymentId=${payment.id}`,
-    //     theme: "light"
-    //   })
-    // })
-
+    // TODO: Intégrer avec l'API Konnect réelle (si besoin, initialiser la session via l'API Konnect)
     return NextResponse.json({
       success: true,
       paymentId: payment.id,

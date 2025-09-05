@@ -45,6 +45,7 @@ jest.mock('./lib/prisma', () => ({
     },
     student: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
     parentProfile: {
@@ -57,9 +58,13 @@ jest.mock('./lib/prisma', () => ({
       create: jest.fn(),
       findFirst: jest.fn(),
     },
+    sessionBooking: {
+      findUnique: jest.fn(),
+    },
     creditTransaction: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
     },
     coachProfile: {
       findFirst: jest.fn(),
@@ -84,3 +89,8 @@ jest.mock('./lib/email', () => ({
 // Environment variables for tests
 process.env.NODE_ENV = 'test';
 process.env.NEXTAUTH_SECRET = 'test-secret';
+
+// Ensure all jest.fn() calls are cleared between tests to avoid cross-test leakage
+afterEach(() => {
+  jest.clearAllMocks();
+});
