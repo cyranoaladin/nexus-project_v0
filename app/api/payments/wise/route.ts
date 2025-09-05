@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import crypto from 'crypto'
+import { upsertPaymentByExternalId } from '@/lib/payments'
 
 const wisePaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -43,21 +45,29 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Créer l'enregistrement de paiement
-    const payment = await prisma.payment.create({
-      data: {
-        userId: session.user.id,
-        type: validatedData.type.toUpperCase() as any,
-        amount: validatedData.amount,
-        currency: 'TND',
-        description: validatedData.description,
-        status: 'PENDING',
-        method: 'wise',
-        metadata: {
-          studentId: validatedData.studentId,
-          itemKey: validatedData.key,
-          itemType: validatedData.type
-        }
+    // Construire un externalId déterministe pour l'idempotence
+    const idempotencyKey = `wise:${session.user.id}:${validatedData.studentId}:${validatedData.type}:${validatedData.key}:${validatedData.amount}`
+    const externalId = crypto.createHash('sha256').update(idempotencyKey).digest('hex').slice(0, 32)
+
+    const mappedType = (validatedData.type === 'subscription'
+      ? 'SUBSCRIPTION'
+      : validatedData.type === 'addon'
+        ? 'SPECIAL_PACK'
+        : 'CREDIT_PACK') as 'SUBSCRIPTION' | 'SPECIAL_PACK' | 'CREDIT_PACK'
+
+    // Créer ou récupérer l'enregistrement de paiement (idempotent)
+    const { payment } = await upsertPaymentByExternalId({
+      externalId,
+      method: 'wise',
+      type: mappedType,
+      userId: session.user.id,
+      amount: validatedData.amount,
+      currency: 'TND',
+      description: validatedData.description,
+      metadata: {
+        studentId: validatedData.studentId,
+        itemKey: validatedData.key,
+        itemType: validatedData.type
       }
     })
     
