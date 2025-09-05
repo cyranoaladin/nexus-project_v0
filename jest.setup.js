@@ -34,6 +34,11 @@ jest.mock('./lib/prisma', () => ({
     coachProfile: {
       findFirst: jest.fn(),
     },
+    payment: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     $transaction: jest.fn(),
   },
 }));
