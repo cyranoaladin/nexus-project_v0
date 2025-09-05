@@ -71,9 +71,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Intégrer avec l'API Konnect réelle
-    const konnectPaymentUrl = `https://api.konnect.network/api/v2/payments/${payment.id}/init`;
-
+    // TODO: Intégrer avec l'API Konnect réelle (si besoin, initialiser la session via l'API Konnect)
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
