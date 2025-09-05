@@ -89,3 +89,8 @@ jest.mock('./lib/email', () => ({
 // Environment variables for tests
 process.env.NODE_ENV = 'test';
 process.env.NEXTAUTH_SECRET = 'test-secret';
+
+// Ensure all jest.fn() calls are cleared between tests to avoid cross-test leakage
+afterEach(() => {
+  jest.clearAllMocks();
+});
