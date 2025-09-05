@@ -38,8 +38,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Idempotence: si déjà complété, ne rien refaire
+    if (payment.status === 'COMPLETED') {
+      return NextResponse.json({ success: true });
+    }
+
     if (status === 'completed') {
-      // Mettre à jour le statut du paiement
+      // Mettre à jour le statut du paiement (idempotent si répété)
       await prisma.payment.update({
         where: { id: payment_id },
         data: {
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
       const metadata = payment.metadata as any;
 
       if (payment.type === 'SUBSCRIPTION') {
-        // Activer l'abonnement
+        // Activer l'abonnement (idempotent: rejoue sans effet si déjà ACTIVE/INACTIVE corrects)
         const student = await prisma.student.findUnique({
           where: { id: metadata.studentId }
         });
@@ -84,28 +89,7 @@ export async function POST(request: NextRequest) {
             }
           });
 
-          // Allouer les crédits mensuels si applicable
-          const subscription = await prisma.subscription.findFirst({
-            where: {
-              studentId: metadata.studentId,
-              status: 'ACTIVE'
-            }
-          });
-
-          if (subscription && subscription.creditsPerMonth > 0) {
-            const nextMonth = new Date();
-            nextMonth.setMonth(nextMonth.getMonth() + 2); // Expire dans 2 mois
-
-            await prisma.creditTransaction.create({
-              data: {
-                studentId: metadata.studentId,
-                type: 'MONTHLY_ALLOCATION',
-                amount: subscription.creditsPerMonth,
-                description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
-                expiresAt: nextMonth
-              }
-            });
-          }
+          // Note: allocation mensuelle déclenchée côté validation assistante pour éviter doublons
         }
       } else if (payment.type === 'CREDIT_PACK') {
         // Ajouter les crédits du pack
