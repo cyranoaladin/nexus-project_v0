@@ -45,6 +45,7 @@ jest.mock('./lib/prisma', () => ({
     },
     student: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
     parentProfile: {
@@ -57,9 +58,13 @@ jest.mock('./lib/prisma', () => ({
       create: jest.fn(),
       findFirst: jest.fn(),
     },
+    sessionBooking: {
+      findUnique: jest.fn(),
+    },
     creditTransaction: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
     },
     coachProfile: {
       findFirst: jest.fn(),
