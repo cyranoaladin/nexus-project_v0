@@ -61,11 +61,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run unit/integration tests
+      - name: Run unit tests (Jest)
         env:
           DATABASE_URL: file:./prisma/dev.db
           NEXTAUTH_URL: http://localhost:3000
-        run: npm test -- --coverage --watchAll=false
+        run: npm run test:unit -- --watchAll=false
+
+      - name: Run integration tests (Jest)
+        env:
+          DATABASE_URL: file:./prisma/dev.db
+          NEXTAUTH_URL: http://localhost:3000
+        run: npm run test:integration -- --watchAll=false
 
       - name: Run Playwright E2E (Chromium)
         env:
