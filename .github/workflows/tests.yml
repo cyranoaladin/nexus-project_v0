@@ -9,20 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: nexus
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d nexus" 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 5
 
     steps:
       - name: Checkout
@@ -45,43 +31,28 @@ jobs:
 
       - name: Prepare database schema (db push)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus?schema=public
+          DATABASE_URL: file:./prisma/dev.db
         run: npx prisma db push --accept-data-loss
 
       - name: Enforce unique constraint for payments (method, externalId)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus?schema=public
+          DATABASE_URL: file:./prisma/dev.db
         run: |
           npx prisma db execute --url "$DATABASE_URL" --stdin <<'SQL'
-          DO $$
-          BEGIN
-            -- Deduplicate duplicates keeping the earliest
-            BEGIN
-              WITH dupes AS (
-                SELECT ctid
-                FROM (
-                  SELECT ctid,
-                         ROW_NUMBER() OVER (PARTITION BY method, "externalId" ORDER BY "createdAt" ASC, id ASC) AS rn
-                  FROM "payments"
-                  WHERE "externalId" IS NOT NULL
-                ) t
-                WHERE t.rn > 1
-              )
-              DELETE FROM "payments" p USING dupes d WHERE p.ctid = d.ctid;
-            EXCEPTION WHEN undefined_table THEN
-              -- Table not created yet; ignore in environments without payments
-              NULL;
-            END;
+          -- Deduplicate duplicates keeping the earliest rowid
+          DELETE FROM payments
+          WHERE externalId IS NOT NULL
+            AND rowid NOT IN (
+              SELECT MIN(rowid)
+              FROM payments
+              WHERE externalId IS NOT NULL
+              GROUP BY method, externalId
+            );
 
-            -- Create partial unique index
-            BEGIN
-              CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_method_externalid_nonnull
-              ON "payments" (method, "externalId")
-              WHERE "externalId" IS NOT NULL;
-            EXCEPTION WHEN undefined_table THEN
-              NULL;
-            END;
-          END $$;
+          -- Create partial unique index (SQLite supports WHERE)
+          CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_method_externalid_nonnull
+          ON payments (method, externalId)
+          WHERE externalId IS NOT NULL;
           SQL
 
       - name: Install Playwright browsers
@@ -92,13 +63,13 @@ jobs:
 
       - name: Run unit/integration tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus?schema=public
+          DATABASE_URL: file:./prisma/dev.db
           NEXTAUTH_URL: http://localhost:3000
         run: npm test -- --coverage --watchAll=false
 
       - name: Run Playwright E2E (Chromium)
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus?schema=public
+          DATABASE_URL: file:./prisma/dev.db
           NEXTAUTH_URL: http://localhost:3000
         run: npx playwright test -c playwright.config.ts --project=chromium
 
