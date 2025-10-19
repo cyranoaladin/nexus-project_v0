@@ -4,7 +4,7 @@
 # === ÉTAPE 1: Image de Base ===
 # On part d'une image Node.js version 18, basée sur Alpine Linux (légère et sécurisée).
 # On la nomme "base" pour pouvoir s'y référer plus tard.
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 # On installe les dépendances système nécessaires pour Prisma
 RUN apk add --no-cache openssl
 

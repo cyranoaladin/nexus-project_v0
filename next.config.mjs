@@ -17,9 +17,9 @@ const nextConfig = {
 
   transpilePackages: ['framer-motion'],
 
-  // Configuration pour les images - DÉSACTIVATION COMPLÈTE pour éviter erreurs 400
+  // Configuration images: optimisation activée avec whitelist de domaines
   images: {
-    unoptimized: true, // Désactiver l'optimisation d'images Next.js
+    domains: ['localhost', 'nexusreussite.academy', 'app.nexus-reussite.tn'],
   },
 };
 

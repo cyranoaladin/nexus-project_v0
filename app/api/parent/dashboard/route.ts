@@ -70,16 +70,76 @@ export async function GET(request: NextRequest) {
         return total + transaction.amount;
       }, 0);
 
-      // Get next session
-      // Récupérer la prochaine session depuis SessionBooking (par userId élève)
-      const nextSessionBooking = await prisma.sessionBooking.findFirst({
-        where: {
-          studentId: student.userId,
-          scheduledDate: { gte: new Date() },
-          status: { in: ['SCHEDULED', 'CONFIRMED'] }
-        },
-        orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }]
-      });
+      const now = new Date();
+
+      const [nextSessionBooking, upcomingSessions] = await Promise.all([
+        prisma.sessionBooking.findFirst({
+          where: {
+            studentId: student.userId,
+            scheduledDate: { gte: now },
+            status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
+          },
+          orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+          include: {
+            coach: {
+              select: {
+                firstName: true,
+                lastName: true,
+                coachProfile: {
+                  select: { pseudonym: true }
+                }
+              }
+            }
+          }
+        }),
+        prisma.sessionBooking.findMany({
+          where: {
+            studentId: student.userId,
+            scheduledDate: { gte: now },
+            status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
+          },
+          orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+          take: 10,
+          include: {
+            coach: {
+              select: {
+                firstName: true,
+                lastName: true,
+                coachProfile: {
+                  select: { pseudonym: true }
+                }
+              }
+            }
+          }
+        })
+      ]);
+
+      type SessionWithCoach = {
+        coach?: {
+          firstName: string | null;
+          lastName: string | null;
+          coachProfile: { pseudonym: string | null } | null;
+        } | null;
+      };
+
+      const resolveCoachLabel = (session: SessionWithCoach) => {
+        if (!session?.coach) return '';
+
+        const pseudonym = session.coach.coachProfile?.pseudonym;
+        if (pseudonym) {
+          return pseudonym;
+        }
+
+        const firstName = session.coach.firstName ?? '';
+        const lastName = session.coach.lastName ?? '';
+        return `${firstName} ${lastName}`.trim();
+      };
+
+      const buildDateTime = (scheduledDate: Date, startTime: string) => {
+        const isoDate = scheduledDate.toISOString().split('T')[0];
+        const normalizedTime = startTime.length === 5 ? `${startTime}:00` : startTime;
+        return new Date(`${isoDate}T${normalizedTime}`);
+      };
 
       // Get active subscription
       const activeSubscription = student.subscriptions.length > 0 ? student.subscriptions[0] : null;
@@ -167,14 +227,22 @@ export async function GET(request: NextRequest) {
         nextSession: nextSessionBooking ? {
           id: nextSessionBooking.id,
           subject: nextSessionBooking.subject,
-          scheduledAt: new Date(`${nextSessionBooking.scheduledDate.toISOString().split('T')[0]}T${nextSessionBooking.startTime}`),
-          coachName: '',
+          scheduledAt: buildDateTime(nextSessionBooking.scheduledDate, nextSessionBooking.startTime),
+          coachName: resolveCoachLabel(nextSessionBooking),
           type: nextSessionBooking.type,
           status: nextSessionBooking.status
         } : null,
         progress: progress,
         subjectProgress: Object.fromEntries(subjectProgressMap),
-        sessions: []
+        sessions: upcomingSessions.map(session => ({
+          id: session.id,
+          subject: session.subject,
+          scheduledAt: buildDateTime(session.scheduledDate, session.startTime),
+          coachName: resolveCoachLabel(session),
+          type: session.type,
+          status: session.status,
+          duration: session.duration
+        }))
       };
     }));
 

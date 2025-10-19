@@ -74,7 +74,7 @@ test.describe('Page Offres E2E', () => {
     const formButtons = page.locator('button').filter({ hasText: 'Terminale' });
     await formButtons.first().click();
 
-    const aefeButtons = page.locator('button').filter({ hasText: 'Élève dans un lycée français' });
+    const aefeButtons = page.locator('button').filter({ hasText: /Élève dans un établissement AEFE|Élève dans un lycée français/i });
     await aefeButtons.first().click();
 
     const mentionButtons = page.locator('button').filter({ hasText: 'Obtenir une Mention' });

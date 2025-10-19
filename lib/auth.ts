@@ -5,24 +5,24 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
 
-// Generate a secure secret if not provided
-const generateSecret = () => {
-  if (process.env.NEXTAUTH_SECRET) {
-    return process.env.NEXTAUTH_SECRET;
+const resolveNextAuthSecret = () => {
+  const secret = process.env.NEXTAUTH_SECRET;
+
+  if (secret && secret.length >= 32) {
+    return secret;
   }
-  
-  // Generate a random secret for development
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXTAUTH_SECRET must be configured in production and contain at least 32 characters.');
   }
-  return result;
+
+  // Development/Test fallback to keep DX smooth while remaining deterministic.
+  return secret ?? 'development-only-nextauth-secret-please-change';
 };
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
-  secret: generateSecret(),
+  secret: resolveNextAuthSecret(),
   debug: process.env.NODE_ENV === 'development',
   providers: [
     CredentialsProvider({
@@ -32,12 +32,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // === LOG DE DÉBOGAGE N°1 ===
-        console.log("--- [AUTHORIZE START] ---");
-        console.log("Credentials received:", credentials);
-
         if (!credentials?.email || !credentials?.password) {
-          console.error("[AUTHORIZE ERROR] Missing credentials");
           return null;
         }
 
@@ -53,11 +48,7 @@ export const authOptions: NextAuthOptions = {
             }
           });
 
-          // === LOG DE DÉBOGAGE N°2 ===
-          console.log("User found in DB:", user);
-
           if (!user || !user.password) {
-            console.error("[AUTHORIZE ERROR] User not found or no password set");
             return null;
           }
 
@@ -66,11 +57,7 @@ export const authOptions: NextAuthOptions = {
             user.password
           );
 
-          // === LOG DE DÉBOGAGE N°3 ===
-          console.log("Is password valid:", isPasswordValid);
-
           if (isPasswordValid) {
-            console.log("--- [AUTHORIZE SUCCESS] ---");
             return {
               id: user.id,
               email: user.email,
@@ -79,12 +66,12 @@ export const authOptions: NextAuthOptions = {
               lastName: user.lastName ?? undefined,
             };
           } else {
-            console.error("[AUTHORIZE ERROR] Invalid password");
             return null;
           }
         } catch (error) {
-          // === LOG DE DÉBOGAGE N°4 ===
-          console.error("--- [AUTHORIZE CATCH ERROR] ---", error);
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[AUTH][AUTHORIZE] Unexpected error', error);
+          }
           return null;
         }
       }
@@ -95,8 +82,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // === LOG DE DÉBOGAGE N°5 ===
-      console.log("--- [JWT CALLBACK] ---", { token, user });
       try {
         if (user) {
           token.role = user.role;
@@ -105,13 +90,13 @@ export const authOptions: NextAuthOptions = {
         }
         return token;
       } catch (error) {
-        console.error('JWT callback error:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[AUTH][JWT] Callback error', error);
+        }
         return token;
       }
     },
     async session({ session, token }) {
-      // === LOG DE DÉBOGAGE N°6 ===
-      console.log("--- [SESSION CALLBACK] ---", { session, token });
       try {
         if (token) {
           session.user.id = token.sub!;
@@ -121,7 +106,9 @@ export const authOptions: NextAuthOptions = {
         }
         return session;
       } catch (error) {
-        console.error('Session callback error:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[AUTH][SESSION] Callback error', error);
+        }
         // Return a basic session if there's an error
         return {
           ...session,

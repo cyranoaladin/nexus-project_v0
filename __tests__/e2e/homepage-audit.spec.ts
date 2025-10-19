@@ -77,12 +77,13 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   test('Les sections de la page d\'accueil sont visibles', async ({ page }) => {
     const pa = await page.getByText(/Pédagogie Augmentée/i).count();
     expect(pa).toBeGreaterThan(0);
-    const experts = await page.getByText(/Notre Force : L'Excellence de nos Experts/i).count();
-    expect(experts).toBeGreaterThan(0);
-    const solutions = await page.getByText(/Nos solutions/i).count();
-    expect(solutions).toBeGreaterThan(0);
-    const ready = await page.getByText(/Prêt à Conquérir le Bac/i).count();
-    expect(ready).toBeGreaterThan(0);
+    // Titres mis à jour dans la nouvelle branche
+    const expertsAlt = await page.getByText(/L'Excellence de nos\s*Experts/i).count();
+    expect(expertsAlt).toBeGreaterThan(0);
+    const solutionsAlt = await page.getByText(/Nos\s+Solutions/i).count();
+    expect(solutionsAlt).toBeGreaterThan(0);
+    const readyAlt = await page.getByText(/Prêt à Construire l'\s*avenir|Prêt à Commencer Votre Transformation/i).count();
+    expect(readyAlt).toBeGreaterThan(0);
   });
 
   test('Les images se chargent correctement', async ({ page }) => {

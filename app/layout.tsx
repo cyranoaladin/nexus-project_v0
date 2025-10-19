@@ -1,18 +1,18 @@
-import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
 import { Providers } from "@/components/providers";
+import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({
+// Polices locales via next/font/local (fallback système si indisponibles)
+const inter = localFont({
+src: [{ path: "../public/fonts/inter/Inter-Regular.woff2", weight: "400", style: "normal" }],
   variable: "--font-inter",
-  subsets: ["latin"],
   display: "swap",
 });
 
-const poppins = Poppins({
+const poppins = localFont({
+src: [{ path: "../public/fonts/poppins/Poppins-SemiBold.woff2", weight: "600", style: "normal" }],
   variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
