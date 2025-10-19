@@ -76,6 +76,9 @@ Ce projet est configuré pour un développement local robuste et cohérent via *
 
 ### Scripts utiles
 
+- Déploiement: voir `docs/deploy-runbook.md` et utiliser `scripts/deploy/prod-deploy.sh`.
+- Test webhook Konnect signé: `scripts/deploy/test-konnect-webhook.sh`.
+
 * Migrations prod: `./scripts/db/migrate-deploy.sh`
 * Rappels emails: `BASE_URL=... CRON_SECRET=... ./scripts/emails/send-reminders.sh`
 * RGPD suppression: `DATABASE_URL=... ./scripts/rgpd/delete-user-data.sh user@example.com`
@@ -85,6 +88,9 @@ Ce projet est configuré pour un développement local robuste et cohérent via *
 * Voir `docs/observability.md`, `docs/brotli.md`, et `docs/SECURITY.md`.
 
 ### Sentry (opt-in)
+
+### SEO de base
+- `public/robots.txt` et `app/sitemap.ts` ajoutés pour référencement des pages publiques.
 - Ajoutez `@sentry/nextjs` via npm et définissez `SENTRY_DSN` pour activer la télémétrie.
 - L’initialisation est gérée par `instrumentation.ts` (aucun impact si DSN absent).
 
