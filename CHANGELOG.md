@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.2
+- Ajustement release tag.
+
 ## 0.2.1
 - Correctifs post-intégration tests et E2E, Sentry opt-in, workflow release.
 
