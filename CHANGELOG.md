@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.3
+- SEO: robots.txt + sitemap; headers sécurité (Permissions-Policy) et CSP d’exemple.
+
 ## 0.2.2
 - Ajustement release tag.
 
