@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, version-dev ]
+  pull_request:
+    branches: [ main, version-dev ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx prisma generate
+      - run: npm run build:base
+      - run: npm run test
+      - run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000

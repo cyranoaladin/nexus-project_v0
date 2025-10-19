@@ -7,11 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Received request body:', body);
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
-    console.log('Validated data:', validatedData);
 
     // Vérifier si l'email parent existe déjà
     let existingUser = null;

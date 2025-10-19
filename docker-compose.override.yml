@@ -1,0 +1,39 @@
+services:
+  next-app:
+    ports:
+      - "3000:3000"
+    environment:
+      DISABLE_DB_HEALTH: "true"
+    volumes:
+      - ./maintenance:/var/www/maintenance:ro
+
+  nginx:
+    image: nginx:alpine
+    container_name: nexus-nginx
+    restart: always
+    depends_on:
+      - next-app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./maintenance:/var/www/maintenance:ro
+      - certbot-www:/var/www/certbot
+      - certbot-etc:/etc/letsencrypt
+    networks:
+      - nexus-network
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: nexus-certbot
+    volumes:
+      - certbot-www:/var/www/certbot
+      - certbot-etc:/etc/letsencrypt
+    entrypoint: sh -c "trap 'exit 0' TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h; done"
+    networks:
+      - nexus-network
+
+volumes:
+  certbot-www:
+  certbot-etc:
