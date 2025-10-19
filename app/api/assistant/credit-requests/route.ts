@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ASSISTANTE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -14,18 +14,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get pending credit requests
-    const creditRequests = await prisma.creditTransaction.findMany({
+    // Get all credit requests with student information
+    const requests = await prisma.creditTransaction.findMany({
       where: {
         type: 'CREDIT_REQUEST'
       },
       include: {
         student: {
           include: {
-            user: true,
-            parent: {
-              include: {
-                user: true
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true
               }
             }
           }
@@ -36,28 +37,29 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedRequests = creditRequests.map((request: any) => ({
-      id: request.id,
-      amount: request.amount,
-      description: request.description,
-      createdAt: request.createdAt,
-      student: {
-        id: request.student.id,
-        firstName: request.student.user.firstName,
-        lastName: request.student.user.lastName,
-        grade: request.student.grade,
-        school: request.student.school
-      },
-      parent: {
-        firstName: request.student.parent.user.firstName,
-        lastName: request.student.parent.user.lastName,
-        email: request.student.parent.user.email
+    // Format the response
+    const formattedRequests = requests.map(request => {
+      const desc = request.description || ''
+      const m = desc.match(/\[status:(\w+)\]/)
+      const status = m?.[1] || 'PENDING'
+      return {
+        id: request.id,
+        studentId: request.studentId,
+        type: request.type,
+        amount: request.amount,
+        description: request.description,
+        status,
+        metadata: null,
+        createdAt: request.createdAt.toISOString(),
+        student: request.student ? {
+          firstName: request.student.user.firstName,
+          lastName: request.student.user.lastName,
+          email: request.student.user.email
+        } : null
       }
-    }));
-
-    return NextResponse.json({
-      creditRequests: formattedRequests
     });
+
+    return NextResponse.json(formattedRequests);
 
   } catch (error) {
     console.error('Error fetching credit requests:', error);
@@ -70,102 +72,41 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
+    const session = await getServerSession(authOptions)
     if (!session || session.user.role !== 'ASSISTANTE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json();
-    const { requestId, action, reason } = body;
-
+    const { requestId, action, reason } = await request.json()
     if (!requestId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
-    // Get the credit request
-    const creditRequest = await prisma.creditTransaction.findUnique({
-      where: { id: requestId },
-      include: {
-        student: true
-      }
-    });
+    const current = await prisma.creditTransaction.findUnique({ where: { id: requestId } })
+    if (!current) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    if (!creditRequest) {
-      return NextResponse.json(
-        { error: 'Credit request not found' },
-        { status: 404 }
-      );
-    }
-
-    if (creditRequest.type !== 'CREDIT_REQUEST') {
-      return NextResponse.json(
-        { error: 'Invalid credit request' },
-        { status: 400 }
-      );
-    }
-
+    // Approve = add credits; Reject = annotate
     if (action === 'approve') {
-      // Update the credit request status and add credits to student
-      await prisma.$transaction(async (tx: any) => {
-        // Update the credit request
-        await tx.creditTransaction.update({
-          where: { id: requestId },
-          data: {
-            type: 'CREDIT_ADD',
-            description: `Crédits approuvés par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`
-          }
-        });
-
-        // Add credits to student
+      await prisma.$transaction(async (tx) => {
+        await tx.creditTransaction.update({ where: { id: requestId }, data: { description: `${current.description ?? ''} [status:APPROVED]` } })
         await tx.creditTransaction.create({
           data: {
-            studentId: creditRequest.studentId,
-            type: 'CREDIT_ADD',
-            amount: creditRequest.amount,
-            description: `Crédits ajoutés par ${session.user.firstName} ${session.user.lastName} (demande approuvée)`
+            studentId: current.studentId,
+            type: 'CREDIT_ADDITION',
+            amount: Math.abs(current.amount),
+            description: `Crédits ajoutés suite à l'approbation de la demande ${requestId}${reason ? ` (${reason})` : ''}`,
           }
-        });
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: 'Demande de crédits approuvée et crédits ajoutés'
-      });
-
+        })
+      })
     } else if (action === 'reject') {
-      // Update the credit request status
-      await prisma.creditTransaction.update({
-        where: { id: requestId },
-        data: {
-          type: 'CREDIT_REJECTED',
-          description: `Demande rejetée par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`
-        }
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: 'Demande de crédits rejetée'
-      });
-
+      await prisma.creditTransaction.update({ where: { id: requestId }, data: { description: `${current.description ?? ''} [status:REJECTED]${reason ? ` (${reason})` : ''}` } })
     } else {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
     }
 
-  } catch (error) {
-    console.error('Error processing credit request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true })
+  } catch (e) {
+    console.error('Error updating credit request:', e)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-} 
+}

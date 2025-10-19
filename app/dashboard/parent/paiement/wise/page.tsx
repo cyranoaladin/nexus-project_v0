@@ -343,9 +343,9 @@ function WisePaymentContent() {
 }
 
 export default function WisePaymentPage() {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <WisePaymentContent />
-    </Suspense>
-  );
+  // Redirection immédiate car Wise est supprimé
+  if (typeof window !== 'undefined') {
+    window.location.replace('/dashboard/parent/paiement');
+  }
+  return <div className="p-6 text-center">Cette page n'est plus disponible.</div>;
 }

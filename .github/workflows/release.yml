@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Docker image (prod)
+        run: |
+          docker build -f Dockerfile.prod -t nexus-app:${GITHUB_REF_NAME} .
+          docker save nexus-app:${GITHUB_REF_NAME} -o nexus-app-${GITHUB_REF_NAME}.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-app-image-${{ github.ref_name }}
+          path: nexus-app-${{ github.ref_name }}.tar
+          retention-days: 7

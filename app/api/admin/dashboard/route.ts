@@ -144,7 +144,11 @@ export async function GET(request: NextRequest) {
         // Sessions (SessionBooking)
         prisma.sessionBooking.findMany({
           take: 10,
-          orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
+          orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
+          include: {
+            student: { include: {} },
+            coach: { include: {} },
+          }
         }),
         // New users
         prisma.user.findMany({
@@ -227,11 +231,11 @@ export async function GET(request: NextRequest) {
         id: activity.id,
         type: 'session',
         title: `Session ${activity.subject}`,
-        description: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'} avec ${activity.coach?.pseudonym || 'Unknown Coach'}`,
+        description: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'} avec ${activity.coach?.firstName || ''} ${activity.coach?.lastName || ''}`.trim(),
         time: activity.createdAt,
         status: activity.status,
-        studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
-        coachName: activity.coach?.pseudonym || 'Unknown Coach',
+        studentName: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'}`,
+        coachName: `${activity.coach?.firstName || ''} ${activity.coach?.lastName || ''}`.trim(),
         subject: activity.subject,
         action: activity.status === 'COMPLETED' ? 'Session terminée' :
           activity.status === 'SCHEDULED' ? 'Session programmée' :

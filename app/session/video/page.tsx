@@ -29,6 +29,8 @@ function SessionVideoCallContent() {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [roomName, setRoomName] = useState<string>("");
+  const [isHost, setIsHost] = useState<boolean>(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -44,26 +46,46 @@ function SessionVideoCallContent() {
       return;
     }
 
-    // Simulation de chargement des données de session
-    // En production, ceci serait un appel API réel
-    setTimeout(() => {
-      const mockSessionData: SessionData = {
-        id: sessionId,
-        studentName: session.user.role === 'ELEVE' ? `${session.user.firstName} ${session.user.lastName}` : "Sarah Martin",
-        coachName: session.user.role === 'COACH' ? `${session.user.firstName} ${session.user.lastName}` : "Prof. Ahmed Ben Ali",
-        subject: "Mathématiques - Algèbre",
-        scheduledAt: new Date().toISOString(),
-        duration: 60,
-        status: 'IN_PROGRESS'
-      };
-
-      setSessionData(mockSessionData);
-      setLoading(false);
-    }, 1000);
+    (async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/sessions/video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, action: 'JOIN' })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Impossible de rejoindre la session');
+        }
+        const s = data.sessionData;
+        setSessionData({
+          id: s.id,
+          studentName: s.studentName,
+          coachName: s.coachName,
+          subject: s.subject,
+          scheduledAt: s.scheduledAt,
+          duration: s.duration,
+          status: s.status,
+        });
+        setRoomName(s.roomName);
+        setIsHost(!!s.isHost);
+        setLoading(false);
+      } catch (e: any) {
+        setError(e.message || 'Erreur lors de la jonction à la session');
+        setLoading(false);
+      }
+    })();
   }, [session, status, router, sessionId]);
 
-  const handleLeaveSession = () => {
-    // Logique de fin de session
+  const handleLeaveSession = async () => {
+    try {
+      await fetch('/api/sessions/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, action: 'LEAVE' })
+      });
+    } catch {}
     const redirectPath = session?.user.role === 'ELEVE'
       ? '/dashboard/eleve'
       : session?.user.role === 'COACH'
@@ -106,8 +128,7 @@ function SessionVideoCallContent() {
     );
   }
 
-  const isHost = session?.user.role === 'COACH';
-  const roomName = `session-${sessionId}-${Date.now()}`;
+  // roomName and isHost are controlled by API response above
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -184,14 +205,16 @@ function SessionVideoCallContent() {
         </div>
 
         {/* Video Conference */}
-        <VideoConference
-          sessionId={sessionData.id}
-          studentName={sessionData.studentName}
-          coachName={sessionData.coachName}
-          roomName={roomName}
-          isHost={isHost}
-          onLeave={handleLeaveSession}
-        />
+        {roomName && (
+          <VideoConference
+            sessionId={sessionData.id}
+            studentName={sessionData.studentName}
+            coachName={sessionData.coachName}
+            roomName={roomName}
+            isHost={isHost}
+            onLeave={handleLeaveSession}
+          />
+        )}
 
         {/* Instructions */}
         <Card className="mt-6">

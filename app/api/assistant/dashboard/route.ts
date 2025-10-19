@@ -69,15 +69,8 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Pending bilans (recent registrations)
-      prisma.user.count({
-        where: {
-          role: 'PARENT',
-          createdAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-          }
-        }
-      }),
+      // Pending bilans (from bilan_gratuits table)
+      prisma.$queryRaw`SELECT COUNT(*)::int as count FROM bilan_gratuits WHERE status = 'PENDING'`.then((result: any) => parseInt(result[0]?.count) || 0),
 
       // Pending payments
       prisma.payment.count({
@@ -108,6 +101,10 @@ export async function GET(request: NextRequest) {
             lt: new Date(new Date().setHours(23, 59, 59, 999))
           }
         },
+        include: {
+          student: true,
+          coach: true,
+        },
         orderBy: [
           { scheduledDate: 'asc' },
           { startTime: 'asc' }
@@ -129,10 +126,10 @@ export async function GET(request: NextRequest) {
     // Format today's sessions
     const formattedTodaySessions = todaySessions.map((s: any) => ({
       id: s.id,
-      studentName: '',
-      coachName: '',
+      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
+      coachName: `${s.coach?.firstName ?? ''} ${s.coach?.lastName ?? ''}`.trim(),
       subject: s.subject,
-      time: s.startTime,
+      time: `${s.startTime} - ${s.endTime}`,
       status: s.status,
       type: s.type
     }));

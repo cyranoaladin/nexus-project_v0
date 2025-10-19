@@ -20,9 +20,18 @@ function PaiementContent() {
   const [paymentMethod, setPaymentMethod] = useState("konnect");
   const [loading, setLoading] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
+
+    // Init CSRF token (double submit cookie)
+    fetch('/api/security/csrf').then(async (r) => {
+      try {
+        const j = await r.json();
+        setCsrfToken(j?.token || null);
+      } catch {}
+    }).catch(() => {});
 
     if (!session || session.user.role !== 'PARENT') {
       router.push("/auth/signin");
@@ -87,7 +96,8 @@ function PaiementContent() {
         const response = await fetch('/api/payments/konnect', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+'Content-Type': 'application/json',
+            ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
           },
           body: JSON.stringify({
             type: orderDetails.type,
@@ -106,15 +116,6 @@ function PaiementContent() {
         } else {
           throw new Error(result.error || 'Erreur lors de la création du paiement');
         }
-      } else if (paymentMethod === 'wise') {
-        // Paiement Wise (International)
-        router.push(`/dashboard/parent/paiement/wise?${new URLSearchParams({
-          type: orderDetails.type,
-          key: orderDetails.key,
-          studentId: orderDetails.studentId || '',
-          amount: orderDetails.price.toString(),
-          description: orderDetails.description
-        })}`);
       }
     } catch (error) {
       console.error('Erreur de paiement:', error);
@@ -201,23 +202,6 @@ function PaiementContent() {
                   </div>
                 </div>
 
-                {/* Wise (International) */}
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
-                  <RadioGroupItem value="wise" id="wise" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="wise" className="flex items-center gap-2 font-medium cursor-pointer">
-                      <Globe className="w-4 h-4" />
-                      Wise (International)
-                    </Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Virement bancaire international sécurisé
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm text-blue-600">1-3 jours ouvrés</span>
-                    </div>
-                  </div>
-                </div>
               </RadioGroup>
 
               <Button

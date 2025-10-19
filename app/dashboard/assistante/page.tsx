@@ -3,13 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Phone, Users, Plus, Settings, UserPlus, Menu, X } from "lucide-react";
+import NotificationBell from "@/components/ui/notification-bell";
+import SessionManagement from "@/components/ui/session-management";
+import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Menu, Phone, Settings, UserPlus, Users, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import NotificationBell from "@/components/ui/notification-bell";
-import SessionManagement from "@/components/ui/session-management";
 
 interface AssistantDashboardData {
   stats: {
@@ -62,13 +62,13 @@ export default function DashboardAssistante() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/assistant/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
-        
+
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
@@ -100,8 +100,8 @@ export default function DashboardAssistante() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
           <p className="text-red-600 mb-4">Erreur lors du chargement</p>
           <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -128,7 +128,7 @@ export default function DashboardAssistante() {
                     <p className="text-xs md:text-sm text-gray-500">Supervision des sessions</p>
                   </div>
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -138,7 +138,7 @@ export default function DashboardAssistante() {
                   ← Retour au tableau de bord
                 </Button>
               </div>
-              
+
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -176,7 +176,7 @@ export default function DashboardAssistante() {
                 </div>
               </div>
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <NotificationBell />
@@ -185,8 +185,8 @@ export default function DashboardAssistante() {
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
                   {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
                       {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 9
@@ -201,8 +201,8 @@ export default function DashboardAssistante() {
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes de Crédits
                   {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
                       {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
@@ -247,8 +247,8 @@ export default function DashboardAssistante() {
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
                   {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
                       {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 9
@@ -263,8 +263,8 @@ export default function DashboardAssistante() {
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes de Crédits
                   {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
                       {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
@@ -317,9 +317,16 @@ export default function DashboardAssistante() {
                         <p className="font-medium text-gray-900 text-sm md:text-base">Nouveaux bilans gratuits</p>
                         <p className="text-xs md:text-sm text-gray-600">À traiter sous 24h</p>
                       </div>
-                      <Badge variant="destructive">
-                        {dashboardData?.stats?.pendingBilans || 0}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="destructive">
+                          {dashboardData?.stats?.pendingBilans || 0}
+                        </Badge>
+                        <Link href="/dashboard/assistante/bilans">
+                          <Button variant="outline" size="sm" className="text-xs">
+                            Voir
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   )}
                   {(dashboardData?.stats?.pendingPayments || 0) > 0 && (
@@ -328,9 +335,16 @@ export default function DashboardAssistante() {
                         <p className="font-medium text-gray-900 text-sm md:text-base">Paiements à valider</p>
                         <p className="text-xs md:text-sm text-gray-600">Virements Wise</p>
                       </div>
-                      <Badge variant="destructive">
-                        {dashboardData?.stats?.pendingPayments || 0}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="destructive">
+                          {dashboardData?.stats?.pendingPayments || 0}
+                        </Badge>
+                        <Link href="/dashboard/assistante/paiements">
+                          <Button variant="outline" size="sm" className="text-xs">
+                            Voir
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   )}
                   {(dashboardData?.stats?.pendingCreditRequests || 0) > 0 && (
@@ -441,7 +455,7 @@ export default function DashboardAssistante() {
                     <span className="text-xs text-gray-500 text-center">Créer et gérer les coachs</span>
                   </Button>
                 </Link>
-                
+
                 <Link href="/dashboard/assistante/credits">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
                     <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -449,7 +463,7 @@ export default function DashboardAssistante() {
                     <span className="text-xs text-gray-500 text-center">Ajouter/Retirer des crédits</span>
                   </Button>
                 </Link>
-                
+
                 <Link href="/dashboard/assistante/students">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
@@ -497,7 +511,7 @@ export default function DashboardAssistante() {
                       <Badge
                         variant={
                           session.status === 'SCHEDULED' ? 'default' :
-                          session.status === 'COMPLETED' ? 'outline' : 'destructive'
+                            session.status === 'COMPLETED' ? 'outline' : 'destructive'
                         }
                         className="ml-2 text-xs"
                       >
@@ -525,43 +539,46 @@ export default function DashboardAssistante() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 md:space-y-4">
-                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
-                  <div className="flex items-center space-x-3">
-                    <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                    <div className="text-left">
-                      <p className="font-medium text-sm md:text-base">Gestion des Utilisateurs</p>
-                      <p className="text-xs md:text-sm text-gray-500">Créer, modifier, désactiver</p>
+                <Link href="/dashboard/assistante/users">
+                  <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
+                    <div className="flex items-center space-x-3">
+                      <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Gestion des Utilisateurs</p>
+                        <p className="text-xs md:text-sm text-gray-500">Créer, modifier, désactiver</p>
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                </Link>
 
-                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
-                  <div className="flex items-center space-x-3">
-                    <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                    <div className="text-left">
-                      <Link href="/dashboard/assistante/paiements" className="font-medium text-sm md:text-base">
-                        Validation Paiements
-                      </Link>
-                      <p className="text-xs md:text-sm text-gray-500">Virements Wise manuels</p>
+                <Link href="/dashboard/assistante/paiements">
+                  <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
+                    <div className="flex items-center space-x-3">
+                      <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Validation Paiements</p>
+                        <p className="text-xs md:text-sm text-gray-500">Virements Wise manuels</p>
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                </Link>
 
-                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                    <div className="text-left">
-                      <p className="font-medium text-sm md:text-base">Support Client</p>
-                      <p className="text-xs md:text-sm text-gray-500">Messages et demandes</p>
+                <Link href="/dashboard/assistante/support">
+                  <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4">
+                    <div className="flex items-center space-x-3">
+                      <Mail className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Support Client</p>
+                        <p className="text-xs md:text-sm text-gray-500">Messages et demandes</p>
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                </Link>
               </div>
 
-              <div className="mt-6 p-3 md:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs md:text-sm text-yellow-800">
-                  <strong>Note :</strong> Les outils de gestion avancés seront disponibles
-                  dans les prochaines phases de développement.
+              <div className="mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs md:text-sm text-blue-800">
+                  <strong>✅ Fonctionnalités disponibles :</strong> Tous les outils de gestion sont maintenant opérationnels.
                 </p>
               </div>
             </CardContent>

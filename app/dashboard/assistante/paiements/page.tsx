@@ -1,103 +1,153 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CreditCard, ArrowLeft, Check, X, Clock, Search, Filter } from "lucide-react"
-import Link from "next/link"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, CreditCard, Loader2, LogOut, XCircle } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function PaiementsAssistantePage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [pendingPayments, setPendingPayments] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState("all")
+interface Payment {
+  id: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  type: string;
+  externalId?: string;
+  description?: string;
+  metadata?: any;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  };
+}
+
+export default function PaiementsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>('all');
 
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") return;
 
     if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin")
-      return
+      router.push("/auth/signin");
+      return;
     }
 
-    // Simulation de chargement des paiements en attente
-    setTimeout(() => {
-      setPendingPayments([
-        {
-          id: "pay_1",
-          user: { firstName: "Marie", lastName: "Dubois", email: "marie.dubois@email.com" },
-          amount: 450,
-          description: "Abonnement HYBRIDE",
-          method: "wise",
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // Il y a 2h
-          metadata: {
-            transferReference: "NEXUS-ABC123",
-            transferDate: "2025-01-15",
-            transferAmount: "450"
-          }
-        },
-        {
-          id: "pay_2",
-          user: { firstName: "Ahmed", lastName: "Ben Ali", email: "ahmed.benali@email.com" },
-          amount: 750,
-          description: "Pack Grand Oral",
-          method: "wise",
-          createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // Il y a 6h
-          metadata: {
-            transferReference: "NEXUS-DEF456",
-            transferDate: "2025-01-14",
-            transferAmount: "750"
-          }
-        }
-      ])
-      setLoading(false)
-    }, 1000)
-  }, [session, status, router])
+    fetchPayments();
+  }, [session, status, router]);
 
-  const handleValidatePayment = async (paymentId: string, action: 'approve' | 'reject', note?: string) => {
+  const fetchPayments = async () => {
     try {
-      const response = await fetch('/api/payments/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          paymentId,
-          action,
-          note
-        })
-      })
+      setLoading(true);
+      setError(null);
 
-      if (response.ok) {
-        // Retirer le paiement de la liste
-        setPendingPayments(prev => prev.filter(p => p.id !== paymentId))
-        alert(`Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`)
-      } else {
-        alert('Erreur lors de la validation')
+      const response = await fetch('/api/assistant/payments');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch payments');
       }
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue')
-    }
-  }
 
-  if (loading) {
+      const data = await response.json();
+      setPayments(data);
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePaymentStatus = async (id: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/assistant/payments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update payment status');
+      }
+
+      // Refresh the list
+      fetchPayments();
+    } catch (err) {
+      console.error('Error updating payment status:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return <Badge variant="destructive" className="flex items-center gap-1"><Clock className="w-3 h-3" />En attente</Badge>;
+      case 'COMPLETED':
+        return <Badge variant="outline" className="flex items-center gap-1 text-green-600"><CheckCircle className="w-3 h-3" />Validé</Badge>;
+      case 'FAILED':
+        return <Badge variant="outline" className="flex items-center gap-1 text-red-600"><XCircle className="w-3 h-3" />Échoué</Badge>;
+      case 'REFUNDED':
+        return <Badge variant="outline" className="flex items-center gap-1 text-orange-600"><XCircle className="w-3 h-3" />Remboursé</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getTypeBadge = (type: string) => {
+    switch (type) {
+      case 'SUBSCRIPTION':
+        return <Badge variant="outline" className="text-blue-600">Abonnement</Badge>;
+      case 'CREDIT_PACK':
+        return <Badge variant="outline" className="text-green-600">Pack Crédits</Badge>;
+      case 'SPECIAL_PACK':
+        return <Badge variant="outline" className="text-purple-600">Pack Spécial</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
+    }
+  };
+
+  const filteredPayments = payments.filter(payment => {
+    if (filter === 'all') return true;
+    return payment.status === filter.toUpperCase();
+  });
+
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Chargement des paiements...</p>
         </div>
       </div>
-    )
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
+          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -105,126 +155,169 @@ export default function PaiementsAssistantePage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
-            <Button variant="ghost" asChild className="mr-4">
-              <Link href="/dashboard/assistante">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour au Dashboard
-              </Link>
-            </Button>
-            <div>
-              <h1 className="font-semibold text-gray-900">Validation des Paiements</h1>
-              <p className="text-sm text-gray-500">Virements Wise en attente</p>
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" asChild>
+                <Link href="/dashboard/assistante">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Retour au tableau de bord
+                </Link>
+              </Button>
+              <div className="flex items-center space-x-2">
+                <CreditCard className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h1 className="font-semibold text-gray-900 text-sm md:text-base">
+                    Gestion des Paiements
+                  </h1>
+                  <p className="text-xs md:text-sm text-gray-500">Validation des paiements</p>
+                </div>
+              </div>
             </div>
+
+            <Button
+              variant="ghost"
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
           </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filtres */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Filter className="w-5 h-5 mr-2 text-blue-600" />
-              Filtres
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Label>Statut :</Label>
-                <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous</SelectItem>
-                    <SelectItem value="pending">En attente</SelectItem>
-                    <SelectItem value="wise">Wise uniquement</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Badge variant="outline">
-                {pendingPayments.length} paiement(s) en attente
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Filters */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={filter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter('all')}
+            >
+              Tous ({payments.length})
+            </Button>
+            <Button
+              variant={filter === 'pending' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter('pending')}
+            >
+              En attente ({payments.filter(p => p.status === 'PENDING').length})
+            </Button>
+            <Button
+              variant={filter === 'completed' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter('completed')}
+            >
+              Validés ({payments.filter(p => p.status === 'COMPLETED').length})
+            </Button>
+            <Button
+              variant={filter === 'failed' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter('failed')}
+            >
+              Échoués ({payments.filter(p => p.status === 'FAILED').length})
+            </Button>
+          </div>
+        </div>
 
-        {/* Liste des paiements */}
-        <div className="space-y-6">
-          {pendingPayments.length > 0 ? (
-            pendingPayments.map((payment) => (
-              <Card key={payment.id} className="border-orange-200 bg-orange-50">
+        {/* Payments List */}
+        <div className="grid gap-6">
+          {filteredPayments.length > 0 ? (
+            filteredPayments.map((payment) => (
+              <Card key={payment.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-lg">
-                        {payment.user.firstName} {payment.user.lastName}
+                        {payment.user ? `${payment.user.firstName} ${payment.user.lastName}` : 'Utilisateur inconnu'}
                       </CardTitle>
-                      <p className="text-gray-600 text-sm">{payment.user.email}</p>
-                      <Badge variant="outline" className="mt-2">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {new Date(payment.createdAt).toLocaleString('fr-FR')}
-                      </Badge>
+                      <p className="text-sm text-gray-600">{payment.user?.email}</p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-orange-600">
-                        {payment.amount} TND
-                      </div>
-                      <p className="text-gray-600 text-sm">{payment.description}</p>
+                    <div className="flex items-center space-x-2">
+                      {getStatusBadge(payment.status)}
+                      {getTypeBadge(payment.type)}
                     </div>
                   </div>
                 </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  {/* Détails du virement */}
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-3">Détails du Virement</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <Label className="text-gray-600">Référence</Label>
-                        <div className="font-mono font-medium">
-                          {payment.metadata.transferReference}
-                        </div>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Montant:</span>
+                        <span className="text-lg font-bold text-green-600">
+                          {payment.amount} {payment.currency}
+                        </span>
                       </div>
-                      <div>
-                        <Label className="text-gray-600">Date</Label>
-                        <div className="font-medium">
-                          {new Date(payment.metadata.transferDate).toLocaleDateString('fr-FR')}
+                      {payment.externalId && (
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm">ID: {payment.externalId}</span>
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-gray-600">Montant déclaré</Label>
-                        <div className="font-medium">
-                          {payment.metadata.transferAmount} TND
+                      )}
+                      {payment.description && (
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">Description:</span>
+                          <p className="text-sm text-gray-600">{payment.description}</p>
                         </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm">
+                          Créé le {new Date(payment.createdAt).toLocaleDateString('fr-FR')}
+                        </span>
                       </div>
+                      {payment.metadata && (
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">Métadonnées:</span>
+                          <pre className="text-xs text-gray-600 bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
+                            {JSON.stringify(payment.metadata, null, 2)}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Actions de validation */}
-                  <div className="flex items-center space-x-4">
-                    <Button
-                      onClick={() => handleValidatePayment(payment.id, 'approve')}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Check className="w-4 h-4 mr-2" />
-                      Valider le Paiement
-                    </Button>
-                    
-                    <Button
-                      onClick={() => {
-                        const note = prompt("Raison du rejet (optionnel) :")
-                        handleValidatePayment(payment.id, 'reject', note || undefined)
-                      }}
-                      variant="outline"
-                      className="border-red-300 text-red-600 hover:bg-red-50"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Rejeter
-                    </Button>
+                  {/* Actions */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {payment.status === 'PENDING' && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => updatePaymentStatus(payment.id, 'COMPLETED')}
+                        >
+                          Valider le paiement
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updatePaymentStatus(payment.id, 'FAILED')}
+                        >
+                          Marquer comme échoué
+                        </Button>
+                      </>
+                    )}
+                    {payment.status === 'COMPLETED' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updatePaymentStatus(payment.id, 'REFUNDED')}
+                      >
+                        Rembourser
+                      </Button>
+                    )}
+                    {payment.status === 'FAILED' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updatePaymentStatus(payment.id, 'PENDING')}
+                      >
+                        Remettre en attente
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -232,12 +325,12 @@ export default function PaiementsAssistantePage() {
           ) : (
             <Card>
               <CardContent className="text-center py-12">
-                <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Aucun paiement en attente
-                </h3>
+                <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500">
-                  Tous les paiements ont été traités.
+                  {filter === 'all'
+                    ? 'Aucun paiement trouvé'
+                    : `Aucun paiement ${filter === 'pending' ? 'en attente' : filter === 'completed' ? 'validé' : 'échoué'}`
+                  }
                 </p>
               </CardContent>
             </Card>
@@ -245,5 +338,5 @@ export default function PaiementsAssistantePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

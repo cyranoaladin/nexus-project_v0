@@ -1,4 +1,4 @@
-# Bienvenue sur le Projet Nexus Réussite !
+# Bienvenue sur le Projet Nexus Réussite
 
 **Auteur :** Alaeddine BEN RHOUMA
 **Objet :** Guide Complet pour le Développement de la Plateforme Nexus Réussite
@@ -23,11 +23,11 @@ L'intégralité de la vision du projet, de la stratégie business à la charte d
 
 **Considérez ce dossier comme la "Constitution" du projet.** Chaque décision de développement doit être alignée avec les spécifications qu'il contient.
 
-*   **`Cahier des Charges Global & Technique.md`** : La vision d'ensemble et la stack technique.
-*   **`Logique Metier_Business Model.md`** : Les règles complexes des abonnements, crédits et paiements. **Lecture capitale.**
-*   **`Systeme_de_Design_Exp_Utilisa.md`** : Le look & feel, les animations et la charte graphique.
-*   **`Specifications-Fonctionnelles-par-Role.md`** : Le détail des dashboards et des permissions.
-*   **`Profils_Equipe_Gamification.md`** : Le contenu brut pour la page Équipe et la logique de gamification.
+* **`Cahier des Charges Global & Technique.md`** : La vision d'ensemble et la stack technique.
+* **`Logique Metier_Business Model.md`** : Les règles complexes des abonnements, crédits et paiements. **Lecture capitale.**
+* **`Systeme_de_Design_Exp_Utilisa.md`** : Le look & feel, les animations et la charte graphique.
+* **`Specifications-Fonctionnelles-par-Role.md`** : Le détail des dashboards et des permissions.
+* **`Profils_Equipe_Gamification.md`** : Le contenu brut pour la page Équipe et la logique de gamification.
 
 ---
 
@@ -36,38 +36,69 @@ L'intégralité de la vision du projet, de la stratégie business à la charte d
 Ce projet est configuré pour un développement local robuste et cohérent via **Docker** et **Docker Compose**.
 
 ### Pré-requis
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé et en cours d'exécution sur votre machine.
-- Avoir `npm` comme gestionnaire de paquets par défaut.
+
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé et en cours d'exécution sur votre machine.
+
+* Avoir `npm` comme gestionnaire de paquets par défaut.
 
 ### Étapes de Lancement
-1.  **Créez vos Variables d'Environnement Locales :**
-    *   Créez une copie du fichier `.env.local.example` (s'il existe) ou créez un nouveau fichier nommé `.env.local` à la racine du projet.
-    *   Remplissez ce fichier avec vos clés d'API de **TEST**, vos mots de passe de base de données locale, etc. Ce fichier est ignoré par Git et ne doit jamais être partagé.
 
-2.  **Lancez les Conteneurs Docker :**
-    *   Ouvrez un terminal à la racine du projet et exécutez la commande suivante :
+1. **Créez vos Variables d'Environnement Locales :**
+    * Créez une copie du fichier `.env.local.example` (s'il existe) ou créez un nouveau fichier nommé `.env.local` à la racine du projet.
+    * Remplissez ce fichier avec vos clés d'API de **TEST**, vos mots de passe de base de données locale, etc. Ce fichier est ignoré par Git et ne doit jamais être partagé.
+
+2. **Lancez les Conteneurs Docker :**
+    * Ouvrez un terminal à la racine du projet et exécutez la commande suivante :
+
     ```bash
     docker compose up --build -d
     ```
-    *   Cette commande va construire l'image de l'application Next.js et démarrer un conteneur de base de données PostgreSQL en arrière-plan.
 
-3.  **Appliquez les Migrations de la Base de Données :**
-    *   Une fois les conteneurs lancés, exécutez cette commande pour créer les tables dans votre base de données locale en fonction du schéma Prisma :
+    * Cette commande va construire l'image de l'application Next.js et démarrer un conteneur de base de données PostgreSQL en arrière-plan.
+
+3. **Appliquez les Migrations de la Base de Données :**
+    * Une fois les conteneurs lancés, exécutez cette commande pour créer les tables dans votre base de données locale en fonction du schéma Prisma :
+
     ```bash
     npx prisma migrate dev
     ```
 
-4.  **Accédez à l'Application :**
-    *   Ouvrez votre navigateur et allez sur [**http://localhost:3000**](http://localhost:3000). Vous devriez voir la page d'accueil de l'application. La page se mettra à jour automatiquement à chaque modification du code.
+### Production (VPS + Nginx + Certbot)
+
+- Paiements: Konnect est le seul provider. Le webhook est signé (HMAC SHA-256). Configurez les variables:
+  - `KONNECT_API_URL`, `KONNECT_API_KEY`, `KONNECT_WEBHOOK_SECRET`, `KONNECT_RETURN_URL`, `KONNECT_CANCEL_URL`.
+- Sécurité: endpoints sensibles protégés par rate limit et CSRF (double submit cookie). Récupérez le token via `GET /api/security/csrf` puis envoyez `X-CSRF-Token`.
+
+* Nginx: voir `config/nginx.conf` (HSTS, CSP exemple commentée, maintenance, 50x, Brotli, cache agressif).
+* Maintenance: créez le fichier `/var/www/maintenance/ON` dans le conteneur Nginx pour activer la page de maintenance.
+* Certbot: un service `certbot` est défini dans `docker-compose.override.yml` pour le renouvellement automatique.
+* Volumes: `./maintenance` est monté pour servir `index.html` et `50x.html`.
+
+### Scripts utiles
+
+* Migrations prod: `./scripts/db/migrate-deploy.sh`
+* Rappels emails: `BASE_URL=... CRON_SECRET=... ./scripts/emails/send-reminders.sh`
+* RGPD suppression: `DATABASE_URL=... ./scripts/rgpd/delete-user-data.sh user@example.com`
+
+### Observabilité et Brotli
+
+* Voir `docs/observability.md`, `docs/brotli.md`, et `docs/SECURITY.md`.
+
+### Sentry (opt-in)
+- Ajoutez `@sentry/nextjs` via npm et définissez `SENTRY_DSN` pour activer la télémétrie.
+- L’initialisation est gérée par `instrumentation.ts` (aucun impact si DSN absent).
+
+4. **Accédez à l'Application :**
+    * Ouvrez votre navigateur et allez sur [**http://localhost:3000**](http://localhost:3000). Vous devriez voir la page d'accueil de l'application. La page se mettra à jour automatiquement à chaque modification du code.
 
 ---
 
 ## 4. Lignes Directrices Techniques & Attentes
 
-*   **Stack Technique :** Le projet est solidement ancré sur **Next.js 14 (App Router), TypeScript, et Tailwind CSS**. Merci de respecter cette stack.
-*   **Qualité du Code :** Nous attendons un code propre, bien structuré, commenté si nécessaire, et suivant les meilleures pratiques de l'écosystème React/Next.js. La maintenabilité est une priorité.
-*   **Animations & Micro-interactions :** L'utilisation de **Framer Motion** est fortement encouragée pour créer les effets décrits dans la charte de design.
-*   **Ressources Graphiques :** Les assets (logos, mascotte) sont disponibles dans `/public/images/`. Veuillez les intégrer de manière optimisée via le composant `<Image>` de Next.js.
+* **Stack Technique :** Le projet est solidement ancré sur **Next.js 14 (App Router), TypeScript, et Tailwind CSS**. Merci de respecter cette stack.
+* **Qualité du Code :** Nous attendons un code propre, bien structuré, commenté si nécessaire, et suivant les meilleures pratiques de l'écosystème React/Next.js. La maintenabilité est une priorité.
+* **Animations & Micro-interactions :** L'utilisation de **Framer Motion** est fortement encouragée pour créer les effets décrits dans la charte de design.
+* **Ressources Graphiques :** Les assets (logos, mascotte) sont disponibles dans `/public/images/`. Veuillez les intégrer de manière optimisée via le composant `<Image>` de Next.js.
 
 ---
 

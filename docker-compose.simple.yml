@@ -1,0 +1,41 @@
+# Fichier: docker-compose.simple.yml (Version SIMPLE pour tests locaux)
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: nexus-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - nexus-postgres-data:/var/lib/postgresql/data
+    networks:
+      - nexus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  next-app:
+    build: .
+    container_name: nexus-next-app
+    restart: always
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "3001:3000"
+    networks:
+      - nexus-network
+
+volumes:
+  nexus-postgres-data:
+
+networks:
+  nexus-network:
+    driver: bridge

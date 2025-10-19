@@ -5,6 +5,8 @@ import { z } from 'zod';
 import crypto from 'crypto';
 import { upsertPaymentByExternalId } from '@/lib/payments';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, ipKey } from '@/lib/security/rate-limit';
+import { verifyCsrf } from '@/lib/security/csrf';
 
 const konnectPaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -23,6 +25,20 @@ export async function POST(request: NextRequest) {
         { error: 'Accès non autorisé' },
         { status: 401 }
       );
+    }
+
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
+    if (process.env.NODE_ENV === 'production') {
+      const rl = rateLimit(ipKey(ip, 'payments_konnect_init'), { max: 5, windowMs: 60_000 });
+      if (!rl.allowed) {
+        return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard' }, { status: 429 });
+      }
+    }
+
+    // CSRF (enforced only in production inside verifyCsrf)
+    if (!verifyCsrf(request)) {
+      return NextResponse.json({ error: 'CSRF invalide' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -71,16 +87,59 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Intégrer avec l'API Konnect réelle (si besoin, initialiser la session via l'API Konnect)
+    // Intégration Konnect réelle si configurée
+    const KONNECT_API_URL = process.env.KONNECT_API_URL;
+    const KONNECT_API_KEY = process.env.KONNECT_API_KEY;
+    let payUrl: string | null = null;
+
+    if (KONNECT_API_URL && KONNECT_API_KEY) {
+      try {
+        // Exemple (à adapter selon l'API Konnect réelle)
+        const initRes = await fetch(`${KONNECT_API_URL}/payments/init`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${KONNECT_API_KEY}`
+          },
+          body: JSON.stringify({
+            amount: validatedData.amount,
+            currency: 'TND',
+            externalId: payment.externalId,
+            description: validatedData.description,
+            returnUrl: process.env.KONNECT_RETURN_URL,
+            cancelUrl: process.env.KONNECT_CANCEL_URL,
+          })
+        });
+        if (initRes.ok) {
+          const data = await initRes.json();
+          payUrl = data?.payment_url || data?.redirect_url || null;
+          // Stocker l'ID de transaction provider si fourni
+          const providerId = data?.payment_id || data?.id || null;
+          if (providerId) {
+            await prisma.payment.update({ where: { id: payment.id }, data: { externalId: String(providerId) } });
+          }
+        }
+      } catch (e) {
+        // Fallback sur démo si l'API n'est pas accessible
+        payUrl = null;
+      }
+    }
+
+    if (!payUrl) {
+      // Fallback local (démo)
+      payUrl = `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`;
+    }
+
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
-      paymentUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`,
+      payUrl,
       message: 'Session de paiement Konnect créée'
     });
 
   } catch (error) {
-    console.error('Erreur paiement Konnect:', error);
+    const { logger } = await import('@/lib/logger');
+    logger.error('Erreur paiement Konnect', { error: String(error) });
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

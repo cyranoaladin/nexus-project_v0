@@ -217,17 +217,6 @@ export default function AdminTestsPage() {
                     ))}
                   </div>
 
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Wise (International)</h4>
-                    {Object.entries(paymentConfig.wise).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{key}</span>
-                        <Badge variant={configured ? 'default' : 'destructive'}>
-                          {configured ? 'OK' : 'Manquant'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
 
