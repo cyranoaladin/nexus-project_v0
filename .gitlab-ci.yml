@@ -1,0 +1,40 @@
+stages:
+  - test
+
+variables:
+  NODE_ENV: "test"
+  BASE_URL: "http://localhost:3000"
+  NEXTAUTH_URL: "http://localhost:3000"
+  DATABASE_URL: "file:./prisma/dev.db"
+  PORT: "3000"
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - node_modules/
+    - .cache/ms-playwright/
+
+e2e:
+  stage: test
+  image: node:22
+  interruptible: true
+  resource_group: "e2e-${CI_COMMIT_REF_SLUG}"
+  before_script:
+    - npm ci
+    - npx prisma generate
+    - npx prisma db push
+    - npm run build
+    - export NEXTAUTH_SECRET=$(openssl rand -hex 32)
+    - npx playwright install --with-deps chromium
+  script:
+    - >
+      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project=chromium
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - playwright-report/
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  timeout: 20m
