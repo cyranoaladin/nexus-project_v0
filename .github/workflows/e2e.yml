@@ -17,6 +17,10 @@ jobs:
     name: Playwright E2E (Chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     env:
       NODE_ENV: test
       BASE_URL: http://localhost:3000
@@ -51,8 +55,8 @@ jobs:
       - name: Build Next.js (standalone)
         run: npm run build
 
-      - name: Install Playwright (Chromium + OS deps)
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright (browser + OS deps)
+        run: npx playwright install --with-deps ${{ matrix.browser }}
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -75,8 +79,8 @@ jobs:
             exit 1
           fi
 
-      - name: Run E2E tests (Chromium)
-        run: npx playwright test -c ${{ steps.cfg.outputs.CFG }} --project=chromium
+      - name: Run E2E tests (${{ matrix.browser }})
+        run: npx playwright test -c ${{ steps.cfg.outputs.CFG }} --project=${{ matrix.browser }} --reporter=html,json=playwright-results.json
         env:
           BASE_URL: http://localhost:3000
           NEXTAUTH_URL: http://localhost:3000
@@ -87,6 +91,37 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: playwright-report
           retention-days: 7
+
+      - name: Upload Playwright JSON results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-json-${{ matrix.browser }}
+          path: playwright-results.json
+          retention-days: 7
+
+      - name: Summary to GITHUB_STEP_SUMMARY
+        if: always()
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          node -e "
+            const fs=require('fs');
+            const p='playwright-results.json';
+            let passed=0,failed=0,skipped=0,flaky=0,total=0;
+            function walk(s){ if(!s) return; (s.suites||[]).forEach(walk); (s.specs||[]).forEach(spec=>{ (spec.tests||[]).forEach(t=>{ const outcome=t.outcome||t.status||((t.results||[])[0]||{}).status; switch(outcome){ case 'expected': case 'passed': passed++; break; case 'skipped': skipped++; break; case 'flaky': flaky++; break; case 'unexpected': case 'failed': default: failed++; } total++; }); }); }
+            try{ const data=JSON.parse(fs.readFileSync(p,'utf8')); (data.suites||[]).forEach(walk); }catch(e){}
+            const summaryPath=process.env.GITHUB_STEP_SUMMARY;
+            const browser=process.env.BROWSER||'unknown';
+            const lines=[
+              '### Playwright E2E ('+browser+')',
+              '- Total: '+total+' | Passed: '+passed+' | Failed: '+failed+' | Skipped: '+skipped+' | Flaky: '+flaky,
+              '- Rapport HTML: artifact "playwright-report-'+browser+'"',
+              '- Résultats JSON: artifact "playwright-json-'+browser+'"',
+              ''
+            ].join('\n');
+            if(summaryPath){ fs.appendFileSync(summaryPath, lines); } else { console.log(lines); }
+          "

@@ -19,21 +19,26 @@ e2e:
   image: node:22
   interruptible: true
   resource_group: "e2e-${CI_COMMIT_REF_SLUG}"
+  parallel:
+    matrix:
+      - BROWSER: [chromium, firefox, webkit]
   before_script:
     - npm ci
     - npx prisma generate
     - npx prisma db push
     - npm run build
     - export NEXTAUTH_SECRET=$(openssl rand -hex 32)
-    - npx playwright install --with-deps chromium
+    - npx playwright install --with-deps "$BROWSER"
   script:
     - >
-      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project=chromium
+      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project="$BROWSER" --reporter=html,json=playwright-results.json
   artifacts:
     when: always
+    name: "playwright-report-$BROWSER-$CI_JOB_ID"
     expire_in: 7 days
     paths:
       - playwright-report/
+      - playwright-results.json
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
