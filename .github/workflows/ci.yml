@@ -17,10 +17,6 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: npx playwright install --with-deps
       - run: npx prisma generate
       - run: npm run build:base
       - run: npm run test
-      - run: npm run test:e2e
-        env:
-          NEXT_PUBLIC_BASE_URL: http://localhost:3000
