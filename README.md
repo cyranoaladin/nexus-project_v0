@@ -1,5 +1,7 @@
 # Bienvenue sur le Projet Nexus Réussite
 
+[![E2E (Playwright)](https://github.com/cyranoaladin/nexus-project_v0/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/cyranoaladin/nexus-project_v0/actions/workflows/e2e.yml)
+
 **Auteur :** Alaeddine BEN RHOUMA
 **Objet :** Guide Complet pour le Développement de la Plateforme Nexus Réussite
 
