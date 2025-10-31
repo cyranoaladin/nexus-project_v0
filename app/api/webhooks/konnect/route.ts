@@ -12,17 +12,15 @@ function timingSafeEqual(a: string, b: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Lire le corps brut pour vérification de signature
-    let raw: string
-    // Some test environments do not implement request.text()
-    // Try .text(), fallback to JSON serialization
-    // @ts-ignore
-    if (typeof request.text === 'function') {
-      // @ts-ignore
-      raw = await request.text()
-    } else {
-      const json = await request.json()
-      raw = JSON.stringify(json)
+    // Lire le corps brut pour vérification de signature. Certaines implémentations
+    // de Request en tests lèvent si text() est indisponible, d'où la tentative en try/catch.
+    let raw: string;
+    const clone = typeof request.clone === 'function' ? request.clone() : request;
+    try {
+      raw = await clone.text();
+    } catch {
+      const json = await clone.json();
+      raw = JSON.stringify(json);
     }
 
     const secret = process.env.KONNECT_WEBHOOK_SECRET || '';
