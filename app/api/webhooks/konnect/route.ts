@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
 
 function timingSafeEqual(a: string, b: string) {
   const aBuf = Buffer.from(a, 'utf8');
@@ -83,14 +84,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Idempotence: si déjà complété, ne rien refaire
     if (payment.status === 'COMPLETED') {
-      return NextResponse.json({ success: true });
+      const normalized = await prisma.payment.findUnique({
+        where: { id: payment.id },
+        include: paymentResponseInclude,
+      });
+
+      if (!normalized) {
+        return NextResponse.json({ error: 'Paiement introuvable' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(normalized) });
     }
 
     if (status === 'completed' || status === 'succeeded' || status === 'paid') {
       // Mettre à jour le statut du paiement (idempotent si répété)
-      await prisma.payment.update({
+      const updatedPayment = await prisma.payment.update({
         where: { id: payment.id },
         data: {
           status: 'COMPLETED',
@@ -101,7 +110,8 @@ export async function POST(request: NextRequest) {
             konnectTransactionId: body.transaction_id || paymentProviderId,
             completedAt: new Date().toISOString()
           } as any
-        }
+        },
+        include: paymentResponseInclude,
       });
 
       // Activer le service selon le type de paiement
@@ -128,17 +138,27 @@ export async function POST(request: NextRequest) {
         // TODO: Ajouter des crédits en fonction du pack
       }
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(updatedPayment) });
     } else if (status === 'failed' || status === 'canceled') {
-      await prisma.payment.update({
+      const failedPayment = await prisma.payment.update({
         where: { id: payment.id },
-        data: { status: 'FAILED' }
+        data: { status: 'FAILED' },
+        include: paymentResponseInclude,
       });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(failedPayment) });
     }
 
-    return NextResponse.json({ success: true });
+    const normalized = await prisma.payment.findUnique({
+      where: { id: payment.id },
+      include: paymentResponseInclude,
+    });
+
+    if (!normalized) {
+      return NextResponse.json({ error: 'Paiement introuvable' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, payment: mapPaymentToResponse(normalized) });
 
   } catch (error) {
     const { logger } = await import('@/lib/logger');

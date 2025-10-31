@@ -1,7 +1,9 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Prisma, SessionStatus } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { extractSessionListQuery, mapSessionToResponse, normalizeSessionListQuery, sessionResponseInclude } from './contracts';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,18 +14,28 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get('role');
-    const status = searchParams.get('status');
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const parsedQuery = extractSessionListQuery(searchParams);
 
-    const where: any = {};
+    if (!parsedQuery.success) {
+      return NextResponse.json(
+        { error: 'Invalid query parameters', details: parsedQuery.error.format() },
+        { status: 400 }
+      );
+    }
 
-    if (status) where.status = status as any;
+    const { role, status, startDate, endDate } = normalizeSessionListQuery(parsedQuery.data);
+
+    const where: Prisma.SessionBookingWhereInput = {};
+
+    if (status) {
+      where.status = status as SessionStatus;
+    }
+
     if (startDate || endDate) {
-      where.scheduledDate = {} as any;
-      if (startDate) (where.scheduledDate as any).gte = new Date(startDate);
-      if (endDate) (where.scheduledDate as any).lte = new Date(endDate);
+      const scheduledDateFilter: Prisma.DateTimeFilter = {};
+      if (startDate) scheduledDateFilter.gte = startDate;
+      if (endDate) scheduledDateFilter.lte = endDate;
+      where.scheduledDate = scheduledDateFilter;
     }
 
     // Scope by role
@@ -54,36 +66,14 @@ export async function GET(request: NextRequest) {
 
     const sessions = await prisma.sessionBooking.findMany({
       where,
-      include: {
-        student: true,
-        coach: true,
-        parent: true,
-      },
+      include: sessionResponseInclude,
       orderBy: [
         { scheduledDate: 'desc' },
         { startTime: 'desc' }
       ]
     });
 
-    const formatted = sessions.map((s: any) => ({
-      id: s.id,
-      title: s.title,
-      subject: s.subject,
-      scheduledDate: s.scheduledDate,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      duration: s.duration,
-      status: s.status,
-      type: s.type,
-      modality: s.modality,
-      creditsUsed: s.creditsUsed,
-      student: { id: s.studentId, firstName: s.student?.firstName ?? '', lastName: s.student?.lastName ?? '' },
-      coach: { id: s.coachId, firstName: s.coach?.firstName ?? '', lastName: s.coach?.lastName ?? '' },
-      parent: s.parentId ? { id: s.parentId, firstName: s.parent?.firstName ?? '', lastName: s.parent?.lastName ?? '' } : null,
-      createdAt: s.createdAt,
-    }));
-
-    return NextResponse.json({ sessions: formatted });
+    return NextResponse.json({ sessions: sessions.map(mapSessionToResponse) });
 
   } catch (error) {
     console.error('List sessions error:', error);

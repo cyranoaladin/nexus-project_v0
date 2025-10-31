@@ -7,6 +7,7 @@ import { upsertPaymentByExternalId } from '@/lib/payments';
 import { prisma } from '@/lib/prisma';
 import { rateLimit, ipKey } from '@/lib/security/rate-limit';
 import { verifyCsrf } from '@/lib/security/csrf';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
 
 const konnectPaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
         ? 'SPECIAL_PACK'
         : 'CREDIT_PACK';
 
-    const { payment } = await upsertPaymentByExternalId({
+    const { payment, created } = await upsertPaymentByExternalId({
       externalId,
       method: 'konnect',
       type: mappedType,
@@ -125,6 +126,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const paymentWithUser = await prisma.payment.findUnique({
+      where: { id: payment.id },
+      include: paymentResponseInclude,
+    });
+
+    if (!paymentWithUser) {
+      return NextResponse.json(
+        { error: 'Paiement introuvable' },
+        { status: 500 }
+      );
+    }
+
     if (!payUrl) {
       // Fallback local (démo)
       payUrl = `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`;
@@ -133,6 +146,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
+      created,
+      payment: mapPaymentToResponse(paymentWithUser),
       payUrl,
       message: 'Session de paiement Konnect créée'
     });
