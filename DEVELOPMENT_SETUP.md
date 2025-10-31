@@ -8,9 +8,9 @@ Create a `.env` file in your project root with the following content:
 
 ```env
 # =============================================================================
-# CONFIGURATION DATABASE (SQLite pour développement)
+# CONFIGURATION DATABASE (PostgreSQL pour développement)
 # =============================================================================
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_dev?schema=public"
 
 # =============================================================================
 # CONFIGURATION NEXTAUTH
@@ -78,7 +78,7 @@ npm run dev
 ## Current Status
 
 ✅ **Form is working** - The bilan gratuit form successfully creates users
-✅ **Database is working** - SQLite database is properly configured
+✅ **Database is working** - PostgreSQL database is properly configured
 ✅ **Email handling** - Gracefully handles email errors in development
 ✅ **Authentication** - NextAuth is configured and working
 

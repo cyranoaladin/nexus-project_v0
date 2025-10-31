@@ -5,14 +5,21 @@ variables:
   NODE_ENV: "test"
   BASE_URL: "http://localhost:3000"
   NEXTAUTH_URL: "http://localhost:3000"
-  DATABASE_URL: "file:./prisma/dev.db"
+  DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/nexus_reussite_e2e?schema=public"
   PORT: "3000"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  POSTGRES_DB: "nexus_reussite_e2e"
 
 cache:
   key: "${CI_COMMIT_REF_SLUG}"
   paths:
     - node_modules/
     - .cache/ms-playwright/
+
+services:
+  - name: postgres:15
+    alias: postgres
 
 e2e:
   stage: test
@@ -24,8 +31,10 @@ e2e:
       - BROWSER: [chromium, firefox, webkit]
   before_script:
     - npm ci
+    - apt-get update && apt-get install -y postgresql-client
+    - until pg_isready --host=postgres --port=5432 --username=postgres >/dev/null 2>&1; do echo "Waiting for Postgres..."; sleep 1; done
     - npx prisma generate
-    - npx prisma db push
+    - npx prisma db push --accept-data-loss
     - npm run build
     - export NEXTAUTH_SECRET=$(openssl rand -hex 32)
     - npx playwright install --with-deps "$BROWSER"

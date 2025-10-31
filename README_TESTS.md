@@ -220,7 +220,7 @@ npx playwright test --screenshot=only-on-failure
 
 ### Base de Données de Test
 
-- **SQLite en mémoire** pour les tests d'intégration
+- **PostgreSQL éphémère** (service docker) pour les tests d'intégration et E2E
 - **Factories de données** pour créer des entités de test
 - **Cleanup automatique** entre les tests
 

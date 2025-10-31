@@ -258,7 +258,7 @@ export type PaymentWithRelations = {
   currency: string;
   description: string | null;
   status: string;
-  method: string;
+  method: string | null;
   type: string;
   externalId: string | null;
   metadata: unknown;
@@ -276,7 +276,7 @@ export function mapPaymentToResponse(payment: PaymentWithRelations) {
     currency: payment.currency,
     description: payment.description,
     status: payment.status,
-    method: payment.method,
+    method: payment.method ?? 'unknown',
     type: payment.type,
     externalId: payment.externalId,
     metadata: payment.metadata,

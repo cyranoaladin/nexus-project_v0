@@ -17,6 +17,20 @@ jobs:
     name: Playwright E2E (${{ matrix.browser }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_reussite_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -25,7 +39,7 @@ jobs:
       NODE_ENV: test
       BASE_URL: http://localhost:3000
       NEXTAUTH_URL: http://localhost:3000
-      DATABASE_URL: file:./prisma/dev.db
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_reussite_e2e?schema=public
       PORT: 3000
     steps:
       - name: Checkout
@@ -47,21 +61,30 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
 
-      - name: Init SQLite schema (db push)
-        run: npx prisma db push
+      - name: Install PostgreSQL client tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for database
+        run: |
+          for i in {1..30}; do
+            if pg_isready --host=localhost --port=5432 --username=postgres >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "PostgreSQL is not ready" >&2
+          exit 1
         env:
-          DATABASE_URL: file:./prisma/dev.db
+          PGPASSWORD: postgres
+
+      - name: Init database schema (db push)
+        run: npx prisma db push --accept-data-loss
 
       - name: Build Next.js (standalone)
         run: npm run build
 
       - name: Install Playwright (browser + OS deps)
         run: npx playwright install --with-deps ${{ matrix.browser }}
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
 
       - name: Install Playwright (Chromium + OS deps)
         run: npx playwright install --with-deps chromium
@@ -84,7 +107,7 @@ jobs:
         env:
           BASE_URL: http://localhost:3000
           NEXTAUTH_URL: http://localhost:3000
-          DATABASE_URL: file:./prisma/dev.db
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_reussite_e2e?schema=public
           PORT: 3000
 
       - name: Upload Playwright HTML report
