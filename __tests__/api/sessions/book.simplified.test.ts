@@ -1,85 +1,75 @@
-// Simplified session booking tests without complex imports
-describe('/api/sessions/book - Core Logic', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+import { bookSessionSchema } from '@/app/api/sessions/contracts';
+
+const basePayload = {
+  coachId: 'coach-1',
+  studentId: 'student-1',
+  subject: 'MATHEMATIQUES' as const,
+  scheduledDate: '2099-12-15',
+  startTime: '14:00',
+  endTime: '15:00',
+  duration: 60,
+  type: 'INDIVIDUAL' as const,
+  modality: 'ONLINE' as const,
+  title: 'Cours de mathématiques',
+  description: 'Test session',
+  creditsToUse: 2,
+};
+
+describe('bookSessionSchema', () => {
+  it('accepts a valid payload', () => {
+    const result = bookSessionSchema.safeParse(basePayload);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.duration).toBe(60);
+    }
   });
 
-  it('should calculate correct credit costs for different service types', () => {
-    // Test credit cost calculation directly with mocked logic
-    const calculateCreditCost = (serviceType: string) => {
-      switch (serviceType) {
-        case 'COURS_ONLINE': return 1;
-        case 'COURS_PRESENTIEL': return 1.25;
-        case 'ATELIER_GROUPE': return 1.5;
-        default: return 1;
-      }
-    };
+  it('rejects sessions scheduled in the past', () => {
+    const result = bookSessionSchema.safeParse({
+      ...basePayload,
+      scheduledDate: '1999-01-01',
+    });
 
-    expect(calculateCreditCost('COURS_ONLINE')).toBe(1);
-    expect(calculateCreditCost('COURS_PRESENTIEL')).toBe(1.25);
-    expect(calculateCreditCost('ATELIER_GROUPE')).toBe(1.5);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.scheduledDate?.[0]).toContain('Cannot book sessions in the past');
+    }
   });
 
-  it('should validate session booking data structure', () => {
-    const mockSessionData = {
-      subject: 'MATHEMATIQUES',
-      type: 'COURS_PRESENTIEL',
-      scheduledAt: '2024-12-15T14:00:00.000Z',
-      duration: 60,
-      title: 'Cours de mathématiques',
-      description: 'Test session'
-    };
+  it('rejects when end time precedes start time', () => {
+    const result = bookSessionSchema.safeParse({
+      ...basePayload,
+      endTime: '13:30',
+    });
 
-    // Validate required fields are present
-    expect(mockSessionData.subject).toBeDefined();
-    expect(mockSessionData.type).toBeDefined();
-    expect(mockSessionData.scheduledAt).toBeDefined();
-    expect(mockSessionData.duration).toBeGreaterThan(0);
-    expect(mockSessionData.title).toBeDefined();
-
-    // Validate duration is within acceptable range
-    expect(mockSessionData.duration).toBeGreaterThanOrEqual(30);
-    expect(mockSessionData.duration).toBeLessThanOrEqual(180);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.endTime?.[0]).toBe('End time must be after start time');
+    }
   });
 
-  it('should handle credit balance checks correctly', () => {
-    const mockCreditBalance = (availableCredits: number, requiredCredits: number) => {
-      return availableCredits >= requiredCredits;
-    };
+  it('rejects when duration does not match time difference', () => {
+    const result = bookSessionSchema.safeParse({
+      ...basePayload,
+      duration: 120,
+    });
 
-    // Test sufficient credits
-    expect(mockCreditBalance(5, 1.25)).toBe(true);
-
-    // Test insufficient credits
-    expect(mockCreditBalance(1, 1.25)).toBe(false);
-
-    // Test exact balance
-    expect(mockCreditBalance(1.25, 1.25)).toBe(true);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.duration?.[0]).toBe('Duration must match the time difference between start and end time');
+    }
   });
 
-  it('should validate session creation workflow', () => {
-    // Mock the complete booking workflow
-    const bookingWorkflow = {
-      validateStudent: (studentId: string) => !!studentId,
-      checkCredits: (studentId: string, cost: number) => cost <= 10, // Assume 10 credits available
-      createSession: (data: any) => ({ ...data, id: 'session-123', status: 'SCHEDULED' }),
-      debitCredits: (studentId: string, amount: number) => ({ success: true, newBalance: 10 - amount })
-    };
+  it('rejects credit usage above allowed maximum', () => {
+    const result = bookSessionSchema.safeParse({
+      ...basePayload,
+      creditsToUse: 25,
+    });
 
-    const studentId = 'student-123';
-    const creditCost = 1.25;
-    const sessionData = { title: 'Test Session', duration: 60 };
-
-    // Test workflow steps
-    expect(bookingWorkflow.validateStudent(studentId)).toBe(true);
-    expect(bookingWorkflow.checkCredits(studentId, creditCost)).toBe(true);
-
-    const session = bookingWorkflow.createSession(sessionData);
-    expect(session.id).toBe('session-123');
-    expect(session.status).toBe('SCHEDULED');
-
-    const debitResult = bookingWorkflow.debitCredits(studentId, creditCost);
-    expect(debitResult.success).toBe(true);
-    expect(debitResult.newBalance).toBe(8.75);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.creditsToUse?.[0]).toContain('Cannot use more than 10 credits per session');
+    }
   });
 });

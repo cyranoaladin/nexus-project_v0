@@ -2,6 +2,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
 
 export async function PATCH(
   request: NextRequest,
@@ -35,13 +36,14 @@ export async function PATCH(
       data: {
         status: status as any,
         updatedAt: new Date()
-      }
+      },
+      include: paymentResponseInclude,
     });
 
     return NextResponse.json({
       success: true,
       message: `Payment ${paymentId} updated successfully`,
-      payment: updatedPayment
+      payment: mapPaymentToResponse(updatedPayment)
     });
 
   } catch (error) {

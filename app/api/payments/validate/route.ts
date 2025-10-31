@@ -2,10 +2,12 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
+import type { PaymentWithRelations } from '@/app/api/sessions/contracts';
 
 const validatePaymentSchema = z.object({
-  paymentId: z.string(),
+  paymentId: z.string().min(1, 'Identifiant de paiement requis'),
   action: z.enum(['approve', 'reject']),
   note: z.string().optional()
 });
@@ -27,17 +29,6 @@ export async function POST(request: NextRequest) {
     // Récupérer le paiement
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
-      include: {
-        user: {
-          include: {
-            parentProfile: {
-              include: {
-                children: true
-              }
-            }
-          }
-        }
-      }
     });
 
     if (!payment) {
@@ -47,9 +38,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let updatedPayment: PaymentWithRelations | null = null;
+
     if (action === 'approve') {
       // Valider le paiement
-      await prisma.payment.update({
+      updatedPayment = await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'COMPLETED',
@@ -59,7 +52,8 @@ export async function POST(request: NextRequest) {
             validatedAt: new Date().toISOString(),
             validationNote: note
           }
-        }
+        },
+        include: paymentResponseInclude,
       });
 
       // Activer le service selon le type
@@ -123,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     } else {
       // Rejeter le paiement
-      await prisma.payment.update({
+      updatedPayment = await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'FAILED',
@@ -133,18 +127,34 @@ export async function POST(request: NextRequest) {
             rejectedAt: new Date().toISOString(),
             rejectionReason: note
           }
-        }
+        },
+        include: paymentResponseInclude,
       });
 
       // TODO: Envoyer email d'information au client
     }
 
+    if (!updatedPayment) {
+      return NextResponse.json(
+        { error: 'Paiement introuvable après mise à jour' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`
+      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`,
+      payment: mapPaymentToResponse(updatedPayment)
     });
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: error.format() },
+        { status: 400 }
+      );
+    }
+
     console.error('Erreur validation paiement:', error);
 
     return NextResponse.json(
