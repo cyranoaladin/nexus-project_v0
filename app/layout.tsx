@@ -1,19 +1,20 @@
 import { Providers } from "@/components/providers";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 
-// Polices locales via next/font/local (fallback système si indisponibles)
-const inter = localFont({
-src: [{ path: "../public/fonts/inter/Inter-Regular.woff2", weight: "400", style: "normal" }],
-  variable: "--font-inter",
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
+  variable: "--font-inter",
 });
 
-const poppins = localFont({
-src: [{ path: "../public/fonts/poppins/Poppins-SemiBold.woff2", weight: "600", style: "normal" }],
-  variable: "--font-poppins",
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["600"],
   display: "swap",
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
