@@ -1,16 +1,18 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL || 'http://localhost:3001';
 const databaseURL =
   process.env.DATABASE_URL ||
   'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_e2e?schema=public';
 
-const reporter = process.env.CI
-  ? ([
-      ['list'] as const,
-      ['html', { open: 'never' }] as const,
-      ['json', { outputFile: 'playwright-results.json' }] as const,
-    ] as const)
+const reporter: ReporterDescription[] | 'list' = process.env.CI
+  ? (() => {
+      const reporters: ReporterDescription[] = [];
+      reporters.push(['list'] as ReporterDescription);
+      reporters.push(['html', { open: 'never' }] as ReporterDescription);
+      reporters.push(['json', { outputFile: 'playwright-results.json' }] as ReporterDescription);
+      return reporters;
+    })()
   : 'list';
 
 export default defineConfig({
