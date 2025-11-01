@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
       where: {
         studentId: studentId
       },
+      include: {
+        coach: true,
+      },
       orderBy: [
         { scheduledDate: 'desc' },
         { startTime: 'desc' }
@@ -31,11 +34,15 @@ export async function GET(request: NextRequest) {
       title: session.title,
       subject: session.subject,
       status: session.status,
-      scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
+      scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`).toISOString(),
       duration: session.duration,
       creditsUsed: session.creditsUsed,
       modality: session.modality,
-      type: session.type
+      type: session.type,
+      coach: session.coach ? {
+        firstName: session.coach.firstName ?? '',
+        lastName: session.coach.lastName ?? ''
+      } : null,
     }));
 
     return NextResponse.json(formattedSessions);

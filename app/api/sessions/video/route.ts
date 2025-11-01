@@ -1,8 +1,10 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-// Removed import of SessionStatus due to lint error
+import crypto from 'crypto';
+import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { sessionVideoActionSchema } from '../contracts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,11 +14,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const { sessionId, action } = await request.json();
-
-    if (!sessionId || !action) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
-    }
+    const payload = await request.json();
+    const { sessionId, action } = sessionVideoActionSchema.parse(payload);
 
     // Vérifier que la session existe et que l'utilisateur y a accès (SessionBooking canonique)
     const bookingSession = await prisma.sessionBooking.findFirst({
@@ -104,6 +103,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Erreur lors de la gestion de la session vidéo:', error);
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.format() },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

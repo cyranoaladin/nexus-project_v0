@@ -1,0 +1,157 @@
+name: E2E (Playwright)
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright E2E (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_reussite_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      NODE_ENV: test
+      BASE_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_reussite_e2e?schema=public
+      PORT: 3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate NEXTAUTH_SECRET
+        run: echo "NEXTAUTH_SECRET=$(openssl rand -hex 32)" >> $GITHUB_ENV
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Install PostgreSQL client tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for database
+        run: |
+          for i in {1..30}; do
+            if pg_isready --host=localhost --port=5432 --username=postgres >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "PostgreSQL is not ready" >&2
+          exit 1
+        env:
+          PGPASSWORD: postgres
+
+      - name: Init database schema (db push)
+        run: npx prisma db push --accept-data-loss
+
+      - name: Build Next.js (standalone)
+        run: npm run build
+
+      - name: Install Playwright (browser + OS deps)
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Install Playwright (Chromium + OS deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Choose Playwright config file
+        id: cfg
+        shell: bash
+        run: |
+          if [ -f playwright.config.e2e.ts ]; then
+            echo "CFG=playwright.config.e2e.ts" >> "$GITHUB_OUTPUT"
+          elif [ -f playwright.config.ts ]; then
+            echo "CFG=playwright.config.ts" >> "$GITHUB_OUTPUT"
+          else
+            echo "No Playwright config found" >&2
+            exit 1
+          fi
+
+      - name: Enable prod server mode for WebKit
+        if: matrix.browser == 'webkit'
+        run: |
+          echo "PLAYWRIGHT_USE_PROD=1" >> "$GITHUB_ENV"
+          echo "PORT=3000" >> "$GITHUB_ENV"
+
+      - name: Run E2E tests (${{ matrix.browser }})
+        run: npx playwright test -c ${{ steps.cfg.outputs.CFG }} --project=${{ matrix.browser }}
+        env:
+          BASE_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_reussite_e2e?schema=public
+          PORT: 3000
+          PLAYWRIGHT_USE_PROD: ${{ matrix.browser == 'webkit' && '1' || '' }}
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report
+          retention-days: 7
+
+      - name: Upload Playwright JSON results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-json-${{ matrix.browser }}
+          path: playwright-results.json
+          retention-days: 7
+
+      - name: Summary to GITHUB_STEP_SUMMARY
+        if: always()
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          node -e "
+            const fs=require('fs');
+            const p='playwright-results.json';
+            let passed=0,failed=0,skipped=0,flaky=0,total=0;
+            function walk(s){ if(!s) return; (s.suites||[]).forEach(walk); (s.specs||[]).forEach(spec=>{ (spec.tests||[]).forEach(t=>{ const outcome=t.outcome||t.status||((t.results||[])[0]||{}).status; switch(outcome){ case 'expected': case 'passed': passed++; break; case 'skipped': skipped++; break; case 'flaky': flaky++; break; case 'unexpected': case 'failed': default: failed++; } total++; }); }); }
+            try{ const data=JSON.parse(fs.readFileSync(p,'utf8')); (data.suites||[]).forEach(walk); }catch(e){}
+            const summaryPath=process.env.GITHUB_STEP_SUMMARY;
+            const browser=process.env.BROWSER||'unknown';
+            const lines=[
+              '### Playwright E2E ('+browser+')',
+              '- Total: '+total+' | Passed: '+passed+' | Failed: '+failed+' | Skipped: '+skipped+' | Flaky: '+flaky,
+              '- Rapport HTML: artifact "playwright-report-'+browser+'"',
+              '- Résultats JSON: artifact "playwright-json-'+browser+'"',
+              ''
+            ].join('\n');
+            if(summaryPath){ fs.appendFileSync(summaryPath, lines); } else { console.log(lines); }
+          "

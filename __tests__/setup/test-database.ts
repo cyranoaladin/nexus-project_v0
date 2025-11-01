@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.TEST_DATABASE_URL || 'file:./test.db'
+      url: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_test?schema=public'
     }
   }
 });
@@ -12,13 +12,24 @@ export const testPrisma = new PrismaClient({
 // Test data setup utilities
 export async function setupTestDatabase() {
   // Clean up existing test data
+  await testPrisma.sessionNotification.deleteMany();
+  await testPrisma.sessionReminder.deleteMany();
   await testPrisma.creditTransaction.deleteMany();
+  await testPrisma.sessionBooking.deleteMany();
   await testPrisma.session.deleteMany();
+  await testPrisma.subscriptionRequest.deleteMany();
+  await testPrisma.studentBadge.deleteMany();
+  await testPrisma.badge.deleteMany();
+  await testPrisma.ariaMessage.deleteMany();
+  await testPrisma.ariaConversation.deleteMany();
   await testPrisma.student.deleteMany();
   await testPrisma.parentProfile.deleteMany();
   await testPrisma.studentProfile.deleteMany();
   await testPrisma.coachProfile.deleteMany();
   await testPrisma.subscription.deleteMany();
+  await testPrisma.notification.deleteMany();
+  await testPrisma.message.deleteMany();
+  await testPrisma.payment.deleteMany();
   await testPrisma.user.deleteMany();
 }
 
@@ -89,7 +100,7 @@ export const createTestCoach = async (overrides: any = {}) => {
     data: {
       userId: coachUser.id,
       pseudonym: 'Prof_Pierre',
-      subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+      subjects: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE']),
       availableOnline: true,
       ...overrides.profile
     }
@@ -102,11 +113,14 @@ export const createTestSubscription = async (studentId: string, overrides: any =
   return await testPrisma.subscription.create({
     data: {
       studentId,
-      plan: 'HYBRIDE',
-      status: 'ACTIVE',
-      creditsPerMonth: 20,
-      pricePerMonth: 99,
-      startDate: new Date(),
+      planName: overrides.planName ?? 'HYBRIDE',
+      status: overrides.status ?? 'ACTIVE',
+      creditsPerMonth: overrides.creditsPerMonth ?? 20,
+      monthlyPrice: overrides.monthlyPrice ?? 99,
+      ariaSubjects: overrides.ariaSubjects ?? '[]',
+      ariaCost: overrides.ariaCost ?? 0,
+      startDate: overrides.startDate ?? new Date(),
+      endDate: overrides.endDate ?? null,
       ...overrides
     }
   });

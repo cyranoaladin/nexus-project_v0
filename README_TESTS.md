@@ -220,7 +220,7 @@ npx playwright test --screenshot=only-on-failure
 
 ### Base de Données de Test
 
-- **SQLite en mémoire** pour les tests d'intégration
+- **PostgreSQL éphémère** (service docker) pour les tests d'intégration et E2E
 - **Factories de données** pour créer des entités de test
 - **Cleanup automatique** entre les tests
 
@@ -242,6 +242,19 @@ npx playwright test --screenshot=only-on-failure
 - name: Run E2E Tests
   run: npm run test:e2e
 ```
+
+## 🧰 CI E2E (GitHub Actions & GitLab)
+
+- GitHub Actions: workflow E2E (Playwright) se lance sur chaque push/PR. Rapport HTML disponible en artifact.
+  1) Actions → E2E (Playwright) → choisir un run
+  2) Ouvrir le job → Artifacts → télécharger playwright-report
+  3) Ouvrir playwright-report/index.html
+
+- GitLab CI: job e2e sur chaque push/MR. Rapport HTML en artifacts.
+  1) Pipeline → job e2e → Job artifacts → télécharger playwright-report
+  2) Ouvrir playwright-report/index.html
+
+Conseil: en local, lancez `npm run e2e` puis `npm run e2e:report`.
 
 ## 🎯 Prochaines Étapes
 

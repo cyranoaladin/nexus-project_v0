@@ -1,35 +1,79 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
+
+function timingSafeEqual(a: string, b: string) {
+  const aBuf = Buffer.from(a, 'utf8');
+  const bBuf = Buffer.from(b, 'utf8');
+  if (aBuf.length !== bBuf.length) return false;
+  return crypto.timingSafeEqual(aBuf, bBuf);
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Lire le corps brut pour vérification de signature. Certaines implémentations
+    // de Request en tests lèvent si text() est indisponible, d'où la tentative en try/catch.
+    let raw: string;
+    const clone = typeof request.clone === 'function' ? request.clone() : request;
+    try {
+      raw = await clone.text();
+    } catch {
+      const json = await clone.json();
+      raw = JSON.stringify(json);
+    }
 
-    // Validation basique du webhook Konnect
-    const { payment_id, status, amount: _amount, currency: _currency } = body;
+    const secret = process.env.KONNECT_WEBHOOK_SECRET || '';
+    const headerSig = request.headers.get('x-konnect-signature') || request.headers.get('x-signature') || '';
 
-    if (!payment_id || !status) {
+    // Vérification HMAC (en prod obligatoire)
+    if (process.env.NODE_ENV === 'production') {
+      if (!secret || !headerSig) {
+        return NextResponse.json({ error: 'Signature manquante' }, { status: 403 });
+      }
+      const hmac = crypto.createHmac('sha256', secret).update(raw).digest('hex');
+      if (!timingSafeEqual(hmac, headerSig)) {
+        return NextResponse.json({ error: 'Signature invalide' }, { status: 403 });
+      }
+    }
+
+    const body = JSON.parse(raw || '{}');
+
+    // Validation basique du webhook Konnect (adapter aux champs réels)
+    const paymentProviderId = body.payment_id || body.id || body.transaction_id;
+    const status = body.status;
+
+    if (!paymentProviderId || !status) {
       return NextResponse.json(
         { error: 'Données webhook invalides' },
         { status: 400 }
       );
     }
 
-    // Récupérer le paiement
-    const payment = await prisma.payment.findUnique({
-      where: { id: payment_id },
+    // Récupérer le paiement par externalId (méthode préférée) puis fallback par id
+    let payment = await prisma.payment.findFirst({
+      where: { method: 'konnect', externalId: String(paymentProviderId) },
       include: {
         user: {
           include: {
-            parentProfile: {
-              include: {
-                children: true
-              }
-            }
+            parentProfile: { include: { children: true } }
           }
         }
       }
     });
+
+    if (!payment) {
+      payment = await prisma.payment.findUnique({
+        where: { id: String(paymentProviderId) },
+        include: {
+          user: {
+            include: {
+              parentProfile: { include: { children: true } }
+            }
+          }
+        }
+      }) as any;
+    }
 
     if (!payment) {
       return NextResponse.json(
@@ -38,81 +82,85 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Idempotence: si déjà complété, ne rien refaire
     if (payment.status === 'COMPLETED') {
-      return NextResponse.json({ success: true });
+      const normalized = await prisma.payment.findUnique({
+        where: { id: payment.id },
+        include: paymentResponseInclude,
+      });
+
+      if (!normalized) {
+        return NextResponse.json({ error: 'Paiement introuvable' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(normalized) });
     }
 
-    if (status === 'completed') {
+    if (status === 'completed' || status === 'succeeded' || status === 'paid') {
       // Mettre à jour le statut du paiement (idempotent si répété)
-      await prisma.payment.update({
-        where: { id: payment_id },
+      const updatedPayment = await prisma.payment.update({
+        where: { id: payment.id },
         data: {
           status: 'COMPLETED',
+          externalId: String(paymentProviderId),
+          method: 'konnect',
           metadata: {
             ...(payment.metadata as Record<string, any> || {}),
-            konnectTransactionId: body.transaction_id || payment_id,
+            konnectTransactionId: body.transaction_id || paymentProviderId,
             completedAt: new Date().toISOString()
-          }
-        }
+          } as any
+        },
+        include: paymentResponseInclude,
       });
 
       // Activer le service selon le type de paiement
       const metadata = payment.metadata as any;
 
       if (payment.type === 'SUBSCRIPTION') {
-        // Activer l'abonnement (idempotent: rejoue sans effet si déjà ACTIVE/INACTIVE corrects)
+        // Activer l'abonnement (idempotent)
         const student = await prisma.student.findUnique({
-          where: { id: metadata.studentId }
+          where: { id: metadata?.studentId }
         });
 
         if (student) {
-          // Désactiver l'ancien abonnement
           await prisma.subscription.updateMany({
-            where: {
-              studentId: metadata.studentId,
-              status: 'ACTIVE'
-            },
+            where: { studentId: metadata.studentId, status: 'ACTIVE' },
             data: { status: 'CANCELLED' }
           });
 
-          // Activer le nouvel abonnement
           await prisma.subscription.updateMany({
-            where: {
-              studentId: metadata.studentId,
-              planName: metadata.itemKey,
-              status: 'INACTIVE'
-            },
-            data: {
-              status: 'ACTIVE',
-              startDate: new Date()
-            }
+            where: { studentId: metadata.studentId, planName: metadata.itemKey, status: 'INACTIVE' },
+            data: { status: 'ACTIVE', startDate: new Date() }
           });
-
-          // Note: allocation mensuelle déclenchée côté validation assistante pour éviter doublons
         }
       } else if (payment.type === 'CREDIT_PACK') {
-        // Ajouter les crédits du pack
-        // TODO: Implémenter selon les spécifications des packs
+        // TODO: Ajouter des crédits en fonction du pack
       }
 
-      // TODO: Envoyer email de confirmation
-
-      return NextResponse.json({ success: true });
-    } else if (status === 'failed') {
-      // Mettre à jour le statut du paiement
-      await prisma.payment.update({
-        where: { id: payment_id },
-        data: { status: 'FAILED' }
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(updatedPayment) });
+    } else if (status === 'failed' || status === 'canceled') {
+      const failedPayment = await prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'FAILED' },
+        include: paymentResponseInclude,
       });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, payment: mapPaymentToResponse(failedPayment) });
     }
 
-    return NextResponse.json({ success: true });
+    const normalized = await prisma.payment.findUnique({
+      where: { id: payment.id },
+      include: paymentResponseInclude,
+    });
+
+    if (!normalized) {
+      return NextResponse.json({ error: 'Paiement introuvable' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, payment: mapPaymentToResponse(normalized) });
 
   } catch (error) {
-    console.error('Erreur webhook Konnect:', error);
+    const { logger } = await import('@/lib/logger');
+    logger.error('Erreur webhook Konnect', { error: String(error) });
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

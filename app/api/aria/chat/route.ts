@@ -7,6 +7,8 @@ import { z } from 'zod'
 import { Subject } from '@/types/enums'
 import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
 import { checkAndAwardBadges } from '@/lib/badges'
+import { rateLimit, ipKey } from '@/lib/security/rate-limit'
+import { verifyCsrf } from '@/lib/security/csrf'
 
 // Schema de validation pour les messages ARIA
 const ariaMessageSchema = z.object({
@@ -17,6 +19,20 @@ const ariaMessageSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 req/min par IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown'
+    if (process.env.NODE_ENV === 'production') {
+      const rl = rateLimit(ipKey(ip, 'aria_chat_post'), { max: 10, windowMs: 60_000 })
+      if (!rl.allowed) {
+        return NextResponse.json({ error: 'Trop de requêtes, réessayez plus tard' }, { status: 429 })
+      }
+    }
+
+    // CSRF (prod uniquement)
+    if (!verifyCsrf(request)) {
+      return NextResponse.json({ error: 'CSRF invalide' }, { status: 403 })
+    }
+
     const session = await getServerSession(authOptions)
     
     if (!session || session.user.role !== 'ELEVE') {

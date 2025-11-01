@@ -3,7 +3,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { z } from 'zod';
+import { ZodError } from 'zod';
+import { bookSessionSchema, mapSessionToResponse, sessionResponseInclude } from '../contracts';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -16,48 +17,6 @@ function parseLocalDate(dateStr: string): Date {
   const [y, m, d] = dateStr.split('-').map((v) => parseInt(v, 10));
   return new Date(y, (m || 1) - 1, d || 1);
 }
-
-// Enhanced validation schema with better date and time controls
-const bookSessionSchema = z.object({
-  coachId: z.string().min(1, 'Coach ID is required'),
-  studentId: z.string().min(1, 'Student ID is required'),
-  subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
-  scheduledDate: z.string().min(1, 'Date is required').refine((date: any) => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate >= today;
-  }, 'Cannot book sessions in the past'),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  duration: z.number().min(30).max(180), // 30 minutes to 3 hours
-  type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
-  modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
-  title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-  description: z.string().max(500, 'Description too long').optional(),
-  creditsToUse: z.number().min(1).max(10, 'Cannot use more than 10 credits per session'),
-}).refine((data: any) => {
-  // Validate that end time is after start time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  return endMinutes > startMinutes;
-}, {
-  message: 'End time must be after start time',
-  path: ['endTime']
-}).refine((data: any) => {
-  // Validate that duration matches start and end time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  const calculatedDuration = endMinutes - startMinutes;
-  return calculatedDuration === data.duration;
-}, {
-  message: 'Duration must match the time difference between start and end time',
-  path: ['duration']
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -76,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     console.log('Session booking request - Body:', body);
-    const validatedData = bookSessionSchema.parse(body) as z.infer<typeof bookSessionSchema>;
+    const validatedData = bookSessionSchema.parse(body);
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
@@ -333,11 +292,7 @@ export async function POST(req: NextRequest) {
           creditsUsed: validatedData.creditsToUse,
           status: 'SCHEDULED'
         },
-        include: {
-          student: true,
-          coach: true,
-          parent: true
-        }
+        include: sessionResponseInclude
       });
 
       // 9. Create credit transaction for usage
@@ -436,13 +391,13 @@ export async function POST(req: NextRequest) {
       success: true,
       sessionId: result.id,
       message: 'Session booked successfully',
-      session: result
+      session: mapSessionToResponse(result)
     });
 
   } catch (error) {
     console.error('Session booking error:', error);
     
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', details: error.errors },
         { status: 400 }
