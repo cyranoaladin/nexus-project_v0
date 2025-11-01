@@ -12,6 +12,10 @@ const resolveNextAuthSecret = () => {
     return secret;
   }
 
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return 'build-time-nextauth-secret-placeholder-32chars';
+  }
+
   if (process.env.NODE_ENV === 'production') {
     throw new Error('NEXTAUTH_SECRET must be configured in production and contain at least 32 characters.');
   }
