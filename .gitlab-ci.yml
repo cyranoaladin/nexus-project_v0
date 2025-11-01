@@ -44,7 +44,7 @@ e2e:
     - npx playwright install --with-deps "$BROWSER"
   script:
     - >
-      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project="$BROWSER" --reporter=html,json=playwright-results.json
+      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project="$BROWSER"
   artifacts:
     when: always
     name: "playwright-report-$BROWSER-$CI_JOB_ID"

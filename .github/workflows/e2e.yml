@@ -109,7 +109,7 @@ jobs:
           echo "PORT=3000" >> "$GITHUB_ENV"
 
       - name: Run E2E tests (${{ matrix.browser }})
-        run: npx playwright test -c ${{ steps.cfg.outputs.CFG }} --project=${{ matrix.browser }} --reporter=html,json=playwright-results.json
+        run: npx playwright test -c ${{ steps.cfg.outputs.CFG }} --project=${{ matrix.browser }}
         env:
           BASE_URL: http://localhost:3000
           NEXTAUTH_URL: http://localhost:3000
