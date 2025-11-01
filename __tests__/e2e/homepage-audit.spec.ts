@@ -250,15 +250,34 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
       }
     }
     await expect(page).toHaveURL(/\/offres$/);
-    await page.goBack();
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
     const bilanLink = await findFirstVisible(page.locator('a[href="/bilan-gratuit"]'));
     if (bilanLink) {
       await bilanLink.scrollIntoViewIfNeeded();
+      const popupPromise = page.context().waitForEvent('page', { timeout: 2000 }).catch(() => null);
       await bilanLink.click({ force: true });
+      const popup = await popupPromise;
+      if (popup) {
+        await popup.waitForLoadState('networkidle');
+        await expect(popup).toHaveURL(/\/bilan-gratuit/);
+        await popup.close();
+        await page.bringToFront();
+        await page.goto('/bilan-gratuit');
+      }
     } else {
       const headerBilan = await findFirstVisible(page.locator('header a[href="/bilan-gratuit"]'));
       if (headerBilan) {
+        const popupPromise = page.context().waitForEvent('page', { timeout: 2000 }).catch(() => null);
         await headerBilan.click({ force: true });
+        const popup = await popupPromise;
+        if (popup) {
+          await popup.waitForLoadState('networkidle');
+          await expect(popup).toHaveURL(/\/bilan-gratuit/);
+          await popup.close();
+          await page.bringToFront();
+          await page.goto('/bilan-gratuit');
+        }
       } else {
         await page.goto('/bilan-gratuit');
       }
