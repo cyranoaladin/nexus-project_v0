@@ -5,15 +5,13 @@ const databaseURL =
   process.env.DATABASE_URL ||
   'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_e2e?schema=public';
 
-const reporter: ReporterDescription[] | 'list' = process.env.CI
-  ? (() => {
-      const reporters: ReporterDescription[] = [];
-      reporters.push(['list'] as ReporterDescription);
-      reporters.push(['html', { open: 'never' }] as ReporterDescription);
-      reporters.push(['json', { outputFile: 'playwright-results.json' }] as ReporterDescription);
-      return reporters;
-    })()
-  : 'list';
+const buildCiReporters = (): ReporterDescription[] => [
+  ['list'],
+  ['html', { open: 'never' }],
+  ['json', { outputFile: 'playwright-results.json' }],
+];
+
+const reporter: ReporterDescription[] | 'list' = process.env.CI ? buildCiReporters() : 'list';
 
 export default defineConfig({
   testDir: './__tests__/e2e',
