@@ -4,6 +4,10 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 const baseURL = process.env.BASE_URL || 'http://localhost:3000';
+const useProdServer = process.env.PLAYWRIGHT_USE_PROD === '1';
+const webServerCommand = useProdServer
+  ? 'npm run build && npm run start'
+  : 'npm run dev';
 
 export default defineConfig({
   testDir: './__tests__/e2e',
@@ -46,8 +50,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: webServerCommand,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: useProdServer ? false : !process.env.CI,
+    timeout: useProdServer ? 180 * 1000 : 120 * 1000,
   },
 });
