@@ -194,7 +194,9 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   });
 
   test('Les interactions de base fonctionnent', async ({ page }) => {
-    const bilanLink = await findFirstVisible(page.getByRole('link', { name: /Bilan gratuit/i }));
+    const bilanLink =
+      (await findFirstVisible(page.getByRole('link', { name: /Bilan\s+.*?Gratuit/i }))) ||
+      (await findFirstVisible(page.locator('a[href="/bilan-gratuit"], header a[href="/bilan-gratuit"]')));
     if (!bilanLink) {
       throw new Error('Lien "Bilan gratuit" introuvable ou masqué');
     }
