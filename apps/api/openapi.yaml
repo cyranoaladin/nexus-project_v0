@@ -1,0 +1,179 @@
+openapi: 3.1.0
+info: { title: Nexus Réussite API, version: "1.0.0" }
+servers: [{ url: http://localhost:8000 }]
+paths:
+  /health/:
+    get: { summary: Health, responses: { "200": { description: OK } } }
+  /onboarding/bilan:
+    post:
+      summary: Enregistre le bilan gratuit et initialise/maj le profil élève
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/BilanInput" } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/BilanOutput" } } } }
+  /parcours/epreuves:
+    get:
+      summary: Liste des épreuves personnalisées
+      parameters: [{ name: student_id, in: query, required: true, schema: { type: string, format: uuid } }]
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/EpreuvesResponse" } } } } }
+  /plan/generate:
+    post:
+      summary: Génère un plan de révision pondéré
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/PlanRequest" } } } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/PlanResponse" } } } } }
+  /eval/generate:
+    post:
+      summary: Génère une évaluation
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EvalGenRequest" } } } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/EvalGenResponse" } } } } }
+  /eval/grade:
+    post:
+      summary: Corrige une évaluation
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EvalGradeRequest" } } } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/EvalGradeResponse" } } } } }
+  /rag/search:
+    get:
+      summary: Recherche RAG
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+        - { name: filters, in: query, required: false, schema: { type: string } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/RagSearchResponse" } } } } }
+  /parent/report:
+    get:
+      summary: Rapport parent agrégé
+      parameters:
+        - { name: student_id, in: query, required: true, schema: { type: string, format: uuid } }
+        - { name: period, in: query, required: false, schema: { type: string } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ParentReportResponse" } } } } }
+  /sessions/book:
+    post:
+      summary: Réserve une session
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BookingRequest" } } } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/BookingResponse" } } } } }
+components:
+  schemas:
+    BilanInput:
+      type: object
+      properties:
+        statut: { type: string, enum: [scolarise, individuel] }
+        niveau: { type: string, enum: [premiere, terminale] }
+        specialites: { type: array, items: { type: string } }
+        options: { type: array, items: { type: string } }
+        lva: { type: string }
+        lvb: { type: string }
+        contraintes: { type: object, additionalProperties: true }
+        diagnostics: { type: object, additionalProperties: true }
+      required: [statut, niveau]
+    BilanOutput:
+      type: object
+      properties:
+        profil: { $ref: "#/components/schemas/ProfilEleve" }
+        plan: { $ref: "#/components/schemas/PlanResponse" }
+    ProfilEleve:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        statut: { type: string }
+        niveau: { type: string }
+        troncCommun: { type: object, additionalProperties: true }
+        specialites:
+          type: object
+          properties:
+            premiere: { type: array, items: { type: string } }
+            terminale: { type: array, items: { type: string } }
+        options: { type: array, items: { type: string } }
+        orientation: { type: object, additionalProperties: true }
+    EpreuvesResponse:
+      type: object
+      properties:
+        student_id: { type: string }
+        epreuves:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string }
+              coef: { type: integer }
+              date: { type: string, format: date-time }
+              nature: { type: string }
+    PlanRequest:
+      type: object
+      properties:
+        student_id: { type: string, format: uuid }
+        horizon_days: { type: integer, default: 14 }
+      required: [student_id]
+    PlanResponse:
+      type: object
+      properties:
+        plan:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  title: { type: string }
+                  due: { type: string, format: date }
+                  priority: { type: integer }
+                  resource: { type: string }
+    EvalGenRequest:
+      type: object
+      properties:
+        subject: { type: string }
+        duration: { type: integer }
+        level: { type: string }
+        with_correction: { type: boolean, default: true }
+    EvalGenResponse:
+      type: object
+      properties:
+        subject: { type: string }
+        duration: { type: integer }
+        statements: { type: array, items: { type: string } }
+        grading: { type: object }
+    EvalGradeRequest:
+      type: object
+      properties:
+        student_id: { type: string, format: uuid }
+        exam_id: { type: string, format: uuid }
+        upload_ref: { type: string }
+        rubric: { type: object }
+    EvalGradeResponse:
+      type: object
+      properties:
+        score: { type: number }
+        feedback: { type: array, items: { type: string } }
+        rubric_applied: { type: object }
+    RagSearchResponse:
+      type: object
+      properties:
+        q: { type: string }
+        filters: { type: string }
+        hits:
+          type: array
+          items:
+            type: object
+            properties:
+              doc_id: { type: string, format: uuid }
+              snippet: { type: string }
+              score: { type: number }
+              metadata: { type: object }
+    ParentReportResponse:
+      type: object
+      properties:
+        student_id: { type: string }
+        period: { type: string }
+        kpis: { type: object }
+    BookingRequest:
+      type: object
+      properties:
+        session_id: { type: string, format: uuid }
+        student_id: { type: string, format: uuid }
+    BookingResponse:
+      type: object
+      properties:
+        booking:
+          type: object
+          properties:
+            status: { type: string }

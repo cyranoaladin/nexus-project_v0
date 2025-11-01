@@ -1,0 +1,24 @@
+apps/
+  api/
+    app/
+      core/
+      db/
+      models/
+      routers/
+      services/
+    requirements.txt
+packages/
+  agents/README.md
+  rag/README.md
+  ui/README.md
+db/
+  alembic.ini
+  migrations/
+    env.py
+    script.py.mako
+    versions/001_init_core.py
+infra/
+  docker/Dockerfile.api
+docker-compose.yml
+openapi.yaml
+tickets_linear_jira.csv
