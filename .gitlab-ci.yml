@@ -37,6 +37,10 @@ e2e:
     - npx prisma db push --accept-data-loss
     - npm run build
     - export NEXTAUTH_SECRET=$(openssl rand -hex 32)
+    - |
+      if [ "$BROWSER" = "webkit" ]; then
+        export PLAYWRIGHT_USE_PROD=1
+      fi
     - npx playwright install --with-deps "$BROWSER"
   script:
     - >
