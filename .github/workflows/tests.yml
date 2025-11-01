@@ -107,7 +107,7 @@ jobs:
 
       - name: Enforce unique constraint for payments (method, externalId)
         run: |
-          npx prisma db execute --stdin <<'SQL'
+          npx prisma db execute --stdin --schema=prisma/schema.prisma <<'SQL'
           DELETE FROM payments a
           USING payments b
           WHERE a.externalId IS NOT NULL
