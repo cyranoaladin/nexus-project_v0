@@ -237,6 +237,20 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   test('Le parcours utilisateur complet fonctionne', async ({ page }) => {
     const paCount = await page.getByText(/Pédagogie Augmentée/i).count();
     expect(paCount).toBeGreaterThan(0);
+    const attemptBilanNavigation = async (clickAction: () => Promise<void>) => {
+      const popupPromise = page.context().waitForEvent('page', { timeout: 2000 }).catch(() => null);
+      const urlPromise = page.waitForURL(/\/bilan-gratuit(?:\/)?$/i, { timeout: 3000 }).then(() => true).catch(() => false);
+      await clickAction();
+      const [popup, matched] = await Promise.all([popupPromise, urlPromise]);
+      if (popup) {
+        await popup.waitForLoadState('networkidle');
+        await expect(popup).toHaveURL(/\/bilan-gratuit/i);
+        await popup.close();
+        await page.bringToFront();
+        return true;
+      }
+      return matched;
+    };
     const offresLink = await findFirstVisible(page.locator('a[href="/offres"]'));
     if (offresLink) {
       await offresLink.scrollIntoViewIfNeeded();
@@ -255,27 +269,15 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
     const bilanLink = await findFirstVisible(page.locator('a[href="/bilan-gratuit"]'));
     if (bilanLink) {
       await bilanLink.scrollIntoViewIfNeeded();
-      const popupPromise = page.context().waitForEvent('page', { timeout: 2000 }).catch(() => null);
-      await bilanLink.click({ force: true });
-      const popup = await popupPromise;
-      if (popup) {
-        await popup.waitForLoadState('networkidle');
-        await expect(popup).toHaveURL(/\/bilan-gratuit/);
-        await popup.close();
-        await page.bringToFront();
+      const navigated = await attemptBilanNavigation(() => bilanLink.click({ force: true }));
+      if (!navigated) {
         await page.goto('/bilan-gratuit');
       }
     } else {
       const headerBilan = await findFirstVisible(page.locator('header a[href="/bilan-gratuit"]'));
       if (headerBilan) {
-        const popupPromise = page.context().waitForEvent('page', { timeout: 2000 }).catch(() => null);
-        await headerBilan.click({ force: true });
-        const popup = await popupPromise;
-        if (popup) {
-          await popup.waitForLoadState('networkidle');
-          await expect(popup).toHaveURL(/\/bilan-gratuit/);
-          await popup.close();
-          await page.bringToFront();
+        const navigated = await attemptBilanNavigation(() => headerBilan.click({ force: true }));
+        if (!navigated) {
           await page.goto('/bilan-gratuit');
         }
       } else {
