@@ -5,13 +5,21 @@ const databaseURL =
   process.env.DATABASE_URL ||
   'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_e2e?schema=public';
 
+const reporter = process.env.CI
+  ? ([
+      ['list'] as const,
+      ['html', { open: 'never' }] as const,
+      ['json', { outputFile: 'playwright-results.json' }] as const,
+    ] as const)
+  : 'list';
+
 export default defineConfig({
   testDir: './__tests__/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'list',
+  reporter,
   use: {
     baseURL,
     trace: 'on-first-retry',
