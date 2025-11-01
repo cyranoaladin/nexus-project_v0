@@ -9,7 +9,25 @@ export interface BilanInput {
   context: string; // infos du formulaire bilan gratuit
 }
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let cachedClient: OpenAI | null | undefined;
+
+function getOpenAIClient(): OpenAI | null {
+  if (cachedClient !== undefined) {
+    return cachedClient;
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      console.warn('[bilan] OPENAI_API_KEY missing during build. Falling back to canned response.');
+    }
+    cachedClient = null;
+    return cachedClient;
+  }
+
+  cachedClient = new OpenAI({ apiKey });
+  return cachedClient;
+}
 
 function buildPrompt(audience: BilanAudience, input: BilanInput) {
   const base = `Tu es un conseiller pédagogique Nexus Réussite. Crée un bilan synthétique et actionnable.
@@ -37,8 +55,13 @@ ${input.subjects.map(s => `- ${s.name}\n  Forces: ${s.strengths.join(', ')}\n  F
 }
 
 export async function generateBilan(audience: BilanAudience, input: BilanInput): Promise<string> {
+  const client = getOpenAIClient();
+  if (!client) {
+    return 'Le service de génération de bilan est momentanément indisponible. Veuillez réessayer plus tard.';
+  }
+
   const prompt = buildPrompt(audience, input);
-  const res = await openai.chat.completions.create({
+  const res = await client.chat.completions.create({
     model: 'gpt-4',
     messages: [
       { role: 'system', content: 'Conseiller pédagogique Nexus Réussite' },
