@@ -1,6 +1,8 @@
 import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL || 'http://localhost:3001';
+const parsedBaseURL = new URL(baseURL);
+const webServerPort = parsedBaseURL.port || (parsedBaseURL.protocol === 'https:' ? '443' : '80');
 const databaseURL =
   process.env.DATABASE_URL ||
   'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_e2e?schema=public';
@@ -33,7 +35,7 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120000,
     env: {
-      PORT: '3001',
+      PORT: webServerPort,
       HOSTNAME: '0.0.0.0',
       NODE_ENV: 'production',
       DATABASE_URL: databaseURL,
