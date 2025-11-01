@@ -108,16 +108,16 @@ jobs:
       - name: Enforce unique constraint for payments (method, externalId)
         run: |
           npx prisma db execute --stdin --schema=prisma/schema.prisma <<'SQL'
-          DELETE FROM payments a
-          USING payments b
-          WHERE a.externalId IS NOT NULL
-            AND a.method = b.method
-            AND a.externalId = b.externalId
+          DELETE FROM "payments" a
+          USING "payments" b
+          WHERE a."externalId" IS NOT NULL
+            AND a."method" = b."method"
+            AND a."externalId" = b."externalId"
             AND a.ctid > b.ctid;
 
-          CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_method_externalid_nonnull
-          ON payments (method, externalId)
-          WHERE externalId IS NOT NULL;
+          CREATE UNIQUE INDEX IF NOT EXISTS "ux_payments_method_externalid_nonnull"
+          ON "payments" ("method", "externalId")
+          WHERE "externalId" IS NOT NULL;
           SQL
 
       - name: Lint
