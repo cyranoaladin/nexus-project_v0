@@ -5,6 +5,24 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return NextResponse.json({
+        period: 'month',
+        summary: {
+          totalRevenue: 0,
+          totalUsers: 0,
+          totalSessions: 0,
+          totalSubscriptions: 0
+        },
+        revenueData: [],
+        userGrowthData: [],
+        sessionData: [],
+        subscriptionData: [],
+        creditData: [],
+        recentActivities: []
+      });
+    }
+
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
