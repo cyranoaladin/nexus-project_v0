@@ -1,13 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Prisma, SessionStatus } from '@prisma/client';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     // Get the current session
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ELEVE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -17,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const studentId = session.user.id;
 
-    // Fetch student data
+    // Fetch student core and aggregates
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       include: {
@@ -31,23 +35,16 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 10
         },
-        sessions: {
-          where: {
-            status: { in: ['SCHEDULED', 'COMPLETED'] }
-          },
-          include: {
-            coach: {
-              include: {
-                user: true
-              }
-            }
-          },
-          orderBy: { scheduledAt: 'desc' },
-          take: 5
-        },
         ariaConversations: {
           orderBy: { createdAt: 'desc' },
-          take: 5
+          take: 5,
+          include: {
+            messages: {
+              select: {
+                createdAt: true
+              }
+            }
+          }
         },
         badges: {
           include: {
@@ -67,23 +64,70 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate available credits
-    const creditBalance = student.creditTransactions.reduce((balance: number, transaction: any) => {
-      return balance + transaction.amount;
-    }, 0);
+    const creditBalance = student.creditTransactions.reduce((balance, transaction) => balance + transaction.amount, 0);
 
-    // Get next session
-    const nextSession = student.sessions.find((session: any) => 
-      session.status === 'SCHEDULED' && 
-      new Date(session.scheduledAt) > new Date()
-    );
+    // Get next session and recent sessions from SessionBooking
+    const now = new Date();
+
+    const nextSessionBookingPromise = prisma.sessionBooking.findFirst({
+      where: {
+        studentId: student.userId,
+        scheduledDate: { gte: now },
+        status: { in: [SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] }
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+      include: {
+        coach: true,
+      }
+    });
+
+    const recentSessionsPromise = prisma.sessionBooking.findMany({
+      where: { studentId: student.userId },
+      orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
+      take: 5,
+      include: {
+        coach: true,
+      }
+    });
+
+    const [nextSessionBooking, recentSessions] = await Promise.all([
+      nextSessionBookingPromise,
+      recentSessionsPromise
+    ]);
 
     // Get recent ARIA messages count
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const ariaMessagesToday = student.ariaConversations.reduce((count: number, conversation: any) => {
-      const messagesToday = conversation.messages.filter((message: any) => 
-        new Date(message.createdAt) >= today
-      ).length;
+    type StudentWithRelations = NonNullable<
+      Prisma.StudentGetPayload<{
+        include: {
+          user: true;
+          subscriptions: true;
+          creditTransactions: true;
+          ariaConversations: {
+            include: {
+              messages: {
+                select: {
+                  createdAt: true;
+                };
+              };
+            };
+          };
+          badges: {
+            include: {
+              badge: true;
+            };
+          };
+        };
+      }>
+    >;
+
+    const typedStudent = student as StudentWithRelations;
+
+    const ariaMessagesToday = typedStudent.ariaConversations.reduce((count, conversation) => {
+      const messagesToday = conversation.messages
+        .filter((message) => new Date(message.createdAt) >= today)
+        .length;
       return count + messagesToday;
     }, 0);
 
@@ -99,48 +143,48 @@ export async function GET(request: NextRequest) {
       },
       credits: {
         balance: creditBalance,
-        transactions: student.creditTransactions.map((t: any) => ({
-          id: t.id,
-          type: t.type,
-          amount: t.amount,
-          description: t.description,
-          createdAt: t.createdAt
+        transactions: typedStudent.creditTransactions.map((transaction) => ({
+          id: transaction.id,
+          type: transaction.type,
+          amount: transaction.amount,
+          description: transaction.description,
+          createdAt: transaction.createdAt
         }))
       },
-      nextSession: nextSession ? {
-        id: nextSession.id,
-        title: nextSession.title,
-        subject: nextSession.subject,
-        scheduledAt: nextSession.scheduledAt,
-        duration: nextSession.duration,
+      nextSession: nextSessionBooking ? {
+        id: nextSessionBooking.id,
+        title: nextSessionBooking.title,
+        subject: nextSessionBooking.subject,
+        scheduledAt: new Date(`${nextSessionBooking.scheduledDate.toISOString().split('T')[0]}T${nextSessionBooking.startTime}`),
+        duration: nextSessionBooking.duration,
         coach: {
-          firstName: nextSession.coach.user.firstName,
-          lastName: nextSession.coach.user.lastName,
-          pseudonym: nextSession.coach.pseudonym
+          firstName: nextSessionBooking.coach?.firstName ?? '',
+          lastName: nextSessionBooking.coach?.lastName ?? '',
+          pseudonym: ''
         }
       } : null,
-      recentSessions: student.sessions.map((session: any) => ({
+      recentSessions: recentSessions.map((session) => ({
         id: session.id,
         title: session.title,
         subject: session.subject,
         status: session.status,
-        scheduledAt: session.scheduledAt,
+        scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
         coach: {
-          firstName: session.coach.user.firstName,
-          lastName: session.coach.user.lastName,
-          pseudonym: session.coach.pseudonym
+          firstName: session.coach?.firstName ?? '',
+          lastName: session.coach?.lastName ?? '',
+          pseudonym: ''
         }
       })),
       ariaStats: {
         messagesToday: ariaMessagesToday,
-        totalConversations: student.ariaConversations.length
+        totalConversations: typedStudent.ariaConversations.length
       },
-      badges: student.badges.map((sb: any) => ({
-        id: sb.badge.id,
-        name: sb.badge.name,
-        description: sb.badge.description,
-        icon: sb.badge.icon,
-        earnedAt: sb.earnedAt
+      badges: typedStudent.badges.map((studentBadge) => ({
+        id: studentBadge.badge.id,
+        name: studentBadge.badge.name,
+        description: studentBadge.badge.description,
+        icon: studentBadge.badge.icon,
+        earnedAt: studentBadge.earnedAt
       }))
     };
 
@@ -153,4 +197,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

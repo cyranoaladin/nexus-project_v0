@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
-import { z } from 'zod';
+import { Prisma, NotificationMethod, NotificationType, ReminderType } from '@prisma/client';
+import { ZodError } from 'zod';
+import { bookSessionSchema, mapSessionToResponse, sessionResponseInclude } from '../contracts';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -16,48 +17,6 @@ function parseLocalDate(dateStr: string): Date {
   const [y, m, d] = dateStr.split('-').map((v) => parseInt(v, 10));
   return new Date(y, (m || 1) - 1, d || 1);
 }
-
-// Enhanced validation schema with better date and time controls
-const bookSessionSchema = z.object({
-  coachId: z.string().min(1, 'Coach ID is required'),
-  studentId: z.string().min(1, 'Student ID is required'),
-  subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
-  scheduledDate: z.string().min(1, 'Date is required').refine((date: any) => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate >= today;
-  }, 'Cannot book sessions in the past'),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  duration: z.number().min(30).max(180), // 30 minutes to 3 hours
-  type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
-  modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
-  title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-  description: z.string().max(500, 'Description too long').optional(),
-  creditsToUse: z.number().min(1).max(10, 'Cannot use more than 10 credits per session'),
-}).refine((data: any) => {
-  // Validate that end time is after start time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  return endMinutes > startMinutes;
-}, {
-  message: 'End time must be after start time',
-  path: ['endTime']
-}).refine((data: any) => {
-  // Validate that duration matches start and end time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  const calculatedDuration = endMinutes - startMinutes;
-  return calculatedDuration === data.duration;
-}, {
-  message: 'Duration must match the time difference between start and end time',
-  path: ['duration']
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -76,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     console.log('Session booking request - Body:', body);
-    const validatedData = bookSessionSchema.parse(body) as z.infer<typeof bookSessionSchema>;
+    const validatedData = bookSessionSchema.parse(body);
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
@@ -280,7 +239,7 @@ export async function POST(req: NextRequest) {
         where: { studentId: studentRecord.id }
       });
 
-      const currentCredits = creditTransactions.reduce((total: number, transaction: any) => {
+      const currentCredits = creditTransactions.reduce<number>((total, transaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -333,11 +292,7 @@ export async function POST(req: NextRequest) {
           creditsUsed: validatedData.creditsToUse,
           status: 'SCHEDULED'
         },
-        include: {
-          student: true,
-          coach: true,
-          parent: true
-        }
+        include: sessionResponseInclude
       });
 
       // 9. Create credit transaction for usage
@@ -352,16 +307,16 @@ export async function POST(req: NextRequest) {
       });
 
       // 10. Create notifications
-      const notifications: any[] = [];
+      const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
       // Notify coach
       notifications.push({
         sessionId: sessionBooking.id,
         userId: coachProfile.user.id,
-        type: 'SESSION_BOOKED',
+        type: NotificationType.SESSION_BOOKED,
         title: 'Nouvelle session réservée',
         message: `${student.firstName} ${student.lastName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-        method: 'EMAIL'
+        method: NotificationMethod.EMAIL
       });
 
       // Notify assistant
@@ -373,10 +328,10 @@ export async function POST(req: NextRequest) {
         notifications.push({
           sessionId: sessionBooking.id,
           userId: assistant.id,
-          type: 'SESSION_BOOKED',
+          type: NotificationType.SESSION_BOOKED,
           title: 'Nouvelle session planifiée',
           message: `Session ${validatedData.subject} entre ${coachProfile.user.firstName} ${coachProfile.user.lastName} et ${student.firstName} ${student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'IN_APP'
+          method: NotificationMethod.IN_APP
         });
       }
 
@@ -385,45 +340,45 @@ export async function POST(req: NextRequest) {
         notifications.push({
           sessionId: sessionBooking.id,
           userId: parentId,
-          type: 'SESSION_BOOKED',
+          type: NotificationType.SESSION_BOOKED,
           title: 'Session réservée pour votre enfant',
           message: `Session de ${validatedData.subject} avec ${coachProfile.user.firstName} ${coachProfile.user.lastName} programmée pour ${student.firstName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'EMAIL'
+          method: NotificationMethod.EMAIL
         });
       }
 
       // Create all notifications
       await tx.sessionNotification.createMany({
-        data: notifications as any
+        data: notifications
       });
 
       // 11. Create reminders
-      const reminders: any[] = [];
+      const reminders: Prisma.SessionReminderCreateManyInput[] = [];
       const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
 
       // 1 day before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'ONE_DAY_BEFORE',
+        reminderType: ReminderType.ONE_DAY_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
       });
 
       // 2 hours before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'TWO_HOURS_BEFORE',
+        reminderType: ReminderType.TWO_HOURS_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
       });
 
       // 30 minutes before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'THIRTY_MINUTES_BEFORE',
+        reminderType: ReminderType.THIRTY_MINUTES_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
       });
 
       await tx.sessionReminder.createMany({
-        data: reminders as any
+        data: reminders
       });
 
       return sessionBooking;
@@ -436,13 +391,13 @@ export async function POST(req: NextRequest) {
       success: true,
       sessionId: result.id,
       message: 'Session booked successfully',
-      session: result
+      session: mapSessionToResponse(result)
     });
 
   } catch (error) {
     console.error('Session booking error:', error);
     
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', details: error.errors },
         { status: 400 }

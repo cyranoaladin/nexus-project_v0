@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { DEFAULT_PREMIUM_SUBJECTS, serializeSubjects } from '@/lib/aria-access';
 
 const changeSubscriptionSchema = z.object({
   studentId: z.string(),
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
         creditsPerMonth: planData.credits,
         status: 'INACTIVE', // Sera activé après paiement
         startDate: new Date(),
-        ariaSubjects: JSON.stringify(['MATHEMATIQUES']) // Par défaut en JSON
+        ariaSubjects: serializeSubjects(DEFAULT_PREMIUM_SUBJECTS) // Provisionne les matières ARIA prévues
       }
     });
 

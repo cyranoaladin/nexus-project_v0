@@ -11,7 +11,7 @@ import { AlertCircle, Loader2, LogOut, Plus, Search, Settings, CreditCard } from
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Student {
   id: string;
@@ -23,14 +23,6 @@ interface Student {
   creditBalance: number;
 }
 
-interface CreditTransaction {
-  id: string;
-  type: string;
-  amount: number;
-  description: string;
-  createdAt: string;
-}
-
 export default function CreditsManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -39,12 +31,41 @@ export default function CreditsManagement() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [isAddCreditsDialogOpen, setIsAddCreditsDialogOpen] = useState(false);
+  const [dialogStudentId, setDialogStudentId] = useState<string | null>(null);
   const [addCreditsForm, setAddCreditsForm] = useState({
     amount: "",
     type: "CREDIT_ADD",
     description: ""
   });
+
+  const resetForm = useCallback(() => {
+    setAddCreditsForm({
+      amount: "",
+      type: "CREDIT_ADD",
+      description: ""
+    });
+  }, []);
+
+  const fetchStudents = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/assistant/students/credits');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch students');
+      }
+
+      const data: Student[] = await response.json();
+      setStudents(data);
+    } catch (err) {
+      console.error('Error fetching students:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -55,28 +76,7 @@ export default function CreditsManagement() {
     }
 
     fetchStudents();
-  }, [session, status, router]);
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/assistant/students/credits');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch students');
-      }
-      
-      const data = await response.json();
-      setStudents(data);
-    } catch (err) {
-      console.error('Error fetching students:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [session, status, router, fetchStudents]);
 
   const handleAddCredits = async () => {
     if (!selectedStudent) return;
@@ -104,13 +104,9 @@ export default function CreditsManagement() {
       console.log('Credits added:', result);
       
       // Reset form and close dialog
-      setAddCreditsForm({
-        amount: "",
-        type: "CREDIT_ADD",
-        description: ""
-      });
-      setIsAddCreditsDialogOpen(false);
+      resetForm();
       setSelectedStudent(null);
+      setDialogStudentId(null);
       
       // Refresh students list
       fetchStudents();
@@ -120,11 +116,24 @@ export default function CreditsManagement() {
     }
   };
 
-  const filteredStudents = students.filter(student =>
-    student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => (
+    students.filter((student) =>
+      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  ), [students, searchTerm]);
+
+  const handleDialogOpenChange = useCallback((open: boolean, student: Student) => {
+    if (open) {
+      setSelectedStudent(student);
+      setDialogStudentId(student.id);
+    } else {
+      setDialogStudentId(null);
+      setSelectedStudent(null);
+      resetForm();
+    }
+  }, [resetForm]);
 
   if (status === "loading" || loading) {
     return (
@@ -240,13 +249,16 @@ export default function CreditsManagement() {
                     </span>
                   </div>
                   
-                  <Dialog>
+                  <Dialog
+                    open={dialogStudentId === student.id}
+                    onOpenChange={(open) => handleDialogOpenChange(open, student)}
+                  >
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="w-full"
-                        onClick={() => setSelectedStudent(student)}
+                        onClick={() => handleDialogOpenChange(true, student)}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Ajouter des crédits
@@ -301,7 +313,12 @@ export default function CreditsManagement() {
                           <Button onClick={handleAddCredits} className="flex-1">
                             Confirmer
                           </Button>
-                          <Button variant="outline" className="flex-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => handleDialogOpenChange(false, student)}
+                            >
                             Annuler
                           </Button>
                         </div>

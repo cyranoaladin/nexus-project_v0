@@ -109,10 +109,11 @@ export async function refundSessionBookingById(sessionBookingId: string, reason?
     }, { isolationLevel: 'Serializable' });
 
     return result;
-  } catch (err: any) {
+  } catch (err: unknown) {
     // En cas de conflit de sérialisation (écriture concurrente), considérer comme idempotent
-    const code = err?.code as string | undefined;
-    const message = (err?.message as string | undefined) ?? '';
+    const prismaError = err as { code?: string; message?: string } | undefined;
+    const code = prismaError?.code;
+    const message = prismaError?.message ?? '';
 
     if (code === 'P2034' || /serialization/i.test(message) || /deadlock/i.test(message)) {
       // Vérifier si le remboursement a été créé par l'autre transaction

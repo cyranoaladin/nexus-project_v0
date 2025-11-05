@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,30 +73,35 @@ export async function POST(request: NextRequest) {
     const assistants = await prisma.user.findMany({
       where: {
         role: 'ASSISTANTE'
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true
       }
     });
 
-    const notificationPromises = assistants.map((assistant: any) => 
-      prisma.notification.create({
-        data: {
-          userId: assistant.id,
-          userRole: 'ASSISTANTE',
-          type: 'SUBSCRIPTION_REQUEST',
-          title: 'Nouvelle demande d\'abonnement',
-          message: `Nouvelle demande de ${requestType === 'PLAN_CHANGE' ? 'changement de formule' : 'service ARIA+'} pour ${student.user.firstName} ${student.user.lastName}`,
-          data: JSON.stringify({
-            requestId: subscriptionRequest.id,
-            studentId: studentId,
-            studentName: `${student.user.firstName} ${student.user.lastName}`,
-            requestType: requestType,
-            planName: planName,
-            monthlyPrice: monthlyPrice
-          })
-        }
-      })
+    await Promise.all(
+      assistants.map((assistant) =>
+        prisma.notification.create({
+          data: {
+            userId: assistant.id,
+            userRole: 'ASSISTANTE',
+            type: 'SUBSCRIPTION_REQUEST',
+            title: 'Nouvelle demande d\'abonnement',
+            message: `Nouvelle demande de ${requestType === 'PLAN_CHANGE' ? 'changement de formule' : 'service ARIA+'} pour ${student.user.firstName} ${student.user.lastName}`,
+            data: JSON.stringify({
+              requestId: subscriptionRequest.id,
+              studentId: studentId,
+              studentName: `${student.user.firstName} ${student.user.lastName}`,
+              requestType: requestType,
+              planName: planName,
+              monthlyPrice: monthlyPrice
+            })
+          }
+        })
+      )
     );
-
-    await Promise.all(notificationPromises);
 
     return NextResponse.json({
       success: true,

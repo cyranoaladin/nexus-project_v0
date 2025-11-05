@@ -1,3 +1,4 @@
+import type { Prisma, UserRole } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -24,10 +25,10 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: Prisma.UserWhereInput = {};
 
     if (role && role !== 'ALL') {
-      whereClause.role = role;
+      whereClause.role = role as UserRole;
     }
 
     if (search) {
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where: whereClause })
     ]);
 
-    const formattedUsers = users.map((user: any) => ({
+    const formattedUsers = users.map((user) => ({
       id: user.id,
       email: user.email,
       firstName: user.firstName,

@@ -48,7 +48,7 @@ export async function checkExpiringCredits() {
   })
   
   // Envoyer les emails de rappel
-  for (const [studentId, data] of studentCreditsMap) {
+  for (const [, data] of studentCreditsMap) {
     try {
       await sendCreditExpirationReminder(
         data.student.parent.user.email,

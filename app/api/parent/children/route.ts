@@ -1,8 +1,9 @@
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-// bcrypt inutilisé ici
+
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(_request: NextRequest) {
   try {
@@ -58,10 +59,24 @@ export async function GET(_request: NextRequest) {
       }
     });
 
-    const formattedChildren = children.map((child: any) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction: any) => {
-        return total + transaction.amount;
-      }, 0);
+    type StudentWithRelations = Prisma.StudentGetPayload<{
+      include: {
+        user: true;
+        creditTransactions: true;
+        sessions: {
+          include: {
+            coach: {
+              include: {
+                user: true;
+              };
+            };
+          };
+        };
+      };
+    }>;
+
+    const formattedChildren = children.map((child: StudentWithRelations) => {
+      const creditBalance = child.creditTransactions.reduce((total, transaction) => total + transaction.amount, 0);
 
       return {
         id: child.id,
@@ -70,7 +85,7 @@ export async function GET(_request: NextRequest) {
         email: child.user.email,
         grade: child.grade,
         school: child.school,
-        creditBalance: creditBalance,
+        creditBalance,
         upcomingSessions: child.sessions.length,
         createdAt: child.createdAt
       };
@@ -156,7 +171,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create child in transaction
-    const result = await prisma.$transaction(async (tx: any) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create user with parent's password
       const user = await tx.user.create({
         data: {

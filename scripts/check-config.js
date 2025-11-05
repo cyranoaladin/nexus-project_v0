@@ -38,9 +38,9 @@ if (!envFileFound) {
   console.log('\n📝 Creating .env.local file...');
   
   const envContent = `# =============================================================================
-# CONFIGURATION DATABASE (SQLite pour développement)
+# CONFIGURATION DATABASE (PostgreSQL pour développement)
 # =============================================================================
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_dev?schema=public"
 
 # =============================================================================
 # CONFIGURATION NEXTAUTH
@@ -68,5 +68,5 @@ console.log('\n📋 Manual Environment Setup:');
 console.log('Create a .env.local file in your project root with:');
 console.log('NEXTAUTH_URL="http://localhost:3002"');
 console.log('NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development"');
-console.log('DATABASE_URL="file:./prisma/dev.db"');
+console.log('DATABASE_URL="postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_dev?schema=public"');
 console.log('NODE_ENV="development"'); 

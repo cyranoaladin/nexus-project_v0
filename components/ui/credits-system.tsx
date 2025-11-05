@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Calculator, Clock, Users, Zap } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Badge } from './badge';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 
@@ -9,7 +10,7 @@ interface CreditPrestation {
   prestation: string;
   credits: number;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
 }
 
 const prestations: CreditPrestation[] = [

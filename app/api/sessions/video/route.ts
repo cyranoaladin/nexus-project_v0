@@ -1,8 +1,11 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-// Removed import of SessionStatus due to lint error
+import { SessionStatus } from '@prisma/client';
+import crypto from 'crypto';
+import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { sessionVideoActionSchema } from '../contracts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,11 +15,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const { sessionId, action } = await request.json();
-
-    if (!sessionId || !action) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
-    }
+    const payload = await request.json();
+    const { sessionId, action } = sessionVideoActionSchema.parse(payload);
 
     // Vérifier que la session existe et que l'utilisateur y a accès (SessionBooking canonique)
     const bookingSession = await prisma.sessionBooking.findFirst({
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'JOIN':
         // Marquer la session comme en cours si elle ne l'est pas déjà
-        if (bookingSession.status === 'SCHEDULED') {
+        if (bookingSession.status === SessionStatus.SCHEDULED) {
           await prisma.sessionBooking.update({
             where: { id: sessionId },
-            data: { status: 'IN_PROGRESS' as any }
+            data: { status: SessionStatus.IN_PROGRESS }
           });
         }
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         // Marquer la session comme terminée
         await prisma.sessionBooking.update({
           where: { id: sessionId },
-          data: { status: 'COMPLETED' as any, completedAt: new Date() }
+          data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
         });
 
         // TODO: Logique de crédits si nécessaire
@@ -104,6 +104,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Erreur lors de la gestion de la session vidéo:', error);
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.format() },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

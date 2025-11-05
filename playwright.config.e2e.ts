@@ -1,6 +1,19 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL || 'http://localhost:3001';
+const parsedBaseURL = new URL(baseURL);
+const webServerPort = parsedBaseURL.port || (parsedBaseURL.protocol === 'https:' ? '443' : '80');
+const databaseURL =
+  process.env.DATABASE_URL ||
+  'postgresql://nexus_user:nexus_password@localhost:5432/nexus_reussite_e2e?schema=public';
+
+const buildCiReporters = (): ReporterDescription[] => [
+  ['list'],
+  ['html', { open: 'never' }],
+  ['json', { outputFile: 'playwright-results.json' }],
+];
+
+const reporter: ReporterDescription[] | 'list' = process.env.CI ? buildCiReporters() : 'list';
 
 export default defineConfig({
   testDir: './__tests__/e2e',
@@ -8,7 +21,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'list',
+  reporter,
   use: {
     baseURL,
     trace: 'on-first-retry',
@@ -22,10 +35,10 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120000,
     env: {
-      PORT: '3001',
+      PORT: webServerPort,
       HOSTNAME: '0.0.0.0',
       NODE_ENV: 'production',
-      DATABASE_URL: 'file:./prisma/dev.db',
+      DATABASE_URL: databaseURL,
     },
   },
   projects: [

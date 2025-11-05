@@ -8,10 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { BookOpen, Compass, GraduationCap, HeadphonesIcon, Users } from "lucide-react";
-import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
+
+type TeamPole = "mathematiques" | "physique" | "nsi" | "lettres" | "orientation" | "operationnel";
+
+type TeamProfile = {
+  id: string;
+  pseudonym: string;
+  tag: string;
+  title: string;
+  tagline: string;
+  points: string[];
+  summary: string;
+  expertise: string;
+  philosophy: string;
+  nexusPlus: string;
+};
 
 // Données des profils d'équipe selon la documentation officielle
-const TEAM_PROFILES = {
+const TEAM_PROFILES: Record<TeamPole, TeamProfile[]> = {
   mathematiques: [
     {
       id: "axiom",
@@ -146,7 +161,7 @@ const TEAM_PROFILES = {
   ]
 };
 
-const POLE_ICONS = {
+const POLE_ICONS: Record<TeamPole, LucideIcon> = {
   mathematiques: GraduationCap,
   physique: BookOpen,
   nsi: BookOpen,
@@ -155,7 +170,7 @@ const POLE_ICONS = {
   operationnel: HeadphonesIcon
 };
 
-const POLE_TITLES = {
+const POLE_TITLES: Record<TeamPole, string> = {
   mathematiques: "Pôle Mathématiques : La Double Maîtrise",
   physique: "Pôle Sciences Physiques : La Vision Complémentaire",
   nsi: "Pôle NSI & Python : L'Alliance du Code et de l'Architecture",
@@ -165,8 +180,6 @@ const POLE_TITLES = {
 };
 
 export default function EquipePage() {
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -196,8 +209,8 @@ export default function EquipePage() {
 
           {/* Grille des pôles */}
           <div className="space-y-12 md:space-y-16">
-            {Object.entries(TEAM_PROFILES).map(([poleKey, profiles], poleIndex) => {
-              const Icon = POLE_ICONS[poleKey as keyof typeof POLE_ICONS];
+            {(Object.entries(TEAM_PROFILES) as [TeamPole, TeamProfile[]][]).map(([poleKey, profiles], poleIndex) => {
+              const Icon = POLE_ICONS[poleKey];
 
               return (
                 <motion.section
@@ -214,7 +227,7 @@ export default function EquipePage() {
                       <Icon className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
                     <h2 className="font-heading text-xl md:text-2xl font-bold text-gray-900">
-                      {POLE_TITLES[poleKey as keyof typeof POLE_TITLES]}
+                      {POLE_TITLES[poleKey]}
                     </h2>
                   </div>
 
@@ -262,8 +275,6 @@ export default function EquipePage() {
                                 <Button
                                   variant="outline"
                                   className="w-full group-hover:bg-primary-500 group-hover:text-white transition-colors"
-
-                                  onClick={() => setSelectedProfile(profile)}
                                 >
                                   Découvrir le Profil
                                 </Button>
@@ -303,6 +314,9 @@ export default function EquipePage() {
 
                                   <div className="bg-secondary-50 p-4 rounded-lg">
                                     <h4 className="font-semibold text-secondary-800 mb-2">Le "Plus" Nexus</h4>
+                                    <p className="text-secondary-700 text-sm md:text-base">
+                                      {profile.nexusPlus}
+                                    </p>
 
                                   </div>
                                 </div>

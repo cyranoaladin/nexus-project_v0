@@ -13,16 +13,79 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+type SubscriptionPlanKey = keyof typeof SUBSCRIPTION_PLANS;
+type AddonKey = keyof typeof ARIA_ADDONS;
+type PackKey = keyof typeof SPECIAL_PACKS;
+
+type OrderDetails =
+  | {
+      type: "subscription";
+      key: SubscriptionPlanKey;
+      name: string;
+      price: number;
+      description: string;
+      recurring: true;
+      studentId?: string | null;
+    }
+  | {
+      type: "addon";
+      key: AddonKey;
+      name: string;
+      price: number;
+      description: string;
+      recurring: true;
+      studentId?: string | null;
+    }
+  | {
+      type: "pack";
+      key: PackKey;
+      name: string;
+      price: number;
+      description: string;
+      recurring: false;
+      studentId?: string | null;
+    };
+
+type CsrfResponse = {
+  token?: string;
+};
+
+type KonnectPaymentResponse = {
+  payUrl?: string;
+  error?: string;
+};
+
+function isSubscriptionPlanKey(value: string): value is SubscriptionPlanKey {
+  return value in SUBSCRIPTION_PLANS;
+}
+
+function isAddonKey(value: string): value is AddonKey {
+  return value in ARIA_ADDONS;
+}
+
+function isPackKey(value: string): value is PackKey {
+  return value in SPECIAL_PACKS;
+}
+
 function PaiementContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState("konnect");
   const [loading, setLoading] = useState(false);
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
+
+    // Init CSRF token (double submit cookie)
+    fetch('/api/security/csrf').then(async (r) => {
+      try {
+        const j: CsrfResponse = await r.json();
+        setCsrfToken(j?.token || null);
+      } catch {}
+    }).catch(() => {});
 
     if (!session || session.user.role !== 'PARENT') {
       router.push("/auth/signin");
@@ -35,10 +98,10 @@ function PaiementContent() {
     const pack = searchParams.get('pack');
     const student = searchParams.get('student');
 
-    let details = null;
+    let details: OrderDetails | null = null;
 
-    if (plan && SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS]) {
-      const planData = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS];
+    if (plan && isSubscriptionPlanKey(plan)) {
+      const planData = SUBSCRIPTION_PLANS[plan];
       details = {
         type: 'subscription',
         key: plan,
@@ -47,8 +110,8 @@ function PaiementContent() {
         description: `Abonnement mensuel ${planData.name}`,
         recurring: true
       };
-    } else if (addon && ARIA_ADDONS[addon as keyof typeof ARIA_ADDONS]) {
-      const addonData = ARIA_ADDONS[addon as keyof typeof ARIA_ADDONS];
+    } else if (addon && isAddonKey(addon)) {
+      const addonData = ARIA_ADDONS[addon];
       details = {
         type: 'addon',
         key: addon,
@@ -57,8 +120,8 @@ function PaiementContent() {
         description: addonData.description,
         recurring: true
       };
-    } else if (pack && SPECIAL_PACKS[pack as keyof typeof SPECIAL_PACKS]) {
-      const packData = SPECIAL_PACKS[pack as keyof typeof SPECIAL_PACKS];
+    } else if (pack && isPackKey(pack)) {
+      const packData = SPECIAL_PACKS[pack];
       details = {
         type: 'pack',
         key: pack,
@@ -70,7 +133,7 @@ function PaiementContent() {
     }
 
     if (details) {
-      setOrderDetails({ ...details, studentId: student });
+      setOrderDetails({ ...details, studentId: student ?? null });
     } else {
       router.push('/dashboard/parent/abonnements');
     }
@@ -87,7 +150,8 @@ function PaiementContent() {
         const response = await fetch('/api/payments/konnect', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+'Content-Type': 'application/json',
+            ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
           },
           body: JSON.stringify({
             type: orderDetails.type,
@@ -98,7 +162,7 @@ function PaiementContent() {
           })
         });
 
-        const result = await response.json();
+        const result: KonnectPaymentResponse = await response.json();
 
         if (result.payUrl) {
           // Rediriger vers la page de paiement Konnect
@@ -106,15 +170,6 @@ function PaiementContent() {
         } else {
           throw new Error(result.error || 'Erreur lors de la création du paiement');
         }
-      } else if (paymentMethod === 'wise') {
-        // Paiement Wise (International)
-        router.push(`/dashboard/parent/paiement/wise?${new URLSearchParams({
-          type: orderDetails.type,
-          key: orderDetails.key,
-          studentId: orderDetails.studentId || '',
-          amount: orderDetails.price.toString(),
-          description: orderDetails.description
-        })}`);
       }
     } catch (error) {
       console.error('Erreur de paiement:', error);
@@ -201,23 +256,6 @@ function PaiementContent() {
                   </div>
                 </div>
 
-                {/* Wise (International) */}
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
-                  <RadioGroupItem value="wise" id="wise" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="wise" className="flex items-center gap-2 font-medium cursor-pointer">
-                      <Globe className="w-4 h-4" />
-                      Wise (International)
-                    </Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Virement bancaire international sécurisé
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm text-blue-600">1-3 jours ouvrés</span>
-                    </div>
-                  </div>
-                </div>
               </RadioGroup>
 
               <Button

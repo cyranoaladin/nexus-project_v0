@@ -1,0 +1,58 @@
+stages:
+  - test
+
+variables:
+  NODE_ENV: "test"
+  BASE_URL: "http://localhost:3000"
+  NEXTAUTH_URL: "http://localhost:3000"
+  DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/nexus_reussite_e2e?schema=public"
+  PORT: "3000"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  POSTGRES_DB: "nexus_reussite_e2e"
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - node_modules/
+    - .cache/ms-playwright/
+
+services:
+  - name: postgres:15
+    alias: postgres
+
+e2e:
+  stage: test
+  image: node:22
+  interruptible: true
+  resource_group: "e2e-${CI_COMMIT_REF_SLUG}"
+  parallel:
+    matrix:
+      - BROWSER: [chromium, firefox, webkit]
+  before_script:
+    - npm ci
+    - apt-get update && apt-get install -y postgresql-client
+    - until pg_isready --host=postgres --port=5432 --username=postgres >/dev/null 2>&1; do echo "Waiting for Postgres..."; sleep 1; done
+    - npx prisma generate
+    - npx prisma db push --accept-data-loss
+    - npm run build
+    - export NEXTAUTH_SECRET=$(openssl rand -hex 32)
+    - |
+      if [ "$BROWSER" = "webkit" ]; then
+        export PLAYWRIGHT_USE_PROD=1
+      fi
+    - npx playwright install --with-deps "$BROWSER"
+  script:
+    - >
+      npx playwright test -c "$( [ -f playwright.config.e2e.ts ] && echo playwright.config.e2e.ts || echo playwright.config.ts )" --project="$BROWSER"
+  artifacts:
+    when: always
+    name: "playwright-report-$BROWSER-$CI_JOB_ID"
+    expire_in: 7 days
+    paths:
+      - playwright-report/
+      - playwright-results.json
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  timeout: 20m

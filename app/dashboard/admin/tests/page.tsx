@@ -19,13 +19,29 @@ interface TestResult {
   success: boolean;
   message?: string;
   error?: string;
-  data?: any;
+  data?: unknown;
+}
+
+interface PaymentConfigurationStatus {
+  konnect: Record<string, boolean>;
+  wise: Record<string, boolean>;
+  allConfigured: boolean;
+}
+
+interface PaymentConfigurationResponse {
+  success: boolean;
+  configuration: PaymentConfigurationStatus;
+}
+
+interface EmailConfigurationResponse {
+  success: boolean;
+  configuration: ConfigStatus[];
 }
 
 export default function AdminTestsPage() {
   const { data: session } = useSession();
   const [emailConfig, setEmailConfig] = useState<ConfigStatus[]>([]);
-  const [paymentConfig, setPaymentConfig] = useState<any>(null);
+  const [paymentConfig, setPaymentConfig] = useState<PaymentConfigurationStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [testAmount, setTestAmount] = useState('1000');
@@ -44,14 +60,14 @@ export default function AdminTestsPage() {
       // Charger config email
       const emailResponse = await fetch('/api/admin/test-email');
       if (emailResponse.ok) {
-        const emailData = await emailResponse.json();
+        const emailData: EmailConfigurationResponse = await emailResponse.json();
         setEmailConfig(emailData.configuration);
       }
 
       // Charger config paiements
       const paymentResponse = await fetch('/api/admin/test-payments');
       if (paymentResponse.ok) {
-        const paymentData = await paymentResponse.json();
+        const paymentData: PaymentConfigurationResponse = await paymentResponse.json();
         setPaymentConfig(paymentData.configuration);
       }
     } catch (error) {
@@ -59,7 +75,7 @@ export default function AdminTestsPage() {
     }
   };
 
-  const runTest = async (testType: string, endpoint: string, data: any = {}) => {
+  const runTest = async (testType: string, endpoint: string, data: Record<string, unknown> = {}) => {
     setLoading(true);
     try {
       const response = await fetch(endpoint, {
@@ -68,14 +84,15 @@ export default function AdminTestsPage() {
         body: JSON.stringify(data)
       });
 
-      const result = await response.json();
+      const result: TestResult = await response.json();
       setResults(prev => ({ ...prev, [testType]: result }));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
       setResults(prev => ({
         ...prev,
         [testType]: {
           success: false,
-          error: error.message
+          error: message
         }
       }));
     } finally {
@@ -83,9 +100,30 @@ export default function AdminTestsPage() {
     }
   };
 
+  const formatResultData = (data: unknown) => {
+    if (data === null || data === undefined) {
+      return '';
+    }
+
+    if (typeof data === 'string') {
+      return data;
+    }
+
+    if (typeof data === 'number' || typeof data === 'boolean') {
+      return data.toString();
+    }
+
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch {
+      return String(data);
+    }
+  };
+
   const TestResultDisplay = ({ testKey, title }: { testKey: string, title: string; }) => {
     const result = results[testKey];
     if (!result) return null;
+    const hasData = result.data !== undefined && result.data !== null;
 
     return (
       <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
@@ -98,9 +136,9 @@ export default function AdminTestsPage() {
             <p className="font-semibold text-sm">{title}</p>
             <AlertDescription className="mt-1">
               {result.success ? result.message : result.error}
-              {result.data && (
+              {hasData && (
                 <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-20">
-                  {JSON.stringify(result.data, null, 2)}
+                  {formatResultData(result.data)}
                 </pre>
               )}
             </AlertDescription>
@@ -217,17 +255,6 @@ export default function AdminTestsPage() {
                     ))}
                   </div>
 
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Wise (International)</h4>
-                    {Object.entries(paymentConfig.wise).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{key}</span>
-                        <Badge variant={configured ? 'default' : 'destructive'}>
-                          {configured ? 'OK' : 'Manquant'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
 

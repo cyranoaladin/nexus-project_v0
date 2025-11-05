@@ -1,14 +1,11 @@
 import { authOptions } from '@/lib/auth';
 import { refundSessionBookingById } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
+import { SessionStatus } from '@prisma/client';
+import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const cancelSessionSchema = z.object({
-  sessionId: z.string(),
-  reason: z.string().optional()
-});
+import { cancelSessionSchema, mapSessionToResponse, sessionResponseInclude } from '../contracts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,13 +63,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Annuler la session
-    await prisma.sessionBooking.update({
+    const cancelledSession = await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
-        status: 'CANCELLED' as any,
+        status: SessionStatus.CANCELLED,
         cancelledAt: new Date(),
         coachNotes: reason ? `Annulée: ${reason}` : 'Annulée'
-      }
+      },
+      include: sessionResponseInclude
     });
 
     // Rembourser les crédits si dans les délais (idempotent)
@@ -85,12 +83,18 @@ export async function POST(request: NextRequest) {
       refunded: canRefund,
       message: canRefund
         ? 'Session annulée et crédits remboursés'
-        : 'Session annulée (pas de remboursement - délai dépassé)'
+        : 'Session annulée (pas de remboursement - délai dépassé)',
+      session: mapSessionToResponse(cancelledSession)
     });
 
   } catch (error) {
     console.error('Erreur annulation session:', error);
-
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.format() },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

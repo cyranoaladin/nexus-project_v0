@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -46,6 +46,13 @@ enum Subject {
   PHYSIQUE_CHIMIE
   SVT
   SES
+}
+
+enum AriaAccessStatus {
+  INACTIVE
+  FREEMIUM
+  ACTIVE
+  SUSPENDED
 }
 
 // Énumération des statuts de session
@@ -153,6 +160,9 @@ model Student {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  /// UUID identifiant l'élève côté backend (FastAPI / nexus_app.students)
+  dashboardStudentId String? @unique @db.Uuid
+
   // Informations scolaires
   grade     String? // Classe
   school    String?
@@ -162,6 +172,16 @@ model Student {
   credits            Int @default(0)
   totalSessions      Int @default(0)
   completedSessions  Int @default(0)
+
+  // Accès ARIA
+  ariaStatus             AriaAccessStatus @default(INACTIVE)
+  ariaSubjects           String @default("[]")
+  ariaActivatedAt        DateTime?
+  ariaDeactivatedAt      DateTime?
+  ariaFreemiumTokens     Int @default(0)
+  ariaFreemiumTokensUsed Int @default(0)
+  ariaFreemiumExpiresAt  DateTime?
+  ariaLastInteractionAt  DateTime?
 
   // Relations
   subscriptions    Subscription[]

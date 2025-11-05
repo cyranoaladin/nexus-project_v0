@@ -2,13 +2,23 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
+import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
+import type { PaymentWithRelations } from '@/app/api/sessions/contracts';
 
 const validatePaymentSchema = z.object({
-  paymentId: z.string(),
+  paymentId: z.string().min(1, 'Identifiant de paiement requis'),
   action: z.enum(['approve', 'reject']),
   note: z.string().optional()
 });
+
+const subscriptionPaymentMetadataSchema = z.object({
+  studentId: z.string().min(1),
+  itemKey: z.string().min(1),
+  itemType: z.string().optional(),
+});
+
+type SubscriptionPaymentMetadata = z.infer<typeof subscriptionPaymentMetadataSchema>;
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,17 +37,6 @@ export async function POST(request: NextRequest) {
     // Récupérer le paiement
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
-      include: {
-        user: {
-          include: {
-            parentProfile: {
-              include: {
-                children: true
-              }
-            }
-          }
-        }
-      }
     });
 
     if (!payment) {
@@ -47,35 +46,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let updatedPayment: PaymentWithRelations | null = null;
+
+    const existingMetadata = (payment.metadata ?? {}) as Record<string, unknown>;
+
+    let subscriptionMetadata: SubscriptionPaymentMetadata | null = null;
+
     if (action === 'approve') {
+      if (payment.type === 'SUBSCRIPTION') {
+        const metadataResult = subscriptionPaymentMetadataSchema.safeParse(payment.metadata ?? {});
+
+        if (!metadataResult.success) {
+          return NextResponse.json(
+            { error: 'Métadonnées de paiement invalides' },
+            { status: 422 }
+          );
+        }
+
+        subscriptionMetadata = metadataResult.data;
+      }
+
       // Valider le paiement
-      await prisma.payment.update({
+      updatedPayment = await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'COMPLETED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...existingMetadata,
             validatedBy: session.user.id,
             validatedAt: new Date().toISOString(),
             validationNote: note
           }
-        }
+        },
+        include: paymentResponseInclude,
       });
 
-      // Activer le service selon le type
-      const metadata = payment.metadata as any;
-
-      if (payment.type === 'SUBSCRIPTION') {
+      if (payment.type === 'SUBSCRIPTION' && subscriptionMetadata) {
         // Activer l'abonnement
         const student = await prisma.student.findUnique({
-          where: { id: metadata.studentId }
+          where: { id: subscriptionMetadata.studentId }
         });
 
         if (student) {
           // Désactiver l'ancien abonnement
           await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
+              studentId: subscriptionMetadata.studentId,
               status: 'ACTIVE'
             },
             data: { status: 'CANCELLED' }
@@ -84,8 +100,8 @@ export async function POST(request: NextRequest) {
           // Activer le nouvel abonnement
           await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
-              planName: metadata.itemKey,
+              studentId: subscriptionMetadata.studentId,
+              planName: subscriptionMetadata.itemKey,
               status: 'INACTIVE'
             },
             data: {
@@ -97,7 +113,7 @@ export async function POST(request: NextRequest) {
           // Allouer les crédits mensuels
           const subscription = await prisma.subscription.findFirst({
             where: {
-              studentId: metadata.studentId,
+              studentId: subscriptionMetadata.studentId,
               status: 'ACTIVE'
             }
           });
@@ -108,7 +124,7 @@ export async function POST(request: NextRequest) {
 
             await prisma.creditTransaction.create({
               data: {
-                studentId: metadata.studentId,
+                studentId: subscriptionMetadata.studentId,
                 type: 'MONTHLY_ALLOCATION',
                 amount: subscription.creditsPerMonth,
                 description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
@@ -123,28 +139,44 @@ export async function POST(request: NextRequest) {
 
     } else {
       // Rejeter le paiement
-      await prisma.payment.update({
+      updatedPayment = await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'FAILED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...existingMetadata,
             rejectedBy: session.user.id,
             rejectedAt: new Date().toISOString(),
             rejectionReason: note
           }
-        }
+        },
+        include: paymentResponseInclude,
       });
 
       // TODO: Envoyer email d'information au client
     }
 
+    if (!updatedPayment) {
+      return NextResponse.json(
+        { error: 'Paiement introuvable après mise à jour' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`
+      message: `Paiement ${action === 'approve' ? 'validé' : 'rejeté'} avec succès`,
+      payment: mapPaymentToResponse(updatedPayment)
     });
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: error.format() },
+        { status: 400 }
+      );
+    }
+
     console.error('Erreur validation paiement:', error);
 
     return NextResponse.json(

@@ -2,9 +2,19 @@ import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { prisma } from './prisma';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+let cachedOpenAI: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI | null {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+
+  if (!cachedOpenAI) {
+    cachedOpenAI = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+
+  return cachedOpenAI;
+}
 
 // Système de prompt pour ARIA
 const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
@@ -54,6 +64,12 @@ export async function generateAriaResponse(
   conversationHistory: Array<{ role: string; content: string; }> = []
 ): Promise<string> {
   try {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.warn('ARIA: OPENAI_API_KEY manquant - réponse de secours renvoyée');
+      return 'ARIA est momentanément indisponible. Merci de réessayer plus tard.';
+    }
+
     // Recherche dans la base de connaissances
     const knowledgeBase = await searchKnowledgeBase(message, subject);
 
@@ -83,8 +99,9 @@ export async function generateAriaResponse(
     ];
 
     // Appel à OpenAI
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model,
       messages,
       max_tokens: 1000,
       temperature: 0.7

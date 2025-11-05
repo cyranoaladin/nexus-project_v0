@@ -1,7 +1,37 @@
+import type { Prisma, User } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic'
+
+type SessionBookingWithParticipants = Prisma.SessionBookingGetPayload<{
+  include: {
+    student: true;
+    coach: true;
+  };
+}>;
+
+type SubscriptionWithStudentUser = Prisma.SubscriptionGetPayload<{
+  include: {
+    student: {
+      include: {
+        user: true;
+      };
+    };
+  };
+}>;
+
+type CreditTransactionWithStudentUser = Prisma.CreditTransactionGetPayload<{
+  include: {
+    student: {
+      include: {
+        user: true;
+      };
+    };
+  };
+}>;
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,6 +51,51 @@ export async function GET(request: NextRequest) {
     const _lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
     // Get comprehensive statistics
+    const recentActivitiesPromise: Promise<[
+      SessionBookingWithParticipants[],
+      User[],
+      SubscriptionWithStudentUser[],
+      CreditTransactionWithStudentUser[],
+    ]> = Promise.all([
+      // Sessions (SessionBooking)
+      prisma.sessionBooking.findMany({
+        take: 10,
+        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
+        include: {
+          student: true,
+          coach: true,
+        }
+      }),
+      // New users
+      prisma.user.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' }
+      }),
+      // New subscriptions
+      prisma.subscription.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          student: { include: { user: true } }
+        }
+      }),
+      // Credit transactions
+      prisma.creditTransaction.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          student: { include: { user: true } }
+        }
+      })
+    ]);
+
+    const systemHealthPromise = Promise.all([
+      prisma.user.count(),
+      prisma.sessionBooking.count(),
+      prisma.payment.count(),
+      prisma.subscription.count()
+    ]);
+
     const [
       totalUsers,
       totalStudents,
@@ -140,42 +215,10 @@ export async function GET(request: NextRequest) {
       }),
 
       // Recent activities (last 20 activities) - including sessions, users, subscriptions, and credit transactions
-      Promise.all([
-        // Sessions (SessionBooking)
-        prisma.sessionBooking.findMany({
-          take: 10,
-          orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
-        }),
-        // New users
-        prisma.user.findMany({
-          take: 5,
-          orderBy: { createdAt: 'desc' }
-        }),
-        // New subscriptions
-        prisma.subscription.findMany({
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            student: { include: { user: true } }
-          }
-        }),
-        // Credit transactions
-        prisma.creditTransaction.findMany({
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            student: { include: { user: true } }
-          }
-        })
-      ]),
+      recentActivitiesPromise,
 
       // System health check
-      Promise.all([
-        prisma.user.count(),
-        prisma.sessionBooking.count(),
-        prisma.payment.count(),
-        prisma.subscription.count()
-      ]),
+      systemHealthPromise,
 
       // User growth (last 6 months)
       prisma.user.groupBy({
@@ -219,7 +262,7 @@ export async function GET(request: NextRequest) {
     const sessionGrowthPercent = lastMonthSessions > 0 ? ((thisMonthSessions - lastMonthSessions) / lastMonthSessions) * 100 : 0;
 
     // Format recent activities - combine all activity types
-    const [sessions, users, subscriptions, creditTransactions] = recentActivities as [any[], any[], any[], any[]];
+    const [sessions, users, subscriptions, creditTransactions] = recentActivities;
 
     const formattedRecentActivities = [
       // Format sessions
@@ -227,11 +270,11 @@ export async function GET(request: NextRequest) {
         id: activity.id,
         type: 'session',
         title: `Session ${activity.subject}`,
-        description: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'} avec ${activity.coach?.pseudonym || 'Unknown Coach'}`,
+        description: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'} avec ${activity.coach?.firstName || ''} ${activity.coach?.lastName || ''}`.trim(),
         time: activity.createdAt,
         status: activity.status,
-        studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
-        coachName: activity.coach?.pseudonym || 'Unknown Coach',
+        studentName: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'}`,
+        coachName: `${activity.coach?.firstName || ''} ${activity.coach?.lastName || ''}`.trim(),
         subject: activity.subject,
         action: activity.status === 'COMPLETED' ? 'Session terminée' :
           activity.status === 'SCHEDULED' ? 'Session programmée' :
