@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, NotificationMethod, NotificationType, ReminderType } from '@prisma/client';
 import { ZodError } from 'zod';
 import { bookSessionSchema, mapSessionToResponse, sessionResponseInclude } from '../contracts';
 
@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
         where: { studentId: studentRecord.id }
       });
 
-      const currentCredits = creditTransactions.reduce((total: number, transaction: any) => {
+      const currentCredits = creditTransactions.reduce<number>((total, transaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -307,16 +307,16 @@ export async function POST(req: NextRequest) {
       });
 
       // 10. Create notifications
-      const notifications: any[] = [];
+      const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
       // Notify coach
       notifications.push({
         sessionId: sessionBooking.id,
         userId: coachProfile.user.id,
-        type: 'SESSION_BOOKED',
+        type: NotificationType.SESSION_BOOKED,
         title: 'Nouvelle session réservée',
         message: `${student.firstName} ${student.lastName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-        method: 'EMAIL'
+        method: NotificationMethod.EMAIL
       });
 
       // Notify assistant
@@ -328,10 +328,10 @@ export async function POST(req: NextRequest) {
         notifications.push({
           sessionId: sessionBooking.id,
           userId: assistant.id,
-          type: 'SESSION_BOOKED',
+          type: NotificationType.SESSION_BOOKED,
           title: 'Nouvelle session planifiée',
           message: `Session ${validatedData.subject} entre ${coachProfile.user.firstName} ${coachProfile.user.lastName} et ${student.firstName} ${student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'IN_APP'
+          method: NotificationMethod.IN_APP
         });
       }
 
@@ -340,45 +340,45 @@ export async function POST(req: NextRequest) {
         notifications.push({
           sessionId: sessionBooking.id,
           userId: parentId,
-          type: 'SESSION_BOOKED',
+          type: NotificationType.SESSION_BOOKED,
           title: 'Session réservée pour votre enfant',
           message: `Session de ${validatedData.subject} avec ${coachProfile.user.firstName} ${coachProfile.user.lastName} programmée pour ${student.firstName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'EMAIL'
+          method: NotificationMethod.EMAIL
         });
       }
 
       // Create all notifications
       await tx.sessionNotification.createMany({
-        data: notifications as any
+        data: notifications
       });
 
       // 11. Create reminders
-      const reminders: any[] = [];
+      const reminders: Prisma.SessionReminderCreateManyInput[] = [];
       const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
 
       // 1 day before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'ONE_DAY_BEFORE',
+        reminderType: ReminderType.ONE_DAY_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
       });
 
       // 2 hours before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'TWO_HOURS_BEFORE',
+        reminderType: ReminderType.TWO_HOURS_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
       });
 
       // 30 minutes before
       reminders.push({
         sessionId: sessionBooking.id,
-        reminderType: 'THIRTY_MINUTES_BEFORE',
+        reminderType: ReminderType.THIRTY_MINUTES_BEFORE,
         scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
       });
 
       await tx.sessionReminder.createMany({
-        data: reminders as any
+        data: reminders
       });
 
       return sessionBooking;

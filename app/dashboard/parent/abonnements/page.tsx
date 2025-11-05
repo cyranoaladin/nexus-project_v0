@@ -4,13 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
 import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Footer } from "@/components/layout/footer";
 
 interface Child {
@@ -26,29 +26,33 @@ interface Child {
   ariaSubjects: string[];
 }
 
+interface SubscriptionPlan {
+  name: string;
+  price: number;
+  credits: number;
+  features: readonly string[];
+  popular?: boolean;
+}
+
+type SubscriptionPlanKey = keyof typeof SUBSCRIPTION_PLANS;
+type AriaAddonKey = keyof typeof ARIA_ADDONS;
+
+interface ParentSubscriptionResponse {
+  children: Child[];
+}
+
 export default function AbonnementsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [selectedChild, setSelectedChild] = useState<string>("");
-  const [parentData, setParentData] = useState<{ children: Child[] } | null>(null);
+  const [parentData, setParentData] = useState<ParentSubscriptionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchSubscriptions();
-  }, [session, status, router]);
-
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -59,7 +63,7 @@ export default function AbonnementsPage() {
         throw new Error('Failed to fetch subscriptions');
       }
 
-      const data = await response.json();
+      const data: ParentSubscriptionResponse = await response.json();
       setParentData(data);
 
       if (data.children.length > 0) {
@@ -71,11 +75,24 @@ export default function AbonnementsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const currentChild = parentData?.children.find((child: any) => child.id === selectedChild);
+  useEffect(() => {
+    if (status === "loading") return;
 
-  const handleSubscriptionRequest = async (plan: any) => {
+    if (!session || session.user.role !== 'PARENT') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchSubscriptions();
+  }, [session, status, router, fetchSubscriptions]);
+
+  const currentChild = useMemo(() => (
+    parentData?.children.find((child) => child.id === selectedChild) ?? null
+  ), [parentData, selectedChild]);
+
+  const handleSubscriptionRequest = async (plan: SubscriptionPlan) => {
     if (!selectedChild) {
       alert('Veuillez sélectionner un enfant');
       return;
@@ -118,7 +135,7 @@ export default function AbonnementsPage() {
     }
   };
 
-  const handleAriaAddon = async (addonKey: string) => {
+  const handleAriaAddon = async (addonKey: AriaAddonKey) => {
     if (!selectedChild) {
       alert('Veuillez sélectionner un enfant');
       return;
@@ -134,7 +151,7 @@ export default function AbonnementsPage() {
         body: JSON.stringify({
           studentId: selectedChild,
           planName: `ARIA_${addonKey}`,
-          monthlyPrice: (ARIA_ADDONS as any)[addonKey]?.price || 0,
+          monthlyPrice: ARIA_ADDONS[addonKey]?.price ?? 0,
           creditsPerMonth: 0
         })
       });
@@ -226,7 +243,7 @@ export default function AbonnementsPage() {
                 <SelectValue placeholder="Sélectionner un enfant" />
               </SelectTrigger>
               <SelectContent>
-                {parentData?.children.map((child: any) => (
+                {parentData?.children.map((child) => (
                   <SelectItem key={child.id} value={child.id}>
                     {child.firstName} {child.lastName} ({child.grade})
                   </SelectItem>
@@ -284,7 +301,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(SUBSCRIPTION_PLANS).map(([key, plan]) => (
+                  {(Object.entries(SUBSCRIPTION_PLANS) as Array<[SubscriptionPlanKey, typeof SUBSCRIPTION_PLANS[SubscriptionPlanKey]]>).map(([key, plan]) => (
                     <Card
                       key={key}
                       className={`relative ${key === currentChild.currentSubscription
@@ -324,7 +341,8 @@ export default function AbonnementsPage() {
                         ) : (
                           <Button
                             onClick={() => {
-                              setSelectedPlan((SUBSCRIPTION_PLANS as any)[key]);
+                              const selected = SUBSCRIPTION_PLANS[key];
+                              setSelectedPlan({ ...selected });
                               setShowRequestDialog(true);
                             }}
                             className="w-full text-sm sm:text-base"
@@ -351,7 +369,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {Object.entries(ARIA_ADDONS).map(([key, addon]) => (
+                  {(Object.entries(ARIA_ADDONS) as Array<[AriaAddonKey, typeof ARIA_ADDONS[AriaAddonKey]]>).map(([key, addon]) => (
                     <Card key={key} className="border-gray-200">
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-4">
@@ -446,7 +464,7 @@ export default function AbonnementsPage() {
                 <div className="space-y-2">
                   <h4 className="font-medium">Fonctionnalités incluses :</h4>
                   <ul className="space-y-1">
-                    {selectedPlan.features.map((feature: string, index: number) => (
+                    {selectedPlan.features.map((feature, index) => (
                       <li key={index} className="flex items-center space-x-2">
                         <Check className="w-3 h-3 text-green-500" />
                         <span className="text-sm">{feature}</span>

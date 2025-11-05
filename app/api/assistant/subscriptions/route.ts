@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedPendingSubscriptions = pendingSubscriptions.map((sub: any) => ({
+    const formattedPendingSubscriptions = pendingSubscriptions.map((sub) => ({
       id: sub.id,
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       }
     }));
 
-    const formattedAllSubscriptions = allSubscriptions.map((sub: any) => ({
+    const formattedAllSubscriptions = allSubscriptions.map((sub) => ({
       id: sub.id,
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,

@@ -1,14 +1,18 @@
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/lib/prisma';
+
+export type PaymentMetadata = Prisma.JsonObject;
 
 export type UpsertPaymentParams = {
   externalId: string;
-method: string; // e.g., 'konnect' | 'manual'
+  method: string; // e.g., 'konnect' | 'manual'
   type: 'SUBSCRIPTION' | 'CREDIT_PACK' | 'SPECIAL_PACK';
   userId: string;
   amount: number;
   currency?: string;
   description: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
 };
 
 // Idempotent create-or-get by (method, externalId)
@@ -39,13 +43,14 @@ export async function upsertPaymentByExternalId(params: UpsertPaymentParams) {
         status: 'PENDING',
         method,
         externalId,
-        metadata: metadata as any,
+        metadata: metadata ?? undefined,
       },
     });
     return { payment: created, created: true as const };
-  } catch (err: any) {
-    // Unique constraint violation due to concurrency
-    if (err?.code === 'P2002') {
+  } catch (err: unknown) {
+    const code = typeof err === 'object' && err !== null && 'code' in err ? (err as { code?: string }).code : undefined;
+
+    if (code === 'P2002') {
       const again = await prisma.payment.findFirst({ where: { externalId, method } });
       if (again) return { payment: again, created: false as const };
     }

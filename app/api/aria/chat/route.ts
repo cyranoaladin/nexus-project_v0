@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { AriaMessage } from '@prisma/client'
+import { AriaMessage, AriaAccessStatus } from '@prisma/client'
 import { z } from 'zod'
 import { Subject } from '@/types/enums'
 import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
+import {
+  getAriaAccessSnapshot,
+  hasFreemiumQuota,
+  parseSubjectsDescriptor,
+  registerAriaInteraction
+} from '@/lib/aria-access'
 import { checkAndAwardBadges } from '@/lib/badges'
 import { rateLimit, ipKey } from '@/lib/security/rate-limit'
 import { verifyCsrf } from '@/lib/security/csrf'
@@ -66,11 +72,56 @@ export async function POST(request: NextRequest) {
     
     // Vérifier l'accès à ARIA pour cette matière
     const activeSubscription = student.subscriptions[0]
-    if (!activeSubscription || !activeSubscription.ariaSubjects.includes(validatedData.subject)) {
+
+    const ariaSnapshot = getAriaAccessSnapshot(student)
+    const allowedSubjects = new Set<string>(
+      ariaSnapshot.subjects.map(subject => subject.toString())
+    )
+
+    if (activeSubscription) {
+      parseSubjectsDescriptor(activeSubscription.ariaSubjects)
+        .forEach(subject => allowedSubjects.add(subject.toString()))
+    }
+
+    if (!allowedSubjects.size) {
+      return NextResponse.json(
+        { error: 'Accès ARIA non provisionné pour cet élève' },
+        { status: 403 }
+      )
+    }
+
+    if (!allowedSubjects.has(validatedData.subject)) {
       return NextResponse.json(
         { error: 'Accès ARIA non autorisé pour cette matière' },
         { status: 403 }
       )
+    }
+
+    const effectiveStatus = ariaSnapshot.status === AriaAccessStatus.INACTIVE && activeSubscription
+      ? AriaAccessStatus.ACTIVE
+      : ariaSnapshot.status
+
+    if (effectiveStatus === AriaAccessStatus.SUSPENDED) {
+      return NextResponse.json(
+        { error: 'Accès ARIA suspendu, contactez le support Nexus' },
+        { status: 403 }
+      )
+    }
+
+    if (effectiveStatus === AriaAccessStatus.INACTIVE) {
+      return NextResponse.json(
+        { error: 'Accès ARIA non activé' },
+        { status: 403 }
+      )
+    }
+
+    if (effectiveStatus === AriaAccessStatus.FREEMIUM) {
+      if (!hasFreemiumQuota(ariaSnapshot)) {
+        return NextResponse.json(
+          { error: 'Quota freemium ARIA épuisé. Contactez Nexus pour débloquer l’accès illimité.' },
+          { status: 402 }
+        )
+      }
     }
     
     // Récupérer l'historique de conversation si fourni
@@ -105,6 +156,12 @@ export async function POST(request: NextRequest) {
       ariaResponse,
       validatedData.conversationId
     )
+
+    await registerAriaInteraction({
+      studentId: student.id,
+      status: effectiveStatus,
+      tokensConsumed: 1
+    })
     
     // Vérifier et attribuer des badges
     const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')

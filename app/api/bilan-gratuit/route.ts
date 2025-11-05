@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Créer le profil élève
-      const studentProfile = await tx.studentProfile.create({
+      await tx.studentProfile.create({
         data: {
           userId: studentUser.id,
           grade: validatedData.studentGrade,

@@ -5,6 +5,8 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { extractSessionListQuery, mapSessionToResponse, normalizeSessionListQuery, sessionResponseInclude } from './contracts';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

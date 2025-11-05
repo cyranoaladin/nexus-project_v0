@@ -1,7 +1,10 @@
+import type { Prisma, SubscriptionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'ACTIVE';
+    const statusParam = searchParams.get('status');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
@@ -23,10 +26,10 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {};
-    
-    if (status && status !== 'ALL') {
-      whereClause.status = status;
+    const whereClause: Prisma.SubscriptionWhereInput = {};
+
+    if (statusParam && statusParam !== 'ALL') {
+      whereClause.status = statusParam as SubscriptionStatus;
     }
     
     if (search) {
@@ -73,7 +76,7 @@ export async function GET(request: NextRequest) {
       prisma.subscription.count({ where: whereClause })
     ]);
 
-    const formattedSubscriptions = subscriptions.map((subscription: any) => ({
+    const formattedSubscriptions = subscriptions.map((subscription) => ({
       id: subscription.id,
       planName: subscription.planName,
       monthlyPrice: subscription.monthlyPrice,

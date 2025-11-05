@@ -20,6 +20,15 @@ interface SessionData {
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 }
 
+type SessionJoinResponse = {
+  success: boolean;
+  error?: string;
+  sessionData?: SessionData & {
+    roomName: string;
+    isHost?: boolean;
+  };
+};
+
 function SessionVideoCallContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -54,8 +63,8 @@ function SessionVideoCallContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, action: 'JOIN' })
         });
-        const data = await response.json();
-        if (!response.ok || !data.success) {
+        const data: SessionJoinResponse = await response.json();
+        if (!response.ok || !data.success || !data.sessionData) {
           throw new Error(data.error || 'Impossible de rejoindre la session');
         }
         const s = data.sessionData;
@@ -70,9 +79,10 @@ function SessionVideoCallContent() {
         });
         setRoomName(s.roomName);
         setIsHost(!!s.isHost);
-        setLoading(false);
-      } catch (e: any) {
-        setError(e.message || 'Erreur lors de la jonction à la session');
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Erreur lors de la jonction à la session';
+        setError(message);
+      } finally {
         setLoading(false);
       }
     })();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Loader2, Plus, Edit, Trash2, ArrowLeft, UserPlus, CheckCircle } from 'lucide-react';
@@ -30,6 +29,51 @@ interface Coach {
   availableInPerson: boolean;
   createdAt: string;
 }
+
+interface CoachFormState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  pseudonym: string;
+  tag: string;
+  description: string;
+  philosophy: string;
+  expertise: string;
+  subjects: string[];
+  availableOnline: boolean;
+  availableInPerson: boolean;
+}
+
+const defaultFormState: CoachFormState = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  pseudonym: '',
+  tag: '',
+  description: '',
+  philosophy: '',
+  expertise: '',
+  subjects: [],
+  availableOnline: true,
+  availableInPerson: true,
+};
+
+const mapCoachToFormState = (coach: Coach): CoachFormState => ({
+  firstName: coach.firstName,
+  lastName: coach.lastName,
+  email: coach.email,
+  password: '',
+  pseudonym: coach.pseudonym,
+  tag: coach.tag,
+  description: coach.description,
+  philosophy: coach.philosophy,
+  expertise: coach.expertise,
+  subjects: coach.coachSubjects,
+  availableOnline: coach.availableOnline,
+  availableInPerson: coach.availableInPerson,
+});
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -56,20 +100,7 @@ export default function CoachManagement() {
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    pseudonym: '',
-    tag: '',
-    description: '',
-    philosophy: '',
-    expertise: '',
-    subjects: [] as string[],
-    availableOnline: true,
-    availableInPerson: true
-  });
+  const [formData, setFormData] = useState<CoachFormState>(defaultFormState);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -91,8 +122,8 @@ export default function CoachManagement() {
         throw new Error('Failed to fetch coaches');
       }
       
-      const data = await response.json();
-      setCoaches(data.coaches || []);
+      const data = (await response.json()) as { coaches?: Coach[] };
+      setCoaches(data.coaches ?? []);
     } catch (err) {
       console.error('Error fetching coaches:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -102,20 +133,7 @@ export default function CoachManagement() {
   };
 
   const resetForm = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      pseudonym: '',
-      tag: '',
-      description: '',
-      philosophy: '',
-      expertise: '',
-      subjects: [],
-      availableOnline: true,
-      availableInPerson: true
-    });
+    setFormData(defaultFormState);
   };
 
   const handleAddCoach = async () => {
@@ -197,21 +215,23 @@ export default function CoachManagement() {
 
   const openEditDialog = (coach: Coach) => {
     setEditingCoach(coach);
-    setFormData({
-      firstName: coach.firstName,
-      lastName: coach.lastName,
-      email: coach.email,
-      password: '',
-      pseudonym: coach.pseudonym,
-      tag: coach.tag,
-      description: coach.description,
-      philosophy: coach.philosophy,
-      expertise: coach.expertise,
-      subjects: coach.coachSubjects,
-      availableOnline: coach.availableOnline,
-      availableInPerson: coach.availableInPerson
-    });
+    setFormData(mapCoachToFormState(coach));
     setIsEditDialogOpen(true);
+  };
+
+  const handleCancelAdd = () => {
+    resetForm();
+    setIsAddDialogOpen(false);
+  };
+
+  const handleCancelEdit = () => {
+    if (editingCoach) {
+      setFormData(mapCoachToFormState(editingCoach));
+    } else {
+      resetForm();
+    }
+    setIsEditDialogOpen(false);
+    setEditingCoach(null);
   };
 
   if (status === "loading" || loading) {
@@ -259,6 +279,7 @@ export default function CoachManagement() {
                   formData={formData}
                   setFormData={setFormData}
                   onSubmit={handleAddCoach}
+                  onCancel={handleCancelAdd}
                   submitting={submitting}
                   subjects={SUBJECTS}
                 />
@@ -370,6 +391,7 @@ export default function CoachManagement() {
             formData={formData}
             setFormData={setFormData}
             onSubmit={handleEditCoach}
+            onCancel={handleCancelEdit}
             submitting={submitting}
             subjects={SUBJECTS}
           />
@@ -380,20 +402,32 @@ export default function CoachManagement() {
 }
 
 interface CoachFormProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: CoachFormState;
+  setFormData: Dispatch<SetStateAction<CoachFormState>>;
   onSubmit: () => void;
+  onCancel: () => void;
   submitting: boolean;
-  subjects: Array<{ value: string; label: string }>;
+  subjects: typeof SUBJECTS;
 }
 
-function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: CoachFormProps) {
+function CoachForm({ formData, setFormData, onSubmit, onCancel, submitting, subjects }: CoachFormProps) {
   const handleSubjectChange = (subject: string, checked: boolean) => {
-    if (checked) {
-      setFormData({ ...formData, subjects: [...formData.subjects, subject] });
-    } else {
-      setFormData({ ...formData, subjects: formData.subjects.filter((s: string) => s !== subject) });
-    }
+    setFormData((previous) => {
+      if (checked) {
+        if (previous.subjects.includes(subject)) {
+          return previous;
+        }
+        return {
+          ...previous,
+          subjects: [...previous.subjects, subject],
+        };
+      }
+
+      return {
+        ...previous,
+        subjects: previous.subjects.filter((value) => value !== subject),
+      };
+    });
   };
 
   return (
@@ -404,7 +438,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <Input
             id="firstName"
             value={formData.firstName}
-            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, firstName: e.target.value }))}
             placeholder="Prénom"
           />
         </div>
@@ -413,7 +447,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <Input
             id="lastName"
             value={formData.lastName}
-            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, lastName: e.target.value }))}
             placeholder="Nom"
           />
         </div>
@@ -426,7 +460,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             id="email"
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, email: e.target.value }))}
             placeholder="email@example.com"
           />
         </div>
@@ -436,7 +470,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             id="password"
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, password: e.target.value }))}
             placeholder="Mot de passe"
           />
         </div>
@@ -448,7 +482,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <Input
             id="pseudonym"
             value={formData.pseudonym}
-            onChange={(e) => setFormData({ ...formData, pseudonym: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, pseudonym: e.target.value }))}
             placeholder="Hélios, Zénon, etc."
           />
         </div>
@@ -457,7 +491,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <Input
             id="tag"
             value={formData.tag}
-            onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, tag: e.target.value }))}
             placeholder="🎓 Agrégé, 🎯 Stratège, etc."
           />
         </div>
@@ -468,7 +502,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) => setFormData((previous) => ({ ...previous, description: e.target.value }))}
           placeholder="Description du coach..."
           rows={3}
         />
@@ -479,7 +513,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
         <Textarea
           id="philosophy"
           value={formData.philosophy}
-          onChange={(e) => setFormData({ ...formData, philosophy: e.target.value })}
+          onChange={(e) => setFormData((previous) => ({ ...previous, philosophy: e.target.value }))}
           placeholder="Philosophie d'enseignement..."
           rows={2}
         />
@@ -490,7 +524,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
         <Textarea
           id="expertise"
           value={formData.expertise}
-          onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
+          onChange={(e) => setFormData((previous) => ({ ...previous, expertise: e.target.value }))}
           placeholder="Domaines d'expertise..."
           rows={2}
         />
@@ -518,7 +552,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <input
             type="checkbox"
             checked={formData.availableOnline}
-            onChange={(e) => setFormData({ ...formData, availableOnline: e.target.checked })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, availableOnline: e.target.checked }))}
             className="rounded"
           />
           <span>Disponible en ligne</span>
@@ -527,7 +561,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           <input
             type="checkbox"
             checked={formData.availableInPerson}
-            onChange={(e) => setFormData({ ...formData, availableInPerson: e.target.checked })}
+            onChange={(e) => setFormData((previous) => ({ ...previous, availableInPerson: e.target.checked }))}
             className="rounded"
           />
           <span>Disponible en présentiel</span>
@@ -535,7 +569,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={() => setFormData({})}>
+        <Button variant="outline" onClick={onCancel}>
           Annuler
         </Button>
         <Button onClick={onSubmit} disabled={submitting}>

@@ -1,5 +1,6 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { SessionStatus } from '@prisma/client';
 import crypto from 'crypto';
 import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
@@ -54,10 +55,10 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'JOIN':
         // Marquer la session comme en cours si elle ne l'est pas déjà
-        if (bookingSession.status === 'SCHEDULED') {
+        if (bookingSession.status === SessionStatus.SCHEDULED) {
           await prisma.sessionBooking.update({
             where: { id: sessionId },
-            data: { status: 'IN_PROGRESS' as any }
+            data: { status: SessionStatus.IN_PROGRESS }
           });
         }
 
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
         // Marquer la session comme terminée
         await prisma.sessionBooking.update({
           where: { id: sessionId },
-          data: { status: 'COMPLETED' as any, completedAt: new Date() }
+          data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
         });
 
         // TODO: Logique de crédits si nécessaire

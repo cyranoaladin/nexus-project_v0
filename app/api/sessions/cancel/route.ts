@@ -1,6 +1,7 @@
 import { authOptions } from '@/lib/auth';
 import { refundSessionBookingById } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
+import { SessionStatus } from '@prisma/client';
 import { ZodError } from 'zod';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     const cancelledSession = await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
-        status: 'CANCELLED' as any,
+        status: SessionStatus.CANCELLED,
         cancelledAt: new Date(),
         coachNotes: reason ? `Annulée: ${reason}` : 'Annulée'
       },

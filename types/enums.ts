@@ -36,6 +36,13 @@ export enum Subject {
   SES = 'SES'
 }
 
+export enum AriaAccessStatus {
+  INACTIVE = 'INACTIVE',
+  FREEMIUM = 'FREEMIUM',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED'
+}
+
 export enum SessionStatus {
   SCHEDULED = 'SCHEDULED',
   COMPLETED = 'COMPLETED',

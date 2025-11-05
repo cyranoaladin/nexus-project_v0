@@ -12,6 +12,14 @@ const validatePaymentSchema = z.object({
   note: z.string().optional()
 });
 
+const subscriptionPaymentMetadataSchema = z.object({
+  studentId: z.string().min(1),
+  itemKey: z.string().min(1),
+  itemType: z.string().optional(),
+});
+
+type SubscriptionPaymentMetadata = z.infer<typeof subscriptionPaymentMetadataSchema>;
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -40,14 +48,31 @@ export async function POST(request: NextRequest) {
 
     let updatedPayment: PaymentWithRelations | null = null;
 
+    const existingMetadata = (payment.metadata ?? {}) as Record<string, unknown>;
+
+    let subscriptionMetadata: SubscriptionPaymentMetadata | null = null;
+
     if (action === 'approve') {
+      if (payment.type === 'SUBSCRIPTION') {
+        const metadataResult = subscriptionPaymentMetadataSchema.safeParse(payment.metadata ?? {});
+
+        if (!metadataResult.success) {
+          return NextResponse.json(
+            { error: 'Métadonnées de paiement invalides' },
+            { status: 422 }
+          );
+        }
+
+        subscriptionMetadata = metadataResult.data;
+      }
+
       // Valider le paiement
       updatedPayment = await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'COMPLETED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...existingMetadata,
             validatedBy: session.user.id,
             validatedAt: new Date().toISOString(),
             validationNote: note
@@ -56,20 +81,17 @@ export async function POST(request: NextRequest) {
         include: paymentResponseInclude,
       });
 
-      // Activer le service selon le type
-      const metadata = payment.metadata as any;
-
-      if (payment.type === 'SUBSCRIPTION') {
+      if (payment.type === 'SUBSCRIPTION' && subscriptionMetadata) {
         // Activer l'abonnement
         const student = await prisma.student.findUnique({
-          where: { id: metadata.studentId }
+          where: { id: subscriptionMetadata.studentId }
         });
 
         if (student) {
           // Désactiver l'ancien abonnement
           await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
+              studentId: subscriptionMetadata.studentId,
               status: 'ACTIVE'
             },
             data: { status: 'CANCELLED' }
@@ -78,8 +100,8 @@ export async function POST(request: NextRequest) {
           // Activer le nouvel abonnement
           await prisma.subscription.updateMany({
             where: {
-              studentId: metadata.studentId,
-              planName: metadata.itemKey,
+              studentId: subscriptionMetadata.studentId,
+              planName: subscriptionMetadata.itemKey,
               status: 'INACTIVE'
             },
             data: {
@@ -91,7 +113,7 @@ export async function POST(request: NextRequest) {
           // Allouer les crédits mensuels
           const subscription = await prisma.subscription.findFirst({
             where: {
-              studentId: metadata.studentId,
+              studentId: subscriptionMetadata.studentId,
               status: 'ACTIVE'
             }
           });
@@ -102,7 +124,7 @@ export async function POST(request: NextRequest) {
 
             await prisma.creditTransaction.create({
               data: {
-                studentId: metadata.studentId,
+                studentId: subscriptionMetadata.studentId,
                 type: 'MONTHLY_ALLOCATION',
                 amount: subscription.creditsPerMonth,
                 description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
@@ -122,7 +144,7 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'FAILED',
           metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
+            ...existingMetadata,
             rejectedBy: session.user.id,
             rejectedAt: new Date().toISOString(),
             rejectionReason: note

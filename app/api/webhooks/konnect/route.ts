@@ -1,7 +1,53 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import type { Prisma } from '@prisma/client';
 import { mapPaymentToResponse, paymentResponseInclude } from '@/app/api/sessions/contracts';
+
+type PaymentWithParentRelations = Prisma.PaymentGetPayload<{
+  include: {
+    user: {
+      include: {
+        parentProfile: {
+          include: {
+            children: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+type KonnectWebhookPayload = {
+  payment_id?: string | number;
+  id?: string | number;
+  transaction_id?: string | number;
+  status?: string;
+  [key: string]: unknown;
+};
+
+type SubscriptionMetadata = {
+  studentId: string;
+  itemKey?: string;
+};
+
+function isJsonObject(value: Prisma.JsonValue | null | undefined): value is Prisma.JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function extractSubscriptionMetadata(metadata: Prisma.JsonObject): SubscriptionMetadata | null {
+  const studentIdValue = metadata.studentId;
+  if (typeof studentIdValue !== 'string') {
+    return null;
+  }
+
+  const itemKeyValue = metadata.itemKey;
+
+  return {
+    studentId: studentIdValue,
+    itemKey: typeof itemKeyValue === 'string' ? itemKeyValue : undefined,
+  };
+}
 
 function timingSafeEqual(a: string, b: string) {
   const aBuf = Buffer.from(a, 'utf8');
@@ -37,11 +83,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const body = JSON.parse(raw || '{}');
+    const body = JSON.parse(raw || '{}') as KonnectWebhookPayload;
 
     // Validation basique du webhook Konnect (adapter aux champs réels)
-    const paymentProviderId = body.payment_id || body.id || body.transaction_id;
-    const status = body.status;
+    const paymentProviderIdCandidate = body.payment_id ?? body.id ?? body.transaction_id;
+    const paymentProviderId = paymentProviderIdCandidate != null ? String(paymentProviderIdCandidate) : null;
+    const status = typeof body.status === 'string' ? body.status.toLowerCase() : '';
 
     if (!paymentProviderId || !status) {
       return NextResponse.json(
@@ -51,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Récupérer le paiement par externalId (méthode préférée) puis fallback par id
-    let payment = await prisma.payment.findFirst({
+    let payment: PaymentWithParentRelations | null = await prisma.payment.findFirst({
       where: { method: 'konnect', externalId: String(paymentProviderId) },
       include: {
         user: {
@@ -72,7 +119,7 @@ export async function POST(request: NextRequest) {
             }
           }
         }
-      }) as any;
+      });
     }
 
     if (!payment) {
@@ -96,6 +143,14 @@ export async function POST(request: NextRequest) {
     }
 
     if (status === 'completed' || status === 'succeeded' || status === 'paid') {
+      const existingMetadata = isJsonObject(payment.metadata) ? payment.metadata : {};
+      const konnectTransactionId = typeof body.transaction_id === 'string' ? body.transaction_id : paymentProviderId;
+      const updatedMetadata: Prisma.InputJsonObject = {
+        ...existingMetadata,
+        konnectTransactionId,
+        completedAt: new Date().toISOString(),
+      };
+
       // Mettre à jour le statut du paiement (idempotent si répété)
       const updatedPayment = await prisma.payment.update({
         where: { id: payment.id },
@@ -103,32 +158,37 @@ export async function POST(request: NextRequest) {
           status: 'COMPLETED',
           externalId: String(paymentProviderId),
           method: 'konnect',
-          metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            konnectTransactionId: body.transaction_id || paymentProviderId,
-            completedAt: new Date().toISOString()
-          } as any
+          metadata: updatedMetadata,
         },
         include: paymentResponseInclude,
       });
 
       // Activer le service selon le type de paiement
-      const metadata = payment.metadata as any;
+      const subscriptionMetadata = extractSubscriptionMetadata(existingMetadata);
 
-      if (payment.type === 'SUBSCRIPTION') {
+      if (payment.type === 'SUBSCRIPTION' && subscriptionMetadata) {
         // Activer l'abonnement (idempotent)
         const student = await prisma.student.findUnique({
-          where: { id: metadata?.studentId }
+          where: { id: subscriptionMetadata.studentId }
         });
 
         if (student) {
           await prisma.subscription.updateMany({
-            where: { studentId: metadata.studentId, status: 'ACTIVE' },
+            where: { studentId: subscriptionMetadata.studentId, status: 'ACTIVE' },
             data: { status: 'CANCELLED' }
           });
 
+          const activationFilter: Prisma.SubscriptionWhereInput = {
+            studentId: subscriptionMetadata.studentId,
+            status: 'INACTIVE'
+          };
+
+          if (subscriptionMetadata.itemKey) {
+            activationFilter.planName = subscriptionMetadata.itemKey;
+          }
+
           await prisma.subscription.updateMany({
-            where: { studentId: metadata.studentId, planName: metadata.itemKey, status: 'INACTIVE' },
+            where: activationFilter,
             data: { status: 'ACTIVE', startDate: new Date() }
           });
         }

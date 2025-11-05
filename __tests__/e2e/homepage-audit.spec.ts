@@ -67,7 +67,9 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
       }
       await expect(page).toHaveURL(pathMatcher);
       await page.goBack();
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState('load');
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(200);
     };
 
     await clickPath('/equipe');

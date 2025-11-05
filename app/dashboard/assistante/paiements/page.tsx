@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+type PaymentMetadata = Record<string, unknown> | unknown[] | string | number | boolean | null;
+
 interface Payment {
   id: string;
   userId: string;
@@ -18,7 +20,7 @@ interface Payment {
   type: string;
   externalId?: string;
   description?: string;
-  metadata?: any;
+  metadata?: PaymentMetadata;
   createdAt: string;
   updatedAt: string;
   user?: {
@@ -120,6 +122,26 @@ export default function PaiementsPage() {
     if (filter === 'all') return true;
     return payment.status === filter.toUpperCase();
   });
+
+  const formatMetadata = (metadata: PaymentMetadata) => {
+    if (metadata === null || metadata === undefined) {
+      return '';
+    }
+
+    if (typeof metadata === 'string') {
+      return metadata;
+    }
+
+    if (typeof metadata === 'number' || typeof metadata === 'boolean') {
+      return metadata.toString();
+    }
+
+    try {
+      return JSON.stringify(metadata, null, 2);
+    } catch {
+      return String(metadata);
+    }
+  };
 
   if (status === "loading" || loading) {
     return (
@@ -274,7 +296,7 @@ export default function PaiementsPage() {
                         <div>
                           <span className="text-sm font-medium text-gray-700">Métadonnées:</span>
                           <pre className="text-xs text-gray-600 bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
-                            {JSON.stringify(payment.metadata, null, 2)}
+                            {formatMetadata(payment.metadata)}
                           </pre>
                         </div>
                       )}

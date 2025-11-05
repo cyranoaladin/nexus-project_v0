@@ -1,6 +1,9 @@
-import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { authOptions } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,21 +20,33 @@ export async function GET(request: NextRequest) {
 
     // Fetch resources available to the student
     // Modèle Resource non présent: renvoyer une liste vide (placeholder fonctionnel)
-    const resources: Array<Record<string, unknown>> = [];
+    type ResourcePlaceholder = {
+      id?: string;
+      title?: string;
+      description?: string;
+      subject?: { name?: string | null } | null;
+      type?: string;
+      fileUrl?: string;
+      thumbnailUrl?: string;
+      downloads?: unknown;
+      updatedAt?: Date | string | null;
+    };
+
+    const resources: ResourcePlaceholder[] = [];
 
     const formattedResources = resources.map((resource) => {
-      const r = resource as Record<string, any>;
+      const downloadCount = Array.isArray(resource.downloads) ? resource.downloads.length : 0;
       return {
-        id: r.id,
-        title: r.title,
-        description: r.description,
-        subject: r.subject?.name ?? 'UNKNOWN',
-        type: r.type,
-        fileUrl: r.fileUrl,
-        thumbnailUrl: r.thumbnailUrl,
-        downloads: Array.isArray(r.downloads) ? r.downloads.length : 0,
-        lastUpdated: r.updatedAt ?? null,
-        isDownloaded: Array.isArray(r.downloads) ? r.downloads.length > 0 : false
+        id: resource.id ?? '',
+        title: resource.title ?? 'Ressource',
+        description: resource.description ?? '',
+        subject: resource.subject?.name ?? 'UNKNOWN',
+        type: resource.type ?? 'UNKNOWN',
+        fileUrl: resource.fileUrl ?? null,
+        thumbnailUrl: resource.thumbnailUrl ?? null,
+        downloads: downloadCount,
+        lastUpdated: resource.updatedAt ?? null,
+        isDownloaded: downloadCount > 0
       };
     });
 

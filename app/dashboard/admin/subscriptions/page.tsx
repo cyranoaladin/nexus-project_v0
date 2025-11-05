@@ -3,15 +3,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search, Users } from "lucide-react";
+import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Subscription {
   id: string;
@@ -36,6 +36,11 @@ interface Subscription {
   };
 }
 
+interface SubscriptionUpdateForm {
+  status: string;
+  endDate: string;
+}
+
 export default function SubscriptionsManagementPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -49,19 +54,9 @@ export default function SubscriptionsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editFormState, setEditFormState] = useState<SubscriptionUpdateForm>({ status: "ACTIVE", endDate: "" });
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchSubscriptions();
-  }, [session, status, router, currentPage, statusFilter]);
-
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -88,9 +83,20 @@ export default function SubscriptionsManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchTerm]);
 
-  const handleUpdateSubscription = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchSubscriptions();
+  }, [session, status, router, fetchSubscriptions]);
+
+  const handleUpdateSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedSubscription) return;
 
@@ -104,8 +110,8 @@ export default function SubscriptionsManagementPage() {
         },
         body: JSON.stringify({
           subscriptionId: selectedSubscription.id,
-          status: (e.target as any).status.value,
-          endDate: (e.target as any).endDate.value
+          status: editFormState.status,
+          endDate: editFormState.endDate
         }),
       });
 
@@ -119,6 +125,7 @@ export default function SubscriptionsManagementPage() {
       
       // Reset form and refresh
       setSelectedSubscription(null);
+      setEditFormState({ status: 'ACTIVE', endDate: '' });
       setIsDialogOpen(false);
       fetchSubscriptions();
     } catch (err) {
@@ -127,6 +134,15 @@ export default function SubscriptionsManagementPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const openEditDialog = (subscription: Subscription) => {
+    setSelectedSubscription(subscription);
+    setEditFormState({
+      status: subscription.status,
+      endDate: subscription.endDate ? subscription.endDate.slice(0, 10) : ''
+    });
+    setIsDialogOpen(true);
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -312,10 +328,7 @@ export default function SubscriptionsManagementPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              setSelectedSubscription(subscription);
-                              setIsDialogOpen(true);
-                            }}
+                            onClick={() => openEditDialog(subscription)}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -357,7 +370,16 @@ export default function SubscriptionsManagementPage() {
         </Card>
 
         {/* Edit Subscription Dialog */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setSelectedSubscription(null);
+              setEditFormState({ status: 'ACTIVE', endDate: '' });
+            }
+          }}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Modifier l'Abonnement</DialogTitle>
@@ -380,7 +402,10 @@ export default function SubscriptionsManagementPage() {
 
                 <div>
                   <Label htmlFor="status">Statut</Label>
-                  <Select name="status" defaultValue={selectedSubscription.status}>
+                  <Select
+                    value={editFormState.status}
+                    onValueChange={(value) => setEditFormState((prev) => ({ ...prev, status: value }))}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -395,9 +420,9 @@ export default function SubscriptionsManagementPage() {
                 <div>
                   <Label htmlFor="endDate">Date de fin</Label>
                   <Input
-                    name="endDate"
                     type="date"
-                    defaultValue={selectedSubscription.endDate ? selectedSubscription.endDate.slice(0, 10) : ''}
+                    value={editFormState.endDate}
+                    onChange={(event) => setEditFormState((prev) => ({ ...prev, endDate: event.target.value }))}
                   />
                 </div>
 

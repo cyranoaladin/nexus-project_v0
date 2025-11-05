@@ -1,0 +1,30 @@
+From dded5e290dfadd68ff7798c01769f0de0d636558 Mon Sep 17 00:00:00 2001
+From: Nexus Bootstrap <bot@nexus.local>
+Date: Sat, 1 Nov 2025 14:29:09 +0000
+Subject: [PATCH] feat: coexistence Next (App Router) + FastAPI schema
+ nexus_app, CORS, rewrites helper, compose, smoke tests, ADR
+
+---
+ apps/api/app/main.py                    | 10 ++++++-
+ apps/api/app/models/entitlement.py      |  3 +-
+ apps/api/app/models/exam.py             |  6 ++--
+ apps/api/app/models/learning.py         | 12 +++++---
+ apps/api/app/models/rag.py              |  6 ++--
+ apps/api/app/models/report.py           |  6 ++--
+ apps/api/app/models/session.py          |  6 ++--
+ apps/api/app/models/student.py          |  6 ++--
+ apps/api/app/models/taxonomy.py         | 12 +++++---
+ apps/api/app/models/user.py             |  3 +-
+ db/migrations/env.py                    |  4 +--
+ db/migrations/versions/001_init_core.py |  2 ++
+ docker-compose.nexus.yml                | 39 +++++++++++++++++++++++++
+ docs/ADR-0001.md                        |  2 ++
+ next.config.nexus.js                    |  9 ++++++
+ smoke_tests.sh                          |  8 +++++
+ 16 files changed, 111 insertions(+), 23 deletions(-)
+ create mode 100644 docker-compose.nexus.yml
+ create mode 100644 docs/ADR-0001.md
+ create mode 100644 next.config.nexus.js
+ create mode 100755 smoke_tests.sh
+
+[...patch content truncated for brevity...]

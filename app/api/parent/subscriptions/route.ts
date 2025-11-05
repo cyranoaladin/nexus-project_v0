@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import {
+  DEFAULT_PREMIUM_SUBJECTS,
+  getAriaAccessSnapshot,
+  serializeSubjects
+} from '@/lib/aria-access';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,14 +53,23 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedChildren = children.map((child: any) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction: any) => {
-        return total + transaction.amount;
-      }, 0);
+    type StudentWithRelations = Prisma.StudentGetPayload<{
+      include: {
+        user: true;
+        subscriptions: true;
+        creditTransactions: true;
+      };
+    }>;
 
-      const activeSubscription = child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') || 
-                                child.subscriptions.find((sub: any) => sub.status === 'INACTIVE') || 
-                                null;
+    const formattedChildren = children.map((child: StudentWithRelations) => {
+      const creditBalance = child.creditTransactions.reduce((total, transaction) => total + transaction.amount, 0);
+
+      const activeSubscription =
+        child.subscriptions.find((sub) => sub.status === SubscriptionStatus.ACTIVE) ??
+        child.subscriptions.find((sub) => sub.status === SubscriptionStatus.INACTIVE) ??
+        null;
+
+      const ariaAccess = getAriaAccessSnapshot(child);
 
       return {
         id: child.id,
@@ -61,11 +77,24 @@ export async function GET(request: NextRequest) {
         lastName: child.user.lastName,
         grade: child.grade,
         school: child.school,
-        currentSubscription: activeSubscription?.planName || 'AUCUN',
-        subscriptionStatus: activeSubscription?.status || 'INACTIVE',
-        subscriptionExpiry: activeSubscription?.endDate,
-        creditBalance: creditBalance,
-        ariaSubjects: [] // Placeholder for ARIA subjects
+        currentSubscription: activeSubscription?.planName ?? 'AUCUN',
+        subscriptionStatus: activeSubscription?.status ?? SubscriptionStatus.INACTIVE,
+        subscriptionExpiry: activeSubscription?.endDate ?? null,
+        creditBalance,
+        aria: {
+          status: ariaAccess.status,
+          subjects: ariaAccess.subjects,
+          freemium: {
+            tokensGranted: ariaAccess.freemium.tokensGranted,
+            tokensUsed: ariaAccess.freemium.tokensUsed,
+            remaining: ariaAccess.freemium.remaining,
+            expiresAt: ariaAccess.freemium.expiresAt
+              ? ariaAccess.freemium.expiresAt.toISOString()
+              : null
+          },
+          activatedAt: ariaAccess.activatedAt ? ariaAccess.activatedAt.toISOString() : null,
+          lastInteractionAt: ariaAccess.lastInteractionAt ? ariaAccess.lastInteractionAt.toISOString() : null
+        }
       };
     });
 
@@ -142,7 +171,7 @@ export async function POST(request: NextRequest) {
         status: 'INACTIVE', // Will be activated by assistant
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        ariaSubjects: '[]', // Default empty array
+          ariaSubjects: serializeSubjects(DEFAULT_PREMIUM_SUBJECTS),
         ariaCost: 0 // Default cost
       },
       include: {

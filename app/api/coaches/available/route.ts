@@ -1,7 +1,10 @@
+import type { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+export const dynamic = 'force-dynamic'
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date');
 
     // Build where clause for coaches
-    const whereClause: any = {};
+    const whereClause: Prisma.CoachProfileWhereInput = {};
 
     if (subject) {
       whereClause.subjects = {
@@ -45,11 +48,11 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedCoaches = coaches.map((coach: any) => ({
-      id: coach.userId, // Use userId as the coach ID for consistency
+    const formattedCoaches = coaches.map((coach) => ({
+      id: coach.userId,
       firstName: coach.user.firstName,
       lastName: coach.user.lastName,
-      coachSubjects: JSON.parse(coach.subjects || '[]'), // Parse the JSON string to match component interface
+      coachSubjects: JSON.parse(coach.subjects || '[]') as string[],
       availability: coach.user.coachAvailabilities,
       bio: coach.description,
       philosophy: coach.philosophy,

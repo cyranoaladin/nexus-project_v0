@@ -1,0 +1,31 @@
+import { test, expect } from '@playwright/test';
+
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
+const studentEmail = process.env.E2E_STUDENT_EMAIL ?? 'student@test.local';
+const studentPassword = process.env.E2E_STUDENT_PASSWORD ?? 'password';
+const enabled = process.env.E2E_DASHBOARD_ENABLED === '1';
+
+test.describe('Dashboard RAG', () => {
+  test.skip(!enabled, 'Set E2E_DASHBOARD_ENABLED=1 to run the dashboard RAG scenario');
+
+  test('élève recherche une ressource et ouvre la fiche', async ({ page }) => {
+    await page.goto(`${baseURL}/auth/signin`);
+    await page.getByLabel(/email/i).fill(studentEmail);
+    await page.getByLabel(/mot de passe/i).fill(studentPassword);
+    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
+
+    await page.waitForURL(`${baseURL}/dashboard`, { timeout: 10_000 });
+    await page.getByRole('link', { name: /cours et syllabus/i }).click();
+
+    const searchBox = page.getByPlaceholder(/Rechercher une notion/i);
+    await searchBox.fill('dérivées');
+    await searchBox.press('Enter');
+
+    const firstCard = page.getByRole('link', { name: /dérivées/i }).first();
+    await expect(firstCard).toBeVisible();
+    await firstCard.click();
+
+    await expect(page).toHaveURL(/\/rag\/doc\//);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/dérivées/i);
+  });
+});

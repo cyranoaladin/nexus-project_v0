@@ -159,6 +159,8 @@ export default function DashboardAssistante() {
     );
   }
 
+  const todaySessions = dashboardData?.todaySessions ?? [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -494,9 +496,9 @@ export default function DashboardAssistante() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {dashboardData?.todaySessions && dashboardData.todaySessions.length > 0 ? (
+              {todaySessions.length > 0 ? (
                 <div className="space-y-3">
-                  {dashboardData.todaySessions.map((session: any) => (
+                  {todaySessions.map((session) => (
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

@@ -8,8 +8,12 @@ export default function TestLoginPage() {
   const [email, setEmail] = useState("adam@gmail.com");
   const [password, setPassword] = useState("adam90053729");
   const [isLoading, setIsLoading] = useState(false);
+  const sessionUser = session?.user as Record<string, unknown> | undefined;
+  const userRole = typeof sessionUser?.role === "string" ? sessionUser.role : "Inconnu";
+  const userFirstName = typeof sessionUser?.firstName === "string" ? sessionUser.firstName : "";
+  const userLastName = typeof sessionUser?.lastName === "string" ? sessionUser.lastName : "";
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -27,7 +31,7 @@ export default function TestLoginPage() {
       } else {
         alert("Login successful!");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
       alert("Login error occurred");
     } finally {
@@ -70,8 +74,8 @@ export default function TestLoginPage() {
             {session && (
               <div className="mt-2 p-3 bg-gray-100 rounded">
                 <p><strong>User:</strong> {session.user?.email}</p>
-                <p><strong>Role:</strong> {(session.user as any)?.role}</p>
-                <p><strong>Name:</strong> {(session.user as any)?.firstName} {(session.user as any)?.lastName}</p>
+                <p><strong>Role:</strong> {userRole}</p>
+                <p><strong>Name:</strong> {`${userFirstName} ${userLastName}`.trim() || "Inconnu"}</p>
               </div>
             )}
           </div>

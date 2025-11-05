@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, Plus, Trash2, Save, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCallback } from 'react';
 
 interface TimeSlot {
   startTime: string;
@@ -20,6 +20,20 @@ interface DaySchedule {
   dayOfWeek: number;
   slots: TimeSlot[];
 }
+
+type AvailabilityRecord = {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+  isRecurring: boolean;
+};
+
+type AvailabilityResponse = {
+  success: boolean;
+  availability: AvailabilityRecord[];
+  error?: string;
+};
 
 interface CoachAvailabilityProps {
   coachId: string;
@@ -36,7 +50,7 @@ const DAYS_OF_WEEK = [
   { value: 0, label: 'Dimanche', shortLabel: 'Dim' }
 ];
 
-const DEFAULT_SLOTS = [
+const DEFAULT_SLOTS: TimeSlot[] = [
   { startTime: '09:00', endTime: '10:00', isAvailable: true },
   { startTime: '10:00', endTime: '11:00', isAvailable: true },
   { startTime: '11:00', endTime: '12:00', isAvailable: true },
@@ -45,9 +59,9 @@ const DEFAULT_SLOTS = [
   { startTime: '16:00', endTime: '17:00', isAvailable: true }
 ];
 
-export default function CoachAvailability({ 
-  coachId, 
-  onAvailabilityUpdated 
+export default function CoachAvailability({
+  coachId,
+  onAvailabilityUpdated
 }: CoachAvailabilityProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -66,34 +80,37 @@ export default function CoachAvailability({
   const [specificDate, setSpecificDate] = useState('');
   const [specificSlots, setSpecificSlots] = useState<TimeSlot[]>([]);
 
-  useEffect(() => {
-    loadCurrentAvailability();
-  }, [coachId]);
-
-  const loadCurrentAvailability = async () => {
+  const loadCurrentAvailability = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/coaches/availability?coachId=${coachId}`);
-      const data = await response.json();
-      
+      if (!response.ok) {
+        throw new Error(`Unexpected status ${response.status}`);
+      }
+      const data: AvailabilityResponse = await response.json();
+
       if (data.success) {
-        // Process and organize the availability data
-        const schedule = DAYS_OF_WEEK.map(day => {
+        const schedule = DAYS_OF_WEEK.map((day) => {
           const daySlots = data.availability
-            .filter((av: any) => av.isRecurring && av.dayOfWeek === day.value)
-            .map((av: any) => ({
-              startTime: av.startTime,
-              endTime: av.endTime,
-              isAvailable: av.isAvailable
+            .filter((availability) => availability.isRecurring && availability.dayOfWeek === day.value)
+            .map((availability) => ({
+              startTime: availability.startTime,
+              endTime: availability.endTime,
+              isAvailable: availability.isAvailable,
             }));
-          
+
           return {
             dayOfWeek: day.value,
-            slots: daySlots.length > 0 ? daySlots : []
+            slots: daySlots.length > 0 ? daySlots : [],
           };
         });
-        
+
         setWeeklySchedule(schedule);
+      } else {
+        setMessage({
+          type: 'error',
+          text: data.error ?? 'Erreur lors du chargement des disponibilités',
+        });
       }
     } catch (error) {
       console.error('Error loading availability:', error);
@@ -101,7 +118,11 @@ export default function CoachAvailability({
     } finally {
       setLoading(false);
     }
-  };
+  }, [coachId]);
+
+  useEffect(() => {
+    loadCurrentAvailability();
+  }, [loadCurrentAvailability]);
 
   const addTimeSlot = (dayOfWeek: number) => {
     setWeeklySchedule(prev => prev.map(day => 
@@ -125,7 +146,7 @@ export default function CoachAvailability({
     ));
   };
 
-  const updateTimeSlot = (dayOfWeek: number, slotIndex: number, field: keyof TimeSlot, value: any) => {
+  const updateTimeSlot = <K extends keyof TimeSlot>(dayOfWeek: number, slotIndex: number, field: K, value: TimeSlot[K]) => {
     setWeeklySchedule(prev => prev.map(day => 
       day.dayOfWeek === dayOfWeek 
         ? { 
@@ -140,21 +161,10 @@ export default function CoachAvailability({
     ));
   };
 
-  const copyDaySchedule = (fromDay: number, toDay: number) => {
-    const sourceDay = weeklySchedule.find(day => day.dayOfWeek === fromDay);
-    if (sourceDay) {
-      setWeeklySchedule(prev => prev.map(day => 
-        day.dayOfWeek === toDay 
-          ? { ...day, slots: [...sourceDay.slots] }
-          : day
-      ));
-    }
-  };
-
   const setDefaultSchedule = (dayOfWeek: number) => {
     setWeeklySchedule(prev => prev.map(day => 
       day.dayOfWeek === dayOfWeek 
-        ? { ...day, slots: [...DEFAULT_SLOTS] }
+        ? { ...day, slots: DEFAULT_SLOTS.map((slot) => ({ ...slot })) }
         : day
     ));
   };
@@ -193,7 +203,7 @@ export default function CoachAvailability({
       } else {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de la sauvegarde' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erreur lors de la sauvegarde' });
     } finally {
       setSaving(false);
@@ -208,7 +218,7 @@ export default function CoachAvailability({
     setSpecificSlots(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateSpecificSlot = (index: number, field: keyof TimeSlot, value: any) => {
+  const updateSpecificSlot = <K extends keyof TimeSlot>(index: number, field: K, value: TimeSlot[K]) => {
     setSpecificSlots(prev => prev.map((slot, i) => 
       i === index ? { ...slot, [field]: value } : slot
     ));
@@ -248,15 +258,11 @@ export default function CoachAvailability({
       } else {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de la sauvegarde' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erreur lors de la sauvegarde' });
     } finally {
       setSaving(false);
     }
-  };
-
-  const formatTime = (time: string) => {
-    return time.substring(0, 5);
   };
 
   if (loading) {

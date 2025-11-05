@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+type CreditRequestMetadata = Record<string, unknown> | unknown[] | string | number | boolean | null;
+
 interface CreditRequest {
   id: string;
   studentId: string;
@@ -16,7 +18,7 @@ interface CreditRequest {
   amount: number;
   description: string;
   status: string;
-  metadata?: any;
+  metadata?: CreditRequestMetadata;
   createdAt: string;
   student?: {
     firstName?: string;
@@ -102,6 +104,26 @@ export default function CreditRequestsPage() {
     if (filter === 'all') return true;
     return request.status === filter.toUpperCase();
   });
+
+  const formatMetadata = (metadata: CreditRequestMetadata) => {
+    if (metadata === null || metadata === undefined) {
+      return '';
+    }
+
+    if (typeof metadata === 'string') {
+      return metadata;
+    }
+
+    if (typeof metadata === 'number' || typeof metadata === 'boolean') {
+      return metadata.toString();
+    }
+
+    try {
+      return JSON.stringify(metadata, null, 2);
+    } catch {
+      return String(metadata);
+    }
+  };
 
   if (status === "loading" || loading) {
     return (
@@ -249,7 +271,7 @@ export default function CreditRequestsPage() {
                         <div>
                           <span className="text-sm font-medium text-gray-700">Métadonnées:</span>
                           <pre className="text-xs text-gray-600 bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
-                            {JSON.stringify(request.metadata, null, 2)}
+                            {formatMetadata(request.metadata)}
                           </pre>
                         </div>
                       )}

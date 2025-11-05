@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, content });
   } catch (error) {
+    console.error('Failed to generate bilan', error);
     return NextResponse.json({ error: 'Unable to generate bilan' }, { status: 500 });
   }
 }

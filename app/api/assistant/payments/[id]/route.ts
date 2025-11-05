@@ -1,3 +1,4 @@
+import type { PaymentStatus } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -22,7 +23,7 @@ export async function PATCH(
     const body = await request.json();
     const { status } = body;
 
-    const allowedStatuses = ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'];
+    const allowedStatuses: PaymentStatus[] = ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'];
     if (!allowedStatuses.includes(status)) {
       return NextResponse.json(
         { error: `Invalid status. Allowed: ${allowedStatuses.join(', ')}` },
@@ -34,7 +35,7 @@ export async function PATCH(
     const updatedPayment = await prisma.payment.update({
       where: { id: paymentId },
       data: {
-        status: status as any,
+        status,
         updatedAt: new Date()
       },
       include: paymentResponseInclude,

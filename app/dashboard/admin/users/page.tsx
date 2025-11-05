@@ -12,7 +12,7 @@ import { AlertCircle, Edit, Loader2, LogOut, Plus, Search, Trash2, Users } from 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface User {
   id: string;
@@ -22,7 +22,7 @@ interface User {
   role: string;
   createdAt: string;
   isActive: boolean;
-  profile: any;
+  profile: Record<string, unknown> | null;
 }
 
 interface UserFormData {
@@ -60,18 +60,7 @@ export default function UsersManagementPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchUsers();
-  }, [session, status, router, currentPage, roleFilter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -98,7 +87,18 @@ export default function UsersManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, roleFilter, searchTerm]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchUsers();
+  }, [session, status, router, fetchUsers]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();

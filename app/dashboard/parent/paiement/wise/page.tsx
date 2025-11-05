@@ -10,18 +10,27 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+interface WiseOrderDetails {
+  id: string;
+  amount: number;
+  description: string;
+  currency: string;
+}
+
+type CopyField = "" | "beneficiary" | "iban" | "swift" | "reference";
+
 function WisePaymentContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<WiseOrderDetails | null>(null);
   const [transferReference, setTransferReference] = useState("");
   const [transferDate, setTransferDate] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [transferProof, setTransferProof] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [copied, setCopied] = useState("");
+  const [copied, setCopied] = useState<CopyField>("");
 
   useEffect(() => {
     if (status === "loading") return;
@@ -46,8 +55,12 @@ function WisePaymentContent() {
     }
   }, [session, status, router, searchParams]);
 
-  const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = (text: string, field: CopyField) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch((error) => {
+        console.error("Clipboard error:", error);
+      });
+    }
     setCopied(field);
     setTimeout(() => setCopied(""), 2000);
   };
@@ -343,9 +356,9 @@ function WisePaymentContent() {
 }
 
 export default function WisePaymentPage() {
-  // Redirection immédiate car Wise est supprimé
-  if (typeof window !== 'undefined') {
-    window.location.replace('/dashboard/parent/paiement');
-  }
-  return <div className="p-6 text-center">Cette page n'est plus disponible.</div>;
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Chargement du paiement Wise...</div>}>
+      <WisePaymentContent />
+    </Suspense>
+  );
 }

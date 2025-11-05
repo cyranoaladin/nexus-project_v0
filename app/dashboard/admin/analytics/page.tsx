@@ -8,7 +8,7 @@ import { AlertCircle, BarChart3, CreditCard, Loader2, LogOut, TrendingUp, Users 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface AnalyticsData {
   period: string;
@@ -65,28 +65,13 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState("month");
-  const [type, setType] = useState("all");
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchAnalytics();
-  }, [session, status, router, period, type]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const params = new URLSearchParams({
-        period,
-        type
-      });
+      const params = new URLSearchParams({ period });
       
       const response = await fetch(`/api/admin/analytics?${params}`);
       
@@ -102,7 +87,18 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchAnalytics();
+  }, [session, status, router, fetchAnalytics]);
 
   const getPeriodText = (period: string) => {
     switch (period) {

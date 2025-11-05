@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, BookOpen, CreditCard, CheckCircle, AlertCircle, Loader2, Info, CalendarDays } from 'lucide-react';
+import { Calendar, BookOpen, CreditCard, CheckCircle, AlertCircle, Loader2, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Coach {
@@ -26,6 +26,23 @@ interface AvailableSlot {
   endTime: string;
   duration: number;
 }
+
+type CoachesResponse = {
+  success: boolean;
+  coaches: Coach[];
+  error?: string;
+};
+
+type AvailableSlotResponse = {
+  success: boolean;
+  availableSlots: Array<{
+    date: string;
+    startTime: string;
+    endTime: string;
+    duration: number;
+  }>;
+  error?: string;
+};
 
 interface SessionBookingProps {
   studentId: string;
@@ -94,24 +111,6 @@ export default function SessionBooking({
   const [descriptionError, setDescriptionError] = useState('');
 
   // Load coaches when subject changes
-  useEffect(() => {
-    if (subject) {
-      loadCoaches();
-    } else {
-      setCoaches([]);
-      setSelectedCoach('');
-    }
-  }, [subject]);
-
-  // Load available slots when coach and week change
-  useEffect(() => {
-    if (selectedCoach && selectedWeek) {
-      loadAvailableSlots();
-    } else {
-      setAvailableSlots([]);
-    }
-  }, [selectedCoach, selectedWeek]);
-
   // Validate title length
   useEffect(() => {
     if (title.length > 100) {
@@ -130,26 +129,30 @@ export default function SessionBooking({
     }
   }, [description]);
 
-  const loadCoaches = async () => {
+  const loadCoaches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await fetch(`/api/coaches/available?subject=${subject}`);
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`Unexpected status ${response.status}`);
+      }
+      const data: CoachesResponse = await response.json();
       
       if (data.success) {
         setCoaches(data.coaches);
       } else {
         setError('Erreur lors du chargement des coachs');
       }
-    } catch (err) {
+        } catch (error) {
+          console.error('Erreur lors du chargement des coachs', error);
       setError('Erreur lors du chargement des coachs');
     } finally {
       setLoading(false);
     }
-  };
+  }, [subject]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -159,13 +162,17 @@ export default function SessionBooking({
       const response = await fetch(
         `/api/coaches/availability?coachId=${selectedCoach}&startDate=${selectedWeek.toISOString()}&endDate=${endDate.toISOString()}`
       );
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`Unexpected status ${response.status}`);
+      }
+      const data: AvailableSlotResponse = await response.json();
       
       if (data.success) {
-        // Use the enhanced available slots from the API
-        const slots = data.availableSlots.map((slot: any) => ({
+        const coach = coaches.find((c) => c.id === selectedCoach);
+        const coachName = coach ? `${coach.firstName} ${coach.lastName}`.trim() : 'Coach';
+        const slots = data.availableSlots.map((slot) => ({
           coachId: selectedCoach,
-          coachName: coaches.find(c => c.id === selectedCoach)?.firstName + ' ' + coaches.find(c => c.id === selectedCoach)?.lastName,
+          coachName,
           date: new Date(slot.date),
           startTime: slot.startTime,
           endTime: slot.endTime,
@@ -175,20 +182,30 @@ export default function SessionBooking({
       } else {
         setError('Erreur lors du chargement des créneaux');
       }
-    } catch (err) {
+        } catch (error) {
+          console.error('Erreur lors du chargement des créneaux', error);
       setError('Erreur lors du chargement des créneaux');
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCoach, selectedWeek, coaches]);
 
+  useEffect(() => {
+    if (subject) {
+      loadCoaches();
+    } else {
+      setCoaches([]);
+      setSelectedCoach('');
+    }
+  }, [subject, loadCoaches]);
 
-
-  const calculateDuration = (startTime: string, endTime: string): number => {
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
-    return (endHour * 60 + endMin) - (startHour * 60 + startMin);
-  };
+  useEffect(() => {
+    if (selectedCoach && selectedWeek) {
+      loadAvailableSlots();
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [selectedCoach, selectedWeek, loadAvailableSlots]);
 
   const formatTime = (time: string): string => {
     return time.substring(0, 5);
@@ -271,15 +288,21 @@ export default function SessionBooking({
         return `${y}-${m}-${da}`;
       };
 
+      const slot = selectedSlot;
+      if (!slot) {
+        setError('Veuillez sélectionner un créneau');
+        return;
+      }
+
       const bookingData = {
-        coachId: selectedSlot!.coachId,
+        coachId: slot.coachId,
         studentId: studentId,
         parentId: parentId,
         subject: subject,
-        scheduledDate: formatLocalDate(selectedSlot!.date),
-        startTime: selectedSlot!.startTime,
-        endTime: selectedSlot!.endTime,
-        duration: selectedSlot!.duration,
+        scheduledDate: formatLocalDate(slot.date),
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        duration: slot.duration,
         type: sessionType,
         modality: modality,
         title: title,
@@ -305,7 +328,8 @@ export default function SessionBooking({
       } else {
         setError(data.error || 'Erreur lors de la réservation');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Erreur lors de la réservation', error);
       setError('Erreur lors de la réservation');
     } finally {
       setLoading(false);
@@ -661,7 +685,7 @@ export default function SessionBooking({
 
                 <div>
                   <Label htmlFor="credits" className="text-sm md:text-base">Crédits à utiliser</Label>
-                  <Select value={creditsToUse.toString()} onValueChange={(value) => setCreditsToUse(parseInt(value))}>
+                  <Select value={creditsToUse.toString()} onValueChange={(value) => setCreditsToUse(parseInt(value, 10))}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Users, BookOpen, MessageCircle, User, LogOut, Loader2, Clock, CheckCircle, AlertCircle, Settings } from "lucide-react"
+import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -236,23 +236,23 @@ export default function DashboardCoach() {
               </DialogHeader>
               {dashboardData?.weekSessions && dashboardData.weekSessions.length > 0 ? (
                 <div className="space-y-3 max-h-[70vh] overflow-y-auto">
-                  {dashboardData.weekSessions.map((s: any) => (
-                    <div key={s.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
+                  {dashboardData.weekSessions.map((session) => (
+                    <div key={session.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <h4 className="font-medium text-gray-900">{s.title || s.subject}</h4>
-                          <Badge variant="outline" className="text-xs">{s.type}</Badge>
-                          <Badge variant="default" className="text-xs">{s.modality}</Badge>
+                          <h4 className="font-medium text-gray-900">{session.title || session.subject}</h4>
+                          <Badge variant="outline" className="text-xs">{session.type}</Badge>
+                          <Badge variant="default" className="text-xs">{session.modality}</Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">Avec {s.studentName}</p>
-                        <p className="text-sm text-blue-600 font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
-                        {s.description && (
-                          <p className="text-xs text-gray-500 mt-1">{s.description}</p>
+                        <p className="text-sm text-gray-600 mt-1">Avec {session.studentName}</p>
+                        <p className="text-sm text-blue-600 font-medium">{new Date(session.date).toLocaleDateString('fr-FR')} • {session.startTime} - {session.endTime} • {session.duration} min</p>
+                        {session.description && (
+                          <p className="text-xs text-gray-500 mt-1">{session.description}</p>
                         )}
                       </div>
                       <div className="mt-3 md:mt-0 flex items-center gap-2">
-                        <Badge className="text-xs">{s.status.toLowerCase()}</Badge>
-                        <Badge variant="outline" className="text-xs">{s.creditsUsed} crédit(s)</Badge>
+                        <Badge className="text-xs">{session.status.toLowerCase()}</Badge>
+                        <Badge variant="outline" className="text-xs">{session.creditsUsed} crédit(s)</Badge>
                       </div>
                     </div>
                   ))}
@@ -307,7 +307,7 @@ export default function DashboardCoach() {
             <CardContent>
               {dashboardData?.todaySessions && dashboardData.todaySessions.length > 0 ? (
                 <div className="space-y-4">
-                  {dashboardData.todaySessions.map((session: any) => (
+                  {dashboardData.todaySessions.map((session) => (
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"

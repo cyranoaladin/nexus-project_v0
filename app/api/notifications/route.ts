@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { z } from 'zod';
+
+const updateNotificationSchema = z.object({
+  action: z.enum(['markAsRead', 'markAllAsRead']),
+  notificationId: z.string().min(1).optional(),
+}).refine(
+  (data) => data.action === 'markAllAsRead' || Boolean(data.notificationId),
+  {
+    message: 'notificationId requis pour markAsRead',
+    path: ['notificationId'],
+  }
+);
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,9 +29,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get('unread') === 'true';
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const parsedLimit = Number.parseInt(searchParams.get('limit') || '10', 10);
+    const limit = Number.isNaN(parsedLimit) ? 10 : parsedLimit;
 
-    const whereClause: any = {
+    const whereClause: Prisma.NotificationWhereInput = {
       userId: session.user.id
     };
 
@@ -67,16 +81,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { notificationId, action } = body;
+    const { notificationId, action } = updateNotificationSchema.parse(body);
 
-    if (!notificationId || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-
-    if (action === 'markAsRead') {
+    if (action === 'markAsRead' && notificationId) {
       await prisma.notification.update({
         where: {
           id: notificationId,

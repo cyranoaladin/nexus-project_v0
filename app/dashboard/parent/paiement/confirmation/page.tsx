@@ -1,10 +1,9 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Clock, Mail, ArrowRight, Home } from "lucide-react"
+import { CheckCircle, Clock, Mail, Home } from "lucide-react"
 import Link from "next/link"
 
 export default function PaymentConfirmationPage() {

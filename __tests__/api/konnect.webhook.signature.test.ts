@@ -19,13 +19,15 @@ const originalEnv = { ...process.env }
 describe('Konnect Webhook Signature', () => {
   beforeEach(() => {
     jest.resetModules()
-    process.env = { ...originalEnv }
-    process.env.NODE_ENV = 'production'
-    process.env.KONNECT_WEBHOOK_SECRET = 'testsecret'
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'production',
+      KONNECT_WEBHOOK_SECRET: 'testsecret',
+    } as NodeJS.ProcessEnv
   })
 
   afterAll(() => {
-    process.env = originalEnv
+    process.env = originalEnv as NodeJS.ProcessEnv
   })
 
   it('rejects missing signature with 403 in production', async () => {

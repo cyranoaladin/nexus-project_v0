@@ -9,12 +9,19 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   testMatch: [
-    '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
+    '**/__tests__/**/*.test.[jt]s?(x)',
+    '**/__tests__/**/*.spec.[jt]s?(x)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/.next/standalone/',
+    '__tests__/api/',
+    '__tests__/e2e/',
+  ],
 };
 
 module.exports = createJestConfig(customJestConfig);

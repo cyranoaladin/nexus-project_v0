@@ -9,3 +9,10 @@ export DATABASE_URL="postgresql+psycopg://nexus:nexus@localhost:5432/nexus"
 alembic -c db/alembic.ini upgrade head
 uvicorn apps.api.app.main:app --reload
 ```
+
+## Maintenance
+
+- Rafraîchir la vue matérialisée `mv_dashboard_summary` après un import massif :
+	```bash
+	PYTHONPATH=apps/api apps/api/.venv/bin/python -m app.scripts.refresh_dashboard_summary --concurrently
+	```

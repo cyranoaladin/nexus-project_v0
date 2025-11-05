@@ -2,6 +2,13 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  activateAriaSubscription,
+  DEFAULT_PREMIUM_SUBJECTS,
+  serializeSubjects
+} from '@/lib/aria-access';
+
+type SubscriptionRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export async function PATCH(
   request: NextRequest,
@@ -21,7 +28,7 @@ export async function PATCH(
     const body = await request.json();
     const { status, notes } = body;
 
-    const allowedStatuses = ['PENDING', 'APPROVED', 'REJECTED'];
+    const allowedStatuses: SubscriptionRequestStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
     if (!allowedStatuses.includes(status)) {
       return NextResponse.json(
         { error: `Invalid status. Allowed: ${allowedStatuses.join(', ')}` },
@@ -45,7 +52,7 @@ export async function PATCH(
     const updatedRequest = await prisma.subscriptionRequest.update({
       where: { id: requestId },
       data: {
-        status: status as any,
+        status,
         processedBy: session.user.id,
         processedAt: new Date(),
         ...(status === 'REJECTED' ? { rejectionReason: notes ?? currentRequest.rejectionReason } : {})
@@ -58,6 +65,8 @@ export async function PATCH(
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + 1); // 1 month subscription
 
+      const subjects = DEFAULT_PREMIUM_SUBJECTS;
+
       await prisma.subscription.create({
         data: {
           studentId: currentRequest.studentId,
@@ -67,9 +76,14 @@ export async function PATCH(
           status: 'ACTIVE',
           startDate: startDate,
           endDate: endDate,
-          ariaSubjects: '[]',
+          ariaSubjects: serializeSubjects(subjects),
           ariaCost: 0
         }
+      });
+
+      await activateAriaSubscription({
+        studentId: currentRequest.studentId,
+        subjects
       });
 
       // Add initial credits to the student

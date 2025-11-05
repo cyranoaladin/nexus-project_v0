@@ -158,7 +158,7 @@ export async function awardBadge(studentId: string, badgeName: string) {
 }
 
 // Vérification et attribution automatique des badges
-export async function checkAndAwardBadges(studentId: string, event: string, metadata?: any) {
+export async function checkAndAwardBadges(studentId: string, event: string, _metadata?: Record<string, unknown>) {
   const newBadges = []
   
   switch (event) {

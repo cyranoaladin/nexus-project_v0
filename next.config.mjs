@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      { source: '/pyapi/:path*', destination: 'http://localhost:8000/:path*' },
+    ];
+  },
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 

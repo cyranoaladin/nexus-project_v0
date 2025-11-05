@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "Nexus Réussite Nexus Réussite" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Nexus Réussite" [ref=e7]
+          - generic [ref=e8]: Nexus Réussite
+        - navigation [ref=e9]:
+          - link "Accueil" [ref=e10] [cursor=pointer]:
+            - /url: /
+            - text: Accueil
+          - link "Notre Équipe" [ref=e11] [cursor=pointer]:
+            - /url: /equipe
+            - text: Notre Équipe
+          - link "Offres & Tarifs" [ref=e12] [cursor=pointer]:
+            - /url: /offres
+            - text: Offres & Tarifs
+          - link "Notre Centre" [ref=e13] [cursor=pointer]:
+            - /url: /notre-centre
+            - text: Notre Centre
+          - link "Contact" [ref=e14] [cursor=pointer]:
+            - /url: /contact
+            - text: Contact
+        - generic [ref=e15]:
+          - link "Se Connecter" [ref=e16] [cursor=pointer]:
+            - /url: /auth/signin
+          - link "Bilan Gratuit" [ref=e17] [cursor=pointer]:
+            - /url: /bilan-gratuit
+    - main [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - img [ref=e22]
+          - heading "Bon Retour sur Nexus Réussite" [level=1] [ref=e25]
+          - paragraph [ref=e26]: Connectez-vous pour accéder à votre espace personnalisé et continuer votre parcours vers l'excellence.
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - heading "Connexion à Votre Espace" [level=3] [ref=e30]
+            - paragraph [ref=e31]: Saisissez vos identifiants pour accéder à votre tableau de bord
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - text: Adresse Email
+                - textbox "Adresse Email" [ref=e35]:
+                  - /placeholder: votre.email@exemple.com
+                  - text: student@test.local
+              - generic [ref=e36]:
+                - generic [ref=e37]:
+                  - generic [ref=e38]: Mot de Passe
+                  - link "Mot de passe oublié ?" [ref=e39] [cursor=pointer]:
+                    - /url: /auth/mot-de-passe-oublie
+                - generic [ref=e40]:
+                  - textbox "Mot de Passe" [ref=e41]:
+                    - /placeholder: Votre mot de passe
+                    - text: password
+                  - button [ref=e42]:
+                    - img [ref=e43]
+              - button "Accéder à Mon Espace" [ref=e46]:
+                - img [ref=e47]
+                - text: Accéder à Mon Espace
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Pas encore de compte ?
+              - link "Créer mon Compte Gratuit" [ref=e53] [cursor=pointer]:
+                - /url: /bilan-gratuit
+            - paragraph [ref=e55]:
+              - text: En vous connectant, vous acceptez nos
+              - link "conditions d'utilisation" [ref=e56] [cursor=pointer]:
+                - /url: /conditions
+    - contentinfo [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - link "Nexus Réussite Nexus Réussite" [ref=e61] [cursor=pointer]:
+              - /url: /
+              - img "Nexus Réussite" [ref=e62]
+              - generic [ref=e63]: Nexus Réussite
+            - paragraph [ref=e64]: La plateforme de pédagogie augmentée de référence pour la réussite au Baccalauréat et l'excellence à Parcoursup.
+            - generic [ref=e65]:
+              - link [ref=e66] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e67]
+              - link [ref=e69] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e70]
+              - link [ref=e73] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e74]
+          - generic [ref=e78]:
+            - heading "Navigation" [level=3] [ref=e79]
+            - list [ref=e80]:
+              - listitem [ref=e81]:
+                - link "Notre Équipe" [ref=e82] [cursor=pointer]:
+                  - /url: /equipe
+              - listitem [ref=e83]:
+                - link "Offres & Tarifs" [ref=e84] [cursor=pointer]:
+                  - /url: /offres
+              - listitem [ref=e85]:
+                - link "Notre Centre" [ref=e86] [cursor=pointer]:
+                  - /url: /notre-centre
+              - listitem [ref=e87]:
+                - link "Contact" [ref=e88] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e89]:
+            - heading "Contact" [level=3] [ref=e90]
+            - list [ref=e91]:
+              - listitem [ref=e92]:
+                - img [ref=e93]
+                - generic [ref=e95]: +216 XX XXX XXX
+              - listitem [ref=e96]:
+                - img [ref=e97]
+                - generic [ref=e100]: contact@nexusreussite.academy
+              - listitem [ref=e101]:
+                - img [ref=e102]
+                - generic [ref=e105]:
+                  - text: Centre Urbain Nord
+                  - text: Immeuble VENUS, Apt. C13
+                  - text: 1082 – Tunis
+        - paragraph [ref=e107]: © 2025 Nexus Réussite. Tous droits réservés.
+  - alert [ref=e108]
+```
