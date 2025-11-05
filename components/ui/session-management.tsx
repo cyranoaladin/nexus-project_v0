@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -83,15 +83,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
   const [currentPage, setCurrentPage] = useState(1);
   const sessionsPerPage = 10;
 
-  useEffect(() => {
-    loadSessions();
-  }, [assistantId]);
-
-  useEffect(() => {
-    filterSessions();
-  }, [sessions, searchTerm, statusFilter, subjectFilter, dateFilter]);
-
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -110,9 +102,9 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const filterSessions = () => {
+  const filterSessions = useCallback(() => {
     let filtered = [...sessions];
 
     // Search filter
@@ -170,7 +162,15 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
 
     setFilteredSessions(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  };
+  }, [sessions, searchTerm, statusFilter, subjectFilter, dateFilter]);
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
+
+  useEffect(() => {
+    filterSessions();
+  }, [filterSessions]);
 
   const updateSessionStatus = async (sessionId: string, newStatus: string, notes?: string) => {
     try {
@@ -338,7 +338,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
           )}
 
           {currentSessions.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 relative">
               <AnimatePresence>
                 {currentSessions.map((session) => (
                   <motion.div

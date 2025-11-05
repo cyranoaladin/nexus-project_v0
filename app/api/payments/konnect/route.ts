@@ -120,7 +120,9 @@ export async function POST(request: NextRequest) {
             await prisma.payment.update({ where: { id: payment.id }, data: { externalId: String(providerId) } });
           }
         }
-      } catch (e) {
+      } catch (error) {
+        const { logger } = await import('@/lib/logger');
+        logger.warn('Konnect init fallback', { error: String(error) });
         // Fallback sur démo si l'API n'est pas accessible
         payUrl = null;
       }

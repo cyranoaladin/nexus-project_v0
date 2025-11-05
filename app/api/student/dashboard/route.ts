@@ -1,7 +1,11 @@
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { Prisma, SessionStatus } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +37,14 @@ export async function GET(request: NextRequest) {
         },
         ariaConversations: {
           orderBy: { createdAt: 'desc' },
-          take: 5
+          take: 5,
+          include: {
+            messages: {
+              select: {
+                createdAt: true
+              }
+            }
+          }
         },
         badges: {
           include: {
@@ -53,43 +64,72 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate available credits
-    const creditBalance = student.creditTransactions.reduce((balance: number, transaction: any) => {
-      return balance + transaction.amount;
-    }, 0);
+    const creditBalance = student.creditTransactions.reduce((balance, transaction) => balance + transaction.amount, 0);
 
     // Get next session and recent sessions from SessionBooking
     const now = new Date();
+
+    const nextSessionBookingPromise = prisma.sessionBooking.findFirst({
+      where: {
+        studentId: student.userId,
+        scheduledDate: { gte: now },
+        status: { in: [SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] }
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+      include: {
+        coach: true,
+      }
+    });
+
+    const recentSessionsPromise = prisma.sessionBooking.findMany({
+      where: { studentId: student.userId },
+      orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
+      take: 5,
+      include: {
+        coach: true,
+      }
+    });
+
     const [nextSessionBooking, recentSessions] = await Promise.all([
-      prisma.sessionBooking.findFirst({
-        where: {
-          studentId: student.userId,
-          scheduledDate: { gte: now },
-          status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
-        },
-        orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
-        include: {
-          coach: true,
-        }
-      }),
-      prisma.sessionBooking.findMany({
-        where: { studentId: student.userId },
-        orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
-        take: 5,
-        include: {
-          coach: true,
-        }
-      })
+      nextSessionBookingPromise,
+      recentSessionsPromise
     ]);
 
     // Get recent ARIA messages count
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const ariaMessagesToday = (student as any).ariaConversations?.reduce((count: number, conversation: any) => {
-      const messagesToday = conversation.messages?.filter((message: any) =>
-        new Date(message.createdAt) >= today
-      ).length || 0;
+    type StudentWithRelations = NonNullable<
+      Prisma.StudentGetPayload<{
+        include: {
+          user: true;
+          subscriptions: true;
+          creditTransactions: true;
+          ariaConversations: {
+            include: {
+              messages: {
+                select: {
+                  createdAt: true;
+                };
+              };
+            };
+          };
+          badges: {
+            include: {
+              badge: true;
+            };
+          };
+        };
+      }>
+    >;
+
+    const typedStudent = student as StudentWithRelations;
+
+    const ariaMessagesToday = typedStudent.ariaConversations.reduce((count, conversation) => {
+      const messagesToday = conversation.messages
+        .filter((message) => new Date(message.createdAt) >= today)
+        .length;
       return count + messagesToday;
-    }, 0) ?? 0;
+    }, 0);
 
     // Format dashboard data
     const dashboardData = {
@@ -103,12 +143,12 @@ export async function GET(request: NextRequest) {
       },
       credits: {
         balance: creditBalance,
-        transactions: student.creditTransactions.map((t: any) => ({
-          id: t.id,
-          type: t.type,
-          amount: t.amount,
-          description: t.description,
-          createdAt: t.createdAt
+        transactions: typedStudent.creditTransactions.map((transaction) => ({
+          id: transaction.id,
+          type: transaction.type,
+          amount: transaction.amount,
+          description: transaction.description,
+          createdAt: transaction.createdAt
         }))
       },
       nextSession: nextSessionBooking ? {
@@ -123,28 +163,28 @@ export async function GET(request: NextRequest) {
           pseudonym: ''
         }
       } : null,
-      recentSessions: recentSessions.map((s: any) => ({
-        id: s.id,
-        title: s.title,
-        subject: s.subject,
-        status: s.status,
-        scheduledAt: new Date(`${s.scheduledDate.toISOString().split('T')[0]}T${s.startTime}`),
+      recentSessions: recentSessions.map((session) => ({
+        id: session.id,
+        title: session.title,
+        subject: session.subject,
+        status: session.status,
+        scheduledAt: new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`),
         coach: {
-          firstName: s.coach?.firstName ?? '',
-          lastName: s.coach?.lastName ?? '',
+          firstName: session.coach?.firstName ?? '',
+          lastName: session.coach?.lastName ?? '',
           pseudonym: ''
         }
       })),
       ariaStats: {
         messagesToday: ariaMessagesToday,
-        totalConversations: student.ariaConversations.length
+        totalConversations: typedStudent.ariaConversations.length
       },
-      badges: student.badges.map((sb: any) => ({
-        id: sb.badge.id,
-        name: sb.badge.name,
-        description: sb.badge.description,
-        icon: sb.badge.icon,
-        earnedAt: sb.earnedAt
+      badges: typedStudent.badges.map((studentBadge) => ({
+        id: studentBadge.badge.id,
+        name: studentBadge.badge.name,
+        description: studentBadge.badge.description,
+        icon: studentBadge.badge.icon,
+        earnedAt: studentBadge.earnedAt
       }))
     };
 

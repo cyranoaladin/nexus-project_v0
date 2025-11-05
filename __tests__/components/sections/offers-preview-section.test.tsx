@@ -11,17 +11,32 @@ jest.mock('next/link', () => {
 
 // Mock de next/image
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, ...props }: any) {
+  return function MockedImage({ src, alt, priority: _priority, ...props }: any) {
     return <img src={src} alt={alt} {...props} />;
   };
 });
 
 // Mock de framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-}));
+jest.mock('framer-motion', () => {
+  const filterMotionProps = ({
+    initial,
+    animate,
+    transition,
+    whileInView,
+    whileHover,
+    viewport,
+    exit,
+    layout,
+    variants,
+    ...rest
+  }: Record<string, unknown>) => rest;
+
+  return {
+    motion: {
+      div: ({ children, ...props }: any) => <div {...filterMotionProps(props)}>{children}</div>,
+    },
+  };
+});
 
 describe('OffersPreviewSection', () => {
   it('renders the section title correctly', () => {
@@ -136,8 +151,8 @@ describe('OffersPreviewSection', () => {
   it('renders proper semantic structure', () => {
     render(<OffersPreviewSection />);
 
-    const section = screen.getByRole('region', { hidden: true }) || document.querySelector('section');
-    expect(section).toBeInTheDocument();
+    const section = document.querySelector('section');
+    expect(section).not.toBeNull();
 
     const headings = screen.getAllByRole('heading');
     expect(headings.length).toBeGreaterThan(0);

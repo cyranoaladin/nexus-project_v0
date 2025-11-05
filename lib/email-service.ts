@@ -1,4 +1,4 @@
-import { Session, User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import nodemailer from 'nodemailer';
 
 // Configuration du transporteur SMTP
@@ -12,14 +12,64 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+interface EmailPersonContext {
+  email: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+}
+
+interface SessionTemplateContext {
+  id: string;
+  subject: string;
+  scheduledAt: Date;
+  duration: number;
+  creditCost: number;
+}
+
+const formatPersonName = (person?: EmailPersonContext | null) => {
+  if (!person) {
+    return null;
+  }
+
+  if (person.name) {
+    return person.name;
+  }
+
+  const firstName = person.firstName ?? '';
+  const lastName = person.lastName ?? '';
+  const fullName = `${firstName} ${lastName}`.trim();
+  return fullName.length > 0 ? fullName : null;
+};
+
+const buildSessionContext = (session: {
+  id: string;
+  subject: string;
+  scheduledDate: Date;
+  startTime: string;
+  duration: number;
+  creditsUsed: number;
+}): SessionTemplateContext => {
+  const isoDate = session.scheduledDate.toISOString().split('T')[0];
+  const normalizedStart = session.startTime.length === 5 ? `${session.startTime}:00` : session.startTime;
+
+  return {
+    id: session.id,
+    subject: session.subject,
+    scheduledAt: new Date(`${isoDate}T${normalizedStart}`),
+    duration: session.duration,
+    creditCost: session.creditsUsed,
+  };
+};
+
 // Templates d'email
 const EMAIL_TEMPLATES = {
   WELCOME: {
     subject: '🎓 Bienvenue chez Nexus Réussite !',
-    html: (user: any) => `
+    html: (user: EmailPersonContext) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
-          <h1>Bienvenue ${user.firstName} !</h1>
+          <h1>Bienvenue ${user.firstName ?? ''} !</h1>
           <p>Votre parcours vers la réussite commence maintenant</p>
         </div>
         <div style="padding: 30px;">
@@ -51,13 +101,16 @@ const EMAIL_TEMPLATES = {
 
   SESSION_CONFIRMATION: {
     subject: '✅ Confirmation de votre session',
-    html: (session: any, student: any, coach: any) => `
+    html: (session: SessionTemplateContext, student: EmailPersonContext, coach?: EmailPersonContext) => {
+      const coachDisplayName = formatPersonName(coach) ?? 'Coach assigné automatiquement';
+
+      return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #28a745; color: white; padding: 20px; text-align: center;">
           <h1>✅ Session confirmée !</h1>
         </div>
         <div style="padding: 30px;">
-          <p>Bonjour ${student.firstName},</p>
+          <p>Bonjour ${student.firstName ?? ''},</p>
 
           <p>Votre session a été confirmée avec succès !</p>
 
@@ -68,7 +121,7 @@ const EMAIL_TEMPLATES = {
               <li><strong>📅 Date :</strong> ${new Date(session.scheduledAt).toLocaleDateString('fr-FR')}</li>
               <li><strong>🕐 Heure :</strong> ${new Date(session.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</li>
               <li><strong>⏱️ Durée :</strong> ${session.duration} minutes</li>
-              <li><strong>👨‍🏫 Coach :</strong> ${coach ? coach.name : 'Coach assigné automatiquement'}</li>
+              <li><strong>👨‍🏫 Coach :</strong> ${coachDisplayName}</li>
               <li><strong>💳 Coût :</strong> ${session.creditCost} crédits</li>
             </ul>
           </div>
@@ -89,18 +142,19 @@ const EMAIL_TEMPLATES = {
           </p>
         </div>
       </div>
-    `
+    `;
+    }
   },
 
   SESSION_REMINDER: {
     subject: '⏰ Rappel : Votre session commence dans 1 heure',
-    html: (session: any, student: any, videoLink: string) => `
+    html: (session: SessionTemplateContext, student: EmailPersonContext, videoLink: string) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #ff9800; color: white; padding: 20px; text-align: center;">
           <h1>⏰ Votre session commence bientôt !</h1>
         </div>
         <div style="padding: 30px;">
-          <p>Bonjour ${student.firstName},</p>
+          <p>Bonjour ${student.firstName ?? ''},</p>
 
           <p>Votre session commence dans <strong>1 heure</strong> !</p>
 
@@ -130,7 +184,7 @@ const EMAIL_TEMPLATES = {
 };
 
 // Fonctions d'envoi d'emails
-export async function sendWelcomeEmail(user: any) {
+export async function sendWelcomeEmail(user: EmailPersonContext) {
   try {
     const template = EMAIL_TEMPLATES.WELCOME;
 
@@ -148,7 +202,11 @@ export async function sendWelcomeEmail(user: any) {
   }
 }
 
-export async function sendSessionConfirmationEmail(session: any, student: any, coach?: any) {
+export async function sendSessionConfirmationEmail(
+  session: SessionTemplateContext,
+  student: EmailPersonContext,
+  coach?: EmailPersonContext
+) {
   try {
     const template = EMAIL_TEMPLATES.SESSION_CONFIRMATION;
 
@@ -161,6 +219,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
 
     // Envoyer aussi au coach si assigné
     if (coach?.email) {
+      const coachDisplayName = formatPersonName(coach) ?? 'Coach';
       await transporter.sendMail({
         from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
         to: coach.email,
@@ -171,7 +230,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
               <h1>📚 Nouvelle session assignée</h1>
             </div>
             <div style="padding: 30px;">
-              <p>Bonjour ${coach.name},</p>
+              <p>Bonjour ${coachDisplayName},</p>
               <p>Une nouvelle session vous a été assignée :</p>
               <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                 <ul style="list-style: none; padding: 0;">
@@ -195,7 +254,11 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
   }
 }
 
-export async function sendSessionReminderEmail(session: any, student: any, videoLink: string) {
+export async function sendSessionReminderEmail(
+  session: SessionTemplateContext,
+  student: EmailPersonContext,
+  videoLink: string
+) {
   try {
     const template = EMAIL_TEMPLATES.SESSION_REMINDER;
 
@@ -233,15 +296,17 @@ export async function sendScheduledReminders() {
     const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
     const fiveMinutesFromOneHour = new Date(oneHourFromNow.getTime() - 5 * 60 * 1000);
 
-    // Define a type that includes relations
-    type SessionWithRelations = Session & {
-      student: {
-        user: User;
-      },
-      coach?: {
-        user: User;
+    type SessionReminderCandidate = Prisma.SessionBookingGetPayload<{
+      include: {
+        student: {
+          select: {
+            email: true;
+            firstName: true;
+            lastName: true;
+          };
+        };
       };
-    };
+    }>;
 
     const upcomingSessions = await prisma.sessionBooking.findMany({
       where: {
@@ -253,14 +318,34 @@ export async function sendScheduledReminders() {
         // reminderSent field needs to be added to the Prisma schema first
         // reminderSent: false
       },
-    }) as any[];
+      include: {
+        student: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+          }
+        }
+      }
+    }) as SessionReminderCandidate[];
 
     for (const session of upcomingSessions) {
+      if (!session.student?.email) {
+        continue;
+      }
+
+      const sessionContext = buildSessionContext(session);
+      const studentContext: EmailPersonContext = {
+        email: session.student.email,
+        firstName: session.student.firstName,
+        lastName: session.student.lastName,
+      };
+
       const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
 
       await sendSessionReminderEmail(
-        session,
-        session.student.user,
+        sessionContext,
+        studentContext,
         videoLink
       );
 

@@ -7,39 +7,85 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 // import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 
-export default function SignInPage() {
+function SignInContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resolveCallbackUrl = () => {
+    const fallbackRelative = "/dashboard";
+    const fallbackAbsolute = new URL(fallbackRelative, window.location.origin).toString();
+    const rawCallback = searchParams.get("callbackUrl");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    if (!rawCallback) {
+      return { relative: fallbackRelative, absolute: fallbackAbsolute };
+    }
+
+    try {
+      const parsed = new URL(rawCallback, window.location.origin);
+
+      if (parsed.origin !== window.location.origin || parsed.pathname === "/auth/signin") {
+        return { relative: fallbackRelative, absolute: fallbackAbsolute };
+      }
+
+      return {
+        relative: `${parsed.pathname}${parsed.search}${parsed.hash}`,
+        absolute: parsed.toString()
+      };
+    } catch (error) {
+      console.warn("[AUTH][SIGNIN] Unable to parse callbackUrl", { rawCallback, error });
+      return { relative: fallbackRelative, absolute: fallbackAbsolute };
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
+      const { absolute: absoluteCallbackUrl, relative: relativeCallbackUrl } = resolveCallbackUrl();
       const result = await signIn("credentials", {
         email,
         password,
+        callbackUrl: absoluteCallbackUrl,
         redirect: false
       });
 
-      if (result?.error) {
+      if (!result?.ok || result.error) {
         setError("Email ou mot de passe incorrect");
       } else {
-        router.push("/dashboard");
+        const targetUrl = (() => {
+          const fallbackUrl = absoluteCallbackUrl;
+          const candidate = typeof result.url === "string" ? result.url : fallbackUrl;
+
+          try {
+            const parsed = new URL(candidate, window.location.origin);
+
+            if (parsed.origin !== window.location.origin || parsed.pathname === "/auth/signin") {
+              return relativeCallbackUrl;
+            }
+
+            return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+          } catch {
+            return relativeCallbackUrl;
+          }
+        })();
+
+        router.push(targetUrl);
       }
-    } catch (error) {
+    } catch (submitError) {
+      console.error("[AUTH][SIGNIN] Unexpected failure", submitError);
       setError("Une erreur est survenue lors de la connexion");
     } finally {
       setIsLoading(false);
@@ -195,5 +241,21 @@ export default function SignInPage() {
 
       <Footer />
     </div>
+  );
+}
+
+function SignInFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+    </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInFallback />}>
+      <SignInContent />
+    </Suspense>
   );
 }

@@ -11,7 +11,7 @@ import { AlertCircle, Check, Loader2, LogOut, Search, Settings, X } from "lucide
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface SubscriptionRequest {
   id: string;
@@ -40,13 +40,32 @@ export default function SubscriptionsManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [pendingSubscriptions, setPendingSubscriptions] = useState<SubscriptionRequest[]>([]);
-  const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+
+  const fetchSubscriptions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/assistant/subscriptions');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch subscriptions');
+      }
+
+      const data: { pendingSubscriptions: SubscriptionRequest[]; allSubscriptions?: unknown } = await response.json();
+      setPendingSubscriptions(data.pendingSubscriptions);
+    } catch (err) {
+      console.error('Error fetching subscriptions:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -57,33 +76,9 @@ export default function SubscriptionsManagement() {
     }
 
     fetchSubscriptions();
-  }, [session, status, router]);
-
-  const fetchSubscriptions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/assistant/subscriptions');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch subscriptions');
-      }
-      
-      const data = await response.json();
-      setPendingSubscriptions(data.pendingSubscriptions);
-      setAllSubscriptions(data.allSubscriptions);
-    } catch (err) {
-      console.error('Error fetching subscriptions:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [session, status, router, fetchSubscriptions]);
 
   const handleSubscriptionAction = async (subscriptionId: string, action: 'approve' | 'reject') => {
-    if (!selectedRequest) return;
-
     setIsProcessing(true);
     try {
       const response = await fetch('/api/assistant/subscriptions', {
@@ -107,7 +102,6 @@ export default function SubscriptionsManagement() {
       alert(result.subscription.message);
       
       // Reset form
-      setSelectedRequest(null);
       setRejectionReason("");
       
       // Refresh data
@@ -120,13 +114,15 @@ export default function SubscriptionsManagement() {
     }
   };
 
-  const filteredPendingSubscriptions = pendingSubscriptions.filter(sub =>
-    sub.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.parent.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.parent.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.planName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPendingSubscriptions = useMemo(() => (
+    pendingSubscriptions.filter((sub) =>
+      sub.student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.parent.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.parent.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sub.planName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  ), [pendingSubscriptions, searchTerm]);
 
   if (status === "loading" || loading) {
     return (
@@ -267,7 +263,6 @@ export default function SubscriptionsManagement() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setSelectedRequest(request)}
                         >
                           Voir Détails
                         </Button>

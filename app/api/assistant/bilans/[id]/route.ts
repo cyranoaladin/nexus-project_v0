@@ -29,26 +29,6 @@ export async function PATCH(
       );
     }
 
-    // Update the bilan in the bilan_gratuits table
-    const updateData: any = {
-      updated_at: new Date()
-    };
-
-    if (status) {
-      updateData.status = status;
-      if (status === 'COMPLETED') {
-        updateData.completed_at = new Date();
-      }
-    }
-
-    if (notes !== undefined) {
-      updateData.notes = notes;
-    }
-
-    if (assignedTo !== undefined) {
-      updateData.assigned_to = assignedTo;
-    }
-
     await prisma.$executeRaw`
       UPDATE bilan_gratuits
       SET

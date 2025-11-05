@@ -6,6 +6,7 @@ const mockCount = jest.fn();
 const mockFindUnique = jest.fn();
 const mockUpdate = jest.fn();
 const mockUpdateMany = jest.fn();
+const mockStudentUpdate = jest.fn();
 
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn().mockResolvedValue({
@@ -23,6 +24,9 @@ jest.mock('@/lib/prisma', () => ({
     },
     subscription: {
       updateMany: (...args: any[]) => mockUpdateMany(...args)
+    },
+    student: {
+      update: (...args: any[]) => mockStudentUpdate(...args)
     }
   }
 }));

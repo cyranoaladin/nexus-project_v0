@@ -38,10 +38,14 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return 'default';
-      case 'INACTIVE': return 'secondary';
-      case 'REJECTED': return 'destructive';
-      default: return 'outline';
+      case 'ACTIVE':
+        return 'default';
+      case 'INACTIVE':
+        return 'warning';
+      case 'REJECTED':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   };
 
@@ -76,17 +80,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium text-gray-900">Formule Actuelle</h3>
-              <Badge
-                variant={
-                  subscriptionDetails.status === 'ACTIVE'
-                    ? 'default'
-                    : subscriptionDetails.status === 'INACTIVE'
-                    ? 'outline'
-                    : subscriptionDetails.status === 'REJECTED'
-                    ? 'destructive'
-                    : 'outline'
-                }
-              >
+              <Badge variant={getStatusBadgeVariant(subscriptionDetails.status)}>
                 {getStatusText(subscriptionDetails.status)}
               </Badge>
             </div>

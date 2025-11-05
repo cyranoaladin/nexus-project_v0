@@ -53,7 +53,11 @@ describe('FloatingNav', () => {
   it('a les bonnes classes CSS', () => {
     render(<FloatingNav />);
 
-    const navContainer = screen.getByText('Cortex').closest('div')?.parentElement;
+    const navContainer = screen.getByText('Cortex')
+      .closest('button')
+      ?.parentElement // flex container
+      ?.parentElement // inner wrapper
+      ?.parentElement; // floating container
     expect(navContainer).toHaveClass('fixed');
     expect(navContainer).toHaveClass('bottom-6');
     expect(navContainer).toHaveClass('left-1/2');

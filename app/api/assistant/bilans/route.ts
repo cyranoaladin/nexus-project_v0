@@ -3,6 +3,31 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
+interface RawBilanRow {
+  id: string;
+  studentName: string | null;
+  parentName: string | null;
+  email: string | null;
+  phone: string | null;
+  grade: string | null;
+  subjects: string | null;
+  status: string;
+  notes: string | null;
+  assignedTo: string | null;
+  completedAt: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+interface FormattedBilan extends Omit<RawBilanRow, 'subjects' | 'completedAt' | 'createdAt' | 'updatedAt'> {
+  subjects: string[];
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all bilan requests from the bilan_gratuits table
-    const bilans = await prisma.$queryRaw`
+    const bilans = await prisma.$queryRaw<RawBilanRow[]>`
       SELECT
         id,
         student_name as "studentName",
@@ -32,10 +57,10 @@ export async function GET(request: NextRequest) {
         updated_at as "updatedAt"
       FROM bilan_gratuits
       ORDER BY created_at DESC
-    ` as any[];
+    `;
 
     // Parse subjects JSON for each bilan
-    const formattedBilans = bilans.map(bilan => ({
+    const formattedBilans: FormattedBilan[] = bilans.map((bilan) => ({
       ...bilan,
       subjects: JSON.parse(bilan.subjects || '[]'),
       completedAt: bilan.completedAt ? new Date(bilan.completedAt).toISOString() : null,

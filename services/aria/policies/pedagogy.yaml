@@ -1,0 +1,50 @@
+version: 0.1.0
+grading_schemes:
+  bac_maths_gen:
+    name: "Baccalauréat - Maths (Général, FR)"
+    exercises:
+      - id: E1
+        title: "Étude de fonctions"
+        points: 6
+        rubric:
+          - criterion: "Lecture graphique / variations"
+            points: 2
+          - criterion: "Dérivation / sens de variation"
+            points: 2
+          - criterion: "Rédaction et conclusion"
+            points: 2
+      - id: E2
+        title: "Suites & Récurrence"
+        points: 7
+        rubric:
+          - criterion: "Initialisation correcte"
+            points: 1.5
+          - criterion: "Hérédité justifiée"
+            points: 3
+          - criterion: "Clôture / interprétation"
+            points: 1.5
+          - criterion: "Clarté / rigueur"
+            points: 1
+      - id: E3
+        title: "Probabilités / Loi binomiale"
+        points: 7
+        rubric:
+          - criterion: "Modélisation (variables aléatoires)"
+            points: 2
+          - criterion: "Calculs (esp., var., proba)"
+            points: 3
+          - criterion: "Argumentation / vérifs"
+            points: 1
+          - criterion: "Présentation"
+            points: 1
+feedback_templates:
+  strengths:
+    - "Démarche structurée et justifications pertinentes."
+    - "Calculs exacts et bien argumentés."
+  weaknesses:
+    - "Des justifications manquent pour l'hérédité."
+    - "La rédaction n'est pas suffisamment claire."
+remediation:
+  recurrence:
+    - "Revoir le schéma 'initialisation → hérédité → conclusion'."
+    - "S'entraîner sur 3 preuves supplémentaires (niveau progressif)."

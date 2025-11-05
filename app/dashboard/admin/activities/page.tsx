@@ -8,7 +8,7 @@ import { AlertCircle, Activity, CreditCard, Loader2, LogOut, Search, Users } fro
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 
 interface Activity {
@@ -35,18 +35,7 @@ export default function ActivitiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchActivities();
-  }, [session, status, router, currentPage, typeFilter]);
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -54,8 +43,7 @@ export default function ActivitiesPage() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20',
-        type: typeFilter,
-        search: searchTerm
+        type: typeFilter
       });
       
       const response = await fetch(`/api/admin/activities?${params}`);
@@ -73,7 +61,18 @@ export default function ActivitiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, typeFilter]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchActivities();
+  }, [session, status, router, fetchActivities]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -106,13 +105,15 @@ export default function ActivitiesPage() {
     }
   };
 
-  const filteredActivities = activities.filter(activity =>
-    activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.coachName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.subject.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredActivities = useMemo(() => (
+    activities.filter((activity) =>
+      activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.coachName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  ), [activities, searchTerm]);
 
   if (status === "loading" || loading) {
     return (

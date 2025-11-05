@@ -30,6 +30,7 @@ import {
   Trophy,
   Users
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { formatPrice } from '../../lib/utils';
@@ -139,10 +140,15 @@ type Programme = {
   cta: string;
   popular: boolean;
   color: string;
-  icon: any;
+  icon: LucideIcon;
 };
 
-const UNIVERS_ODYSSEE: { title: string; subtitle: string; description: string; programmes: Programme[]; } = {
+const UNIVERS_ODYSSEE: {
+  title: string;
+  subtitle: string;
+  description: string;
+  programmes: Programme[];
+} = {
   title: 'Univers 3 : Programme Odyssée',
   subtitle: 'La stratégie pour la Mention',
   description: 'Programmes ancrés dans la réalité du Bac FR.',

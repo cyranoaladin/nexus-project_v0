@@ -1,13 +1,13 @@
 "use client"
 
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, Settings, Plus, AlertCircle, BookOpen, Target, Clock } from "lucide-react"
+import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import AddChildDialog from "./add-child-dialog"
 import CreditPurchaseDialog from "./credit-purchase-dialog"
@@ -69,9 +69,8 @@ export default function DashboardParent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard')
-  const [showBookingDialog, setShowBookingDialog] = useState(false)
-
-  const refreshDashboardData = async () => {
+  
+  const refreshDashboardData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -82,11 +81,11 @@ export default function DashboardParent() {
         throw new Error('Failed to fetch dashboard data')
       }
       
-      const data = await response.json()
+      const data: ParentDashboardData = await response.json()
       setDashboardData(data)
-      
-      if (data.children.length > 0 && !selectedChild) {
-        setSelectedChild(data.children[0].id)
+
+      if (data.children.length > 0) {
+        setSelectedChild((prev) => prev || data.children[0].id)
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err)
@@ -94,7 +93,7 @@ export default function DashboardParent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
 
 
@@ -107,7 +106,11 @@ export default function DashboardParent() {
     }
 
     refreshDashboardData()
-  }, [session, status, router])
+  }, [session, status, router, refreshDashboardData])
+
+  const currentChild = useMemo(() => (
+    dashboardData?.children.find((child) => child.id === selectedChild) ?? null
+  ), [dashboardData, selectedChild])
 
   if (status === "loading" || loading) {
     return (
@@ -137,8 +140,6 @@ export default function DashboardParent() {
       </div>
     )
   }
-
-  const currentChild = dashboardData?.children.find((child: any) => child.id === selectedChild)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -222,7 +223,7 @@ export default function DashboardParent() {
                         <SelectValue placeholder="Sélectionner un enfant" />
                       </SelectTrigger>
                       <SelectContent>
-                        {dashboardData?.children.map((child: any) => (
+                        {dashboardData?.children.map((child) => (
                           <SelectItem key={child.id} value={child.id}>
                             {child.firstName} {child.lastName} - {child.grade}
                           </SelectItem>
@@ -294,7 +295,7 @@ export default function DashboardParent() {
                 <CardContent>
                   <div className="space-y-3 sm:space-y-4">
                     {currentChild?.sessions && currentChild?.sessions.length > 0 ? (
-                      currentChild?.sessions.map((session: any) => (
+                      currentChild?.sessions.map((session) => (
                         <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
                           <div className="flex-1">
                             <p className="font-medium text-gray-900 text-sm sm:text-base">{session.subject}</p>

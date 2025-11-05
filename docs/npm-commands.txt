@@ -1,0 +1,6 @@
+# Commandes npm à exécuter pour la cohabitation Next.js / FastAPI
+npm pkg set scripts.dev:web="next dev -p 3000"
+npm pkg set scripts.dev:api="uvicorn apps.api.app.main:app --reload --port 8000"
+npm pkg set scripts.dev:all="npx concurrently -k -n WEB,API \"npm run dev:web\" \"npm run dev:api\""
+npm pkg set scripts.db:migrate:py="alembic -c db/alembic.ini upgrade head"
+npm i -D concurrently

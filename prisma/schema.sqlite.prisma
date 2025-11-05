@@ -48,6 +48,13 @@ enum Subject {
   SES
 }
 
+enum AriaAccessStatus {
+  INACTIVE
+  FREEMIUM
+  ACTIVE
+  SUSPENDED
+}
+
 // Énumération des statuts de session
 enum SessionStatus {
   SCHEDULED
@@ -129,6 +136,16 @@ model StudentProfile {
 }
 
 // Modèle Élève (entité métier)
+
+    // Accès ARIA
+    ariaStatus             AriaAccessStatus @default(INACTIVE)
+    ariaSubjects           String @default("[]")
+    ariaActivatedAt        DateTime?
+    ariaDeactivatedAt      DateTime?
+    ariaFreemiumTokens     Int @default(0)
+    ariaFreemiumTokensUsed Int @default(0)
+    ariaFreemiumExpiresAt  DateTime?
+    ariaLastInteractionAt  DateTime?
 model Student {
   id       String @id @default(cuid())
   parentId String

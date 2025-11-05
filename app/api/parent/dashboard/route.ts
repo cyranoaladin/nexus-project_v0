@@ -1,7 +1,11 @@
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { Prisma, SessionStatus, Subject } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,188 +67,208 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Format children data with async progress calculation
-    const children = await Promise.all(parent.children.map(async (student: any) => {
-      // Calculate credit balance from transactions
-      const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
-        return total + transaction.amount;
-      }, 0);
-
-      const now = new Date();
-
-      const [nextSessionBooking, upcomingSessions] = await Promise.all([
-        prisma.sessionBooking.findFirst({
-          where: {
-            studentId: student.userId,
-            scheduledDate: { gte: now },
-            status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
-          },
-          orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+    type ParentWithChildren = Prisma.ParentProfileGetPayload<{
+      include: {
+        user: true;
+        children: {
           include: {
-            coach: {
+            user: true;
+            creditTransactions: true;
+            subscriptions: true;
+          };
+        };
+      };
+    }>;
+
+    type StudentSummary = ParentWithChildren['children'][number];
+
+    type SessionWithCoach = Prisma.SessionBookingGetPayload<{
+      include: {
+        coach: {
+          select: {
+            firstName: true;
+            lastName: true;
+            coachProfile: {
               select: {
-                firstName: true,
-                lastName: true,
-                coachProfile: {
-                  select: { pseudonym: true }
+                pseudonym: true;
+              };
+            };
+          };
+        };
+      };
+    }>;
+
+    const children = await Promise.all(
+      parent.children.map(async (student: StudentSummary) => {
+        const creditBalance = student.creditTransactions.reduce((total, transaction) => total + transaction.amount, 0);
+
+        const now = new Date();
+
+        const [nextSessionBooking, upcomingSessions] = await Promise.all([
+          prisma.sessionBooking.findFirst({
+            where: {
+              studentId: student.userId,
+              scheduledDate: { gte: now },
+              status: { in: [SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] }
+            },
+            orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+            include: {
+              coach: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  coachProfile: {
+                    select: { pseudonym: true }
+                  }
                 }
               }
             }
-          }
-        }),
-        prisma.sessionBooking.findMany({
-          where: {
-            studentId: student.userId,
-            scheduledDate: { gte: now },
-            status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }
-          },
-          orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
-          take: 10,
-          include: {
-            coach: {
-              select: {
-                firstName: true,
-                lastName: true,
-                coachProfile: {
-                  select: { pseudonym: true }
+          }),
+          prisma.sessionBooking.findMany({
+            where: {
+              studentId: student.userId,
+              scheduledDate: { gte: now },
+              status: { in: [SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] }
+            },
+            orderBy: [{ scheduledDate: 'asc' }, { startTime: 'asc' }],
+            take: 10,
+            include: {
+              coach: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  coachProfile: {
+                    select: { pseudonym: true }
+                  }
                 }
               }
             }
+          })
+        ]);
+
+        const resolveCoachLabel = (session: SessionWithCoach | null) => {
+          if (!session?.coach) return '';
+
+          const pseudonym = session.coach.coachProfile?.pseudonym;
+          if (pseudonym) {
+            return pseudonym;
           }
-        })
-      ]);
 
-      type SessionWithCoach = {
-        coach?: {
-          firstName: string | null;
-          lastName: string | null;
-          coachProfile: { pseudonym: string | null } | null;
-        } | null;
-      };
+          const firstName = session.coach.firstName ?? '';
+          const lastName = session.coach.lastName ?? '';
+          return `${firstName} ${lastName}`.trim();
+        };
 
-      const resolveCoachLabel = (session: SessionWithCoach) => {
-        if (!session?.coach) return '';
+        const buildDateTime = (scheduledDate: Date, startTime: string) => {
+          const isoDate = scheduledDate.toISOString().split('T')[0];
+          const normalizedTime = startTime.length === 5 ? `${startTime}:00` : startTime;
+          return new Date(`${isoDate}T${normalizedTime}`);
+        };
 
-        const pseudonym = session.coach.coachProfile?.pseudonym;
-        if (pseudonym) {
-          return pseudonym;
+        const activeSubscription = student.subscriptions.at(0) ?? null;
+
+        const [completedSessions, totalSessions] = await Promise.all([
+          prisma.sessionBooking.count({
+            where: {
+              studentId: student.userId,
+              status: SessionStatus.COMPLETED
+            }
+          }),
+          prisma.sessionBooking.count({
+            where: {
+              studentId: student.userId
+            }
+          })
+        ]);
+
+        let progress = 0;
+        if (totalSessions > 0) {
+          progress = Math.round((completedSessions / totalSessions) * 100);
+        } else {
+          const negativeCredits = student.creditTransactions.filter((tx) => tx.amount < 0);
+          const positiveCredits = student.creditTransactions.filter((tx) => tx.amount > 0);
+
+          const usedCredits = Math.abs(negativeCredits.reduce((sum, tx) => sum + tx.amount, 0));
+          const totalCredits = positiveCredits.reduce((sum, tx) => sum + tx.amount, 0);
+
+          if (totalCredits > 0) {
+            progress = Math.round((usedCredits / totalCredits) * 100);
+          }
         }
 
-        const firstName = session.coach.firstName ?? '';
-        const lastName = session.coach.lastName ?? '';
-        return `${firstName} ${lastName}`.trim();
-      };
+        progress = Math.max(0, Math.min(100, progress));
 
-      const buildDateTime = (scheduledDate: Date, startTime: string) => {
-        const isoDate = scheduledDate.toISOString().split('T')[0];
-        const normalizedTime = startTime.length === 5 ? `${startTime}:00` : startTime;
-        return new Date(`${isoDate}T${normalizedTime}`);
-      };
-
-      // Get active subscription
-      const activeSubscription = student.subscriptions.length > 0 ? student.subscriptions[0] : null;
-
-      // Calculate dynamic progress based on completed sessions
-      const completedSessions = await prisma.sessionBooking.count({
-        where: {
-          studentId: student.userId,
-          status: 'COMPLETED'
-        }
-      });
-
-      const totalSessions = await prisma.sessionBooking.count({
-        where: {
-          studentId: student.userId
-        }
-      });
-
-      // Calculate progress based on completed sessions and credit usage
-      let progress = 0;
-      if (totalSessions > 0) {
-        progress = Math.round((completedSessions / totalSessions) * 100);
-      } else {
-        // If no sessions, calculate based on credit usage
-        const usedCredits = Math.abs(student.creditTransactions
-          .filter((tx: any) => tx.amount < 0)
-          .reduce((sum: number, tx: any) => sum + tx.amount, 0));
-
-        const totalCredits = student.creditTransactions
-          .filter((tx: any) => tx.amount > 0)
-          .reduce((sum: number, tx: any) => sum + tx.amount, 0);
-
-        if (totalCredits > 0) {
-          progress = Math.round((usedCredits / totalCredits) * 100);
-        }
-      }
-
-      // Ensure progress is between 0 and 100
-      progress = Math.max(0, Math.min(100, progress));
-
-      // Get subject-specific progress
-      const subjectProgress = await prisma.sessionBooking.groupBy({
-        by: ['subject'],
-        where: {
-          studentId: student.userId
-        },
-        _count: { id: true }
-      });
-
-      // Calculate subject progress
-      const subjectProgressMap = new Map();
-      for (const subject of subjectProgress) {
-        const completedSessions = await prisma.sessionBooking.count({
+        const subjectProgress = await prisma.sessionBooking.groupBy({
+          by: ['subject'],
           where: {
-            studentId: student.userId,
-            subject: subject.subject,
-            status: 'COMPLETED'
-          }
+            studentId: student.userId
+          },
+          _count: { id: true }
         });
 
-        const totalSessions = subject._count.id;
-        const subjectProgressPercent = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
-        subjectProgressMap.set(subject.subject, subjectProgressPercent);
-      }
+        const subjectProgressMap = new Map<Subject, number>();
+        for (const subject of subjectProgress) {
+          if (!subject.subject) {
+            continue;
+          }
 
-      // Get subscription details
-      const subscriptionDetails = activeSubscription ? {
-        planName: activeSubscription.planName,
-        monthlyPrice: activeSubscription.monthlyPrice,
-        status: activeSubscription.status,
-        startDate: activeSubscription.startDate,
-        endDate: activeSubscription.endDate
-      } : null;
+          const subjectCompletedSessions = await prisma.sessionBooking.count({
+            where: {
+              studentId: student.userId,
+              subject: subject.subject,
+              status: SessionStatus.COMPLETED
+            }
+          });
 
-      return {
-        id: student.userId,
-        studentId: student.id, // Keep the student.id for internal use
-        firstName: student.user.firstName,
-        lastName: student.user.lastName,
-        grade: student.grade,
-        school: student.school,
-        credits: creditBalance,
-        subscription: activeSubscription?.planName || 'AUCUN',
-        subscriptionDetails: subscriptionDetails,
-        nextSession: nextSessionBooking ? {
-          id: nextSessionBooking.id,
-          subject: nextSessionBooking.subject,
-          scheduledAt: buildDateTime(nextSessionBooking.scheduledDate, nextSessionBooking.startTime),
-          coachName: resolveCoachLabel(nextSessionBooking),
-          type: nextSessionBooking.type,
-          status: nextSessionBooking.status
-        } : null,
-        progress: progress,
-        subjectProgress: Object.fromEntries(subjectProgressMap),
-        sessions: upcomingSessions.map(session => ({
-          id: session.id,
-          subject: session.subject,
-          scheduledAt: buildDateTime(session.scheduledDate, session.startTime),
-          coachName: resolveCoachLabel(session),
-          type: session.type,
-          status: session.status,
-          duration: session.duration
-        }))
-      };
-    }));
+          const subjectTotalSessions = subject._count.id;
+          const subjectProgressPercent = subjectTotalSessions > 0 ? Math.round((subjectCompletedSessions / subjectTotalSessions) * 100) : 0;
+          subjectProgressMap.set(subject.subject, subjectProgressPercent);
+        }
+
+        const subscriptionDetails = activeSubscription
+          ? {
+              planName: activeSubscription.planName,
+              monthlyPrice: activeSubscription.monthlyPrice,
+              status: activeSubscription.status,
+              startDate: activeSubscription.startDate,
+              endDate: activeSubscription.endDate
+            }
+          : null;
+
+        return {
+          id: student.userId,
+          studentId: student.id,
+          firstName: student.user.firstName,
+          lastName: student.user.lastName,
+          grade: student.grade,
+          school: student.school,
+          credits: creditBalance,
+          subscription: activeSubscription?.planName ?? 'AUCUN',
+          subscriptionDetails,
+          nextSession: nextSessionBooking
+            ? {
+                id: nextSessionBooking.id,
+                subject: nextSessionBooking.subject,
+                scheduledAt: buildDateTime(nextSessionBooking.scheduledDate, nextSessionBooking.startTime),
+                coachName: resolveCoachLabel(nextSessionBooking),
+                type: nextSessionBooking.type,
+                status: nextSessionBooking.status
+              }
+            : null,
+          progress,
+          subjectProgress: Object.fromEntries(subjectProgressMap),
+          sessions: upcomingSessions.map((session) => ({
+            id: session.id,
+            subject: session.subject,
+            scheduledAt: buildDateTime(session.scheduledDate, session.startTime),
+            coachName: resolveCoachLabel(session),
+            type: session.type,
+            status: session.status,
+            duration: session.duration
+          }))
+        };
+      })
+    );
 
     const dashboardData = {
       parent: {

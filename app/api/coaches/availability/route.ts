@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -34,6 +35,38 @@ const specificDateSchema = z.object({
     isAvailable: z.boolean().default(true)
   }))
 });
+
+type AvailabilityWithCoach = Prisma.CoachAvailabilityGetPayload<{
+  include: {
+    coach: {
+      select: {
+        id: true;
+        firstName: true;
+        lastName: true;
+        email: true;
+      };
+    };
+  };
+}>;
+
+type BookedSlot = Prisma.SessionBookingGetPayload<{
+  select: {
+    scheduledDate: true;
+    startTime: true;
+    endTime: true;
+    status: true;
+  };
+}>;
+
+interface GeneratedSlot {
+  date: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  isRecurring: boolean;
+  specificDate: Date | null;
+}
 
 function isEndAfterStart(startTime: string, endTime: string): boolean {
   return startTime < endTime;
@@ -87,7 +120,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Create new availability slots
-      const availabilitySlots = [] as Array<any>;
+      const availabilitySlots: Prisma.CoachAvailabilityCreateManyInput[] = [];
       
       for (const day of validatedData.schedule) {
         for (const slot of day.slots) {
@@ -107,14 +140,14 @@ export async function POST(req: NextRequest) {
       if (availabilitySlots.length > 0) {
         try {
           await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: any) {
-          if (e?.code === 'P2002') {
+        } catch (error: unknown) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
             return NextResponse.json(
               { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
               { status: 409 }
             );
           }
-          throw e;
+          throw error;
         }
       }
 
@@ -157,7 +190,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Create new availability slots for specific date
-      const availabilitySlots = validatedData.slots.map(slot => ({
+      const availabilitySlots: Prisma.CoachAvailabilityCreateManyInput[] = validatedData.slots.map((slot) => ({
         coachId: session.user.id,
         dayOfWeek: specificDate.getDay(),
         startTime: normalizeTime(slot.startTime),
@@ -170,14 +203,14 @@ export async function POST(req: NextRequest) {
       if (availabilitySlots.length > 0) {
         try {
           await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: any) {
-          if (e?.code === 'P2002') {
+        } catch (error: unknown) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
             return NextResponse.json(
               { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
               { status: 409 }
             );
           }
-          throw e;
+          throw error;
         }
       }
 
@@ -237,15 +270,14 @@ export async function GET(req: NextRequest) {
     }
 
     // Build query conditions
-    const whereConditions: any = {
-      coachId: coachId,
-      isAvailable: true
+    const whereConditions: Prisma.CoachAvailabilityWhereInput = {
+      coachId,
+      isAvailable: true,
     };
 
     if (startDate && endDate) {
       whereConditions.OR = [
         {
-          // Recurring availability
           isRecurring: true,
           specificDate: { equals: null },
           validFrom: { lte: new Date(endDate) },
@@ -255,7 +287,6 @@ export async function GET(req: NextRequest) {
           ]
         },
         {
-          // Specific date availability
           isRecurring: false,
           specificDate: {
             gte: new Date(startDate),
@@ -265,7 +296,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const availability = await prisma.coachAvailability.findMany({
+    const availability: AvailabilityWithCoach[] = await prisma.coachAvailability.findMany({
       where: whereConditions,
       include: {
         coach: {
@@ -284,7 +315,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Get existing bookings to check actual availability
-    let bookedSlots = [] as any[];
+    let bookedSlots: BookedSlot[] = [];
     if (startDate && endDate) {
       bookedSlots = await prisma.sessionBooking.findMany({
         where: {
@@ -301,7 +332,7 @@ export async function GET(req: NextRequest) {
           endTime: true,
           status: true
         }
-      });
+      }) as BookedSlot[];
     }
 
     // Generate available time slots for the requested period
@@ -326,10 +357,15 @@ export async function GET(req: NextRequest) {
 }
 
 // Helper function to generate available time slots
-function generateAvailableSlots(availability: any[], bookedSlots: any[], startDate: string | null, endDate: string | null) {
-  if (!startDate || !endDate) return [];
+function generateAvailableSlots(
+  availability: AvailabilityWithCoach[],
+  bookedSlots: BookedSlot[],
+  startDate: string | null,
+  endDate: string | null
+): GeneratedSlot[] {
+  if (!startDate || !endDate) return [] as GeneratedSlot[];
 
-  const slots: any[] = [];
+  const slots: GeneratedSlot[] = [];
   const start = new Date(startDate);
   const end = new Date(endDate);
 
@@ -343,20 +379,20 @@ function generateAvailableSlots(availability: any[], bookedSlots: any[], startDa
     const dateStr = date.toISOString().split('T')[0];
     
     // Find availability for this day
-    const dayAvailability = availability.filter(av => 
+    const dayAvailability = availability.filter((av) =>
       (av.isRecurring && av.dayOfWeek === dayOfWeek) ||
       (!av.isRecurring && av.specificDate && new Date(av.specificDate).toDateString() === date.toDateString())
     );
 
     // Find bookings for this day
-    const dayBookings = bookedSlots.filter(booking => 
+    const dayBookings = bookedSlots.filter((booking) =>
       new Date(booking.scheduledDate).toDateString() === date.toDateString()
     );
 
     // Generate slots from availability
     for (const av of dayAvailability) {
       // Check if this slot conflicts with any booking
-      const isBooked = dayBookings.some(booking => 
+      const isBooked = dayBookings.some((booking) =>
         booking.startTime < av.endTime && booking.endTime > av.startTime
       );
 

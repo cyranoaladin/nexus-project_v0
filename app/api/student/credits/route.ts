@@ -1,7 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,11 +39,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate current balance
-    const balance = student.creditTransactions.reduce((total: number, transaction: any) => {
-      return total + transaction.amount;
-    }, 0);
+    type StudentWithTransactions = Prisma.StudentGetPayload<{
+      include: {
+        creditTransactions: true;
+      };
+    }>;
 
-    const formattedTransactions = student.creditTransactions.map((transaction: any) => ({
+    const typedStudent = student as StudentWithTransactions;
+
+    const balance = typedStudent.creditTransactions.reduce((total, transaction) => total + transaction.amount, 0);
+
+    const formattedTransactions = typedStudent.creditTransactions.map((transaction) => ({
       id: transaction.id,
       type: transaction.type,
       amount: transaction.amount,

@@ -1,12 +1,12 @@
-from sqlalchemy.orm import declarative_base, relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-
-Base = declarative_base()
+from ..db.base import Base
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {"schema": "nexus_app"}
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)

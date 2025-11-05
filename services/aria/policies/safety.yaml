@@ -1,0 +1,8 @@
+version: 0.1.0
+filters:
+  disallowed_topics:
+    - "Réponses complètes à des sujets d'examen en cours"
+    - "Contenu hors programme ou inapproprié"
+  escalation_rules:
+    - condition: "score < 5"
+      action: "notify_human"

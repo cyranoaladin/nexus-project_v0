@@ -1,7 +1,30 @@
+import type { Prisma, Subject } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
+
+type SessionWithStudent = Prisma.SessionBookingGetPayload<{
+  include: {
+    student: true;
+  };
+}>;
+
+type WeekSession = SessionWithStudent;
+
+type StudentWithCredits = Prisma.StudentGetPayload<{
+  include: {
+    creditTransactions: true;
+  };
+}>;
+
+interface RecentBooking {
+  studentId: string;
+  subject: Subject;
+  scheduledDate: Date;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +61,7 @@ export async function GET(request: NextRequest) {
     endOfDay.setHours(23, 59, 59, 999);
 
     // Today's sessions from SessionBooking
-    const todaysSessions = await prisma.sessionBooking.findMany({
+    const todaysSessions: SessionWithStudent[] = await prisma.sessionBooking.findMany({
       where: {
         coachId: coachUserId,
         scheduledDate: {
@@ -53,15 +76,15 @@ export async function GET(request: NextRequest) {
       orderBy: [{ startTime: 'asc' }]
     });
 
-    const todaySessions = todaysSessions.map((s: any) => ({
-      id: s.id,
-      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
-      subject: s.subject,
-      time: `${s.startTime} - ${s.endTime}`,
-      type: s.type, // INDIVIDUAL | GROUP | MASTERCLASS
-      status: s.status.toLowerCase(),
-      scheduledAt: s.scheduledDate,
-      duration: s.duration,
+    const todaySessions = todaysSessions.map((session) => ({
+      id: session.id,
+      studentName: `${session.student?.firstName ?? ''} ${session.student?.lastName ?? ''}`.trim(),
+      subject: session.subject,
+      time: `${session.startTime} - ${session.endTime}`,
+      type: session.type,
+      status: session.status.toLowerCase(),
+      scheduledAt: session.scheduledDate,
+      duration: session.duration,
     }));
 
     // Week stats from SessionBooking
@@ -71,7 +94,7 @@ export async function GET(request: NextRequest) {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
 
-    const weekSessionsRaw = await prisma.sessionBooking.findMany({
+    const weekSessionsRaw: WeekSession[] = await prisma.sessionBooking.findMany({
       where: {
         coachId: coachUserId,
         scheduledDate: {
@@ -86,24 +109,24 @@ export async function GET(request: NextRequest) {
     });
 
     const totalSessions = weekSessionsRaw.length;
-    const completedSessions = weekSessionsRaw.filter((s: any) => s.status === 'COMPLETED').length;
-    const upcomingSessions = weekSessionsRaw.filter((s: any) => ['SCHEDULED', 'CONFIRMED'].includes(s.status)).length;
+    const completedSessions = weekSessionsRaw.filter((session) => session.status === 'COMPLETED').length;
+    const upcomingSessions = weekSessionsRaw.filter((session) => ['SCHEDULED', 'CONFIRMED'].includes(session.status)).length;
 
-    const weekSessions = weekSessionsRaw.map((s: any) => ({
-      id: s.id,
-      studentId: s.studentId,
-      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
-      subject: s.subject,
-      date: s.scheduledDate,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      duration: s.duration,
-      type: s.type,
-      modality: s.modality,
-      status: s.status,
-      creditsUsed: s.creditsUsed,
-      title: s.title,
-      description: s.description ?? ''
+    const weekSessions = weekSessionsRaw.map((session) => ({
+      id: session.id,
+      studentId: session.studentId,
+      studentName: `${session.student?.firstName ?? ''} ${session.student?.lastName ?? ''}`.trim(),
+      subject: session.subject,
+      date: session.scheduledDate,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      duration: session.duration,
+      type: session.type,
+      modality: session.modality,
+      status: session.status,
+      creditsUsed: session.creditsUsed,
+      title: session.title,
+      description: session.description ?? ''
     }));
 
     // Unique students this month
@@ -124,7 +147,8 @@ export async function GET(request: NextRequest) {
     let specialties: string[] = [];
     try {
       specialties = JSON.parse(coach.subjects || '[]');
-    } catch (error) {
+    } catch (parseError) {
+      console.warn('Coach profile specialties parse failed', parseError);
       specialties = [];
     }
 
@@ -137,7 +161,7 @@ export async function GET(request: NextRequest) {
       orderBy: { scheduledDate: 'desc' },
       distinct: ['studentId'],
       select: { studentId: true, subject: true, scheduledDate: true }
-    });
+    }) as RecentBooking[];
 
     const students: Array<{ id: string; name: string; grade: string | null; subject: string; lastSession: Date; creditBalance: number; isNew: boolean; }> = [];
 
@@ -147,9 +171,9 @@ export async function GET(request: NextRequest) {
       const studentEntity = await prisma.student.findFirst({
         where: { userId: rb.studentId },
         include: { creditTransactions: true }
-      });
+      }) as StudentWithCredits | null;
 
-      const creditBalance = studentEntity?.creditTransactions?.reduce((t: number, tr: any) => t + tr.amount, 0) ?? 0;
+      const creditBalance = studentEntity?.creditTransactions?.reduce((total, transaction) => total + transaction.amount, 0) ?? 0;
 
       students.push({
         id: studentEntity?.id ?? rb.studentId,

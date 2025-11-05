@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const SUBJECTS_OPTIONS = [
   { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
@@ -36,6 +37,12 @@ const SERVICE_TYPES = [
   { value: ServiceType.ATELIER_GROUPE, label: "Atelier de groupe", cost: 1.5, description: "1,5 crédit" }
 ];
 
+type SessionBookingForm = z.infer<typeof sessionBookingSchema>;
+
+type StudentCreditsResponse = {
+  balance: number;
+};
+
 export default function SessionsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -50,7 +57,7 @@ export default function SessionsPage() {
     formState: { errors },
     setValue,
     watch
-  } = useForm({
+  } = useForm<SessionBookingForm>({
     resolver: zodResolver(sessionBookingSchema)
   });
 
@@ -85,7 +92,7 @@ export default function SessionsPage() {
           throw new Error('Failed to fetch student data');
         }
         
-        const data = await response.json();
+        const data: StudentCreditsResponse = await response.json();
         setAvailableCredits(data.balance);
       } catch (err) {
         console.error('Error fetching student data:', err);
@@ -98,7 +105,7 @@ export default function SessionsPage() {
     fetchStudentData();
   }, [session, status, router]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: SessionBookingForm) => {
     setIsSubmitting(true);
 
     try {

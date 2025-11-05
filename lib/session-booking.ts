@@ -1,3 +1,14 @@
+import {
+  NotificationMethod,
+  NotificationType,
+  Prisma,
+  ReminderType,
+  SessionModality,
+  SessionStatus,
+  SessionType,
+  Subject,
+} from '@prisma/client';
+
 import { prisma } from '@/lib/prisma';
 // import { sendEmail } from '@/lib/email';
 
@@ -12,21 +23,38 @@ export interface AvailableSlot {
   isSpecificDate: boolean;
 }
 
+export interface AvailableCoach {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  coachSubjects: string[];
+  coachAvailabilities: AvailableSlot[];
+}
+
 export interface SessionBookingData {
   coachId: string;
   studentId: string;
   parentId?: string;
-  subject: string;
+  subject: Subject;
   scheduledDate: Date;
   startTime: string;
   endTime: string;
   duration: number;
-  type: 'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS';
-  modality: 'ONLINE' | 'IN_PERSON' | 'HYBRID';
+  type: SessionType;
+  modality: SessionModality;
   title: string;
   description?: string;
   creditsUsed: number;
 }
+
+type SessionBookingWithParticipants = Prisma.SessionBookingGetPayload<{
+  include: {
+    student: true;
+    coach: true;
+    parent: true;
+  };
+}>;
 
 export class SessionBookingService {
 
@@ -111,13 +139,22 @@ export class SessionBookingService {
     while (currentDate <= endDate) {
       const dayOfWeek = currentDate.getDay();
 
-      // Check for specific date availability first
-      const specificAvailability = availability.filter((av: any) => av.specificDate && new Date(av.specificDate).toDateString() === currentDate.toDateString());
+      const specificAvailability = availability.filter(
+        (slot) =>
+          slot.specificDate !== null &&
+          new Date(slot.specificDate).toDateString() === currentDate.toDateString()
+      );
 
-      // If no specific availability, check recurring availability
-      const recurringAvailability = specificAvailability.length === 0
-        ? availability.filter((av: any) => av.isRecurring && av.dayOfWeek === dayOfWeek && (!av.validFrom || new Date(av.validFrom) <= currentDate) && (!av.validUntil || new Date(av.validUntil) >= currentDate))
-        : [];
+      const recurringAvailability =
+        specificAvailability.length === 0
+          ? availability.filter(
+              (slot) =>
+                slot.isRecurring &&
+                slot.dayOfWeek === dayOfWeek &&
+                (!slot.validFrom || new Date(slot.validFrom) <= currentDate) &&
+                (!slot.validUntil || new Date(slot.validUntil) >= currentDate)
+            )
+          : [];
 
       const dayAvailability = [...specificAvailability, ...recurringAvailability];
 
@@ -165,7 +202,7 @@ export class SessionBookingService {
     subject: string,
     startDate: Date,
     endDate: Date
-  ): Promise<any[]> {
+  ): Promise<AvailableCoach[]> {
     const coaches = await prisma.coachProfile.findMany({
       where: {
         subjects: {
@@ -185,23 +222,30 @@ export class SessionBookingService {
     });
 
     // Filter coaches who have actual availability and format response
-    return coaches
-      // Keep coaches; availability is derived via getAvailableSlots
-      .map((coach: any) => ({
+    return coaches.map((coach) => {
+      let parsedSubjects: string[] = [];
+      try {
+        parsedSubjects = coach.subjects ? (JSON.parse(coach.subjects) as string[]) : [];
+      } catch (error) {
+        console.error('Invalid subjects JSON for coach', coach.user.id, error);
+      }
+
+      return {
         id: coach.user.id,
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
         email: coach.user.email,
-        coachSubjects: JSON.parse(coach.subjects || '[]'),
+        coachSubjects: parsedSubjects,
         coachAvailabilities: []
-      }));
+      } satisfies AvailableCoach;
+    });
   }
 
   /**
    * Book a session with all validations and notifications
    */
-  static async bookSession(data: SessionBookingData): Promise<any> {
-    return await prisma.$transaction(async (tx) => {
+  static async bookSession(data: SessionBookingData): Promise<SessionBookingWithParticipants> {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Validate availability
       const isAvailable = await this.validateAvailability(
         data.coachId,
@@ -224,17 +268,17 @@ export class SessionBookingService {
           studentId: data.studentId,
           coachId: data.coachId,
           parentId: data.parentId,
-          subject: data.subject as any,
+          subject: data.subject,
           title: data.title,
           description: data.description,
           scheduledDate: data.scheduledDate,
           startTime: data.startTime,
           endTime: data.endTime,
           duration: data.duration,
-          type: data.type as any,
-          modality: data.modality as any,
+          type: data.type,
+          modality: data.modality,
           creditsUsed: data.creditsUsed,
-          status: 'SCHEDULED'
+          status: SessionStatus.SCHEDULED
         },
         include: {
           student: true,
@@ -264,10 +308,10 @@ export class SessionBookingService {
    */
   static async updateSessionStatus(
     sessionId: string,
-    status: string,
+    status: SessionStatus,
     userId: string,
     notes?: string
-  ): Promise<any> {
+  ): Promise<SessionBookingWithParticipants> {
     const session = await prisma.sessionBooking.findFirst({
       where: {
         id: sessionId,
@@ -291,10 +335,15 @@ export class SessionBookingService {
     const updatedSession = await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
-        status: status as any,
-        ...(status === 'COMPLETED' && { completedAt: new Date() }),
-        ...(status === 'CANCELLED' && { cancelledAt: new Date() }),
+        status,
+        ...(status === SessionStatus.COMPLETED && { completedAt: new Date() }),
+        ...(status === SessionStatus.CANCELLED && { cancelledAt: new Date() }),
         ...(notes && { coachNotes: notes })
+      },
+      include: {
+        student: true,
+        coach: true,
+        parent: true,
       }
     });
 
@@ -368,7 +417,7 @@ export class SessionBookingService {
     date: Date,
     startTime: string,
     endTime: string,
-    tx: any
+    tx: Prisma.TransactionClient
   ): Promise<boolean> {
     // Check availability
     const availability = await tx.coachAvailability.findFirst({
@@ -403,7 +452,7 @@ export class SessionBookingService {
       where: {
         coachId,
         scheduledDate: date,
-        status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
+        status: { in: [SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] },
         OR: [
           {
             AND: [
@@ -427,7 +476,7 @@ export class SessionBookingService {
   private static async validateCredits(
     studentId: string,
     creditsNeeded: number,
-    tx: any
+    tx: Prisma.TransactionClient
   ): Promise<void> {
     const student = await tx.student.findFirst({
       where: { userId: studentId }
@@ -438,68 +487,93 @@ export class SessionBookingService {
     }
   }
 
-  private static async createSessionNotifications(session: any, tx: any): Promise<void> {
-    const notifications = [];
+  private static async createSessionNotifications(
+    session: SessionBookingWithParticipants,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
-    // Notify coach
+    const studentName = `${session.student.firstName ?? ''} ${session.student.lastName ?? ''}`.trim();
+    const coachName = `${session.coach.firstName ?? ''} ${session.coach.lastName ?? ''}`.trim();
+
     notifications.push({
       sessionId: session.id,
       userId: session.coachId,
-      type: 'SESSION_BOOKED',
+      type: NotificationType.SESSION_BOOKED,
       title: 'Nouvelle session réservée',
-      message: `${session.student.firstName} ${session.student.lastName} a réservé une session`,
-      method: 'EMAIL'
+      message: `${studentName || 'Un élève'} a réservé une session`,
+      method: NotificationMethod.EMAIL,
     });
 
-    // Notify assistants
     const assistants = await tx.user.findMany({
-      where: { role: 'ASSISTANTE' }
+      where: { role: 'ASSISTANTE' },
+      select: { id: true },
     });
 
     for (const assistant of assistants) {
       notifications.push({
         sessionId: session.id,
         userId: assistant.id,
-        type: 'SESSION_BOOKED',
+        type: NotificationType.SESSION_BOOKED,
         title: 'Nouvelle session planifiée',
-        message: `Session programmée entre ${session.coach.firstName} et ${session.student.firstName}`,
-        method: 'IN_APP'
+        message: `Session programmée entre ${coachName || 'un coach'} et ${studentName || 'un élève'}`,
+        method: NotificationMethod.IN_APP,
       });
     }
 
-    await tx.sessionNotification.createMany({ data: notifications as any });
+    if (notifications.length > 0) {
+      await tx.sessionNotification.createMany({ data: notifications });
+    }
   }
 
-  private static async createSessionReminders(session: any, tx: any): Promise<void> {
+  private static async createSessionReminders(
+    session: SessionBookingWithParticipants,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
     const sessionDateTime = new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`);
 
-    const reminders = [
+    const reminders: Prisma.SessionReminderCreateManyInput[] = [
       {
         sessionId: session.id,
-        reminderType: 'ONE_DAY_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
+        reminderType: ReminderType.ONE_DAY_BEFORE,
+        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000),
       },
       {
         sessionId: session.id,
-        reminderType: 'TWO_HOURS_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
+        reminderType: ReminderType.TWO_HOURS_BEFORE,
+        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000),
       },
       {
         sessionId: session.id,
-        reminderType: 'THIRTY_MINUTES_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
-      }
+        reminderType: ReminderType.THIRTY_MINUTES_BEFORE,
+        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000),
+      },
     ];
 
-    await tx.sessionReminder.createMany({ data: reminders as any });
+    await tx.sessionReminder.createMany({ data: reminders });
   }
 
-  private static async createStatusChangeNotifications(session: any, status: string): Promise<void> {
+  private static async createStatusChangeNotifications(
+    session: SessionBookingWithParticipants,
+    status: SessionStatus
+  ): Promise<void> {
     // Implementation for status change notifications
     console.log(`Session ${session.id} status changed to ${status}`);
   }
 
-  private static async sendReminder(reminder: any): Promise<void> {
+  private static async sendReminder(
+    reminder: Prisma.SessionReminderGetPayload<{
+      include: {
+        session: {
+          include: {
+            student: true;
+            coach: true;
+            parent: true;
+          };
+        };
+      };
+    }>
+  ): Promise<void> {
     // Implementation for sending reminders
     console.log(`Sending reminder for session ${reminder.sessionId}`);
   }
