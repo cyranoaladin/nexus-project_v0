@@ -71,7 +71,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Intégrer avec l'API Konnect réelle (si besoin, initialiser la session via l'API Konnect)
+    // TODO: Intégrer avec l'API Konnect réelle
+    // Pour le MVP, on simule la création d'une session de paiement
+    // const konnectPaymentUrl = `https://api.konnect.network/api/v2/payments/${payment.id}/init`;
+
+    // En production, vous feriez un appel à l'API Konnect ici
+    // const konnectResponse = await fetch(`${process.env.KONNECT_BASE_URL}/api/v2/payments/init`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'x-api-key': process.env.KONNECT_API_KEY!,
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({
+    //     receiverWalletId: process.env.KONNECT_WALLET_ID,
+    //     amount: validatedData.amount * 1000, // Konnect utilise les millimes
+    //     token: "TND",
+    //     type: "immediate",
+    //     description: validatedData.description,
+    //     acceptedPaymentMethods: ["wallet", "bank_card", "e_DINAR"],
+    //     successUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/success?paymentId=${payment.id}`,
+    //     failUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/failed?paymentId=${payment.id}`,
+    //     theme: "light"
+    //   })
+    // })
+
     return NextResponse.json({
       success: true,
       paymentId: payment.id,

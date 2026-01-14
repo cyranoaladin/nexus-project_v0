@@ -567,6 +567,9 @@ model SessionBooking {
   completedAt   DateTime?
   cancelledAt   DateTime?
 
+  // Email reminders tracking (avoid duplicate sends at session level)
+  reminderSent  Boolean          @default(false)
+
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
@@ -620,6 +623,9 @@ model SessionReminder {
   // Status
   sent        Boolean        @default(false)
   sentAt      DateTime?
+
+  // Prevent sending reminders multiple times
+  reminderSent Boolean      @default(false)
 
   createdAt   DateTime       @default(now())
 

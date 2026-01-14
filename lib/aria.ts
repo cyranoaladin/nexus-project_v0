@@ -84,7 +84,7 @@ export async function generateAriaResponse(
 
     // Appel à OpenAI
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages,
       max_tokens: 1000,
       temperature: 0.7
