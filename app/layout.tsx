@@ -17,9 +17,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Réussite - Pédagogie Augmentée",
-  description: "La plateforme de référence pour l'excellence éducative en Tunisie. Accompagnement humain d'élite, plateforme numérique intelligente et assistance IA révolutionnaire.",
-  keywords: ["soutien scolaire", "Tunisie", "lycée", "baccalauréat", "cours particuliers", "IA", "pédagogie"],
+  title: "Nexus Réussite | Educational Intelligence & Web3 Factory",
+  description: "Expertise hybride : Consulting Éducatif & Studio de Développement IA/Blockchain. Hybrid Expertise: Education Consulting & AI/Web3 Factory.",
+  keywords: ["soutien scolaire", "Tunisie", "IA", "pédagogie", "Web3", "Blockchain", "RAG", "LMS"],
 };
 
 export default function RootLayout({

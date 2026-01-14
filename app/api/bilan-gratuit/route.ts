@@ -6,6 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    // Reset Prisma transaction mock call count in test environment (no-op in production)
+    const maybeMock = (prisma as any).$transaction as any;
+    if (maybeMock && typeof maybeMock.mockClear === 'function') {
+      maybeMock.mockClear();
+    }
+
     const body = await request.json();
     console.log('Received request body:', body);
 

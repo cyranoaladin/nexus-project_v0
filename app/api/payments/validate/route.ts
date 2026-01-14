@@ -1,5 +1,6 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -49,21 +50,21 @@ export async function POST(request: NextRequest) {
 
     if (action === 'approve') {
       // Valider le paiement
+      const merged = mergePaymentMetadata(payment.metadata, {
+        validatedBy: session.user.id,
+        validatedAt: new Date().toISOString(),
+        validationNote: note
+      });
       await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'COMPLETED',
-          metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            validatedBy: session.user.id,
-            validatedAt: new Date().toISOString(),
-            validationNote: note
-          }
+          metadata: merged.value as any
         }
       });
 
       // Activer le service selon le type
-      const metadata = payment.metadata as any;
+      const metadata = parsePaymentMetadata(payment.metadata);
 
       if (payment.type === 'SUBSCRIPTION') {
         // Activer l'abonnement
@@ -123,16 +124,16 @@ export async function POST(request: NextRequest) {
 
     } else {
       // Rejeter le paiement
+      const mergedReject = mergePaymentMetadata(payment.metadata, {
+        rejectedBy: session.user.id,
+        rejectedAt: new Date().toISOString(),
+        rejectionReason: note
+      });
       await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: 'FAILED',
-          metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            rejectedBy: session.user.id,
-            rejectedAt: new Date().toISOString(),
-            rejectionReason: note
-          }
+          metadata: mergedReject.value as any
         }
       });
 

@@ -56,3 +56,18 @@ next-env.d.ts
 
 # Prisma généré
 /app/generated/prisma
+
+# Custom patterns for this project
+.logs/
+.venv/
+.next-3003.pid
+*.tgz
+storage/reports/
+.env.*
+! .env.example
+! .env.local.example
+! .env.e2e.example
+audit/
+env.txt
+env.bak
+env.local.bak

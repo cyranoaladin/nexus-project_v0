@@ -1,5 +1,6 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { mergePaymentMetadata } from '@/lib/utils';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -49,16 +50,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Mettre à jour le paiement avec les informations de virement
+    const merged = mergePaymentMetadata(payment.metadata, {
+      transferReference: validatedData.transferReference,
+      transferDate: validatedData.transferDate,
+      transferAmount: validatedData.transferAmount,
+      submittedAt: new Date().toISOString()
+    });
     await prisma.payment.update({
       where: { id: validatedData.orderId },
       data: {
-        metadata: {
-          ...(payment.metadata as Record<string, any> || {}),
-          transferReference: validatedData.transferReference,
-          transferDate: validatedData.transferDate,
-          transferAmount: validatedData.transferAmount,
-          submittedAt: new Date().toISOString()
-        }
+        metadata: merged.value as any
       }
     });
 

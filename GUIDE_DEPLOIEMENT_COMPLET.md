@@ -7,6 +7,7 @@ Ce guide vous accompagne dans le déploiement de la plateforme Nexus Réussite e
 ## ⚠️ Prérequis
 
 ### Serveur de Production
+
 - **OS** : Ubuntu 20.04+ ou CentOS 8+
 - **RAM** : Minimum 4GB (Recommandé : 8GB)
 - **Stockage** : Minimum 50GB SSD
@@ -14,12 +15,13 @@ Ce guide vous accompagne dans le déploiement de la plateforme Nexus Réussite e
 - **Réseau** : IPv4 publique avec ports 80, 443, 22 ouverts
 
 ### Logiciels Requis
+
 - **Docker** & **Docker Compose** (dernières versions)
 - **Git**
 - **Nginx** (si proxy inverse externe)
 - **Certbot** (pour SSL Let's Encrypt)
 
-## 🔧 Configuration des Variables d'Environnement
+## 🔧 Configuration des Variables d'Environnement (Consolidées)
 
 ### 1. Créer le fichier `.env.production`
 
@@ -47,14 +49,26 @@ SMTP_PASSWORD="VOTRE_VRAIE_PASSWORD_HOSTINGER"
 
 # OpenAI (OBLIGATOIRE pour ARIA)
 OPENAI_API_KEY="sk-VOTRE_VRAIE_CLE_OPENAI"
+OPENAI_MODEL="gpt-4o-mini" # optionnel, défaut si absent
 
 # Konnect (OBLIGATOIRE pour les paiements)
 KONNECT_API_KEY="VOTRE_VRAIE_CLE_KONNECT"
 KONNECT_WALLET_ID="VOTRE_VRAI_WALLET_ID"
 KONNECT_WEBHOOK_SECRET="VOTRE_VRAI_SECRET_WEBHOOK"
+KONNECT_BASE_URL="https://api.konnect.network" # ou préprod
 
 # Domaine (OBLIGATOIRE)
 NEXT_PUBLIC_APP_URL="https://votre-domaine.com"
+
+# Jitsi (visioconférence)
+NEXT_PUBLIC_JITSI_SERVER_URL="https://meet.jit.si"
+
+# Wise (affichage manuel des coordonnées)
+NEXT_PUBLIC_WISE_BENEFICIARY_NAME="Nexus Réussite SARL"
+NEXT_PUBLIC_WISE_IBAN="TN59 1234 5678 9012 3456 7890 12"
+NEXT_PUBLIC_WISE_BIC="BANKTNTT"
+NEXT_PUBLIC_WISE_ADDRESS="Adresse complète"
+NEXT_PUBLIC_WISE_BANK_NAME="Banque"
 ```
 
 ## 🐳 Déploiement avec Docker
@@ -252,6 +266,7 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 ### 1. Problèmes Courants
 
 **L'application ne démarre pas :**
+
 ```bash
 # Vérifier les logs
 docker-compose -f docker-compose.prod.yml logs nexus-app
@@ -261,6 +276,7 @@ docker exec nexus-app-prod env | grep -E "(DATABASE_URL|NEXTAUTH)"
 ```
 
 **Problèmes de base de données :**
+
 ```bash
 # Réinitialiser la base de données (ATTENTION : perte de données)
 docker-compose -f docker-compose.prod.yml down -v

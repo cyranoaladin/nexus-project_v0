@@ -11,7 +11,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: 'on',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     actionTimeout: 30000,
     navigationTimeout: 30000,
   },
@@ -26,6 +28,12 @@ export default defineConfig({
       HOSTNAME: '0.0.0.0',
       NODE_ENV: 'production',
       DATABASE_URL: 'file:./prisma/dev.db',
+      NEXTAUTH_SECRET: 'test-e2e-secret',
+      NEXTAUTH_URL: baseURL,
+      OPENAI_API_KEY: 'test-openai-key',
+      SMTP_HOST: 'localhost',
+      SMTP_PORT: '1025',
+      SMTP_SECURE: 'false'
     },
   },
   projects: [
