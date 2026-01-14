@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -44,21 +45,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (status === 'completed') {
-      // Mettre à jour le statut du paiement (idempotent si répété)
+      // Mettre à jour le statut du paiement
+      const merged = mergePaymentMetadata(payment.metadata, {
+        konnectTransactionId: body.transaction_id || payment_id,
+        completedAt: new Date().toISOString()
+      });
+
       await prisma.payment.update({
         where: { id: payment_id },
         data: {
           status: 'COMPLETED',
-          metadata: {
-            ...(payment.metadata as Record<string, any> || {}),
-            konnectTransactionId: body.transaction_id || payment_id,
-            completedAt: new Date().toISOString()
-          }
+          metadata: merged.value as any
         }
       });
 
       // Activer le service selon le type de paiement
-      const metadata = payment.metadata as any;
+      const metadata = parsePaymentMetadata(payment.metadata);
 
       if (payment.type === 'SUBSCRIPTION') {
         // Activer l'abonnement (idempotent: rejoue sans effet si déjà ACTIVE/INACTIVE corrects)

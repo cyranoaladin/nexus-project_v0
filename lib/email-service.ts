@@ -250,8 +250,7 @@ export async function sendScheduledReminders() {
           lte: oneHourFromNow
         },
         status: 'SCHEDULED',
-        // reminderSent field needs to be added to the Prisma schema first
-        // reminderSent: false
+        reminderSent: false
       },
     }) as any[];
 
@@ -269,8 +268,7 @@ export async function sendScheduledReminders() {
       await prisma.sessionBooking.update({
         where: { id: session.id },
         data: {
-          // reminderSent: true
-          // Temporarily comment this out until schema is updated
+          reminderSent: true
         }
       });
     }
