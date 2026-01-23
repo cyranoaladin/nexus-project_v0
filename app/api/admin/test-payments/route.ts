@@ -10,7 +10,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      action?: 'test_connection' | 'create_test_payment' | 'check_status';
+      amount?: number;
+      testMode?: boolean;
+      paymentRef?: string;
+    };
     const { action, amount, testMode = true } = body;
 
     switch (action) {
@@ -54,10 +59,11 @@ export async function POST(request: NextRequest) {
               error: `Erreur API Konnect: ${response.status} - ${errorData}`
             });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Erreur inconnue';
           return NextResponse.json({
             success: false,
-            error: `Erreur de connexion: ${error.message}`
+            error: `Erreur de connexion: ${message}`
           });
         }
 
@@ -114,10 +120,11 @@ export async function POST(request: NextRequest) {
               error: `Erreur création paiement: ${paymentResponse.status} - ${errorData}`
             });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Erreur inconnue';
           return NextResponse.json({
             success: false,
-            error: `Erreur paiement: ${error.message}`
+            error: `Erreur paiement: ${message}`
           });
         }
 
@@ -155,10 +162,11 @@ export async function POST(request: NextRequest) {
               error: `Erreur vérification statut: ${statusResponse.status}`
             });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Erreur inconnue';
           return NextResponse.json({
             success: false,
-            error: `Erreur vérification: ${error.message}`
+            error: `Erreur vérification: ${message}`
           });
         }
 

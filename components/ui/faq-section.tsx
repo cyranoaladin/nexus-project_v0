@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     question: "L'IA ARIA peut-elle remplacer un professeur ?",
-    answer: "Non, ARIA est un outil complémentaire qui aide à la révision 24/7, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
+    answer: "Non, ARIA est un outil complémentaire qui aide à la révision 24/7, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés et certifiés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
   },
   {
     question: "Comment fonctionne la garantie de réussite ?",

@@ -8,7 +8,7 @@ import { AlertCircle, Activity, CreditCard, Loader2, LogOut, Search, Users } fro
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 
 interface Activity {
@@ -35,18 +35,7 @@ export default function ActivitiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchActivities();
-  }, [session, status, router, currentPage, typeFilter]);
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -73,7 +62,18 @@ export default function ActivitiesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, typeFilter, searchTerm]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchActivities();
+  }, [session, status, router, fetchActivities]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {

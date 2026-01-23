@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import type { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     const unreadOnly = searchParams.get('unread') === 'true';
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const whereClause: any = {
+    const whereClause: Prisma.NotificationWhereInput = {
       userId: session.user.id
     };
 
@@ -66,7 +67,10 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      notificationId?: string;
+      action?: 'markAsRead' | 'markAllAsRead';
+    };
     const { notificationId, action } = body;
 
     if (!notificationId || !action) {

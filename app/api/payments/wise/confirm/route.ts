@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     await prisma.payment.update({
       where: { id: validatedData.orderId },
       data: {
-        metadata: merged.value as any
+        metadata: merged.value
       }
     });
 

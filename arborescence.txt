@@ -1,0 +1,723 @@
+.
+├── app
+│   ├── academy
+│   │   └── page.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   ├── activities
+│   │   │   │   └── route.ts
+│   │   │   ├── analytics
+│   │   │   │   └── route.ts
+│   │   │   ├── dashboard
+│   │   │   │   └── route.ts
+│   │   │   ├── subscriptions
+│   │   │   │   └── route.ts
+│   │   │   ├── test-email
+│   │   │   │   └── route.ts
+│   │   │   ├── test-payments
+│   │   │   │   └── route.ts
+│   │   │   └── users
+│   │   │       └── route.ts
+│   │   ├── aria
+│   │   │   ├── chat
+│   │   │   │   └── route.ts
+│   │   │   └── feedback
+│   │   │       └── route.ts
+│   │   ├── assistant
+│   │   │   ├── coaches
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── credit-requests
+│   │   │   │   └── route.ts
+│   │   │   ├── dashboard
+│   │   │   │   └── route.ts
+│   │   │   ├── students
+│   │   │   │   └── credits
+│   │   │   │       └── route.ts
+│   │   │   ├── subscription-requests
+│   │   │   │   └── route.ts
+│   │   │   └── subscriptions
+│   │   │       └── route.ts
+│   │   ├── auth
+│   │   │   └── [...nextauth]
+│   │   │       └── route.ts
+│   │   ├── bilan-gratuit
+│   │   │   └── route.ts
+│   │   ├── coach
+│   │   │   └── dashboard
+│   │   │       └── route.ts
+│   │   ├── coaches
+│   │   │   ├── availability
+│   │   │   │   └── route.ts
+│   │   │   └── available
+│   │   │       └── route.ts
+│   │   ├── health
+│   │   │   └── route.ts
+│   │   ├── messages
+│   │   │   ├── conversations
+│   │   │   │   └── route.ts
+│   │   │   └── send
+│   │   │       └── route.ts
+│   │   ├── notifications
+│   │   │   └── route.ts
+│   │   ├── parent
+│   │   │   ├── children
+│   │   │   │   └── route.ts
+│   │   │   ├── credit-request
+│   │   │   │   └── route.ts
+│   │   │   ├── dashboard
+│   │   │   │   └── route.ts
+│   │   │   ├── subscription-requests
+│   │   │   │   └── route.ts
+│   │   │   └── subscriptions
+│   │   │       └── route.ts
+│   │   ├── payments
+│   │   │   ├── konnect
+│   │   │   │   └── route.ts
+│   │   │   ├── validate
+│   │   │   │   └── route.ts
+│   │   │   └── wise
+│   │   │       ├── confirm
+│   │   │       │   └── route.ts
+│   │   │       └── route.ts
+│   │   ├── sessions
+│   │   │   ├── book
+│   │   │   │   └── route.ts
+│   │   │   ├── cancel
+│   │   │   │   └── route.ts
+│   │   │   └── video
+│   │   │       └── route.ts
+│   │   ├── student
+│   │   │   ├── credits
+│   │   │   │   └── route.ts
+│   │   │   ├── dashboard
+│   │   │   │   └── route.ts
+│   │   │   ├── resources
+│   │   │   │   └── route.ts
+│   │   │   └── sessions
+│   │   │       └── route.ts
+│   │   ├── subscriptions
+│   │   │   ├── aria-addon
+│   │   │   │   └── route.ts
+│   │   │   └── change
+│   │   │       └── route.ts
+│   │   └── webhooks
+│   │       └── konnect
+│   │           └── route.ts
+│   ├── auth
+│   │   ├── mot-de-passe-oublie
+│   │   │   └── page.tsx
+│   │   └── signin
+│   │       └── page.tsx
+│   ├── bilan-gratuit
+│   │   ├── confirmation
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── conditions
+│   │   └── page.tsx
+│   ├── consulting
+│   │   └── page.tsx
+│   ├── contact
+│   │   └── page.tsx
+│   ├── dashboard
+│   │   ├── admin
+│   │   │   ├── activities
+│   │   │   │   └── page.tsx
+│   │   │   ├── analytics
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── subscriptions
+│   │   │   │   └── page.tsx
+│   │   │   ├── tests
+│   │   │   │   └── page.tsx
+│   │   │   └── users
+│   │   │       └── page.tsx
+│   │   ├── assistante
+│   │   │   ├── coaches
+│   │   │   │   └── page.tsx
+│   │   │   ├── credit-requests
+│   │   │   │   └── page.tsx
+│   │   │   ├── credits
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── paiements
+│   │   │   │   └── page.tsx
+│   │   │   ├── students
+│   │   │   │   └── page.tsx
+│   │   │   ├── subscription-requests
+│   │   │   │   └── page.tsx
+│   │   │   └── subscriptions
+│   │   │       └── page.tsx
+│   │   ├── coach
+│   │   │   └── page.tsx
+│   │   ├── eleve
+│   │   │   ├── mes-sessions
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── ressources
+│   │   │   │   └── page.tsx
+│   │   │   └── sessions
+│   │   │       └── page.tsx
+│   │   ├── page.tsx
+│   │   └── parent
+│   │       ├── abonnements
+│   │       │   └── page.tsx
+│   │       ├── add-child-dialog.tsx
+│   │       ├── aria-addon-dialog.tsx
+│   │       ├── children
+│   │       │   └── page.tsx
+│   │       ├── credit-purchase-dialog.tsx
+│   │       ├── invoice-details-dialog.tsx
+│   │       ├── page.tsx
+│   │       ├── paiement
+│   │       │   ├── confirmation
+│   │       │   │   └── page.tsx
+│   │       │   ├── konnect-demo
+│   │       │   │   └── page.tsx
+│   │       │   ├── page.tsx
+│   │       │   └── wise
+│   │       │       └── page.tsx
+│   │       └── subscription-change-dialog.tsx
+│   ├── demo
+│   │   └── page.tsx
+│   ├── education
+│   │   └── page.tsx
+│   ├── equipe
+│   │   └── page.tsx
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.simple.tsx
+│   ├── layout.tsx
+│   ├── manifest.json
+│   ├── notre-centre
+│   │   └── page.tsx
+│   ├── offres
+│   │   ├── page_new.tsx
+│   │   └── page.tsx
+│   ├── page.simple.tsx
+│   ├── page.tsx
+│   ├── plateforme
+│   │   └── page.tsx
+│   ├── session
+│   │   └── video
+│   │       └── page.tsx
+│   ├── (site)
+│   ├── studio
+│   │   └── page.tsx
+│   └── test-login
+│       └── page.tsx
+├── apps
+├── arborescence.txt
+├── ARCHITECTURE_TECHNIQUE.md
+├── audit
+│   ├── relevant_json_files_by_basename.txt
+│   └── relevant_json_files_by_name.txt
+├── AUDIT_COMPLET_NEXUS_REUSSITE.md
+├── AUDIT_CORRECTIONS_VPS.md
+├── components
+│   ├── layout
+│   │   ├── CorporateFooter.tsx
+│   │   ├── CorporateNavbar.tsx
+│   │   ├── footer.tsx
+│   │   └── header.tsx
+│   ├── providers.tsx
+│   ├── sections
+│   │   ├── business-model-section.tsx
+│   │   ├── candidat-libre-section.tsx
+│   │   ├── comparison-table-section.tsx
+│   │   ├── cta-section.tsx
+│   │   ├── detailed-services.tsx
+│   │   ├── dna-section.tsx
+│   │   ├── experts-highlight-section.tsx
+│   │   ├── guarantee-section.tsx
+│   │   ├── hero-section.tsx
+│   │   ├── home-hero.tsx
+│   │   ├── how-it-works-section.tsx
+│   │   ├── korrigo-features.tsx
+│   │   ├── korrigo-showcase.tsx
+│   │   ├── micro-engagement-section.tsx
+│   │   ├── offers-preview-section.tsx
+│   │   ├── pillars-grid.tsx
+│   │   ├── pillars-section.tsx
+│   │   ├── problem-solution-section.tsx
+│   │   └── stages-intensifs-section.tsx
+│   └── ui
+│       ├── accordion.tsx
+│       ├── alert.tsx
+│       ├── aria-chat.tsx
+│       ├── aria-comparison.tsx
+│       ├── aria-feedback.tsx
+│       ├── aria-widget.tsx
+│       ├── avatar.tsx
+│       ├── badge.tsx
+│       ├── badge-widget.tsx
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── checkbox.tsx
+│       ├── coach-availability.tsx
+│       ├── credits-system.tsx
+│       ├── diagnostic-form.tsx
+│       ├── dialog.tsx
+│       ├── expert-profile.tsx
+│       ├── experts-showcase.tsx
+│       ├── faq-section.tsx
+│       ├── floating-nav.tsx
+│       ├── guarantee-seal.tsx
+│       ├── guarantee-section.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── notification-bell.tsx
+│       ├── offers-comparison.tsx
+│       ├── ParticleSphere.tsx
+│       ├── popover.tsx
+│       ├── radio-group.tsx
+│       ├── scroll-area.tsx
+│       ├── select.tsx
+│       ├── session-booking.tsx
+│       ├── session-management.tsx
+│       ├── specialized-packs.tsx
+│       ├── switch.tsx
+│       ├── testimonials-section.tsx
+│       ├── textarea.tsx
+│       └── video-conference.tsx
+├── coverage
+│   ├── clover.xml
+│   ├── coverage-final.json
+│   ├── lcov.info
+│   └── lcov-report
+│       ├── app
+│       │   ├── api
+│       │   │   ├── admin
+│       │   │   │   ├── activities
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   ├── analytics
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   ├── dashboard
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   ├── queue
+│       │   │   │   │   └── ingest
+│       │   │   │   │       ├── index.html
+│       │   │   │   │       └── route.ts.html
+│       │   │   │   └── users
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   ├── aria
+│       │   │   │   └── chat
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   ├── bilan
+│       │   │   │   ├── [bilanId]
+│       │   │   │   │   └── submit-answers
+│       │   │   │   │       ├── index.html
+│       │   │   │   │       └── route.ts.html
+│       │   │   │   ├── pdf
+│       │   │   │   │   └── [id]
+│       │   │   │   │       ├── index.html
+│       │   │   │   │       └── route.ts.html
+│       │   │   │   ├── questionnaire-structure
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   ├── start
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   └── submit
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   ├── bilan-gratuit
+│       │   │   │   ├── index.html
+│       │   │   │   └── route.ts.html
+│       │   │   ├── payments
+│       │   │   │   ├── konnect
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   └── wise
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   ├── rag
+│       │   │   │   └── search
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   ├── student
+│       │   │   │   ├── profile
+│       │   │   │   │   ├── index.html
+│       │   │   │   │   └── route.ts.html
+│       │   │   │   └── resources
+│       │   │   │       ├── index.html
+│       │   │   │       └── route.ts.html
+│       │   │   └── webhooks
+│       │   │       └── konnect
+│       │   │           ├── index.html
+│       │   │           └── route.ts.html
+│       │   └── bilan-gratuit
+│       │       ├── index.html
+│       │       └── page.tsx.html
+│       ├── apps
+│       │   └── web
+│       │       ├── lib
+│       │       │   ├── index.html
+│       │       │   ├── minio.ts.html
+│       │       │   └── storage.ts.html
+│       │       └── server
+│       │           ├── bilan
+│       │           │   ├── index.html
+│       │           │   └── offers.ts.html
+│       │           └── vector
+│       │               ├── embeddings.ts.html
+│       │               └── index.html
+│       ├── base.css
+│       ├── block-navigation.js
+│       ├── components
+│       │   └── ui
+│       │       ├── badge.tsx.html
+│       │       ├── button.tsx.html
+│       │       ├── card.tsx.html
+│       │       ├── diagnostic-form.tsx.html
+│       │       ├── index.html
+│       │       ├── input.tsx.html
+│       │       ├── label.tsx.html
+│       │       └── textarea.tsx.html
+│       ├── favicon.png
+│       ├── index.html
+│       ├── lib
+│       │   ├── api
+│       │   │   ├── auth.ts.html
+│       │   │   └── index.html
+│       │   ├── aria
+│       │   │   ├── env-validate.ts.html
+│       │   │   ├── index.html
+│       │   │   ├── openai.ts.html
+│       │   │   ├── orchestrator.ts.html
+│       │   │   └── policy.ts.html
+│       │   ├── auth
+│       │   │   ├── dev-token.ts.html
+│       │   │   └── index.html
+│       │   ├── bilan
+│       │   │   ├── index.html
+│       │   │   ├── jobs.ts.html
+│       │   │   └── qcm-map.ts.html
+│       │   ├── credits.ts.html
+│       │   ├── env
+│       │   │   ├── e2e.ts.html
+│       │   │   └── index.html
+│       │   ├── index.html
+│       │   ├── invite.ts.html
+│       │   ├── log
+│       │   │   ├── index.html
+│       │   │   └── sanitize.ts.html
+│       │   ├── logger.ts.html
+│       │   ├── payments.ts.html
+│       │   ├── prisma.ts.html
+│       │   ├── rate-limit.ts.html
+│       │   ├── scoring
+│       │   │   ├── adapter_nsi_pedago.ts.html
+│       │   │   ├── adapter_nsi_premiere.ts.html
+│       │   │   ├── adapter_nsi_terminale.ts.html
+│       │   │   ├── index.html
+│       │   │   ├── offers_decision.ts.html
+│       │   │   ├── pedago_maths_premiere.ts.html
+│       │   │   ├── pedago_maths_terminale.ts.html
+│       │   │   ├── pedago.ts.html
+│       │   │   ├── premiere_nsi.ts.html
+│       │   │   ├── qcmData.ts.html
+│       │   │   ├── qcm_scorer.ts.html
+│       │   │   ├── qcm.ts.html
+│       │   │   ├── terminale_nsi.ts.html
+│       │   │   └── types.ts.html
+│       │   ├── utils.ts.html
+│       │   └── validations.ts.html
+│       ├── prettify.css
+│       ├── prettify.js
+│       ├── server
+│       │   ├── graphics
+│       │   │   └── radar
+│       │   │       ├── buildRadarPng.ts.html
+│       │   │       └── index.html
+│       │   └── openai
+│       │       ├── client.ts.html
+│       │       └── index.html
+│       ├── sort-arrow-sprite.png
+│       ├── sorter.js
+│       ├── __tests__
+│       │   └── mocks
+│       │       ├── index.html
+│       │       └── minio.ts.html
+│       └── types
+│           ├── enums.ts.html
+│           └── index.html
+├── DEPLOIEMENT_PRODUCTION.md
+├── DEVELOPMENT_SETUP.md
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── Dockerfile
+├── Dockerfile.prod
+├── DOCUMENTATION_TECHNIQUE_LIVRAISON.md
+├── DOCUMENTATION_TESTS_E2E.md
+├── e2e
+│   ├── admin-management-tests.spec.ts
+│   ├── api-webhooks-tests.spec.ts
+│   ├── aria-interaction-tests.spec.ts
+│   ├── comprehensive-test-suite.spec.ts
+│   ├── edge-cases-error-handling-tests.spec.ts
+│   ├── global-setup.ts
+│   ├── global-teardown.ts
+│   ├── home-journey.spec.ts
+│   ├── homepage-audit.spec.ts
+│   ├── payments-subscriptions-tests.spec.ts
+│   └── step-validation-tests.spec.ts
+├── env.example
+├── ENVIRONMENT_REFERENCE.md
+├── env.local.example
+├── env.txt
+├── feuille_route
+│   ├── Cahier des Charges Global & Technique.md
+│   ├── Logique Metier_Business Model.md
+│   ├── Profils_Equipe_Gamification.md
+│   ├── Specifications-Fonctionnelles-par-Role.md
+│   ├── Systeme_de_Design_Exp_Utilisa.md
+│   └── Validation_Audit.md
+├── GUIDE_DEPLOIEMENT_COMPLET.md
+├── GUIDE_DEPLOIEMENT_INCREMENTAL.md
+├── Guide_deploiement.md
+├── Guide_Deploiement_VPS.md
+├── GUIDE_SSH_AUTHENTIFICATION.md
+├── IMPORTANT_PERMISSIONS_VPS.md
+├── jest.config.integration.js
+├── jest.config.js
+├── jest.config.unit.js
+├── jest.setup.integration.js
+├── jest.setup.js
+├── JITSI_IMPLEMENTATION.md
+├── lib
+│   ├── aria.ts
+│   ├── auth.ts
+│   ├── badges.ts
+│   ├── cleanup-sw.ts
+│   ├── constants.ts
+│   ├── credits.ts
+│   ├── cron-jobs.ts
+│   ├── email-service.ts
+│   ├── email.ts
+│   ├── jitsi.ts
+│   ├── prisma.ts
+│   ├── session-booking.ts
+│   ├── utils.ts
+│   ├── validations.ts
+│   └── web3-guard.ts
+├── middleware.ts
+├── next.config.mjs
+├── next-env.d.ts
+├── nginx.conf.example
+├── package.json
+├── package-lock.json
+├── playwright.config.e2e.ts
+├── playwright.config.ts
+├── playwright-report
+│   └── index.html
+├── playwright-report.tgz
+├── postcss.config.mjs
+├── POSTGRESQL_SETUP.md
+├── prisma
+│   ├── dev.db
+│   ├── migrations
+│   │   ├── 20250924180039_add_reminder_sent
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   ├── prisma
+│   │   └── dev.db
+│   ├── schema.prisma
+│   ├── schema.sqlite.prisma
+│   ├── seed.ts
+│   └── test.db
+├── Profils_intevenants_Nexus.md
+├── public
+│   ├── favicon.ico
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── images
+│   │   ├── aria_mascotte.png
+│   │   ├── aria.png
+│   │   ├── asisstante_parents.png
+│   │   ├── assistante.png
+│   │   ├── BackgroundImage_EquipeStrategique.png
+│   │   ├── BlasonConfiance_SceauGarantie.png
+│   │   ├── coach_parcoursup.png
+│   │   ├── Diagram_MethodeAncienne.png
+│   │   ├── Diagram_MethodeNouvelle.png
+│   │   ├── helios.png
+│   │   ├── hero-image.png
+│   │   ├── Icon_AcademiesNexus.png
+│   │   ├── Icon_CoachAgrege.png
+│   │   ├── Icon_Etape1_Bilan.png
+│   │   ├── Icon_Etape2_Formule.png
+│   │   ├── Icon_Etape3_Reservation.png
+│   │   ├── Icon_Etape4_Coaching.png
+│   │   ├── Icon_Etape5_ARIA.png
+│   │   ├── Icon_Etape6_Progres.png
+│   │   ├── Icon_ExpertiseAEFE.png
+│   │   ├── Icon_IA_24_7.png
+│   │   ├── Icon_NexusCortex.png
+│   │   ├── Icon_ProgrammeOdyssee.png
+│   │   ├── Icon_SpecialisteNSI.png
+│   │   ├── Icon_StudioFlex.png
+│   │   ├── Image_AccompagnementBienveillant.png
+│   │   ├── Image_PartenariatFamilial.png
+│   │   ├── intervenant10.png
+│   │   ├── intervenant2.png
+│   │   ├── intervenant3.png
+│   │   ├── intervenant4.png
+│   │   ├── intervenant5.png
+│   │   ├── intervenant6.png
+│   │   ├── intervenant7.png
+│   │   ├── intervenant8.png
+│   │   ├── intervenant9.png
+│   │   ├── intervenante1.png
+│   │   ├── intervenante2.png
+│   │   ├── intervenante3.png
+│   │   ├── intervenante4.png
+│   │   ├── intervenante5.png
+│   │   ├── Korrigo.png
+│   │   ├── logo_nexus_reussite.png
+│   │   ├── logo.png
+│   │   ├── logo_slogan_nexus.png
+│   │   ├── logo_slogan_nexus_x3.png
+│   │   ├── salle_travail.webp
+│   │   └── sceau_garantie_reussite.png
+│   ├── next.svg
+│   ├── vercel.svg
+│   ├── web-app-manifest-192x192.png
+│   ├── web-app-manifest-512x512.png
+│   └── window.svg
+├── rag_sources
+├── RAPPORT_AUDIT_HOMEPAGE_FINAL.md
+├── RAPPORT_CONFORMITE_JURIDIQUE.md
+├── RAPPORT_CORRECTIONS_FORMULAIRE.md
+├── RAPPORT_EXECUTION_CTO.md
+├── RAPPORT_FINAL_CTO.md
+├── RAPPORT_TESTS_IMPLEMENTATION.md
+├── README_DEPLOIEMENT.md
+├── README.md
+├── README_TESTS.md
+├── run-e2e-tests.sh
+├── scripts
+│   ├── check-config.js
+│   ├── copy-public-assets.js
+│   ├── database-consistency-check.js
+│   ├── deploy
+│   │   └── manual-run.sh
+│   ├── deploy-files-only.sh
+│   ├── deploy-git-pull.sh
+│   ├── deploy-incremental.sh
+│   ├── fix-legal-terms-tests.js
+│   ├── prepare-deployment.sh
+│   ├── test-homepage-links.js
+│   └── test-ssh-connection.sh
+├── SESSION_BOOKING_LOGIC.md
+├── start-production.sh
+├── storage
+│   └── reports
+│       ├── jobs
+│       │   ├── 1756925934626_d9i1re.json
+│       │   ├── 1756926022339_ynpuuo.json
+│       │   ├── 1756926752608_lw7088.json
+│       │   ├── 1756930062245_bsvkp2.json
+│       │   ├── 1756930135468_rhgoz2.json
+│       │   ├── 1756930199370_a59rxw.json
+│       │   ├── 1756968130988_wnbncg.json
+│       │   ├── 1756969373228_o62jd7.json
+│       │   ├── 1756969821385_sxb9ua.json
+│       │   ├── 1757019780078_mlmaof.json
+│       │   ├── 1757019781164_3udiea.json
+│       │   ├── 1757020159762_xxw2ng.json
+│       │   ├── 1757020161503_rjmccd.json
+│       │   ├── 1757020321452_z5zur9.json
+│       │   ├── 1757020322684_q11dlv.json
+│       │   ├── 1757020459107_lu3qp1.json
+│       │   ├── 1757020460133_vd1djc.json
+│       │   ├── 1757020594734_zinm8n.json
+│       │   ├── 1757020597077_tw3cqx.json
+│       │   ├── 1757026526226_vmeh15.json
+│       │   ├── 1757026529154_a4o2u2.json
+│       │   ├── 1757026828180_rzjxnw.json
+│       │   ├── 1757026830710_wu0njc.json
+│       │   ├── 1757027065321_7lnzld.json
+│       │   ├── 1757027335557_s81k57.json
+│       │   └── 1757027337014_e80fzj.json
+│       └── pdf
+│           ├── 1756925934626_d9i1re.pdf
+│           ├── 1756926022339_ynpuuo.pdf
+│           ├── 1756926752608_lw7088.pdf
+│           ├── 1756930062245_bsvkp2.pdf
+│           ├── 1756930135468_rhgoz2.pdf
+│           ├── 1756930199370_a59rxw.pdf
+│           ├── 1756968130988_wnbncg.pdf
+│           ├── 1756969373228_o62jd7.pdf
+│           ├── 1756969821385_sxb9ua.pdf
+│           ├── 1757019780078_mlmaof.pdf
+│           ├── 1757019781164_3udiea.pdf
+│           ├── 1757020159762_xxw2ng.pdf
+│           ├── 1757020161503_rjmccd.pdf
+│           ├── 1757020321452_z5zur9.pdf
+│           ├── 1757020322684_q11dlv.pdf
+│           ├── 1757020459107_lu3qp1.pdf
+│           ├── 1757020460133_vd1djc.pdf
+│           ├── 1757020594734_zinm8n.pdf
+│           ├── 1757020597077_tw3cqx.pdf
+│           ├── 1757026526226_vmeh15.pdf
+│           ├── 1757026529154_a4o2u2.pdf
+│           ├── 1757026828180_rzjxnw.pdf
+│           ├── 1757026830710_wu0njc.pdf
+│           ├── 1757027065321_7lnzld.pdf
+│           ├── 1757027335557_s81k57.pdf
+│           └── 1757027337014_e80fzj.pdf
+├── SUITE_TESTS_FINALE_VALIDEE.md
+├── tailwind.config.mjs
+├── TESTING.md
+├── test-results
+├── test-results.tgz
+├── __tests__
+│   ├── api
+│   │   ├── bilan-gratuit.test.ts
+│   │   └── sessions
+│   │       └── book.simplified.test.ts
+│   ├── api-bilan-gratuit.test.ts
+│   ├── bilan-gratuit-integration.test.tsx
+│   ├── components
+│   │   ├── bilan-gratuit-form.test.tsx
+│   │   ├── diagnostic-form.test.tsx
+│   │   ├── floating-nav.test.tsx
+│   │   ├── layout
+│   │   │   └── header.test.tsx
+│   │   ├── offres-page.test.tsx
+│   │   └── sections
+│   │       ├── cta-section.test.tsx
+│   │       ├── hero-section.test.tsx
+│   │       ├── offers-preview-section.test.tsx
+│   │       └── pillars-section.test.tsx
+│   ├── e2e
+│   │   ├── homepage-audit.spec.ts
+│   │   └── offres-page.e2e.test.tsx
+│   ├── form-validation.test.ts
+│   ├── lib
+│   │   ├── bilan-gratuit-form.test.tsx
+│   │   ├── credits.test.ts
+│   │   ├── diagnostic-form.test.tsx
+│   │   ├── form-validation-simple.test.ts
+│   │   └── validations.test.ts
+│   ├── pages
+│   │   └── homepage.test.tsx
+│   ├── setup
+│   │   └── test-database.ts
+│   ├── setupTests.js
+│   └── validation-simple.test.ts
+├── tsconfig.json
+├── tsconfig.tsbuildinfo
+├── types
+│   ├── enums.ts
+│   └── next-auth.d.ts
+└── VALIDATION_TESTS_COMPLETE.md
+
+199 directories, 522 files

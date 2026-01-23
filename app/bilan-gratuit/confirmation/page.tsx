@@ -145,8 +145,8 @@ export default function ConfirmationPage() {
             >
               <p className="text-gray-600 text-sm">
                 Une question urgente ? Contactez-nous directement au{' '}
-                <a href="tel:+21612345678" className="text-primary-500 font-medium hover:underline">
-                  +216 12 345 678
+                <a href="tel:+21699192829" className="text-primary-500 font-medium hover:underline">
+                  +216 99 19 28 29
                 </a>
                 {' '}ou par email à{' '}
                 <a href="mailto:contact@nexusreussite.academy" className="text-primary-500 font-medium hover:underline">

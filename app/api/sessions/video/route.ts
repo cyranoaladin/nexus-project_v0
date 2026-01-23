@@ -1,6 +1,6 @@
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-// Removed import of SessionStatus due to lint error
+import { SessionStatus } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         if (bookingSession.status === 'SCHEDULED') {
           await prisma.sessionBooking.update({
             where: { id: sessionId },
-            data: { status: 'IN_PROGRESS' as any }
+            data: { status: SessionStatus.IN_PROGRESS }
           });
         }
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         // Marquer la session comme terminée
         await prisma.sessionBooking.update({
           where: { id: sessionId },
-          data: { status: 'COMPLETED' as any, completedAt: new Date() }
+          data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
         });
 
         // TODO: Logique de crédits si nécessaire

@@ -2,6 +2,22 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma, User } from '@prisma/client';
+
+type RecentSession = Prisma.SessionBookingGetPayload<{
+  include: {
+    student: { include: { studentProfile: true } };
+    coach: { include: { coachProfile: true } };
+  };
+}>;
+
+type RecentSubscription = Prisma.SubscriptionGetPayload<{
+  include: { student: { include: { user: true } } };
+}>;
+
+type RecentCreditTransaction = Prisma.CreditTransactionGetPayload<{
+  include: { student: { include: { user: true } } };
+}>;
 
 export async function GET(request: NextRequest) {
   try {
@@ -144,7 +160,11 @@ export async function GET(request: NextRequest) {
         // Sessions (SessionBooking)
         prisma.sessionBooking.findMany({
           take: 10,
-          orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
+          orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
+          include: {
+            student: { include: { studentProfile: true } },
+            coach: { include: { coachProfile: true } }
+          }
         }),
         // New users
         prisma.user.findMany({
@@ -219,7 +239,12 @@ export async function GET(request: NextRequest) {
     const sessionGrowthPercent = lastMonthSessions > 0 ? ((thisMonthSessions - lastMonthSessions) / lastMonthSessions) * 100 : 0;
 
     // Format recent activities - combine all activity types
-    const [sessions, users, subscriptions, creditTransactions] = recentActivities as [any[], any[], any[], any[]];
+    const [sessions, users, subscriptions, creditTransactions] = recentActivities as [
+      RecentSession[],
+      User[],
+      RecentSubscription[],
+      RecentCreditTransaction[]
+    ];
 
     const formattedRecentActivities = [
       // Format sessions
@@ -227,11 +252,11 @@ export async function GET(request: NextRequest) {
         id: activity.id,
         type: 'session',
         title: `Session ${activity.subject}`,
-        description: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'} avec ${activity.coach?.pseudonym || 'Unknown Coach'}`,
+        description: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'} avec ${activity.coach?.coachProfile?.pseudonym || activity.coach?.firstName || 'Unknown Coach'}`,
         time: activity.createdAt,
         status: activity.status,
-        studentName: `${activity.student?.user?.firstName || 'Unknown'} ${activity.student?.user?.lastName || 'Student'}`,
-        coachName: activity.coach?.pseudonym || 'Unknown Coach',
+        studentName: `${activity.student?.firstName || 'Unknown'} ${activity.student?.lastName || 'Student'}`,
+        coachName: activity.coach?.coachProfile?.pseudonym || activity.coach?.firstName || 'Unknown Coach',
         subject: activity.subject,
         action: activity.status === 'COMPLETED' ? 'Session terminée' :
           activity.status === 'SCHEDULED' ? 'Session programmée' :

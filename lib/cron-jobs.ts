@@ -48,21 +48,27 @@ export async function checkExpiringCredits() {
   })
   
   // Envoyer les emails de rappel
-  for (const [studentId, data] of studentCreditsMap) {
-    try {
-      await sendCreditExpirationReminder(
-        data.student.parent.user.email,
-        `${data.student.parent.user.firstName} ${data.student.parent.user.lastName}`,
-        `${data.student.user.firstName} ${data.student.user.lastName}`,
-        data.totalCredits,
-        data.expirationDate
-      )
-      
-      console.log(`📧 Email de rappel envoyé pour ${data.student.user.firstName}`)
-    } catch (error) {
-      console.error(`❌ Erreur envoi email pour ${data.student.user.firstName}:`, error)
-    }
-  }
+  const reminderJobs: Promise<void>[] = []
+
+  studentCreditsMap.forEach((data) => {
+    reminderJobs.push((async () => {
+      try {
+        await sendCreditExpirationReminder(
+          data.student.parent.user.email,
+          `${data.student.parent.user.firstName} ${data.student.parent.user.lastName}`,
+          `${data.student.user.firstName} ${data.student.user.lastName}`,
+          data.totalCredits,
+          data.expirationDate
+        )
+        
+        console.log(`📧 Email de rappel envoyé pour ${data.student.user.firstName}`)
+      } catch (error) {
+        console.error(`❌ Erreur envoi email pour ${data.student.user.firstName}:`, error)
+      }
+    })())
+  })
+
+  await Promise.all(reminderJobs)
   
   console.log(`✅ Vérification terminée. ${studentCreditsMap.size} rappels envoyés.`)
 }

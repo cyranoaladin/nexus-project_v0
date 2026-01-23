@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import type { CoachAvailability, Prisma } from '@prisma/client';
+
+type AvailabilitySlot = Pick<
+  CoachAvailability,
+  'dayOfWeek' | 'startTime' | 'endTime' | 'isRecurring' | 'specificDate'
+>;
+
+type BookedSlot = {
+  scheduledDate: Date;
+  startTime: string;
+  endTime: string;
+  status: string;
+};
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -50,7 +63,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = (await req.json()) as { type?: 'weekly' | 'specific' } & Record<string, unknown>;
     const { type, ...data } = body;
 
     if (type === 'weekly') {
@@ -87,7 +100,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Create new availability slots
-      const availabilitySlots = [] as Array<any>;
+      const availabilitySlots: Prisma.CoachAvailabilityCreateManyInput[] = [];
       
       for (const day of validatedData.schedule) {
         for (const slot of day.slots) {
@@ -107,8 +120,12 @@ export async function POST(req: NextRequest) {
       if (availabilitySlots.length > 0) {
         try {
           await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: any) {
-          if (e?.code === 'P2002') {
+        } catch (e: unknown) {
+          const errorCode =
+            typeof e === 'object' && e !== null && 'code' in e
+              ? (e as { code?: string }).code
+              : undefined;
+          if (errorCode === 'P2002') {
             return NextResponse.json(
               { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
               { status: 409 }
@@ -170,8 +187,12 @@ export async function POST(req: NextRequest) {
       if (availabilitySlots.length > 0) {
         try {
           await prisma.coachAvailability.createMany({ data: availabilitySlots });
-        } catch (e: any) {
-          if (e?.code === 'P2002') {
+        } catch (e: unknown) {
+          const errorCode =
+            typeof e === 'object' && e !== null && 'code' in e
+              ? (e as { code?: string }).code
+              : undefined;
+          if (errorCode === 'P2002') {
             return NextResponse.json(
               { error: 'Some slots conflict with existing ones (unique constraint). Please adjust times.' },
               { status: 409 }
@@ -237,7 +258,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build query conditions
-    const whereConditions: any = {
+    const whereConditions: Prisma.CoachAvailabilityWhereInput = {
       coachId: coachId,
       isAvailable: true
     };
@@ -284,7 +305,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Get existing bookings to check actual availability
-    let bookedSlots = [] as any[];
+    let bookedSlots: BookedSlot[] = [];
     if (startDate && endDate) {
       bookedSlots = await prisma.sessionBooking.findMany({
         where: {
@@ -326,10 +347,23 @@ export async function GET(req: NextRequest) {
 }
 
 // Helper function to generate available time slots
-function generateAvailableSlots(availability: any[], bookedSlots: any[], startDate: string | null, endDate: string | null) {
+function generateAvailableSlots(
+  availability: AvailabilitySlot[],
+  bookedSlots: BookedSlot[],
+  startDate: string | null,
+  endDate: string | null
+) {
   if (!startDate || !endDate) return [];
 
-  const slots: any[] = [];
+  const slots: Array<{
+    date: string;
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    isRecurring: boolean;
+    specificDate: Date | null;
+  }> = [];
   const start = new Date(startDate);
   const end = new Date(endDate);
 

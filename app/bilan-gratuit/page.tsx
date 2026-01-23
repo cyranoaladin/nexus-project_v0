@@ -300,7 +300,7 @@ export default function BilanGratuitPage() {
                         value={formData.parentPhone}
                         onChange={(e) => handleInputChange('parentPhone', e.target.value)}
                         className={`mt-1 ${errors.parentPhone ? 'border-red-500' : ''}`}
-                        placeholder="+216 XX XXX XXX"
+                        placeholder="+216 99 19 28 29"
                       />
                       {errors.parentPhone && (
                         <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPhone}</p>

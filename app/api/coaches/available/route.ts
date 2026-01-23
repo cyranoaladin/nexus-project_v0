@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import type { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date');
 
     // Build where clause for coaches
-    const whereClause: any = {};
+    const whereClause: Prisma.CoachProfileWhereInput = {};
 
     if (subject) {
       whereClause.subjects = {
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedCoaches = coaches.map((coach: any) => ({
+    const formattedCoaches = coaches.map((coach) => ({
       id: coach.userId, // Use userId as the coach ID for consistency
       firstName: coach.user.firstName,
       lastName: coach.user.lastName,

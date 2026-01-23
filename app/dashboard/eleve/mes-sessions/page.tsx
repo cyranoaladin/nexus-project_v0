@@ -46,10 +46,19 @@ export default function MesSessions() {
           throw new Error('Failed to fetch sessions');
         }
         
-        const data = await response.json();
+        type ApiSession = {
+          id: string;
+          coach: { firstName?: string; lastName?: string };
+          title: string;
+          scheduledAt: string;
+          duration: number;
+          status: Session['status'];
+        };
+
+        const data = (await response.json()) as ApiSession[];
         
         // Transform API data to match Session interface
-        const transformedSessions: Session[] = data.map((sessionData: any) => ({
+        const transformedSessions: Session[] = data.map((sessionData) => ({
           id: sessionData.id,
           studentName: `${session?.user.firstName} ${session?.user.lastName}`,
           coachName: `${sessionData.coach.firstName} ${sessionData.coach.lastName}`,

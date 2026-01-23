@@ -1,105 +1,94 @@
-# Bienvenue sur le Projet Nexus Réussite
+# Nexus Réussite — Nexus Digital Campus
 
-**Auteur :** Alaeddine BEN RHOUMA
-**Objet :** Guide Complet pour le Développement de la Plateforme Nexus Réussite
+**Dernière mise à jour :** 21 janvier 2026
 
----
+## 1) Résumé
+Nexus Réussite est le **Nexus Digital Campus** : une **Application SaaS de Pilotage Éducatif** (LMS + back‑office) destinée à la gestion complète des parcours d’apprentissage. Le projet inclut des pages publiques, des **dashboards par rôle**, un système d’inscription « Bilan gratuit », des **abonnements & crédits**, une **réservation de sessions**, une **IA pédagogique (ARIA)**, une **visioconférence**, et des **paiements** (Konnect / Wise).
 
-## 1. Notre Vision : Au-delà du Site Web, une Expérience
+## 2) Stack & Dépendances clés
+- **Frontend** : Next.js 14, React 18, TypeScript, Tailwind CSS v4, Framer Motion, Radix UI
+- **Backend** : API Routes Next.js (App Router)
+- **Auth** : NextAuth (Credentials + Prisma Adapter, JWT)
+- **DB** : Prisma **SQLite** (par défaut)
+- **Email** : Nodemailer (SMTP)
+- **IA** : OpenAI (ARIA)
+- **Visio** : Jitsi (intégration client + API de session)
+- **Tests** : Jest + Playwright
 
-Bonjour l'équipe, et bienvenue dans ce projet passionnant.
+## 3) Structure du dépôt
+```
+app/                 # Pages (App Router) + API routes
+components/          # UI, sections, layout
+lib/                 # Logique métier (auth, credits, sessions, aria, emails)
+prisma/              # Schéma, migrations, seed
+public/              # Assets statiques
+scripts/             # Scripts de build / déploiement / vérification
+__tests__/, e2e/      # Tests unitaires / intégration / E2E
+```
 
-Notre objectif est de construire la **plateforme de référence pour l'excellence éducative en Tunisie**. Nous ne visons pas un simple site web, mais une expérience utilisateur si fluide, professionnelle et rassurante qu'elle devient un argument de vente à elle seule. Chaque interaction, chaque animation, chaque pixel doit refléter la qualité premium et l'innovation de notre approche pour créer un **effet "WOW"**.
+## 4) Pages & Navigation (actuel)
+### Pages publiques
+- `/` (accueil)
+- `/offres`, `/academy`, `/education`, `/consulting`, `/plateforme`
+- `/notre-centre`, `/equipe`, `/contact`, `/conditions`
+- `/bilan-gratuit` (+ confirmation)
+- `/auth/signin`, `/auth/mot-de-passe-oublie`
+- `/session/video` (interface visio — démo + intégration Jitsi)
 
-### **Directive Impérative : Zéro Coquille Vide**
+### Dashboards (protégés par rôle)
+- `/dashboard/admin` (+ analytics, users, activities, subscriptions, tests)
+- `/dashboard/assistante` (+ coaches, students, subscriptions, requests, credits, paiements)
+- `/dashboard/coach`
+- `/dashboard/parent` (+ enfants, abonnements, paiement)
+- `/dashboard/eleve` (+ sessions, ressources)
 
-Ce projet est une commande pour une **application web de production, 100% fonctionnelle**. Chaque fonctionnalité, chaque logique métier et chaque interaction décrite dans notre documentation doit être **réellement codée, implémentée et opérationnelle**. Le livrable final doit être une plateforme prête à accueillir et à servir de vrais clients.
+## 5) API Routes principales (actuel)
+- **Auth** : `/api/auth/[...nextauth]`
+- **Inscription** : `/api/bilan-gratuit`
+- **ARIA** : `/api/aria/chat`, `/api/aria/feedback`
+- **Sessions** : `/api/sessions/book`, `/api/sessions/cancel`, `/api/sessions/video`
+- **Disponibilités coach** : `/api/coaches/availability`, `/api/coaches/available`
+- **Paiements** : `/api/payments/konnect`, `/api/payments/wise`, `/api/payments/wise/confirm`, `/api/payments/validate`, `/api/webhooks/konnect`
+- **Dashboards** : `/api/admin/*`, `/api/assistant/*`, `/api/parent/*`, `/api/student/*`, `/api/coach/*`
+- **Messages** : `/api/messages/send`, `/api/messages/conversations`
+- **Notifications** : `/api/notifications`
+- **Healthcheck** : `/api/health`
 
----
+## 6) Base de données (état réel)
+- **Prisma provider : SQLite** (`DATABASE_URL=file:./dev.db` par défaut)
+- Le client Prisma force un chemin absolu pour éviter les erreurs en mode standalone (`lib/prisma.ts`).
+- Des fichiers Docker/PostgreSQL existent, **mais l’ORM est configuré pour SQLite** : si vous souhaitez PostgreSQL en production, il faut **modifier `prisma/schema.prisma`** (provider + migrations) et ajuster le déploiement.
 
-## 2. Votre Source Unique de Vérité : Le Dossier `/feuille_route`
+## 7) Démarrage rapide (local)
+```bash
+cp env.local.example .env.local
+npm install
+npm run db:generate
+npm run db:push
+npm run db:seed   # optionnel
+npm run dev
+```
 
-L'intégralité de la vision du projet, de la stratégie business à la charte de design, a été méticuleusement documentée. Avant d'écrire la moindre ligne de code, veuillez prendre connaissance de l'ensemble des documents présents dans le dossier `/feuille_route` à la racine de ce projet.
+## 8) Tests
+```bash
+npm test           # jest (unit + integration)
+npm run test:e2e   # playwright
+```
 
-**Considérez ce dossier comme la "Constitution" du projet.** Chaque décision de développement doit être alignée avec les spécifications qu'il contient.
+## 9) Notes importantes
+- Le dossier `/feuille_route` contient les **spécifications produit**. Ce sont des documents de référence métier ; tout n’est pas forcément implémenté à 100%.
+- Les paiements **Konnect** sont actuellement en **mode simulé** (URL de démo). Le flux **Wise** crée un paiement “PENDING” et passe par validation assistante.
+- L’intégration Jitsi côté UI utilise `meet.jit.si` en dur, tandis que l’API session vidéo peut utiliser `NEXT_PUBLIC_JITSI_SERVER_URL`.
+- **Polices** : le projet utilise actuellement les polices système. Pour rétablir le design premium, décommenter les imports `next/font/google` dans `app/layout.tsx` une fois l’accès réseau rétabli.
+- **Tests E2E** : Playwright nécessite un environnement avec accès complet aux processus système (actuellement désactivés en CI restreinte).
 
-* **`Cahier des Charges Global & Technique.md`** : La vision d'ensemble et la stack technique.
-* **`Logique Metier_Business Model.md`** : Les règles complexes des abonnements, crédits et paiements. **Lecture capitale.**
-* **`Systeme_de_Design_Exp_Utilisa.md`** : Le look & feel, les animations et la charte graphique.
-* **`Specifications-Fonctionnelles-par-Role.md`** : Le détail des dashboards et des permissions.
-* **`Profils_Equipe_Gamification.md`** : Le contenu brut pour la page Équipe et la logique de gamification.
+## 10) Écosystème & Roadmap
+### Korrigo (produit externe)
+**Korrigo** est un produit SaaS distinct (correction vectorielle) édité par Nexus Réussite.  
+Ce dépôt **ne contient pas** le moteur Korrigo. Korrigo sera ultérieurement interconnecté via API pour **remonter les notes et résultats** dans le dashboard Élève du Nexus Digital Campus.
 
----
-
-## 3. Démarrage Rapide de l'Environnement de Développement Local
-
-Ce projet est configuré pour un développement local robuste et cohérent via **Docker** et **Docker Compose**.
-
-### Pré-requis
-
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé et en cours d'exécution sur votre machine.
-
-* Avoir `npm` comme gestionnaire de paquets par défaut.
-
-### Étapes de Lancement
-
-1. **Créez vos Variables d'Environnement Locales :**
-    * Créez une copie du fichier `.env.local.example` (s'il existe) ou créez un nouveau fichier nommé `.env.local` à la racine du projet.
-    * Remplissez ce fichier avec vos clés d'API de **TEST**, vos mots de passe de base de données locale, etc. Ce fichier est ignoré par Git et ne doit jamais être partagé.
-
-2. **Lancez les Conteneurs Docker :**
-    * Ouvrez un terminal à la racine du projet et exécutez la commande suivante :
-
-    ```bash
-    docker compose up --build -d
-    ```
-
-    * Cette commande va construire l'image de l'application Next.js et démarrer un conteneur de base de données PostgreSQL en arrière-plan.
-
-3. **Appliquez les Migrations de la Base de Données :**
-    * Une fois les conteneurs lancés, exécutez cette commande pour créer les tables dans votre base de données locale en fonction du schéma Prisma :
-
-    ```bash
-    npx prisma migrate dev
-    ```
-
-5. **Variables d'Environnement (Référence Consolidée)**
-
-    Créez un fichier `.env.local` en vous basant sur `env.local.example`.
-
-    * Auth:
-      * `NEXTAUTH_URL` (ex: `http://localhost:3000`)
-      * `NEXTAUTH_SECRET` (obligatoire en production)
-    * Base de données:
-      * `DATABASE_URL` (`file:./dev.db` en dev, URL Postgres en prod)
-    * SMTP (emails):
-      * `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`
-    * OpenAI (ARIA):
-      * `OPENAI_API_KEY`
-      * `OPENAI_MODEL` (par défaut `gpt-4o-mini` si absent)
-    * Jitsi (visioconférence):
-      * `NEXT_PUBLIC_JITSI_SERVER_URL` (ex: `https://meet.jit.si`)
-    * Paiements Konnect:
-      * `KONNECT_API_KEY`, `KONNECT_WALLET_ID`, `KONNECT_BASE_URL`, `KONNECT_WEBHOOK_SECRET`
-    * Wise (affichage virement):
-      * `NEXT_PUBLIC_WISE_BENEFICIARY_NAME`, `NEXT_PUBLIC_WISE_IBAN`, `NEXT_PUBLIC_WISE_BIC`, `NEXT_PUBLIC_WISE_ADDRESS`, `NEXT_PUBLIC_WISE_BANK_NAME`
-
-    Note: en production, l'application refusera de démarrer sans `NEXTAUTH_SECRET`.
-
-4. **Accédez à l'Application :**
-    * Ouvrez votre navigateur et allez sur [**http://localhost:3000**](http://localhost:3000). Vous devriez voir la page d'accueil de l'application. La page se mettra à jour automatiquement à chaque modification du code.
-
----
-
-## 4. Lignes Directrices Techniques & Attentes
-
-* **Stack Technique :** Le projet est solidement ancré sur **Next.js 14 (App Router), TypeScript, et Tailwind CSS**. Merci de respecter cette stack.
-* **Qualité du Code :** Nous attendons un code propre, bien structuré, commenté si nécessaire, et suivant les meilleures pratiques de l'écosystème React/Next.js. La maintenabilité est une priorité.
-* **Animations & Micro-interactions :** L'utilisation de **Framer Motion** est fortement encouragée pour créer les effets décrits dans la charte de design.
-* **Ressources Graphiques :** Les assets (logos, mascotte) sont disponibles dans `/public/images/`. Veuillez les intégrer de manière optimisée via le composant `<Image>` de Next.js.
-
----
-
-Nous sommes convaincus que vous avez le talent et l'expertise pour transformer cette vision en une réalité exceptionnelle. Nous restons à votre disposition pour toute clarification, mais les documents du dossier `/feuille_route` doivent rester votre référence principale.
-
-Construisons ensemble une plateforme dont nous serons fiers.
+Pour plus de détails, voir :
+- `ARCHITECTURE_TECHNIQUE.md`
+- `DOCUMENTATION_TECHNIQUE_LIVRAISON.md`
+- `ENVIRONMENT_REFERENCE.md`
+- `README_TESTS.md`

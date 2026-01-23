@@ -1,3 +1,5 @@
+> **Note (21 janvier 2026)** : Document de spécifications. Pour l’état actuel du projet, voir `README.md` et `ARCHITECTURE_TECHNIQUE.md`.
+
 # Annexes: Profils Équipe & Gamification
 ## Projet: Plateforme Nexus Réussite
   ** Version :** 1.0(Finale pour Développement)

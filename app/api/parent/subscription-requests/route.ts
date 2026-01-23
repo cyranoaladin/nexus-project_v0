@@ -14,7 +14,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      studentId?: string;
+      requestType?: 'PLAN_CHANGE' | 'ARIA_ADDON' | 'INVOICE_DETAILS';
+      planName?: string | null;
+      monthlyPrice?: number;
+      reason?: string;
+    };
     const { studentId, requestType, planName, monthlyPrice, reason } = body;
 
     if (!studentId || !requestType) {
@@ -75,7 +81,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const notificationPromises = assistants.map((assistant: any) => 
+    const notificationPromises = assistants.map((assistant) =>
       prisma.notification.create({
         data: {
           userId: assistant.id,

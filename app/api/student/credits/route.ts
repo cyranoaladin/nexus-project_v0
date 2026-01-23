@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import type { CreditTransaction } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,11 +36,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate current balance
-    const balance = student.creditTransactions.reduce((total: number, transaction: any) => {
+    const balance = student.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
       return total + transaction.amount;
     }, 0);
 
-    const formattedTransactions = student.creditTransactions.map((transaction: any) => ({
+    const formattedTransactions = student.creditTransactions.map((transaction: CreditTransaction) => ({
       id: transaction.id,
       type: transaction.type,
       amount: transaction.amount,

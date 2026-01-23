@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import type { CreditTransaction } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
+      const creditBalance = student.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
           school: student.school
         },
         creditBalance,
-        transactions: student.creditTransactions.map((transaction: any) => ({
+        transactions: student.creditTransactions.map((transaction: CreditTransaction) => ({
           id: transaction.id,
           type: transaction.type,
           amount: transaction.amount,
@@ -69,8 +70,8 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      const studentsWithCredits = students.map((student: any) => {
-        const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
+      const studentsWithCredits = students.map((student) => {
+        const creditBalance = student.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
           return total + transaction.amount;
         }, 0);
 
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
       where: { studentId }
     });
 
-    const newBalance = allTransactions.reduce((total: number, t: any) => {
+    const newBalance = allTransactions.reduce((total: number, t: CreditTransaction) => {
       return total + t.amount;
     }, 0);
 

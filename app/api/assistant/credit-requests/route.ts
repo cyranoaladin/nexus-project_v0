@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedRequests = creditRequests.map((request: any) => ({
+    const formattedRequests = creditRequests.map((request) => ({
       id: request.id,
       amount: request.amount,
       description: request.description,
@@ -79,7 +79,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      requestId?: string;
+      action?: 'approve' | 'reject';
+      reason?: string;
+    };
     const { requestId, action, reason } = body;
 
     if (!requestId || !action) {
@@ -113,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'approve') {
       // Update the credit request status and add credits to student
-      await prisma.$transaction(async (tx: any) => {
+      await prisma.$transaction(async (tx) => {
         // Update the credit request
         await tx.creditTransaction.update({
           where: { id: requestId },

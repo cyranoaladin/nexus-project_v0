@@ -2,6 +2,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import type { CreditTransaction } from '@prisma/client';
 // bcrypt inutilisé ici
 
 export async function GET(_request: NextRequest) {
@@ -58,8 +59,8 @@ export async function GET(_request: NextRequest) {
       }
     });
 
-    const formattedChildren = children.map((child: any) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction: any) => {
+    const formattedChildren = children.map((child) => {
+      const creditBalance = child.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create child in transaction
-    const result = await prisma.$transaction(async (tx: any) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Create user with parent's password
       const user = await tx.user.create({
         data: {

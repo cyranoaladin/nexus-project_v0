@@ -2,6 +2,12 @@ import { prisma } from '@/lib/prisma';
 import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 
+type PaymentMetadata = {
+  studentId: string;
+  itemKey?: string;
+  itemType?: string;
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -39,31 +45,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Idempotence: si déjà complété, ne rien refaire
-    if (payment.status === 'COMPLETED') {
-      return NextResponse.json({ success: true });
-    }
-
     if (status === 'completed') {
       // Mettre à jour le statut du paiement
       const merged = mergePaymentMetadata(payment.metadata, {
         konnectTransactionId: body.transaction_id || payment_id,
         completedAt: new Date().toISOString()
       });
-
       await prisma.payment.update({
         where: { id: payment_id },
         data: {
           status: 'COMPLETED',
-          metadata: merged.value as any
+          metadata: merged.value
         }
       });
 
       // Activer le service selon le type de paiement
-      const metadata = parsePaymentMetadata(payment.metadata);
+      const metadata = parsePaymentMetadata(payment.metadata) as PaymentMetadata;
 
       if (payment.type === 'SUBSCRIPTION') {
-        // Activer l'abonnement (idempotent: rejoue sans effet si déjà ACTIVE/INACTIVE corrects)
+        // Activer l'abonnement
         const student = await prisma.student.findUnique({
           where: { id: metadata.studentId }
         });
@@ -91,7 +91,28 @@ export async function POST(request: NextRequest) {
             }
           });
 
-          // Note: allocation mensuelle déclenchée côté validation assistante pour éviter doublons
+          // Allouer les crédits mensuels si applicable
+          const subscription = await prisma.subscription.findFirst({
+            where: {
+              studentId: metadata.studentId,
+              status: 'ACTIVE'
+            }
+          });
+
+          if (subscription && subscription.creditsPerMonth > 0) {
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 2); // Expire dans 2 mois
+
+            await prisma.creditTransaction.create({
+              data: {
+                studentId: metadata.studentId,
+                type: 'MONTHLY_ALLOCATION',
+                amount: subscription.creditsPerMonth,
+                description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
+                expiresAt: nextMonth
+              }
+            });
+          }
         }
       } else if (payment.type === 'CREDIT_PACK') {
         // Ajouter les crédits du pack
