@@ -5,6 +5,12 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+type PaymentMetadata = {
+  studentId: string;
+  itemKey?: string;
+  itemType?: string;
+};
+
 const validatePaymentSchema = z.object({
   paymentId: z.string(),
   action: z.enum(['approve', 'reject']),
@@ -59,12 +65,12 @@ export async function POST(request: NextRequest) {
         where: { id: paymentId },
         data: {
           status: 'COMPLETED',
-          metadata: merged.value as any
+          metadata: merged.value
         }
       });
 
       // Activer le service selon le type
-      const metadata = parsePaymentMetadata(payment.metadata);
+      const metadata = parsePaymentMetadata(payment.metadata) as PaymentMetadata;
 
       if (payment.type === 'SUBSCRIPTION') {
         // Activer l'abonnement
@@ -133,7 +139,7 @@ export async function POST(request: NextRequest) {
         where: { id: paymentId },
         data: {
           status: 'FAILED',
-          metadata: mergedReject.value as any
+          metadata: mergedReject.value
         }
       });
 

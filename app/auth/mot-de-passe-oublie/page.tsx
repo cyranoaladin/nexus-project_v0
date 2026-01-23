@@ -28,7 +28,7 @@ export default function MotDePasseOubliePage() {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       setIsSuccess(true);
-    } catch (error) {
+    } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);

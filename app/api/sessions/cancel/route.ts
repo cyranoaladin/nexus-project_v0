@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { SessionStatus } from '@prisma/client';
 
 const cancelSessionSchema = z.object({
   sessionId: z.string(),
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
-        status: 'CANCELLED' as any,
+        status: SessionStatus.CANCELLED,
         cancelledAt: new Date(),
         coachNotes: reason ? `Annulée: ${reason}` : 'Annulée'
       }

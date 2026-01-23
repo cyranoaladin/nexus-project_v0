@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       orderBy: [{ startTime: 'asc' }]
     });
 
-    const todaySessions = todaysSessions.map((s: any) => ({
+    const todaySessions = todaysSessions.map((s) => ({
       id: s.id,
       studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
       subject: s.subject,
@@ -86,10 +86,10 @@ export async function GET(request: NextRequest) {
     });
 
     const totalSessions = weekSessionsRaw.length;
-    const completedSessions = weekSessionsRaw.filter((s: any) => s.status === 'COMPLETED').length;
-    const upcomingSessions = weekSessionsRaw.filter((s: any) => ['SCHEDULED', 'CONFIRMED'].includes(s.status)).length;
+    const completedSessions = weekSessionsRaw.filter((s) => s.status === 'COMPLETED').length;
+    const upcomingSessions = weekSessionsRaw.filter((s) => ['SCHEDULED', 'CONFIRMED'].includes(s.status)).length;
 
-    const weekSessions = weekSessionsRaw.map((s: any) => ({
+    const weekSessions = weekSessionsRaw.map((s) => ({
       id: s.id,
       studentId: s.studentId,
       studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim(),
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     let specialties: string[] = [];
     try {
       specialties = JSON.parse(coach.subjects || '[]');
-    } catch (error) {
+    } catch {
       specialties = [];
     }
 
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
         include: { creditTransactions: true }
       });
 
-      const creditBalance = studentEntity?.creditTransactions?.reduce((t: number, tr: any) => t + tr.amount, 0) ?? 0;
+      const creditBalance = studentEntity?.creditTransactions?.reduce((t, tr) => t + tr.amount, 0) ?? 0;
 
       students.push({
         id: studentEntity?.id ?? rb.studentId,

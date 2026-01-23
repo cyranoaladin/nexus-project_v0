@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Loader2, Plus, Edit, Trash2, ArrowLeft, UserPlus, CheckCircle } from 'lucide-react';
@@ -30,6 +29,36 @@ interface Coach {
   availableInPerson: boolean;
   createdAt: string;
 }
+
+interface CoachFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  pseudonym: string;
+  tag: string;
+  description: string;
+  philosophy: string;
+  expertise: string;
+  subjects: string[];
+  availableOnline: boolean;
+  availableInPerson: boolean;
+}
+
+const INITIAL_FORM_DATA: CoachFormData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  pseudonym: '',
+  tag: '',
+  description: '',
+  philosophy: '',
+  expertise: '',
+  subjects: [],
+  availableOnline: true,
+  availableInPerson: true
+};
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -56,20 +85,7 @@ export default function CoachManagement() {
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    pseudonym: '',
-    tag: '',
-    description: '',
-    philosophy: '',
-    expertise: '',
-    subjects: [] as string[],
-    availableOnline: true,
-    availableInPerson: true
-  });
+  const [formData, setFormData] = useState<CoachFormData>(INITIAL_FORM_DATA);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -380,8 +396,8 @@ export default function CoachManagement() {
 }
 
 interface CoachFormProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: CoachFormData;
+  setFormData: Dispatch<SetStateAction<CoachFormData>>;
   onSubmit: () => void;
   submitting: boolean;
   subjects: Array<{ value: string; label: string }>;
@@ -535,7 +551,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={() => setFormData({})}>
+        <Button variant="outline" onClick={() => setFormData(INITIAL_FORM_DATA)}>
           Annuler
         </Button>
         <Button onClick={onSubmit} disabled={submitting}>

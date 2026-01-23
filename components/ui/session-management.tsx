@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -83,20 +83,12 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
   const [currentPage, setCurrentPage] = useState(1);
   const sessionsPerPage = 10;
 
-  useEffect(() => {
-    loadSessions();
-  }, [assistantId]);
-
-  useEffect(() => {
-    filterSessions();
-  }, [sessions, searchTerm, statusFilter, subjectFilter, dateFilter]);
-
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/sessions?role=assistant');
+      const response = await fetch(`/api/sessions?role=assistant&assistantId=${assistantId}`);
       
       if (!response.ok) {
         throw new Error('Failed to load sessions');
@@ -110,9 +102,13 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
     } finally {
       setLoading(false);
     }
-  };
+  }, [assistantId]);
 
-  const filterSessions = () => {
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
+
+  const filterSessions = useCallback(() => {
     let filtered = [...sessions];
 
     // Search filter
@@ -170,7 +166,11 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
 
     setFilteredSessions(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  };
+  }, [sessions, searchTerm, statusFilter, subjectFilter, dateFilter]);
+
+  useEffect(() => {
+    filterSessions();
+  }, [filterSessions]);
 
   const updateSessionStatus = async (sessionId: string, newStatus: string, notes?: string) => {
     try {

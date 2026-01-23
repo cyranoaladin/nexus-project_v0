@@ -64,9 +64,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Format children data with async progress calculation
-    const children = await Promise.all(parent.children.map(async (student: any) => {
+    const children = await Promise.all(parent.children.map(async (student) => {
       // Calculate credit balance from transactions
-      const creditBalance = student.creditTransactions.reduce((total: number, transaction: any) => {
+      const creditBalance = student.creditTransactions.reduce((total: number, transaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -105,12 +105,12 @@ export async function GET(request: NextRequest) {
       } else {
         // If no sessions, calculate based on credit usage
         const usedCredits = Math.abs(student.creditTransactions
-          .filter((tx: any) => tx.amount < 0)
-          .reduce((sum: number, tx: any) => sum + tx.amount, 0));
+          .filter((tx) => tx.amount < 0)
+          .reduce((sum, tx) => sum + tx.amount, 0));
 
         const totalCredits = student.creditTransactions
-          .filter((tx: any) => tx.amount > 0)
-          .reduce((sum: number, tx: any) => sum + tx.amount, 0);
+          .filter((tx) => tx.amount > 0)
+          .reduce((sum, tx) => sum + tx.amount, 0);
 
         if (totalCredits > 0) {
           progress = Math.round((usedCredits / totalCredits) * 100);

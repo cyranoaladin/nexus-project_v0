@@ -1,73 +1,45 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+node_modules/
 
-# Dépendances
-node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Python virtualenv
+.venv/
+venv/
 
-# Testing
-/coverage
+# Logs
+*.log
+.logs/
 
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
-
-# Fichiers d'environnement (SÉCURITÉ CRITIQUE)
+# Env files (keep examples)
 .env
 .env.local
-.env.development.local
-.env.production.local
-.env.production
-env.production.real
-
-# Fichiers de configuration PM2 (spécifique à l'environnement)
-ecosystem.config.js
-
-# Fichiers de log et de cache
-*.log
-.npm
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Système d'exploitation
-.DS_Store
-*.pem
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# Base de données locale
-/prisma/dev.db
-/prisma/dev.db-journal
-
-# Prisma généré
-/app/generated/prisma
-
-# Custom patterns for this project
-.logs/
-.venv/
-.next-3003.pid
-*.tgz
-storage/reports/
 .env.*
-! .env.example
-! .env.local.example
-! .env.e2e.example
-audit/
-env.txt
-env.bak
-env.local.bak
+!.env.example
+!.env.local.example
+!.env.e2e.example
+
+# OS
+.DS_Store
+
+# Storage / reports
+storage/
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Archives
+*.tgz
+
+# Build artifacts
+.next/
+out/
+build/
+dist/
+coverage/
+.nyc_output/
+
+# Misc
+.next-*.pid
+*.tgz
+playwright-report/
+test-results/

@@ -1,4 +1,12 @@
 import { prisma } from '@/lib/prisma';
+import type {
+  Prisma,
+  SessionBooking,
+  SessionModality,
+  SessionType,
+  Subject
+} from '@prisma/client';
+import { SessionStatus } from '@prisma/client';
 // import { sendEmail } from '@/lib/email';
 
 export interface AvailableSlot {
@@ -16,17 +24,34 @@ export interface SessionBookingData {
   coachId: string;
   studentId: string;
   parentId?: string;
-  subject: string;
+  subject: Subject;
   scheduledDate: Date;
   startTime: string;
   endTime: string;
   duration: number;
-  type: 'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS';
-  modality: 'ONLINE' | 'IN_PERSON' | 'HYBRID';
+  type: SessionType;
+  modality: SessionModality;
   title: string;
   description?: string;
   creditsUsed: number;
 }
+
+type AvailabilityWithCoach = Prisma.CoachAvailabilityGetPayload<{
+  include: { coach: { select: { firstName: true; lastName: true } } };
+}>;
+
+type AvailableCoach = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  coachSubjects: string[];
+  coachAvailabilities: [];
+};
+
+type SessionWithRelations = Prisma.SessionBookingGetPayload<{
+  include: { student: true; coach: true; parent: true };
+}>;
 
 export class SessionBookingService {
 
@@ -40,7 +65,7 @@ export class SessionBookingService {
     subject?: string
   ): Promise<AvailableSlot[]> {
     // Get coach's availability
-    const availability = await prisma.coachAvailability.findMany({
+    const availability: AvailabilityWithCoach[] = await prisma.coachAvailability.findMany({
       where: {
         coachId,
         isAvailable: true,
@@ -112,11 +137,11 @@ export class SessionBookingService {
       const dayOfWeek = currentDate.getDay();
 
       // Check for specific date availability first
-      const specificAvailability = availability.filter((av: any) => av.specificDate && new Date(av.specificDate).toDateString() === currentDate.toDateString());
+      const specificAvailability = availability.filter((av) => av.specificDate && new Date(av.specificDate).toDateString() === currentDate.toDateString());
 
       // If no specific availability, check recurring availability
       const recurringAvailability = specificAvailability.length === 0
-        ? availability.filter((av: any) => av.isRecurring && av.dayOfWeek === dayOfWeek && (!av.validFrom || new Date(av.validFrom) <= currentDate) && (!av.validUntil || new Date(av.validUntil) >= currentDate))
+        ? availability.filter((av) => av.isRecurring && av.dayOfWeek === dayOfWeek && (!av.validFrom || new Date(av.validFrom) <= currentDate) && (!av.validUntil || new Date(av.validUntil) >= currentDate))
         : [];
 
       const dayAvailability = [...specificAvailability, ...recurringAvailability];
@@ -165,7 +190,7 @@ export class SessionBookingService {
     subject: string,
     startDate: Date,
     endDate: Date
-  ): Promise<any[]> {
+  ): Promise<AvailableCoach[]> {
     const coaches = await prisma.coachProfile.findMany({
       where: {
         subjects: {
@@ -187,7 +212,7 @@ export class SessionBookingService {
     // Filter coaches who have actual availability and format response
     return coaches
       // Keep coaches; availability is derived via getAvailableSlots
-      .map((coach: any) => ({
+      .map((coach) => ({
         id: coach.user.id,
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
@@ -200,7 +225,7 @@ export class SessionBookingService {
   /**
    * Book a session with all validations and notifications
    */
-  static async bookSession(data: SessionBookingData): Promise<any> {
+  static async bookSession(data: SessionBookingData): Promise<SessionWithRelations> {
     return await prisma.$transaction(async (tx) => {
       // Validate availability
       const isAvailable = await this.validateAvailability(
@@ -224,17 +249,17 @@ export class SessionBookingService {
           studentId: data.studentId,
           coachId: data.coachId,
           parentId: data.parentId,
-          subject: data.subject as any,
+          subject: data.subject,
           title: data.title,
           description: data.description,
           scheduledDate: data.scheduledDate,
           startTime: data.startTime,
           endTime: data.endTime,
           duration: data.duration,
-          type: data.type as any,
-          modality: data.modality as any,
+          type: data.type,
+          modality: data.modality,
           creditsUsed: data.creditsUsed,
-          status: 'SCHEDULED'
+          status: SessionStatus.SCHEDULED
         },
         include: {
           student: true,
@@ -264,10 +289,10 @@ export class SessionBookingService {
    */
   static async updateSessionStatus(
     sessionId: string,
-    status: string,
+    status: SessionStatus,
     userId: string,
     notes?: string
-  ): Promise<any> {
+  ): Promise<SessionBooking> {
     const session = await prisma.sessionBooking.findFirst({
       where: {
         id: sessionId,
@@ -291,7 +316,7 @@ export class SessionBookingService {
     const updatedSession = await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
-        status: status as any,
+        status: status,
         ...(status === 'COMPLETED' && { completedAt: new Date() }),
         ...(status === 'CANCELLED' && { cancelledAt: new Date() }),
         ...(notes && { coachNotes: notes })
@@ -368,7 +393,7 @@ export class SessionBookingService {
     date: Date,
     startTime: string,
     endTime: string,
-    tx: any
+    tx: Prisma.TransactionClient
   ): Promise<boolean> {
     // Check availability
     const availability = await tx.coachAvailability.findFirst({
@@ -427,7 +452,7 @@ export class SessionBookingService {
   private static async validateCredits(
     studentId: string,
     creditsNeeded: number,
-    tx: any
+    tx: Prisma.TransactionClient
   ): Promise<void> {
     const student = await tx.student.findFirst({
       where: { userId: studentId }
@@ -438,8 +463,8 @@ export class SessionBookingService {
     }
   }
 
-  private static async createSessionNotifications(session: any, tx: any): Promise<void> {
-    const notifications = [];
+  private static async createSessionNotifications(session: SessionWithRelations, tx: Prisma.TransactionClient): Promise<void> {
+    const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
     // Notify coach
     notifications.push({
@@ -467,13 +492,13 @@ export class SessionBookingService {
       });
     }
 
-    await tx.sessionNotification.createMany({ data: notifications as any });
+    await tx.sessionNotification.createMany({ data: notifications });
   }
 
-  private static async createSessionReminders(session: any, tx: any): Promise<void> {
+  private static async createSessionReminders(session: SessionWithRelations, tx: Prisma.TransactionClient): Promise<void> {
     const sessionDateTime = new Date(`${session.scheduledDate.toISOString().split('T')[0]}T${session.startTime}`);
 
-    const reminders = [
+    const reminders: Prisma.SessionReminderCreateManyInput[] = [
       {
         sessionId: session.id,
         reminderType: 'ONE_DAY_BEFORE',
@@ -491,15 +516,17 @@ export class SessionBookingService {
       }
     ];
 
-    await tx.sessionReminder.createMany({ data: reminders as any });
+    await tx.sessionReminder.createMany({ data: reminders });
   }
 
-  private static async createStatusChangeNotifications(session: any, status: string): Promise<void> {
+  private static async createStatusChangeNotifications(session: SessionBooking, status: SessionStatus): Promise<void> {
     // Implementation for status change notifications
     console.log(`Session ${session.id} status changed to ${status}`);
   }
 
-  private static async sendReminder(reminder: any): Promise<void> {
+  private static async sendReminder(reminder: Prisma.SessionReminderGetPayload<{
+    include: { session: true };
+  }>): Promise<void> {
     // Implementation for sending reminders
     console.log(`Sending reminder for session ${reminder.sessionId}`);
   }

@@ -1,124 +1,36 @@
-# Development Setup Guide
+# Guide d’installation (Développement)
 
-## Quick Start for Development
+**Dernière mise à jour :** 21 janvier 2026
 
-### 1. Create Environment File
+## 1) Prérequis
+- Node.js + npm
+- (Optionnel) Docker si vous testez un déploiement ou un proxy
 
-Create a `.env` file in your project root with the following content:
-
-```env
-# =============================================================================
-# CONFIGURATION DATABASE (SQLite pour développement)
-# =============================================================================
-DATABASE_URL="file:./prisma/dev.db"
-
-# =============================================================================
-# CONFIGURATION NEXTAUTH
-# =============================================================================
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-super-secret-key-min-32-chars-for-development-change-in-production"
-
-# =============================================================================
-# CONFIGURATION ENVIRONNEMENT
-# =============================================================================
-NODE_ENV="development"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# =============================================================================
-# CONFIGURATION OPENAI (IA ARIA) - Optionnel
-# =============================================================================
-OPENAI_API_KEY="sk-your-openai-api-key"
-OPENAI_MODEL="gpt-4o-mini"
-
-# =============================================================================
-# CONFIGURATION PAIEMENTS - Optionnel pour développement
-# =============================================================================
-KONNECT_API_KEY="your-konnect-api-key"
-KONNECT_WALLET_ID="your-wallet-id"
-KONNECT_BASE_URL="https://api.konnect.network"
-KONNECT_WEBHOOK_SECRET="your-webhook-secret"
-
-NEXT_PUBLIC_WISE_BENEFICIARY_NAME="Nexus Réussite SARL"
-NEXT_PUBLIC_WISE_IBAN="TN59 1234 5678 9012 3456 7890 12"
-NEXT_PUBLIC_WISE_BIC="BANKTNTT"
-NEXT_PUBLIC_WISE_ADDRESS="123 Avenue Habib Bourguiba, Tunis 1000, Tunisie"
-NEXT_PUBLIC_WISE_BANK_NAME="Banque Internationale Arabe de Tunisie"
-
-# =============================================================================
-# CONFIGURATION JITSI MEET
-# =============================================================================
-JITSI_DOMAIN="meet.jit.si"
-```
-
-### 2. Setup Database
-
+## 2) Variables d’environnement
+Copiez l’exemple local puis adaptez :
 ```bash
-# Generate Prisma client
-npm run db:generate
-
-# Push schema to database
-npm run db:push
-
-# Seed database (optional)
-npm run db:seed
+cp env.local.example .env.local
 ```
 
-### 3. Start Development Server
+## 3) Base de données (SQLite)
+```bash
+npm install
+npm run db:generate
+npm run db:push
+npm run db:seed   # optionnel (crée admin + coachs + comptes de test)
+```
 
+## 4) Lancer l’app
 ```bash
 npm run dev
 ```
 
-### 4. Test the Application
+## 5) Accès rapides
+- Home : `http://localhost:3000`
+- Bilan gratuit : `http://localhost:3000/bilan-gratuit`
+- Connexion : `http://localhost:3000/auth/signin`
 
-1. **Visit the homepage**: http://localhost:3000
-2. **Test the bilan gratuit form**: http://localhost:3000/bilan-gratuit
-3. **Test login**: http://localhost:3000/auth/signin
+## Notes utiles
+- En dev, si aucune config SMTP n’est fournie, l’app tente un SMTP local (port 1025).
+- Le provider Prisma est **SQLite**. Les fichiers Docker/Postgres sont présents mais non branchés au schéma actuel.
 
-## Current Status
-
-✅ **Form is working** - The bilan gratuit form successfully creates users
-✅ **Database is working** - SQLite database is properly configured
-✅ **Email handling** - Gracefully handles email errors in development
-✅ **Authentication** - NextAuth is configured and working
-
-## Known Issues Fixed
-
-1. **Email SMTP errors** - Now handled gracefully in development
-2. **NextAuth warnings** - Added proper secret configuration
-3. **Form validation** - Working correctly with proper error handling
-
-## Next Steps
-
-1. **Move project to user directory** to avoid permission issues
-2. **Configure production environment** when ready to deploy
-3. **Set up proper SMTP** for email functionality
-4. **Configure payment providers** for production use
-
-## Troubleshooting
-
-### Permission Issues
-If you encounter permission errors, move the project to a user directory:
-```bash
-# Create new directory
-mkdir C:\Users\YourUsername\Projects
-
-# Copy project
-xcopy "C:\Program Files\Git\nexus-project_v0" "C:\Users\YourUsername\Projects\nexus-project_v0" /E /I /H
-
-# Navigate to new location
-cd C:\Users\YourUsername\Projects\nexus-project_v0
-```
-
-### Database Issues
-If database operations fail:
-```bash
-# Reset database
-npx prisma migrate reset
-
-# Or push schema directly
-npx prisma db push
-```
-
-### Port Issues
-If port 3000 is in use, the server will automatically try 3001, 3002, etc. 

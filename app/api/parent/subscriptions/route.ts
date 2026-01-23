@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedChildren = children.map((child: any) => {
-      const creditBalance = child.creditTransactions.reduce((total: number, transaction: any) => {
+    const formattedChildren = children.map((child) => {
+      const creditBalance = child.creditTransactions.reduce((total: number, transaction) => {
         return total + transaction.amount;
       }, 0);
 
-      const activeSubscription = child.subscriptions.find((sub: any) => sub.status === 'ACTIVE') || 
-                                child.subscriptions.find((sub: any) => sub.status === 'INACTIVE') || 
+      const activeSubscription = child.subscriptions.find((sub) => sub.status === 'ACTIVE') ||
+                                child.subscriptions.find((sub) => sub.status === 'INACTIVE') ||
                                 null;
 
       return {
@@ -93,7 +93,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      studentId?: string;
+      planName?: string;
+      monthlyPrice?: number;
+      creditsPerMonth?: number;
+    };
     console.log('Received subscription request:', body);
     const { studentId, planName, monthlyPrice, creditsPerMonth } = body;
 

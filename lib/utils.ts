@@ -17,23 +17,32 @@ export function formatDate(date: Date): string {
 }
 
 // --- Payment metadata helpers (handle JSON vs string storage) ---
-export function parsePaymentMetadata(raw: unknown): Record<string, any> {
+import type { Prisma } from '@prisma/client';
+
+type PaymentMetadata = Prisma.JsonObject;
+
+export function parsePaymentMetadata(raw: unknown): PaymentMetadata {
   if (!raw) return {};
   if (typeof raw === 'string') {
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+        ? (parsed as PaymentMetadata)
+        : {};
     } catch {
       return {};
     }
   }
-  if (typeof raw === 'object') return raw as Record<string, any>;
+  if (typeof raw === 'object' && raw !== null && !Array.isArray(raw)) {
+    return raw as PaymentMetadata;
+  }
   return {};
 }
 
 export function mergePaymentMetadata(
   existing: unknown,
-  additions: Record<string, any>
-): { value: any; shouldStringify: boolean; } {
+  additions: PaymentMetadata
+): { value: Prisma.InputJsonValue; shouldStringify: boolean; } {
   const parsed = parsePaymentMetadata(existing);
   const merged = { ...parsed, ...additions };
   const shouldStringify = typeof existing === 'string';

@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Award, Medal, Star, Trophy, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "./badge";
 import { Button } from "./button";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
@@ -55,11 +55,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    loadBadges();
-  }, [studentId]);
-
-  const loadBadges = async () => {
+  const loadBadges = useCallback(async () => {
     try {
       const response = await fetch(`/api/students/${studentId}/badges`);
       if (response.ok) {
@@ -99,7 +95,11 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    loadBadges();
+  }, [loadBadges]);
 
   const recentBadges = badges.slice(0, 3);
   const displayBadges = showAll ? badges : recentBadges;

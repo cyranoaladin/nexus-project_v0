@@ -1,3 +1,5 @@
+> **Note (21 janvier 2026)** : Document de spécifications. Pour l’état actuel du projet, voir `README.md` et `ARCHITECTURE_TECHNIQUE.md`.
+
 ### ** Audit de la v4.1 & Plan d'Action Final et Priorisé pour la Livraison
 
 **Auteur :** Alaeddine BEN RHOUMA

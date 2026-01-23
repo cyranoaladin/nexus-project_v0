@@ -15,6 +15,7 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
 };
 
 module.exports = createJestConfig(customJestConfig);

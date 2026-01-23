@@ -6,25 +6,32 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const isTestEnv = process.env.NODE_ENV === 'test';
     // Reset Prisma transaction mock call count in test environment (no-op in production)
-    const maybeMock = (prisma as any).$transaction as any;
-    if (maybeMock && typeof maybeMock.mockClear === 'function') {
+    const maybeMock = prisma.$transaction as unknown as { mockClear?: () => void };
+    if (typeof maybeMock?.mockClear === 'function') {
       maybeMock.mockClear();
     }
 
     const body = await request.json();
-    console.log('Received request body:', body);
+    if (!isTestEnv) {
+      console.log('Received request body:', body);
+    }
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
-    console.log('Validated data:', validatedData);
+    if (!isTestEnv) {
+      console.log('Validated data:', validatedData);
+    }
 
     // Vérifier si l'email parent existe déjà
     let existingUser = null;
     try {
       existingUser = await prisma.user.findUnique({ where: { email: validatedData.parentEmail } });
     } catch (dbErr) {
-      console.error('DB check failed, attempting to initialize sqlite file path:', dbErr);
+      if (!isTestEnv) {
+        console.error('DB check failed, attempting to initialize sqlite file path:', dbErr);
+      }
     }
 
     if (existingUser) {
@@ -71,7 +78,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Créer le profil élève
-      const studentProfile = await tx.studentProfile.create({
+      const _studentProfile = await tx.studentProfile.create({
         data: {
           userId: studentUser.id,
           grade: validatedData.studentGrade,
@@ -106,7 +113,9 @@ export async function POST(request: NextRequest) {
         `${result.studentUser.firstName} ${result.studentUser.lastName}`
       );
     } catch (emailError) {
-      console.error('Erreur envoi email de bienvenue:', emailError);
+      if (!isTestEnv) {
+        console.error('Erreur envoi email de bienvenue:', emailError);
+      }
       // Ne pas faire échouer l'inscription si l'email ne part pas
     }
 
@@ -118,7 +127,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur inscription bilan gratuit:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Erreur inscription bilan gratuit:', error);
+    }
 
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(

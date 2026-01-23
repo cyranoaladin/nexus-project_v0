@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageCircle, X, Send, Bot, User, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react"
+import { MessageCircle, X, Send, Bot, ThumbsUp, ThumbsDown } from "lucide-react"
 import Image from "next/image"
 import { Subject } from "@/types/enums"
 import Link from "next/link"
@@ -44,16 +44,13 @@ export function AriaChat() {
   const [conversationId, setConversationId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [hasAriaAccess, setHasAriaAccess] = useState(false)
 
   useEffect(() => {
     if (session?.user.role === 'ELEVE') {
       setIsAuthenticated(true)
       // TODO: Vérifier les droits ARIA de l'élève
-      setHasAriaAccess(true)
     } else {
       setIsAuthenticated(false)
-      setHasAriaAccess(false)
     }
   }, [session])
 

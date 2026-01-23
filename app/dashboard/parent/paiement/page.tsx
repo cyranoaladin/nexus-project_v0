@@ -13,13 +13,23 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+interface OrderDetails {
+  type: "subscription" | "addon" | "pack";
+  key: string;
+  name: string;
+  price: number;
+  description: string;
+  recurring: boolean;
+  studentId?: string | null;
+}
+
 function PaiementContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState("konnect");
   const [loading, setLoading] = useState(false);
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -35,7 +45,7 @@ function PaiementContent() {
     const pack = searchParams.get('pack');
     const student = searchParams.get('student');
 
-    let details = null;
+    let details: OrderDetails | null = null;
 
     if (plan && SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS]) {
       const planData = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS];

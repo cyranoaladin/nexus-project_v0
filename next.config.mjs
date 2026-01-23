@@ -13,6 +13,7 @@ const nextConfig = {
     // Cette option est cruciale. Elle demande à Next.js de copier les fichiers
     // nécessaires du client Prisma dans le build standalone.
     serverComponentsExternalPackages: ['@prisma/client'],
+    webpackBuildWorker: false,
   },
 
   transpilePackages: ['framer-motion'],

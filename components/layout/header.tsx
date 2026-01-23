@@ -32,7 +32,8 @@ export function Header() {
   }, [isMenuOpen]);
 
   const navigation = [
-    { name: "Accueil", href: "/" },
+    { name: "Accueil", href: "/famille" },
+    { name: "Académies d'Hiver", href: "/academies-hiver" },
     { name: "Notre Équipe", href: "/equipe" },
     { name: "Offres & Tarifs", href: "/offres" },
     { name: "Notre Centre", href: "/notre-centre" },
@@ -44,7 +45,7 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 md:h-20 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 md:space-x-3">
+          <Link href="/famille" className="flex items-center space-x-2 md:space-x-3">
             <Image
               src="/images/logo.png"
               alt="Nexus Réussite"

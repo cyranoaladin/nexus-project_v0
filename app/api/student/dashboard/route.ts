@@ -47,7 +47,10 @@ export async function GET(request: NextRequest) {
         },
         ariaConversations: {
           orderBy: { createdAt: 'desc' },
-          take: 5
+          take: 5,
+          include: {
+            messages: true
+          }
         },
         badges: {
           include: {
@@ -67,12 +70,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate available credits
-    const creditBalance = student.creditTransactions.reduce((balance: number, transaction: any) => {
+    const creditBalance = student.creditTransactions.reduce((balance: number, transaction) => {
       return balance + transaction.amount;
     }, 0);
 
     // Get next session
-    const nextSession = student.sessions.find((session: any) => 
+    const nextSession = student.sessions.find((session) => 
       session.status === 'SCHEDULED' && 
       new Date(session.scheduledAt) > new Date()
     );
@@ -80,8 +83,8 @@ export async function GET(request: NextRequest) {
     // Get recent ARIA messages count
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const ariaMessagesToday = student.ariaConversations.reduce((count: number, conversation: any) => {
-      const messagesToday = conversation.messages.filter((message: any) => 
+    const ariaMessagesToday = student.ariaConversations.reduce((count: number, conversation) => {
+      const messagesToday = conversation.messages.filter((message) => 
         new Date(message.createdAt) >= today
       ).length;
       return count + messagesToday;
@@ -99,7 +102,7 @@ export async function GET(request: NextRequest) {
       },
       credits: {
         balance: creditBalance,
-        transactions: student.creditTransactions.map((t: any) => ({
+        transactions: student.creditTransactions.map((t) => ({
           id: t.id,
           type: t.type,
           amount: t.amount,
@@ -119,7 +122,7 @@ export async function GET(request: NextRequest) {
           pseudonym: nextSession.coach.pseudonym
         }
       } : null,
-      recentSessions: student.sessions.map((session: any) => ({
+      recentSessions: student.sessions.map((session) => ({
         id: session.id,
         title: session.title,
         subject: session.subject,
@@ -135,7 +138,7 @@ export async function GET(request: NextRequest) {
         messagesToday: ariaMessagesToday,
         totalConversations: student.ariaConversations.length
       },
-      badges: student.badges.map((sb: any) => ({
+      badges: student.badges.map((sb) => ({
         id: sb.badge.id,
         name: sb.badge.name,
         description: sb.badge.description,

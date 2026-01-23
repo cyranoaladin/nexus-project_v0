@@ -6,17 +6,33 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CreditCard, ArrowLeft, Check, X, Clock, Search, Filter } from "lucide-react"
+import { CreditCard, ArrowLeft, Check, X, Clock, Filter } from "lucide-react"
 import Link from "next/link"
+
+interface PendingPayment {
+  id: string
+  user: {
+    firstName: string
+    lastName: string
+    email: string
+  }
+  amount: number
+  description: string
+  method: string
+  createdAt: string | Date
+  metadata: {
+    transferReference: string
+    transferDate: string
+    transferAmount: string
+  }
+}
 
 export default function PaiementsAssistantePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [pendingPayments, setPendingPayments] = useState<any[]>([])
+  const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("all")
 

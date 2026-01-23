@@ -5,6 +5,7 @@ import { useState } from "react";
 
 export default function TestLoginPage() {
   const { data: session, status } = useSession();
+  const sessionUser = session?.user as { role?: string; firstName?: string; lastName?: string; email?: string } | undefined;
   const [email, setEmail] = useState("adam@gmail.com");
   const [password, setPassword] = useState("adam90053729");
   const [isLoading, setIsLoading] = useState(false);
@@ -69,9 +70,9 @@ export default function TestLoginPage() {
             </p>
             {session && (
               <div className="mt-2 p-3 bg-gray-100 rounded">
-                <p><strong>User:</strong> {session.user?.email}</p>
-                <p><strong>Role:</strong> {(session.user as any)?.role}</p>
-                <p><strong>Name:</strong> {(session.user as any)?.firstName} {(session.user as any)?.lastName}</p>
+                <p><strong>User:</strong> {sessionUser?.email}</p>
+                <p><strong>Role:</strong> {sessionUser?.role}</p>
+                <p><strong>Name:</strong> {sessionUser?.firstName} {sessionUser?.lastName}</p>
               </div>
             )}
           </div>

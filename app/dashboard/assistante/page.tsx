@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Phone, Users, Plus, Settings, UserPlus, Menu, X } from "lucide-react";
+import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Phone, Users, Settings, UserPlus, Menu, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -482,7 +482,7 @@ export default function DashboardAssistante() {
             <CardContent>
               {dashboardData?.todaySessions && dashboardData.todaySessions.length > 0 ? (
                 <div className="space-y-3">
-                  {dashboardData.todaySessions.map((session: any) => (
+                  {dashboardData.todaySessions.map((session) => (
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

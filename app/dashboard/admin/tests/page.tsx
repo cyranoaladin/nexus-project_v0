@@ -19,13 +19,19 @@ interface TestResult {
   success: boolean;
   message?: string;
   error?: string;
-  data?: any;
+  data?: unknown;
+}
+
+interface PaymentConfig {
+  konnect: Record<string, boolean>;
+  wise: Record<string, boolean>;
+  allConfigured: boolean;
 }
 
 export default function AdminTestsPage() {
   const { data: session } = useSession();
   const [emailConfig, setEmailConfig] = useState<ConfigStatus[]>([]);
-  const [paymentConfig, setPaymentConfig] = useState<any>(null);
+  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [testAmount, setTestAmount] = useState('1000');
@@ -59,7 +65,7 @@ export default function AdminTestsPage() {
     }
   };
 
-  const runTest = async (testType: string, endpoint: string, data: any = {}) => {
+  const runTest = async (testType: string, endpoint: string, data: Record<string, unknown> = {}) => {
     setLoading(true);
     try {
       const response = await fetch(endpoint, {
@@ -70,12 +76,13 @@ export default function AdminTestsPage() {
 
       const result = await response.json();
       setResults(prev => ({ ...prev, [testType]: result }));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
       setResults(prev => ({
         ...prev,
         [testType]: {
           success: false,
-          error: error.message
+          error: message
         }
       }));
     } finally {
@@ -98,7 +105,7 @@ export default function AdminTestsPage() {
             <p className="font-semibold text-sm">{title}</p>
             <AlertDescription className="mt-1">
               {result.success ? result.message : result.error}
-              {result.data && (
+              {result.data !== undefined && result.data !== null && (
                 <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-20">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>

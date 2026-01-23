@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     const totalRevenue = paymentRevenueAmount + subscriptionRevenueAmount;
 
     // Format today's sessions
-    const formattedTodaySessions = todaySessions.map((s: any) => ({
+    const formattedTodaySessions = todaySessions.map((s) => ({
       id: s.id,
       studentName: '',
       coachName: '',
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Format recent activities
-    const formattedRecentActivities = recentActivities.map((a: any) => ({
+    const formattedRecentActivities = recentActivities.map((a) => ({
       id: a.id,
       type: 'session',
       title: `Session ${a.subject}`,

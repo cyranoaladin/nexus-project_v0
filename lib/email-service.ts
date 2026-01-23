@@ -1,5 +1,32 @@
-import { Session, User } from '@prisma/client';
 import nodemailer from 'nodemailer';
+import type { Prisma } from '@prisma/client';
+
+type EmailUser = {
+  firstName?: string | null;
+  lastName?: string | null;
+  email: string;
+};
+
+type EmailStudent = {
+  firstName?: string | null;
+  lastName?: string | null;
+  email: string;
+};
+
+type EmailCoach = {
+  name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+};
+
+type EmailSession = {
+  id: string;
+  subject: string;
+  scheduledAt: Date | string;
+  duration: number;
+  creditCost?: number;
+};
 
 // Configuration du transporteur SMTP
 const transporter = nodemailer.createTransport({
@@ -16,7 +43,7 @@ const transporter = nodemailer.createTransport({
 const EMAIL_TEMPLATES = {
   WELCOME: {
     subject: '🎓 Bienvenue chez Nexus Réussite !',
-    html: (user: any) => `
+    html: (user: EmailUser) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
           <h1>Bienvenue ${user.firstName} !</h1>
@@ -51,7 +78,7 @@ const EMAIL_TEMPLATES = {
 
   SESSION_CONFIRMATION: {
     subject: '✅ Confirmation de votre session',
-    html: (session: any, student: any, coach: any) => `
+    html: (session: EmailSession, student: EmailStudent, coach: EmailCoach | null) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #28a745; color: white; padding: 20px; text-align: center;">
           <h1>✅ Session confirmée !</h1>
@@ -94,7 +121,7 @@ const EMAIL_TEMPLATES = {
 
   SESSION_REMINDER: {
     subject: '⏰ Rappel : Votre session commence dans 1 heure',
-    html: (session: any, student: any, videoLink: string) => `
+    html: (session: EmailSession, student: EmailStudent, videoLink: string) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #ff9800; color: white; padding: 20px; text-align: center;">
           <h1>⏰ Votre session commence bientôt !</h1>
@@ -130,7 +157,7 @@ const EMAIL_TEMPLATES = {
 };
 
 // Fonctions d'envoi d'emails
-export async function sendWelcomeEmail(user: any) {
+export async function sendWelcomeEmail(user: EmailUser) {
   try {
     const template = EMAIL_TEMPLATES.WELCOME;
 
@@ -148,7 +175,7 @@ export async function sendWelcomeEmail(user: any) {
   }
 }
 
-export async function sendSessionConfirmationEmail(session: any, student: any, coach?: any) {
+export async function sendSessionConfirmationEmail(session: EmailSession, student: EmailStudent, coach?: EmailCoach) {
   try {
     const template = EMAIL_TEMPLATES.SESSION_CONFIRMATION;
 
@@ -156,7 +183,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
       from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
       to: student.email,
       subject: template.subject,
-      html: template.html(session, student, coach)
+      html: template.html(session, student, coach ?? null)
     });
 
     // Envoyer aussi au coach si assigné
@@ -195,7 +222,7 @@ export async function sendSessionConfirmationEmail(session: any, student: any, c
   }
 }
 
-export async function sendSessionReminderEmail(session: any, student: any, videoLink: string) {
+export async function sendSessionReminderEmail(session: EmailSession, student: EmailStudent, videoLink: string) {
   try {
     const template = EMAIL_TEMPLATES.SESSION_REMINDER;
 
@@ -234,16 +261,14 @@ export async function sendScheduledReminders() {
     const fiveMinutesFromOneHour = new Date(oneHourFromNow.getTime() - 5 * 60 * 1000);
 
     // Define a type that includes relations
-    type SessionWithRelations = Session & {
-      student: {
-        user: User;
-      },
-      coach?: {
-        user: User;
+    type SessionWithRelations = Prisma.SessionBookingGetPayload<{
+      include: {
+        student: true;
+        coach: true;
       };
-    };
+    }>;
 
-    const upcomingSessions = await prisma.sessionBooking.findMany({
+    const upcomingSessions: SessionWithRelations[] = await prisma.sessionBooking.findMany({
       where: {
         scheduledDate: {
           gte: fiveMinutesFromOneHour,
@@ -252,16 +277,28 @@ export async function sendScheduledReminders() {
         status: 'SCHEDULED',
         reminderSent: false
       },
-    }) as any[];
+      include: {
+        student: true,
+        coach: true
+      }
+    });
 
     for (const session of upcomingSessions) {
       const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
 
-      await sendSessionReminderEmail(
-        session,
-        session.student.user,
-        videoLink
-      );
+      const [hours, minutes] = session.startTime.split(':').map((value) => Number(value));
+      const scheduledAt = new Date(session.scheduledDate);
+      scheduledAt.setHours(hours || 0, minutes || 0, 0, 0);
+
+      const emailSession: EmailSession = {
+        id: session.id,
+        subject: session.subject,
+        scheduledAt,
+        duration: session.duration,
+        creditCost: session.creditsUsed
+      };
+
+      await sendSessionReminderEmail(emailSession, session.student, videoLink);
 
       // Marquer le rappel comme envoyé
       // Uncomment after adding reminderSent field to Prisma schema

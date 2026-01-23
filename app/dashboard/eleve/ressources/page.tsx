@@ -26,44 +26,6 @@ const SUBJECTS_OPTIONS = [
   { value: Subject.SES, label: "SES" }
 ]
 
-const MOCK_RESOURCES = [
-  {
-    id: "1",
-    title: "Fiche de révision : Les dérivées",
-    subject: Subject.MATHEMATIQUES,
-    type: "Fiche",
-    description: "Toutes les formules et méthodes essentielles",
-    lastUpdated: "Il y a 2 jours",
-    downloads: 156
-  },
-  {
-    id: "2",
-    title: "Exercices corrigés : Algorithmes Python",
-    subject: Subject.NSI,
-    type: "Exercices",
-    description: "20 exercices progressifs avec corrections détaillées",
-    lastUpdated: "Il y a 1 semaine",
-    downloads: 89
-  },
-  {
-    id: "3",
-    title: "Méthodologie : La dissertation",
-    subject: Subject.FRANCAIS,
-    type: "Méthode",
-    description: "Plan type et conseils pour réussir",
-    lastUpdated: "Il y a 3 jours",
-    downloads: 234
-  },
-  {
-    id: "4",
-    title: "Quiz interactif : Fonctions exponentielles",
-    subject: Subject.MATHEMATIQUES,
-    type: "Quiz",
-    description: "15 questions pour tester vos connaissances",
-    lastUpdated: "Il y a 5 jours",
-    downloads: 67
-  }
-]
 
 interface Resource {
   id: string;

@@ -20,7 +20,17 @@ export async function GET(request: NextRequest) {
     const resources: Array<Record<string, unknown>> = [];
 
     const formattedResources = resources.map((resource) => {
-      const r = resource as Record<string, any>;
+      const r = resource as Partial<{
+        id: string;
+        title: string;
+        description: string;
+        subject: { name?: string };
+        type: string;
+        fileUrl: string;
+        thumbnailUrl: string;
+        downloads: unknown[];
+        updatedAt: string | Date | null;
+      }>;
       return {
         id: r.id,
         title: r.title,

@@ -1,10 +1,9 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle, Clock, Mail, ArrowRight, Home } from "lucide-react"
+import { CheckCircle, Clock, Mail, Home } from "lucide-react"
 import Link from "next/link"
 
 export default function PaymentConfirmationPage() {
@@ -132,12 +131,12 @@ export default function PaymentConfirmationPage() {
             >
               <p className="text-gray-600 text-sm">
                 Une question sur votre paiement ? Contactez-nous au{' '}
-                <a href="tel:+21612345678" className="text-blue-600 font-medium hover:underline">
-                  +216 12 345 678
+                <a href="tel:+21699192829" className="text-blue-600 font-medium hover:underline">
+                  +216 99 19 28 29
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexus-reussite.tn" className="text-blue-600 font-medium hover:underline">
-                  contact@nexus-reussite.tn
+                <a href="mailto:contact@nexusreussite.academy" className="text-blue-600 font-medium hover:underline">
+                  contact@nexusreussite.academy
                 </a>
               </p>
             </motion.div>

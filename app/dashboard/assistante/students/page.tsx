@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { UserRole, type Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get('role');
+    const role = (searchParams.get('role') || 'ALL') as UserRole | 'ALL';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
@@ -24,17 +25,17 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: Prisma.UserWhereInput = {};
 
-    if (role && role !== 'ALL') {
+    if (role !== 'ALL') {
       whereClause.role = role;
     }
 
     if (search) {
       whereClause.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } }
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
+        { email: { contains: search } }
       ];
     }
 
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where: whereClause })
     ]);
 
-    const formattedUsers = users.map((user: any) => ({
+    const formattedUsers = users.map((user) => ({
       id: user.id,
       email: user.email,
       firstName: user.firstName,

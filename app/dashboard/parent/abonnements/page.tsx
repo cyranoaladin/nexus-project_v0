@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
 import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -26,6 +26,9 @@ interface Child {
   ariaSubjects: string[];
 }
 
+type SubscriptionPlan = typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS];
+type SelectedPlan = SubscriptionPlan;
+
 export default function AbonnementsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -35,7 +38,7 @@ export default function AbonnementsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -73,9 +76,9 @@ export default function AbonnementsPage() {
     }
   };
 
-  const currentChild = parentData?.children.find((child: any) => child.id === selectedChild);
+  const currentChild = parentData?.children.find((child) => child.id === selectedChild);
 
-  const handleSubscriptionRequest = async (plan: any) => {
+  const handleSubscriptionRequest = async (plan: SubscriptionPlan) => {
     if (!selectedChild) {
       alert('Veuillez sélectionner un enfant');
       return;
@@ -134,7 +137,7 @@ export default function AbonnementsPage() {
         body: JSON.stringify({
           studentId: selectedChild,
           planName: `ARIA_${addonKey}`,
-          monthlyPrice: (ARIA_ADDONS as any)[addonKey]?.price || 0,
+          monthlyPrice: ARIA_ADDONS[addonKey as keyof typeof ARIA_ADDONS]?.price || 0,
           creditsPerMonth: 0
         })
       });
@@ -226,7 +229,7 @@ export default function AbonnementsPage() {
                 <SelectValue placeholder="Sélectionner un enfant" />
               </SelectTrigger>
               <SelectContent>
-                {parentData?.children.map((child: any) => (
+                {parentData?.children.map((child) => (
                   <SelectItem key={child.id} value={child.id}>
                     {child.firstName} {child.lastName} ({child.grade})
                   </SelectItem>
@@ -324,7 +327,7 @@ export default function AbonnementsPage() {
                         ) : (
                           <Button
                             onClick={() => {
-                              setSelectedPlan((SUBSCRIPTION_PLANS as any)[key]);
+                              setSelectedPlan(SUBSCRIPTION_PLANS[key as keyof typeof SUBSCRIPTION_PLANS]);
                               setShowRequestDialog(true);
                             }}
                             className="w-full text-sm sm:text-base"

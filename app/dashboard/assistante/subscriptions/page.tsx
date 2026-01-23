@@ -40,7 +40,6 @@ export default function SubscriptionsManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [pendingSubscriptions, setPendingSubscriptions] = useState<SubscriptionRequest[]>([]);
-  const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,7 +71,6 @@ export default function SubscriptionsManagement() {
       
       const data = await response.json();
       setPendingSubscriptions(data.pendingSubscriptions);
-      setAllSubscriptions(data.allSubscriptions);
     } catch (err) {
       console.error('Error fetching subscriptions:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
