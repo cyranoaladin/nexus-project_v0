@@ -9,11 +9,8 @@ import {
   BarChart3,
   CreditCard,
   Database,
-  FileText,
-  Globe,
   Loader2,
   LogOut,
-  Mail,
   Settings,
   Shield,
   TestTube,
@@ -373,7 +370,7 @@ export default function DashboardAdmin() {
             <CardContent>
               {adminData?.recentActivities && adminData.recentActivities.length > 0 ? (
                 <div className="space-y-3 md:space-y-4">
-                  {adminData.recentActivities.slice(0, 4).map((activity: any, index: number) => (
+                  {adminData.recentActivities.slice(0, 4).map((activity, index: number) => (
                     <div key={activity.id || index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                       <div className="flex-shrink-0">
                         {activity.type === 'session' && <Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />}

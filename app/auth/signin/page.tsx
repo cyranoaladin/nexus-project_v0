@@ -39,7 +39,7 @@ export default function SignInPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (error) {
+    } catch {
       setError("Une erreur est survenue lors de la connexion");
     } finally {
       setIsLoading(false);

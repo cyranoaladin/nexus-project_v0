@@ -23,13 +23,6 @@ interface Student {
   creditBalance: number;
 }
 
-interface CreditTransaction {
-  id: string;
-  type: string;
-  amount: number;
-  description: string;
-  createdAt: string;
-}
 
 export default function CreditsManagement() {
   const { data: session, status } = useSession();
@@ -39,7 +32,6 @@ export default function CreditsManagement() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [isAddCreditsDialogOpen, setIsAddCreditsDialogOpen] = useState(false);
   const [addCreditsForm, setAddCreditsForm] = useState({
     amount: "",
     type: "CREDIT_ADD",
@@ -109,7 +101,6 @@ export default function CreditsManagement() {
         type: "CREDIT_ADD",
         description: ""
       });
-      setIsAddCreditsDialogOpen(false);
       setSelectedStudent(null);
       
       // Refresh students list

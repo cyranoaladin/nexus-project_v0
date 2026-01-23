@@ -10,12 +10,19 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+interface OrderDetails {
+  id: string;
+  amount: number;
+  description: string;
+  currency?: string;
+}
+
 function WisePaymentContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [transferReference, setTransferReference] = useState("");
   const [transferDate, setTransferDate] = useState("");
   const [transferAmount, setTransferAmount] = useState("");

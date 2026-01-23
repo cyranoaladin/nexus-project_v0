@@ -56,7 +56,7 @@ export function Footer() {
             <ul className="space-y-2 md:space-y-3">
               <li className="flex items-center space-x-2">
                 <Phone className="h-3 w-3 md:h-4 md:w-4 text-red-500" />
-                <span className="text-blue-300 text-sm md:text-base">+216 XX XXX XXX</span>
+                <span className="text-blue-300 text-sm md:text-base">+216 99 19 28 29</span>
               </li>
               <li className="flex items-center space-x-2">
 
@@ -74,7 +74,7 @@ export function Footer() {
 
         <div className="border-t border-slate-700 mt-6 md:mt-8 pt-6 md:pt-8 text-center">
           <p className="text-blue-300 text-sm md:text-base">
-            © 2025 Nexus Réussite. Tous droits réservés.
+            © 2026 Nexus Réussite. Tous droits réservés.
           </p>
         </div>
       </div>

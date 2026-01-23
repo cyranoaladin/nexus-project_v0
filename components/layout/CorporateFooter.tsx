@@ -1,90 +1,79 @@
 "use client";
 
 import React from 'react';
-import { Network, Globe, Laptop, ShieldCheck, FileText, ArrowUpRight } from 'lucide-react';
+import { Network, Globe, Laptop } from 'lucide-react';
 import Link from 'next/link';
-import { useLanguage } from '@/context/LanguageContext';
 
 export function CorporateFooter() {
-    const { t } = useLanguage();
-
     return (
-        <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800 font-sans">
+        <footer className="bg-deep-midnight text-slate-400 py-16 border-t border-gold-600/30">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                    {/* Brand Column */}
                     <div>
                         <div className="flex items-center gap-2 font-bold text-2xl text-white mb-6">
-                            <Network size={28} className="text-blue-500" />
-                            NEXUS
+                            <Network size={28} className="text-gold-500" />
+                            Nexus Digital Campus
                         </div>
-                        <p className="text-sm leading-relaxed mb-6 text-slate-300">
-                            {t.footer.tagline}
-                        </p>
-                        <p className="text-xs text-slate-500 mb-6">
-                            {t.footer.sub_tagline}
+                        <p className="text-sm leading-relaxed mb-6">
+                            Cabinet de conseil & studio technologique. Nous concevons des architectures pédagogiques souveraines et des produits IA à impact.
                         </p>
                         <div className="flex gap-4">
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all cursor-pointer">
-                                <Globe size={18} />
-                            </a>
-                            <a href="mailto:contact@nexusreussite.academy" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all cursor-pointer">
-                                <Laptop size={18} />
-                            </a>
+                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gold-500/20 transition-colors cursor-pointer">
+                                <Globe size={18} className="text-gold-500" />
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gold-500/20 transition-colors cursor-pointer">
+                                <Laptop size={18} className="text-gold-500" />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Column 1: Consulting */}
                     <div>
-                        <h4 className="font-bold text-white mb-6 text-lg flex items-center gap-2">
-                            {t.footer.col1.title}
-                        </h4>
+                        <h4 className="font-bold text-white mb-6 text-lg">Navigation</h4>
                         <ul className="space-y-3 text-sm">
-                            <li><Link href="/consulting" className="hover:text-blue-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col1.links.audit}</Link></li>
-                            <li><Link href="/consulting" className="hover:text-blue-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col1.links.engineering}</Link></li>
-                            <li><Link href="/education" className="hover:text-blue-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col1.links.support}</Link></li>
-                            <li><Link href="/education" className="hover:text-blue-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col1.links.strategy}</Link></li>
+                            <li><Link href="/#adn" className="hover:text-gold-400 transition-colors">Expertise (ADN)</Link></li>
+                            <li><Link href="/#etablissements" className="hover:text-gold-400 transition-colors">Solutions Établissements</Link></li>
+                            <li><Link href="/#parents_eleves" className="hover:text-gold-400 transition-colors">Espace Parents & Élèves</Link></li>
+                            <li><Link href="/#formation_tech" className="hover:text-gold-400 transition-colors">Formation Tech & Pro</Link></li>
+                            <li><Link href="/#korrigo" className="hover:text-gold-400 transition-colors">Korrigo</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 2: Factory */}
                     <div>
-                        <h4 className="font-bold text-white mb-6 text-lg flex items-center gap-2">
-                            {t.footer.col2.title}
-                        </h4>
+                        <h4 className="font-bold text-white mb-6 text-lg">Contact</h4>
                         <ul className="space-y-3 text-sm">
-                            <li><Link href="/studio" className="hover:text-purple-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col2.links.studio}</Link></li>
-                            <li><Link href="/studio" className="hover:text-purple-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col2.links.saas}</Link></li>
-                            <li><Link href="/academy" className="hover:text-purple-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col2.links.blockchain}</Link></li>
-                            <li><Link href="/plateforme" className="hover:text-purple-400 transition-colors flex items-center gap-2"><ArrowUpRight size={12} /> {t.footer.col2.links.product}</Link></li>
+                            <li><Link href="/contact" className="hover:text-gold-400 transition-colors">Planifier une démo</Link></li>
+                            <li><Link href="/contact" className="hover:text-gold-400 transition-colors">Solliciter un audit</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 3: Legal & Contact */}
                     <div>
-                        <h4 className="font-bold text-white mb-6 text-lg flex items-center gap-2">
-                            {t.footer.col3.title}
-                        </h4>
+                        <h4 className="font-bold text-white mb-6 text-lg">Coordonnées</h4>
                         <ul className="space-y-3 text-sm">
-                            <li><Link href="/mentions-legales" className="hover:text-white transition-colors flex items-center gap-2"><FileText size={14} /> {t.footer.col3.links.mentions}</Link></li>
-                            <li><Link href="/mentions-legales#cgu" className="hover:text-white transition-colors flex items-center gap-2"><ShieldCheck size={14} /> {t.footer.col3.links.cgu}</Link></li>
-                            <li className="pt-4 text-xs text-slate-500">
-                                <strong>{t.footer.address.hq}</strong><br />
-                                {t.footer.address.location}
+                            <li className="flex items-start gap-3">
+                                <span className="text-gold-500">📍</span>
+                                <div>
+                                    Centre Urbain Nord <br />
+                                    Immeuble VENUS, Apt. C13 <br />
+                                    1082 – Tunis
+                                </div>
                             </li>
-                            <li className="text-xs text-slate-500">
-                                <strong>{t.footer.address.contact}</strong><br />
-                                <a href="mailto:contact@nexusreussite.academy" className="hover:text-blue-400">contact@nexusreussite.academy</a>
+                            <li className="flex items-start gap-3">
+                                <span className="text-gold-500">📧</span>
+                                <a href="mailto:contact@nexusreussite.academy" className="hover:text-white">contact@nexusreussite.academy</a>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-gold-500">📞</span>
+                                <span>+216 99 19 28 29</span>
                             </li>
                         </ul>
                     </div>
                 </div>
-
-                <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-600">
-                    <p>&copy; {new Date().getFullYear()} Nexus Réussite. {t.footer.rights}</p>
+                <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
+                    <p>&copy; {new Date().getFullYear()} Nexus Réussite. Tous droits réservés.</p>
                     <div className="flex gap-6 mt-4 md:mt-0">
-                        <Link href="/mentions-legales" className="hover:text-slate-400 transition-colors">{t.footer.col3.links.privacy}</Link>
-                        <Link href="/mentions-legales" className="hover:text-slate-400 transition-colors">{t.footer.col3.links.cookies}</Link>
+                        <a href="#" className="hover:text-white">Mentions Légales</a>
+                        <a href="#" className="hover:text-white">Politique de Confidentialité</a>
+                        <a href="#" className="hover:text-white">CGV</a>
                     </div>
                 </div>
             </div>

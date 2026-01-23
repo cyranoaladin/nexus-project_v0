@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const SUBJECTS_OPTIONS = [
   { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
@@ -98,7 +99,7 @@ export default function SessionsPage() {
     fetchStudentData();
   }, [session, status, router]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof sessionBookingSchema>) => {
     setIsSubmitting(true);
 
     try {

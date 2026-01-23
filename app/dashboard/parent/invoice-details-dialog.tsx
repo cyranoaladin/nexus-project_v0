@@ -36,15 +36,6 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
     });
   };
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'ACTIVE': return 'default';
-      case 'INACTIVE': return 'secondary';
-      case 'REJECTED': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case 'ACTIVE': return 'Actif';

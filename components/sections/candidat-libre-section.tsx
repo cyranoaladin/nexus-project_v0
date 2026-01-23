@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Trophy, Users, Calendar, Target, Award } from "lucide-react"
+import { Check, Trophy, Users, Calendar, Award } from "lucide-react"
 import Link from "next/link"
 
 export function CandidatLibreSection() {

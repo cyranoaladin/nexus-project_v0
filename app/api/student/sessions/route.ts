@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    const formattedSessions = sessions.map((session: any) => ({
+    const formattedSessions = sessions.map((session) => ({
       id: session.id,
       title: session.title,
       subject: session.subject,

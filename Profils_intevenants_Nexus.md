@@ -1,3 +1,15 @@
+# Profils Intervenants — Référence Contenu
+
+**Dernière mise à jour :** 21 janvier 2026
+**Statut :** Document de contenu (référence)
+
+Ce document liste des archétypes d’experts. Il n’est **pas automatiquement synchronisé** avec les données réelles (seed DB ou pages).
+Pour les profils effectivement utilisés :
+- Seed : `prisma/seed.ts`
+- Page équipe : `app/equipe/page.tsx`
+
+---
+
 Document Stratégique : Les Archétypes d'Experts Nexus Réussite (Version Finale Optimisée)
 Objectif : Établir une image d'autorité incontestable en présentant nos experts à travers des profils authentiques et mémorables qui incarnent la profondeur de notre savoir-faire pédagogique.
 

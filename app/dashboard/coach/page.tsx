@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Users, BookOpen, MessageCircle, User, LogOut, Loader2, Clock, CheckCircle, AlertCircle, Settings } from "lucide-react"
+import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -236,7 +236,7 @@ export default function DashboardCoach() {
               </DialogHeader>
               {dashboardData?.weekSessions && dashboardData.weekSessions.length > 0 ? (
                 <div className="space-y-3 max-h-[70vh] overflow-y-auto">
-                  {dashboardData.weekSessions.map((s: any) => (
+                  {dashboardData.weekSessions.map((s) => (
                     <div key={s.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
@@ -307,7 +307,7 @@ export default function DashboardCoach() {
             <CardContent>
               {dashboardData?.todaySessions && dashboardData.todaySessions.length > 0 ? (
                 <div className="space-y-4">
-                  {dashboardData.todaySessions.map((session: any) => (
+                  {dashboardData.todaySessions.map((session) => (
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"

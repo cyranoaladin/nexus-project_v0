@@ -1,156 +1,75 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { CheckCircle2, XCircle } from "lucide-react";
+import React from "react";
+import { Building2, Users, Briefcase } from "lucide-react";
 
-export function ProblemSolutionSection() {
+export default function ProblemSolutionSection() {
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Le Soutien Scolaire a Évolué. Votre Exigence Aussi.
+    <section id="parcours" className="bg-deep-midnight py-20">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+            Choisissez votre parcours
           </h2>
-        </motion.div>
+          <p className="mt-3 text-slate-300">
+            Une entrée claire selon votre besoin, sans jargon technique.
+          </p>
+        </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
-          {/* Colonne de Gauche - Ancienne Méthode */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="relative flex"
+        <div className="grid gap-6 lg:grid-cols-3">
+          <a
+            href="#etablissements"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
           >
-            <div className="card-enhanced bg-gray-50/80 border-gray-300 backdrop-blur-sm relative overflow-hidden flex-1 flex flex-col">
-              {/* Effet "vieilli" */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-200/30 pointer-events-none"></div>
-
-              <div className="relative z-10 p-8 flex-1 flex flex-col">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-300/60 rounded-full mb-4">
-                    <XCircle className="w-8 h-8 text-gray-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-2">L'Ancienne Méthode</h3>
-                  <p className="text-gray-600">Le Soutien Scolaire Classique : Les Pièges à Éviter</p>
-                </div>
-
-                <div className="space-y-6 flex-1">
-                  <div className="flex items-start space-x-4">
-                    <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Un Suivi Opaque</h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Des heures de cours sans tableau de bord pour mesurer les progrès réels.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Des Répétiteurs, pas des Pédagogues</h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Souvent des intervenants sans certification ni expérience avérée dans l'Éducation Nationale française.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Du Bachotage, pas de l'Apprentissage</h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Une mémorisation à court terme qui néglige l'autonomie et les compétences pour le supérieur.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-1">Un Manque de Flexibilité</h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Des emplois du temps rigides qui ajoutent du stress au lieu d'en enlever.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center gap-3 text-gold-400">
+              <Building2 className="h-5 w-5" />
+              <span className="text-sm font-semibold tracking-wider">
+                ÉTABLISSEMENTS
+              </span>
             </div>
-          </motion.div>
+            <h3 className="mt-4 text-xl font-semibold text-white">
+              Difficulté à se différencier ?
+            </h3>
+            <p className="mt-2 text-slate-300">
+              Devenez l&apos;école leader grâce à nos outils de pilotage.
+            </p>
+          </a>
 
-          {/* Colonne de Droite - Notre Solution */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="relative flex"
+          <a
+            href="#parents_eleves"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
           >
-            <div className="card-premium relative overflow-hidden flex-1 flex flex-col border-2 border-blue-600 shadow-lg">
-              {/* Effet premium */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-indigo-50/60 pointer-events-none"></div>
-
-              <div className="relative z-10 p-8 flex-1 flex flex-col">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-blue-900 mb-2">Notre Révolution</h3>
-                  <p className="text-blue-700">L'Écosystème Nexus Réussite : La Solution Tout-en-Un</p>
-                </div>
-
-                <div className="space-y-6 flex-1">
-                  <div className="flex items-start space-x-4">
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Un Suivi Analytique</h4>
-                      <p className="text-blue-800 leading-relaxed">
-                        Un dashboard qui mesure l'effort, suit la progression et vous donne une visibilité totale.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Experts, pas des Amateurs</h4>
-                      <p className="text-blue-800 leading-relaxed">
-                        Une équipe d'Agrégés, de Certifiés et d'experts de l'enseignement français.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Des Compétences, pas du Bachotage</h4>
-                      <p className="text-blue-800 leading-relaxed">
-                        Une pédagogie qui vise le Bac ET prépare activement aux exigences des études supérieures.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Une Flexibilité Maximale</h4>
-                      <p className="text-blue-800 leading-relaxed">
-                        Une plateforme accessible 24/7 et des cours que vous réservez à votre rythme.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center gap-3 text-gold-400">
+              <Users className="h-5 w-5" />
+              <span className="text-sm font-semibold tracking-wider">
+                PARENTS & ÉLÈVES
+              </span>
             </div>
-          </motion.div>
+            <h3 className="mt-4 text-xl font-semibold text-white">
+              Besoin d&apos;un soutien personnalisé ?
+            </h3>
+            <p className="mt-2 text-slate-300">
+              Visez l&apos;excellence avec ARIA, votre tuteur IA 24/7.
+            </p>
+          </a>
+
+          <a
+            href="#formation_tech"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
+          >
+            <div className="flex items-center gap-3 text-gold-400">
+              <Briefcase className="h-5 w-5" />
+              <span className="text-sm font-semibold tracking-wider">
+                PROFESSIONNELS
+              </span>
+            </div>
+            <h3 className="mt-4 text-xl font-semibold text-white">
+              Compétences obsolètes ?
+            </h3>
+            <p className="mt-2 text-slate-300">
+              Maîtrisez les technologies de demain (IA, Web3).
+            </p>
+          </a>
         </div>
       </div>
     </section>

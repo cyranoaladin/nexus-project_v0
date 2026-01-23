@@ -12,7 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      action?: 'test_config' | 'send_test';
+      testEmail?: string;
+    };
     const { action, testEmail } = body;
 
     switch (action) {
@@ -41,10 +44,12 @@ export async function POST(request: NextRequest) {
             success: true,
             message: `Email de test envoyé à ${testEmail}`
           });
-        } catch (emailError: any) {
+        } catch (emailError: unknown) {
+          const message =
+            emailError instanceof Error ? emailError.message : 'Erreur inconnue';
           return NextResponse.json({
             success: false,
-            error: `Erreur envoi email: ${emailError?.message || 'Erreur inconnue'}`
+            error: `Erreur envoi email: ${message}`
           });
         }
 

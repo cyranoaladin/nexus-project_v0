@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, type CreditTransaction } from '@prisma/client';
 import { z } from 'zod';
 
 function normalizeTime(time: string): string {
@@ -22,7 +22,7 @@ const bookSessionSchema = z.object({
   coachId: z.string().min(1, 'Coach ID is required'),
   studentId: z.string().min(1, 'Student ID is required'),
   subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
-  scheduledDate: z.string().min(1, 'Date is required').refine((date: any) => {
+  scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
     const selectedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -36,7 +36,7 @@ const bookSessionSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
   description: z.string().max(500, 'Description too long').optional(),
   creditsToUse: z.number().min(1).max(10, 'Cannot use more than 10 credits per session'),
-}).refine((data: any) => {
+}).refine((data) => {
   // Validate that end time is after start time
   const startTime = data.startTime.split(':').map(Number);
   const endTime = data.endTime.split(':').map(Number);
@@ -46,7 +46,7 @@ const bookSessionSchema = z.object({
 }, {
   message: 'End time must be after start time',
   path: ['endTime']
-}).refine((data: any) => {
+}).refine((data) => {
   // Validate that duration matches start and end time
   const startTime = data.startTime.split(':').map(Number);
   const endTime = data.endTime.split(':').map(Number);
@@ -280,7 +280,7 @@ export async function POST(req: NextRequest) {
         where: { studentId: studentRecord.id }
       });
 
-      const currentCredits = creditTransactions.reduce((total: number, transaction: any) => {
+      const currentCredits = creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
         return total + transaction.amount;
       }, 0);
 
@@ -352,7 +352,7 @@ export async function POST(req: NextRequest) {
       });
 
       // 10. Create notifications
-      const notifications: any[] = [];
+      const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
       // Notify coach
       notifications.push({
@@ -394,11 +394,11 @@ export async function POST(req: NextRequest) {
 
       // Create all notifications
       await tx.sessionNotification.createMany({
-        data: notifications as any
+        data: notifications
       });
 
       // 11. Create reminders
-      const reminders: any[] = [];
+      const reminders: Prisma.SessionReminderCreateManyInput[] = [];
       const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
 
       // 1 day before
@@ -423,7 +423,7 @@ export async function POST(req: NextRequest) {
       });
 
       await tx.sessionReminder.createMany({
-        data: reminders as any
+        data: reminders
       });
 
       return sessionBooking;

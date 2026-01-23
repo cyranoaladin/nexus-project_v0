@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { PaymentType } from '@prisma/client'
 import { z } from 'zod'
-import crypto from 'crypto'
-import { upsertPaymentByExternalId } from '@/lib/payments'
 
 const wisePaymentSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
@@ -45,29 +44,28 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Construire un externalId déterministe pour l'idempotence
-    const idempotencyKey = `wise:${session.user.id}:${validatedData.studentId}:${validatedData.type}:${validatedData.key}:${validatedData.amount}`
-    const externalId = crypto.createHash('sha256').update(idempotencyKey).digest('hex').slice(0, 32)
+    // Créer l'enregistrement de paiement
+    const mappedType: PaymentType =
+      validatedData.type === 'subscription'
+        ? PaymentType.SUBSCRIPTION
+        : validatedData.type === 'addon'
+          ? PaymentType.SPECIAL_PACK
+          : PaymentType.CREDIT_PACK
 
-    const mappedType = (validatedData.type === 'subscription'
-      ? 'SUBSCRIPTION'
-      : validatedData.type === 'addon'
-        ? 'SPECIAL_PACK'
-        : 'CREDIT_PACK') as 'SUBSCRIPTION' | 'SPECIAL_PACK' | 'CREDIT_PACK'
-
-    // Créer ou récupérer l'enregistrement de paiement (idempotent)
-    const { payment } = await upsertPaymentByExternalId({
-      externalId,
-      method: 'wise',
-      type: mappedType,
-      userId: session.user.id,
-      amount: validatedData.amount,
-      currency: 'TND',
-      description: validatedData.description,
-      metadata: {
-        studentId: validatedData.studentId,
-        itemKey: validatedData.key,
-        itemType: validatedData.type
+    const payment = await prisma.payment.create({
+      data: {
+        userId: session.user.id,
+        type: mappedType,
+        amount: validatedData.amount,
+        currency: 'TND',
+        description: validatedData.description,
+        status: 'PENDING',
+        method: 'wise',
+        metadata: {
+          studentId: validatedData.studentId,
+          itemKey: validatedData.key,
+          itemType: validatedData.type
+        }
       }
     })
     

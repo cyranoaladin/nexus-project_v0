@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, BookOpen, CreditCard, CheckCircle, AlertCircle, Loader2, Info, CalendarDays } from 'lucide-react';
+import { Calendar, BookOpen, CreditCard, CheckCircle, AlertCircle, Loader2, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Coach {
@@ -94,6 +94,25 @@ export default function SessionBooking({
   const [descriptionError, setDescriptionError] = useState('');
 
   // Load coaches when subject changes
+  const loadCoaches = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`/api/coaches/available?subject=${subject}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setCoaches(data.coaches);
+      } else {
+        setError('Erreur lors du chargement des coachs');
+      }
+    } catch {
+      setError('Erreur lors du chargement des coachs');
+    } finally {
+      setLoading(false);
+    }
+  }, [subject]);
+
   useEffect(() => {
     if (subject) {
       loadCoaches();
@@ -101,16 +120,49 @@ export default function SessionBooking({
       setCoaches([]);
       setSelectedCoach('');
     }
-  }, [subject]);
+  }, [subject, loadCoaches]);
 
   // Load available slots when coach and week change
+  const loadAvailableSlots = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const endDate = new Date(selectedWeek);
+      endDate.setDate(selectedWeek.getDate() + 6);
+      
+      const response = await fetch(
+        `/api/coaches/availability?coachId=${selectedCoach}&startDate=${selectedWeek.toISOString()}&endDate=${endDate.toISOString()}`
+      );
+      const data = await response.json();
+      
+      if (data.success) {
+        type ApiSlot = { date: string; startTime: string; endTime: string; duration: number };
+        const slots = (data.availableSlots as ApiSlot[]).map((slot) => ({
+          coachId: selectedCoach,
+          coachName: `${coaches.find(c => c.id === selectedCoach)?.firstName ?? ''} ${coaches.find(c => c.id === selectedCoach)?.lastName ?? ''}`.trim(),
+          date: new Date(slot.date),
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          duration: slot.duration
+        }));
+        setAvailableSlots(slots);
+      } else {
+        setError('Erreur lors du chargement des créneaux');
+      }
+    } catch {
+      setError('Erreur lors du chargement des créneaux');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCoach, selectedWeek, coaches]);
+
   useEffect(() => {
     if (selectedCoach && selectedWeek) {
       loadAvailableSlots();
     } else {
       setAvailableSlots([]);
     }
-  }, [selectedCoach, selectedWeek]);
+  }, [selectedCoach, selectedWeek, loadAvailableSlots]);
 
   // Validate title length
   useEffect(() => {
@@ -130,65 +182,7 @@ export default function SessionBooking({
     }
   }, [description]);
 
-  const loadCoaches = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(`/api/coaches/available?subject=${subject}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setCoaches(data.coaches);
-      } else {
-        setError('Erreur lors du chargement des coachs');
-      }
-    } catch (err) {
-      setError('Erreur lors du chargement des coachs');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const loadAvailableSlots = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const endDate = new Date(selectedWeek);
-      endDate.setDate(selectedWeek.getDate() + 6);
-      
-      const response = await fetch(
-        `/api/coaches/availability?coachId=${selectedCoach}&startDate=${selectedWeek.toISOString()}&endDate=${endDate.toISOString()}`
-      );
-      const data = await response.json();
-      
-      if (data.success) {
-        // Use the enhanced available slots from the API
-        const slots = data.availableSlots.map((slot: any) => ({
-          coachId: selectedCoach,
-          coachName: coaches.find(c => c.id === selectedCoach)?.firstName + ' ' + coaches.find(c => c.id === selectedCoach)?.lastName,
-          date: new Date(slot.date),
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          duration: slot.duration
-        }));
-        setAvailableSlots(slots);
-      } else {
-        setError('Erreur lors du chargement des créneaux');
-      }
-    } catch (err) {
-      setError('Erreur lors du chargement des créneaux');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  const calculateDuration = (startTime: string, endTime: string): number => {
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
-    return (endHour * 60 + endMin) - (startHour * 60 + startMin);
-  };
 
   const formatTime = (time: string): string => {
     return time.substring(0, 5);
@@ -305,7 +299,7 @@ export default function SessionBooking({
       } else {
         setError(data.error || 'Erreur lors de la réservation');
       }
-    } catch (err) {
+    } catch {
       setError('Erreur lors de la réservation');
     } finally {
       setLoading(false);

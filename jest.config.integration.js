@@ -18,6 +18,7 @@ const customJestConfig = {
     'node_modules/(?!(@auth/prisma-adapter|next-auth)/)',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
 };
 
 module.exports = createJestConfig(customJestConfig);

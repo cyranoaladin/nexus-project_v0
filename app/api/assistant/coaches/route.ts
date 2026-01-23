@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedCoaches = coaches.map((coach: any) => ({
+    const formattedCoaches = coaches.map((coach) => ({
       id: coach.id,
       userId: coach.userId,
       firstName: coach.user.firstName,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create coach in transaction
-    const result = await prisma.$transaction(async (tx: any) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Create user
       const user = await tx.user.create({
         data: {

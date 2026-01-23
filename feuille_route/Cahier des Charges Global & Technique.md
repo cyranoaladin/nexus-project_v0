@@ -1,3 +1,5 @@
+> **Note (21 janvier 2026)** : Document de spécifications. Pour l’état actuel du projet, voir `README.md` et `ARCHITECTURE_TECHNIQUE.md`.
+
 # Cahier des Charges Global & Technique
 ## Projet: Plateforme Nexus Réussite v4.1
   ** Version :** 3.0(Finale pour Développement);

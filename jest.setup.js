@@ -54,8 +54,8 @@ jest.mock('@/components/ui/select', () => {
   const Select = ({ children, value, onValueChange, ...props }) => (
     <select {...props} value={value} onChange={(e) => onValueChange?.(e.target.value)}>{children}</select>
   );
-  const SelectTrigger = ({ children, ...props }) => <div {...props}>{children}</div>;
-  const SelectValue = ({ placeholder }) => <option value="">{placeholder}</option>;
+  const SelectTrigger = () => null;
+  const SelectValue = () => null;
   const SelectContent = ({ children }) => <>{children}</>;
   const SelectItem = ({ value, children }) => <option value={value}>{children}</option>;
   return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };

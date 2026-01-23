@@ -3,15 +3,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search, Users } from "lucide-react";
+import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Subscription {
   id: string;
@@ -50,18 +50,7 @@ export default function SubscriptionsManagementPage() {
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchSubscriptions();
-  }, [session, status, router, currentPage, statusFilter]);
-
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -88,7 +77,18 @@ export default function SubscriptionsManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== 'ADMIN') {
+      router.push("/auth/signin");
+      return;
+    }
+
+    fetchSubscriptions();
+  }, [session, status, router, fetchSubscriptions]);
 
   const handleUpdateSubscription = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +97,11 @@ export default function SubscriptionsManagementPage() {
     setIsSubmitting(true);
 
     try {
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      const statusValue = String(formData.get("status") ?? "");
+      const endDateValue = String(formData.get("endDate") ?? "");
+
       const response = await fetch('/api/admin/subscriptions', {
         method: 'PUT',
         headers: {
@@ -104,8 +109,8 @@ export default function SubscriptionsManagementPage() {
         },
         body: JSON.stringify({
           subscriptionId: selectedSubscription.id,
-          status: (e.target as any).status.value,
-          endDate: (e.target as any).endDate.value
+          status: statusValue,
+          endDate: endDateValue
         }),
       });
 

@@ -1,4 +1,4 @@
-import { CTASection } from '@/components/sections/cta-section';
+import CTASection from '@/components/sections/cta-section';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
@@ -12,7 +12,9 @@ jest.mock('next/link', () => {
 // Mock de framer-motion
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: { children: React.ReactNode }) => (
+      <div {...props}>{children}</div>
+    ),
   },
 }));
 

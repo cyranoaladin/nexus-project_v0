@@ -1,95 +1,85 @@
 import React from 'react';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
-import { LineChart, ClipboardCheck, Users, BookOpen, Presentation, Target } from 'lucide-react';
+import { LineChart, Server, Brain, Blocks, Code2 } from 'lucide-react';
 
 export default function ConsultingPage() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <div className="min-h-screen bg-deep-midnight text-slate-200 font-sans selection:bg-gold-500/20 selection:text-gold-400">
             <CorporateNavbar />
 
             {/* Hero */}
-            <section className="bg-slate-900 text-white py-24 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-900/20 blur-3xl"></div>
+            <section className="bg-deep-midnight text-white py-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+                <div className="absolute top-1/3 left-1/4 h-72 w-72 rounded-full bg-gold-500/5 blur-3xl" />
+                <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-midnight-blue/10 blur-3xl" />
                 <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="max-w-3xl">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-sm font-medium mb-6">
-                            <LineChart size={16} />
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-gold-500 text-sm font-medium mb-6 border border-gold-600/30 backdrop-blur-md">
+                            <LineChart size={16} strokeWidth={1.5} />
                             <span>Nexus Consulting</span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-                            Stratégie & <br /> Gouvernance Numérique.
+                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-serif">
+                            Expertise 360° : L'Alliance de la Pédagogie et de la Technologie.
                         </h1>
                         <p className="text-xl text-slate-300 leading-relaxed">
-                            Nous accompagnons les établissements scolaires dans leur mutation. Audit, formation des équipes et mise en place d'une feuille de route claire.
+                            De l'audit de votre infrastructure réseau à l'intégration de l'IA en classe. Nous accompagnons la transformation numérique de votre établissement.
                         </p>
                     </div>
                 </div>
             </section>
 
-            {/* Audit & Transformation */}
-            <section className="py-24">
+            {/* Services */}
+            <section className="py-24 bg-deep-midnight">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Notre Offre d'Audit</h2>
-                        <p className="text-slate-600">
-                            Pour les collèges, lycées et universités. Nous analysons vos processus actuels pour identifier les leviers de performance numérique.
+                        <h2 className="text-3xl font-bold text-white mb-4 font-serif">Nos 4 Piliers d'Intervention</h2>
+                        <p className="text-slate-300">
+                            Une approche complète pour moderniser votre établissement et sécuriser vos parcours pédagogiques.
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-200 transition-all">
-                            <ClipboardCheck className="text-blue-600 mb-4 h-10 w-10" />
-                            <h3 className="text-xl font-bold mb-3">Audit des Outils & Infrastructures</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">
-                                Vos outils actuels sont-ils performants ? Sont-ils sécurisés ? Nous scannons votre stack technique et vos usages pour optimiser les coûts et l'efficacité.
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-gold-600/50 hover:bg-white/10 transition-all">
+                            <Server className="text-gold-500 mb-4 h-10 w-10" strokeWidth={1.5} />
+                            <h3 className="text-xl font-bold mb-3 text-white">Audit & Infrastructure</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Diagnostic complet de votre réseau, sécurité des données (RGPD) et équipement des salles. Optimisation pour les exigences de la spécialité NSI.
                             </p>
                         </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-200 transition-all">
-                            <Users className="text-indigo-600 mb-4 h-10 w-10" />
-                            <h3 className="text-xl font-bold mb-3">Conduite du Changement</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">
-                                La technique n'est rien sans l'humain. Nous formons vos équipes pédagogiques et administratives à l'usage des nouveaux outils IA et collaboratifs.
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-gold-600/50 hover:bg-white/10 transition-all">
+                            <Brain className="text-gold-500 mb-4 h-10 w-10" strokeWidth={1.5} />
+                            <h3 className="text-xl font-bold mb-3 text-white">Ingénierie Pédagogique IA</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Formation des équipes enseignantes à l'IA générative. Comment intégrer ChatGPT/Claude dans les cours sans triche, mais avec intelligence.
+                            </p>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-gold-600/50 hover:bg-white/10 transition-all">
+                            <Blocks className="text-gold-500 mb-4 h-10 w-10" strokeWidth={1.5} />
+                            <h3 className="text-xl font-bold mb-3 text-white">Certification Sécurisée</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Sécurisation des diplômes et bulletins avec des certificats numériques vérifiables. Garantissez l'authenticité des parcours de vos élèves à vie.
+                            </p>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-gold-600/50 hover:bg-white/10 transition-all">
+                            <Code2 className="text-gold-500 mb-4 h-10 w-10" strokeWidth={1.5} />
+                            <h3 className="text-xl font-bold mb-3 text-white">Développement Sur Mesure</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Création d'outils métiers spécifiques (comme Korrigo) et de Dashboards de pilotage pour la Vie Scolaire.
                             </p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Ingénierie Pédagogique */}
-            <section className="py-24 bg-white border-t border-slate-100">
+            {/* CTA final */}
+            <section className="py-20 border-t border-white/10 bg-deep-midnight">
                 <div className="container mx-auto px-4 md:px-6">
-                    <div className="flex flex-col md:flex-row items-center gap-16">
-                        <div className="md:w-1/2">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-slate-50 p-6 rounded-xl">
-                                    <BookOpen className="text-orange-500 mb-2" />
-                                    <div className="font-bold">Syllabus</div>
-                                </div>
-                                <div className="bg-slate-50 p-6 rounded-xl transform translate-y-8">
-                                    <Presentation className="text-blue-500 mb-2" />
-                                    <div className="font-bold">Supports IA</div>
-                                </div>
-                                <div className="bg-slate-50 p-6 rounded-xl">
-                                    <Target className="text-green-500 mb-2" />
-                                    <div className="font-bold">KPIs Suivi</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="md:w-1/2">
-                            <h2 className="text-3xl font-bold text-slate-900 mb-6">Ingénierie Pédagogique</h2>
-                            <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                                Créer un cours n'est plus suffisant. Il faut créer une **expérience d'apprentissage**.
-                            </p>
-                            <p className="text-slate-600 mb-4">
-                                Nous concevons avec vous des cursus complets, intégrant :
-                            </p>
-                            <ul className="list-disc list-inside space-y-2 text-slate-700 font-medium">
-                                <li>Parcours hybrides (Présentiel / Distanciel)</li>
-                                <li>Systèmes d'évaluation adaptatifs</li>
-                                <li>Contenus augmentés par l'Intelligence Artificielle</li>
-                            </ul>
-                        </div>
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold text-white mb-6 font-serif">Un projet spécifique ?</h2>
+                        <a href="/contact" className="inline-flex h-12 items-center justify-center rounded-full border border-gold-500 px-8 text-sm font-semibold text-white transition-all hover:bg-gold-500 hover:text-slate-950">
+                            Contacter la Direction Technique
+                        </a>
                     </div>
                 </div>
             </section>

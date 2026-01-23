@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { SubscriptionStatus, type Prisma } from '@prisma/client';
+
+type SubscriptionWithStudent = Prisma.SubscriptionGetPayload<{
+  include: {
+    student: {
+      include: {
+        user: true;
+        parent: { include: { user: true } };
+      };
+    };
+  };
+}>;
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'ACTIVE';
+    const statusParam = (searchParams.get('status') || 'ACTIVE') as SubscriptionStatus | 'ALL';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
@@ -23,10 +35,10 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: Prisma.SubscriptionWhereInput = {};
     
-    if (status && status !== 'ALL') {
-      whereClause.status = status;
+    if (statusParam !== 'ALL') {
+      whereClause.status = statusParam;
     }
     
     if (search) {
@@ -35,21 +47,21 @@ export async function GET(request: NextRequest) {
           student: {
             user: {
               OR: [
-                { firstName: { contains: search, mode: 'insensitive' } },
-                { lastName: { contains: search, mode: 'insensitive' } },
-                { email: { contains: search, mode: 'insensitive' } }
+                { firstName: { contains: search } },
+                { lastName: { contains: search } },
+                { email: { contains: search } }
               ]
             }
           }
         },
         {
-          planName: { contains: search, mode: 'insensitive' }
+          planName: { contains: search }
         }
       ];
     }
 
     // Get subscriptions with pagination
-    const [subscriptions, totalSubscriptions] = await Promise.all([
+    const [subscriptions, totalSubscriptions] = (await Promise.all([
       prisma.subscription.findMany({
         where: whereClause,
         skip,
@@ -71,9 +83,9 @@ export async function GET(request: NextRequest) {
         }
       }),
       prisma.subscription.count({ where: whereClause })
-    ]);
+    ])) as [SubscriptionWithStudent[], number];
 
-    const formattedSubscriptions = subscriptions.map((subscription: any) => ({
+    const formattedSubscriptions = subscriptions.map((subscription) => ({
       id: subscription.id,
       planName: subscription.planName,
       monthlyPrice: subscription.monthlyPrice,
@@ -126,8 +138,22 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      subscriptionId?: string;
+      status?: string;
+      endDate?: string | null;
+    };
     const { subscriptionId, status, endDate } = body;
+    const statusValue = status && Object.values(SubscriptionStatus).includes(status as SubscriptionStatus)
+      ? (status as SubscriptionStatus)
+      : undefined;
+
+    if (status && !statusValue) {
+      return NextResponse.json(
+        { error: 'Invalid status value' },
+        { status: 400 }
+      );
+    }
 
     if (!subscriptionId) {
       return NextResponse.json(
@@ -140,7 +166,7 @@ export async function PUT(request: NextRequest) {
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        status,
+        status: statusValue,
         endDate: endDate ? new Date(endDate) : undefined
       },
       include: {

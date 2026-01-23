@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Beaker, Brain, Calculator, Code, Target, Users } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Badge } from './badge';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 
@@ -11,7 +12,7 @@ interface Expert {
   citation: string;
   competences: string[];
   specialites: string[];
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   color: string;
 }
 

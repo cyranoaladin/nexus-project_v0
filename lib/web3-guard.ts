@@ -37,14 +37,16 @@ export function useWeb3Guard() {
 // Guard pour vérifier si une extension Web3 est présente
 export function hasWeb3Extension(): boolean {
   if (typeof window === 'undefined') return false;
-  return !!(window as any).ethereum || !!(window as any).web3;
+  const win = window as Window & { ethereum?: unknown; web3?: unknown };
+  return !!win.ethereum || !!win.web3;
 }
 
 // Safe access à window.ethereum
 export function getSafeEthereum() {
   if (typeof window === 'undefined') return null;
   try {
-    return (window as any).ethereum || null;
+    const win = window as Window & { ethereum?: unknown };
+    return win.ethereum || null;
   } catch {
     return null;
   }
