@@ -6,6 +6,7 @@ import { createLogger } from '@/lib/middleware/logger';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
 import { assertExists } from '@/lib/api/helpers';
 import type { CreditTransaction } from '@prisma/client';
+import { UserRole } from '@/types/enums';
 
 /**
  * GET /api/student/credits - Get credit balance and transaction history
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Require ELEVE role
-    const session = await requireRole('ELEVE');
+    const session = await requireRole(UserRole.ELEVE);
     if (isErrorResponse(session)) return session;
 
     // Update logger with session context

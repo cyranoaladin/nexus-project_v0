@@ -6,11 +6,12 @@ import { prisma } from '@/lib/prisma';
 import { createKonnectPaymentSchema } from '@/lib/validation';
 import { parseBody, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { UserRole } from '@/types/enums';
 
 export async function POST(request: NextRequest) {
   try {
     // Require PARENT role
-    const session = await requireRole('PARENT');
+    const session = await requireRole(UserRole.PARENT);
     if (isErrorResponse(session)) return session;
 
     // Parse and validate request body
