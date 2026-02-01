@@ -18,7 +18,7 @@
  * - Payments API
  */
 
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
@@ -51,8 +51,8 @@ describe('RBAC Matrix', () => {
         email: 'admin-rbac@test.com',
         password: hashedPassword,
         role: UserRole.ADMIN,
-        name: 'Admin RBAC',
-        emailVerified: new Date(),
+        firstName: 'Admin',
+        lastName: 'RBAC',
       },
     });
 
@@ -61,9 +61,8 @@ describe('RBAC Matrix', () => {
         email: 'parent-rbac@test.com',
         password: hashedPassword,
         role: UserRole.PARENT,
-        name: 'Parent RBAC',
-        emailVerified: new Date(),
-        credits: 10,
+        firstName: 'Parent',
+        lastName: 'RBAC',
       },
     });
 
@@ -71,10 +70,9 @@ describe('RBAC Matrix', () => {
       data: {
         email: 'student-rbac@test.com',
         password: hashedPassword,
-        role: UserRole.STUDENT,
-        name: 'Student RBAC',
-        emailVerified: new Date(),
-        parentId: testUsers.parent.id,
+        role: UserRole.ELEVE,
+        firstName: 'Student',
+        lastName: 'RBAC',
       },
     });
 
@@ -83,22 +81,26 @@ describe('RBAC Matrix', () => {
         email: 'coach-rbac@test.com',
         password: hashedPassword,
         role: UserRole.COACH,
-        name: 'Coach RBAC',
-        emailVerified: new Date(),
+        firstName: 'Coach',
+        lastName: 'RBAC',
       },
     });
 
-    // Create test session for booking tests
-    testSession = await prisma.session.create({
+    // Create test session booking for tests
+    testSession = await prisma.sessionBooking.create({
       data: {
         title: 'RBAC Test Session',
         description: 'Session for RBAC tests',
+        studentId: testUsers.student.id,
         coachId: testUsers.coach.id,
-        startTime: new Date('2026-04-01T10:00:00Z'),
-        endTime: new Date('2026-04-01T11:00:00Z'),
-        maxStudents: 5,
-        price: 50,
+        parentId: testUsers.parent.id,
+        subject: 'MATHEMATIQUES',
+        scheduledDate: new Date('2026-04-01T10:00:00Z'),
+        startTime: '10:00',
+        endTime: '11:00',
+        duration: 60,
         status: 'SCHEDULED',
+        creditsUsed: 1,
       },
     });
 
@@ -111,11 +113,8 @@ describe('RBAC Matrix', () => {
     // Clean up in order (foreign keys)
     await prisma.sessionBooking.deleteMany({
       where: {
-        session: { coachId: testUsers.coach.id },
+        coachId: testUsers.coach.id,
       },
-    });
-    await prisma.session.deleteMany({
-      where: { coachId: testUsers.coach.id },
     });
     await prisma.user.deleteMany({
       where: {
@@ -170,7 +169,7 @@ describe('RBAC Matrix', () => {
       });
 
       it('allows STUDENT users to view sessions', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
         const response = await fetch('http://localhost:3000/api/sessions', {
           method: 'GET',
@@ -212,7 +211,7 @@ describe('RBAC Matrix', () => {
       });
 
       it('allows STUDENT users to book sessions', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
         // Student can request bookings
         expect(testUsers.student.parentId).toBe(testUsers.parent.id);
@@ -241,10 +240,10 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
         // Students cannot delete sessions
-        expect(testUsers.student.role).toBe(UserRole.STUDENT);
+        expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
@@ -268,8 +267,8 @@ describe('RBAC Matrix', () => {
             email: 'other-coach-rbac@test.com',
             password: await bcrypt.hash('password123', 10),
             role: UserRole.COACH,
-            name: 'Other Coach RBAC',
-            emailVerified: new Date(),
+            firstName: 'Other Coach',
+            lastName: 'RBAC',
           },
         });
 
@@ -303,9 +302,9 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
-        expect(testUsers.student.role).toBe(UserRole.STUDENT);
+        expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
@@ -329,7 +328,7 @@ describe('RBAC Matrix', () => {
 
     describe('POST /api/users', () => {
       it('rejects all non-ADMIN users', async () => {
-        const roles = [null, UserRole.STUDENT, UserRole.PARENT, UserRole.COACH];
+        const roles = [null, UserRole.ELEVE, UserRole.PARENT, UserRole.COACH];
 
         for (const role of roles) {
           mockSession(role as UserRole | null);
@@ -348,7 +347,7 @@ describe('RBAC Matrix', () => {
 
     describe('PATCH /api/users/:id', () => {
       it('allows users to update their own profile', async () => {
-        const roles = [UserRole.STUDENT, UserRole.PARENT, UserRole.COACH, UserRole.ADMIN];
+        const roles = [UserRole.ELEVE, UserRole.PARENT, UserRole.COACH, UserRole.ADMIN];
 
         for (const role of roles) {
           const userId = testUsers[role.toLowerCase()].id;
@@ -360,7 +359,7 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects users from updating other user profiles', async () => {
-        mockSession(UserRole.STUDENT, testUsers.student.id);
+        mockSession(UserRole.ELEVE, testUsers.student.id);
 
         // Student trying to update parent profile
         expect(testUsers.student.id).not.toBe(testUsers.parent.id);
@@ -376,7 +375,7 @@ describe('RBAC Matrix', () => {
 
     describe('DELETE /api/users/:id', () => {
       it('rejects all non-ADMIN users', async () => {
-        const roles = [null, UserRole.STUDENT, UserRole.PARENT, UserRole.COACH];
+        const roles = [null, UserRole.ELEVE, UserRole.PARENT, UserRole.COACH];
 
         for (const role of roles) {
           mockSession(role as UserRole | null);
@@ -407,9 +406,9 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
-        expect(testUsers.student.role).toBe(UserRole.STUDENT);
+        expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('rejects PARENT users with 403', async () => {
@@ -445,10 +444,10 @@ describe('RBAC Matrix', () => {
       });
 
       it('rejects STUDENT users with 403', async () => {
-        mockSession(UserRole.STUDENT);
+        mockSession(UserRole.ELEVE);
 
         // Students cannot make payments directly
-        expect(testUsers.student.role).toBe(UserRole.STUDENT);
+        expect(testUsers.student.role).toBe(UserRole.ELEVE);
       });
 
       it('allows PARENT users to make payments', async () => {
