@@ -367,6 +367,9 @@ export async function POST(req: NextRequest) {
       });
 
       return sessionBooking;
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      timeout: 15000  // 15 seconds timeout for complex booking logic
     });
 
     // Send immediate notifications (implement email service)
@@ -388,6 +391,24 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     logger.error('Failed to book session', error);
+
+    // Handle database constraint violations and transaction errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const dbError = error as { code: string; meta?: any };
+
+      // 23P01: Exclusion constraint violation (overlapping sessions)
+      if (dbError.code === '23P01') {
+        logger.logRequest(HttpStatus.CONFLICT);
+        return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.');
+      }
+
+      // P2034: Transaction failed due to serialization conflict
+      if (dbError.code === 'P2034') {
+        logger.logRequest(HttpStatus.CONFLICT);
+        return ApiError.conflict('Booking conflict detected. Please try again.');
+      }
+    }
+
     logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
     return handleApiError(error, 'POST /api/sessions/book');
   }
