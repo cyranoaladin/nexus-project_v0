@@ -672,6 +672,309 @@ See `app/api/payments/konnect/route.ts` for payment handling:
 
 ---
 
+## 🔄 Complex Transaction Patterns
+
+For endpoints with complex multi-step validation and business logic (e.g., session booking with 10+ validation steps), follow this pattern:
+
+### Pattern Structure
+
+```typescript
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { ApiError, successResponse, handleApiError, HttpStatus } from '@/lib/api/errors';
+import { parseBody } from '@/lib/api/helpers';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
+
+export async function POST(request: NextRequest) {
+  let logger = createLogger(request);
+
+  try {
+    // 1. Rate limiting
+    const rateLimitResult = RateLimitPresets.expensive(request, 'operation-key');
+    if (rateLimitResult) return rateLimitResult;
+
+    // 2. Authentication
+    const session = await requireRole('ROLE');
+    if (isErrorResponse(session)) return session;
+
+    logger = createLogger(request, session);
+    logger.info('Starting complex operation');
+
+    // 3. Parse and validate input
+    const data = await parseBody(request, schema);
+
+    // 4. Pre-transaction validations (fast checks)
+    if (/* business rule violation */) {
+      throw ApiError.badRequest('Reason');
+    }
+
+    // 5. Database transaction (all-or-nothing)
+    const result = await prisma.$transaction(async (tx) => {
+      // Step 1: Validate entities exist
+      const entity = await tx.entity.findUnique({ where: { id } });
+      if (!entity) {
+        throw new Error('Entity not found'); // Will be caught and wrapped
+      }
+
+      // Step 2: Check conflicts
+      const conflict = await tx.entity.findFirst({
+        where: { /* conflict condition */ }
+      });
+      if (conflict) {
+        throw new Error('Resource already exists');
+      }
+
+      // Step 3: Perform multi-step operations
+      const created = await tx.entity.create({ data });
+      await tx.relatedEntity.create({ /* related data */ });
+      await tx.notification.createMany({ /* notifications */ });
+
+      return created;
+    });
+
+    logger.logRequest(HttpStatus.CREATED, { id: result.id });
+    return successResponse({
+      success: true,
+      data: result
+    }, HttpStatus.CREATED);
+
+  } catch (error) {
+    logger.error('Operation failed', error);
+    logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
+    return handleApiError(error, 'POST /api/endpoint');
+  }
+}
+```
+
+### Key Guidelines
+
+1. **Pre-transaction Validation**: Perform cheap validations (date checks, business hours, etc.) BEFORE the transaction to fail fast
+2. **Transaction Validation**: Perform database validations (existence checks, conflict detection) INSIDE the transaction for data consistency
+3. **Error Handling in Transactions**: Use `throw new Error()` inside transactions - they'll be caught and properly formatted by `handleApiError()`
+4. **Always Use Helpers**:
+   - Use `parseBody()` instead of `req.json()`
+   - Use `ApiError.xxx()` for pre-transaction errors
+   - Use `assertExists()` for clarity in transactions
+5. **Structured Logging**: Log operation start, success with metadata, and failures
+6. **Rate Limiting**: Use `expensive` preset for write operations with complex logic
+
+---
+
+## 🌐 Error Message Language
+
+**Standard**: Use **English** for all API error messages (system-level communication).
+
+**Rationale**:
+- API responses are technical (for developers/frontend)
+- Consistent with industry standards
+- Easier to debug and search
+- User-facing text should be translated in frontend
+
+**Exception**: User-facing notifications (emails, SMS, in-app notifications) can use French.
+
+### Examples
+
+```typescript
+// ✅ GOOD - API errors in English
+throw ApiError.badRequest('Sessions cannot be booked on weekends');
+throw ApiError.notFound('Coach does not teach this subject');
+throw ApiError.conflict('You already have a session at this time');
+
+// ✅ GOOD - User notifications in French (displayed to users)
+await tx.sessionNotification.create({
+  title: 'Nouvelle session réservée',
+  message: `Session de ${subject} programmée pour le ${date}`,
+  method: 'EMAIL'
+});
+
+// ❌ BAD - Mixing languages in API response
+return NextResponse.json({
+  error: 'Validation failed',
+  message: 'La date est invalide'  // Should be English
+});
+```
+
+### Validation Messages
+
+For Zod validation schemas used in **API endpoints only**, use English:
+
+```typescript
+export const bookingSchema = z.object({
+  date: z.string().min(1, 'Date is required'),  // English
+  time: z.string().regex(/^[0-2][0-9]:[0-5][0-9]$/, 'Invalid time format (HH:MM)')
+});
+```
+
+For schemas used in **both frontend and API**, consider separate schemas or i18n approach.
+
+---
+
+## 📚 Reference: Complex Endpoint Example
+
+### POST /api/sessions/book - Session Booking
+
+**Complexity**: High (10-step validation process with transactions)
+
+**Use Case**: Parents or students book coaching sessions with comprehensive validation
+
+**Auth**: Requires `PARENT` or `ELEVE` role
+
+**Rate Limit**: 10 requests/minute (expensive operation)
+
+#### Request Body
+
+```typescript
+{
+  coachId: string;                    // CUID
+  studentId: string;                  // CUID
+  subject: 'MATHEMATIQUES' | 'NSI' | /* ... */;
+  scheduledDate: string;              // YYYY-MM-DD
+  startTime: string;                  // HH:MM
+  endTime: string;                    // HH:MM
+  duration: number;                   // minutes (30-180)
+  type?: 'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS';  // default: INDIVIDUAL
+  modality?: 'ONLINE' | 'IN_PERSON' | 'HYBRID';   // default: ONLINE
+  title: string;                      // max 100 chars
+  description?: string;               // max 500 chars
+  creditsToUse: number;               // 1-10
+}
+```
+
+#### Validation Rules
+
+1. **Schema Validation** (422):
+   - Date must not be in the past
+   - End time > start time
+   - Duration matches time difference
+   - All required fields present
+
+2. **Business Rules** (400):
+   - Date must be within 3 months
+   - No weekend bookings
+   - Business hours only (8 AM - 8 PM)
+
+3. **Entity Validation** (500 wrapped as Internal Error):
+   - Coach exists and teaches subject
+   - Student exists
+   - Parent-student relationship valid (if parent)
+
+4. **Availability Validation** (500):
+   - Coach is available at requested time
+   - No scheduling conflicts (coach or student)
+
+5. **Resource Validation** (500):
+   - Student has sufficient credits
+
+#### Response Codes
+
+- `201 Created` - Session booked successfully
+- `400 Bad Request` - Business rule violation
+- `401 Unauthorized` - Not authenticated
+- `403 Forbidden` - Wrong role or not parent of student
+- `422 Unprocessable Entity` - Validation failed
+- `429 Too Many Requests` - Rate limit exceeded
+- `500 Internal Server Error` - Database/transaction errors
+
+#### Success Response (201)
+
+```json
+{
+  "success": true,
+  "sessionId": "cm4abc123...",
+  "message": "Session booked successfully",
+  "session": {
+    "id": "cm4abc123...",
+    "coachId": "coach-123",
+    "studentId": "student-456",
+    "subject": "MATHEMATIQUES",
+    "scheduledDate": "2026-03-15T00:00:00.000Z",
+    "startTime": "14:00",
+    "endTime": "15:00",
+    "duration": 60,
+    "creditsUsed": 1,
+    "status": "SCHEDULED",
+    "type": "INDIVIDUAL",
+    "modality": "ONLINE"
+  }
+}
+```
+
+#### Implementation Highlights
+
+```typescript
+// File: app/api/sessions/book/route.ts
+
+export async function POST(req: NextRequest) {
+  let logger = createLogger(req);
+
+  try {
+    // Rate limiting
+    const rateLimitResult = RateLimitPresets.expensive(req, 'session-book');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Auth
+    const session = await requireAnyRole(['PARENT', 'ELEVE']);
+    if (isErrorResponse(session)) return session;
+
+    logger = createLogger(req, session);
+    logger.info('Booking session');
+
+    // Validation
+    const data = await parseBody(req, bookFullSessionSchema);
+
+    // Pre-transaction business rules
+    if (scheduledDate > maxBookingDate) {
+      throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
+    }
+
+    // Transaction with 10 steps
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Validate coach
+      const coachProfile = await tx.coachProfile.findFirst({ /* ... */ });
+      if (!coachProfile) throw new Error('Coach not found');
+
+      // 2. Validate student
+      // 3. Verify parent-student relationship
+      // 4. Check coach availability
+      // 5. Check scheduling conflicts
+      // 6. Verify sufficient credits
+      // 7. Check student conflicts
+      // 8. Create session booking
+      // 9. Create credit transaction
+      // 10. Create notifications & reminders
+
+      return sessionBooking;
+    });
+
+    logger.logRequest(HttpStatus.CREATED, { sessionId: result.id });
+    return successResponse({
+      success: true,
+      sessionId: result.id,
+      message: 'Session booked successfully',
+      session: result
+    }, HttpStatus.CREATED);
+
+  } catch (error) {
+    logger.error('Failed to book session', error);
+    logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
+    return handleApiError(error, 'POST /api/sessions/book');
+  }
+}
+```
+
+#### Key Takeaways
+
+- **Comprehensive Validation**: Multiple layers (schema, business rules, database constraints)
+- **Transaction Safety**: All-or-nothing approach with Prisma transactions
+- **Error Granularity**: Different status codes for different error types
+- **Structured Logging**: Track operation flow and performance
+- **Rate Limiting**: Protect expensive operations
+- **Notifications**: Automated communication to all stakeholders
+
+Use this endpoint as a reference when implementing similar complex operations.
+
+---
+
 ## 📚 References
 
 ### Related Documentation
