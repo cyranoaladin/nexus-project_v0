@@ -2,15 +2,14 @@
  * E2E Database Seeding Script
  *
  * Seeds test data for E2E tests with predictable fixtures:
- * - Test users for each role (ADMIN, PARENT, STUDENT, COACH)
- * - Test sessions for booking flows
- * - Test bookings for state verification
+ * - Test users for each role (ADMIN, PARENT, ELEVE, COACH)
+ * - Test session bookings for booking flows
  *
  * All passwords: "password123"
  * Run: DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
  */
 
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -23,8 +22,7 @@ async function main() {
   // =============================================================================
   console.log('🧹 Clearing existing data...');
 
-  await prisma.booking.deleteMany();
-  await prisma.session.deleteMany();
+  await prisma.sessionBooking.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('✅ Database cleared\n');
@@ -44,8 +42,8 @@ async function main() {
       email: 'admin@test.com',
       password: hashedPassword,
       role: UserRole.ADMIN,
-      name: 'Test Admin',
-      emailVerified: new Date(),
+      firstName: 'Test',
+      lastName: 'Admin',
     },
   });
   console.log(`  ✓ Admin: ${admin.email}`);
@@ -55,32 +53,30 @@ async function main() {
       email: 'parent@test.com',
       password: hashedPassword,
       role: UserRole.PARENT,
-      name: 'Test Parent',
-      emailVerified: new Date(),
-      credits: 10, // Parent with credits
+      firstName: 'Test',
+      lastName: 'Parent',
     },
   });
-  console.log(`  ✓ Parent: ${parent.email} (10 credits)`);
+  console.log(`  ✓ Parent: ${parent.email}`);
 
   const student = await prisma.user.create({
     data: {
       email: 'student@test.com',
       password: hashedPassword,
-      role: UserRole.STUDENT,
-      name: 'Test Student',
-      emailVerified: new Date(),
-      parentId: parent.id,
+      role: UserRole.ELEVE,
+      firstName: 'Test',
+      lastName: 'Student',
     },
   });
-  console.log(`  ✓ Student: ${student.email} (linked to parent)`);
+  console.log(`  ✓ Student: ${student.email}`);
 
   const coach = await prisma.user.create({
     data: {
       email: 'coach@test.com',
       password: hashedPassword,
       role: UserRole.COACH,
-      name: 'Test Coach',
-      emailVerified: new Date(),
+      firstName: 'Test',
+      lastName: 'Coach',
     },
   });
   console.log(`  ✓ Coach: ${coach.email}\n`);
@@ -90,9 +86,9 @@ async function main() {
     data: {
       email: 'student2@test.com',
       password: hashedPassword,
-      role: UserRole.STUDENT,
-      name: 'Test Student 2',
-      emailVerified: new Date(),
+      role: UserRole.ELEVE,
+      firstName: 'Test',
+      lastName: 'Student 2',
     },
   });
 
@@ -101,84 +97,69 @@ async function main() {
       email: 'coach2@test.com',
       password: hashedPassword,
       role: UserRole.COACH,
-      name: 'Test Coach 2',
-      emailVerified: new Date(),
+      firstName: 'Test',
+      lastName: 'Coach 2',
     },
   });
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
   // =============================================================================
-  // CREATE SESSIONS
+  // CREATE SESSION BOOKINGS
   // =============================================================================
-  console.log('📅 Creating test sessions...');
+  console.log('📅 Creating test session bookings...');
 
-  const session1 = await prisma.session.create({
+  const booking1 = await prisma.sessionBooking.create({
     data: {
+      studentId: student.id,
+      coachId: coach.id,
+      parentId: parent.id,
+      subject: Subject.MATHEMATIQUES,
       title: 'Math Session - Algebra',
       description: 'Test session for algebra concepts',
-      coachId: coach.id,
-      startTime: new Date('2026-03-01T10:00:00Z'),
-      endTime: new Date('2026-03-01T11:00:00Z'),
-      maxStudents: 5,
-      price: 50,
+      scheduledDate: new Date('2026-03-01T10:00:00Z'),
+      startTime: '10:00',
+      endTime: '11:00',
+      duration: 60,
       status: 'SCHEDULED',
-    },
-  });
-  console.log(`  ✓ Session 1: ${session1.title} (Coach: ${coach.name})`);
-
-  const session2 = await prisma.session.create({
-    data: {
-      title: 'Physics Session - Mechanics',
-      description: 'Test session for physics mechanics',
-      coachId: coach.id,
-      startTime: new Date('2026-03-02T14:00:00Z'),
-      endTime: new Date('2026-03-02T15:30:00Z'),
-      maxStudents: 3,
-      price: 75,
-      status: 'SCHEDULED',
-    },
-  });
-  console.log(`  ✓ Session 2: ${session2.title} (Coach: ${coach.name})`);
-
-  const session3 = await prisma.session.create({
-    data: {
-      title: 'Chemistry Session - Organic',
-      description: 'Test session for organic chemistry',
-      coachId: coach2.id,
-      startTime: new Date('2026-03-03T09:00:00Z'),
-      endTime: new Date('2026-03-03T10:30:00Z'),
-      maxStudents: 4,
-      price: 60,
-      status: 'SCHEDULED',
-    },
-  });
-  console.log(`  ✓ Session 3: ${session3.title} (Coach: ${coach2.name})\n`);
-
-  // =============================================================================
-  // CREATE BOOKINGS
-  // =============================================================================
-  console.log('📝 Creating test bookings...');
-
-  const booking1 = await prisma.booking.create({
-    data: {
-      sessionId: session1.id,
-      studentId: student.id,
-      parentId: parent.id,
-      status: 'CONFIRMED',
       creditsUsed: 1,
     },
   });
-  console.log(`  ✓ Booking 1: ${student.name} → ${session1.title} (CONFIRMED)`);
+  console.log(`  ✓ Booking 1: ${student.firstName} → ${booking1.title} (SCHEDULED)`);
 
-  const booking2 = await prisma.booking.create({
+  const booking2 = await prisma.sessionBooking.create({
     data: {
-      sessionId: session2.id,
-      studentId: student2.id,
-      status: 'PENDING',
-      creditsUsed: 0,
+      studentId: student.id,
+      coachId: coach.id,
+      parentId: parent.id,
+      subject: Subject.PHYSIQUE_CHIMIE,
+      title: 'Physics Session - Mechanics',
+      description: 'Test session for physics mechanics',
+      scheduledDate: new Date('2026-03-02T14:00:00Z'),
+      startTime: '14:00',
+      endTime: '15:30',
+      duration: 90,
+      status: 'SCHEDULED',
+      creditsUsed: 1,
     },
   });
-  console.log(`  ✓ Booking 2: ${student2.name} → ${session2.title} (PENDING)\n`);
+  console.log(`  ✓ Booking 2: ${student.firstName} → ${booking2.title} (SCHEDULED)`);
+
+  const booking3 = await prisma.sessionBooking.create({
+    data: {
+      studentId: student2.id,
+      coachId: coach2.id,
+      subject: Subject.NSI,
+      title: 'Computer Science - Algorithms',
+      description: 'Test session for algorithms',
+      scheduledDate: new Date('2026-03-03T09:00:00Z'),
+      startTime: '09:00',
+      endTime: '10:30',
+      duration: 90,
+      status: 'SCHEDULED',
+      creditsUsed: 1,
+    },
+  });
+  console.log(`  ✓ Booking 3: ${student2.firstName} → ${booking3.title} (SCHEDULED)\n`);
 
   // =============================================================================
   // SUMMARY
@@ -186,8 +167,7 @@ async function main() {
   console.log('✅ E2E database seeded successfully!\n');
   console.log('📊 Summary:');
   console.log(`  Users: ${await prisma.user.count()}`);
-  console.log(`  Sessions: ${await prisma.session.count()}`);
-  console.log(`  Bookings: ${await prisma.booking.count()}\n`);
+  console.log(`  Session Bookings: ${await prisma.sessionBooking.count()}\n`);
 
   console.log('🔑 Test Credentials:');
   console.log(`  Admin:   admin@test.com / password123`);
