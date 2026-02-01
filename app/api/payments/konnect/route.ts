@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       success: true,
       paymentId: payment.id,
       paymentUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`,
-      message: 'Session de paiement Konnect créée'
+      message: 'Konnect payment session created'
     }, 201);
 
   } catch (error) {

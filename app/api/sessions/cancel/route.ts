@@ -1,100 +1,130 @@
-import { authOptions } from '@/lib/auth';
 import { refundSessionBookingById } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest } from 'next/server';
 import { SessionStatus } from '@prisma/client';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { cancelSessionSchema } from '@/lib/validation';
+import { parseBody, assertExists } from '@/lib/api/helpers';
+import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
 
-const cancelSessionSchema = z.object({
-  sessionId: z.string(),
-  reason: z.string().optional()
-});
-
+/**
+ * POST /api/sessions/cancel - Cancel a session booking
+ *
+ * Cancellation policy:
+ * - Individual/Online/Hybrid: Must cancel 24h before
+ * - Group/Masterclass: Must cancel 48h before
+ * - Assistantes can always refund (exceptional cases)
+ */
 export async function POST(request: NextRequest) {
+  let logger = createLogger(request);
+
   try {
-    const session = await getServerSession(authOptions);
+    // Rate limiting (stricter for write operations)
+    const rateLimitResult = RateLimitPresets.expensive(request, 'session-cancel');
+    if (rateLimitResult) return rateLimitResult;
 
-    if (!session || !['ELEVE', 'COACH', 'ASSISTANTE'].includes(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      );
-    }
+    // Require ELEVE, COACH, or ASSISTANTE role
+    const session = await requireAnyRole(['ELEVE', 'COACH', 'ASSISTANTE']);
+    if (isErrorResponse(session)) return session;
 
-    const body = await request.json();
-    const { sessionId, reason } = cancelSessionSchema.parse(body);
+    // Update logger with session context
+    logger = createLogger(request, session);
+    logger.info('Cancelling session');
 
-    // Récupérer la session (SessionBooking canonique)
+    // Parse and validate request body
+    const { sessionId, reason } = await parseBody(request, cancelSessionSchema);
+
+    // Fetch session
     const sessionToCancel = await prisma.sessionBooking.findUnique({
       where: { id: sessionId }
     });
 
-    if (!sessionToCancel) {
-      return NextResponse.json(
-        { error: 'Session non trouvée' },
-        { status: 404 }
-      );
-    }
+    assertExists(sessionToCancel, 'Session');
 
-    // Vérifier les permissions
+    // Check permissions
     if (session.user.role === 'ELEVE') {
       if (session.user.id !== sessionToCancel.studentId) {
-        return NextResponse.json(
-          { error: 'Accès non autorisé à cette session' },
-          { status: 403 }
-        );
+        throw ApiError.forbidden('You do not have permission to cancel this session');
       }
     }
 
-    // Vérifier si l'annulation est dans les délais
+    if (session.user.role === 'COACH') {
+      if (session.user.id !== sessionToCancel.coachId) {
+        throw ApiError.forbidden('You do not have permission to cancel this session');
+      }
+    }
+
+    // Check if session can be cancelled
+    if (sessionToCancel.status === SessionStatus.CANCELLED) {
+      throw ApiError.badRequest('Session is already cancelled');
+    }
+
+    if (sessionToCancel.status === SessionStatus.COMPLETED) {
+      throw ApiError.badRequest('Cannot cancel a completed session');
+    }
+
+    // Check cancellation policy for refund eligibility
     const now = new Date();
-    const sessionDate = new Date(`${sessionToCancel.scheduledDate.toISOString().split('T')[0]}T${sessionToCancel.startTime}`);
+    const sessionDate = new Date(
+      `${sessionToCancel.scheduledDate.toISOString().split('T')[0]}T${sessionToCancel.startTime}`
+    );
     const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     let canRefund = false;
 
-    // Politique d'annulation selon le type/modality
-    if (sessionToCancel.type === 'INDIVIDUAL' || sessionToCancel.modality === 'HYBRID' || sessionToCancel.modality === 'ONLINE') {
-      canRefund = hoursUntilSession >= 24; // 24h avant
-    } else if (sessionToCancel.type === 'GROUP' || sessionToCancel.type === 'MASTERCLASS') {
-      canRefund = hoursUntilSession >= 48; // 48h avant
+    // Cancellation policy based on session type
+    if (
+      sessionToCancel.type === 'INDIVIDUAL' ||
+      sessionToCancel.modality === 'HYBRID' ||
+      sessionToCancel.modality === 'ONLINE'
+    ) {
+      canRefund = hoursUntilSession >= 24; // 24h notice required
+    } else if (
+      sessionToCancel.type === 'GROUP' ||
+      sessionToCancel.type === 'MASTERCLASS'
+    ) {
+      canRefund = hoursUntilSession >= 48; // 48h notice required
     }
 
-    // Les assistantes peuvent toujours rembourser (cas exceptionnels)
+    // Assistantes can always override (for exceptional cases)
     if (session.user.role === 'ASSISTANTE') {
       canRefund = true;
     }
 
-    // Annuler la session
+    // Cancel the session
     await prisma.sessionBooking.update({
       where: { id: sessionId },
       data: {
         status: SessionStatus.CANCELLED,
         cancelledAt: new Date(),
-        coachNotes: reason ? `Annulée: ${reason}` : 'Annulée'
+        coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled'
       }
     });
 
-    // Rembourser les crédits si dans les délais (idempotent)
+    // Refund credits if eligible (idempotent)
     if (canRefund) {
       await refundSessionBookingById(sessionId, reason);
     }
 
-    return NextResponse.json({
+    logger.logRequest(200, {
+      sessionId,
+      refunded: canRefund,
+      hoursUntilSession: Math.round(hoursUntilSession)
+    });
+
+    return successResponse({
       success: true,
       refunded: canRefund,
       message: canRefund
-        ? 'Session annulée et crédits remboursés'
-        : 'Session annulée (pas de remboursement - délai dépassé)'
+        ? 'Session cancelled and credits refunded'
+        : 'Session cancelled (no refund - deadline passed)'
     });
 
   } catch (error) {
-    console.error('Erreur annulation session:', error);
-
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    logger.error('Failed to cancel session', error);
+    logger.logRequest(500);
+    return handleApiError(error, 'POST /api/sessions/cancel');
   }
 }

@@ -137,8 +137,8 @@ export function rateLimit(config: RateLimitConfig) {
       headers.set('Retry-After', Math.ceil((result.resetTime - Date.now()) / 1000).toString());
 
       return errorResponse(
-        HttpStatus.BAD_REQUEST,  // 429 Too Many Requests not in HttpStatus enum
-        ErrorCode.VALIDATION_ERROR,
+        HttpStatus.TOO_MANY_REQUESTS,
+        ErrorCode.RATE_LIMIT_EXCEEDED,
         message,
         {
           retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000)
