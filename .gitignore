@@ -45,7 +45,10 @@ coverage/
 playwright-report/
 test-results/
 
-# Prisma
+# Prisma (Database artifacts)
 prisma/*.db
-prisma/prisma/*.db
+prisma/*.db-*
+prisma/**/*.db
+prisma/**/*.db-*
 prisma/.next/
+prisma/**/node_modules/
