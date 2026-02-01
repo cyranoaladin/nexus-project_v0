@@ -1,3 +1,5 @@
+import { designTokens } from './lib/theme/tokens.js';
+
 const config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,37 +9,30 @@ const config = {
   theme: {
     extend: {
       colors: {
-        // Existing palette
-        'midnight-blue': {
-          DEFAULT: '#1e293b',
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d7fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#1e1b4b',
-          950: '#0f172a',
-        },
-        'deep-midnight': '#020617',
-        nexus: {
-          blue: '#2563EB',
-          red: '#EF4444',
-          dark: '#0B0C10',
-          charcoal: '#111318',
-          cyan: '#2EE9F6',
-          white: '#F4F6FA',
-          gray: '#A6A9B4',
-        },
+        // ===== DESIGN SYSTEM COLORS =====
+        // Brand colors - Use these for brand identity
+        brand: designTokens.colors.brand,
+
+        // Semantic colors - Use these for functional states
+        success: designTokens.colors.semantic.success,
+        warning: designTokens.colors.semantic.warning,
+        error: designTokens.colors.semantic.error,
+        info: designTokens.colors.semantic.info,
+
+        // Neutral scale - Use for text and subtle backgrounds
+        neutral: designTokens.colors.neutral,
+
+        // Surface colors - Use for backgrounds and cards
+        surface: designTokens.colors.surface,
+
+        // Gold scale - Keep for premium features
         gold: {
           400: '#FACC15',
           500: '#EAB308',
           600: '#CA8A04',
         },
-        // Shadcn-style color variables
+
+        // ===== SHADCN UI COLORS (Keep for compatibility) =====
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -58,6 +53,50 @@ const config = {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+        },
+
+        // ===== DEPRECATED COLORS (Migrate to new design system) =====
+        /**
+         * @deprecated Use neutral scale or surface colors instead
+         * midnight-blue → neutral.700, neutral.800, neutral.900
+         */
+        'midnight-blue': {
+          DEFAULT: '#1e293b',
+          50: '#f0f4ff',
+          100: '#e0e9ff',
+          200: '#c7d7fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#1e1b4b',
+          950: '#0f172a',
+        },
+
+        /**
+         * @deprecated Use surface.darker instead
+         * deep-midnight → surface.darker
+         */
+        'deep-midnight': '#020617',
+
+        /**
+         * @deprecated Use brand colors instead
+         * nexus.blue → brand.primary
+         * nexus.red → brand.secondary
+         * nexus.cyan → brand.accent
+         * nexus.dark → surface.dark
+         * nexus.charcoal → surface.card
+         */
+        nexus: {
+          blue: '#2563EB',
+          red: '#EF4444',
+          dark: '#0B0C10',
+          charcoal: '#111318',
+          cyan: '#2EE9F6',
+          white: '#F4F6FA',
+          gray: '#A6A9B4',
         },
       },
       fontFamily: {
@@ -98,6 +137,7 @@ const config = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-in-left': 'slide-in-left 0.6s ease-out forwards',
         'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
+        'shimmer': 'shimmer 2s infinite',
       },
       keyframes: {
         fadeIn: {
@@ -127,6 +167,10 @@ const config = {
         'slide-in-right': {
           from: { opacity: '0', transform: 'translateX(50px)' },
           to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        'shimmer': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
     },
