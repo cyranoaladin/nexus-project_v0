@@ -104,7 +104,7 @@ describe('Auth Guards', () => {
       };
       (getServerSession as jest.Mock).mockResolvedValue(mockSession);
 
-      const result = await requireRole('ADMIN');
+      const result = await requireRole('ADMIN' as UserRole);
 
       expect(result).toEqual(mockSession);
       expect(isErrorResponse(result)).toBe(false);
@@ -120,7 +120,7 @@ describe('Auth Guards', () => {
       };
       (getServerSession as jest.Mock).mockResolvedValue(mockSession);
 
-      const result = await requireRole('ADMIN');
+      const result = await requireRole('ADMIN' as UserRole);
 
       expect(isErrorResponse(result)).toBe(true);
       if (isErrorResponse(result)) {
@@ -133,7 +133,7 @@ describe('Auth Guards', () => {
     it('should return 401 when user is not authenticated', async () => {
       (getServerSession as jest.Mock).mockResolvedValue(null);
 
-      const result = await requireRole('ADMIN');
+      const result = await requireRole('ADMIN' as UserRole);
 
       expect(isErrorResponse(result)).toBe(true);
       if (isErrorResponse(result)) {
@@ -153,7 +153,7 @@ describe('Auth Guards', () => {
       };
       (getServerSession as jest.Mock).mockResolvedValue(mockSession);
 
-      const result = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
+      const result = await requireAnyRole(['ADMIN', 'ASSISTANTE'] as UserRole[]);
 
       expect(result).toEqual(mockSession);
       expect(isErrorResponse(result)).toBe(false);
@@ -169,7 +169,7 @@ describe('Auth Guards', () => {
       };
       (getServerSession as jest.Mock).mockResolvedValue(mockSession);
 
-      const result = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
+      const result = await requireAnyRole(['ADMIN', 'ASSISTANTE'] as UserRole[]);
 
       expect(isErrorResponse(result)).toBe(true);
       if (isErrorResponse(result)) {

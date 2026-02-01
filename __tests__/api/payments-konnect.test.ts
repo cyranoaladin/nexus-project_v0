@@ -46,7 +46,7 @@ const mockParentSession = {
  * Helper to create NextRequest with proper URL initialization
  */
 function createMockRequest(url: string, options?: RequestInit): NextRequest {
-  const request = new NextRequest(url, options);
+  const request = new NextRequest(url, options as any);
   Object.defineProperty(request, 'nextUrl', {
     value: new URL(url),
     writable: false,
@@ -59,7 +59,7 @@ describe('POST /api/payments/konnect', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
   describe('Authentication & Authorization', () => {
@@ -69,7 +69,7 @@ describe('POST /api/payments/konnect', () => {
         status: 401
       };
       (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
         method: 'POST',
@@ -95,7 +95,7 @@ describe('POST /api/payments/konnect', () => {
         status: 403
       };
       (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
         method: 'POST',
@@ -301,7 +301,7 @@ describe('POST /api/payments/konnect', () => {
 
         // Setup mocks for each iteration
         (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
-        (isErrorResponse as jest.Mock).mockReturnValue(false);
+        ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
         (prisma.student.findFirst as jest.Mock).mockResolvedValue({
           id: 'student-123',
           userId: 'user-123',
@@ -411,7 +411,7 @@ describe('POST /api/payments/konnect', () => {
       // Reset mocks and setup again for second request
       jest.clearAllMocks();
       (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
         id: 'student-123',
         userId: 'user-123',
@@ -467,7 +467,7 @@ describe('POST /api/payments/konnect', () => {
       // Reset and setup for second request
       jest.clearAllMocks();
       (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
         id: 'student-123',
         userId: 'user-123',

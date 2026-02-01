@@ -52,7 +52,7 @@ const mockAdminSession = {
  * NextRequest constructor requires specific setup for nextUrl.searchParams to work
  */
 function createMockRequest(url: string, options?: RequestInit): NextRequest {
-  const request = new NextRequest(url, options);
+  const request = new NextRequest(url, options as any);
   // Ensure nextUrl is properly initialized
   Object.defineProperty(request, 'nextUrl', {
     value: new URL(url),
@@ -66,7 +66,7 @@ describe('GET /api/admin/users', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockAdminSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
   it('should return 401 when not authenticated', async () => {
@@ -75,7 +75,7 @@ describe('GET /api/admin/users', () => {
       status: 401
     };
     (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-    (isErrorResponse as jest.Mock).mockReturnValue(true);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
     const request = createMockRequest('http://localhost:3000/api/admin/users');
     const response = await GET(request);
@@ -89,7 +89,7 @@ describe('GET /api/admin/users', () => {
       status: 403
     };
     (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-    (isErrorResponse as jest.Mock).mockReturnValue(true);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
     const request = createMockRequest('http://localhost:3000/api/admin/users');
     const response = await GET(request);
@@ -171,7 +171,7 @@ describe('POST /api/admin/users', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockAdminSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
   });
 
@@ -262,7 +262,7 @@ describe('PATCH /api/admin/users', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockAdminSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
   it('should return 400 when ID is missing', async () => {
@@ -343,7 +343,7 @@ describe('DELETE /api/admin/users', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockAdminSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
   it('should return 400 when ID is missing', async () => {

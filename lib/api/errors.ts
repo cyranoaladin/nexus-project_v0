@@ -81,7 +81,7 @@ export class ApiError extends Error {
       {
         error: this.code,
         message: this.message,
-        ...(this.details && { details: this.details }),
+        ...(this.details ? { details: this.details } : {}),
       },
       { status: this.statusCode }
     );
@@ -140,7 +140,7 @@ export function errorResponse(
     {
       error: code,
       message,
-      ...(details && { details }),
+      ...(details ? { details } : {}),
     },
     { status: statusCode }
   );
