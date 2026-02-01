@@ -95,17 +95,17 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: 'Session terminée avec succès'
+          message: 'Session completed successfully'
         });
 
       default:
-        return NextResponse.json({ error: 'Action non supportée' }, { status: 400 });
+        return NextResponse.json({ error: 'Unsupported action' }, { status: 400 });
     }
 
   } catch (error) {
     console.error('Erreur lors de la gestion de la session vidéo:', error);
     return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
