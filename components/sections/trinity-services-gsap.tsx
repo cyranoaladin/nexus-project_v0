@@ -90,7 +90,7 @@ const TrinityServicesGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="trinity" className="relative h-[150vh] bg-[#050608] py-24 overflow-hidden">
+        <section ref={sectionRef} id="trinity" className="relative h-[150vh] bg-surface-darker py-24 overflow-hidden">
 
             {/* Background Gradients */}
             <div className="absolute inset-0 pointer-events-none">
@@ -128,15 +128,15 @@ const TrinityServicesGSAP = () => {
                             <h3 className="font-display text-2xl font-bold text-white mb-4">
                                 {service.title}
                             </h3>
-                            <p className="text-gray-400 leading-relaxed mb-8 h-20">
+                            <p className="text-neutral-400 leading-relaxed mb-8 h-20">
                                 {service.description}
                             </p>
 
                             {/* Features List */}
                             <ul className="space-y-3">
                                 {service.features.map((item, idx) => (
-                                    <li key={idx} className="flex items-center gap-3 text-sm text-gray-300">
-                                        <CheckCircle2 className={`w-4 h-4 ${service.color}`} />
+                                    <li key={idx} className="flex items-center gap-3 text-sm text-neutral-300">
+                                        <CheckCircle2 className={`w-4 h-4 ${service.color}`} aria-hidden="true" />
                                         <span>{item}</span>
                                     </li>
                                 ))}
@@ -147,10 +147,10 @@ const TrinityServicesGSAP = () => {
 
                 {/* Bottom Connect */}
                 <div className="mt-16 text-center">
-                    <p className="text-gray-500 text-sm font-mono mb-4">
+                    <p className="text-neutral-500 text-sm font-mono mb-4">
                         COMBINÉS POUR VOTRE RÉUSSITE
                     </p>
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-gray-700 to-transparent mx-auto" />
+                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-neutral-700 to-transparent mx-auto" />
                 </div>
 
             </div>
