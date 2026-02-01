@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run test:unit -- --watchAll=false && npm run test:integration -- --watchAll=false && npm run build",
     "test": "jest --projects jest.config.unit.js jest.config.integration.js",
     "test:unit": "jest --config jest.config.unit.js",
     "test:integration": "jest --config jest.config.integration.js",
