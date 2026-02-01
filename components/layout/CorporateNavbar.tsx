@@ -47,19 +47,19 @@ export function CorporateNavbar() {
       {/* Fixed Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-          ? 'bg-[#0a0b0f]/90 backdrop-blur-md border-b border-white/5'
+          ? 'bg-surface-darker/90 backdrop-blur-md border-b border-white/5'
           : 'bg-transparent'
           }`}
       >
         <div className="flex items-center justify-between px-6 lg:px-12 py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-lg flex items-center justify-center">
               <span className="font-display font-bold text-white text-xl">N</span>
             </div>
             <div className="hidden md:block">
               <span className="block font-display font-bold text-white text-lg leading-none">NEXUS</span>
-              <span className="block font-mono text-[10px] text-cyan-400 tracking-widest leading-none">RÉUSSITE</span>
+              <span className="block font-mono text-[10px] text-brand-accent tracking-widest leading-none">RÉUSSITE</span>
             </div>
           </Link>
 
@@ -68,22 +68,24 @@ export function CorporateNavbar() {
             {/* CTA Button - Desktop */}
             <button
               onClick={() => scrollToSection('#contact')}
-              className="hidden md:flex items-center gap-2 bg-cyan-400/10 text-cyan-400 
-                         px-4 py-2 rounded-full text-sm font-medium border border-cyan-400/20
-                         hover:bg-cyan-400/20 transition-all duration-300"
+              className="hidden md:flex items-center gap-2 bg-brand-accent/10 text-brand-accent
+                         px-4 py-2 rounded-full text-sm font-medium border border-brand-accent/20
+                         hover:bg-brand-accent/20 transition-all duration-300"
+              aria-label="Parler à un expert"
             >
-              <Phone className="w-4 h-4" />
+              <Phone className="w-4 h-4" aria-hidden="true" />
               <span>Parler à un expert</span>
             </button>
 
             {/* Menu Button */}
             <button
               onClick={() => setIsOpen(true)}
-              className="flex items-center gap-2 text-white hover:text-cyan-400 
+              className="flex items-center gap-2 text-white hover:text-brand-accent
                          transition-colors duration-300 group"
+              aria-label="Ouvrir le menu"
             >
               <span className="font-mono text-xs uppercase tracking-[0.14em] group-hover:tracking-[0.2em] transition-all">Menu</span>
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -96,7 +98,7 @@ export function CorporateNavbar() {
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-[#0a0b0f]/95 backdrop-blur-xl"
+          className="absolute inset-0 bg-surface-darker/95 backdrop-blur-xl"
           onClick={() => setIsOpen(false)}
         />
 
@@ -110,9 +112,10 @@ export function CorporateNavbar() {
               <button
                 id="close-menu"
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:text-cyan-400 transition-colors duration-300"
+                className="text-white hover:text-brand-accent transition-colors duration-300"
+                aria-label="Fermer le menu"
               >
-                <X className="w-8 h-8" />
+                <X className="w-8 h-8" aria-hidden="true" />
               </button>
             </div>
 
@@ -124,8 +127,8 @@ export function CorporateNavbar() {
                     <button
                       key={index}
                       onClick={() => scrollToSection(item.href.replace('/', ''))}
-                      className="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400
-                                  hover:to-cyan-400 transition-all duration-300
+                      className="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
+                                  hover:to-brand-accent transition-all duration-300
                                   relative group"
                       style={{
                         transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
@@ -134,7 +137,7 @@ export function CorporateNavbar() {
                       }}
                     >
                       {item.label}
-                      <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                     </button>
                   ))}
                 </nav>
@@ -143,9 +146,9 @@ export function CorporateNavbar() {
 
             {/* Footer */}
             <div className="px-6 lg:px-12 py-8 flex flex-col md:flex-row items-center justify-between gap-4
-                                text-gray-500 text-sm font-mono border-t border-white/5">
+                                text-neutral-500 text-sm font-mono border-t border-white/5">
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-cyan-400" />
+                <Phone className="w-4 h-4 text-brand-accent" aria-hidden="true" />
                 <span>+216 99 19 28 29</span>
               </div>
               <div>contact@nexusreussite.academy</div>
