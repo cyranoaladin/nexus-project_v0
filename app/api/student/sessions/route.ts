@@ -4,6 +4,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { successResponse, handleApiError } from '@/lib/api/errors';
+import { UserRole } from '@/types/enums';
 
 /**
  * GET /api/student/sessions - Get all sessions for authenticated student
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Require ELEVE role
-    const session = await requireRole('ELEVE');
+    const session = await requireRole(UserRole.ELEVE);
     if (isErrorResponse(session)) return session;
 
     // Update logger with session context
