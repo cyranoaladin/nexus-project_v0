@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma, type CreditTransaction } from '@prisma/client';
-import { ZodError } from 'zod';
 import { bookFullSessionSchema } from '@/lib/validation';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { ApiError, successResponse, handleApiError, HttpStatus } from '@/lib/api/errors';
+import { parseBody } from '@/lib/api/helpers';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -19,39 +21,27 @@ function parseLocalDate(dateStr: string): Date {
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    console.log('Session booking request - Session:', session);
-    console.log('Session booking request - User:', session?.user);
-    
-    if (!session?.user) {
-      console.log('Session booking error: No session or user');
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+  let logger = createLogger(req);
 
-    const body = await req.json();
-    console.log('Session booking request - Body:', body);
-    const validatedData = bookFullSessionSchema.parse(body);
+  try {
+    // Rate limiting
+    const rateLimitResult = RateLimitPresets.expensive(req, 'session-book');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Authentication & Authorization
+    const session = await requireAnyRole(['PARENT', 'ELEVE']);
+    if (isErrorResponse(session)) return session;
+
+    // Update logger with user context
+    logger = createLogger(req, session);
+    logger.info('Booking session');
+
+    // Parse and validate input
+    const validatedData = await parseBody(req, bookFullSessionSchema);
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
     const requestEndTime = normalizeTime(validatedData.endTime);
-
-    console.log('Session booking request - User role:', session.user.role);
-    console.log('Session booking request - Allowed roles:', ['PARENT', 'ELEVE']);
-
-    // Check if user has permission to book (parent or student)
-    if (!['PARENT', 'ELEVE'].includes(session.user.role)) {
-      console.log('Session booking error: Unauthorized role:', session.user.role);
-      return NextResponse.json(
-        { error: 'Only parents and students can book sessions' },
-        { status: 403 }
-      );
-    }
 
     // Additional business logic validation
     const scheduledDate = parseLocalDate(validatedData.scheduledDate);
@@ -62,29 +52,20 @@ export async function POST(req: NextRequest) {
     const maxBookingDate = new Date();
     maxBookingDate.setMonth(maxBookingDate.getMonth() + 3);
     if (scheduledDate > maxBookingDate) {
-      return NextResponse.json(
-        { error: 'Cannot book sessions more than 3 months in advance' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
     }
 
     // Check if booking is on a weekend (optional business rule)
     const dayOfWeek = scheduledDate.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return NextResponse.json(
-        { error: 'Sessions cannot be booked on weekends' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Sessions cannot be booked on weekends');
     }
 
     // Check if booking is outside business hours (8 AM to 8 PM)
     const startHour = parseInt(requestStartTime.split(':')[0]);
     const endHour = parseInt(requestEndTime.split(':')[0]);
     if (startHour < 8 || endHour > 20) {
-      return NextResponse.json(
-        { error: 'Sessions must be between 8:00 AM and 8:00 PM' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Sessions must be between 8:00 AM and 8:00 PM');
     }
 
     // Start transaction
@@ -391,26 +372,23 @@ export async function POST(req: NextRequest) {
     // Send immediate notifications (implement email service)
     // await sendSessionBookingNotifications(result.id);
 
-    return NextResponse.json({
+    logger.logRequest(HttpStatus.CREATED, {
+      sessionId: result.id,
+      coachId: validatedData.coachId,
+      studentId: validatedData.studentId,
+      subject: validatedData.subject
+    });
+
+    return successResponse({
       success: true,
       sessionId: result.id,
       message: 'Session booked successfully',
       session: result
-    });
+    }, HttpStatus.CREATED);
 
   } catch (error) {
-    console.error('Session booking error:', error);
-
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
-        { status: 400 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to book session' },
-      { status: 500 }
-    );
+    logger.error('Failed to book session', error);
+    logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
+    return handleApiError(error, 'POST /api/sessions/book');
   }
 }
