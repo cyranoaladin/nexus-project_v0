@@ -1,5 +1,4 @@
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { requireRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import crypto from 'crypto';
@@ -16,14 +15,9 @@ const konnectPaymentSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== 'PARENT') {
-      return NextResponse.json(
-        { error: 'Accès non autorisé' },
-        { status: 401 }
-      );
-    }
+    // Require PARENT role
+    const session = await requireRole('PARENT');
+    if (isErrorResponse(session)) return session;
 
     const body = await request.json();
     const validatedData = konnectPaymentSchema.parse(body);
