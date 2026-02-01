@@ -98,6 +98,69 @@ export const createTestCoach = async (overrides: any = {}) => {
   return { coachUser, coachProfile };
 };
 
+export const createTestCoachAvailability = async (coachId: string, overrides: any = {}) => {
+  return await testPrisma.coachAvailability.create({
+    data: {
+      coachId,
+      dayOfWeek: 3, // Wednesday
+      isRecurring: true,
+      isAvailable: true,
+      startTime: '08:00',
+      endTime: '20:00',
+      ...overrides
+    }
+  });
+};
+
+export const createTestSessionBooking = async (overrides: Partial<any> = {}) => {
+  // Create coach if not provided
+  let coach;
+  if (!overrides.coachId) {
+    const coachData = await createTestCoach();
+    coach = coachData.coachProfile;
+  }
+
+  // Create student if not provided
+  let studentData;
+  if (!overrides.studentId) {
+    const parent = await createTestParent();
+    studentData = await createTestStudent(parent.id);
+  }
+
+  const coachId = overrides.coachId || coach?.userId;
+  const studentId = overrides.studentId || studentData?.studentUser.id;
+
+  return await testPrisma.sessionBooking.create({
+    data: {
+      coachId: coachId!,
+      studentId: studentId!,
+      subject: 'MATHEMATIQUES',
+      title: 'Test session',
+      scheduledDate: new Date('2026-03-15'),
+      startTime: '14:00',
+      endTime: '15:00',
+      duration: 60,
+      creditsUsed: 1,
+      status: 'SCHEDULED',
+      type: 'INDIVIDUAL',
+      modality: 'ONLINE',
+      ...overrides
+    }
+  });
+};
+
+export const createTestCreditTransaction = async (studentId: string, overrides: any = {}) => {
+  return await testPrisma.creditTransaction.create({
+    data: {
+      studentId,
+      type: 'PURCHASE',
+      amount: 10,
+      description: 'Test credit purchase',
+      ...overrides
+    }
+  });
+};
+
 export const createTestSubscription = async (studentId: string, overrides: any = {}) => {
   return await testPrisma.subscription.create({
     data: {
