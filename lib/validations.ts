@@ -68,7 +68,7 @@ export const sessionBookingSchema = z.object({
   const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 hours from now
   return selectedDate > twoHoursFromNow;
 }, {
-  message: "La session doit être programmée au minimum 2 heures à l'avance",
+  message: "Session must be scheduled at least 2 hours in advance",
   path: ["scheduledAt"]
 });
 
