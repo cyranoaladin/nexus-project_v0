@@ -97,6 +97,12 @@ jobs:
       - name: TypeScript type check
         run: npm run typecheck
 
+      - name: Build production bundle
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          NEXTAUTH_URL: http://localhost:3000
+        run: npm run build
+
       - name: Run unit tests (Jest)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
