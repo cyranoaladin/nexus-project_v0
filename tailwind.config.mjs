@@ -56,9 +56,14 @@ const config = {
         },
 
         // ===== DEPRECATED COLORS (Migrate to new design system) =====
+        // ⚠️ WARNING: These colors are still in use and cannot be removed yet
+        // See migration status below for each color group
+
         /**
          * @deprecated Use neutral scale or surface colors instead
          * midnight-blue → neutral.700, neutral.800, neutral.900
+         *
+         * STATUS: 0 usages found - can be removed in future
          */
         'midnight-blue': {
           DEFAULT: '#1e293b',
@@ -78,6 +83,13 @@ const config = {
         /**
          * @deprecated Use surface.darker instead
          * deep-midnight → surface.darker
+         *
+         * STATUS: 59 usages found in:
+         * - app/contact/page.tsx
+         * - app/academy/page.tsx
+         * - app/famille/page.tsx
+         * - app/globals.css (body styling)
+         * TODO: Migrate these files before removal
          */
         'deep-midnight': '#020617',
 
@@ -88,6 +100,13 @@ const config = {
          * nexus.cyan → brand.accent
          * nexus.dark → surface.dark
          * nexus.charcoal → surface.card
+         *
+         * STATUS: 74 usages found in:
+         * - app/globals.css (CSS variables)
+         * - components/sections/trinity-services-gsap.tsx
+         * - components/sections/korrigo-section-gsap.tsx
+         * - Other GSAP sections
+         * TODO: Migrate GSAP sections and CSS variables before removal
          */
         nexus: {
           blue: '#2563EB',
