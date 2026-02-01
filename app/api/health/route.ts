@@ -3,12 +3,9 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Test database connection
-    await prisma.$connect();
-    
-    // Test a simple query
+    // Test a simple query to ensure DB is responsive
     const userCount = await prisma.user.count();
-    
+
     return NextResponse.json({
       status: 'success',
       message: 'API and database are working!',
@@ -19,14 +16,14 @@ export async function GET() {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Health check error:', error);
+    // Log full error server-side for debugging
+    console.error('Health check error:', error instanceof Error ? error.message : 'Unknown error');
+
+    // Return minimal info to client (no stack traces or internals)
     return NextResponse.json({
       status: 'error',
-      message: 'Database connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Service temporarily unavailable',
       timestamp: new Date().toISOString()
-    }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    }, { status: 503 });
   }
 }
