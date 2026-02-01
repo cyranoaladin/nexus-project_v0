@@ -64,7 +64,7 @@ describe('RBAC - Admin Routes', () => {
         status: 401
       };
       (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const response = await GET({} as any);
       const data = await response.json();
@@ -81,7 +81,7 @@ describe('RBAC - Admin Routes', () => {
         status: 403
       };
       (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const response = await GET({} as any);
       const data = await response.json();
@@ -103,7 +103,7 @@ describe('RBAC - Admin Routes', () => {
         }
       };
       (requireRole as jest.Mock).mockResolvedValue(mockAdminSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
 
       // Mock Prisma responses
       const { prisma } = require('@/lib/prisma');
@@ -142,7 +142,7 @@ describe('RBAC - Admin Routes', () => {
           status: 403
         };
         (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-        (isErrorResponse as jest.Mock).mockReturnValue(true);
+        ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
         const response = await GET({} as any);
         const data = await response.json();

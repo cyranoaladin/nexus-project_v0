@@ -85,7 +85,7 @@ const validBookingData = {
  * Helper to create NextRequest with proper URL initialization
  */
 function createMockRequest(url: string, options?: RequestInit): NextRequest {
-  const request = new NextRequest(url, options);
+  const request = new NextRequest(url, options as any);
   // Ensure nextUrl is properly initialized
   Object.defineProperty(request, 'nextUrl', {
     value: new URL(url),
@@ -99,7 +99,7 @@ describe('POST /api/sessions/book', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
   });
 
   // ========================================
@@ -113,7 +113,7 @@ describe('POST /api/sessions/book', () => {
         status: 401
       };
       (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost/api/sessions/book', {
         method: 'POST',
@@ -130,7 +130,7 @@ describe('POST /api/sessions/book', () => {
         status: 403
       };
       (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-      (isErrorResponse as jest.Mock).mockReturnValue(true);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost/api/sessions/book', {
         method: 'POST',
@@ -143,7 +143,7 @@ describe('POST /api/sessions/book', () => {
 
     it('should allow PARENT to book sessions', async () => {
       (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.$transaction as jest.Mock).mockResolvedValue({
         id: 'booking-123',
         status: 'SCHEDULED'
@@ -160,7 +160,7 @@ describe('POST /api/sessions/book', () => {
 
     it('should allow ELEVE to book sessions', async () => {
       (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.$transaction as jest.Mock).mockResolvedValue({
         id: 'booking-123',
         status: 'SCHEDULED'
@@ -604,7 +604,7 @@ describe('POST /api/sessions/book', () => {
   describe('Success', () => {
     it('should successfully book session as PARENT', async () => {
       (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
 
       const mockBooking = {
         id: 'booking-123',
@@ -637,7 +637,7 @@ describe('POST /api/sessions/book', () => {
 
     it('should successfully book session as ELEVE', async () => {
       (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
-      (isErrorResponse as jest.Mock).mockReturnValue(false);
+      ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
 
       const mockBooking = {
         id: 'booking-456',
