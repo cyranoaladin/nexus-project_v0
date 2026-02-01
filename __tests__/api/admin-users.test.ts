@@ -47,6 +47,21 @@ const mockAdminSession = {
   }
 };
 
+/**
+ * Helper to create NextRequest with proper URL initialization
+ * NextRequest constructor requires specific setup for nextUrl.searchParams to work
+ */
+function createMockRequest(url: string, options?: RequestInit): NextRequest {
+  const request = new NextRequest(url, options);
+  // Ensure nextUrl is properly initialized
+  Object.defineProperty(request, 'nextUrl', {
+    value: new URL(url),
+    writable: false,
+    configurable: true
+  });
+  return request;
+}
+
 describe('GET /api/admin/users', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -62,7 +77,7 @@ describe('GET /api/admin/users', () => {
     (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
     (isErrorResponse as jest.Mock).mockReturnValue(true);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users');
+    const request = createMockRequest('http://localhost:3000/api/admin/users');
     const response = await GET(request);
 
     expect(response.status).toBe(401);
@@ -76,14 +91,13 @@ describe('GET /api/admin/users', () => {
     (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
     (isErrorResponse as jest.Mock).mockReturnValue(true);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users');
+    const request = createMockRequest('http://localhost:3000/api/admin/users');
     const response = await GET(request);
 
     expect(response.status).toBe(403);
   });
 
-  // TODO: Fix NextRequest mock setup for query parameters
-  it.skip('should list users with pagination', async () => {
+  it('should list users with pagination', async () => {
     const mockUsers = [
       {
         id: 'user-1',
@@ -102,7 +116,7 @@ describe('GET /api/admin/users', () => {
     (prisma.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
     (prisma.user.count as jest.Mock).mockResolvedValue(1);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?limit=20&offset=0');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?limit=20&offset=0');
     const response = await GET(request);
     const data = await response.json();
 
@@ -118,11 +132,11 @@ describe('GET /api/admin/users', () => {
     });
   });
 
-  it.skip('should filter users by role', async () => {
+  it('should filter users by role', async () => {
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.user.count as jest.Mock).mockResolvedValue(0);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?role=COACH');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?role=COACH');
     await GET(request);
 
     expect(prisma.user.findMany).toHaveBeenCalledWith(
@@ -132,11 +146,11 @@ describe('GET /api/admin/users', () => {
     );
   });
 
-  it.skip('should search users by name or email', async () => {
+  it('should search users by name or email', async () => {
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.user.count as jest.Mock).mockResolvedValue(0);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?search=john');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?search=john');
     await GET(request);
 
     expect(prisma.user.findMany).toHaveBeenCalledWith(
@@ -162,7 +176,7 @@ describe('POST /api/admin/users', () => {
   });
 
   it('should return 422 for invalid input', async () => {
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -188,7 +202,7 @@ describe('POST /api/admin/users', () => {
       email: 'existing@test.com'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -222,7 +236,7 @@ describe('POST /api/admin/users', () => {
       coachProfile: null
     });
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -252,7 +266,7 @@ describe('PATCH /api/admin/users', () => {
   });
 
   it('should return 400 when ID is missing', async () => {
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -270,7 +284,7 @@ describe('PATCH /api/admin/users', () => {
   it('should return 404 when user not found', async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -307,7 +321,7 @@ describe('PATCH /api/admin/users', () => {
       updatedAt: new Date()
     });
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users', {
+    const request = createMockRequest('http://localhost:3000/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -333,7 +347,7 @@ describe('DELETE /api/admin/users', () => {
   });
 
   it('should return 400 when ID is missing', async () => {
-    const request = new NextRequest('http://localhost:3000/api/admin/users');
+    const request = createMockRequest('http://localhost:3000/api/admin/users');
     const response = await DELETE(request);
     const data = await response.json();
 
@@ -344,7 +358,7 @@ describe('DELETE /api/admin/users', () => {
   it('should return 404 when user not found', async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?id=nonexistent');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?id=nonexistent');
     const response = await DELETE(request);
     const data = await response.json();
 
@@ -358,7 +372,7 @@ describe('DELETE /api/admin/users', () => {
       email: 'admin@nexus.com'
     });
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?id=admin-123');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?id=admin-123');
     const response = await DELETE(request);
     const data = await response.json();
 
@@ -374,7 +388,7 @@ describe('DELETE /api/admin/users', () => {
     });
     (prisma.user.delete as jest.Mock).mockResolvedValue({});
 
-    const request = new NextRequest('http://localhost:3000/api/admin/users?id=user-123');
+    const request = createMockRequest('http://localhost:3000/api/admin/users?id=user-123');
     const response = await DELETE(request);
     const data = await response.json();
 
