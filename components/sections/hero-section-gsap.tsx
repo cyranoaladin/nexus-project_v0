@@ -4,6 +4,7 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Sparkles, Cpu, Blocks, GraduationCap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -101,7 +102,7 @@ const HeroSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="hero"
-            className="section-pinned bg-[#0a0b0f] flex items-center justify-center overflow-hidden h-screen w-full relative"
+            className="section-pinned bg-surface-darker flex items-center justify-center overflow-hidden h-screen w-full relative"
             style={{ zIndex: 10 }}
         >
             {/* Background Visual */}
@@ -114,8 +115,8 @@ const HeroSectionGSAP = () => {
                     alt="Precision Tech Education"
                     className="w-full h-full object-cover opacity-70"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0b0f] via-[#0a0b0f]/90 to-[#0a0b0f]/60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0f] via-transparent to-[#0a0b0f]/70" />
+                <div className="absolute inset-0 bg-gradient-to-r from-surface-darker via-surface-darker/90 to-surface-darker/60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface-darker via-transparent to-surface-darker/70" />
 
                 {/* Animated Grid Overlay */}
                 <div className="absolute inset-0 opacity-20">
@@ -136,10 +137,10 @@ const HeroSectionGSAP = () => {
                     {/* Left - Text Content */}
                     <div ref={contentRef} className="flex flex-col justify-center">
                         {/* Premium Badge */}
-                        <div className="animate-item inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                        <div className="animate-item inline-flex items-center gap-2 px-4 py-2 rounded-full
                             bg-white/5 border border-white/10 w-fit mb-6">
-                            <Sparkles className="w-4 h-4 text-blue-400" />
-                            <span className="font-mono text-xs uppercase tracking-[0.16em] text-gray-400">
+                            <Sparkles className="w-4 h-4 text-brand-primary" aria-hidden="true" />
+                            <span className="font-mono text-xs uppercase tracking-[0.16em] text-neutral-400">
                                 Pont entre l'Académique et la Rupture Technologique
                             </span>
                         </div>
@@ -147,14 +148,14 @@ const HeroSectionGSAP = () => {
                         {/* Headline */}
                         <h1 className="animate-item font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05]">
                             L'Intelligence Artificielle et le{' '}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary">
                                 Web3
                             </span>{' '}
                             au service de l'Excellence Pédagogique.
                         </h1>
 
                         {/* Value Proposition */}
-                        <p className="animate-item text-gray-400 mt-6 text-lg leading-relaxed max-w-xl">
+                        <p className="animate-item text-neutral-400 mt-6 text-lg leading-relaxed max-w-xl">
                             Nexus Réussite déploie des solutions d'ingénierie IA (RAG, Agents autonomes)
                             et une expertise académique de haut niveau pour les entreprises,
                             les établissements et les élèves.
@@ -162,24 +163,22 @@ const HeroSectionGSAP = () => {
 
                         {/* CTAs */}
                         <div className="animate-item flex flex-wrap items-center gap-4 mt-8">
-                            <button
+                            <Button
                                 onClick={() => scrollToSection('#trinity')}
-                                className="group flex items-center gap-3 bg-gradient-to-r from-blue-500 to-cyan-500 
-                         text-white px-7 py-4 rounded-xl font-semibold
-                         hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300
-                         hover:scale-105"
+                                size="lg"
+                                className="group bg-gradient-to-r from-brand-primary to-brand-accent hover:shadow-xl hover:shadow-brand-primary/30"
                             >
                                 <span>Découvrir nos Solutions</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <button
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                            </Button>
+                            <Button
                                 onClick={() => scrollToSection('#contact')}
-                                className="flex items-center gap-3 px-7 py-4 rounded-xl font-semibold
-                         bg-white/5 text-white border border-white/10
-                         hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                                variant="outline"
+                                size="lg"
+                                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
                             >
                                 <span>Accéder à la Plateforme</span>
-                            </button>
+                            </Button>
                         </div>
                     </div>
 

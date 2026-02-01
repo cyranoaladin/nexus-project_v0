@@ -35,7 +35,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative bg-[#0a0b0f] min-h-screen font-sans selection:bg-blue-500/30 selection:text-white">
+    <div className="relative bg-surface-darker min-h-screen font-sans selection:bg-brand-primary/30 selection:text-white">
       {/* Grain Overlay */}
       <div className="grain-overlay fixed inset-0 pointer-events-none opacity-[0.04] z-[9999] mix-blend-overlay"
         style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")" }}
@@ -50,11 +50,7 @@ export default function HomePage() {
         richColors
         theme="dark"
         toastOptions={{
-          style: {
-            background: '#111318',
-            border: '1px solid rgba(255,255,255,0.1)',
-            color: '#F4F6FA',
-          },
+          className: 'bg-surface-card border-white/10 text-white',
         }}
       />
 
