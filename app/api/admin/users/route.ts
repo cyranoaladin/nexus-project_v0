@@ -5,16 +5,28 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
 import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api/errors';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
 import type { Prisma } from '@prisma/client';
 
 /**
  * GET /api/admin/users - List users with filters and pagination
  */
 export async function GET(request: NextRequest) {
+  let logger = createLogger(request);
+
   try {
+    // Rate limiting
+    const rateLimitResult = RateLimitPresets.api(request, 'admin-users');
+    if (rateLimitResult) return rateLimitResult;
+
     // Require ADMIN role
     const session = await requireRole('ADMIN');
     if (isErrorResponse(session)) return session;
+
+    // Update logger with session context
+    logger = createLogger(request, session);
+    logger.info('Listing users');
 
     // Parse and validate query parameters
     const params = parseSearchParams(request, listUsersSchema);
@@ -75,12 +87,16 @@ export async function GET(request: NextRequest) {
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
 
+    logger.logRequest(200, { count: formattedUsers.length, filters: params });
+
     return successResponse({
       users: formattedUsers,
       pagination: createPaginationMeta(total, params.limit, params.offset)
     });
 
   } catch (error) {
+    logger.error('Failed to list users', error);
+    logger.logRequest(500);
     return handleApiError(error, 'GET /api/admin/users');
   }
 }
@@ -89,10 +105,20 @@ export async function GET(request: NextRequest) {
  * POST /api/admin/users - Create a new user
  */
 export async function POST(request: NextRequest) {
+  let logger = createLogger(request);
+
   try {
+    // Rate limiting (stricter for write operations)
+    const rateLimitResult = RateLimitPresets.expensive(request, 'admin-users-create');
+    if (rateLimitResult) return rateLimitResult;
+
     // Require ADMIN role
     const session = await requireRole('ADMIN');
     if (isErrorResponse(session)) return session;
+
+    // Update logger with session context
+    logger = createLogger(request, session);
+    logger.info('Creating user');
 
     // Parse and validate request body
     const data = await parseBody(request, createUserSchema);
@@ -141,6 +167,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    logger.logRequest(201, { userId: user.id, role: user.role });
+
     return successResponse({
       success: true,
       message: 'User created successfully',
@@ -158,6 +186,8 @@ export async function POST(request: NextRequest) {
     }, HttpStatus.CREATED);
 
   } catch (error) {
+    logger.error('Failed to create user', error);
+    logger.logRequest(500);
     return handleApiError(error, 'POST /api/admin/users');
   }
 }
