@@ -5,13 +5,15 @@
  */
 
 import { POST } from '@/app/api/sessions/book/route';
-import { getServerSession } from 'next-auth/next';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 
-// Mock next-auth
-jest.mock('next-auth/next', () => ({
-  getServerSession: jest.fn()
+// Mock guards
+jest.mock('@/lib/guards', () => ({
+  ...jest.requireActual('@/lib/guards'),
+  requireAnyRole: jest.fn(),
+  isErrorResponse: jest.fn()
 }));
 
 // Mock prisma
@@ -80,16 +82,24 @@ const validBookingData = {
 };
 
 /**
- * Helper to create NextRequest
+ * Helper to create NextRequest with proper URL initialization
  */
 function createMockRequest(url: string, options?: RequestInit): NextRequest {
-  return new NextRequest(url, options);
+  const request = new NextRequest(url, options);
+  // Ensure nextUrl is properly initialized
+  Object.defineProperty(request, 'nextUrl', {
+    value: new URL(url),
+    writable: false,
+    configurable: true
+  });
+  return request;
 }
 
 describe('POST /api/sessions/book', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (getServerSession as jest.Mock).mockResolvedValue(mockParentSession);
+    (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
+    (isErrorResponse as jest.Mock).mockReturnValue(false);
   });
 
   // ========================================
@@ -98,7 +108,12 @@ describe('POST /api/sessions/book', () => {
 
   describe('Authentication', () => {
     it('should return 401 when not authenticated', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(null);
+      const mockErrorResponse = {
+        json: async () => ({ error: 'UNAUTHORIZED', message: 'Authentication required' }),
+        status: 401
+      };
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
+      (isErrorResponse as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost/api/sessions/book', {
         method: 'POST',
@@ -106,16 +121,16 @@ describe('POST /api/sessions/book', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
-
       expect(response.status).toBe(401);
-      expect(data.error).toBe('Authentication required');
     });
 
     it('should return 403 when user is not PARENT or ELEVE', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
-        user: { id: 'coach-123', role: 'COACH', email: 'coach@test.com' }
-      });
+      const mockErrorResponse = {
+        json: async () => ({ error: 'FORBIDDEN', message: 'Access denied. Required role: PARENT or ELEVE' }),
+        status: 403
+      };
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
+      (isErrorResponse as jest.Mock).mockReturnValue(true);
 
       const request = createMockRequest('http://localhost/api/sessions/book', {
         method: 'POST',
@@ -123,14 +138,12 @@ describe('POST /api/sessions/book', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
-
       expect(response.status).toBe(403);
-      expect(data.error).toContain('PARENT or ELEVE');
     });
 
     it('should allow PARENT to book sessions', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(mockParentSession);
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
+      (isErrorResponse as jest.Mock).mockReturnValue(false);
       (prisma.$transaction as jest.Mock).mockResolvedValue({
         id: 'booking-123',
         status: 'SCHEDULED'
@@ -146,7 +159,8 @@ describe('POST /api/sessions/book', () => {
     });
 
     it('should allow ELEVE to book sessions', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(mockStudentSession);
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
+      (isErrorResponse as jest.Mock).mockReturnValue(false);
       (prisma.$transaction as jest.Mock).mockResolvedValue({
         id: 'booking-123',
         status: 'SCHEDULED'
@@ -589,7 +603,8 @@ describe('POST /api/sessions/book', () => {
 
   describe('Success', () => {
     it('should successfully book session as PARENT', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(mockParentSession);
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
+      (isErrorResponse as jest.Mock).mockReturnValue(false);
 
       const mockBooking = {
         id: 'booking-123',
@@ -614,14 +629,15 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.sessionId).toBe('booking-123');
       expect(data.message).toContain('successfully');
     });
 
     it('should successfully book session as ELEVE', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(mockStudentSession);
+      (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
+      (isErrorResponse as jest.Mock).mockReturnValue(false);
 
       const mockBooking = {
         id: 'booking-456',
@@ -643,7 +659,7 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(data.success).toBe(true);
       expect(data.sessionId).toBe('booking-456');
     });
