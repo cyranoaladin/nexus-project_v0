@@ -9,6 +9,8 @@ const customJestConfig = {
   testEnvironment: 'node',
   testMatch: [
     '**/__tests__/api/**/*.(test|spec).(js|ts)',
+    '**/__tests__/concurrency/**/*.(test|spec).(js|ts)',
+    '**/__tests__/transactions/**/*.(test|spec).(js|ts)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
