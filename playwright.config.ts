@@ -1,6 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
+/**
+ * Playwright Configuration - Nexus Réussite Platform
+ *
+ * Port Convention: Always use 3000 for consistency
+ * - Local dev: 3000
+ * - E2E tests: 3000
+ * - CI: 3000
+ */
+const baseURL = 'http://localhost:3000'; // Fixed port for consistency
 
 export default defineConfig({
   testDir: './e2e',
