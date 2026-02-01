@@ -252,6 +252,10 @@ model CreditTransaction {
 
   createdAt DateTime @default(now())
 
+  // Note: Database has partial unique indexes to prevent duplicate transactions:
+  // - credit_transactions_session_usage_key: one USAGE per session
+  // - credit_transactions_session_refund_key: one REFUND per session
+  // See migration: 20260201201534_add_credit_transaction_idempotency
   @@map("credit_transactions")
 }
 
@@ -403,6 +407,8 @@ model Payment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Ensure payment idempotency: prevent duplicate payments from webhook retries
+  @@unique([externalId, method], name: "payments_externalId_method_key")
   @@map("payments")
 }
 
@@ -578,6 +584,10 @@ model SessionBooking {
   @@index([coachId, scheduledDate])
   @@index([status, scheduledDate])
   @@index([scheduledDate])
+
+  // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
+  // overlapping bookings for same coach/date (Prisma doesn't support EXCLUDE syntax)
+  // See migration: 20260201201415_add_session_overlap_prevention
 }
 
 // Notification System
@@ -656,6 +666,32 @@ enum NotificationType {
   SESSION_COMPLETED
   COACH_ASSIGNED
   PAYMENT_REQUIRED
+}
+
+// Cron Job Execution Tracking
+model CronExecution {
+  id           String    @id @default(cuid())
+  jobName      String    // e.g., "monthly-allocation", "credit-expiration"
+  executionKey String    // e.g., "2026-02" for monthly jobs, or timestamp for others
+  status       CronExecutionStatus
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  error        String?
+  metadata     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobName, executionKey], name: "cron_executions_job_key")
+  @@index([status])
+  @@index([startedAt])
+  @@map("cron_executions")
+}
+
+enum CronExecutionStatus {
+  RUNNING
+  COMPLETED
+  FAILED
 }
 
 enum NotificationStatus {
