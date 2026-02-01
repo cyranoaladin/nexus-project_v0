@@ -173,6 +173,12 @@ body {
     position: relative;
   }
 
+  /* ⚠️ DEPRECATED: Use <Button> component instead
+   * Still used in: hero-section.tsx, korrigo-section-gsap.tsx, proof-section-gsap.tsx,
+   * offer-section-gsap.tsx, business-model-section.tsx, comparison-table-section.tsx,
+   * micro-engagement-section.tsx, aria-widget.tsx
+   * TODO: Migrate these files to use Button component
+   */
   .btn-primary {
     @apply bg-brand-accent text-surface-dark font-semibold px-6 py-3 rounded-full transition-all duration-300;
     position: relative;
@@ -202,6 +208,7 @@ body {
     left: 100%;
   }
 
+  /* ⚠️ DEPRECATED: Use <Button variant="outline"> instead */
   .btn-secondary {
     @apply border border-white/20 text-foreground px-6 py-3 rounded-full transition-all duration-300;
   }
@@ -211,9 +218,12 @@ body {
     color: rgb(var(--color-brand-accent));
   }
 
-  /* Existing enhanced cards */
+  /* ⚠️ DEPRECATED: Use <Card> component with variants instead
+   * Still used in: business-model-section.tsx, comparison-table-section.tsx, guarantee-section.tsx
+   * TODO: Migrate these files to use Card component
+   */
   .card-enhanced {
-    @apply bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
+    @apply bg-white rounded-2xl border border-neutral-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
   }
 
   .card-popular {
@@ -221,16 +231,18 @@ body {
   }
 
   .card-premium {
-    @apply border-2 border-gray-900 bg-gradient-to-br from-gray-50 to-white shadow-2xl;
+    @apply border-2 border-neutral-900 bg-gradient-to-br from-neutral-50 to-white shadow-2xl;
   }
 
-  /* Badges */
+  /* ⚠️ DEPRECATED: Use <Badge> component with variants instead
+   * No current usages found - safe to remove in future cleanup
+   */
   .badge-popular {
     @apply bg-blue-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
   }
 
   .badge-premium {
-    @apply bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
+    @apply bg-error text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
   }
 }
 
