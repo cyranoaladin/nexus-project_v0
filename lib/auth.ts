@@ -35,12 +35,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // === LOG DE DÉBOGAGE N°1 ===
-        console.log("--- [AUTHORIZE START] ---");
-        console.log("Credentials received:", credentials);
-
         if (!credentials?.email || !credentials?.password) {
-          console.error("[AUTHORIZE ERROR] Missing credentials");
           return null;
         }
 
@@ -56,11 +51,7 @@ export const authOptions: NextAuthOptions = {
             }
           });
 
-          // === LOG DE DÉBOGAGE N°2 ===
-          console.log("User found in DB:", user);
-
           if (!user || !user.password) {
-            console.error("[AUTHORIZE ERROR] User not found or no password set");
             return null;
           }
 
@@ -69,11 +60,7 @@ export const authOptions: NextAuthOptions = {
             user.password
           );
 
-          // === LOG DE DÉBOGAGE N°3 ===
-          console.log("Is password valid:", isPasswordValid);
-
           if (isPasswordValid) {
-            console.log("--- [AUTHORIZE SUCCESS] ---");
             return {
               id: user.id,
               email: user.email,
@@ -82,12 +69,11 @@ export const authOptions: NextAuthOptions = {
               lastName: user.lastName ?? undefined,
             };
           } else {
-            console.error("[AUTHORIZE ERROR] Invalid password");
             return null;
           }
         } catch (error) {
-          // === LOG DE DÉBOGAGE N°4 ===
-          console.error("--- [AUTHORIZE CATCH ERROR] ---", error);
+          // Log error without exposing details to client
+          console.error('Authentication error:', error instanceof Error ? error.message : 'Unknown error');
           return null;
         }
       }
@@ -98,8 +84,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // === LOG DE DÉBOGAGE N°5 ===
-      console.log("--- [JWT CALLBACK] ---", { token, user });
       try {
         if (user) {
           token.role = user.role;
@@ -108,13 +92,11 @@ export const authOptions: NextAuthOptions = {
         }
         return token;
       } catch (error) {
-        console.error('JWT callback error:', error);
+        console.error('JWT callback error:', error instanceof Error ? error.message : 'Token generation failed');
         return token;
       }
     },
     async session({ session, token }) {
-      // === LOG DE DÉBOGAGE N°6 ===
-      console.log("--- [SESSION CALLBACK] ---", { session, token });
       try {
         if (token) {
           session.user.id = token.sub!;
@@ -124,18 +106,9 @@ export const authOptions: NextAuthOptions = {
         }
         return session;
       } catch (error) {
-        console.error('Session callback error:', error);
-        // Return a basic session if there's an error
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            id: token?.sub || 'unknown',
-            role: 'PARENT' as UserRole,
-            firstName: token?.firstName as string || '',
-            lastName: token?.lastName as string || ''
-          }
-        };
+        console.error('Session callback error:', error instanceof Error ? error.message : 'Session hydration failed');
+        // Do not return a valid session if we cannot resolve it securely
+        return session; // Or throw to invalidate
       }
     }
   },
