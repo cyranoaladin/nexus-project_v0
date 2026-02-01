@@ -7,6 +7,7 @@ import { ApiError, successResponse, handleApiError, HttpStatus } from '@/lib/api
 import { parseBody } from '@/lib/api/helpers';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
+import { UserRole } from '@/types/enums';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Authentication & Authorization
-    const session = await requireAnyRole(['PARENT', 'ELEVE']);
+    const session = await requireAnyRole([UserRole.PARENT, UserRole.ELEVE]);
     if (isErrorResponse(session)) return session;
 
     // Update logger with user context
@@ -399,13 +400,13 @@ export async function POST(req: NextRequest) {
       // 23P01: Exclusion constraint violation (overlapping sessions)
       if (dbError.code === '23P01') {
         logger.logRequest(HttpStatus.CONFLICT);
-        return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.');
+        return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.').toResponse();
       }
 
       // P2034: Transaction failed due to serialization conflict
       if (dbError.code === 'P2034') {
         logger.logRequest(HttpStatus.CONFLICT);
-        return ApiError.conflict('Booking conflict detected. Please try again.');
+        return ApiError.conflict('Booking conflict detected. Please try again.').toResponse();
       }
     }
 

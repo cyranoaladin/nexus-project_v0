@@ -58,6 +58,7 @@ export type ListSessionsParams = z.infer<typeof listSessionsSchema>;
  * Session cancellation schema (POST /api/sessions/:id/cancel)
  */
 export const cancelSessionSchema = z.object({
+  sessionId: z.string().cuid('Invalid session ID'),
   reason: z.string().trim().min(1, 'Cancellation reason is required').max(500),
 });
 

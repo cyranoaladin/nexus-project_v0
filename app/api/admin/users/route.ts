@@ -8,6 +8,7 @@ import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import type { Prisma } from '@prisma/client';
+import { UserRole } from '@/types/enums';
 
 /**
  * GET /api/admin/users - List users with filters and pagination
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Require ADMIN role
-    const session = await requireRole('ADMIN');
+    const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
 
     // Update logger with session context
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     // Parse and validate query parameters
     const params = parseSearchParams(request, listUsersSchema);
-    const { skip, take } = getPagination(params.limit, params.offset);
+    const { skip, take } = getPagination(params.limit ?? 10, params.offset ?? 0);
 
     // Build where clause
     const whereClause: Prisma.UserWhereInput = {};
@@ -39,9 +40,11 @@ export async function GET(request: NextRequest) {
       whereClause.role = params.role;
     }
 
-    if (params.isActive !== undefined) {
-      whereClause.isActive = params.isActive;
-    }
+    // Note: isActive field does not exist in User schema
+    // TODO: Add isActive field to User model if needed
+    // if (params.isActive !== undefined) {
+    //   whereClause.isActive = params.isActive;
+    // }
 
     if (params.search) {
       whereClause.OR = [
@@ -66,7 +69,6 @@ export async function GET(request: NextRequest) {
           firstName: true,
           lastName: true,
           role: true,
-          isActive: true,
           createdAt: true,
           student: true,
           coachProfile: true,
@@ -82,7 +84,7 @@ export async function GET(request: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      isActive: user.isActive,
+      // isActive field removed - doesn't exist in User schema
       createdAt: user.createdAt,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
@@ -91,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse({
       users: formattedUsers,
-      pagination: createPaginationMeta(total, params.limit, params.offset)
+      pagination: createPaginationMeta(total, params.limit ?? 10, params.offset ?? 0)
     });
 
   } catch (error) {
@@ -113,7 +115,7 @@ export async function POST(request: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Require ADMIN role
-    const session = await requireRole('ADMIN');
+    const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
 
     // Update logger with session context
@@ -161,7 +163,7 @@ export async function POST(request: NextRequest) {
         lastName: true,
         role: true,
         phone: true,
-        isActive: true,
+        // isActive: true, // Field doesn't exist in User schema
         createdAt: true,
         coachProfile: true
       }
@@ -179,7 +181,7 @@ export async function POST(request: NextRequest) {
         lastName: user.lastName,
         role: user.role,
         phone: user.phone,
-        isActive: user.isActive,
+        // isActive field removed - doesn't exist in User schema
         createdAt: user.createdAt,
         profile: user.coachProfile
       }
@@ -198,7 +200,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Require ADMIN role
-    const session = await requireRole('ADMIN');
+    const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
 
     // Parse and validate request body
@@ -252,7 +254,7 @@ export async function PATCH(request: NextRequest) {
         lastName: true,
         role: true,
         phone: true,
-        isActive: true,
+        // isActive: true, // Field doesn't exist in User schema
         updatedAt: true
       }
     });
@@ -274,7 +276,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Require ADMIN role
-    const session = await requireRole('ADMIN');
+    const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
 
     // Get user ID from query params

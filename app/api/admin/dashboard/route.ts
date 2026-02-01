@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
 import type { Prisma, User } from '@prisma/client';
+import { UserRole } from '@/types/enums';
 
 type RecentSession = Prisma.SessionBookingGetPayload<{
   include: {
@@ -21,7 +22,7 @@ type RecentCreditTransaction = Prisma.CreditTransactionGetPayload<{
 export async function GET(request: NextRequest) {
   try {
     // Require ADMIN role
-    const session = await requireRole('ADMIN');
+    const session = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(session)) return session;
 
     // Get current month and last month dates

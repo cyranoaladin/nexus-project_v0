@@ -8,6 +8,7 @@ import { parseBody, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
+import { UserRole } from '@/types/enums';
 
 /**
  * POST /api/sessions/cancel - Cancel a session booking
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     if (rateLimitResult) return rateLimitResult;
 
     // Require ELEVE, COACH, or ASSISTANTE role
-    const session = await requireAnyRole(['ELEVE', 'COACH', 'ASSISTANTE']);
+    const session = await requireAnyRole([UserRole.ELEVE, UserRole.COACH, UserRole.ASSISTANTE]);
     if (isErrorResponse(session)) return session;
 
     // Update logger with session context
