@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import AddChildDialog from "./add-child-dialog"
@@ -109,10 +110,10 @@ export default function DashboardParent() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement de votre espace...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" aria-label="Chargement" />
+          <p className="text-neutral-600">Chargement de votre espace...</p>
         </div>
       </div>
     )
@@ -120,13 +121,13 @@ export default function DashboardParent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-error" aria-label="Erreur" />
+          <p className="text-error mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-600 text-sm">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -139,52 +140,41 @@ export default function DashboardParent() {
   const currentChild = dashboardData?.children.find((child) => child.id === selectedChild)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 sm:py-0 sm:h-16 gap-3 sm:gap-0">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 flex-shrink-0" />
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-brand-primary flex-shrink-0" aria-hidden="true" />
                 <div>
-                  <h1 className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <h1 className="font-semibold text-neutral-900 text-sm sm:text-base">
                     {session?.user.firstName} {session?.user.lastName}
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-500">Espace Parent</p>
+                  <p className="text-xs sm:text-sm text-neutral-500">Espace Parent</p>
                 </div>
               </div>
-              
+
               {/* Navigation Tabs */}
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-4">
-                <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
-                    activeTab === 'dashboard'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Tableau de Bord
-                </button>
-                <button
-                  onClick={() => setActiveTab('booking')}
-                  className={`px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
-                    activeTab === 'booking'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Réserver Session
-                </button>
-              </div>
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'booking')} className="ml-4">
+                <TabsList>
+                  <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
+                    Tableau de Bord
+                  </TabsTrigger>
+                  <TabsTrigger value="booking" className="text-xs sm:text-sm">
+                    Réserver Session
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm"
+              className="text-neutral-600 hover:text-neutral-900 text-xs sm:text-sm"
+              aria-label="Se déconnecter"
             >
-              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" aria-hidden="true" />
               <span className="hidden sm:inline">Déconnexion</span>
               <span className="sm:hidden">Déco</span>
             </Button>
