@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ ops/e2e-stability-stack-v2 ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -49,6 +49,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,31 +83,10 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Prepare database schema (db push)
+      - name: Run database migrations
         env:
-          DATABASE_URL: file:./prisma/dev.db
-        run: npx prisma db push --accept-data-loss
-
-      - name: Enforce unique constraint for payments (method, externalId)
-        env:
-          DATABASE_URL: file:./prisma/dev.db
-        run: |
-          npx prisma db execute --url "$DATABASE_URL" --stdin <<'SQL'
-          -- Deduplicate duplicates keeping the earliest rowid
-          DELETE FROM payments
-          WHERE externalId IS NOT NULL
-            AND rowid NOT IN (
-              SELECT MIN(rowid)
-              FROM payments
-              WHERE externalId IS NOT NULL
-              GROUP BY method, externalId
-            );
-
-          -- Create partial unique index (SQLite supports WHERE)
-          CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_method_externalid_nonnull
-          ON payments (method, externalId)
-          WHERE externalId IS NOT NULL;
-          SQL
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+        run: npx prisma migrate deploy
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -102,19 +96,19 @@ jobs:
 
       - name: Run unit tests (Jest)
         env:
-          DATABASE_URL: file:./prisma/dev.db
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
           NEXTAUTH_URL: http://localhost:3000
         run: npm run test:unit -- --watchAll=false
 
       - name: Run integration tests (Jest)
         env:
-          DATABASE_URL: file:./prisma/dev.db
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
           NEXTAUTH_URL: http://localhost:3000
         run: npm run test:integration -- --watchAll=false
 
       - name: Run Playwright E2E (Chromium)
         env:
-          DATABASE_URL: file:./prisma/dev.db
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
           NEXTAUTH_URL: http://localhost:3000
         run: npx playwright test -c playwright.config.ts --project=chromium
 
