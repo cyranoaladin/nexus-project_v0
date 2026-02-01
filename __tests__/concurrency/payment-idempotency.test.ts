@@ -72,7 +72,6 @@ describe('Payment Idempotency - Concurrency', () => {
           currency: 'TND',
           description: 'Concurrent webhook test',
           type: 'SUBSCRIPTION',
-          status: 'COMPLETED',
           metadata: { webhookAttempt: 1 }
         }),
         upsertPaymentByExternalId({
@@ -83,7 +82,6 @@ describe('Payment Idempotency - Concurrency', () => {
           currency: 'TND',
           description: 'Concurrent webhook test',
           type: 'SUBSCRIPTION',
-          status: 'COMPLETED',
           metadata: { webhookAttempt: 2 }
         }),
         upsertPaymentByExternalId({
@@ -94,7 +92,6 @@ describe('Payment Idempotency - Concurrency', () => {
           currency: 'TND',
           description: 'Concurrent webhook test',
           type: 'SUBSCRIPTION',
-          status: 'COMPLETED',
           metadata: { webhookAttempt: 3 }
         })
       ]);
@@ -126,7 +123,6 @@ describe('Payment Idempotency - Concurrency', () => {
           amount: 99.99,
           currency: 'TND',
           description: 'Konnect payment',
-          status: 'COMPLETED',
           method: 'konnect',
           externalId
         }
@@ -140,7 +136,6 @@ describe('Payment Idempotency - Concurrency', () => {
           amount: 99.99,
           currency: 'USD',
           description: 'Wise payment',
-          status: 'COMPLETED',
           method: 'wise',
           externalId
         }
@@ -160,7 +155,6 @@ describe('Payment Idempotency - Concurrency', () => {
           amount: 100,
           currency: 'TND',
           description: 'Manual payment 1',
-          status: 'PENDING',
           method: 'manual',
           externalId: null
         }
@@ -173,7 +167,6 @@ describe('Payment Idempotency - Concurrency', () => {
           amount: 200,
           currency: 'TND',
           description: 'Manual payment 2',
-          status: 'PENDING',
           method: 'manual',
           externalId: null
         }
@@ -197,7 +190,6 @@ describe('Payment Idempotency - Concurrency', () => {
         currency: 'TND',
         description: 'First upsert',
         type: 'SUBSCRIPTION',
-        status: 'PENDING',
         metadata: { attempt: 1 }
       });
 
@@ -213,7 +205,6 @@ describe('Payment Idempotency - Concurrency', () => {
         currency: 'TND',
         description: 'Second upsert',
         type: 'SUBSCRIPTION',
-        status: 'COMPLETED',  // Different status
         metadata: { attempt: 2 }
       });
 
@@ -237,7 +228,6 @@ describe('Payment Idempotency - Concurrency', () => {
             amount: 99.99,
             currency: 'TND',
             description: 'Race attempt 1',
-            status: 'COMPLETED',
             method,
             externalId
           }
@@ -249,7 +239,6 @@ describe('Payment Idempotency - Concurrency', () => {
             amount: 99.99,
             currency: 'TND',
             description: 'Race attempt 2',
-            status: 'COMPLETED',
             method,
             externalId
           }

@@ -96,11 +96,10 @@ describe('Payment Validation Transaction Rollback', () => {
       await prisma.subscription.create({
         data: {
           studentId: studentRecordId,
-          plan: 'PREMIUM',
           planName: 'PREMIUM',
           status: 'INACTIVE',
           creditsPerMonth: 20,
-          pricePerMonth: 199.99,
+          monthlyPrice: 199.99,
           startDate: new Date()
         }
       });
@@ -148,11 +147,10 @@ describe('Payment Validation Transaction Rollback', () => {
       await prisma.subscription.create({
         data: {
           studentId: studentRecordId,
-          plan: 'PREMIUM',
           planName: 'PREMIUM',
           status: 'INACTIVE',
           creditsPerMonth: 20,
-          pricePerMonth: 199.99,
+          monthlyPrice: 199.99,
           startDate: new Date()
         }
       });
@@ -207,11 +205,10 @@ describe('Payment Validation Transaction Rollback', () => {
       await prisma.subscription.create({
         data: {
           studentId: studentRecordId,
-          plan: 'BASIC',
           planName: 'BASIC',
           status: 'ACTIVE',
           creditsPerMonth: 10,
-          pricePerMonth: 99.99,
+          monthlyPrice: 99.99,
           startDate: new Date()
         }
       });
@@ -219,11 +216,10 @@ describe('Payment Validation Transaction Rollback', () => {
       await prisma.subscription.create({
         data: {
           studentId: studentRecordId,
-          plan: 'PREMIUM',
           planName: 'PREMIUM',
           status: 'INACTIVE',
           creditsPerMonth: 20,
-          pricePerMonth: 199.99,
+          monthlyPrice: 199.99,
           startDate: new Date()
         }
       });
@@ -255,13 +251,13 @@ describe('Payment Validation Transaction Rollback', () => {
 
       // Old subscription should still be ACTIVE (rolled back)
       const basicSub = await prisma.subscription.findFirst({
-        where: { studentId: studentRecordId, plan: 'BASIC' }
+        where: { studentId: studentRecordId, planName: 'BASIC' }
       });
       expect(basicSub?.status).toBe('ACTIVE');
 
       // New subscription should still be INACTIVE (rolled back)
       const premiumSub = await prisma.subscription.findFirst({
-        where: { studentId: studentRecordId, plan: 'PREMIUM' }
+        where: { studentId: studentRecordId, planName: 'PREMIUM' }
       });
       expect(premiumSub?.status).toBe('INACTIVE');
 
@@ -312,11 +308,10 @@ describe('Payment Validation Transaction Rollback', () => {
       await prisma.subscription.create({
         data: {
           studentId: studentRecordId,
-          plan: 'PREMIUM',
           planName: 'PREMIUM',
           status: 'INACTIVE',
           creditsPerMonth: 20,
-          pricePerMonth: 199.99,
+          monthlyPrice: 199.99,
           startDate: new Date()
         }
       });
