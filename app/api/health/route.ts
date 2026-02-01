@@ -3,16 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Test a simple query to ensure DB is responsive
-    const userCount = await prisma.user.count();
+    // Test a simple query to ensure DB is responsive (lightweight check)
+    await prisma.$queryRaw`SELECT 1`;
 
     return NextResponse.json({
-      status: 'success',
-      message: 'API and database are working!',
-      database: {
-        connected: true,
-        userCount
-      },
+      status: 'ok',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
