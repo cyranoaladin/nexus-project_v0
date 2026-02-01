@@ -1,54 +1,61 @@
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { UserRole, type Prisma } from '@prisma/client';
+import { NextRequest } from 'next/server';
+import { requireRole, isErrorResponse } from '@/lib/guards';
+import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
+import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
+import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api/errors';
+import type { Prisma } from '@prisma/client';
 
+/**
+ * GET /api/admin/users - List users with filters and pagination
+ */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Require ADMIN role
+    const session = await requireRole('ADMIN');
+    if (isErrorResponse(session)) return session;
 
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const role = (searchParams.get('role') || 'ALL') as UserRole | 'ALL';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
-
-    const skip = (page - 1) * limit;
+    // Parse and validate query parameters
+    const params = parseSearchParams(request, listUsersSchema);
+    const { skip, take } = getPagination(params.limit, params.offset);
 
     // Build where clause
     const whereClause: Prisma.UserWhereInput = {};
 
-    if (role !== 'ALL') {
-      whereClause.role = role;
+    if (params.role) {
+      whereClause.role = params.role;
     }
 
-    if (search) {
+    if (params.isActive !== undefined) {
+      whereClause.isActive = params.isActive;
+    }
+
+    if (params.search) {
       whereClause.OR = [
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
-        { email: { contains: search } }
+        { firstName: { contains: params.search, mode: 'insensitive' } },
+        { lastName: { contains: params.search, mode: 'insensitive' } },
+        { email: { contains: params.search, mode: 'insensitive' } }
       ];
     }
 
     // Get users with pagination
-    const [users, totalUsers] = await Promise.all([
+    const [users, total] = await Promise.all([
       prisma.user.findMany({
         where: whereClause,
         skip,
-        take: limit,
+        take,
         orderBy: {
           createdAt: 'desc'
         },
-        include: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
           student: true,
           coachProfile: true,
           parentProfile: true
@@ -63,91 +70,78 @@ export async function GET(request: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      isActive: user.isActive,
       createdAt: user.createdAt,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));
 
-    return NextResponse.json({
+    return successResponse({
       users: formattedUsers,
-      pagination: {
-        page,
-        limit,
-        total: totalUsers,
-        totalPages: Math.ceil(totalUsers / limit)
-      }
+      pagination: createPaginationMeta(total, params.limit, params.offset)
     });
 
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET /api/admin/users');
   }
 }
 
+/**
+ * POST /api/admin/users - Create a new user
+ */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Require ADMIN role
+    const session = await requireRole('ADMIN');
+    if (isErrorResponse(session)) return session;
 
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { email, firstName, lastName, role, password, profileData } = body;
-
-    if (!email || !firstName || !lastName || !role || !password) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
+    // Parse and validate request body
+    const data = await parseBody(request, createUserSchema);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: data.email }
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
+      throw ApiError.conflict('User with this email already exists');
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(data.password, 12);
 
-    // Create user with profile based on role
+    // Create user (profile creation handled by role-specific logic)
     const user = await prisma.user.create({
       data: {
-        email,
-        firstName,
-        lastName,
-        role,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: data.role,
         password: hashedPassword,
-        ...(role === 'COACH' && profileData ? {
+        phone: data.phone,
+        // Create coach profile if role is COACH
+        ...(data.role === 'COACH' ? {
           coachProfile: {
             create: {
-              pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-              subjects: JSON.stringify(profileData.subjects || [])
+              pseudonym: `${data.firstName} ${data.lastName}`,
+              subjects: JSON.stringify([])
             }
           }
-        } : {}),
-        ...(role === 'ASSISTANTE' && profileData ? {
-          // Assistant profile can be extended later
         } : {})
       },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        phone: true,
+        isActive: true,
+        createdAt: true,
         coachProfile: true
       }
     });
 
-    return NextResponse.json({
+    return successResponse({
       success: true,
       message: 'User created successfully',
       user: {
@@ -156,109 +150,109 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        phone: user.phone,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
         profile: user.coachProfile
       }
-    });
+    }, HttpStatus.CREATED);
 
   } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST /api/admin/users');
   }
 }
 
-export async function PUT(request: NextRequest) {
+/**
+ * PATCH /api/admin/users - Update an existing user
+ */
+export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Require ADMIN role
+    const session = await requireRole('ADMIN');
+    if (isErrorResponse(session)) return session;
 
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
+    // Parse and validate request body
     const body = await request.json();
-    const { id, email, firstName, lastName, role, profileData } = body;
+    const { id, ...data } = body;
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+    if (!id || typeof id !== 'string') {
+      throw ApiError.badRequest('User ID is required');
     }
+
+    // Validate update data
+    const validatedData = updateUserSchema.parse(data);
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    assertExists(existingUser, 'User');
+
+    // If email is being updated, check for conflicts
+    if (validatedData.email && validatedData.email !== existingUser.email) {
+      const emailConflict = await prisma.user.findUnique({
+        where: { email: validatedData.email }
+      });
+
+      if (emailConflict) {
+        throw ApiError.conflict('Email already in use');
+      }
+    }
+
+    // Hash password if provided
+    const updateData: Prisma.UserUpdateInput = {
+      ...validatedData,
+      ...(validatedData.password ? {
+        password: await bcrypt.hash(validatedData.password, 12)
+      } : {})
+    };
+
+    // Remove password from validated data to avoid passing plain text
+    delete (updateData as any).password;
 
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: {
-        email,
-        firstName,
-        lastName,
-        role,
-        ...(role === 'COACH' && profileData ? {
-          coachProfile: {
-            upsert: {
-              create: {
-                pseudonym: profileData.pseudonym || `${firstName} ${lastName}`,
-                subjects: JSON.stringify(profileData.subjects || [])
-              },
-              update: {
-                pseudonym: profileData.pseudonym,
-                subjects: profileData.subjects ? JSON.stringify(profileData.subjects) : undefined
-              }
-            }
-          }
-        } : {})
-      },
-      include: {
-        coachProfile: true
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        phone: true,
+        isActive: true,
+        updatedAt: true
       }
     });
 
-    return NextResponse.json({
+    return successResponse({
       success: true,
       message: 'User updated successfully',
-      user: {
-        id: updatedUser.id,
-        email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        role: updatedUser.role,
-        profile: updatedUser.coachProfile
-      }
+      user: updatedUser
     });
 
   } catch (error) {
-    console.error('Error updating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'PATCH /api/admin/users');
   }
 }
 
+/**
+ * DELETE /api/admin/users - Delete a user
+ */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Require ADMIN role
+    const session = await requireRole('ADMIN');
+    if (isErrorResponse(session)) return session;
 
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
+    // Get user ID from query params
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('User ID is required');
     }
 
     // Check if user exists
@@ -266,28 +260,24 @@ export async function DELETE(request: NextRequest) {
       where: { id }
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+    assertExists(user, 'User');
+
+    // Prevent self-deletion
+    if (user.id === session.user.id) {
+      throw ApiError.badRequest('Cannot delete your own account');
     }
 
-    // Delete user (this will cascade to related profiles)
+    // Delete user (cascade will handle related records)
     await prisma.user.delete({
       where: { id }
     });
 
-    return NextResponse.json({
+    return successResponse({
       success: true,
       message: 'User deleted successfully'
     });
 
   } catch (error) {
-    console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'DELETE /api/admin/users');
   }
 }

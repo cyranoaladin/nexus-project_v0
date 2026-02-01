@@ -1,17 +1,11 @@
 import { requireRole, isErrorResponse } from '@/lib/guards';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 import { upsertPaymentByExternalId } from '@/lib/payments';
 import { prisma } from '@/lib/prisma';
-
-const konnectPaymentSchema = z.object({
-  type: z.enum(['subscription', 'addon', 'pack']),
-  key: z.string(),
-  studentId: z.string(),
-  amount: z.number(),
-  description: z.string()
-});
+import { createKonnectPaymentSchema } from '@/lib/validation';
+import { parseBody, assertExists } from '@/lib/api/helpers';
+import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,8 +13,8 @@ export async function POST(request: NextRequest) {
     const session = await requireRole('PARENT');
     if (isErrorResponse(session)) return session;
 
-    const body = await request.json();
-    const validatedData = konnectPaymentSchema.parse(body);
+    // Parse and validate request body
+    const validatedData = await parseBody(request, createKonnectPaymentSchema);
 
     // Vérifier que l'élève appartient au parent
     const student = await prisma.student.findFirst({
@@ -32,12 +26,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Élève non trouvé ou non autorisé' },
-        { status: 404 }
-      );
-    }
+    assertExists(student, 'Student');
 
     // Construire un externalId déterministe pour l'idempotence (même requête => même externalId)
     const idempotencyKey = `konnect:${session.user.id}:${validatedData.studentId}:${validatedData.type}:${validatedData.key}:${validatedData.amount}`;
@@ -89,19 +78,14 @@ export async function POST(request: NextRequest) {
     //   })
     // })
 
-    return NextResponse.json({
+    return successResponse({
       success: true,
       paymentId: payment.id,
       paymentUrl: `${process.env.NEXTAUTH_URL}/dashboard/parent/paiement/konnect-demo?paymentId=${payment.id}`,
       message: 'Session de paiement Konnect créée'
-    });
+    }, 201);
 
   } catch (error) {
-    console.error('Erreur paiement Konnect:', error);
-
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST /api/payments/konnect');
   }
 }
