@@ -1,6 +1,5 @@
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { requireRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
 import type { Prisma, User } from '@prisma/client';
 
@@ -21,14 +20,9 @@ type RecentCreditTransaction = Prisma.CreditTransactionGetPayload<{
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Require ADMIN role
+    const session = await requireRole('ADMIN');
+    if (isErrorResponse(session)) return session;
 
     // Get current month and last month dates
     const now = new Date();
@@ -350,7 +344,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(dashboardData);
 
   } catch (error) {
-    console.error('Error fetching admin dashboard data:', error);
+    console.error('Error fetching admin dashboard data:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

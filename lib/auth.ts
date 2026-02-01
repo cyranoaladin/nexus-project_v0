@@ -86,6 +86,11 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       try {
         if (user) {
+          // Validate role before adding to token
+          if (!user.role || !Object.values(UserRole).includes(user.role as UserRole)) {
+            console.error('JWT callback: Invalid user role', { userId: user.id });
+            throw new Error('Invalid user role');
+          }
           token.role = user.role;
           token.firstName = user.firstName;
           token.lastName = user.lastName;
@@ -93,22 +98,32 @@ export const authOptions: NextAuthOptions = {
         return token;
       } catch (error) {
         console.error('JWT callback error:', error instanceof Error ? error.message : 'Token generation failed');
-        return token;
+        // Return token without role on error - will be caught in session callback
+        throw error;
       }
     },
     async session({ session, token }) {
       try {
-        if (token) {
-          session.user.id = token.sub!;
-          session.user.role = token.role as UserRole;
-          session.user.firstName = token.firstName as string;
-          session.user.lastName = token.lastName as string;
+        if (!token || !token.sub) {
+          throw new Error('Invalid token: missing subject');
         }
+
+        // Validate role exists and is valid
+        if (!token.role || !Object.values(UserRole).includes(token.role as UserRole)) {
+          console.error('Session callback: Invalid or missing role', { userId: token.sub });
+          throw new Error('Invalid session: missing or invalid role');
+        }
+
+        session.user.id = token.sub;
+        session.user.role = token.role as UserRole;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
+
         return session;
       } catch (error) {
         console.error('Session callback error:', error instanceof Error ? error.message : 'Session hydration failed');
-        // Do not return a valid session if we cannot resolve it securely
-        return session; // Or throw to invalidate
+        // SECURITY: Invalidate session on error by throwing
+        throw error;
       }
     }
   },
