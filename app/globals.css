@@ -1,21 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/**
+ * Global Styles
+ *
+ * NOTE: Fonts are loaded via Next.js in layout.tsx for optimization.
+ * DO NOT add @import for Google Fonts here - it would create duplicate loading.
+ */
 
 @config "../tailwind.config.mjs";
 @import "tailwindcss";
 
 :root {
+  /* Base colors */
   --background: #FFFFFF;
   --foreground: #0F172A;
+
+  /* Font families - defined in Next.js layout */
   --font-inter: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-poppins: "Poppins", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-eb-garamond: "EB Garamond", "Times New Roman", serif;
 
-  /* Dark theme variables for GSAP sections */
+  /* Design System Colors (from lib/theme/tokens.ts) */
+  /* These are kept as CSS variables for GSAP and legacy compatibility */
+  --color-brand-primary: 37 99 235;      /* #2563EB as RGB */
+  --color-brand-secondary: 239 68 68;    /* #EF4444 as RGB */
+  --color-brand-accent: 46 233 246;      /* #2EE9F6 as RGB */
+
+  --color-surface-dark: 11 12 16;        /* #0B0C10 as RGB - consolidated hardcoded values */
+  --color-surface-darker: 5 6 8;         /* #050608 as RGB */
+  --color-surface-card: 17 19 24;        /* #111318 as RGB */
+  --color-surface-elevated: 26 29 35;    /* #1A1D23 as RGB */
+
+  /* Legacy Nexus variables (keep for GSAP sections) */
+  /* TODO: Migrate GSAP sections to use --color-* variables */
   --nexus-dark: #0B0C10;
   --nexus-charcoal: #111318;
   --nexus-cyan: #2EE9F6;
   --nexus-white: #F4F6FA;
   --nexus-gray: #A6A9B4;
+
+  /* Shadcn UI theme variables (HSL format) */
   --border: 220 10% 18%;
   --input: 220 10% 18%;
   --ring: 183 91% 57%;
@@ -87,7 +109,7 @@ body {
 
   /* GSAP-compatible card styles */
   .card-dark {
-    @apply bg-card border border-white/[0.08] rounded-[18px];
+    @apply bg-surface-card border border-white/[0.08] rounded-[18px];
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
     transition: border-color 0.3s ease, transform 0.3s ease;
   }
@@ -97,7 +119,7 @@ body {
   }
 
   .card-micro {
-    @apply bg-card border border-white/[0.08] rounded-[10px];
+    @apply bg-surface-card border border-white/[0.08] rounded-[10px];
     transition: border-color 0.3s ease, transform 0.3s ease;
   }
 
@@ -152,9 +174,14 @@ body {
   }
 
   .btn-primary {
-    @apply bg-[#2EE9F6] text-[#0B0C10] font-semibold px-6 py-3 rounded-full hover:bg-[#25D1DD] transition-all duration-300 hover:shadow-[0_0_30px_rgba(46, 233, 246, 0.3)];
+    @apply bg-brand-accent text-surface-dark font-semibold px-6 py-3 rounded-full transition-all duration-300;
     position: relative;
     overflow: hidden;
+  }
+
+  .btn-primary:hover {
+    background-color: #25D1DD;
+    box-shadow: 0 0 30px rgba(46, 233, 246, 0.3);
   }
 
   .btn-primary::before {
@@ -176,7 +203,12 @@ body {
   }
 
   .btn-secondary {
-    @apply border border-white/20 text-foreground px-6 py-3 rounded-full hover:border-[#2EE9F6] hover:text-[#2EE9F6] transition-all duration-300;
+    @apply border border-white/20 text-foreground px-6 py-3 rounded-full transition-all duration-300;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgb(var(--color-brand-accent));
+    color: rgb(var(--color-brand-accent));
   }
 
   /* Existing enhanced cards */
