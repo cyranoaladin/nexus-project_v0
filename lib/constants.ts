@@ -1,20 +1,12 @@
-// Couleurs de la marque Nexus
-export const COLORS = {
-  primary: '#4F46E5', // Violet Nexus
-  secondary: '#F97316', // Orange Nexus
-  neutral: {
-    50: '#F9FAFB',
-    100: '#F3F4F6',
-    200: '#E5E7EB',
-    300: '#D1D5DB',
-    400: '#9CA3AF',
-    500: '#6B7280',
-    600: '#4B5563',
-    700: '#374151',
-    800: '#1F2937',
-    900: '#111827',
-  }
-} as const
+/**
+ * Business Constants for Nexus Réussite Platform
+ *
+ * NOTE: Design tokens (colors, typography, spacing) are now centralized in:
+ * - lib/theme/tokens.ts - Single source of truth for all design values
+ * - tailwind.config.mjs - Tailwind integration
+ *
+ * This file contains only business logic constants (pricing, features, credits).
+ */
 
 // Formules d'abonnement
 export const SUBSCRIPTION_PLANS = {
