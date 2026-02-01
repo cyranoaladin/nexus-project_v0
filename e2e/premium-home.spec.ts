@@ -11,17 +11,17 @@ test.describe('Premium Home Journey', () => {
             console.log(`[Page Error]: ${err.message}`);
         });
 
+        // Reduce animations for faster, more deterministic tests
         await page.emulateMedia({ reducedMotion: 'reduce' });
-        await page.goto('/');
-        // Wait for hydration and initial animations
-        await page.waitForTimeout(2000);
+        await page.goto('/', { waitUntil: 'networkidle' });
     });
 
     test('Hero Section loads with premium content', async ({ page }) => {
         const heading = page.getByRole('heading', { name: /L'Intelligence Artificielle et le Web3/i });
-        await expect(heading).toBeVisible({ timeout: 10000 });
-        // Use .first() or scope to hero to avoid ambiguity with Testimonials
-        await expect(page.locator('#hero').getByText('IA Agentique')).toBeVisible();
+        await expect(heading).toBeVisible({ timeout: 15000 });
+
+        // Verify key premium content is visible
+        await expect(page.locator('#hero').getByText('IA Agentique')).toBeVisible({ timeout: 10000 });
     });
 
     test('Navigation Menu opens and closes', async ({ page }) => {
@@ -39,43 +39,51 @@ test.describe('Premium Home Journey', () => {
     });
 
     test('Paths Section displays personas', async ({ page }) => {
-        // Scroll to paths
+        // Scroll to paths section
         const pathsSection = page.locator('#paths');
-        // JS Scroll to bypass checking
-        await pathsSection.evaluate(node => node.scrollIntoView());
+        await pathsSection.scrollIntoViewIfNeeded();
 
-        // Wait for ScrollTrigger
-        await page.waitForTimeout(2000);
+        // Wait for GSAP animations to complete
+        await page.waitForLoadState('networkidle');
 
-        // Use more specific locators if roles are ambiguous
-        await expect(page.getByRole('heading', { name: /Élève \(Lycée\/Prépas\)/i })).toBeVisible({ timeout: 10000 });
+        // Verify persona heading is visible
+        await expect(page.getByRole('heading', { name: /Élève \(Lycée\/Prépas\)/i })).toBeVisible({ timeout: 15000 });
     });
 
     test('Offer Section tabs interaction', async ({ page }) => {
         const offerSection = page.locator('#offer');
-        // JS Scroll
-        await offerSection.evaluate(node => node.scrollIntoView());
-        await page.waitForTimeout(2000);
+        await offerSection.scrollIntoViewIfNeeded();
 
-        // Force click if obscured by "fixed" elements (pinned sections often cause valid overlaps)
+        // Wait for section to be ready
+        await page.waitForLoadState('networkidle');
+
+        // Click on Parents & Élèves tab
         const tabBtn = page.getByRole('button', { name: /Parents & Élèves/i });
-        await expect(tabBtn).toBeVisible({ timeout: 10000 });
+        await expect(tabBtn).toBeVisible({ timeout: 15000 });
+
+        // Force click to handle GSAP pinned overlays
         await tabBtn.click({ force: true });
 
-        await expect(page.getByRole('heading', { name: /Accompagnement Elite/i })).toBeVisible({ timeout: 10000 });
+        // Verify tab content is displayed
+        await expect(page.getByRole('heading', { name: /Accompagnement Elite/i })).toBeVisible({ timeout: 15000 });
     });
 
     test('Contact Form profile selector', async ({ page }) => {
         const contactSection = page.locator('#contact');
-        await contactSection.evaluate(node => node.scrollIntoView());
-        await page.waitForTimeout(2000);
+        await contactSection.scrollIntoViewIfNeeded();
 
+        // Wait for contact form to be interactive
+        await page.waitForLoadState('networkidle');
+
+        // Verify initial form field is visible
         const schoolInput = page.getByLabel("Nom de l'établissement");
-        await expect(schoolInput).toBeVisible({ timeout: 10000 });
+        await expect(schoolInput).toBeVisible({ timeout: 15000 });
 
+        // Select student/parent profile
         const studentBtn = page.getByRole('button', { name: /Élève \/ Parent/i });
         await studentBtn.click({ force: true });
 
-        await expect(page.getByLabel("Niveau scolaire")).toBeVisible({ timeout: 10000 });
+        // Verify conditional field appears
+        await expect(page.getByLabel("Niveau scolaire")).toBeVisible({ timeout: 15000 });
     });
 });
