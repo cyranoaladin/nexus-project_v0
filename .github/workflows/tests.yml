@@ -94,6 +94,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: TypeScript type check
+        run: npm run typecheck
+
       - name: Run unit tests (Jest)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test

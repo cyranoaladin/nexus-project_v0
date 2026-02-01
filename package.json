@@ -8,6 +8,7 @@
     "build:base": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "test": "jest --projects jest.config.unit.js jest.config.integration.js",
     "test:unit": "jest --config jest.config.unit.js",
     "test:integration": "jest --config jest.config.integration.js",
