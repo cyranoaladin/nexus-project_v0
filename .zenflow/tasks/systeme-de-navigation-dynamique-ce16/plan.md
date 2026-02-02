@@ -55,7 +55,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Implementation Steps
 
-### [ ] Step: Create Navigation Configuration
+### [x] Step: Create Navigation Configuration
+<!-- chat-id: cabbb1ae-a928-45d9-9a0e-5a4010f4fb05 -->
 
 Create the type-safe navigation configuration file with all role mappings.
 
