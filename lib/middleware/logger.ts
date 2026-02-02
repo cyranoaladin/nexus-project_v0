@@ -269,7 +269,7 @@ export async function timeOperation<T>(
  * Removes passwords, tokens, secrets, etc. from log data
  */
 export function sanitizeLogData(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitiveKeys = ['password', 'token', 'secret', 'authorization', 'cookie', 'apiKey', 'api_key'];
+  const sensitiveKeys = ['password', 'token', 'secret', 'authorization', 'cookie', 'apikey', 'api_key'];
 
   const sanitized = { ...data };
 
