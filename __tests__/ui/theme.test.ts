@@ -256,7 +256,7 @@ describe('Theme Configuration', () => {
     });
 
     it('should inject font family variables in @theme block', () => {
-      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/s);
+      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
       
       const themeContent = themeBlock?.[0] || '';
@@ -278,7 +278,7 @@ describe('Theme Configuration', () => {
     });
 
     it('should map colors to Tailwind utilities in @theme block', () => {
-      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/s);
+      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
       
       const themeContent = themeBlock?.[0] || '';
@@ -422,7 +422,7 @@ describe('Theme Configuration', () => {
     });
 
     it('should preserve legacy color aliases in @theme block', () => {
-      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/s);
+      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
       
       const themeContent = themeBlock?.[0] || '';
