@@ -144,7 +144,8 @@ Implement OpenAI streaming in ARIA backend with Server-Sent Events.
 
 ---
 
-### [ ] Step: ARIA Embedded Chat Component
+### [x] Step: ARIA Embedded Chat Component
+<!-- chat-id: de944eee-357e-4370-8ee5-8d446e4db2dd -->
 
 Create embedded ARIA chat interface with streaming support.
 
