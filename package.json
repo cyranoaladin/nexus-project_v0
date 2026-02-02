@@ -117,5 +117,8 @@
     "setupFiles": [
       "<rootDir>/jest.setup.js"
     ]
+  },
+  "overrides": {
+    "glob": "^10.5.0"
   }
 }
