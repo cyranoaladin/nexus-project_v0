@@ -118,11 +118,11 @@ export async function GET(request: NextRequest) {
         subject: nextSession.subject,
         scheduledAt: nextSession.scheduledAt,
         duration: nextSession.duration,
-        coach: {
+        coach: nextSession.coach ? {
           firstName: nextSession.coach.user.firstName,
           lastName: nextSession.coach.user.lastName,
           pseudonym: nextSession.coach.pseudonym
-        }
+        } : null
       } : null,
       recentSessions: student.sessions.map((session) => ({
         id: session.id,
@@ -130,11 +130,11 @@ export async function GET(request: NextRequest) {
         subject: session.subject,
         status: session.status,
         scheduledAt: session.scheduledAt,
-        coach: {
+        coach: session.coach ? {
           firstName: session.coach.user.firstName,
           lastName: session.coach.user.lastName,
           pseudonym: session.coach.pseudonym
-        }
+        } : null
       })),
       ariaStats: {
         messagesToday: ariaMessagesToday,

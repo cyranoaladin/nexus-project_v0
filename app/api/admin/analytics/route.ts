@@ -171,11 +171,11 @@ export async function GET(request: NextRequest) {
       id: activity.id,
       type: 'session',
       title: `Session ${activity.subject}`,
-      description: `${activity.student.user.firstName} ${activity.student.user.lastName} avec ${activity.coach.pseudonym}`,
+      description: `${activity.student.user.firstName} ${activity.student.user.lastName} avec ${activity.coach?.pseudonym || 'Coach non assigné'}`,
       time: activity.createdAt,
       status: activity.status,
       studentName: `${activity.student.user.firstName} ${activity.student.user.lastName}`,
-      coachName: activity.coach.pseudonym,
+      coachName: activity.coach?.pseudonym || 'Coach non assigné',
       subject: activity.subject,
       action: activity.status === 'COMPLETED' ? 'Session terminée' :
         activity.status === 'SCHEDULED' ? 'Session programmée' :
