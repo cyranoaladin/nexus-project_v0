@@ -26,11 +26,11 @@ const staggerContainer = {
 
 export default function HomeHero() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-deep-midnight text-white">
+    <section className="relative min-h-screen overflow-hidden bg-midnight-950 text-white">
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+        <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
         <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-gold-500/10 blur-[140px]" />
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-midnight-blue/20 blur-[140px]" />
+        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-midnight-800/20 blur-[140px]" />
       </div>
 
       <div className="relative z-10 flex min-h-screen items-center">
@@ -98,7 +98,7 @@ export default function HomeHero() {
                     <line x1="200" y1="200" x2="280" y2="280" stroke="#EAB308" strokeOpacity="0.2" strokeWidth="0.5" />
                   </svg>
 
-                  <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-deep-midnight shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                  <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-midnight-950 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
                     <Network className="h-6 w-6 text-gold-500" />
                   </div>
 

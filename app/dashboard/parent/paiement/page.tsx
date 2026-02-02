@@ -223,8 +223,8 @@ function PaiementContent() {
                       Virement bancaire international sécurisé
                     </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm text-blue-600">1-3 jours ouvrés</span>
+                      <Check className="w-4 h-4 text-brand-primary" />
+                      <span className="text-sm text-brand-primary">1-3 jours ouvrés</span>
                     </div>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ function PaiementContent() {
 
               <p className="text-xs text-gray-500 text-center">
                 En cliquant sur "Procéder au Paiement", vous acceptez nos{' '}
-                <Link href="/conditions" className="text-blue-600 hover:underline">
+                <Link href="/conditions" className="text-brand-primary hover:underline">
                   conditions générales de vente
                 </Link>
               </p>
@@ -283,7 +283,7 @@ function PaiementContent() {
               <div className="grid md:grid-cols-3 gap-6 text-center">
                 <div className="space-y-3">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                    <Check className="w-8 h-8 text-blue-600" />
+                    <Check className="w-8 h-8 text-brand-primary" />
                   </div>
                   <h3 className="font-semibold text-gray-900">Paiement Sécurisé</h3>
                   <p className="text-sm text-gray-600">
@@ -314,7 +314,7 @@ function PaiementContent() {
 
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-center text-gray-700 font-medium">
-                  🏆 Plus de <span className="text-blue-600 font-bold">10,000 familles</span> nous font confiance
+                  🏆 Plus de <span className="text-brand-primary font-bold">10,000 familles</span> nous font confiance
                 </p>
                 <p className="text-center text-sm text-gray-500 mt-2">
                   Rejoignez notre communauté d'excellence éducative

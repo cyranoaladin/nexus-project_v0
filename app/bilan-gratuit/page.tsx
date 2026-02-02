@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -195,6 +196,16 @@ export default function BilanGratuitPage() {
 
       <main className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              { label: "Accueil", href: "/" },
+              { label: "Services", href: "/accompagnement-scolaire" },
+              { label: "Bilan Gratuit" }
+            ]}
+            className="mb-6"
+          />
+
           {/* En-tête */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -506,7 +517,7 @@ export default function BilanGratuitPage() {
                         onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
                       />
                       <Label htmlFor="acceptTerms" className="text-xs md:text-sm leading-relaxed cursor-pointer">
-                        J'accepte les <a href="#" className="text-brand-primary hover:underline">conditions générales d'utilisation</a> *
+                        J'accepte les <a href="/conditions" target="_blank" className="text-brand-primary hover:underline">conditions générales d'utilisation</a> *
                       </Label>
                     </div>
                     <div className="flex items-start space-x-2">

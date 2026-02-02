@@ -4,7 +4,7 @@ import React from "react";
 
 export default function CTASection() {
   return (
-    <section id="contact" className="py-20 bg-deep-midnight text-white">
+    <section id="contact" className="py-20 bg-midnight-950 text-white">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl rounded-3xl border border-gold-500/30 bg-white/5 p-10 text-center backdrop-blur-md shadow-2xl">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">

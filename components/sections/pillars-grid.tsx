@@ -8,7 +8,7 @@ const noiseBg =
 
 export default function PillarsGrid() {
   return (
-    <section id="pilliers" className="py-24 bg-deep-midnight">
+    <section id="pilliers" className="py-24 bg-midnight-950">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-5xl font-bold text-white font-serif">

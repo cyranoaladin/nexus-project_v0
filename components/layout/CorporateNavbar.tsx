@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, Phone } from "lucide-react";
 
 export function CorporateNavbar() {
@@ -28,13 +29,13 @@ export function CorporateNavbar() {
 
   const menuItems = [
     { label: 'Accueil', href: '/', isPage: true },
+    { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
+    { label: 'Stages', href: '/stages', isPage: true },
+    { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
     { label: 'Notre Équipe', href: '/equipe', isPage: true },
-    { label: 'Nos Offres', href: '/offres', isPage: true },
     { label: 'Notre Centre', href: '/notre-centre', isPage: true },
-    { label: 'Stage d\'Hiver', href: '/academies-hiver', isPage: true },
-    { label: 'Plateforme', href: '/plateforme', isPage: true },
     { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
-    { label: 'Contact', href: '/#contact', isPage: false },
+    { label: 'Contact', href: '/contact', isPage: true },
   ];
 
   const scrollToSection = (id: string) => {
@@ -57,20 +58,21 @@ export function CorporateNavbar() {
         <div className="flex items-center justify-between px-6 lg:px-12 py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-lg flex items-center justify-center">
-              <span className="font-display font-bold text-white text-xl">N</span>
-            </div>
-            <div className="hidden md:block">
-              <span className="block font-display font-bold text-white text-lg leading-none">NEXUS</span>
-              <span className="block font-mono text-[10px] text-brand-accent tracking-widest leading-none">RÉUSSITE</span>
-            </div>
+            <Image
+              src="/images/logo_slogan_nexus_x3.png"
+              alt="Nexus Réussite"
+              width={180}
+              height={65}
+              className="h-10 w-auto md:h-12 brightness-0 invert"
+              priority
+            />
           </Link>
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
             {/* CTA Button - Desktop */}
-            <button
-              onClick={() => scrollToSection('#contact')}
+            <Link
+              href="/contact"
               className="hidden md:flex items-center gap-2 bg-brand-accent/10 text-brand-accent
                          px-4 py-2 rounded-full text-sm font-medium border border-brand-accent/20
                          hover:bg-brand-accent/20 transition-all duration-300"
@@ -78,7 +80,7 @@ export function CorporateNavbar() {
             >
               <Phone className="w-4 h-4" aria-hidden="true" />
               <span>Parler à un expert</span>
-            </button>
+            </Link>
 
             {/* Menu Button */}
             <button

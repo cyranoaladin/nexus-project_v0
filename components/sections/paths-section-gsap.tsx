@@ -106,7 +106,7 @@ const PathsSectionGSAP = () => {
     };
 
     return (
-        <section ref={sectionRef} id="paths" className="py-24 bg-[#0a0b0f] relative overflow-hidden">
+        <section ref={sectionRef} id="paths" className="py-24 bg-neutral-950 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]" />
@@ -135,7 +135,7 @@ const PathsSectionGSAP = () => {
                             key={path.id}
                             className={`path-card group relative p-1 rounded-3xl bg-gradient-to-br ${path.gradient} hover:scale-[1.02] transition-transform duration-500`}
                         >
-                            <div className={`relative h-full bg-[#0E1015] rounded-[22px] p-8 border border-white/5 ${path.border} transition-colors duration-500 overflow-hidden`}>
+                            <div className={`relative h-full bg-surface-card rounded-[22px] p-8 border border-white/5 ${path.border} transition-colors duration-500 overflow-hidden`}>
 
                                 {/* Hover Glow */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

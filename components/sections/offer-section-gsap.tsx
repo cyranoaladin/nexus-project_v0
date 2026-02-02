@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { School, Users, Briefcase, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
@@ -140,7 +141,7 @@ const OfferSection = () => {
         <section
             ref={sectionRef}
             id="offer"
-            className="section-pinned bg-[#0a0b0f] flex items-center justify-center cursor-default min-h-screen relative overflow-hidden"
+            className="section-pinned bg-neutral-950 flex items-center justify-center cursor-default min-h-screen relative overflow-hidden"
             style={{ zIndex: 50 }}
         >
             <div className="relative w-full h-full flex items-center px-[6vw]">
@@ -172,7 +173,7 @@ const OfferSection = () => {
                 {/* Right Offer Card */}
                 <div
                     ref={offerCardRef}
-                    className="absolute left-[52vw] top-[14vh] w-[42vw] h-[72vh] rounded-[18px] border border-white/10 bg-[#0a0b0f]/80 backdrop-blur-xl p-6 flex flex-col"
+                    className="absolute left-[52vw] top-[14vh] w-[42vw] h-[72vh] rounded-[18px] border border-white/10 bg-neutral-950/80 backdrop-blur-xl p-6 flex flex-col"
                 >
                     {/* Tabs */}
                     <div className="flex border-b border-white/10">
@@ -213,10 +214,10 @@ const OfferSection = () => {
                             ))}
                         </ul>
 
-                        <button className="btn-primary flex items-center justify-center gap-2 mt-8 w-full">
+                        <Link href="/contact" className="btn-primary flex items-center justify-center gap-2 mt-8 w-full">
                             <span>{tabContent[activeTab].cta}</span>
                             <ArrowRight className="w-4 h-4" />
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -225,7 +226,7 @@ const OfferSection = () => {
                     ref={bottomCardsRef}
                     className="absolute left-[6vw] top-[88vh] w-[88vw] h-[10vh] flex gap-[2vw]"
                 >
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-[#0a0b0f]/80 p-4 flex items-center gap-3">
+                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <GraduationCap className="w-5 h-5 text-cyan-400 flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Stratégie</span>
@@ -233,7 +234,7 @@ const OfferSection = () => {
                         </div>
                     </div>
 
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-[#0a0b0f]/80 p-4 flex items-center gap-3">
+                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <Bot className="w-5 h-5 text-cyan-400 flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Studio</span>
@@ -241,7 +242,7 @@ const OfferSection = () => {
                         </div>
                     </div>
 
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-[#0a0b0f]/80 p-4 flex items-center gap-3">
+                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <FileCheck className="w-5 h-5 text-cyan-400 flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Academy</span>

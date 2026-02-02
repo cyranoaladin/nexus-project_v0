@@ -70,7 +70,7 @@ const ApproachSectionGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="approach" className="relative py-32 bg-[#0a0b0f] overflow-hidden">
+        <section ref={sectionRef} id="approach" className="relative py-32 bg-neutral-950 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
 
                 {/* Header */}

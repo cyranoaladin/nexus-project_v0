@@ -6,10 +6,10 @@ import { PenTool, BookOpen, GraduationCap, Code2, Cpu, Blocks } from "lucide-rea
 
 export default function DNASection() {
   return (
-    <section id="adn" className="relative py-24 bg-deep-midnight">
+    <section id="adn" className="relative py-24 bg-midnight-950">
       <div className="absolute inset-0">
         <div className="absolute left-1/3 top-0 h-72 w-72 rounded-full bg-gold-500/5 blur-[120px]" />
-        <div className="absolute right-1/3 bottom-0 h-72 w-72 rounded-full bg-midnight-blue/20 blur-[120px]" />
+        <div className="absolute right-1/3 bottom-0 h-72 w-72 rounded-full bg-midnight-800/20 blur-[120px]" />
       </div>
 
       <div className="container relative z-10 mx-auto px-4">
