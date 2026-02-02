@@ -39,7 +39,6 @@ export const createTestParent = async (overrides: any = {}) => {
 
   const parentUser = await testPrisma.user.create({
     data: {
-      email: uniqueEmail,
       password: 'hashed-password',
       role: 'PARENT',
       firstName: 'Jean',
