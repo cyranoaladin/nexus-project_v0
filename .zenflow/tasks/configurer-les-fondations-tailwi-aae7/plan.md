@@ -193,26 +193,27 @@ Create `__tests__/ui/theme.test.ts` with basic test structure and settings file 
 
 ---
 
-### [ ] Step: Implement CSS Variables Injection Tests
+### [x] Step: Implement CSS Variables Injection Tests
+<!-- chat-id: 81983b13-3405-44f7-bccc-d5e034098190 -->
 
 Add tests to verify CSS variables are correctly injected in `:root`.
 
 **Tasks:**
-- [ ] Add "CSS Variables Injection" test group
-- [ ] Implement test setup: mock document.documentElement with CSS variables
-- [ ] Test: brand color variables in RGB format
+- [x] Add "CSS Variables Injection" test group
+- [x] Implement test setup: read globals.css file content
+- [x] Test: brand color variables in RGB format
   - Verify --color-brand-primary, --color-brand-secondary, --color-brand-accent, --color-brand-accent-dark
-- [ ] Test: semantic color variables (success, warning, error, info)
-- [ ] Test: all neutral scale variables (neutral-50 through neutral-950)
-- [ ] Test: surface color variables (dark, darker, card, elevated, hover)
-- [ ] Test: spacing scale variables (spacing-0 through spacing-96)
-- [ ] Test: radius variables (micro, card-sm, card, full)
-- [ ] Test: font family variables (--font-sans, --font-display, --font-mono)
+- [x] Test: semantic color variables (success, warning, error, info)
+- [x] Test: all neutral scale variables (neutral-50 through neutral-950)
+- [x] Test: surface color variables (dark, darker, card, elevated, hover)
+- [x] Test: spacing scale variables (spacing-0 through spacing-96)
+- [x] Test: radius variables (micro, card-sm, card, full)
+- [x] Test: font family variables (--font-sans, --font-display, --font-mono)
 
 **Verification:**
-- All CSS variable tests pass
-- Tests verify RGB format (space-separated values)
-- Tests run: `npm run test:unit -- __tests__/ui/theme.test.ts`
+- ✓ All CSS variable tests pass (21 total tests passing)
+- ✓ Tests verify RGB format (space-separated values)
+- ✓ Tests run: `npm run test:unit -- __tests__/ui/theme.test.ts`
 
 **Reference:** spec.md section 3.5
 
