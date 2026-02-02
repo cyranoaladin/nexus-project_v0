@@ -152,18 +152,19 @@ npm run test:coverage -- input.test.tsx
 ```
 **Expected:** Coverage ≥90%, all tests pass, validation integration works
 
-### [ ] Step: Dialog Component Enhancement
+### [x] Step: Dialog Component Enhancement
+<!-- chat-id: 0b02333d-a948-4246-92f6-c5e9e2e6a3e6 -->
 
 Enhance the existing Dialog component with Framer Motion animations and size variants.
 
 **Tasks:**
-- [ ] Replace Radix data-state animations with Framer Motion
-- [ ] Add `size` prop: `sm`, `md`, `lg`, `xl`, `full`
-- [ ] Use `AnimatePresence` for enter/exit animations
-- [ ] Implement overlay fade animation (opacity 0 → 0.8)
-- [ ] Implement content animations (fade, scale, slide)
-- [ ] Add size-based max-width classes
-- [ ] Ensure accessibility is preserved (Radix handles ARIA)
+- [x] Replace Radix data-state animations with Framer Motion
+- [x] Add `size` prop: `sm`, `md`, `lg`, `xl`, `full`
+- [x] Use `AnimatePresence` for enter/exit animations
+- [x] Implement overlay fade animation (opacity 0 → 0.8)
+- [x] Implement content animations (fade, scale, slide)
+- [x] Add size-based max-width classes
+- [x] Ensure accessibility is preserved (Radix handles ARIA)
 
 **Contract Reference:** `spec.md` Section 3.1, 4.1
 
