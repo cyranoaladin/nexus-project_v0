@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CreditCard, Calendar, BookOpen, LogOut, User } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award } from 'lucide-react';
 
 interface DashboardData {
   student: {
@@ -160,6 +161,56 @@ export default async function StudentDashboardPage() {
               <p className="text-xs text-neutral-600 mt-1">
                 Disponibles pour vos sessions
               </p>
+              
+              {/* Transaction History Accordion */}
+              {data.credits.transactions.length > 0 && (
+                <Accordion type="single" collapsible className="mt-4">
+                  <AccordionItem value="transactions" className="border-none">
+                    <AccordionTrigger className="py-2 text-xs text-brand-primary hover:no-underline">
+                      Voir l&apos;historique
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {data.credits.transactions.map((transaction) => (
+                          <div
+                            key={transaction.id}
+                            className="flex items-center justify-between p-2 bg-neutral-50 rounded-md text-xs"
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              {transaction.amount > 0 ? (
+                                <TrendingUp className="h-3 w-3 text-green-600 flex-shrink-0" aria-hidden="true" />
+                              ) : (
+                                <TrendingDown className="h-3 w-3 text-red-600 flex-shrink-0" aria-hidden="true" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-neutral-900 truncate">
+                                  {transaction.description}
+                                </p>
+                                <p className="text-neutral-500">
+                                  {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                            <span
+                              className={`font-semibold whitespace-nowrap ml-2 ${
+                                transaction.amount > 0
+                                  ? 'text-green-600'
+                                  : 'text-red-600'
+                              }`}
+                            >
+                              {transaction.amount > 0 ? '+' : ''}{transaction.amount}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
             </CardContent>
           </Card>
 
@@ -181,6 +232,9 @@ export default async function StudentDashboardPage() {
                   <p className="text-xs text-neutral-600 mt-1">
                     {data.nextSession.subject} • {data.nextSession.duration}min
                   </p>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Avec {data.nextSession.coach.pseudonym}
+                  </p>
                 </>
               ) : (
                 <>
@@ -199,14 +253,14 @@ export default async function StudentDashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Progression</CardTitle>
-              <BookOpen className="h-4 w-4 text-purple-600" aria-hidden="true" />
+              <Award className="h-4 w-4 text-purple-600" aria-hidden="true" />
             </CardHeader>
             <CardContent>
               <div className="text-xl font-bold text-purple-600">
-                {data.achievements?.earnedBadges || 0} badges
+                {data.badges.length} {data.badges.length > 1 ? 'badges' : 'badge'}
               </div>
               <p className="text-xs text-neutral-600 mt-1">
-                Obtenus ce mois
+                {data.badges.length > 0 ? 'Obtenus au total' : 'Commencez à gagner des badges'}
               </p>
             </CardContent>
           </Card>

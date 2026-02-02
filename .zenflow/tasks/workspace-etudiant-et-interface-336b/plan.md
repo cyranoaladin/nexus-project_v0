@@ -83,7 +83,8 @@ Create the new student dashboard route with basic layout and data fetching.
 
 ---
 
-### [ ] Step: Dashboard Stat Cards
+### [x] Step: Dashboard Stat Cards
+<!-- chat-id: 1586e56d-13d0-4fed-8a5a-0d02778990f2 -->
 
 Implement credit balance, next session, and badges cards using Radix UI components.
 
