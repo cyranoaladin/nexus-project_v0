@@ -8,6 +8,7 @@ import { AriaMessage } from '@prisma/client'
 import { z } from 'zod'
 import { Subject } from '@/types/enums'
 import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
+import { generateAriaResponseStream } from '@/lib/aria-streaming'
 import { checkAndAwardBadges } from '@/lib/badges'
 import { createLogger } from '@/lib/middleware/logger'
 
@@ -20,6 +21,8 @@ const ariaMessageSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const logger = createLogger(request)
+  const acceptHeader = request.headers.get('accept') || ''
+  const isStreamingRequest = acceptHeader.includes('text/event-stream')
   
   try {
     const session = await getServerSession(authOptions)
@@ -93,7 +96,7 @@ export async function POST(request: NextRequest) {
       const messages = await prisma.ariaMessage.findMany({
         where: { conversationId: validatedData.conversationId },
         orderBy: { createdAt: 'asc' },
-        take: 10 // Limiter l'historique
+        take: 10
       })
       
       conversationHistory = messages.map((msg: AriaMessage) => ({
@@ -107,10 +110,117 @@ export async function POST(request: NextRequest) {
       studentId: student.id,
       subject: validatedData.subject,
       conversationId: validatedData.conversationId,
-      hasHistory: conversationHistory.length > 0
+      hasHistory: conversationHistory.length > 0,
+      streaming: isStreamingRequest
     })
     
-    // Générer la réponse ARIA
+    // Handle streaming request
+    if (isStreamingRequest) {
+      const stream = await generateAriaResponseStream(
+        student.id,
+        validatedData.subject,
+        validatedData.content,
+        conversationHistory
+      )
+      
+      const conversationId = validatedData.conversationId || crypto.randomUUID()
+      
+      const responseStream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder()
+          const reader = stream.getReader()
+          let fullResponse = ''
+          
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+            type: 'start',
+            conversationId 
+          })}\n\n`))
+          
+          try {
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
+              
+              controller.enqueue(value)
+              
+              const text = new TextDecoder().decode(value)
+              const dataLines = text.split('\n\n')
+              for (const line of dataLines) {
+                if (line.startsWith('data: ')) {
+                  const jsonStr = line.substring(6)
+                  try {
+                    const data = JSON.parse(jsonStr)
+                    if (data.content) {
+                      fullResponse += data.content
+                    }
+                  } catch {
+                    // Ignore parse errors
+                  }
+                }
+              }
+            }
+            
+            // Save conversation after streaming completes
+            const { conversation, ariaMessage } = await saveAriaConversation(
+              student.id,
+              validatedData.subject,
+              validatedData.content,
+              fullResponse,
+              validatedData.conversationId
+            )
+            
+            // Check and award badges
+            const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')
+            await checkAndAwardBadges(student.id, 'aria_question_count')
+            
+            logger.info('ARIA streaming response completed', {
+              conversationId: conversation.id,
+              messageId: ariaMessage.id,
+              badgesAwarded: newBadges.length
+            })
+            
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+              type: 'metadata',
+              conversation: {
+                id: conversation.id,
+                subject: conversation.subject,
+                title: conversation.title
+              },
+              message: {
+                id: ariaMessage.id,
+                createdAt: ariaMessage.createdAt
+              },
+              newBadges: newBadges.map(badge => ({
+                name: badge.badge.name,
+                description: badge.badge.description,
+                icon: badge.badge.icon
+              }))
+            })}\n\n`))
+            
+            controller.close()
+          } catch (error) {
+            logger.error('Streaming error:', error)
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+              type: 'error',
+              error: 'Streaming error occurred' 
+            })}\n\n`))
+            controller.close()
+          }
+        }
+      })
+      
+      logger.logRequest(200)
+      
+      return new Response(responseStream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        }
+      })
+    }
+    
+    // Non-streaming path (backward compatibility)
     const ariaResponse = await generateAriaResponse(
       student.id,
       validatedData.subject,
@@ -118,7 +228,6 @@ export async function POST(request: NextRequest) {
       conversationHistory
     )
     
-    // Sauvegarder la conversation
     const { conversation, ariaMessage } = await saveAriaConversation(
       student.id,
       validatedData.subject,
@@ -127,7 +236,6 @@ export async function POST(request: NextRequest) {
       validatedData.conversationId
     )
     
-    // Vérifier et attribuer des badges
     const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')
     await checkAndAwardBadges(student.id, 'aria_question_count')
     
