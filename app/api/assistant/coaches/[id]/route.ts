@@ -25,7 +25,7 @@ const coachUpdateSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -37,7 +37,7 @@ export async function PUT(
       );
     }
 
-    const coachId = params.id;
+    const { id: coachId } = await params;
     const body = await req.json();
     const validatedData = coachUpdateSchema.parse(body);
 
@@ -158,7 +158,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -170,7 +170,7 @@ export async function DELETE(
       );
     }
 
-    const coachId = params.id;
+    const { id: coachId } = await params;
 
     // Check if coach exists
     const existingCoach = await prisma.coachProfile.findUnique({
