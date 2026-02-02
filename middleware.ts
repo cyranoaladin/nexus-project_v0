@@ -1,6 +1,26 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+  response.headers.set('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https:",
+    "frame-ancestors 'self'"
+  ].join('; '))
+  
+  return response
+}
+
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token
@@ -9,32 +29,38 @@ export default withAuth(
     // Protection des routes dashboard
     if (pathname.startsWith('/dashboard')) {
       if (!token) {
-        return NextResponse.redirect(new URL('/auth/signin', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/auth/signin', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
 
       // Vérification des rôles spécifiques
       if (pathname.startsWith('/dashboard/eleve') && token.role !== 'ELEVE') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
       
       if (pathname.startsWith('/dashboard/parent') && token.role !== 'PARENT') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
       
       if (pathname.startsWith('/dashboard/coach') && token.role !== 'COACH') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
       
       if (pathname.startsWith('/dashboard/assistante') && token.role !== 'ASSISTANTE') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
       
       if (pathname.startsWith('/dashboard/admin') && token.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
       }
     }
 
-    return NextResponse.next()
+    return applySecurityHeaders(NextResponse.next())
   },
   {
     callbacks: {
@@ -52,5 +78,7 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ['/dashboard/:path*']
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+  ]
 }
