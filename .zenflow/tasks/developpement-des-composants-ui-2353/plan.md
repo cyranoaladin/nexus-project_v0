@@ -78,16 +78,17 @@ npm run typecheck
 npm run lint
 ```
 
-### [ ] Step: Button Component Tests
+### [x] Step: Button Component Tests
+<!-- chat-id: be679d00-a1c1-4eb9-9926-5db3a6ef34a1 -->
 
 Write comprehensive tests for the enhanced Button component.
 
 **Test Coverage:**
-- [ ] Rendering: All variants, sizes, loading state
-- [ ] Accessibility: ARIA attributes (`aria-busy`), keyboard navigation, focus management
-- [ ] Animations: Hover/tap animations, reduced motion respect
-- [ ] States: disabled, loading, interaction prevention
-- [ ] Edge cases: Long text, with icons, async onClick
+- [x] Rendering: All variants, sizes, loading state
+- [x] Accessibility: ARIA attributes (`aria-busy`), keyboard navigation, focus management
+- [x] Animations: Hover/tap animations, reduced motion respect
+- [x] States: disabled, loading, interaction prevention
+- [x] Edge cases: Long text, with icons, async onClick
 
 **Contract Reference:** `spec.md` Section 3.2, 6.1, A.3
 
