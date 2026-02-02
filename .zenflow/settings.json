@@ -1,0 +1,10 @@
+{
+  "setup_script": "npm install && npx prisma generate && npm run db:push",
+  "dev_server_script": "npm run dev",
+  "verification_script": "npm run lint && npm run typecheck && npm test -- --testPathPattern=src/components/ui && npm test -- --testPathPattern=tests/database",
+  "copy_files": [
+    ".env*",
+    "playwright/.auth/*.json",
+    "secrets/*.json"
+  ]
+}
