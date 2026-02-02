@@ -370,4 +370,98 @@ describe('Theme Configuration', () => {
       });
     });
   });
+
+  describe('Backward Compatibility', () => {
+    const globalsPath = path.join(process.cwd(), 'app', 'globals.css');
+    let cssContent: string;
+
+    beforeAll(() => {
+      cssContent = fs.readFileSync(globalsPath, 'utf-8');
+    });
+
+    it('should preserve legacy Nexus CSS variables', () => {
+      const nexusVariables = [
+        '--nexus-dark',
+        '--nexus-charcoal',
+        '--nexus-cyan',
+        '--nexus-white',
+        '--nexus-gray',
+      ];
+
+      nexusVariables.forEach((variable) => {
+        expect(cssContent).toContain(variable);
+      });
+    });
+
+    it('should preserve deep-midnight color variable', () => {
+      expect(cssContent).toContain('--deep-midnight');
+      expect(cssContent).toContain('--deep-midnight: #0F172A');
+    });
+
+    it('should preserve shadcn UI HSL variables in :root', () => {
+      const shadcnVariables = [
+        '--border',
+        '--input',
+        '--ring',
+        '--radius',
+        '--card',
+        '--card-foreground',
+        '--primary',
+        '--primary-foreground',
+        '--secondary',
+        '--secondary-foreground',
+        '--muted',
+        '--muted-foreground',
+        '--accent',
+        '--accent-foreground',
+      ];
+
+      shadcnVariables.forEach((variable) => {
+        expect(cssContent).toContain(variable);
+      });
+    });
+
+    it('should preserve legacy color aliases in @theme block', () => {
+      const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/s);
+      expect(themeBlock).toBeTruthy();
+      
+      const themeContent = themeBlock?.[0] || '';
+      const legacyColorAliases = [
+        '--color-background',
+        '--color-foreground',
+        '--color-bleu-nuit',
+        '--color-bleu-primaire',
+        '--color-bleu-secondaire',
+        '--color-blanc-pur',
+        '--color-rouge-corail',
+        '--color-ligne-bordure',
+      ];
+
+      legacyColorAliases.forEach((variable) => {
+        expect(themeContent).toContain(variable);
+      });
+    });
+
+    it('should have Nexus variables with correct color values', () => {
+      expect(cssContent).toContain('--nexus-dark: #0B0C10');
+      expect(cssContent).toContain('--nexus-charcoal: #111318');
+      expect(cssContent).toContain('--nexus-cyan: #2EE9F6');
+      expect(cssContent).toContain('--nexus-white: #F4F6FA');
+      expect(cssContent).toContain('--nexus-gray: #A6A9B4');
+    });
+
+    it('should verify GSAP sections can access required variables', () => {
+      const gsapRequiredVariables = [
+        '--nexus-dark',
+        '--nexus-charcoal',
+        '--nexus-cyan',
+        '--color-brand-accent',
+        '--color-surface-card',
+      ];
+
+      gsapRequiredVariables.forEach((variable) => {
+        expect(cssContent).toContain(variable);
+      });
+    });
+  });
 });
