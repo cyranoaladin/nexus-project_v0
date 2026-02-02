@@ -55,7 +55,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Implementation Steps
 
-### [ ] Step: Extend Parent Dashboard API
+### [x] Step: Extend Parent Dashboard API
+<!-- chat-id: f784138f-5d49-4de2-b18d-51fad59a1787 -->
 
 Enhance `/app/api/parent/dashboard/route.ts` to include badges, progress history, and financial transactions.
 
@@ -70,12 +71,12 @@ Enhance `/app/api/parent/dashboard/route.ts` to include badges, progress history
 
 **Verification**:
 - [ ] API returns 200 with valid parent session
-- [ ] API returns 401 without session
-- [ ] API returns 403 for non-parent roles
-- [ ] Badge data includes category, icon, earnedAt, isRecent
-- [ ] Financial history includes both payments and credit transactions
-- [ ] Progress history covers last 3 months by default
-- [ ] Run `npm run typecheck` (passes)
+- [x] API returns 401 without session
+- [x] API returns 403 for non-parent roles
+- [x] Badge data includes category, icon, earnedAt, isRecent
+- [x] Financial history includes both payments and credit transactions
+- [x] Progress history covers last 3 months by default
+- [x] Run `npm run typecheck` (passes)
 
 **Files Modified**:
 - `app/api/parent/dashboard/route.ts`
