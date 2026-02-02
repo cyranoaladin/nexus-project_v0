@@ -14,6 +14,7 @@ export function LogoutButton() {
       variant="ghost"
       onClick={handleSignOut}
       className="w-full justify-start gap-3 text-neutral-400 hover:text-neutral-50"
+      aria-label="Se déconnecter de votre compte"
     >
       <LogOut className="h-5 w-5" aria-hidden="true" />
       <span>Déconnexion</span>
