@@ -185,7 +185,8 @@ Create the main sidebar navigation server component.
 
 ---
 
-### [ ] Step: Create Navbar Component
+### [x] Step: Create Navbar Component
+<!-- chat-id: b65abf58-e3ff-46a6-8090-f1661a3e8680 -->
 
 Create the top navigation bar server component.
 
