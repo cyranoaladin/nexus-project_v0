@@ -132,7 +132,8 @@ Create the user profile display component for the sidebar.
 
 ---
 
-### [ ] Step: Create LogoutButton Component
+### [x] Step: Create LogoutButton Component
+<!-- chat-id: 5378aeff-6824-4dbd-8971-b67e1ab39faa -->
 
 Create the sign-out button component.
 
