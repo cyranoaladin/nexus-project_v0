@@ -55,16 +55,17 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Implementation Steps
 
-### [ ] Step: Button Component Enhancement
+### [x] Step: Button Component Enhancement
+<!-- chat-id: 4f0c74d4-c9b6-4e29-a037-fb7af3ed119d -->
 
 Enhance the existing Button component with loading state and Framer Motion animations.
 
 **Tasks:**
-- [ ] Add Framer Motion integration (`motion.button` wrapper)
-- [ ] Add `loading` prop with spinner icon (lucide-react `Loader2`)
-- [ ] Implement hover/tap animations with `useReducedMotion` hook
-- [ ] Add `aria-busy` attribute when loading
-- [ ] Ensure disabled state prevents interaction when loading
+- [x] Add Framer Motion integration (`motion.button` wrapper)
+- [x] Add `loading` prop with spinner icon (lucide-react `Loader2`)
+- [x] Implement hover/tap animations with `useReducedMotion` hook
+- [x] Add `aria-busy` attribute when loading
+- [x] Ensure disabled state prevents interaction when loading
 
 **Contract Reference:** `spec.md` Section 3.1, 4.1, A.1
 
