@@ -25,7 +25,7 @@ const coachUpdateSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string; }; }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
