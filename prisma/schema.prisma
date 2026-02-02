@@ -110,6 +110,7 @@ model User {
   // Notification relations
   notifications      SessionNotification[] @relation("UserNotifications")
 
+  @@index([role])
   @@map("users")
 }
 
@@ -232,6 +233,7 @@ model Subscription {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([studentId, status])
   @@map("subscriptions")
 }
 
@@ -256,6 +258,8 @@ model CreditTransaction {
   // - credit_transactions_session_usage_key: one USAGE per session
   // - credit_transactions_session_refund_key: one REFUND per session
   // See migration: 20260201201534_add_credit_transaction_idempotency
+  @@index([studentId, createdAt])
+  @@index([sessionId])
   @@map("credit_transactions")
 }
 
@@ -265,8 +269,8 @@ model Session {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id])
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Preserve session history even if coach account removed
 
   // Détails de la session
   type        ServiceType
@@ -290,6 +294,9 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([studentId])
+  @@index([coachId])
+  @@index([status])
   @@map("sessions")
 }
 
@@ -307,6 +314,7 @@ model AriaConversation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([studentId, updatedAt])
   @@map("aria_conversations")
 }
 
@@ -324,6 +332,7 @@ model AriaMessage {
 
   createdAt DateTime @default(now())
 
+  @@index([conversationId, createdAt])
   @@map("aria_messages")
 }
 
@@ -351,7 +360,7 @@ model StudentBadge {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   badgeId String
-  badge   Badge  @relation(fields: [badgeId], references: [id])
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Restrict) // Badges are system-level data; prevent deletion if awarded to students
 
   earnedAt DateTime @default(now())
 
@@ -365,8 +374,8 @@ model StudentReport {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id])
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Educational records outlive coach employment
 
   // Contenu du rapport
   title       String
@@ -388,7 +397,7 @@ model StudentReport {
 model Payment {
   id     String @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict) // Financial compliance - prevent deletion of users with payment history
 
   // Détails du paiement
   type        PaymentType
@@ -415,11 +424,11 @@ model Payment {
 // Modèle Message (Chat)
 model Message {
   id         String @id @default(cuid())
-  senderId   String
-  sender     User   @relation("MessageSender", fields: [senderId], references: [id])
+  senderId   String?
+  sender     User?  @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
-  receiverId String
-  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id])
+  receiverId String?
+  receiver   User?  @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
   content    String
   fileUrl    String? // Pour les pièces jointes
@@ -486,6 +495,8 @@ model Notification {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([userId, read])
+  @@index([userRole])
   @@map("notifications")
 }
 
