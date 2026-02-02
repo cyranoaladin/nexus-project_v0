@@ -111,7 +111,8 @@ Implement credit balance, next session, and badges cards using Radix UI componen
 
 ---
 
-### [ ] Step: ARIA Streaming Backend
+### [x] Step: ARIA Streaming Backend
+<!-- chat-id: f1d23404-25ea-470d-b9ef-a5532cd02dd1 -->
 
 Implement OpenAI streaming in ARIA backend with Server-Sent Events.
 
