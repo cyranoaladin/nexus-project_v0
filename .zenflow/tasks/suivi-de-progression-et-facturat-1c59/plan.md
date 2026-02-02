@@ -36,7 +36,8 @@ Save to `{@artifacts_path}/spec.md` with:
 - Delivery phases (incremental, testable milestones)
 - Verification approach using project lint/test commands
 
-### [ ] Step: Planning
+### [x] Step: Planning
+<!-- chat-id: 7ce6a022-c6b8-4ae7-a1fb-ad5b9f14a2da -->
 
 Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 
@@ -50,8 +51,345 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step: Implementation
+---
 
-This step should be replaced with detailed implementation tasks from the Planning step.
+## Implementation Steps
 
-If Planning didn't replace this step, execute the tasks in `{@artifacts_path}/plan.md`, updating checkboxes as you go. Run planned tests/lint and record results in plan.md.
+### [ ] Step: Extend Parent Dashboard API
+
+Enhance `/app/api/parent/dashboard/route.ts` to include badges, progress history, and financial transactions.
+
+**Tasks**:
+- Extend Prisma query to include `StudentBadge` with `Badge` relation
+- Calculate `isRecent` flag for badges (earnedAt within last 7 days)
+- Fetch parent payments from `Payment` table
+- Merge `Payment` and `CreditTransaction` data into unified financial history
+- Calculate progress history by aggregating `SessionBooking` data by week/month
+- Calculate subject-specific progress history
+- Update TypeScript interfaces for enhanced response structure
+
+**Verification**:
+- [ ] API returns 200 with valid parent session
+- [ ] API returns 401 without session
+- [ ] API returns 403 for non-parent roles
+- [ ] Badge data includes category, icon, earnedAt, isRecent
+- [ ] Financial history includes both payments and credit transactions
+- [ ] Progress history covers last 3 months by default
+- [ ] Run `npm run typecheck` (passes)
+
+**Files Modified**:
+- `app/api/parent/dashboard/route.ts`
+
+---
+
+### [ ] Step: Write API Integration Tests
+
+Create integration tests for the enhanced parent dashboard API endpoint.
+
+**Tasks**:
+- Create `__tests__/api/parent/dashboard.test.ts`
+- Test authentication (401 without session)
+- Test authorization (403 for non-parent role)
+- Test badge retrieval (correct count, categories, recent flag)
+- Test financial history (payments + credit transactions merged)
+- Test progress calculation (accurate percentages and dates)
+- Test parent-child data isolation (cannot access other parent's data)
+
+**Verification**:
+- [ ] All tests pass
+- [ ] Run `npm run test:integration` (passes)
+- [ ] Test coverage includes edge cases (no badges, no transactions, multiple children)
+
+**Files Created**:
+- `__tests__/api/parent/dashboard.test.ts`
+
+---
+
+### [ ] Step: Create BadgeDisplay Component
+
+Build the badge display component with category filtering.
+
+**Tasks**:
+- Create `components/ui/parent/badge-display.tsx`
+- Implement category tabs using Radix Tabs (ASSIDUITE, PROGRESSION, CURIOSITE)
+- Render badge grid (responsive: 2 cols mobile, 3 tablet, 4 desktop)
+- Display badge icon (emoji), name, earned date
+- Add "new" indicator for recent badges (isRecent flag)
+- Implement empty state ("Aucun badge gagné pour le moment")
+- Add smooth animations (framer-motion fade-in)
+- Follow existing Tailwind styling patterns
+
+**Verification**:
+- [ ] Component renders without TypeScript errors
+- [ ] Category tabs switch correctly
+- [ ] Badges display with proper spacing and styling
+- [ ] Recent badge indicator shows correctly
+- [ ] Empty state displays when no badges
+- [ ] Responsive on mobile, tablet, desktop
+- [ ] Run `npm run typecheck` (passes)
+
+**Files Created**:
+- `components/ui/parent/badge-display.tsx`
+
+---
+
+### [ ] Step: Create ProgressChart Component
+
+Build the progress evolution chart component using Recharts.
+
+**Tasks**:
+- Create `components/ui/parent/progress-chart.tsx`
+- Implement time range selector using Radix Select (1M, 3M, 6M, 1Y)
+- Set up Recharts LineChart for overall progress trend
+- Set up Recharts BarChart for subject-specific comparison
+- Add ResponsiveContainer for responsive sizing
+- Implement interactive tooltips with date-fns formatting
+- Use brand colors from Tailwind config
+- Add empty state for no progress data
+
+**Verification**:
+- [ ] Charts render correctly with sample data
+- [ ] Time range selector filters data
+- [ ] Tooltips show date and percentage on hover
+- [ ] Charts responsive on all screen sizes
+- [ ] Colors match brand palette
+- [ ] Run `npm run typecheck` (passes)
+
+**Files Created**:
+- `components/ui/parent/progress-chart.tsx`
+
+---
+
+### [ ] Step: Create FinancialHistory Component
+
+Build the financial transaction history component with filtering and export.
+
+**Tasks**:
+- Create `components/ui/parent/financial-history.tsx`
+- Implement filter controls using Radix Select (type, child, date range)
+- Render transaction table with columns: date, type, description, amount, status, child
+- Add status badges (color-coded: COMPLETED=green, PENDING=yellow, FAILED=red)
+- Implement client-side pagination (20 items per page, "Load More" button)
+- Add CSV export functionality (client-side generation)
+- Implement sortable columns (click header to sort)
+- Add empty state ("Aucune transaction trouvée")
+
+**Verification**:
+- [ ] Table renders all transactions correctly
+- [ ] Filters work (type, child, date range)
+- [ ] Pagination loads more items
+- [ ] CSV export downloads valid file
+- [ ] Status badges display correct colors
+- [ ] Sorting works on all columns
+- [ ] Run `npm run typecheck` (passes)
+
+**Files Created**:
+- `components/ui/parent/financial-history.tsx`
+
+---
+
+### [ ] Step: Write Component Unit Tests
+
+Create unit tests for all new components.
+
+**Tasks**:
+- Create `__tests__/components/parent/badge-display.test.tsx`
+  - Test rendering with badges
+  - Test category tab switching
+  - Test empty state
+  - Test recent badge indicator
+- Create `__tests__/components/parent/progress-chart.test.tsx`
+  - Test chart rendering with data
+  - Test time range selector
+  - Test empty state
+  - Mock Recharts components
+- Create `__tests__/components/parent/financial-history.test.tsx`
+  - Test table rendering
+  - Test filter logic
+  - Test pagination
+  - Test CSV export generation
+  - Test sorting
+
+**Verification**:
+- [ ] All unit tests pass
+- [ ] Run `npm run test:unit` (passes)
+- [ ] Test coverage includes edge cases
+
+**Files Created**:
+- `__tests__/components/parent/badge-display.test.tsx`
+- `__tests__/components/parent/progress-chart.test.tsx`
+- `__tests__/components/parent/financial-history.test.tsx`
+
+---
+
+### [ ] Step: Integrate Components into Parent Dashboard
+
+Update the parent dashboard page to include new components.
+
+**Tasks**:
+- Modify `app/dashboard/parent/page.tsx`
+- Extend `ParentDashboardData` interface with new fields (badges, progressHistory, financialHistory)
+- Update `refreshDashboardData` function to handle new API response
+- Add BadgeDisplay card section with proper layout
+- Add ProgressChart card section with proper layout
+- Add FinancialHistory card section with proper layout
+- Ensure all components update when child selector changes
+- Add loading skeletons for new sections
+- Add error boundaries for new components
+- Arrange cards in responsive grid (1 col mobile, 2 cols desktop)
+- Match existing card styling (shadow, border, radius)
+
+**Verification**:
+- [ ] Dashboard loads without errors
+- [ ] All new sections display correctly
+- [ ] Child selector updates all sections (including new ones)
+- [ ] Loading states show during data fetch
+- [ ] Error states display user-friendly messages
+- [ ] Layout responsive on mobile, tablet, desktop
+- [ ] Run `npm run dev` and manual test all features
+- [ ] Run `npm run typecheck` (passes)
+- [ ] Run `npm run lint` (passes)
+
+**Files Modified**:
+- `app/dashboard/parent/page.tsx`
+
+---
+
+### [ ] Step: Create E2E Test Fixtures
+
+Create test data fixtures for E2E testing.
+
+**Tasks**:
+- Create `parent.json` test file with sample data:
+  - 1 parent with 2 children
+  - 15-20 badges across different categories
+  - 30 financial transactions (payments + credit usage)
+  - 3 months of session history for progress calculation
+- Add fixture to E2E seed script if it exists
+- Document test credentials and data structure
+
+**Verification**:
+- [ ] Fixture file created with comprehensive data
+- [ ] Data structure matches API response format
+- [ ] Covers all test scenarios (multiple children, various badge categories, different transaction types)
+
+**Files Created**:
+- `parent.json` (location TBD based on E2E setup)
+
+---
+
+### [ ] Step: Write E2E Tests
+
+Create end-to-end tests for the parent dashboard.
+
+**Tasks**:
+- Create `e2e/parent-dashboard.spec.ts`
+- Test: Parent login → dashboard loads → all data visible
+- Test: Switch child → all sections update (badges, chart, remains)
+- Test: Badge category tabs switching
+- Test: Progress chart time range selector
+- Test: Filter financial history by type, child, date range
+- Test: CSV export downloads file
+- Test: Loading states display correctly
+- Test: Error handling (simulate network failure)
+
+**Verification**:
+- [ ] All E2E tests pass
+- [ ] Run `npm run test:e2e:setup && npm run test:e2e` (passes)
+- [ ] Tests are not flaky (run 3 times successfully)
+- [ ] Dashboard loads in < 2s (measured in E2E)
+
+**Files Created**:
+- `e2e/parent-dashboard.spec.ts`
+
+---
+
+### [ ] Step: Performance & Security Testing
+
+Test performance, security, and accessibility.
+
+**Tasks**:
+- **Performance**:
+  - Test with large dataset (100 badges, 500 transactions)
+  - Verify API response time < 2s (Network tab)
+  - Check for memory leaks (React DevTools Profiler)
+  - Verify API response size < 1MB
+- **Security**:
+  - Test parent A cannot see parent B's data
+  - Verify API validates session server-side
+  - Ensure no child IDs exposed in URLs
+  - Check no sensitive data in console logs
+- **Accessibility**:
+  - Add ARIA labels to charts, tables, filters
+  - Test keyboard navigation (Tab, Enter, Space)
+  - Verify color contrast (WCAG 2.1 AA)
+  - Test with screen reader (VoiceOver/NVDA)
+
+**Verification**:
+- [ ] Dashboard loads in < 2s with large dataset
+- [ ] No console errors in production build
+- [ ] Parent data isolation verified
+- [ ] Keyboard navigation works on all interactive elements
+- [ ] Color contrast meets WCAG 2.1 AA
+- [ ] No accessibility violations (aXe DevTools)
+
+---
+
+### [ ] Step: Final Verification & Cleanup
+
+Run all tests, build production bundle, and clean up code.
+
+**Tasks**:
+- Run full test suite: `npm run test:all`
+- Run type checking: `npm run typecheck`
+- Run linting: `npm run lint`
+- Build production: `npm run build`
+- Remove debug logs and console.log statements
+- Self-review all changes for code style consistency
+- Verify all existing dashboard features still work
+- Test on different browsers (Chrome, Firefox, Safari)
+- Test on different devices (mobile, tablet, desktop)
+
+**Verification**:
+- [ ] All tests pass (unit, integration, E2E)
+- [ ] TypeScript compilation succeeds (no errors)
+- [ ] ESLint passes (no warnings)
+- [ ] Production build succeeds
+- [ ] No console errors/warnings
+- [ ] All existing features functional
+- [ ] Responsive design works on all tested devices
+- [ ] Cross-browser compatibility verified
+
+---
+
+## Test Results
+
+### Unit Tests
+- Status: Pending
+- Command: `npm run test:unit`
+- Results: 
+
+### Integration Tests
+- Status: Pending
+- Command: `npm run test:integration`
+- Results: 
+
+### E2E Tests
+- Status: Pending
+- Command: `npm run test:e2e`
+- Results: 
+
+### Type Checking
+- Status: Pending
+- Command: `npm run typecheck`
+- Results: 
+
+### Linting
+- Status: Pending
+- Command: `npm run lint`
+- Results: 
+
+### Production Build
+- Status: Pending
+- Command: `npm run build`
+- Results:
