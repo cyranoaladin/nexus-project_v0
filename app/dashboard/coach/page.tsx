@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle, FileText } from "lucide-react"
 import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { SessionReportDialog } from "@/components/ui/session-report-dialog"
 
 interface CoachDashboardData {
   coach: {
@@ -76,33 +77,37 @@ export default function DashboardCoach() {
 
 
 
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/coach/dashboard')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data')
+      }
+      
+      const data = await response.json()
+      setDashboardData(data)
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const refreshDashboard = () => {
+    fetchDashboardData()
+  }
+
   useEffect(() => {
     if (status === "loading") return;
 
     if (!session || session.user.role !== 'COACH') {
       router.push("/auth/signin");
       return;
-    }
-
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        const response = await fetch('/api/coach/dashboard')
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data')
-        }
-        
-        const data = await response.json()
-        setDashboardData(data)
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err)
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
     }
 
     fetchDashboardData()
@@ -308,13 +313,28 @@ export default function DashboardCoach() {
                           <Badge variant="outline" className="text-xs">
                             {session.type}
                           </Badge>
+                          {session.status === 'COMPLETED' && (
+                            <Badge variant="default" className="text-xs bg-green-100 text-green-800">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Rapport soumis
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-neutral-600">{session.subject}</p>
                         <p className="text-sm font-medium text-brand-primary">{session.time}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {session.status === 'scheduled' && (
-                          <CheckCircle className="w-5 h-5 text-green-500" aria-hidden="true" />
+                        {(session.status === 'CONFIRMED' || session.status === 'IN_PROGRESS') && (
+                          <SessionReportDialog
+                            sessionId={session.id}
+                            onReportSubmitted={refreshDashboard}
+                            trigger={
+                              <Button size="sm">
+                                <FileText className="w-4 h-4 mr-2" />
+                                Soumettre rapport
+                              </Button>
+                            }
+                          />
                         )}
                       </div>
                     </div>
