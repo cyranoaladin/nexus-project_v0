@@ -1,9 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma, type CreditTransaction } from '@prisma/client';
-import { z } from 'zod';
+import { bookFullSessionSchema } from '@/lib/validation';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { ApiError, successResponse, handleApiError, HttpStatus } from '@/lib/api/errors';
+import { parseBody } from '@/lib/api/helpers';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
+import { UserRole } from '@/types/enums';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -17,82 +21,28 @@ function parseLocalDate(dateStr: string): Date {
   return new Date(y, (m || 1) - 1, d || 1);
 }
 
-// Enhanced validation schema with better date and time controls
-const bookSessionSchema = z.object({
-  coachId: z.string().min(1, 'Coach ID is required'),
-  studentId: z.string().min(1, 'Student ID is required'),
-  subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
-  scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate >= today;
-  }, 'Cannot book sessions in the past'),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  duration: z.number().min(30).max(180), // 30 minutes to 3 hours
-  type: z.enum(['INDIVIDUAL', 'GROUP', 'MASTERCLASS']).default('INDIVIDUAL'),
-  modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
-  title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-  description: z.string().max(500, 'Description too long').optional(),
-  creditsToUse: z.number().min(1).max(10, 'Cannot use more than 10 credits per session'),
-}).refine((data) => {
-  // Validate that end time is after start time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  return endMinutes > startMinutes;
-}, {
-  message: 'End time must be after start time',
-  path: ['endTime']
-}).refine((data) => {
-  // Validate that duration matches start and end time
-  const startTime = data.startTime.split(':').map(Number);
-  const endTime = data.endTime.split(':').map(Number);
-  const startMinutes = startTime[0] * 60 + startTime[1];
-  const endMinutes = endTime[0] * 60 + endTime[1];
-  const calculatedDuration = endMinutes - startMinutes;
-  return calculatedDuration === data.duration;
-}, {
-  message: 'Duration must match the time difference between start and end time',
-  path: ['duration']
-});
-
 export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    console.log('Session booking request - Session:', session);
-    console.log('Session booking request - User:', session?.user);
-    
-    if (!session?.user) {
-      console.log('Session booking error: No session or user');
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+  let logger = createLogger(req);
 
-    const body = await req.json();
-    console.log('Session booking request - Body:', body);
-    const validatedData = bookSessionSchema.parse(body) as z.infer<typeof bookSessionSchema>;
+  try {
+    // Rate limiting
+    const rateLimitResult = RateLimitPresets.expensive(req, 'session-book');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Authentication & Authorization
+    const session = await requireAnyRole([UserRole.PARENT, UserRole.ELEVE]);
+    if (isErrorResponse(session)) return session;
+
+    // Update logger with user context
+    logger = createLogger(req, session);
+    logger.info('Booking session');
+
+    // Parse and validate input
+    const validatedData = await parseBody(req, bookFullSessionSchema);
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
     const requestEndTime = normalizeTime(validatedData.endTime);
-
-    console.log('Session booking request - User role:', session.user.role);
-    console.log('Session booking request - Allowed roles:', ['PARENT', 'ELEVE']);
-
-    // Check if user has permission to book (parent or student)
-    if (!['PARENT', 'ELEVE'].includes(session.user.role)) {
-      console.log('Session booking error: Unauthorized role:', session.user.role);
-      return NextResponse.json(
-        { error: 'Only parents and students can book sessions' },
-        { status: 403 }
-      );
-    }
 
     // Additional business logic validation
     const scheduledDate = parseLocalDate(validatedData.scheduledDate);
@@ -103,29 +53,20 @@ export async function POST(req: NextRequest) {
     const maxBookingDate = new Date();
     maxBookingDate.setMonth(maxBookingDate.getMonth() + 3);
     if (scheduledDate > maxBookingDate) {
-      return NextResponse.json(
-        { error: 'Cannot book sessions more than 3 months in advance' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
     }
 
     // Check if booking is on a weekend (optional business rule)
     const dayOfWeek = scheduledDate.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return NextResponse.json(
-        { error: 'Sessions cannot be booked on weekends' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Sessions cannot be booked on weekends');
     }
 
     // Check if booking is outside business hours (8 AM to 8 PM)
     const startHour = parseInt(requestStartTime.split(':')[0]);
     const endHour = parseInt(requestEndTime.split(':')[0]);
     if (startHour < 8 || endHour > 20) {
-      return NextResponse.json(
-        { error: 'Sessions must be between 8:00 AM and 8:00 PM' },
-        { status: 400 }
-      );
+      throw ApiError.badRequest('Sessions must be between 8:00 AM and 8:00 PM');
     }
 
     // Start transaction
@@ -427,31 +368,49 @@ export async function POST(req: NextRequest) {
       });
 
       return sessionBooking;
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      timeout: 15000  // 15 seconds timeout for complex booking logic
     });
 
     // Send immediate notifications (implement email service)
     // await sendSessionBookingNotifications(result.id);
 
-    return NextResponse.json({
+    logger.logRequest(HttpStatus.CREATED, {
+      sessionId: result.id,
+      coachId: validatedData.coachId,
+      studentId: validatedData.studentId,
+      subject: validatedData.subject
+    });
+
+    return successResponse({
       success: true,
       sessionId: result.id,
       message: 'Session booked successfully',
       session: result
-    });
+    }, HttpStatus.CREATED);
 
   } catch (error) {
-    console.error('Session booking error:', error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
-        { status: 400 }
-      );
+    logger.error('Failed to book session', error);
+
+    // Handle database constraint violations and transaction errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      const dbError = error as { code: string; meta?: any };
+
+      // 23P01: Exclusion constraint violation (overlapping sessions)
+      if (dbError.code === '23P01') {
+        logger.logRequest(HttpStatus.CONFLICT);
+        return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.').toResponse();
+      }
+
+      // P2034: Transaction failed due to serialization conflict
+      if (dbError.code === 'P2034') {
+        logger.logRequest(HttpStatus.CONFLICT);
+        return ApiError.conflict('Booking conflict detected. Please try again.').toResponse();
+      }
     }
-    
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to book session' },
-      { status: 500 }
-    );
+
+    logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
+    return handleApiError(error, 'POST /api/sessions/book');
   }
 }
