@@ -1,0 +1,298 @@
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CreditCard, Calendar, BookOpen, LogOut, User } from 'lucide-react';
+
+interface DashboardData {
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    grade: string;
+    school: string;
+  };
+  credits: {
+    balance: number;
+    transactions: Array<{
+      id: string;
+      type: string;
+      amount: number;
+      description: string;
+      createdAt: string;
+    }>;
+  };
+  nextSession: {
+    id: string;
+    title: string;
+    subject: string;
+    scheduledAt: string;
+    duration: number;
+    coach: {
+      firstName: string;
+      lastName: string;
+      pseudonym: string;
+    };
+  } | null;
+  recentSessions: Array<{
+    id: string;
+    title: string;
+    subject: string;
+    status: string;
+    scheduledAt: string;
+    coach: {
+      firstName: string;
+      lastName: string;
+      pseudonym: string;
+    } | null;
+  }>;
+  ariaStats: {
+    messagesToday: number;
+    totalConversations: number;
+  };
+  badges: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    earnedAt: string;
+  }>;
+  achievements?: {
+    earnedBadges: number;
+    recentBadges: Array<{
+      id: string;
+      name: string;
+      description: string;
+      icon: string;
+      color: string;
+      earnedAt: string;
+    }>;
+  };
+}
+
+async function getDashboardData(): Promise<DashboardData> {
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const res = await fetch(`${baseUrl}/api/student/dashboard`, {
+    cache: 'no-store',
+    credentials: 'include',
+  });
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch dashboard data');
+  }
+  
+  return res.json();
+}
+
+function LogoutButton() {
+  return (
+    <form action="/api/auth/signout" method="POST">
+      <Button
+        type="submit"
+        variant="ghost"
+        className="text-neutral-600 hover:text-neutral-900"
+        aria-label="Se déconnecter"
+      >
+        <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
+        Déconnexion
+      </Button>
+    </form>
+  );
+}
+
+export default async function StudentDashboardPage() {
+  const session = await getServerSession(authOptions);
+  
+  if (!session || session.user.role !== 'ELEVE') {
+    redirect('/auth/signin');
+  }
+  
+  const data = await getDashboardData();
+  
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <User className="w-8 h-8 text-brand-primary" aria-hidden="true" />
+                <div>
+                  <h1 className="font-semibold text-neutral-900">
+                    {data.student.firstName} {data.student.lastName}
+                  </h1>
+                  <p className="text-sm text-neutral-500">Espace Étudiant</p>
+                </div>
+              </div>
+            </div>
+            <LogoutButton />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+            Bonjour {data.student.firstName} ! 👋
+          </h2>
+          <p className="text-neutral-600">
+            Bienvenue dans votre nouvel espace Nexus Réussite.
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Solde de Crédits */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Solde de Crédits</CardTitle>
+              <CreditCard className="h-4 w-4 text-brand-primary" aria-hidden="true" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-brand-primary">
+                {data.credits.balance} crédits
+              </div>
+              <p className="text-xs text-neutral-600 mt-1">
+                Disponibles pour vos sessions
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Prochaine Session */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Prochaine Session</CardTitle>
+              <Calendar className="h-4 w-4 text-success" aria-hidden="true" />
+            </CardHeader>
+            <CardContent>
+              {data.nextSession ? (
+                <>
+                  <div className="text-xl font-bold text-neutral-900">
+                    {new Date(data.nextSession.scheduledAt).toLocaleDateString('fr-FR', { 
+                      day: '2-digit', 
+                      month: 'short' 
+                    })}
+                  </div>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    {data.nextSession.subject} • {data.nextSession.duration}min
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-xl font-bold text-neutral-400">
+                    Aucune
+                  </div>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    Programmez votre prochaine session
+                  </p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Badge Progress */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Progression</CardTitle>
+              <BookOpen className="h-4 w-4 text-purple-600" aria-hidden="true" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-purple-600">
+                {data.achievements?.earnedBadges || 0} badges
+              </div>
+              <p className="text-xs text-neutral-600 mt-1">
+                Obtenus ce mois
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Dashboard Grid - 60% Left / 40% Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left Column - 60% (3/5) */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Placeholder for ARIA Chat - Will be added in next step */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Assistant ARIA</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-neutral-500">
+                  Interface de chat ARIA - À venir
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - 40% (2/5) */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Placeholder for Calendar - Will be added in next step */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Calendrier</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-neutral-500">
+                  Calendrier de réservation - À venir
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Sessions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calendar className="w-5 h-5 mr-2 text-brand-primary" />
+                  Sessions Récentes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.recentSessions && data.recentSessions.length > 0 ? (
+                  <div className="space-y-4">
+                    {data.recentSessions.slice(0, 3).map((session) => (
+                      <div
+                        key={session.id}
+                        className="flex items-start justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-neutral-900 text-sm truncate">
+                            {session.title}
+                          </h4>
+                          <p className="text-xs text-neutral-600">{session.subject}</p>
+                          <p className="text-xs font-medium text-brand-primary">
+                            {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ml-2 ${
+                          session.status === 'COMPLETED' 
+                            ? 'bg-green-100 text-green-800' 
+                            : session.status === 'SCHEDULED'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {session.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                    <p className="text-sm text-neutral-500">
+                      Aucune session récente
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
