@@ -153,7 +153,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
 
           <div className="bg-blue-50 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-brand-primary mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Information importante :</p>
                 <p>Votre demande sera envoyée à l'assistant pour approbation. Le changement sera effectif après validation.</p>

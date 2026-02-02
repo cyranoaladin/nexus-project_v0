@@ -498,13 +498,13 @@ export default function EquipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-deep-midnight text-slate-200">
+    <div className="min-h-screen bg-midnight-950 text-slate-200">
       <Header />
 
       <main className="pb-20">
         {/* HERO */}
         <section className="relative overflow-hidden py-20">
-          <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
           <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-[140px]" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
@@ -736,9 +736,9 @@ export default function EquipePage() {
                     >
                       📅 Réserver un diagnostic
                     </a>
-                    <button className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition">
+                    <a href="/contact?sujet=profil-mentor" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
                       Voir le profil complet
-                    </button>
+                    </a>
                   </div>
                 </div>
               ))}
@@ -841,9 +841,9 @@ export default function EquipePage() {
                     >
                       Réserver
                     </a>
-                    <button className="flex-1 rounded-full border border-gold-500 px-3 py-2 text-xs font-semibold text-white hover:bg-gold-500/10">
+                    <a href="/contact?sujet=profil-mentor" className="flex-1 rounded-full border border-gold-500 px-3 py-2 text-xs font-semibold text-white hover:bg-gold-500/10 text-center">
                       Profil
-                    </button>
+                    </a>
                   </div>
                 </div>
               ))}

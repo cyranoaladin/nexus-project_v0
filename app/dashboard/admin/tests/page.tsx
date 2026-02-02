@@ -132,7 +132,7 @@ export default function AdminTestsPage() {
       {isAuthorized && (
         <>
           <div className="flex items-center gap-3">
-            <Settings className="h-8 w-8 text-blue-600" />
+            <Settings className="h-8 w-8 text-brand-primary" />
             <div>
               <h1 className="text-3xl font-bold">Tests Système</h1>
               <p className="text-gray-600">Vérification et test des configurations critiques</p>
@@ -302,9 +302,9 @@ export default function AdminTestsPage() {
                 </div>
 
                 <div className="text-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                  <Settings className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <Settings className="h-8 w-8 text-brand-primary mx-auto mb-2" />
                   <p className="font-semibold text-blue-800">Total Tests</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-brand-primary">
                     {Object.keys(results).length}
                   </p>
                 </div>
