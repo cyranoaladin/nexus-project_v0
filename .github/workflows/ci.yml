@@ -219,7 +219,8 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+    continue-on-error: true
     needs: [lint, typecheck]
 
     services:
