@@ -48,7 +48,7 @@ const DNASectionGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="adn" className="py-24 bg-[#0a0b0f] border-t border-white/5">
+        <section ref={sectionRef} id="adn" className="py-24 bg-neutral-950 border-t border-white/5">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 
                 {/* Left Visual */}

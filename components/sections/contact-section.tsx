@@ -21,12 +21,12 @@ export default function ContactSection() {
   const [active, setActive] = useState<TabKey>("schools");
 
   return (
-    <section id="contact" className="bg-deep-midnight py-24">
+    <section id="contact" className="bg-midnight-950 py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-10 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-200 backdrop-blur-md">
             <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-gold-500/10 blur-3xl" />
-            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-midnight-blue/30 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-midnight-800/30 blur-3xl" />
             <div className="relative space-y-6">
               <div>
                 <h3 className="text-xl font-semibold text-white">Nous contacter</h3>

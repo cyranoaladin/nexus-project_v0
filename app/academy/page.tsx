@@ -5,14 +5,14 @@ import { Terminal, Sigma, Blocks, Award } from 'lucide-react';
 
 export default function AcademyPage() {
     return (
-        <div className="min-h-screen bg-deep-midnight text-slate-200 font-sans selection:bg-gold-500/20 selection:text-gold-400">
+        <div className="min-h-screen bg-midnight-950 text-slate-200 font-sans selection:bg-gold-500/20 selection:text-gold-400">
             <CorporateNavbar />
 
             {/* Hero */}
-            <section className="bg-deep-midnight text-white py-24 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+            <section className="bg-midnight-950 text-white py-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
                 <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-gold-500/5 blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-midnight-blue/10 blur-3xl" />
+                <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-midnight-800/10 blur-3xl" />
                 <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
                     <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight font-serif">
                         Nexus Academy : Formez les élites de demain.
@@ -56,7 +56,7 @@ export default function AcademyPage() {
             </section>
 
             {/* Certification On-Chain */}
-            <section className="py-20 border-t border-white/10 bg-deep-midnight">
+            <section className="py-20 border-t border-white/10 bg-midnight-950">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="max-w-3xl mx-auto text-center">
                         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-gold-500 mb-6">

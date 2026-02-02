@@ -56,7 +56,7 @@ export default function PaymentConfirmationPage() {
               <Card className="text-center">
                 <CardContent className="p-6">
                   <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
-                    <Clock className="w-6 h-6 text-blue-600" />
+                    <Clock className="w-6 h-6 text-brand-primary" />
                   </div>
                   <h3 className="font-semibold text-lg mb-2">Validation en Cours</h3>
                   <p className="text-gray-600 text-sm">
@@ -86,7 +86,7 @@ export default function PaymentConfirmationPage() {
               className="bg-blue-50 rounded-xl p-6 mb-8"
             >
               <div className="flex items-start space-x-3">
-                <Mail className="w-5 h-5 text-blue-600 mt-1" />
+                <Mail className="w-5 h-5 text-brand-primary mt-1" />
                 <div className="text-left">
                   <h3 className="font-semibold text-blue-900 mb-2">
                     Que se passe-t-il maintenant ?
@@ -131,11 +131,11 @@ export default function PaymentConfirmationPage() {
             >
               <p className="text-gray-600 text-sm">
                 Une question sur votre paiement ? Contactez-nous au{' '}
-                <a href="tel:+21699192829" className="text-blue-600 font-medium hover:underline">
+                <a href="tel:+21699192829" className="text-brand-primary font-medium hover:underline">
                   +216 99 19 28 29
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-blue-600 font-medium hover:underline">
+                <a href="mailto:contact@nexusreussite.academy" className="text-brand-primary font-medium hover:underline">
                   contact@nexusreussite.academy
                 </a>
               </p>
