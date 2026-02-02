@@ -130,7 +130,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
-### [ ] Step: Generate Database Migration
+### [x] Step: Generate Database Migration
+<!-- chat-id: 69637623-83af-401a-abd9-98d52d8a471e -->
 
 **Objective**: Generate migration file with all schema changes.
 
