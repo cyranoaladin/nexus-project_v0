@@ -17,6 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create .env file for Docker Compose
+        run: |
+          cat > .env <<EOF
+          POSTGRES_USER=${POSTGRES_USER}
+          DATABASE_PASSWORD=${DATABASE_PASSWORD}
+          POSTGRES_DB=${POSTGRES_DB}
+          EOF
+
       - name: Start Postgres (Docker Compose)
         run: |
           docker compose up -d postgres-db

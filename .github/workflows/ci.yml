@@ -189,7 +189,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: |
-          npx prisma db execute --stdin <<SQL
+          npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           SELECT 1 as smoke_test;
           SQL
 
@@ -419,14 +419,15 @@ jobs:
           sarif_file: semgrep.sarif
 
       # --- OSV SCANNER (Google) ---
+      - name: Install OSV Scanner
+        run: |
+          curl -sSL https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_linux_amd64 -o osv-scanner
+          chmod +x osv-scanner
+
       - name: Run OSV Scanner
-        uses: google/osv-scanner/actions/run@v1
         continue-on-error: true
-        with:
-          scan-args: |-
-            --lockfile=package-lock.json
-            --format=json
-            --output=osv-report.json
+        run: |
+          ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json || true
 
       - name: Upload OSV report
         if: always()
@@ -468,6 +469,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
         run: npm run build
 
