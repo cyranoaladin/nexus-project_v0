@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { refundSessionBookingById } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { authOptions } from '@/lib/auth';
 import { SUBSCRIPTION_PLANS } from '@/lib/constants';
 import { prisma } from '@/lib/prisma';
