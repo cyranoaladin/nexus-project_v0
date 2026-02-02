@@ -75,7 +75,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
-### [ ] Step: Add Foreign Key Constraints
+### [x] Step: Add Foreign Key Constraints
+<!-- chat-id: 3eac3869-6f69-465c-aa2e-1d40823906f5 -->
 
 **Objective**: Add missing `onDelete` constraints to all relations.
 
