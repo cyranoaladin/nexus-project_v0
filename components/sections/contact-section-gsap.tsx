@@ -87,7 +87,7 @@ const ContactSectionGSAP = () => {
     const currentProfile = profiles[profileType];
 
     return (
-        <section ref={sectionRef} id="contact" className="relative py-24 bg-[#0a0b0f]">
+        <section ref={sectionRef} id="contact" className="relative py-24 bg-neutral-950">
 
             <div className="max-w-7xl mx-auto px-6">
 
@@ -210,7 +210,7 @@ const ContactSectionGSAP = () => {
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         placeholder="Votre nom"
-                                        className="w-full bg-[#0a0b0f] border border-white/10 rounded-xl px-4 py-3.5 
+                                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
                               text-white text-sm placeholder:text-gray-600 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                         required
@@ -224,7 +224,7 @@ const ContactSectionGSAP = () => {
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         placeholder="email@exemple.com"
-                                        className="w-full bg-[#0a0b0f] border border-white/10 rounded-xl px-4 py-3.5 
+                                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
                               text-white text-sm placeholder:text-gray-600 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                         required
@@ -241,7 +241,7 @@ const ContactSectionGSAP = () => {
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         placeholder="+216 XX XXX XXX"
-                                        className="w-full bg-[#0a0b0f] border border-white/10 rounded-xl px-4 py-3.5 
+                                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
                               text-white text-sm placeholder:text-gray-600 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                     />
@@ -256,7 +256,7 @@ const ContactSectionGSAP = () => {
                                         value={formData.organization}
                                         onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                                         placeholder={currentProfile.fields.organization.placeholder}
-                                        className="w-full bg-[#0a0b0f] border border-white/10 rounded-xl px-4 py-3.5 
+                                        className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
                               text-white text-sm placeholder:text-gray-600 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                     />
@@ -271,7 +271,7 @@ const ContactSectionGSAP = () => {
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     placeholder="Décrivez brièvement votre besoin..."
                                     rows={4}
-                                    className="w-full bg-[#0a0b0f] border border-white/10 rounded-xl px-4 py-3.5 
+                                    className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
                             text-white text-sm placeholder:text-gray-600 resize-none
                             focus:border-blue-500 focus:outline-none transition-colors"
                                 />

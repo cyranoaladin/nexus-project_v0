@@ -276,7 +276,7 @@ export default function DashboardEleve() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                    <Calendar className="w-5 h-5 mr-2 text-brand-primary" />
                     Sessions Récentes
                   </CardTitle>
                 </CardHeader>
@@ -291,7 +291,7 @@ export default function DashboardEleve() {
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-900">{session.title}</h4>
                             <p className="text-sm text-gray-600">{session.subject}</p>
-                            <p className="text-sm font-medium text-blue-600">
+                            <p className="text-sm font-medium text-brand-primary">
                               {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
                             </p>
                           </div>
@@ -356,7 +356,7 @@ export default function DashboardEleve() {
                     className="h-auto p-4 flex flex-col items-center space-y-2"
                     onClick={() => setActiveTab('booking')}
                   >
-                    <Calendar className="w-6 h-6 text-blue-600" />
+                    <Calendar className="w-6 h-6 text-brand-primary" />
                     <span>Réserver une Session</span>
                   </Button>
                   <Link href="/dashboard/eleve/sessions">

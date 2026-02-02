@@ -106,7 +106,7 @@ function WisePaymentContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -139,7 +139,7 @@ function WisePaymentContent() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Globe className="w-5 h-5 mr-2 text-blue-600" />
+                <Globe className="w-5 h-5 mr-2 text-brand-primary" />
                 Coordonnées de Virement
               </CardTitle>
             </CardHeader>
@@ -148,7 +148,7 @@ function WisePaymentContent() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="text-center">
                   <div className="text-sm text-blue-800 mb-1">Montant exact à virer</div>
-                  <div className="text-3xl font-bold text-blue-600">
+                  <div className="text-3xl font-bold text-brand-primary">
                     {orderDetails.amount} TND
                   </div>
                   <div className="text-sm text-blue-700 mt-1">

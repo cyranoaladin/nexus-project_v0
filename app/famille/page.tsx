@@ -36,15 +36,15 @@ const testimonials = [
 
 export default function FamillePage() {
   return (
-    <div className="min-h-screen bg-deep-midnight text-slate-200 font-sans">
+    <div className="min-h-screen bg-midnight-950 text-slate-200 font-sans">
       <Header />
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden py-24 bg-deep-midnight">
-          <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+        <section className="relative overflow-hidden py-24 bg-midnight-950">
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
           <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-[140px]" />
-          <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-midnight-blue/30 blur-[140px]" />
+          <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-midnight-800/30 blur-[140px]" />
 
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="max-w-4xl">
@@ -92,7 +92,7 @@ export default function FamillePage() {
         </section>
 
         {/* PROBLÈME */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
               Le soutien scolaire a évolué. Votre exigence aussi.
@@ -119,7 +119,7 @@ export default function FamillePage() {
         </section>
 
         {/* OFFRES */}
-        <section id="offres" className="bg-deep-midnight py-20">
+        <section id="offres" className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
               Des parcours adaptés à chaque ambition.
@@ -189,7 +189,7 @@ export default function FamillePage() {
         </section>
 
         {/* GARANTIE */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
               Notre Pacte de Confiance.
@@ -218,7 +218,7 @@ export default function FamillePage() {
         </section>
 
         {/* PREUVES SOCIALES */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
@@ -277,7 +277,7 @@ export default function FamillePage() {
         </section>
 
         {/* CTA FINAL */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-10 text-center backdrop-blur-md">
               <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">

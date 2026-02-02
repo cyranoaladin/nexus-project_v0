@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 
 const CorporateFooter = () => {
@@ -14,27 +15,30 @@ const CorporateFooter = () => {
 
     const links = [
         { label: 'Accueil', href: '/', isPage: true },
+        { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
+        { label: 'Stages', href: '/stages', isPage: true },
+        { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
-        { label: 'Nos Offres', href: '/offres', isPage: true },
         { label: 'Notre Centre', href: '/notre-centre', isPage: true },
-        { label: 'Stage d\'Hiver', href: '/academies-hiver', isPage: true },
-        { label: 'Plateforme', href: '/plateforme', isPage: true },
         { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
-        { label: 'Contact', href: '/#contact', isPage: false }
+        { label: 'Contact', href: '/contact', isPage: true }
     ];
 
     return (
-        <footer className="relative bg-[#050608] pt-24 pb-8 overflow-hidden z-20 border-t border-white/5">
+        <footer className="relative bg-surface-darker pt-24 pb-8 overflow-hidden z-20 border-t border-white/5">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
                     {/* Brand */}
                     <div className="lg:col-span-1">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
-                                <span className="font-display font-bold text-white">N</span>
-                            </div>
-                            <span className="font-display font-bold text-white text-lg">NEXUS</span>
+                        <div className="mb-6">
+                            <Image
+                                src="/images/logo_slogan_nexus_x3.png"
+                                alt="Nexus Réussite"
+                                width={150}
+                                height={54}
+                                className="h-8 w-auto brightness-0 invert"
+                            />
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed mb-6">
                             L'excellence pédagogique augmentée par l'Intelligence Artificielle. <br />Pour ceux qui visent l'exceptionnel.

@@ -197,7 +197,7 @@ export default function DetailedServices() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-deep-midnight">
+    <section ref={sectionRef} className="py-24 bg-midnight-950">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-bold text-white font-serif">
@@ -291,7 +291,7 @@ export default function DetailedServices() {
 
       {openItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-2xl rounded-3xl border border-gold-500 bg-deep-midnight p-8 text-white shadow-2xl">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-gold-500 bg-midnight-950 p-8 text-white shadow-2xl">
             <button
               onClick={() => setOpenItem(null)}
               className="absolute right-4 top-4 rounded-full border border-white/10 bg-white/5 p-2 text-slate-300 hover:text-white"

@@ -227,7 +227,7 @@ export default function DashboardParent() {
             <Card className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
               <CardHeader>
                 <CardTitle className="flex items-center flex-wrap gap-2">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
                   <span className="text-lg sm:text-xl">
                     {currentChild?.firstName} {currentChild?.lastName}
                   </span>
@@ -239,7 +239,7 @@ export default function DashboardParent() {
               <CardContent>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-blue-600">
+                    <div className="text-xl sm:text-2xl font-bold text-brand-primary">
                       {currentChild?.credits}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600">Crédits disponibles</p>
@@ -275,7 +275,7 @@ export default function DashboardParent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-brand-primary" />
                     <span className="text-base sm:text-lg">Agenda de {currentChild?.firstName}</span>
                   </CardTitle>
                 </CardHeader>
@@ -360,7 +360,7 @@ export default function DashboardParent() {
                   {/* Abonnement Actuel */}
                   <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Formule Actuelle</h3>
-                    <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
+                    <div className="text-xl sm:text-2xl font-bold text-brand-primary mb-1">
                       {currentChild?.subscriptionDetails?.planName || currentChild?.subscription}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">

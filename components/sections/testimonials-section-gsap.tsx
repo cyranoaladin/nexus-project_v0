@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useLayoutEffect } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Star, Quote, ArrowRight, User } from 'lucide-react';
@@ -105,7 +106,7 @@ const TestimonialsSectionGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="testimonials" className="relative bg-[#050608] h-screen overflow-hidden flex flex-col justify-center">
+        <section ref={sectionRef} id="testimonials" className="relative bg-surface-darker h-screen overflow-hidden flex flex-col justify-center">
 
             {/* Dynamic Background */}
             <div className="bg-parallax absolute inset-0 opacity-30 pointer-events-none">
@@ -184,14 +185,14 @@ const TestimonialsSectionGSAP = () => {
 
                 {/* Call to Action Card */}
                 <div className="w-[85vw] md:w-[25vw] shrink-0 h-full flex items-center justify-center">
-                    <button className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-nexus-cyan/50 hover:bg-nexus-cyan/5 transition-all duration-500 w-full text-center">
+                    <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-nexus-cyan/50 hover:bg-nexus-cyan/5 transition-all duration-500 w-full text-center block">
                         <span className="block font-display text-3xl font-bold text-white mb-4">
                             Rejoignez l'Excellence
                         </span>
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-nexus-cyan text-nexus-dark group-hover:scale-110 transition-transform">
                             <ArrowRight className="w-8 h-8" />
                         </div>
-                    </button>
+                    </Link>
                 </div>
 
             </div>

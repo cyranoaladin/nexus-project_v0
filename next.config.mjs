@@ -22,6 +22,27 @@ const nextConfig = {
   images: {
     unoptimized: true, // Désactiver l'optimisation d'images Next.js
   },
+
+  // Redirections pour restructuration navigation
+  async redirects() {
+    return [
+      {
+        source: '/academies-hiver',
+        destination: '/stages',
+        permanent: true, // 301 redirect (permanent)
+      },
+      {
+        source: '/plateforme',
+        destination: '/plateforme-aria',
+        permanent: true, // 301 redirect (permanent)
+      },
+      {
+        source: '/education',
+        destination: '/accompagnement-scolaire',
+        permanent: true, // 301 redirect (consolidation)
+      },
+    ];
+  },
 };
 
 export default nextConfig;

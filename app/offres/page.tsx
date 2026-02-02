@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Award,
   Bot,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { BackToTop } from "@/components/ui/back-to-top";
 
 const packs = [
   {
@@ -371,9 +373,9 @@ export default function OffresPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <button className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition">
+                  <Link href="/bilan-gratuit?programme=excellence" className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center">
                     Choisir l&apos;Excellence →
-                  </button>
+                  </Link>
                   <a href="#details-excellence" className="text-sm text-gold-400 hover:text-white">
                     Voir tous les détails
                   </a>
@@ -419,9 +421,9 @@ export default function OffresPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <button className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition">
+                  <Link href="/bilan-gratuit?programme=bac-garanti" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
                     Sécuriser mon Bac →
-                  </button>
+                  </Link>
                   <a href="#details-bac" className="text-sm text-gold-400 hover:text-white">
                     Voir tous les détails
                   </a>
@@ -492,9 +494,9 @@ export default function OffresPage() {
                     <p className="mt-4 text-xs text-neutral-400">⚠️ {pack.note}</p>
                   )}
 
-                  <button className="mt-4 w-full rounded-full border border-gold-500/40 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/10 transition">
+                  <Link href="/bilan-gratuit?programme=pack-specialise" className="mt-4 w-full rounded-full border border-gold-500/40 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/10 transition text-center block">
                     {pack.cta}
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -637,9 +639,9 @@ export default function OffresPage() {
                   </div>
                 </div>
 
-                <button className="mt-6 w-full rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition">
+                <Link href="/bilan-gratuit" className="mt-6 w-full rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center block">
                   Démarrer avec Nexus
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -779,9 +781,9 @@ export default function OffresPage() {
                       299 TND/mois
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                      <button className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition">
+                      <Link href="/bilan-gratuit?programme=recommande" className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center">
                         Choisir cette solution
-                      </button>
+                      </Link>
                       <button
                         onClick={resetQuiz}
                         className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
@@ -829,6 +831,7 @@ export default function OffresPage() {
       </main>
 
       <Footer />
+      <BackToTop />
     </div>
   );
 }

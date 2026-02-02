@@ -32,7 +32,7 @@ export default function NotreCentrePage() {
   };
 
   return (
-    <div className="min-h-screen bg-deep-midnight text-slate-200">
+    <div className="min-h-screen bg-midnight-950 text-slate-200">
       <Header />
       <script
         type="application/ld+json"
@@ -41,8 +41,8 @@ export default function NotreCentrePage() {
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden bg-deep-midnight py-24">
-          <div className="absolute inset-0 bg-gradient-to-b from-deep-midnight via-deep-midnight/70 to-deep-midnight" />
+        <section className="relative overflow-hidden bg-midnight-950 py-24">
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
           <div className="absolute right-10 top-8 h-64 w-64 rounded-full bg-gold-500/10 blur-[120px]" />
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="grid gap-10 lg:grid-cols-2 items-center">
@@ -71,7 +71,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* EXPÉRIENCE */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
               L&apos;Expérience Nexus
@@ -118,7 +118,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* VISITE VIRTUELLE */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
               Entrez dans l&apos;excellence.
@@ -140,7 +140,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* POURQUOI LE CENTRE */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-6 md:grid-cols-3">
               {[
@@ -172,7 +172,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* NOUS TROUVER */}
-        <section className="bg-deep-midnight py-20">
+        <section className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
@@ -215,7 +215,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* CTA FINAL */}
-        <section id="visite" className="bg-deep-midnight py-20">
+        <section id="visite" className="bg-midnight-950 py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-10 text-center backdrop-blur-md">
               <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">

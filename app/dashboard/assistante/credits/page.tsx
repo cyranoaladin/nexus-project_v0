@@ -121,7 +121,7 @@ export default function CreditsManagement() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" />
           <p className="text-gray-600">Chargement des élèves...</p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function CreditsManagement() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
-                <Settings className="w-8 h-8 text-blue-600" />
+                <Settings className="w-8 h-8 text-brand-primary" />
                 <div>
                   <h1 className="font-semibold text-gray-900">
                     Gestion des Crédits

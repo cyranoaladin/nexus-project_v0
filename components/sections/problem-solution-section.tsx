@@ -5,7 +5,7 @@ import { Building2, Users, Briefcase } from "lucide-react";
 
 export default function ProblemSolutionSection() {
   return (
-    <section id="parcours" className="bg-deep-midnight py-20">
+    <section id="parcours" className="bg-midnight-950 py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">

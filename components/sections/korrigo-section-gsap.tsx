@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FileCheck, BarChart3, Users, Zap, Shield, Clock } from 'lucide-react';
@@ -144,9 +145,9 @@ const KorrigoSectionGSAP = () => {
 
                 {/* CTA */}
                 <div className="mt-12 text-center">
-                    <button className="btn-primary">
+                    <Link href="/contact?sujet=korrigo" className="btn-primary inline-block">
                         Découvrir Korrigo
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>

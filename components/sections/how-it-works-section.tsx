@@ -23,7 +23,7 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section id="methodologie" className="bg-deep-midnight py-20">
+    <section id="methodologie" className="bg-midnight-950 py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
@@ -51,7 +51,7 @@ export default function HowItWorksSection() {
                 </h3>
                 <p className="mt-2 text-sm text-slate-300">{step.subtitle}</p>
                 {index < steps.length - 1 ? (
-                  <div className="absolute right-[-12px] top-1/2 hidden h-6 w-6 -translate-y-1/2 rotate-45 border-t border-r border-gold-500/40 bg-deep-midnight lg:block" />
+                  <div className="absolute right-[-12px] top-1/2 hidden h-6 w-6 -translate-y-1/2 rotate-45 border-t border-r border-gold-500/40 bg-midnight-950 lg:block" />
                 ) : null}
               </div>
             ))}
