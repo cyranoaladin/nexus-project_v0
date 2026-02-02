@@ -266,7 +266,7 @@ model Session {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   coachId String?
-  coach   CoachProfile? @relation(fields: [coachId], references: [id])
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Preserve session history even if coach account removed
 
   // Détails de la session
   type        ServiceType
@@ -351,7 +351,7 @@ model StudentBadge {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   badgeId String
-  badge   Badge  @relation(fields: [badgeId], references: [id])
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Restrict) // Badges are system-level data; prevent deletion if awarded to students
 
   earnedAt DateTime @default(now())
 
@@ -366,7 +366,7 @@ model StudentReport {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   coachId String?
-  coach   CoachProfile? @relation(fields: [coachId], references: [id])
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Educational records outlive coach employment
 
   // Contenu du rapport
   title       String
@@ -388,7 +388,7 @@ model StudentReport {
 model Payment {
   id     String @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict) // Financial compliance - prevent deletion of users with payment history
 
   // Détails du paiement
   type        PaymentType
@@ -416,10 +416,10 @@ model Payment {
 model Message {
   id         String @id @default(cuid())
   senderId   String?
-  sender     User?  @relation("MessageSender", fields: [senderId], references: [id])
+  sender     User?  @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
   receiverId String?
-  receiver   User?  @relation("MessageReceiver", fields: [receiverId], references: [id])
+  receiver   User?  @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
   content    String
   fileUrl    String? // Pour les pièces jointes
