@@ -2,6 +2,35 @@ import fs from 'fs';
 import path from 'path';
 import { designTokens } from '@/lib/theme/tokens';
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 0, g: 0, b: 0 };
+}
+
+function getRelativeLuminance(rgb: { r: number; g: number; b: number }): number {
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((val) => {
+    const normalized = val / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getContrastRatio(color1: string, color2: string): number {
+  const lum1 = getRelativeLuminance(hexToRgb(color1));
+  const lum2 = getRelativeLuminance(hexToRgb(color2));
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 describe('Theme Configuration', () => {
   describe('Settings File', () => {
     const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
@@ -259,6 +288,86 @@ describe('Theme Configuration', () => {
       expect(themeContent).toContain('--color-semantic-success: rgb(var(--color-semantic-success))');
       expect(themeContent).toContain('--color-neutral-50: rgb(var(--color-neutral-50))');
       expect(themeContent).toContain('--color-surface-dark: rgb(var(--color-surface-dark))');
+    });
+  });
+
+  describe('WCAG Accessibility Compliance', () => {
+    const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
+    let settings: any;
+    const WHITE = '#FFFFFF';
+    const WCAG_AA_NORMAL = 4.5;
+    const WCAG_AA_LARGE = 3.0;
+
+    beforeAll(() => {
+      const rawSettings = fs.readFileSync(settingsPath, 'utf-8');
+      settings = JSON.parse(rawSettings);
+    });
+
+    it('should meet contrast ratio for white text on surface-dark (≥4.5:1)', () => {
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(WHITE, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for neutral-200 on surface-card (≥4.5:1)', () => {
+      const neutral200 = settings.theme.colors.neutral['200'];
+      const surfaceCard = settings.theme.colors.surface.card;
+      const ratio = getContrastRatio(neutral200, surfaceCard);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for brand-accent on surface-dark (≥4.5:1)', () => {
+      const brandAccent = settings.theme.colors.brand.accent;
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(brandAccent, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for brand-primary on white background (≥4.5:1)', () => {
+      const brandPrimary = settings.theme.colors.brand.primary;
+      const ratio = getContrastRatio(brandPrimary, WHITE);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for semantic success on surface-dark (≥4.5:1)', () => {
+      const success = settings.theme.colors.semantic.success;
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(success, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for semantic warning on surface-dark (≥4.5:1)', () => {
+      const warning = settings.theme.colors.semantic.warning;
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(warning, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for semantic error on surface-dark (≥4.5:1)', () => {
+      const error = settings.theme.colors.semantic.error;
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(error, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for semantic info on surface-dark (≥4.5:1)', () => {
+      const info = settings.theme.colors.semantic.info;
+      const surfaceDark = settings.theme.colors.surface.dark;
+      const ratio = getContrastRatio(info, surfaceDark);
+      expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    });
+
+    it('should meet contrast ratio for large text combinations (≥3:1)', () => {
+      const testCases = [
+        { fg: settings.theme.colors.brand.primary, bg: settings.theme.colors.surface.dark },
+        { fg: settings.theme.colors.brand.secondary, bg: settings.theme.colors.surface.dark },
+        { fg: settings.theme.colors.neutral['400'], bg: settings.theme.colors.surface.dark },
+      ];
+
+      testCases.forEach(({ fg, bg }) => {
+        const ratio = getContrastRatio(fg, bg);
+        expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_LARGE);
+      });
     });
   });
 });
