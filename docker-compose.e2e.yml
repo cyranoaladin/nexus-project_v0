@@ -1,0 +1,46 @@
+# =============================================================================
+# Docker Compose - E2E Testing Environment
+# =============================================================================
+# Ephemeral PostgreSQL database for E2E tests
+# Port: 5435 (isolated from dev on 5434 and CI on 5432)
+# Data: In-memory (tmpfs) for speed
+# Lifecycle: Created before tests, destroyed after tests
+# =============================================================================
+
+version: '3.9'
+
+services:
+  postgres-e2e:
+    image: postgres:16-alpine
+    container_name: nexus-postgres-e2e
+    restart: unless-stopped
+
+    ports:
+      - "5435:5432"
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nexus_e2e
+      PGDATA: /var/lib/postgresql/data
+
+    # Use tmpfs for in-memory storage (faster, ephemeral)
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
+
+    # Health check to ensure DB is ready before running tests
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_e2e"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    # Network isolation
+    networks:
+      - e2e-network
+
+networks:
+  e2e-network:
+    driver: bridge
+    name: nexus-e2e-network

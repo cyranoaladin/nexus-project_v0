@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
@@ -110,10 +111,10 @@ export default function DashboardCoach() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement de votre espace coach...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" aria-label="Chargement" />
+          <p className="text-neutral-600">Chargement de votre espace coach...</p>
         </div>
       </div>
     );
@@ -121,13 +122,13 @@ export default function DashboardCoach() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-error" aria-label="Erreur" />
+          <p className="text-error mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-600 text-sm">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Réessayer
@@ -138,52 +139,41 @@ export default function DashboardCoach() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <BookOpen className="w-8 h-8 text-blue-600" />
+                <BookOpen className="w-8 h-8 text-brand-primary" aria-hidden="true" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-neutral-900">
                     {dashboardData?.coach.pseudonym || session?.user.firstName}
                   </h1>
-                  <p className="text-sm text-gray-500">Espace Coach</p>
+                  <p className="text-sm text-neutral-500">Espace Coach</p>
                 </div>
               </div>
-              
+
               {/* Navigation Tabs */}
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg ml-8">
-                <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'dashboard'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Tableau de Bord
-                </button>
-                <button
-                  onClick={() => setActiveTab('availability')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'availability'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Mes Disponibilités
-                </button>
-              </div>
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'availability')} className="ml-8">
+                <TabsList>
+                  <TabsTrigger value="dashboard">
+                    Tableau de Bord
+                  </TabsTrigger>
+                  <TabsTrigger value="availability">
+                    Mes Disponibilités
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-neutral-600 hover:text-neutral-900"
+              aria-label="Se déconnecter"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
               Déconnexion
             </Button>
           </div>
@@ -196,10 +186,10 @@ export default function DashboardCoach() {
           <>
             {/* Welcome Section */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-neutral-900 mb-2">
                 Bonjour {dashboardData?.coach.pseudonym} ! 👨‍🏫
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-600">
                 Voici votre tableau de bord pour gérer vos sessions et suivre vos élèves.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
@@ -218,13 +208,13 @@ export default function DashboardCoach() {
               <Card className="cursor-pointer">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Sessions Cette Semaine</CardTitle>
-                  <Calendar className="h-4 w-4 text-blue-600" />
+                  <Calendar className="h-4 w-4 text-brand-primary" aria-hidden="true" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-brand-primary">
                     {dashboardData?.weekStats?.totalSessions || 0}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 mt-1">
                     {dashboardData?.weekStats?.completedSessions || 0} terminées, {dashboardData?.weekStats?.upcomingSessions || 0} à venir
                   </p>
                 </CardContent>
@@ -240,14 +230,14 @@ export default function DashboardCoach() {
                     <div key={s.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <h4 className="font-medium text-gray-900">{s.title || s.subject}</h4>
+                          <h4 className="font-medium text-neutral-900">{s.title || s.subject}</h4>
                           <Badge variant="outline" className="text-xs">{s.type}</Badge>
                           <Badge variant="default" className="text-xs">{s.modality}</Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">Avec {s.studentName}</p>
-                        <p className="text-sm text-blue-600 font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
+                        <p className="text-sm text-neutral-600 mt-1">Avec {s.studentName}</p>
+                        <p className="text-sm text-brand-primary font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
                         {s.description && (
-                          <p className="text-xs text-gray-500 mt-1">{s.description}</p>
+                          <p className="text-xs text-neutral-500 mt-1">{s.description}</p>
                         )}
                       </div>
                       <div className="mt-3 md:mt-0 flex items-center gap-2">
@@ -258,7 +248,7 @@ export default function DashboardCoach() {
                   ))}
                 </div>
               ) : (
-                <div className="text-gray-500 text-sm">Aucune session planifiée cette semaine.</div>
+                <div className="text-neutral-500 text-sm">Aucune session planifiée cette semaine.</div>
               )}
             </DialogContent>
           </Dialog>
@@ -266,13 +256,13 @@ export default function DashboardCoach() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Aujourd'hui</CardTitle>
-              <Clock className="h-4 w-4 text-green-600" />
+              <Clock className="h-4 w-4 text-green-600" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-neutral-900">
                 {dashboardData?.todaySessions?.length || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-500 mt-1">
                 Sessions programmées
               </p>
             </CardContent>
@@ -281,13 +271,13 @@ export default function DashboardCoach() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Mes Élèves</CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
+              <Users className="h-4 w-4 text-purple-600" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-neutral-900">
                 {dashboardData?.uniqueStudentsCount || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-500 mt-1">
                 Élèves suivis ce mois
               </p>
             </CardContent>
@@ -300,7 +290,7 @@ export default function DashboardCoach() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                <Calendar className="w-5 h-5 mr-2 text-brand-primary" aria-hidden="true" />
                 Planning d'Aujourd'hui
               </CardTitle>
             </CardHeader>
@@ -314,17 +304,17 @@ export default function DashboardCoach() {
                     >
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-medium text-gray-900">{session.studentName}</h4>
+                          <h4 className="font-medium text-neutral-900">{session.studentName}</h4>
                           <Badge variant="outline" className="text-xs">
                             {session.type}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600">{session.subject}</p>
-                        <p className="text-sm font-medium text-blue-600">{session.time}</p>
+                        <p className="text-sm text-neutral-600">{session.subject}</p>
+                        <p className="text-sm font-medium text-brand-primary">{session.time}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         {session.status === 'scheduled' && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <CheckCircle className="w-5 h-5 text-green-500" aria-hidden="true" />
                         )}
                       </div>
                     </div>
@@ -332,11 +322,11 @@ export default function DashboardCoach() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Calendar className="w-16 h-16 text-neutral-300 mx-auto mb-4" aria-hidden="true" />
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
                     Aucune session aujourd'hui
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-neutral-500">
                     Profitez de cette journée pour préparer vos prochains cours.
                   </p>
                 </div>
@@ -348,7 +338,7 @@ export default function DashboardCoach() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2 text-green-600" />
+                <Users className="w-5 h-5 mr-2 text-green-600" aria-hidden="true" />
                 Mes Élèves
               </CardTitle>
             </CardHeader>
@@ -356,19 +346,19 @@ export default function DashboardCoach() {
               {dashboardData?.students && dashboardData.students.length > 0 ? (
                 <div className="space-y-4">
                   {dashboardData.students.map((student, index) => (
-                    <div 
+                    <div
                       key={student.id}
                       className={`flex items-center justify-between p-4 rounded-lg border ${
-                        student.isNew 
-                          ? 'bg-purple-50 border-purple-200' 
-                          : index % 2 === 0 
-                            ? 'bg-green-50 border-green-200' 
+                        student.isNew
+                          ? 'bg-purple-50 border-purple-200'
+                          : index % 2 === 0
+                            ? 'bg-green-50 border-green-200'
                             : 'bg-blue-50 border-blue-200'
                       }`}
                     >
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-medium text-gray-900">{student.name}</h4>
+                          <h4 className="font-medium text-neutral-900">{student.name}</h4>
                           <Badge variant="outline" className="text-xs">
                             {student.grade}
                           </Badge>
@@ -378,20 +368,20 @@ export default function DashboardCoach() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-neutral-600">
                           {student.subject} • Dernière session: {new Date(student.lastSession).toLocaleDateString('fr-FR')}
                         </p>
                         <div className="flex items-center space-x-4 mt-2">
                           <span className={`text-xs font-medium ${
-                            student.isNew 
-                              ? 'text-purple-600' 
-                              : index % 2 === 0 
-                                ? 'text-green-600' 
-                                : 'text-blue-600'
+                            student.isNew
+                              ? 'text-purple-600'
+                              : index % 2 === 0
+                                ? 'text-green-600'
+                                : 'text-brand-primary'
                           }`}>
                             {student.isNew ? 'Nouveau élève' : 'Progression: 75%'}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-neutral-500">
                             {student.creditBalance.toFixed(1)} crédits restants
                           </span>
                         </div>
@@ -406,11 +396,11 @@ export default function DashboardCoach() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Users className="w-16 h-16 text-neutral-300 mx-auto mb-4" aria-hidden="true" />
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
                     Aucun élève pour le moment
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-neutral-500">
                     Vos élèves apparaîtront ici une fois qu'ils auront réservé des sessions.
                   </p>
                 </div>
@@ -426,20 +416,20 @@ export default function DashboardCoach() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-auto p-4 flex flex-col items-center space-y-2"
                     onClick={() => setActiveTab('availability')}
                   >
-                    <Calendar className="w-6 h-6 text-blue-600" />
+                    <Calendar className="w-6 h-6 text-brand-primary" aria-hidden="true" />
                     <span>Gérer mon Planning</span>
                   </Button>
                   <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                    <MessageCircle className="w-6 h-6 text-purple-600" />
+                    <MessageCircle className="w-6 h-6 text-purple-600" aria-hidden="true" />
                     <span>Messages Élèves</span>
                   </Button>
                   <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                    <BookOpen className="w-6 h-6 text-green-600" />
+                    <BookOpen className="w-6 h-6 text-green-600" aria-hidden="true" />
                     <span>Rédiger un Rapport</span>
                   </Button>
                 </div>

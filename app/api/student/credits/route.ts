@@ -1,45 +1,55 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireRole, isErrorResponse } from '@/lib/guards';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
+import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { assertExists } from '@/lib/api/helpers';
 import type { CreditTransaction } from '@prisma/client';
+import { UserRole } from '@/types/enums';
 
+/**
+ * GET /api/student/credits - Get credit balance and transaction history
+ */
 export async function GET(request: NextRequest) {
+  let logger = createLogger(request);
+
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user.role !== 'ELEVE') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    // Rate limiting
+    const rateLimitResult = RateLimitPresets.api(request, 'student-credits');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Require ELEVE role
+    const session = await requireRole(UserRole.ELEVE);
+    if (isErrorResponse(session)) return session;
+
+    // Update logger with session context
+    logger = createLogger(request, session);
+    logger.info('Fetching student credits');
 
     const studentId = session.user.id;
 
+    // Fetch student with credit transactions
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       include: {
         creditTransactions: {
           orderBy: {
             createdAt: 'desc'
-          }
+          },
+          take: 50  // Limit to last 50 transactions for performance
         }
       }
     });
 
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
-      );
-    }
+    assertExists(student, 'Student profile');
 
     // Calculate current balance
     const balance = student.creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
       return total + transaction.amount;
     }, 0);
 
+    // Format transactions
     const formattedTransactions = student.creditTransactions.map((transaction: CreditTransaction) => ({
       id: transaction.id,
       type: transaction.type,
@@ -50,16 +60,19 @@ export async function GET(request: NextRequest) {
       createdAt: transaction.createdAt
     }));
 
-    return NextResponse.json({
+    logger.logRequest(200, {
+      balance,
+      transactionCount: formattedTransactions.length
+    });
+
+    return successResponse({
       balance,
       transactions: formattedTransactions
     });
 
   } catch (error) {
-    console.error('Error fetching student credits:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Failed to fetch student credits', error);
+    logger.logRequest(500);
+    return handleApiError(error, 'GET /api/student/credits');
   }
-} 
+}

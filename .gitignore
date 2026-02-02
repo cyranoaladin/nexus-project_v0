@@ -16,6 +16,7 @@ venv/
 !.env.example
 !.env.local.example
 !.env.e2e.example
+!.env.ci.example
 
 # OS
 .DS_Store
@@ -43,3 +44,11 @@ coverage/
 *.tgz
 playwright-report/
 test-results/
+
+# Prisma (Database artifacts)
+prisma/*.db
+prisma/*.db-*
+prisma/**/*.db
+prisma/**/*.db-*
+prisma/.next/
+prisma/**/node_modules/

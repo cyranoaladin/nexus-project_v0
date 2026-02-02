@@ -9,6 +9,8 @@ const customJestConfig = {
   testEnvironment: 'node',
   testMatch: [
     '**/__tests__/api/**/*.(test|spec).(js|ts)',
+    '**/__tests__/concurrency/**/*.(test|spec).(js|ts)',
+    '**/__tests__/transactions/**/*.(test|spec).(js|ts)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -19,6 +21,16 @@ const customJestConfig = {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  // Run integration tests serially to avoid database conflicts
+  maxWorkers: 1,
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
 };
 
 module.exports = createJestConfig(customJestConfig);

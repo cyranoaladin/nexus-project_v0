@@ -99,8 +99,31 @@ if (typeof globalThis !== 'undefined') {
 // jest.setup.js
 // Polyfill IntersectionObserver pour Jest/jsdom (Node global)
 global.IntersectionObserver = global.IntersectionObserver || class {
-  constructor() {}
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  constructor() { }
+  observe() { }
+  unobserve() { }
+  disconnect() { }
 };
+
+// Mock GSAP
+jest.mock('gsap', () => ({
+  gsap: {
+    registerPlugin: jest.fn(),
+    context: jest.fn(() => ({ revert: jest.fn() })),
+    timeline: jest.fn(() => ({
+      fromTo: jest.fn().mockReturnThis(),
+      to: jest.fn().mockReturnThis(),
+      scrollTrigger: jest.fn(),
+    })),
+    fromTo: jest.fn().mockReturnThis(),
+    to: jest.fn().mockReturnThis(),
+  },
+}));
+
+jest.mock('gsap/ScrollTrigger', () => ({
+  ScrollTrigger: {
+    create: jest.fn(),
+    refresh: jest.fn(),
+    getAll: jest.fn().mockReturnValue([]),
+  },
+}));
