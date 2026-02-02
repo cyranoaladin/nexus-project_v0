@@ -158,7 +158,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string; }; }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
