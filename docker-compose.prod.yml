@@ -1,12 +1,16 @@
 # =============================================================================
 # DOCKER COMPOSE PRODUCTION - NEXUS RÉUSSITE
 # =============================================================================
-# Utilisez ce fichier pour déployer en production
+# IMPORTANT: Copy .env.production.example to .env.production and configure
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+# =============================================================================
 
 version: '3.8'
 
 services:
-  # Base de données PostgreSQL
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
   postgres:
     image: postgres:15-alpine
     container_name: nexus-postgres-prod
@@ -15,19 +19,29 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-nexus_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-nexus_reussite_prod}
+      # Performance tuning
+      POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-256MB}
+      POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-100}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
+      # Optional: custom postgres config
+      # - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
     networks:
       - nexus-network
-    ports:
-      - "5432:5432"
+    # SECURITY: Do NOT expose postgres port externally in production
+    # App connects via internal network. For migrations, use docker exec.
+    # ports:
+    #   - "5432:5432"  # DISABLED FOR SECURITY
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nexus_user}"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 10s
 
-  # Application Next.js (Mode Standalone)
+  # ========================================
+  # Next.js Application (Standalone)
+  # ========================================
   nexus-app:
     build:
       context: .
@@ -35,21 +49,77 @@ services:
     container_name: nexus-app-prod
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nexus_reussite_prod}
-    ports:
-      - "3000:3000"
+      # Node
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
+
+      # NextAuth (REQUIRED)
+      NEXTAUTH_URL: ${NEXTAUTH_URL}  # e.g., https://nexus.example.com
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}  # openssl rand -base64 32
+
+      # SMTP / Email
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      EMAIL_FROM: ${EMAIL_FROM}
+
+      # AI Services (Optional - disable if not used)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_EMBEDDINGS_MODEL: ${OPENAI_EMBEDDINGS_MODEL:-text-embedding-3-large}
+      VECTOR_DIM: ${VECTOR_DIM:-3072}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+
+      # Payments Konnect (Optional - Tunisia)
+      KONNECT_API_KEY: ${KONNECT_API_KEY:-}
+      KONNECT_WALLET_ID: ${KONNECT_WALLET_ID:-}
+      KONNECT_BASE_URL: ${KONNECT_BASE_URL:-https://api.konnect.network}
+      KONNECT_WEBHOOK_SECRET: ${KONNECT_WEBHOOK_SECRET:-}
+      NEXT_PUBLIC_KONNECT_PUBLIC_KEY: ${NEXT_PUBLIC_KONNECT_PUBLIC_KEY:-}
+
+      # Jitsi Video Conferencing
+      NEXT_PUBLIC_JITSI_SERVER_URL: ${NEXT_PUBLIC_JITSI_SERVER_URL:-https://meet.jit.si}
+
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-60}
+
+      # Public URL (for client-side)
+      NEXT_PUBLIC_APP_URL: ${NEXTAUTH_URL}
+
+    # SECURITY: Only expose port for nginx reverse proxy, not publicly
+    # For direct access during setup, temporarily uncomment:
+    # ports:
+    #   - "3000:3000"
+
     depends_on:
       postgres:
         condition: service_healthy
+
     networks:
       - nexus-network
+
     volumes:
-      # Monter les uploads et données persistantes
       - uploads_data:/app/uploads
       - logs_data:/app/logs
 
-  # Reverse Proxy Nginx (Optionnel)
+    # Healthcheck verifies app responds
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # Nginx Reverse Proxy
+  # ========================================
   nginx:
     image: nginx:alpine
     container_name: nexus-nginx-prod
@@ -59,21 +129,41 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro  # Mount SSL certificates here
       - logs_data:/var/log/nginx
     depends_on:
-      - nexus-app
+      nexus-app:
+        condition: service_healthy
     networks:
       - nexus-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fk https://localhost/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
+# =============================================================================
+# Volumes (Persistent Data)
+# =============================================================================
 volumes:
   postgres_data_prod:
     driver: local
+    # For production, consider using named volumes or external storage
+    # driver_opts:
+    #   type: none
+    #   device: /mnt/data/postgres
+    #   o: bind
+
   uploads_data:
     driver: local
+
   logs_data:
     driver: local
 
+# =============================================================================
+# Networks
+# =============================================================================
 networks:
   nexus-network:
     driver: bridge

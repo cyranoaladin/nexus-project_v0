@@ -10,7 +10,8 @@ WORKDIR /app
 
 # Copier les fichiers de dépendances
 COPY package.json package-lock.json ./
-RUN npm ci --only=production --frozen-lockfile
+# Install ALL dependencies (devDependencies needed for build stage)
+RUN npm ci --frozen-lockfile
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -24,8 +25,8 @@ COPY . .
 RUN npx prisma generate
 
 # Variables d'environnement pour le build
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
 # Build de l'application Next.js
 RUN npm run build
@@ -34,8 +35,11 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
 # Créer un utilisateur non-root
 RUN addgroup --system --gid 1001 nodejs
@@ -62,8 +66,21 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# =============================================================================
+# REQUIRED ENVIRONMENT VARIABLES (must be set at runtime via docker-compose)
+# =============================================================================
+# DATABASE_URL - PostgreSQL connection string
+# NEXTAUTH_URL - Full URL of the app (e.g., https://nexus.example.com)
+# NEXTAUTH_SECRET - Random secret for NextAuth (openssl rand -base64 32)
+# KONNECT_* - Konnect payment gateway credentials (if enabled)
+# =============================================================================
+
+# Healthcheck to verify app is responding
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Commande de démarrage
 CMD ["node", "server.js"]
