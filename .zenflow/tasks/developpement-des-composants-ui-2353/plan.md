@@ -102,18 +102,19 @@ npm run test:coverage -- button.test.tsx
 ```
 **Expected:** Coverage ≥90%, all tests pass
 
-### [ ] Step: Input Component Enhancement
+### [x] Step: Input Component Enhancement
+<!-- chat-id: fac7da3f-bc14-48d7-b99f-02e4a15f17dd -->
 
 Enhance the existing Input component with validation integration and animations.
 
 **Tasks:**
-- [ ] Add `label`, `error`, `helperText`, `icon`, `iconPosition` props
-- [ ] Implement proper label/input association with `useId()`
-- [ ] Add error display with `role="alert"` for screen readers
-- [ ] Add helper text with `aria-describedby`
-- [ ] Add focus border transition animation
-- [ ] Add error shake animation (CSS keyframes)
-- [ ] Implement proper ARIA attributes (`aria-invalid`, `aria-required`, `aria-describedby`)
+- [x] Add `label`, `error`, `helperText`, `icon`, `iconPosition` props
+- [x] Implement proper label/input association with `useId()`
+- [x] Add error display with `role="alert"` for screen readers
+- [x] Add helper text with `aria-describedby`
+- [x] Add focus border transition animation
+- [x] Add error shake animation (CSS keyframes)
+- [x] Implement proper ARIA attributes (`aria-invalid`, `aria-required`, `aria-describedby`)
 
 **Contract Reference:** `spec.md` Section 3.1, 4.1, A.2
 
