@@ -180,6 +180,7 @@ Create embedded ARIA chat interface with streaming support.
 ---
 
 ### [ ] Step: Integrate ARIA into Dashboard
+<!-- chat-id: 401ba631-49d0-4c67-9d11-3a1cc7afbe04 -->
 
 Add ARIA chat component to student dashboard with proper styling.
 
