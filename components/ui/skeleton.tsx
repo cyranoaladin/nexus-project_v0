@@ -17,6 +17,7 @@
  */
 
 import * as React from "react"
+import { useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -27,22 +28,36 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
    * - none: No animation
    */
   animation?: "pulse" | "wave" | "none"
+  /**
+   * Custom aria-label for accessibility
+   */
+  "aria-label"?: string
+  /**
+   * ARIA live region politeness setting
+   */
+  "aria-live"?: "off" | "polite" | "assertive"
 }
 
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ className, animation = "pulse", ...props }, ref) => {
+  ({ className, animation = "pulse", "aria-label": ariaLabel, "aria-live": ariaLive, ...props }, ref) => {
+    const prefersReducedMotion = useReducedMotion()
+    const effectiveAnimation = prefersReducedMotion ? "none" : animation
+
     return (
       <div
         ref={ref}
         className={cn(
           "rounded-md bg-neutral-200",
           {
-            "animate-pulse": animation === "pulse",
+            "animate-pulse": effectiveAnimation === "pulse",
             "relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent":
-              animation === "wave",
+              effectiveAnimation === "wave",
           },
           className
         )}
+        aria-busy="true"
+        aria-label={ariaLabel}
+        aria-live={ariaLive}
         {...props}
       />
     )
@@ -108,4 +123,42 @@ const SkeletonAvatar = React.forwardRef<
 ))
 SkeletonAvatar.displayName = "SkeletonAvatar"
 
-export { Skeleton, SkeletonText, SkeletonCard, SkeletonAvatar }
+const SkeletonButton = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { size?: "sm" | "default" | "lg" | "icon" }
+>(({ className, size = "default", ...props }, ref) => (
+  <Skeleton
+    ref={ref}
+    className={cn(
+      "rounded-lg",
+      {
+        "h-8 md:h-9 w-20 md:w-24": size === "sm",
+        "h-10 md:h-12 w-24 md:w-32": size === "default",
+        "h-12 md:h-14 w-32 md:w-40": size === "lg",
+        "h-8 w-8 md:h-10 md:w-10": size === "icon",
+      },
+      className
+    )}
+    aria-label="Loading button"
+    {...props}
+  />
+))
+SkeletonButton.displayName = "SkeletonButton"
+
+const SkeletonInput = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <Skeleton
+    ref={ref}
+    className={cn(
+      "h-10 md:h-12 w-full rounded-lg",
+      className
+    )}
+    aria-label="Loading input"
+    {...props}
+  />
+))
+SkeletonInput.displayName = "SkeletonInput"
+
+export { Skeleton, SkeletonText, SkeletonCard, SkeletonAvatar, SkeletonButton, SkeletonInput }
