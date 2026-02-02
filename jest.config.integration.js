@@ -12,6 +12,7 @@ const customJestConfig = {
     '**/__tests__/concurrency/**/*.(test|spec).(js|ts)',
     '**/__tests__/transactions/**/*.(test|spec).(js|ts)',
     '**/__tests__/database/**/*.(test|spec).(js|ts)',
+    '**/__tests__/middleware/**/*.(test|spec).(js|ts)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
