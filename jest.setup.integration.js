@@ -39,6 +39,55 @@ jest.mock('next/server', () => ({
         },
         ...init
       };
+    },
+    redirect: (url, init) => {
+      const headers = new Map();
+      if (init?.headers) {
+        const headerEntries = init.headers instanceof Headers 
+          ? Array.from(init.headers.entries())
+          : Object.entries(init.headers);
+        headerEntries.forEach(([key, value]) => headers.set(key, value));
+      }
+      
+      return {
+        status: init?.status || 307,
+        headers: {
+          get: (name) => headers.get(name),
+          set: (name, value) => headers.set(name, value),
+          has: (name) => headers.has(name),
+          delete: (name) => headers.delete(name),
+          entries: () => headers.entries(),
+          keys: () => headers.keys(),
+          values: () => headers.values(),
+          forEach: (cb) => headers.forEach(cb),
+        },
+        url,
+        ...init
+      };
+    },
+    next: (init) => {
+      const headers = new Map();
+      if (init?.headers) {
+        const headerEntries = init.headers instanceof Headers 
+          ? Array.from(init.headers.entries())
+          : Object.entries(init.headers);
+        headerEntries.forEach(([key, value]) => headers.set(key, value));
+      }
+      
+      return {
+        status: 200,
+        headers: {
+          get: (name) => headers.get(name),
+          set: (name, value) => headers.set(name, value),
+          has: (name) => headers.has(name),
+          delete: (name) => headers.delete(name),
+          entries: () => headers.entries(),
+          keys: () => headers.keys(),
+          values: () => headers.values(),
+          forEach: (cb) => headers.forEach(cb),
+        },
+        ...init
+      };
     }
   }
 }));

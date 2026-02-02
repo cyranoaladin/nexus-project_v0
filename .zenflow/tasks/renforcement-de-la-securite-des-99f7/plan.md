@@ -265,29 +265,51 @@ npm run lint
 
 ---
 
-### [ ] Step: Write Tests for Security Headers
+### [x] Step: Write Tests for Security Headers
+<!-- chat-id: 9e1f7e52-9ecb-4940-9954-7e44b08b5f60 -->
 
 **Goal**: Verify security headers are applied to all routes
 
 **Tasks**:
-- [ ] Create test file `__tests__/middleware/security-headers.test.ts`
-- [ ] Test case: Headers present on API routes
-- [ ] Test case: Headers present on page routes
-- [ ] Test case: CSP configuration correct
-- [ ] Test case: HSTS configuration correct
-- [ ] Run tests to verify all pass
+- [x] Create test file `__tests__/middleware/security-headers.test.ts`
+- [x] Test case: Headers present on API routes
+- [x] Test case: Headers present on page routes
+- [x] Test case: CSP configuration correct
+- [x] Test case: HSTS configuration correct
+- [x] Run tests to verify all pass
+- [x] Enhanced jest.setup.integration.js with NextResponse.redirect and NextResponse.next mocks
 
-**Files to create**:
-- `__tests__/middleware/security-headers.test.ts`
+**Files created/modified**:
+- `__tests__/middleware/security-headers.test.ts` - Created comprehensive security headers tests (19 test cases)
+- `jest.setup.integration.js` - Enhanced NextResponse mock with redirect() and next() methods
 
 **Verification**:
 ```bash
-npm run test:unit
+npm run test:integration -- __tests__/middleware/security-headers.test.ts
+npm run typecheck
+npm run lint
 ```
 
 **Acceptance Criteria**:
-- ✅ Security headers validated in tests
-- ✅ All security header tests pass
+- ✅ Security headers validated in tests - COMPLETED
+- ✅ All security header tests pass - COMPLETED (19/19 tests passing)
+- ✅ TypeScript type checking passes - COMPLETED
+- ✅ ESLint passes (no new warnings) - COMPLETED
+
+**Verification Results**:
+```
+[2026-02-02] npm run test:integration: ✅ PASSED (19 tests, Exit Code: 0)
+[2026-02-02] npm run typecheck: ✅ PASSED (Exit Code: 0)
+[2026-02-02] npm run lint: ✅ PASSED (Exit Code: 0, pre-existing warnings only)
+```
+
+**Test Coverage**:
+- API Routes: JSON responses, error responses (404), rate limit responses (429)
+- Page Routes: Redirect responses, normal page responses (NextResponse.next)
+- HSTS Configuration: Correct directives, max-age=31536000 (1 year)
+- CSP Configuration: All required directives, unsafe-inline for styles/scripts, default-src restriction, https allowances, frame-ancestors
+- Additional Security Headers: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+- Header Consistency: Same headers applied across all response types
 
 **References**: spec.md Phase 5
 
