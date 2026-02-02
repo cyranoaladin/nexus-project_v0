@@ -315,30 +315,55 @@ npm run lint
 
 ---
 
-### [ ] Step: Write Tests for Pino Logger
+### [x] Step: Write Tests for Pino Logger
+<!-- chat-id: 052930a0-c99a-4e12-81e1-8fbe71cbd965 -->
 
 **Goal**: Verify Pino logger wrapper works correctly
 
 **Tasks**:
-- [ ] Create test file `__tests__/middleware/pino-logger.test.ts`
-- [ ] Test case: Log format validation (JSON structure)
-- [ ] Test case: Security event logging includes required fields
-- [ ] Test case: Request context tracking (requestId, userId, ip)
-- [ ] Test case: Sensitive data sanitization
-- [ ] Run tests to verify all pass
+- [x] Create test file `__tests__/middleware/pino-logger.test.ts`
+- [x] Test case: Log format validation (JSON structure)
+- [x] Test case: Security event logging includes required fields
+- [x] Test case: Request context tracking (requestId, userId, ip)
+- [x] Test case: Sensitive data sanitization
+- [x] Run tests to verify all pass
+- [x] Fix sanitization bug with camelCase sensitive keys
+- [x] Update NextRequest mock to include nextUrl property
 
-**Files to create**:
-- `__tests__/middleware/pino-logger.test.ts`
+**Files created/modified**:
+- `__tests__/middleware/pino-logger.test.ts` - Created comprehensive Pino logger tests (27 test cases)
+- `lib/middleware/logger.ts` - Fixed sanitization bug (apiKey -> apikey for case-insensitive matching)
 
 **Verification**:
 ```bash
-npm run test:unit
+npm run test:integration -- __tests__/middleware/pino-logger.test.ts
+npm run typecheck
+npm run lint
 ```
 
 **Acceptance Criteria**:
-- ✅ Logger wrapper API compatibility verified
-- ✅ Pino output format validated
-- ✅ All logger tests pass
+- ✅ Logger wrapper API compatibility verified - COMPLETED
+- ✅ Pino output format validated - COMPLETED
+- ✅ All logger tests pass - COMPLETED (27/27 tests passing)
+- ✅ TypeScript type checking passes - COMPLETED
+- ✅ ESLint passes (no new warnings) - COMPLETED
+
+**Verification Results**:
+```
+[2026-02-02] npm run test:integration: ✅ PASSED (27 tests, Exit Code: 0)
+[2026-02-02] npm run typecheck: ✅ PASSED (Exit Code: 0)
+[2026-02-02] npm run lint: ✅ PASSED (Exit Code: 0, pre-existing warnings only)
+```
+
+**Test Coverage**:
+- Logger Initialization: Request context, user context (authenticated/unauthenticated)
+- Log Format Validation: Info, debug, warning, error logs with structured metadata
+- Security Event Logging: Unauthorized access, rate limit exceeded, forbidden access with all required fields
+- Request Context Tracking: Request ID generation, user context, dynamic context addition, duration tracking
+- Request Logging with Performance Metrics: 2xx (info), 4xx (warn), 5xx (error) response handling
+- Sensitive Data Sanitization: Password, token, secret, apikey, authorization, cookie fields; nested objects; case-insensitive matching
+- Request Body Logging: Sanitized body logging, non-object body handling
+- Default Logger Instance: Export verification for non-request contexts
 
 **References**: spec.md Phase 5
 
