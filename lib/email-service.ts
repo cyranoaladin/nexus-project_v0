@@ -251,6 +251,85 @@ export async function testEmailConfiguration() {
   }
 }
 
+export async function sendSessionReportNotification(
+  session: { subject: string; scheduledDate: Date; id: string },
+  student: { firstName?: string | null; lastName?: string | null },
+  coach: { firstName?: string | null; lastName?: string | null },
+  report: { summary: string; performanceRating: number; topicsCovered: string; recommendations: string },
+  parentEmail: string
+) {
+  try {
+    const subject = `📝 Nouveau compte-rendu de session - ${student.firstName} ${student.lastName} - ${session.subject}`;
+    
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+          <h1>📝 Nouveau compte-rendu de session</h1>
+        </div>
+        <div style="padding: 30px;">
+          <p>Bonjour,</p>
+          
+          <p>Le coach <strong>${coach.firstName} ${coach.lastName}</strong> a soumis le compte-rendu de la session de <strong>${session.subject}</strong> avec votre enfant <strong>${student.firstName} ${student.lastName}</strong>.</p>
+          
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>📋 Détails de la session :</h3>
+            <ul style="list-style: none; padding: 0;">
+              <li><strong>📅 Date :</strong> ${session.scheduledDate.toLocaleDateString('fr-FR')}</li>
+              <li><strong>📚 Matière :</strong> ${session.subject}</li>
+              <li><strong>👨‍🏫 Coach :</strong> ${coach.firstName} ${coach.lastName}</li>
+            </ul>
+          </div>
+
+          <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>⭐ Évaluation de la performance :</h3>
+            <div style="font-size: 24px; margin: 10px 0;">
+              ${'⭐'.repeat(report.performanceRating)}${'☆'.repeat(5 - report.performanceRating)}
+            </div>
+          </div>
+
+          <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>📝 Résumé de la session :</h3>
+            <p>${report.summary}</p>
+          </div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>📖 Sujets abordés :</h3>
+            <p>${report.topicsCovered}</p>
+          </div>
+
+          <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>💡 Recommandations :</h3>
+            <p>${report.recommendations}</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXTAUTH_URL}/dashboard/parent"
+               style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 16px;">
+              Consulter le compte-rendu complet
+            </a>
+          </div>
+
+          <p style="color: #666; font-size: 14px;">
+            Ce compte-rendu est également disponible dans votre espace parent.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Nexus Réussite" <${process.env.SMTP_FROM}>`,
+      to: parentEmail,
+      subject: subject,
+      html: html
+    });
+
+    console.log(`Session report notification sent to ${parentEmail} for session ${session.id}`);
+  } catch (error) {
+    console.error('Error sending session report notification:', error);
+    throw error;
+  }
+}
+
 // Job automatique de rappels (à utiliser avec cron)
 export async function sendScheduledReminders() {
   try {
