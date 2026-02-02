@@ -29,7 +29,7 @@ export function createRequestLogger(context: {
 }
 
 export function sanitizeLogData(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitiveKeys = ['password', 'token', 'apiKey', 'secret', 'creditCard', 'ssn'];
+  const sensitiveKeys = ['password', 'token', 'apikey', 'secret', 'creditcard', 'ssn'];
   const sanitized = { ...data };
   
   for (const key of Object.keys(sanitized)) {
