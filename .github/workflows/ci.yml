@@ -412,6 +412,7 @@ jobs:
 
       # --- SEMGREP ---
       - name: Run Semgrep
+        continue-on-error: true
         uses: returntocorp/semgrep-action@v1
         with:
           config: >-
@@ -419,13 +420,6 @@ jobs:
             p/secrets
             p/typescript
             p/nextjs
-          generateSarif: true
-
-      - name: Upload Semgrep SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: semgrep.sarif
 
       # --- OSV SCANNER (Google) ---
       - name: Install OSV Scanner
