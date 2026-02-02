@@ -190,7 +190,7 @@ export default function BilanGratuitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       <Header />
 
       <main className="py-8 md:py-12">
@@ -202,30 +202,30 @@ export default function BilanGratuitPage() {
             className="text-center mb-8 md:mb-12"
           >
             <Badge variant="outline" className="mb-4">
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <CheckCircle className="w-4 h-4 mr-2" aria-hidden="true" />
               Bilan Stratégique Gratuit
             </Badge>
-            <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+            <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-neutral-900 mb-3 md:mb-4">
               Créez Votre Compte Parent et Élève
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-              En 2 étapes simples, créez vos comptes et accédez immédiatement à votre tableau de bord personnalisé pour commencer le parcours vers la <span className="text-blue-600 font-semibold">réussite au Baccalauréat</span>.
+            <p className="text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto px-4">
+              En 2 étapes simples, créez vos comptes et accédez immédiatement à votre tableau de bord personnalisé pour commencer le parcours vers la <span className="text-brand-primary font-semibold">réussite au Baccalauréat</span>.
             </p>
           </motion.div>
 
           {/* Indicateur de progression */}
           <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs md:text-sm font-medium text-gray-700">
+              <span className="text-xs md:text-sm font-medium text-neutral-700">
                 Étape {currentStep} sur {totalSteps}
               </span>
-              <span className="text-xs md:text-sm text-gray-500">
+              <span className="text-xs md:text-sm text-neutral-500">
                 {Math.round((currentStep / totalSteps) * 100)}% complété
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-neutral-200 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-brand-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / totalSteps) * 100}%` }}
               />
             </div>
@@ -238,10 +238,10 @@ export default function BilanGratuitPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="border border-slate-200 shadow-md">
+              <Card className="border border-neutral-200 shadow-md">
                 <CardHeader>
                   <CardTitle className="flex items-center text-base md:text-lg">
-                    <User className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
+                    <User className="w-4 h-4 md:w-5 md:h-5 mr-2 text-brand-primary" aria-hidden="true" />
                     Étape 1 : Informations Parent
                   </CardTitle>
                 </CardHeader>
@@ -254,11 +254,11 @@ export default function BilanGratuitPage() {
                         type="text"
                         value={formData.parentFirstName}
                         onChange={(e) => handleInputChange('parentFirstName', e.target.value)}
-                        className={`mt-1 ${errors.parentFirstName ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.parentFirstName ? 'border-error' : ''}`}
                         placeholder="Votre prénom"
                       />
                       {errors.parentFirstName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
                       )}
                     </div>
                     <div>
@@ -268,11 +268,11 @@ export default function BilanGratuitPage() {
                         type="text"
                         value={formData.parentLastName}
                         onChange={(e) => handleInputChange('parentLastName', e.target.value)}
-                        className={`mt-1 ${errors.parentLastName ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.parentLastName ? 'border-error' : ''}`}
                         placeholder="Votre nom"
                       />
                       {errors.parentLastName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentLastName}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentLastName}</p>
                       )}
                     </div>
                   </div>
@@ -285,11 +285,11 @@ export default function BilanGratuitPage() {
                         type="email"
                         value={formData.parentEmail}
                         onChange={(e) => handleInputChange('parentEmail', e.target.value)}
-                        className={`mt-1 ${errors.parentEmail ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.parentEmail ? 'border-error' : ''}`}
                         placeholder="votre@email.com"
                       />
                       {errors.parentEmail && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentEmail}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentEmail}</p>
                       )}
                     </div>
                     <div>
@@ -299,11 +299,11 @@ export default function BilanGratuitPage() {
                         type="tel"
                         value={formData.parentPhone}
                         onChange={(e) => handleInputChange('parentPhone', e.target.value)}
-                        className={`mt-1 ${errors.parentPhone ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.parentPhone ? 'border-error' : ''}`}
                         placeholder="+216 99 19 28 29"
                       />
                       {errors.parentPhone && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPhone}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentPhone}</p>
                       )}
                     </div>
                   </div>
@@ -315,11 +315,11 @@ export default function BilanGratuitPage() {
                       type="password"
                       value={formData.parentPassword}
                       onChange={(e) => handleInputChange('parentPassword', e.target.value)}
-                      className={`mt-1 ${errors.parentPassword ? 'border-red-500' : ''}`}
+                      className={`mt-1 ${errors.parentPassword ? 'border-error' : ''}`}
                       placeholder="Minimum 8 caractères"
                     />
                     {errors.parentPassword && (
-                      <p className="text-red-500 text-xs md:text-sm mt-1">{errors.parentPassword}</p>
+                      <p className="text-error text-xs md:text-sm mt-1">{errors.parentPassword}</p>
                     )}
                   </div>
 
@@ -344,10 +344,10 @@ export default function BilanGratuitPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="border border-slate-200 shadow-md">
+              <Card className="border border-neutral-200 shadow-md">
                 <CardHeader>
                   <CardTitle className="flex items-center text-base md:text-lg">
-                    <GraduationCap className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
+                    <GraduationCap className="w-4 h-4 md:w-5 md:h-5 mr-2 text-brand-primary" aria-hidden="true" />
                     Étape 2 : Informations Élève
                   </CardTitle>
                 </CardHeader>
@@ -360,11 +360,11 @@ export default function BilanGratuitPage() {
                         type="text"
                         value={formData.studentFirstName}
                         onChange={(e) => handleInputChange('studentFirstName', e.target.value)}
-                        className={`mt-1 ${errors.studentFirstName ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.studentFirstName ? 'border-error' : ''}`}
                         placeholder="Prénom de l'élève"
                       />
                       {errors.studentFirstName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
                       )}
                     </div>
                     <div>
@@ -374,11 +374,11 @@ export default function BilanGratuitPage() {
                         type="text"
                         value={formData.studentLastName}
                         onChange={(e) => handleInputChange('studentLastName', e.target.value)}
-                        className={`mt-1 ${errors.studentLastName ? 'border-red-500' : ''}`}
+                        className={`mt-1 ${errors.studentLastName ? 'border-error' : ''}`}
                         placeholder="Nom de l'élève"
                       />
                       {errors.studentLastName && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentLastName}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.studentLastName}</p>
                       )}
                     </div>
                   </div>
@@ -387,7 +387,7 @@ export default function BilanGratuitPage() {
                     <div>
                       <Label id="studentGradeLabel" htmlFor="studentGrade" className="text-sm md:text-base">Niveau *</Label>
                       <Select aria-label="Niveau" aria-labelledby="studentGradeLabel" value={formData.studentGrade} onValueChange={(value) => handleInputChange('studentGrade', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-red-500' : ''}`}>
+                        <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-error' : ''}`}>
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -399,7 +399,7 @@ export default function BilanGratuitPage() {
                         </SelectContent>
                       </Select>
                       {errors.studentGrade && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.studentGrade}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.studentGrade}</p>
                       )}
                     </div>
                     <div>
@@ -419,7 +419,7 @@ export default function BilanGratuitPage() {
                     <div>
                       <Label id="currentLevelLabel" htmlFor="currentLevel" className="text-sm md:text-base">Niveau actuel *</Label>
                       <Select aria-label="Niveau actuel" aria-labelledby="currentLevelLabel" value={formData.currentLevel} onValueChange={(value) => handleInputChange('currentLevel', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-red-500' : ''}`}>
+                        <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-error' : ''}`}>
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -431,7 +431,7 @@ export default function BilanGratuitPage() {
                         </SelectContent>
                       </Select>
                       {errors.currentLevel && (
-                        <p className="text-red-500 text-xs md:text-sm mt-1">{errors.currentLevel}</p>
+                        <p className="text-error text-xs md:text-sm mt-1">{errors.currentLevel}</p>
                       )}
                     </div>
                     <div>
@@ -493,7 +493,7 @@ export default function BilanGratuitPage() {
                       ))}
                     </div>
                     {selectedSubjects.length === 0 && (
-                      <p className="text-red-500 text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
+                      <p className="text-error text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
                     )}
                   </div>
 
@@ -506,7 +506,7 @@ export default function BilanGratuitPage() {
                         onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
                       />
                       <Label htmlFor="acceptTerms" className="text-xs md:text-sm leading-relaxed cursor-pointer">
-                        J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales d'utilisation</a> *
+                        J'accepte les <a href="#" className="text-brand-primary hover:underline">conditions générales d'utilisation</a> *
                       </Label>
                     </div>
                     <div className="flex items-start space-x-2">
@@ -536,7 +536,7 @@ export default function BilanGratuitPage() {
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" aria-label="Chargement" />
                           Création en cours...
                         </>
                       ) : (
