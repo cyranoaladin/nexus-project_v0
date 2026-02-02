@@ -104,7 +104,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
-### [ ] Step: Add Performance Indexes
+### [x] Step: Add Performance Indexes
+<!-- chat-id: 1ff68626-c8e6-4f33-bccf-1f33b4468e55 -->
 
 **Objective**: Add performance indexes on frequently queried fields.
 
