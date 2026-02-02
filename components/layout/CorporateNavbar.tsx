@@ -27,11 +27,14 @@ export function CorporateNavbar() {
   }, []);
 
   const menuItems = [
-    { label: 'Expertise', href: '/#adn' },
-    { label: 'Accompagnement', href: '/#paths' },
-    { label: 'Solutions', href: '/#offer' },
-    { label: 'Korrigo', href: '/#korrigo' },
-    { label: 'Témoignages', href: '/#testimonials' },
+    { label: 'Accueil', href: '/', isPage: true },
+    { label: 'Notre Équipe', href: '/equipe', isPage: true },
+    { label: 'Nos Offres', href: '/offres', isPage: true },
+    { label: 'Notre Centre', href: '/notre-centre', isPage: true },
+    { label: 'Stage d\'Hiver', href: '/academies-hiver', isPage: true },
+    { label: 'Plateforme', href: '/plateforme', isPage: true },
+    { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
+    { label: 'Contact', href: '/#contact', isPage: false },
   ];
 
   const scrollToSection = (id: string) => {
@@ -124,21 +127,40 @@ export function CorporateNavbar() {
               {(isOpen || !reducedMotion) && (
                 <nav className="flex flex-col items-center gap-8">
                   {menuItems.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => scrollToSection(item.href.replace('/', ''))}
-                      className="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
-                                  hover:to-brand-accent transition-all duration-300
-                                  relative group"
-                      style={{
-                        transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
-                        opacity: isOpen ? 1 : 0,
-                        transition: reducedMotion ? 'none' : `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s`
-                      }}
-                    >
-                      {item.label}
-                      <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-                    </button>
+                    item.isPage ? (
+                      <Link
+                        key={index}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
+                                    hover:to-brand-accent transition-all duration-300
+                                    relative group"
+                        style={{
+                          transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
+                          opacity: isOpen ? 1 : 0,
+                          transition: reducedMotion ? 'none' : `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s`
+                        }}
+                      >
+                        {item.label}
+                        <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                      </Link>
+                    ) : (
+                      <button
+                        key={index}
+                        onClick={() => scrollToSection(item.href.replace('/', ''))}
+                        className="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
+                                    hover:to-brand-accent transition-all duration-300
+                                    relative group"
+                        style={{
+                          transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
+                          opacity: isOpen ? 1 : 0,
+                          transition: reducedMotion ? 'none' : `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s`
+                        }}
+                      >
+                        {item.label}
+                        <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                      </button>
+                    )
                   ))}
                 </nav>
               )}
