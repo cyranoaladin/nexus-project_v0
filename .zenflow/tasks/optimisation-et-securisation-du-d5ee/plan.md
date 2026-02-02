@@ -36,7 +36,8 @@ Save to `{@artifacts_path}/spec.md` with:
 - Delivery phases (incremental, testable milestones)
 - Verification approach using project lint/test commands
 
-### [ ] Step: Planning
+### [x] Step: Planning
+<!-- chat-id: 19de7f48-93b6-4deb-ae38-372ffa33ade9 -->
 
 Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 
@@ -50,8 +51,231 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step: Implementation
+---
 
-This step should be replaced with detailed implementation tasks from the Planning step.
+## Implementation Steps
 
-If Planning didn't replace this step, execute the tasks in `{@artifacts_path}/plan.md`, updating checkboxes as you go. Run planned tests/lint and record results in plan.md.
+### [ ] Step: Schema Analysis and Field Updates
+
+**Objective**: Update `prisma/schema.prisma` to make fields nullable for SetNull constraints.
+
+**Tasks**:
+- Make `Session.coachId` nullable (`String?`) to support `onDelete: SetNull`
+- Make `Message.senderId` nullable (`String?`) to support `onDelete: SetNull`
+- Make `Message.receiverId` nullable (`String?`) to support `onDelete: SetNull`
+- Make `StudentReport.coachId` nullable (`String?`) to support `onDelete: SetNull`
+
+**Files Modified**: 
+- `prisma/schema.prisma` (lines 268, 418, 421, 368)
+
+**Verification**: 
+- TypeScript compilation should pass
+- Run `npm run typecheck` to ensure no errors
+
+---
+
+### [ ] Step: Add Foreign Key Constraints
+
+**Objective**: Add missing `onDelete` constraints to all relations.
+
+**Tasks**:
+- Add `onDelete: SetNull` to `Session.coach` → `CoachProfile` (line 269)
+- Add `onDelete: Restrict` to `Payment.user` → `User` (line 391)
+- Add `onDelete: SetNull` to `Message.sender` → `User` (line 419)
+- Add `onDelete: SetNull` to `Message.receiver` → `User` (line 422)
+- Add `onDelete: Restrict` to `StudentBadge.badge` → `Badge` (line 354)
+- Add `onDelete: SetNull` to `StudentReport.coach` → `CoachProfile` (line 369)
+- Add inline comments documenting rationale for each constraint
+
+**Files Modified**: 
+- `prisma/schema.prisma`
+
+**Rationale Documentation**:
+- `Session.coach SetNull`: Preserve session history even if coach account removed
+- `Payment.user Restrict`: Financial compliance - prevent deletion of users with payment history
+- `Message sender/receiver SetNull`: Preserve communication history while anonymizing deleted users
+- `StudentBadge.badge Restrict`: Badges are system-level data; prevent deletion if awarded to students
+- `StudentReport.coach SetNull`: Educational records outlive coach employment
+
+**Verification**: 
+- Schema syntax validation: `npx prisma validate`
+
+---
+
+### [ ] Step: Add Performance Indexes
+
+**Objective**: Add performance indexes on frequently queried fields.
+
+**Tasks**:
+- Add `@@index([role])` to `User` model (RBAC filtering)
+- Add `@@index([studentId])` to `Session` model (student session history)
+- Add `@@index([coachId])` to `Session` model (coach dashboard queries)
+- Add `@@index([status])` to `Session` model (status-based filtering)
+- Add `@@index([studentId, updatedAt])` to `AriaConversation` model (chat history with recency)
+- Add `@@index([conversationId, createdAt])` to `AriaMessage` model (message threading)
+- Add `@@index([userId, read])` to `Notification` model (unread notification queries)
+- Add `@@index([userRole])` to `Notification` model (role-based notification filtering)
+- Add `@@index([studentId, createdAt])` to `CreditTransaction` model (transaction history)
+- Add `@@index([sessionId])` to `CreditTransaction` model (session-specific lookups)
+- Add `@@index([studentId, status])` to `Subscription` model (active subscription checks)
+
+**Files Modified**: 
+- `prisma/schema.prisma`
+
+**Verification**: 
+- Schema syntax validation: `npx prisma validate`
+
+---
+
+### [ ] Step: Generate Database Migration
+
+**Objective**: Generate migration file with all schema changes.
+
+**Tasks**:
+- Run `npm run db:migrate` with name "add_referential_integrity_and_indexes"
+- Review generated SQL for correctness:
+  - Verify `ALTER TABLE` statements for nullable fields
+  - Verify `ALTER TABLE` statements for foreign key constraints with `onDelete` behavior
+  - Verify `CREATE INDEX` statements for all new indexes
+- Ensure migration includes all expected changes
+
+**Files Created**: 
+- `prisma/migrations/YYYYMMDDHHMMSS_add_referential_integrity_and_indexes/migration.sql`
+
+**Verification**: 
+- Migration applies cleanly: `npm run db:migrate:deploy` (in test environment)
+- Database schema matches Prisma schema
+
+---
+
+### [ ] Step: Create Schema Integrity Test Suite
+
+**Objective**: Create comprehensive test suite in `tests/database/schema.test.ts`.
+
+**Test Coverage**:
+
+1. **Cascade Delete Tests** (existing constraints):
+   - Deleting User cascades to ParentProfile
+   - Deleting User cascades to StudentProfile  
+   - Deleting User cascades to CoachProfile
+   - Deleting Student cascades to Subscription
+   - Deleting Student cascades to CreditTransaction
+   - Deleting Student cascades to Session
+   - Deleting Student cascades to AriaConversation
+   - Deleting SessionBooking cascades to SessionNotification
+   - Deleting SessionBooking cascades to SessionReminder
+
+2. **SetNull Behavior Tests** (new constraints):
+   - Deleting CoachProfile sets Session.coachId to null
+   - Deleting User sets Message.senderId to null
+   - Deleting User sets Message.receiverId to null
+   - Deleting CoachProfile sets StudentReport.coachId to null
+
+3. **Restrict Behavior Tests** (new constraints):
+   - Cannot delete User with Payment history
+   - Cannot delete Badge if awarded to students
+
+4. **Index Existence Tests**:
+   - Verify all performance indexes exist via `pg_indexes` query
+   - Check index names match expected pattern
+
+5. **Constraint Enforcement Tests** (existing):
+   - Unique constraints enforced
+   - Session overlap prevention works
+   - Payment idempotency constraints work
+
+**Files Created**: 
+- `tests/database/schema.test.ts`
+
+**Test Infrastructure**:
+- Use existing `testPrisma` from `__tests__/setup/test-database.ts`
+- Use existing factories: `createTestParent`, `createTestStudent`, `createTestCoach`, `createTestSessionBooking`
+- Follow patterns from `__tests__/concurrency/` tests
+- Use `setupTestDatabase()` in `beforeEach()` for isolation
+
+**Verification**: 
+- All tests pass: `npm run test -- tests/database/schema.test.ts`
+- Test coverage 100% for new constraints
+
+---
+
+### [ ] Step: Verify TypeScript Compilation
+
+**Objective**: Ensure schema changes don't break existing code.
+
+**Tasks**:
+- Run `npm run typecheck` to catch null-checking issues
+- Fix any TypeScript errors related to nullable fields:
+  - `Session.coachId` may be null
+  - `Message.senderId` may be null
+  - `Message.receiverId` may be null
+  - `StudentReport.coachId` may be null
+- Search codebase for usages of affected fields and add null checks if needed
+
+**Verification**: 
+- `npm run typecheck` passes with no errors
+
+---
+
+### [ ] Step: Run Full Test Suite
+
+**Objective**: Ensure no regressions in existing functionality.
+
+**Tasks**:
+- Run unit tests: `npm run test:unit`
+- Run integration tests: `npm run test:integration`
+- Verify all existing tests pass
+- Fix any failing tests related to schema changes
+
+**Expected Outcome**: 
+- All existing tests pass
+- No regressions in API behavior
+- Schema tests validate new constraints
+
+**Verification**: 
+- `npm run test` passes all tests
+
+---
+
+### [ ] Step: Run Linting and Verification
+
+**Objective**: Ensure code quality and project standards.
+
+**Tasks**:
+- Run lint: `npm run lint`
+- Run typecheck: `npm run typecheck`
+- Run quick verification: `npm run verify:quick`
+
+**Verification**: 
+- All quality gates pass
+- No linting errors
+- No type errors
+- All tests pass
+
+---
+
+### [ ] Step: Documentation and Review
+
+**Objective**: Document changes and prepare for review.
+
+**Tasks**:
+- Review all schema changes in `prisma/schema.prisma`
+- Verify all inline comments are clear and accurate
+- Review migration SQL file
+- Review test coverage
+- Confirm all acceptance criteria met:
+  - ✅ All foreign key relations have explicit `onDelete` behavior
+  - ✅ Performance indexes added to specified fields
+  - ✅ 100% test coverage on schema integrity
+  - ✅ No breaking changes to existing API tests
+  - ✅ `npm run verify:quick` passes
+
+**Deliverables**:
+- Updated `prisma/schema.prisma` with constraints and indexes
+- Migration file: `prisma/migrations/*/add_referential_integrity_and_indexes/migration.sql`
+- Test suite: `tests/database/schema.test.ts`
+- All verification checks passing
+
+**Verification**: 
+- Final review of all changes
+- All acceptance criteria documented in spec.md are met
