@@ -265,8 +265,8 @@ model Session {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id])
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id])
 
   // Détails de la session
   type        ServiceType
@@ -365,8 +365,8 @@ model StudentReport {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id])
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id])
 
   // Contenu du rapport
   title       String
@@ -415,11 +415,11 @@ model Payment {
 // Modèle Message (Chat)
 model Message {
   id         String @id @default(cuid())
-  senderId   String
-  sender     User   @relation("MessageSender", fields: [senderId], references: [id])
+  senderId   String?
+  sender     User?  @relation("MessageSender", fields: [senderId], references: [id])
 
-  receiverId String
-  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id])
+  receiverId String?
+  receiver   User?  @relation("MessageReceiver", fields: [receiverId], references: [id])
 
   content    String
   fileUrl    String? // Pour les pièces jointes
