@@ -12,7 +12,6 @@ const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
 };
 
 describe('ErrorBoundary', () => {
-  const originalEnv = process.env.NODE_ENV;
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -21,7 +20,6 @@ describe('ErrorBoundary', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
-    process.env.NODE_ENV = originalEnv;
   });
 
   describe('Error Catching', () => {
@@ -143,7 +141,11 @@ describe('ErrorBoundary', () => {
 
   describe('Development Mode', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'development';
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'development',
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('shows error message in development mode', () => {
@@ -187,7 +189,11 @@ describe('ErrorBoundary', () => {
 
   describe('Production Mode', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'production';
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('hides error message in production mode', () => {
