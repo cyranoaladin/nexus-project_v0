@@ -124,6 +124,8 @@ jest.mock('./lib/prisma', () => ({
     parentProfile: {
       create: jest.fn(),
       count: jest.fn(),
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
     },
     studentProfile: {
       create: jest.fn(),
@@ -160,8 +162,10 @@ jest.mock('./lib/prisma', () => ({
     },
     sessionBooking: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       count: jest.fn(),
       findMany: jest.fn(),
+      groupBy: jest.fn(),
     },
     $transaction: jest.fn(),
   },
