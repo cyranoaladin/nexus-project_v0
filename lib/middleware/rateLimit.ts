@@ -142,7 +142,8 @@ export function rateLimit(config: RateLimitConfig) {
         message,
         {
           retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000)
-        }
+        },
+        headers
       );
     }
 
