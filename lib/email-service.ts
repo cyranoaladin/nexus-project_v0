@@ -326,7 +326,6 @@ export async function sendSessionReportNotification(
     console.log(`Session report notification sent to ${parentEmail} for session ${session.id}`);
   } catch (error) {
     console.error('Error sending session report notification:', error);
-    throw error;
   }
 }
 
