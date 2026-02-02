@@ -123,9 +123,13 @@ const SkeletonAvatar = React.forwardRef<
 ))
 SkeletonAvatar.displayName = "SkeletonAvatar"
 
+interface SkeletonButtonProps extends SkeletonProps {
+  size?: "sm" | "default" | "lg" | "icon"
+}
+
 const SkeletonButton = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { size?: "sm" | "default" | "lg" | "icon" }
+  SkeletonButtonProps
 >(({ className, size = "default", ...props }, ref) => (
   <Skeleton
     ref={ref}
@@ -147,7 +151,7 @@ SkeletonButton.displayName = "SkeletonButton"
 
 const SkeletonInput = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  SkeletonProps
 >(({ className, ...props }, ref) => (
   <Skeleton
     ref={ref}
