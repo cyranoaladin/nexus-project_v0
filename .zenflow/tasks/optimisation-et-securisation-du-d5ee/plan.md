@@ -223,7 +223,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
-### [ ] Step: Run Full Test Suite
+### [x] Step: Run Full Test Suite
+<!-- chat-id: 4172327a-af77-4107-bb5b-bf2cea0f9220 -->
 
 **Objective**: Ensure no regressions in existing functionality.
 
