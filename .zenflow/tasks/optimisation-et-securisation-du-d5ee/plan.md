@@ -55,7 +55,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Implementation Steps
 
-### [ ] Step: Schema Analysis and Field Updates
+### [x] Step: Schema Analysis and Field Updates
+<!-- chat-id: add6536d-d27a-4fcd-80d3-194d5d747109 -->
 
 **Objective**: Update `prisma/schema.prisma` to make fields nullable for SetNull constraints.
 
