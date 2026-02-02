@@ -8,6 +8,12 @@
  * - INV-PAY-2: Payment Validation Atomicity
  */
 
+// Mock lib/prisma to use testPrisma for transaction tests
+jest.mock('@/lib/prisma', () => {
+  const { testPrisma } = require('../setup/test-database');
+  return { prisma: testPrisma };
+});
+
 import { PrismaClient } from '@prisma/client';
 import { testPrisma, setupTestDatabase, createTestParent, createTestStudent } from '../setup/test-database';
 
@@ -27,12 +33,23 @@ describe('Payment Validation Transaction Rollback', () => {
     await prisma.$disconnect();
   });
 
+  afterEach(async () => {
+    // Clean up after each test (in reverse order of foreign key dependencies)
+    await prisma.creditTransaction.deleteMany({});
+    await prisma.subscription.deleteMany({});
+    await prisma.payment.deleteMany({});
+    await prisma.student.deleteMany({});
+    await prisma.studentProfile.deleteMany({});
+    await prisma.parentProfile.deleteMany({});
+    await prisma.user.deleteMany({});
+  });
+
   beforeEach(async () => {
     // Create fresh test data for each test
-    const parent = await createTestParent({ email: 'rollback.test@example.com' });
-    userId = parent.id;
+    const { parentUser, parentProfile } = await createTestParent({ email: 'rollback.test@example.com' });
+    userId = parentUser.id;
 
-    const { student } = await createTestStudent(parent.id, { user: { email: 'rollback.student@test.com' } });
+    const { student } = await createTestStudent(parentProfile.id, { user: { email: 'rollback.student@test.com' } });
     studentRecordId = student.id;
 
     // Create a pending payment

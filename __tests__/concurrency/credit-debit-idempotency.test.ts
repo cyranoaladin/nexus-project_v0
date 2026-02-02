@@ -10,6 +10,12 @@
  * - INV-CRE-3: USAGE + REFUND allowed for same session
  */
 
+// Mock lib/prisma to use testPrisma for concurrency tests
+jest.mock('@/lib/prisma', () => {
+  const { testPrisma } = require('../setup/test-database');
+  return { prisma: testPrisma };
+});
+
 import { PrismaClient } from '@prisma/client';
 import { testPrisma, setupTestDatabase, createTestSessionBooking, createTestParent, createTestStudent } from '../setup/test-database';
 
@@ -23,8 +29,8 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     await setupTestDatabase();
 
     // Create test data
-    const parent = await createTestParent({ email: 'credit.idempotency@test.com' });
-    const { student } = await createTestStudent(parent.id, { user: { email: 'student.credit@test.com' } });
+    const { parentProfile } = await createTestParent({ email: 'credit.idempotency@test.com' });
+    const { student } = await createTestStudent(parentProfile.id, { user: { email: 'student.credit@test.com' } });
     studentRecordId = student.id;
 
     const session = await createTestSessionBooking();
