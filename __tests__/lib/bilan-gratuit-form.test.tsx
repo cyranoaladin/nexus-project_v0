@@ -23,13 +23,21 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock de framer-motion pour éviter les erreurs d'animation
-jest.mock('framer-motion', () => ({
-  AnimatePresence: ({ children }: { children: React.ReactNode; }) => children,
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
-  },
-}));
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    AnimatePresence: ({ children }: { children: React.ReactNode; }) => children,
+    motion: new Proxy({}, {
+      get: (target, prop) => {
+        return React.forwardRef((props: any, ref: any) => {
+          const { children, initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
+          return React.createElement(prop, { ...rest, ref }, children);
+        });
+      }
+    }),
+    useReducedMotion: () => false,
+  };
+});
 
 // Mock des composants Header et Footer (chemins alias utilisés par la page)
 jest.mock('@/components/layout/header', () => {
