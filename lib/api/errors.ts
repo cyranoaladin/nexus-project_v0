@@ -124,6 +124,7 @@ export class ApiError extends Error {
  * @param code - Error code (machine-readable)
  * @param message - Error message (human-readable)
  * @param details - Optional additional context
+ * @param headers - Optional custom headers
  *
  * @example
  * ```ts
@@ -134,7 +135,8 @@ export function errorResponse(
   statusCode: number,
   code: string,
   message: string,
-  details?: unknown
+  details?: unknown,
+  headers?: HeadersInit
 ): NextResponse<ApiErrorResponse> {
   return NextResponse.json(
     {
@@ -142,7 +144,7 @@ export function errorResponse(
       message,
       ...(details ? { details } : {}),
     },
-    { status: statusCode }
+    { status: statusCode, headers }
   );
 }
 
