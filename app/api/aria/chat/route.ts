@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { Subject } from '@/types/enums'
 import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
 import { checkAndAwardBadges } from '@/lib/badges'
+import { createLogger } from '@/lib/middleware/logger'
 
 // Schema de validation pour les messages ARIA
 const ariaMessageSchema = z.object({
@@ -18,10 +19,24 @@ const ariaMessageSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  const logger = createLogger(request)
+  
   try {
     const session = await getServerSession(authOptions)
     
     if (!session || session.user.role !== 'ELEVE') {
+      const forwarded = request.headers.get('x-forwarded-for')
+      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
+      
+      logger.logSecurityEvent('unauthorized_access', 401, {
+        ip,
+        reason: !session ? 'no_session' : 'invalid_role',
+        expectedRole: 'ELEVE',
+        actualRole: session?.user.role
+      })
+      
+      logger.logRequest(401)
+      
       return NextResponse.json(
         { error: 'Accès non autorisé' },
         { status: 401 }
@@ -53,6 +68,18 @@ export async function POST(request: NextRequest) {
     // Vérifier l'accès à ARIA pour cette matière
     const activeSubscription = student.subscriptions[0]
     if (!activeSubscription || !activeSubscription.ariaSubjects.includes(validatedData.subject)) {
+      const forwarded = request.headers.get('x-forwarded-for')
+      const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
+      
+      logger.logSecurityEvent('forbidden_access', 403, {
+        ip,
+        userId: session.user.id,
+        reason: 'aria_subject_not_subscribed',
+        subject: validatedData.subject
+      })
+      
+      logger.logRequest(403)
+      
       return NextResponse.json(
         { error: 'Accès ARIA non autorisé pour cette matière' },
         { status: 403 }
@@ -75,6 +102,14 @@ export async function POST(request: NextRequest) {
       }))
     }
     
+    logger.info('ARIA chat request', {
+      userId: session.user.id,
+      studentId: student.id,
+      subject: validatedData.subject,
+      conversationId: validatedData.conversationId,
+      hasHistory: conversationHistory.length > 0
+    })
+    
     // Générer la réponse ARIA
     const ariaResponse = await generateAriaResponse(
       student.id,
@@ -96,6 +131,17 @@ export async function POST(request: NextRequest) {
     const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')
     await checkAndAwardBadges(student.id, 'aria_question_count')
     
+    logger.info('ARIA response generated', {
+      conversationId: conversation.id,
+      messageId: ariaMessage.id,
+      badgesAwarded: newBadges.length
+    })
+    
+    logger.logRequest(200, {
+      conversationId: conversation.id,
+      badgesCount: newBadges.length
+    })
+    
     return NextResponse.json({
       success: true,
       conversation: {
@@ -116,7 +162,8 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Erreur chat ARIA:', error)
+    logger.error('Erreur chat ARIA:', error)
+    logger.logRequest(500)
     
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
