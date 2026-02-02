@@ -152,7 +152,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
-### [ ] Step: Create Schema Integrity Test Suite
+### [x] Step: Create Schema Integrity Test Suite
+<!-- chat-id: f6b95970-3c70-4cb4-bbf7-e14ad4198bc1 -->
 
 **Objective**: Create comprehensive test suite in `tests/database/schema.test.ts`.
 
