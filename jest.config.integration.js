@@ -21,6 +21,8 @@ const customJestConfig = {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  // Run integration tests serially to avoid database conflicts
+  maxWorkers: 1,
   coverageThreshold: {
     global: {
       branches: 70,

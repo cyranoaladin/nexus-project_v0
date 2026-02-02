@@ -33,6 +33,7 @@ jest.mock('@/lib/prisma', () => ({
     coachProfile: { count: jest.fn() },
     parentProfile: { count: jest.fn() },
     payment: {
+      count: jest.fn(),
       aggregate: jest.fn(),
       groupBy: jest.fn()
     },

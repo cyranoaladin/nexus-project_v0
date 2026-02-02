@@ -9,6 +9,12 @@
  * - INV-SES-2: No overlapping sessions for same coach/date
  */
 
+// Mock lib/prisma to use testPrisma for concurrency tests
+jest.mock('@/lib/prisma', () => {
+  const { testPrisma } = require('../setup/test-database');
+  return { prisma: testPrisma };
+});
+
 import { PrismaClient } from '@prisma/client';
 import { testPrisma, setupTestDatabase, createTestCoach, createTestStudent, createTestParent } from '../setup/test-database';
 
@@ -23,13 +29,13 @@ describe('Double Booking Prevention - Concurrency', () => {
     await setupTestDatabase();
 
     // Create test users
-    const parent = await createTestParent({ email: 'parent.booking@test.com' });
-    parentId = parent.id;
+    const { parentProfile } = await createTestParent({ email: 'parent.booking@test.com' });
+    parentId = parentProfile.id;
 
     const { coachUser } = await createTestCoach({ user: { email: 'coach.booking@test.com' } });
     coachId = coachUser.id;
 
-    const { studentUser } = await createTestStudent(parent.id, { user: { email: 'student.booking@test.com' } });
+    const { studentUser } = await createTestStudent(parentProfile.id, { user: { email: 'student.booking@test.com' } });
     studentId = studentUser.id;
   });
 
