@@ -28,6 +28,25 @@ export default withAuth(
     const token = req.nextauth.token
     const { pathname } = req.nextUrl
 
+    // Rate limiting for authentication endpoint
+    if (pathname === '/api/auth/callback/credentials') {
+      const rateLimitResult = RateLimitPresets.auth(req, 'auth:login')
+      
+      if (rateLimitResult) {
+        const logger = createLogger(req)
+        const forwarded = req.headers.get('x-forwarded-for')
+        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        
+        logger.logSecurityEvent('rate_limit_exceeded', 429, {
+          ip,
+          path: pathname,
+          attempt: 'login',
+        })
+        
+        return applySecurityHeaders(rateLimitResult)
+      }
+    }
+
     // Rate limiting for ARIA endpoints
     if (pathname.startsWith('/api/aria/')) {
       let rateLimitResult = null
