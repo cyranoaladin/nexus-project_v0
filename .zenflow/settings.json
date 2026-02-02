@@ -1,0 +1,6 @@
+{
+  "setup_script": "npm install && npm run db:generate && npm run db:push",
+  "dev_script": "npm run dev",
+  "verification_script": "npm run lint && npm run typecheck && npm run test:unit && npm run test:integration",
+  "copy_files": [".env"]
+}
