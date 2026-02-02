@@ -17,6 +17,12 @@ export async function setupTestDatabase() {
   await testPrisma.creditTransaction.deleteMany();
   await testPrisma.sessionBooking.deleteMany();  // FK: studentId, coachId, parentId -> User
   await testPrisma.session.deleteMany();
+  await testPrisma.ariaMessage.deleteMany();
+  await testPrisma.ariaConversation.deleteMany();
+  await testPrisma.studentBadge.deleteMany();
+  await testPrisma.badge.deleteMany();
+  await testPrisma.studentReport.deleteMany();
+  await testPrisma.message.deleteMany();  // FK: senderId, receiverId -> User (SetNull)
   await testPrisma.payment.deleteMany();  // FK: userId -> User
   await testPrisma.coachAvailability.deleteMany();  // FK: coachId -> User (via CoachProfile)
   await testPrisma.student.deleteMany();
