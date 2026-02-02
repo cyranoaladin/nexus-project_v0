@@ -172,6 +172,7 @@ model Student {
   badges           StudentBadge[]
   reports          StudentReport[]
   subscriptionRequests SubscriptionRequest[]
+  sessionReports   SessionReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -203,6 +204,7 @@ model CoachProfile {
   // Relations
   sessions    Session[]
   reports     StudentReport[]
+  sessionReports SessionReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -590,6 +592,7 @@ model SessionBooking {
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
+  report        SessionReport?
 
   @@index([studentId, scheduledDate])
   @@index([coachId, scheduledDate])
@@ -599,6 +602,42 @@ model SessionBooking {
   // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
   // overlapping bookings for same coach/date (Prisma doesn't support EXCLUDE syntax)
   // See migration: 20260201201415_add_session_overlap_prevention
+}
+
+// Session Report Management
+model SessionReport {
+  id                String            @id @default(cuid())
+  sessionId         String            @unique
+  session           SessionBooking    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Participants (duplicated for quick access)
+  studentId         String
+  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coachId           String
+  coach             CoachProfile      @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  // Report Content
+  summary           String            // General session summary
+  topicsCovered     String            // Topics covered during the session
+  performanceRating Int               // 1-5 stars
+  progressNotes     String            // Student progress observations
+  recommendations   String            // Recommendations for next sessions
+
+  // Attendance & Engagement
+  attendance        Boolean           // Student attended
+  engagementLevel   EngagementLevel?  // LOW, MEDIUM, HIGH
+
+  // Homework & Next Steps
+  homeworkAssigned  String?           // Homework assigned (optional)
+  nextSessionFocus  String?           // Suggested focus for next session (optional)
+
+  // Timestamps
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([studentId, createdAt])
+  @@index([coachId, createdAt])
+  @@map("session_reports")
 }
 
 // Notification System
@@ -725,4 +764,10 @@ enum ReminderType {
   TWO_HOURS_BEFORE
   THIRTY_MINUTES_BEFORE
   SESSION_STARTING
+}
+
+enum EngagementLevel {
+  LOW
+  MEDIUM
+  HIGH
 }
