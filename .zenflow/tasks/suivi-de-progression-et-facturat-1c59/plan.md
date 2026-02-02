@@ -167,7 +167,8 @@ Build the progress evolution chart component using Recharts.
 
 ---
 
-### [ ] Step: Create FinancialHistory Component
+### [x] Step: Create FinancialHistory Component
+<!-- chat-id: 9283f547-11cc-4f42-b8fc-d7b3cf0a7c98 -->
 
 Build the financial transaction history component with filtering and export.
 
@@ -182,13 +183,13 @@ Build the financial transaction history component with filtering and export.
 - Add empty state ("Aucune transaction trouvée")
 
 **Verification**:
-- [ ] Table renders all transactions correctly
-- [ ] Filters work (type, child, date range)
-- [ ] Pagination loads more items
-- [ ] CSV export downloads valid file
-- [ ] Status badges display correct colors
-- [ ] Sorting works on all columns
-- [ ] Run `npm run typecheck` (passes)
+- [x] Table renders all transactions correctly
+- [x] Filters work (type, child, date range)
+- [x] Pagination loads more items
+- [x] CSV export downloads valid file
+- [x] Status badges display correct colors
+- [x] Sorting works on all columns
+- [x] Run `npm run typecheck` (passes)
 
 **Files Created**:
 - `components/ui/parent/financial-history.tsx`
