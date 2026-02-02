@@ -219,31 +219,33 @@ Add tests to verify CSS variables are correctly injected in `:root`.
 
 ---
 
-### [ ] Step: Implement WCAG Accessibility Tests
+### [x] Step: Implement WCAG Accessibility Tests
+<!-- chat-id: 362c715d-d4a9-435c-a216-71e4dde6a786 -->
 
 Add tests to verify WCAG 2.1 AA contrast ratio compliance.
 
 **Tasks:**
-- [ ] Implement contrast ratio calculation utility:
+- [x] Implement contrast ratio calculation utility:
   - Convert hex to RGB
   - Calculate relative luminance
   - Calculate contrast ratio formula
-- [ ] Add "WCAG Accessibility Compliance" test group
-- [ ] Test: white text on surface-dark (≥4.5:1)
-- [ ] Test: neutral-200 on surface-card (≥4.5:1)
-- [ ] Test: brand-accent on surface-dark (≥4.5:1)
-- [ ] Test: brand-primary on white background (≥4.5:1)
-- [ ] Test: semantic colors on dark backgrounds:
+- [x] Add "WCAG Accessibility Compliance" test group
+- [x] Test: white text on surface-dark (≥4.5:1)
+- [x] Test: neutral-200 on surface-card (≥4.5:1)
+- [x] Test: brand-accent on surface-dark (≥4.5:1)
+- [x] Test: brand-primary on white background (≥4.5:1)
+- [x] Test: semantic colors on dark backgrounds:
   - success (#10B981) on surface-dark
   - warning (#F59E0B) on surface-dark
   - error (#EF4444) on surface-dark
   - info (#3B82F6) on surface-dark
-- [ ] Test: large text combinations (≥3:1)
+- [x] Test: large text combinations (≥3:1)
 
 **Verification:**
-- All WCAG tests pass
-- Contrast ratios meet AA standards
-- Tests run: `npm run test:unit -- __tests__/ui/theme.test.ts`
+- ✓ All WCAG tests pass (9 tests)
+- ✓ Contrast ratios meet AA standards
+- ✓ Tests run: `npm run test:unit -- __tests__/ui/theme.test.ts`
+- ✓ Total: 30 tests passing
 
 **Reference:** spec.md section 3.5, requirements.md section 2.5.1
 
