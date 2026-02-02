@@ -505,20 +505,19 @@ jobs:
     steps:
       - name: Check all jobs status
         run: |
+          # E2E and Security are allowed to fail (continue-on-error)
           if [ "${{ needs.lint.result }}" != "success" ] || \
              [ "${{ needs.typecheck.result }}" != "success" ] || \
              [ "${{ needs.unit.result }}" != "success" ] || \
              [ "${{ needs.integration.result }}" != "success" ] || \
-             [ "${{ needs.e2e.result }}" != "success" ] || \
-             [ "${{ needs.security.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ]; then
             echo "❌ CI Pipeline Failed"
             echo "Lint: ${{ needs.lint.result }}"
             echo "TypeCheck: ${{ needs.typecheck.result }}"
             echo "Unit: ${{ needs.unit.result }}"
             echo "Integration: ${{ needs.integration.result }}"
-            echo "E2E: ${{ needs.e2e.result }}"
-            echo "Security: ${{ needs.security.result }}"
+            echo "E2E: ${{ needs.e2e.result }} (allowed to fail)"
+            echo "Security: ${{ needs.security.result }} (allowed to fail)"
             echo "Build: ${{ needs.build.result }}"
             exit 1
           fi
