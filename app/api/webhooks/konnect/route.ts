@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@/lib/prisma';
 import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';

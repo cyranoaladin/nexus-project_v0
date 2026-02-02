@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { mergePaymentMetadata } from '@/lib/utils';

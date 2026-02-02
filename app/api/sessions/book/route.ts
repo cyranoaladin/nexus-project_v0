@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma, type CreditTransaction } from '@prisma/client';

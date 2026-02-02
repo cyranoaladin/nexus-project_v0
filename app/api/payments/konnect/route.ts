@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest } from 'next/server';
 import crypto from 'crypto';
