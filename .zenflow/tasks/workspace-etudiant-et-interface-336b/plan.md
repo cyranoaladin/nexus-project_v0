@@ -55,7 +55,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Implementation Steps
 
-### [ ] Step: Core Dashboard Structure
+### [x] Step: Core Dashboard Structure
+<!-- chat-id: 75e9b064-309c-4606-8200-19e5f8fb4e96 -->
 
 Create the new student dashboard route with basic layout and data fetching.
 
