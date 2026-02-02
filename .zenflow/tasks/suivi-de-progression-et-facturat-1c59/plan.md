@@ -83,7 +83,8 @@ Enhance `/app/api/parent/dashboard/route.ts` to include badges, progress history
 
 ---
 
-### [ ] Step: Write API Integration Tests
+### [x] Step: Write API Integration Tests
+<!-- chat-id: add6dae1-5af9-44b0-8cdf-846b667896f7 -->
 
 Create integration tests for the enhanced parent dashboard API endpoint.
 
@@ -97,12 +98,15 @@ Create integration tests for the enhanced parent dashboard API endpoint.
 - Test parent-child data isolation (cannot access other parent's data)
 
 **Verification**:
-- [ ] All tests pass
-- [ ] Run `npm run test:integration` (passes)
-- [ ] Test coverage includes edge cases (no badges, no transactions, multiple children)
+- [x] All tests pass
+- [x] Run `npm run test:integration` (passes)
+- [x] Test coverage includes edge cases (no badges, no transactions, multiple children)
 
 **Files Created**:
 - `__tests__/api/parent/dashboard.test.ts`
+
+**Files Modified**:
+- `jest.setup.integration.js` (added parentProfile.findUnique and sessionBooking.groupBy mocks)
 
 ---
 
