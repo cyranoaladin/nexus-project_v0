@@ -143,26 +143,27 @@ Update `app/globals.css` to expose CSS variables to Tailwind utilities using `@t
 
 ---
 
-### [ ] Step: Verify Root Layout Integration
+### [x] Step: Verify Root Layout Integration
+<!-- chat-id: e0bac94b-9486-4dfe-8069-f53412467cda -->
 
 Verify that `app/layout.tsx` correctly applies the new theme.
 
 **Tasks:**
-- [ ] Read current `app/layout.tsx` implementation
-- [ ] Verify body className uses theme utilities:
+- [x] Read current `app/layout.tsx` implementation
+- [x] Verify body className uses theme utilities:
   - Background color (bg-neutral-950 or bg-surface-dark)
   - Text color (text-white or text-neutral-50)
   - Font family (font-sans)
   - Selection highlight (selection:bg-brand-primary/30 or selection:bg-brand-accent/30)
-- [ ] Verify font variables are applied correctly
-- [ ] Test that opacity modifiers work (e.g., bg-brand-primary/30)
-- [ ] Visual inspection: run dev server and check homepage
+- [x] Verify font variables are applied correctly
+- [x] Test that opacity modifiers work (e.g., bg-brand-primary/30)
+- [x] Visual inspection: run dev server and check homepage
 
 **Verification:**
-- No changes needed to layout.tsx (only verification)
-- Dev server runs without errors: `npm run dev`
-- Homepage renders with correct theme colors
-- Font families load correctly
+- ✓ No changes needed to layout.tsx (only verification)
+- ✓ Dev server runs without errors: `npm run dev`
+- ✓ Homepage renders with correct theme colors
+- ✓ Font families load correctly
 
 **Reference:** spec.md section 3.3
 
