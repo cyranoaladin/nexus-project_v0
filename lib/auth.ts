@@ -5,6 +5,7 @@ import { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './prisma';
+import { logger } from '@/lib/middleware/logger';
 
 // Generate a secure secret if not provided (dev only). In production, enforce presence.
 const generateSecret = () => {
@@ -36,6 +37,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          logger.warn({ event: 'auth_failed' }, 'Failed login attempt: missing credentials')
           return null;
         }
 
@@ -52,6 +54,10 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user || !user.password) {
+            logger.warn({
+              event: 'auth_failed',
+              email: credentials.email.replace(/(?<=.{2}).*(?=@)/, '***')
+            }, 'Failed login attempt: user not found')
             return null;
           }
 
@@ -61,6 +67,11 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (isPasswordValid) {
+            logger.info({
+              event: 'auth_success',
+              userId: user.id,
+              email: credentials.email.replace(/(?<=.{2}).*(?=@)/, '***')
+            }, 'Successful login')
             return {
               id: user.id,
               email: user.email,
@@ -69,11 +80,18 @@ export const authOptions: NextAuthOptions = {
               lastName: user.lastName ?? undefined,
             };
           } else {
+            logger.warn({
+              event: 'auth_failed',
+              email: credentials.email.replace(/(?<=.{2}).*(?=@)/, '***')
+            }, 'Failed login attempt: invalid password')
             return null;
           }
         } catch (error) {
-          // Log error without exposing details to client
-          console.error('Authentication error:', error instanceof Error ? error.message : 'Unknown error');
+          logger.error({
+            event: 'auth_error',
+            error: error instanceof Error ? error.message : 'Unknown error',
+            email: credentials?.email?.replace(/(?<=.{2}).*(?=@)/, '***')
+          }, 'Authentication error')
           return null;
         }
       }
