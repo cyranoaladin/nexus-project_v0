@@ -14,7 +14,7 @@ export async function Navbar() {
   const navigationItems = navigationConfig[session.user.role];
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-72">
+    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-72" role="banner">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         <div className="flex items-center gap-4">
           <MobileMenuWrapper items={navigationItems} user={session.user} />
@@ -24,11 +24,11 @@ export async function Navbar() {
           </h1>
         </div>
 
-        <div className="hidden lg:flex items-center gap-4">
+        <nav className="hidden lg:flex items-center gap-4" aria-label="Actions utilisateur">
           <div className="text-sm text-neutral-400">
             Utilisateur connecté
           </div>
-        </div>
+        </nav>
       </div>
     </header>
   );
