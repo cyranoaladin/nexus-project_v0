@@ -1,5 +1,7 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import { RateLimitPresets } from '@/lib/middleware/rateLimit'
+import { createLogger } from '@/lib/middleware/logger'
 
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
@@ -25,6 +27,31 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token
     const { pathname } = req.nextUrl
+
+    // Rate limiting for ARIA endpoints
+    if (pathname.startsWith('/api/aria/')) {
+      let rateLimitResult = null
+      
+      if (pathname === '/api/aria/chat') {
+        rateLimitResult = RateLimitPresets.expensive(req, 'aria:chat')
+      } else if (pathname === '/api/aria/feedback') {
+        rateLimitResult = RateLimitPresets.api(req, 'aria:feedback')
+      }
+      
+      if (rateLimitResult) {
+        const logger = createLogger(req)
+        const forwarded = req.headers.get('x-forwarded-for')
+        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        
+        logger.logSecurityEvent('rate_limit_exceeded', 429, {
+          ip,
+          path: pathname,
+          userId: token?.sub,
+        })
+        
+        return applySecurityHeaders(rateLimitResult)
+      }
+    }
 
     // Protection des routes dashboard
     if (pathname.startsWith('/dashboard')) {
