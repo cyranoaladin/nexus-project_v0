@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 
 const CorporateFooter = () => {
@@ -12,11 +13,14 @@ const CorporateFooter = () => {
     };
 
     const links = [
-        { label: 'Accueil', href: '#top' },
-        { label: 'Notre ADN', href: '#adn' },
-        { label: 'Offres & Parcours', href: '#paths' },
-        { label: 'Korrigo Engine', href: '#korrigo' },
-        { label: 'Contact', href: '#contact' }
+        { label: 'Accueil', href: '/', isPage: true },
+        { label: 'Notre Équipe', href: '/equipe', isPage: true },
+        { label: 'Nos Offres', href: '/offres', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', isPage: true },
+        { label: 'Stage d\'Hiver', href: '/academies-hiver', isPage: true },
+        { label: 'Plateforme', href: '/plateforme', isPage: true },
+        { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
+        { label: 'Contact', href: '/#contact', isPage: false }
     ];
 
     return (
@@ -43,14 +47,25 @@ const CorporateFooter = () => {
                         <ul className="space-y-4">
                             {links.map((item, index) => (
                                 <li key={index}>
-                                    <button
-                                        onClick={() => scrollToSection(item.href)}
-                                        className="inline-flex items-center gap-2 text-gray-400 text-sm 
-                             hover:text-cyan-400 hover:gap-3 transition-all duration-300"
-                                    >
-                                        <span>{item.label}</span>
-                                        <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
-                                    </button>
+                                    {item.isPage ? (
+                                        <Link
+                                            href={item.href}
+                                            className="inline-flex items-center gap-2 text-gray-400 text-sm
+                                 hover:text-cyan-400 hover:gap-3 transition-all duration-300"
+                                        >
+                                            <span>{item.label}</span>
+                                            <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            onClick={() => scrollToSection(item.href)}
+                                            className="inline-flex items-center gap-2 text-gray-400 text-sm
+                                 hover:text-cyan-400 hover:gap-3 transition-all duration-300"
+                                        >
+                                            <span>{item.label}</span>
+                                            <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -90,15 +105,15 @@ const CorporateFooter = () => {
                         © 2026 Nexus Réussite. Tous droits réservés.
                     </p>
                     <div className="flex items-center gap-6">
-                        <a href="#" className="text-gray-500 text-xs hover:text-white transition-colors">
+                        <Link href="/mentions-legales" className="text-gray-500 text-xs hover:text-white transition-colors">
                             Mentions Légales
-                        </a>
-                        <a href="#" className="text-gray-500 text-xs hover:text-white transition-colors">
-                            Politique de Confidentialité
-                        </a>
-                        <a href="#" className="text-gray-500 text-xs hover:text-white transition-colors">
-                            CGV
-                        </a>
+                        </Link>
+                        <Link href="/conditions" className="text-gray-500 text-xs hover:text-white transition-colors">
+                            Conditions Générales
+                        </Link>
+                        <Link href="/contact" className="text-gray-500 text-xs hover:text-white transition-colors">
+                            Contact
+                        </Link>
                     </div>
                 </div>
             </div>
