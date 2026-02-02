@@ -420,7 +420,7 @@ jobs:
 
       # --- OSV SCANNER (Google) ---
       - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v1
+        uses: google/osv-scanner/actions/run@v1
         continue-on-error: true
         with:
           scan-args: |-
