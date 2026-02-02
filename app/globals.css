@@ -119,10 +119,52 @@
 }
 
 @theme inline {
+  /* Brand Colors - mapped to Tailwind utilities */
+  --color-brand-primary: rgb(var(--color-brand-primary));
+  --color-brand-secondary: rgb(var(--color-brand-secondary));
+  --color-brand-accent: rgb(var(--color-brand-accent));
+  --color-brand-accent-dark: rgb(var(--color-brand-accent-dark));
+
+  /* Semantic Colors - mapped to Tailwind utilities */
+  --color-semantic-success: rgb(var(--color-semantic-success));
+  --color-semantic-warning: rgb(var(--color-semantic-warning));
+  --color-semantic-error: rgb(var(--color-semantic-error));
+  --color-semantic-info: rgb(var(--color-semantic-info));
+
+  /* Semantic color aliases */
+  --color-success: rgb(var(--color-semantic-success));
+  --color-warning: rgb(var(--color-semantic-warning));
+  --color-error: rgb(var(--color-semantic-error));
+  --color-info: rgb(var(--color-semantic-info));
+
+  /* Neutral Scale - mapped to Tailwind utilities */
+  --color-neutral-50: rgb(var(--color-neutral-50));
+  --color-neutral-100: rgb(var(--color-neutral-100));
+  --color-neutral-200: rgb(var(--color-neutral-200));
+  --color-neutral-300: rgb(var(--color-neutral-300));
+  --color-neutral-400: rgb(var(--color-neutral-400));
+  --color-neutral-500: rgb(var(--color-neutral-500));
+  --color-neutral-600: rgb(var(--color-neutral-600));
+  --color-neutral-700: rgb(var(--color-neutral-700));
+  --color-neutral-800: rgb(var(--color-neutral-800));
+  --color-neutral-900: rgb(var(--color-neutral-900));
+  --color-neutral-950: rgb(var(--color-neutral-950));
+
+  /* Surface Colors - mapped to Tailwind utilities */
+  --color-surface-dark: rgb(var(--color-surface-dark));
+  --color-surface-darker: rgb(var(--color-surface-darker));
+  --color-surface-card: rgb(var(--color-surface-card));
+  --color-surface-elevated: rgb(var(--color-surface-elevated));
+  --color-surface-hover: rgb(var(--color-surface-hover));
+
+  /* Font Families - mapped to Tailwind utilities */
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-display: var(--font-space), "Space Grotesk", sans-serif;
+  --font-mono: var(--font-mono), "IBM Plex Mono", monospace;
+
+  /* Legacy colors (backward compatibility) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-poppins);
   --color-bleu-nuit: #0F172A;
   --color-bleu-primaire: #2563EB;
   --color-bleu-secondaire: #EFF6FF;
