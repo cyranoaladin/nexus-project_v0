@@ -118,6 +118,86 @@
   --accent-foreground: 220 14% 4%;
 }
 
+/*
+ * ═══════════════════════════════════════════════════════════════
+ * WCAG 2.1 COLOR CONTRAST COMPLIANCE
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * Contrast ratio requirements:
+ * - Normal text (< 18pt): 4.5:1 (AA), 7:1 (AAA)
+ * - Large text (≥ 18pt or ≥ 14pt bold): 3:1 (AA), 4.5:1 (AAA)
+ * 
+ * All combinations below meet WCAG 2.1 Level AA standards.
+ * 
+ * ───────────────────────────────────────────────────────────────
+ * Text on Dark Backgrounds (surface-dark #0B0C10)
+ * ───────────────────────────────────────────────────────────────
+ * white                : 19.55:1 - AAA (Normal & Large)
+ * neutral-50           : 18.71:1 - AAA (Normal & Large)
+ * neutral-100          : 17.76:1 - AAA (Normal & Large)
+ * neutral-200          : 15.79:1 - AAA (Normal & Large)
+ * neutral-300          : 13.27:1 - AAA (Normal & Large)
+ * neutral-400          :  7.70:1 - AAA (Normal & Large)
+ * 
+ * Brand colors on dark backgrounds:
+ * brand-primary        :  3.78:1 - AA (Large only) ⚠️
+ * brand-secondary      :  5.19:1 - AA (Normal), AAA (Large)
+ * brand-accent         : 13.13:1 - AAA (Normal & Large)
+ * brand-accent-dark    : 10.08:1 - AAA (Normal & Large)
+ * 
+ * Semantic colors on dark backgrounds:
+ * success              :  7.71:1 - AAA (Normal & Large)
+ * warning              :  9.10:1 - AAA (Normal & Large)
+ * error                :  5.19:1 - AA (Normal), AAA (Large)
+ * info                 :  5.31:1 - AA (Normal), AAA (Large)
+ * 
+ * ───────────────────────────────────────────────────────────────
+ * Text on Card Backgrounds (surface-card #111318)
+ * ───────────────────────────────────────────────────────────────
+ * white                : 18.58:1 - AAA (Normal & Large)
+ * neutral-200          : 15.01:1 - AAA (Normal & Large)
+ * neutral-300          : 12.61:1 - AAA (Normal & Large)
+ * brand-accent         : 12.48:1 - AAA (Normal & Large)
+ * brand-accent-dark    :  9.58:1 - AAA (Normal & Large)
+ * 
+ * ───────────────────────────────────────────────────────────────
+ * Text on Light Backgrounds (white #FFFFFF)
+ * ───────────────────────────────────────────────────────────────
+ * brand-primary        :  5.17:1 - AA (Normal), AAA (Large)
+ * neutral-700          : 10.31:1 - AAA (Normal & Large)
+ * neutral-800          : 14.68:1 - AAA (Normal & Large)
+ * neutral-900          : 17.74:1 - AAA (Normal & Large)
+ * neutral-950          : 19.55:1 - AAA (Normal & Large)
+ * 
+ * ───────────────────────────────────────────────────────────────
+ * Surface Color Combinations
+ * ───────────────────────────────────────────────────────────────
+ * white on surface-darker   : 20.27:1 - AAA (Normal & Large)
+ * white on surface-elevated : 16.88:1 - AAA (Normal & Large)
+ * white on surface-hover    : 15.78:1 - AAA (Normal & Large)
+ * 
+ * ───────────────────────────────────────────────────────────────
+ * Usage Guidelines
+ * ───────────────────────────────────────────────────────────────
+ * 
+ * ✅ RECOMMENDED PAIRINGS:
+ * - Body text: white, neutral-50, neutral-100, neutral-200 on any surface-*
+ * - Interactive elements: brand-accent, brand-accent-dark on dark backgrounds
+ * - Status indicators: semantic colors on dark backgrounds
+ * - Headings: brand-secondary, error, info on dark backgrounds (normal text OK)
+ * 
+ * ⚠️  LARGE TEXT ONLY (≥18pt or ≥14pt bold):
+ * - brand-primary on dark backgrounds: 3.78:1
+ *   Use for large headings, hero text, display elements
+ * 
+ * ❌ AVOID:
+ * - neutral-500 and darker on dark backgrounds (insufficient contrast)
+ * - brand-primary on dark for normal text (use large text only)
+ * - Light brand colors (accent, accent-dark) on white backgrounds
+ * 
+ * ═══════════════════════════════════════════════════════════════
+ */
+
 @theme inline {
   /* Brand Colors - mapped to Tailwind utilities */
   --color-brand-primary: rgb(var(--color-brand-primary));
