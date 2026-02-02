@@ -8,9 +8,15 @@
  * - INV-PAY-1: Payment Idempotency
  */
 
+// Mock lib/prisma to use testPrisma BEFORE any imports
+jest.mock('@/lib/prisma', () => {
+  const { testPrisma } = require('../setup/test-database');
+  return { prisma: testPrisma };
+});
+
 import { PrismaClient } from '@prisma/client';
-import { upsertPaymentByExternalId } from '@/lib/payments';
 import { testPrisma, setupTestDatabase, createTestParent } from '../setup/test-database';
+import { upsertPaymentByExternalId } from '@/lib/payments';
 
 const prisma = testPrisma;
 
@@ -20,8 +26,8 @@ describe('Payment Idempotency - Concurrency', () => {
   beforeAll(async () => {
     await setupTestDatabase();
 
-    const parent = await createTestParent({ email: 'payment.idempotency@test.com' });
-    userId = parent.id;
+    const { parentUser } = await createTestParent({ email: 'payment.idempotency@test.com' });
+    userId = parentUser.id;
   });
 
   afterAll(async () => {

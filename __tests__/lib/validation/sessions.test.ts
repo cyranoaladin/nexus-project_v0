@@ -31,14 +31,14 @@ describe('Session Validation Schemas', () => {
     it('should validate correct input', () => {
       expect(() => bookFullSessionSchema.parse(validInput)).not.toThrow();
       const result = bookFullSessionSchema.parse(validInput);
-      expect(result.coachId).toBe('coach-123');
+      expect(result.coachId).toBe('cm4abc123def456ghi789jkl');
       expect(result.subject).toBe('MATHEMATIQUES');
     });
 
     it('should use default values for optional fields', () => {
       const minimalInput = {
-        coachId: 'coach-123',
-        studentId: 'student-456',
+        coachId: 'cm4abc123def456ghi789jkl',
+        studentId: 'cm4xyz789abc456def123ghi',
         subject: 'MATHEMATIQUES',
         scheduledDate: '2026-03-15',
         startTime: '14:00',
@@ -198,42 +198,45 @@ describe('Session Validation Schemas', () => {
   });
 
   describe('cancelSessionSchema', () => {
+    const validSessionId = 'cm4abc123def456ghi789jkl';
+
     it('should validate correct cancellation reason', () => {
       const validInput = {
+        sessionId: validSessionId,
         reason: 'Student is sick'
       };
       expect(() => cancelSessionSchema.parse(validInput)).not.toThrow();
     });
 
     it('should reject empty reason', () => {
-      const emptyReason = { reason: '' };
+      const emptyReason = { sessionId: validSessionId, reason: '' };
       expect(() => cancelSessionSchema.parse(emptyReason)).toThrow(ZodError);
     });
 
     it('should reject missing reason', () => {
-      expect(() => cancelSessionSchema.parse({})).toThrow(ZodError);
+      expect(() => cancelSessionSchema.parse({ sessionId: validSessionId })).toThrow(ZodError);
     });
 
     it('should reject reason too long', () => {
-      const longReason = { reason: 'A'.repeat(501) };
+      const longReason = { sessionId: validSessionId, reason: 'A'.repeat(501) };
       expect(() => cancelSessionSchema.parse(longReason)).toThrow(ZodError);
     });
 
     it('should trim whitespace from reason', () => {
-      const input = { reason: '  Valid reason  ' };
+      const input = { sessionId: validSessionId, reason: '  Valid reason  ' };
       const result = cancelSessionSchema.parse(input);
       expect(result.reason).toBe('Valid reason');
     });
 
     it('should accept reason at max length', () => {
-      const maxLength = { reason: 'A'.repeat(500) };
+      const maxLength = { sessionId: validSessionId, reason: 'A'.repeat(500) };
       expect(() => cancelSessionSchema.parse(maxLength)).not.toThrow();
     });
   });
 
   describe('createSessionSchema', () => {
     const validInput = {
-      coachId: 'coach-123',
+      coachId: 'cm4abc123def456ghi789jkl',
       subject: 'Mathematics',
       scheduledAt: new Date('2026-03-15T14:00:00'),
       duration: 60
