@@ -155,7 +155,8 @@ Create the sign-out button component.
 
 ---
 
-### [ ] Step: Create Sidebar Component
+### [x] Step: Create Sidebar Component
+<!-- chat-id: 1e3d5698-b2b3-43f2-befa-562eb52d3b1d -->
 
 Create the main sidebar navigation server component.
 
