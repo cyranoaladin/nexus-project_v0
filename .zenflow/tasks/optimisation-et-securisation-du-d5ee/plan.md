@@ -20,7 +20,8 @@ Create a Product Requirements Document (PRD) based on the feature description.
 
 Save the PRD to `{@artifacts_path}/requirements.md`.
 
-### [ ] Step: Technical Specification
+### [x] Step: Technical Specification
+<!-- chat-id: 8919e421-5def-4c67-9ed9-c50ce68e6085 -->
 
 Create a technical specification based on the PRD in `{@artifacts_path}/requirements.md`.
 
