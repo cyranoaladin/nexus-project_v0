@@ -127,3 +127,20 @@ jest.mock('gsap/ScrollTrigger', () => ({
     getAll: jest.fn().mockReturnValue([]),
   },
 }));
+
+// Mock Framer Motion
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    motion: new Proxy({}, {
+      get: (target, prop) => {
+        return React.forwardRef((props, ref) => {
+          const { children, initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
+          return React.createElement(prop, { ...rest, ref }, children);
+        });
+      }
+    }),
+    AnimatePresence: ({ children }) => children,
+    useReducedMotion: () => false,
+  };
+});
