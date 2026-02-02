@@ -331,7 +331,8 @@ npm run lint
 
 ---
 
-### [ ] Step 6: Integrate into Coach Dashboard
+### [x] Step 6: Integrate into Coach Dashboard
+<!-- chat-id: 3a58da8e-9807-4400-9d4b-cb859cdbc34a -->
 
 **Objective**: Add session report functionality to coach dashboard
 
