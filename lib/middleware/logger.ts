@@ -1,12 +1,15 @@
 /**
- * Structured Logging Middleware
+ * Structured Logging Middleware (Pino Backend)
  *
  * Provides consistent logging format across API routes with contextual information.
  * Logs include request ID, timestamp, user info, performance metrics, etc.
+ * 
+ * Enhanced with Pino for high-performance structured logging.
  */
 
 import { NextRequest } from 'next/server';
 import { AuthSession } from '@/lib/guards';
+import pino from 'pino';
 
 export enum LogLevel {
   DEBUG = 'debug',
@@ -29,6 +32,26 @@ interface LogContext {
 }
 
 /**
+ * Initialize Pino logger with environment-specific configuration
+ */
+const pinoLogger = pino({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  formatters: {
+    level: (label) => ({ level: label }),
+  },
+  ...(process.env.NODE_ENV !== 'production' && {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:standard',
+        ignore: 'pid,hostname',
+      },
+    },
+  }),
+});
+
+/**
  * Generate unique request ID
  */
 function generateRequestId(): string {
@@ -36,24 +59,12 @@ function generateRequestId(): string {
 }
 
 /**
- * Format log message with context
- */
-function formatLog(level: LogLevel, message: string, context: LogContext): string {
-  const logEntry = {
-    level,
-    message,
-    ...context,
-  };
-
-  return JSON.stringify(logEntry);
-}
-
-/**
- * Logger class for structured logging
+ * Logger class for structured logging (Pino-backed)
  */
 export class Logger {
   private context: LogContext;
   private startTime: number;
+  private logger: pino.Logger;
 
   constructor(request: NextRequest, session?: AuthSession) {
     this.startTime = Date.now();
@@ -67,6 +78,8 @@ export class Logger {
         userRole: session.user.role,
       }),
     };
+    
+    this.logger = pinoLogger.child(this.context);
   }
 
   /**
@@ -74,29 +87,28 @@ export class Logger {
    */
   addContext(key: string, value: unknown): void {
     this.context[key] = value;
+    this.logger = pinoLogger.child(this.context);
   }
 
   /**
    * Log debug message
    */
   debug(message: string, meta?: Record<string, unknown>): void {
-    if (process.env.NODE_ENV === 'production') return; // Skip debug logs in production
-
-    console.log(formatLog(LogLevel.DEBUG, message, { ...this.context, ...meta }));
+    this.logger.debug({ ...meta }, message);
   }
 
   /**
    * Log info message
    */
   info(message: string, meta?: Record<string, unknown>): void {
-    console.log(formatLog(LogLevel.INFO, message, { ...this.context, ...meta }));
+    this.logger.info({ ...meta }, message);
   }
 
   /**
    * Log warning message
    */
   warn(message: string, meta?: Record<string, unknown>): void {
-    console.warn(formatLog(LogLevel.WARN, message, { ...this.context, ...meta }));
+    this.logger.warn({ ...meta }, message);
   }
 
   /**
@@ -104,7 +116,6 @@ export class Logger {
    */
   error(message: string, error?: Error | unknown, meta?: Record<string, unknown>): void {
     const errorContext = {
-      ...this.context,
       ...meta,
       ...(error instanceof Error && {
         error: error.message,
@@ -112,7 +123,7 @@ export class Logger {
       }),
     };
 
-    console.error(formatLog(LogLevel.ERROR, message, errorContext));
+    this.logger.error(errorContext, message);
   }
 
   /**
@@ -122,23 +133,42 @@ export class Logger {
     const duration = Date.now() - this.startTime;
 
     const logContext = {
-      ...this.context,
       statusCode,
       duration,
       ...meta,
     };
 
-    const level = statusCode >= 500 ? LogLevel.ERROR : statusCode >= 400 ? LogLevel.WARN : LogLevel.INFO;
-
     const message = `${this.context.method} ${this.context.path} ${statusCode} - ${duration}ms`;
 
-    if (level === LogLevel.ERROR) {
-      console.error(formatLog(level, message, logContext));
-    } else if (level === LogLevel.WARN) {
-      console.warn(formatLog(level, message, logContext));
+    if (statusCode >= 500) {
+      this.logger.error(logContext, message);
+    } else if (statusCode >= 400) {
+      this.logger.warn(logContext, message);
     } else {
-      console.log(formatLog(level, message, logContext));
+      this.logger.info(logContext, message);
     }
+  }
+
+  /**
+   * Log security event (401, 403, 429)
+   * 
+   * @param event - Type of security event (unauthorized_access, forbidden_access, rate_limit_exceeded)
+   * @param statusCode - HTTP status code (401, 403, 429)
+   * @param meta - Additional metadata (ip, retryAfter, etc.)
+   */
+  logSecurityEvent(event: string, statusCode: number, meta?: Record<string, unknown>): void {
+    const duration = Date.now() - this.startTime;
+
+    const logContext = {
+      event,
+      statusCode,
+      duration,
+      ...meta,
+    };
+
+    const message = `Security event: ${event}`;
+
+    this.logger.warn(logContext, message);
   }
 
   /**
