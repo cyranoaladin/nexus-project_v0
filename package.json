@@ -63,7 +63,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/nodemailer": "^6.4.17",
+    "@types/nodemailer": "^7.0.9",
     "@types/pg": "^8.15.5",
     "@types/three": "^0.182.0",
     "bcryptjs": "^3.0.2",
