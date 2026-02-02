@@ -114,29 +114,30 @@ Update `app/globals.css` to define all theme tokens as CSS custom properties.
 
 ---
 
-### [ ] Step: Configure Tailwind @theme Directive
+### [x] Step: Configure Tailwind @theme Directive
+<!-- chat-id: 540a5d40-073e-439c-b8b5-057646921d3a -->
 
 Update `app/globals.css` to expose CSS variables to Tailwind utilities using `@theme inline`.
 
 **Tasks:**
-- [ ] Map brand colors to Tailwind utilities:
+- [x] Map brand colors to Tailwind utilities:
   - `--color-brand-primary: rgb(var(--color-brand-primary));`
   - `--color-brand-secondary: rgb(var(--color-brand-secondary));`
   - `--color-brand-accent: rgb(var(--color-brand-accent));`
   - `--color-brand-accent-dark: rgb(var(--color-brand-accent-dark));`
-- [ ] Map semantic colors (success, warning, error, info)
-- [ ] Map neutral scale (neutral-50 through neutral-950)
-- [ ] Map surface colors (dark, darker, card, elevated, hover)
-- [ ] Map font families:
+- [x] Map semantic colors (success, warning, error, info)
+- [x] Map neutral scale (neutral-50 through neutral-950)
+- [x] Map surface colors (dark, darker, card, elevated, hover)
+- [x] Map font families:
   - `--font-sans: var(--font-inter), Inter, system-ui, sans-serif;`
   - `--font-display: var(--font-space), "Space Grotesk", sans-serif;`
   - `--font-mono: var(--font-mono), "IBM Plex Mono", monospace;`
 
 **Verification:**
-- `@theme inline` block properly formatted
-- Colors use `rgb(var(--color-*))` format for opacity support
-- Font families reference Next.js font variables
-- Build succeeds: `npm run build`
+- ✓ `@theme inline` block properly formatted
+- ✓ Colors use `rgb(var(--color-*))` format for opacity support
+- ✓ Font families reference Next.js font variables
+- ✓ Dev server compiles successfully
 
 **Reference:** spec.md section 3.2
 
