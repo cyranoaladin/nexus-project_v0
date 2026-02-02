@@ -52,6 +52,12 @@ const pinoLogger = pino({
 });
 
 /**
+ * Default logger instance for use outside request context
+ * (e.g., in NextAuth callbacks, startup scripts)
+ */
+export const logger = pinoLogger;
+
+/**
  * Generate unique request ID
  */
 function generateRequestId(): string {
