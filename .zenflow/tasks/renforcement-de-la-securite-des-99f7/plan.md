@@ -206,34 +206,60 @@ npm run lint       # ✅ PASSED
 
 ---
 
-### [ ] Step: Write Integration Tests for Rate Limiting
+### [x] Step: Write Integration Tests for Rate Limiting
+<!-- chat-id: a84a1660-f23c-46c3-9bac-dfc771cc1862 -->
 
 **Goal**: Automated tests to verify rate limiting works correctly (429 response validation)
 
 **Tasks**:
-- [ ] Create test file `__tests__/middleware/rate-limit-integration.test.ts`
-- [ ] Test case: ARIA chat within limit returns 200 OK
-- [ ] Test case: ARIA chat exceeding limit returns 429
-- [ ] Test case: Auth callback exceeding limit returns 429
-- [ ] Test case: Rate limit headers present in all responses
-- [ ] Test case: Rate limit resets after time window
-- [ ] Test case: Different IPs have separate rate limits
-- [ ] Run integration tests to verify all pass
+- [x] Create test file `__tests__/middleware/rate-limit-integration.test.ts`
+- [x] Test case: ARIA chat within limit returns 200 OK
+- [x] Test case: ARIA chat exceeding limit returns 429
+- [x] Test case: Auth callback exceeding limit returns 429
+- [x] Test case: Rate limit headers present in all responses
+- [x] Test case: Rate limit resets after time window
+- [x] Test case: Different IPs have separate rate limits
+- [x] Run integration tests to verify all pass
+- [x] Fix rate limiter to properly include headers in response
+- [x] Update jest configuration to include middleware tests
+- [x] Enhance NextResponse mock to properly handle headers
 
-**Files to create**:
-- `__tests__/middleware/rate-limit-integration.test.ts`
+**Files created/modified**:
+- `__tests__/middleware/rate-limit-integration.test.ts` - Created comprehensive integration tests
+- `jest.config.integration.js` - Added middleware test directory to testMatch
+- `jest.setup.integration.js` - Enhanced NextResponse mock with header support
+- `lib/api/errors.ts` - Added headers parameter to errorResponse function
+- `lib/middleware/rateLimit.ts` - Fixed rate limiter to pass headers to errorResponse
 
 **Verification**:
 ```bash
-npm run test:integration
-# Verify new tests pass
+npm run test:integration -- __tests__/middleware/rate-limit-integration.test.ts
+npm run typecheck
+npm run lint
 ```
 
 **Acceptance Criteria**:
 - ✅ Integration test validates 429 response (required by PRD)
 - ✅ All rate limiting scenarios covered
 - ✅ Tests use mocked NextRequest with different IPs
-- ✅ All tests pass
+- ✅ All 14 tests pass
+- ✅ Rate limit headers properly included in 429 responses
+- ✅ TypeScript type checking passes
+- ✅ ESLint passes (no new warnings)
+
+**Verification Results**:
+```
+[2026-02-02] npm run test:integration: ✅ PASSED (14 tests, Exit Code: 0)
+[2026-02-02] npm run typecheck: ✅ PASSED (Exit Code: 0)
+[2026-02-02] npm run lint: ✅ PASSED (Exit Code: 0, pre-existing warnings only)
+```
+
+**Test Coverage**:
+- ARIA Chat endpoint (10 req/min): Allow within limit, return 429 when exceeded, verify headers, separate IPs
+- ARIA Feedback endpoint (100 req/min): Allow within limit, return 429 after 100 requests
+- Auth Callback endpoint (5 req/15min): Allow within limit, return 429 after 5 attempts, verify headers, separate IPs
+- Rate limit reset: Verify limits reset after time window expires
+- Response body: Verify error structure includes error code, message, and retryAfter details
 
 **References**: spec.md Phase 5, Section 6.1
 
