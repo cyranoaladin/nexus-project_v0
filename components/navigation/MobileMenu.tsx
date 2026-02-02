@@ -9,6 +9,8 @@ import { LogoutButton } from './LogoutButton';
 import type { NavigationItem } from './navigation-config';
 import { cn } from '@/lib/utils';
 
+const FOCUSABLE_ELEMENTS = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 interface MobileMenuContextValue {
   isOpen: boolean;
   open: () => void;
@@ -71,6 +73,7 @@ export interface MobileMenuProps {
 export function MobileMenu({ items, user }: MobileMenuProps) {
   const { isOpen, close } = useMobileMenu();
   const menuRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -98,6 +101,43 @@ export function MobileMenu({ items, user }: MobileMenuProps) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, close]);
+
+  useEffect(() => {
+    if (isOpen && menuRef.current) {
+      previouslyFocusedElement.current = document.activeElement as HTMLElement;
+      
+      const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENTS);
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (firstElement) {
+        firstElement.focus();
+      }
+
+      const handleTabKey = (event: KeyboardEvent) => {
+        if (event.key !== 'Tab') return;
+
+        if (event.shiftKey) {
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleTabKey);
+
+      return () => {
+        document.removeEventListener('keydown', handleTabKey);
+        previouslyFocusedElement.current?.focus();
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -137,7 +177,7 @@ export function MobileMenu({ items, user }: MobileMenuProps) {
               <UserProfile user={user} />
             </div>
 
-            <nav className="px-4 pb-4">
+            <nav className="px-4 pb-4" aria-label="Navigation mobile">
               <ul className="space-y-1">
                 {items.map((item) => (
                   <li key={item.href}>

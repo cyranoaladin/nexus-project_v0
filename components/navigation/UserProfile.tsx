@@ -24,10 +24,10 @@ export default function UserProfile({ user }: UserProfileProps) {
   const roleLabel = roleLabels[user.role];
 
   return (
-    <div className="mx-4 mb-6 rounded-card bg-surface-elevated p-4">
+    <div className="mx-4 mb-6 rounded-card bg-surface-elevated p-4" role="region" aria-label="Profil utilisateur">
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={undefined} alt={fullName} />
+          <AvatarImage src={undefined} alt={`Photo de profil de ${fullName}`} />
           <AvatarFallback className="bg-brand-primary text-white font-semibold">
             {initials}
           </AvatarFallback>
@@ -37,7 +37,7 @@ export default function UserProfile({ user }: UserProfileProps) {
           <p className="text-sm font-semibold text-neutral-50 truncate">
             {fullName}
           </p>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-micro text-xs font-medium bg-brand-accent/10 text-brand-accent">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-micro text-xs font-medium bg-brand-accent/10 text-brand-accent" aria-label={`Rôle : ${roleLabel}`}>
             {roleLabel}
           </span>
         </div>
