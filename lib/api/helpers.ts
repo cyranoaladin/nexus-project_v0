@@ -7,6 +7,8 @@
 import { NextRequest } from 'next/server';
 import { ApiError } from './errors';
 import { ZodSchema } from 'zod';
+import { createRequestLogger } from '@/lib/logger';
+import type { Logger } from 'pino';
 
 /**
  * Safe JSON parsing from request body
@@ -191,4 +193,49 @@ export function assertOwnership(
   if (sessionUserId !== resourceUserId) {
     throw ApiError.forbidden(message);
   }
+}
+
+/**
+ * Generate unique request ID for tracing
+ *
+ * Creates a UUID v4 for request correlation across logs.
+ *
+ * @returns UUID string
+ *
+ * @example
+ * ```ts
+ * const requestId = generateRequestId();
+ * ```
+ */
+export function generateRequestId(): string {
+  return crypto.randomUUID();
+}
+
+/**
+ * Log incoming API request and create request-scoped logger
+ *
+ * Creates a child logger with request context for tracing.
+ *
+ * @param method - HTTP method (GET, POST, etc.)
+ * @param path - Request path
+ * @param requestId - Unique request identifier
+ * @param userId - Optional authenticated user ID
+ * @returns Pino logger instance with request context
+ *
+ * @example
+ * ```ts
+ * const requestId = generateRequestId();
+ * const reqLogger = logRequest('POST', '/api/users', requestId, session?.user?.id);
+ * reqLogger.info('Processing user creation');
+ * ```
+ */
+export function logRequest(
+  method: string,
+  path: string,
+  requestId: string,
+  userId?: string
+): Logger {
+  const reqLogger = createRequestLogger({ requestId, method, path, userId });
+  reqLogger.info({ event: 'request' }, 'Incoming request');
+  return reqLogger;
 }

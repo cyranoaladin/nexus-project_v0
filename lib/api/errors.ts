@@ -7,6 +7,8 @@
 
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
+import { logger } from '@/lib/logger';
+import type pino from 'pino';
 
 /**
  * Standard HTTP Status Codes
@@ -189,6 +191,7 @@ export function handleZodError(error: ZodError): NextResponse<ApiErrorResponse> 
  *
  * @param error - Any error thrown in API route
  * @param context - Optional context for logging (e.g., endpoint name)
+ * @param requestLogger - Optional request-scoped logger with context
  *
  * @example
  * ```ts
@@ -201,24 +204,56 @@ export function handleZodError(error: ZodError): NextResponse<ApiErrorResponse> 
  * }
  * ```
  */
-export function handleApiError(error: unknown, context?: string): NextResponse<ApiErrorResponse> {
-  // Log error server-side (sanitized)
-  const logPrefix = context ? `[${context}]` : '[API Error]';
+export function handleApiError(
+  error: unknown,
+  context?: string,
+  requestLogger?: pino.Logger
+): NextResponse<ApiErrorResponse> {
+  const log = requestLogger || logger;
 
   if (error instanceof ApiError) {
     // ApiError is expected, log at warn level
-    console.warn(`${logPrefix} ${error.code}:`, error.message);
+    log.warn(
+      {
+        errorCode: error.code,
+        statusCode: error.statusCode,
+        message: error.message,
+        details: error.details,
+        context,
+      },
+      `API Error: ${error.code}`
+    );
     return error.toResponse();
   }
 
   if (error instanceof ZodError) {
     // Validation error, log at warn level
-    console.warn(`${logPrefix} Validation error:`, error.errors);
+    log.warn(
+      {
+        errorCode: ErrorCode.VALIDATION_ERROR,
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        validationErrors: error.errors,
+        context,
+      },
+      'Validation error'
+    );
     return handleZodError(error);
   }
 
   // Unexpected error, log at error level (but don't expose details to client)
-  console.error(`${logPrefix} Unexpected error:`, error instanceof Error ? error.message : 'Unknown error');
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  const errorStack = error instanceof Error ? error.stack : undefined;
+
+  log.error(
+    {
+      errorCode: ErrorCode.INTERNAL_ERROR,
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: errorMessage,
+      stack: errorStack,
+      context,
+    },
+    'Unexpected error'
+  );
 
   // SECURITY: Never expose internal error details to client
   return errorResponse(
