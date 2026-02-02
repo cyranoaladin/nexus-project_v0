@@ -275,24 +275,33 @@ Add tests to ensure deprecated variables are preserved.
 
 ---
 
-### [ ] Step: Document WCAG Color Pairings
+### [x] Step: Document WCAG Color Pairings
+<!-- chat-id: e65298bd-d940-4b7a-a244-780489cdfbc3 -->
 
 Calculate and document approved color combinations with contrast ratios.
 
 **Tasks:**
-- [ ] Calculate contrast ratios for all primary text/background combinations
-- [ ] Create documentation comment block in `app/globals.css`:
+- [x] Calculate contrast ratios for all primary text/background combinations
+- [x] Create documentation comment block in `app/globals.css`:
   - List approved color pairings
   - Show contrast ratios
   - Mark combinations that meet AA/AAA standards
-- [ ] Add inline comments for accessibility notes
-- [ ] If any combination fails, adjust color lightness
-- [ ] Update settings.json if colors are adjusted
+- [x] Add inline comments for accessibility notes
+- [x] If any combination fails, adjust color lightness
+- [x] Update settings.json if colors are adjusted
 
 **Verification:**
-- All documented combinations meet WCAG AA (≥4.5:1 normal text, ≥3:1 large text)
-- Documentation clear and accurate
-- No contrast failures in tests
+- ✅ All documented combinations meet WCAG AA (≥4.5:1 normal text, ≥3:1 large text)
+- ✅ Documentation clear and accurate (added comprehensive comment block in globals.css)
+- ✅ No contrast failures in tests (36/36 tests passing)
+- ✅ Dev server starts successfully with no CSS errors
+- ✅ All color pairings calculated and documented with ratios
+- ✅ Usage guidelines added for recommended, cautioned, and avoided pairings
+
+**Notes:**
+- brand-primary on dark backgrounds: 3.78:1 - meets AA for large text only (≥18pt)
+- All other primary combinations exceed AA standards for normal text
+- No color adjustments needed - all combinations meet or exceed requirements
 
 **Reference:** spec.md Phase 3, requirements.md section 2.5.1
 
