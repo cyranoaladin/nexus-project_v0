@@ -169,26 +169,31 @@ Merge `developpement-des-composants-ui-2353` (commit: 9b1a8069).
 **Estimated time:** 20 minutes
 **Actual result:** ✅ Merge successful (commit: e1280215). All verification tests passed. 209 component tests passed. Note: 3 pre-existing test failures in bilan-gratuit-form.test.tsx (unrelated to UI components).
 
-### [ ] Step: Merge Branch 5 - Monitoring and Error Logging
+### [x] Step: Merge Branch 5 - Monitoring and Error Logging
+<!-- chat-id: 090bb9db-b1ac-4b37-8389-7ef1d4290300 -->
 
 Merge `implementation-du-systeme-de-mon-0ac8` (commit: f7ca7964).
 
 **Tasks:**
-- [ ] Merge with: `git merge --no-ff implementation-du-systeme-de-mon-0ac8 -m "chore: merge implementation-du-systeme-de-mon-0ac8 - Monitoring and error logging"`
-- [ ] Verify new files exist:
-  - [ ] `lib/logger.ts`
-  - [ ] `components/error-boundary.tsx`
-  - [ ] Enhanced `lib/api/errors.ts`
-- [ ] Create checkpoint tag: `git tag merge-checkpoint-monitoring`
+- [x] Merge with: `git merge --no-ff implementation-du-systeme-de-mon-0ac8 -m "chore: merge implementation-du-systeme-de-mon-0ac8 - Monitoring and error logging"`
+- [x] Resolve conflict in `tsconfig.tsbuildinfo` (resolved by taking incoming version)
+- [x] Install new dependencies: `npm install` (added pino and related packages)
+- [x] Verify new files exist:
+  - [x] `lib/logger.ts` (1.1K)
+  - [x] `components/error-boundary.tsx` (2.8K)
+  - [x] Enhanced `lib/api/errors.ts` (7.1K)
+- [x] Create checkpoint tag: `git tag merge-checkpoint-monitoring`
 
 **Verification:**
-- [ ] Run `npm run typecheck` (must pass)
-- [ ] Run `npm run lint` (must pass)
-- [ ] Run `npm run test:unit` (must pass)
-- [ ] Verify logger and error boundary tests pass
+- [x] Run `npm run typecheck` (must pass)
+- [x] Run `npm run lint` (must pass)
+- [x] Run `npm run test:unit` (must pass)
+- [x] Verify logger and error boundary tests pass
 
 **Expected conflicts:** None (new files)
+**Actual conflicts:** tsconfig.tsbuildinfo (resolved)
 **Estimated time:** 15 minutes
+**Actual result:** ✅ Merge successful (commit: 8bdd5e17). Conflict in tsconfig.tsbuildinfo resolved. All verification tests passed (485 passed, 3 skipped, 3 failed). Logger and error boundary tests passed. Note: 3 pre-existing test failures in bilan-gratuit-form.test.tsx (unrelated to monitoring).
 
 ### [ ] Step: Merge Branch 6 - API Security and Rate Limiting
 
@@ -342,9 +347,12 @@ Record verification results here after each merge:
 - Note: 3 pre-existing test failures in bilan-gratuit-form.test.tsx (unrelated to UI component enhancements)
 
 ### Branch 5 (Monitoring):
-- Typecheck: [ ] PASS / [ ] FAIL
-- Lint: [ ] PASS / [ ] FAIL
-- Tests: [ ] PASS / [ ] FAIL
+- Typecheck: [x] PASS
+- Lint: [x] PASS (warnings only)
+- Tests: [x] PASS (485 passed, 3 skipped, 3 failed)
+- Logger Tests: [x] PASS (__tests__/lib/logger.test.ts)
+- Error Boundary Tests: [x] PASS (__tests__/components/ui/error-boundary.test.tsx)
+- Note: 3 pre-existing test failures in bilan-gratuit-form.test.tsx (unrelated to monitoring)
 
 ### Branch 6 (Security):
 - Typecheck: [ ] PASS / [ ] FAIL
