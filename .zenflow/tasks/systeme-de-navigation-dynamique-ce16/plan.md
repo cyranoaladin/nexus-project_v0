@@ -247,7 +247,8 @@ Create the mobile overlay menu with slide-in animation.
 
 ---
 
-### [ ] Step: Connect MobileMenu to Navbar
+### [x] Step: Connect MobileMenu to Navbar
+<!-- chat-id: c2bea512-23d8-4536-a121-1ca7867d5583 -->
 
 Integrate mobile menu toggle functionality between Navbar and MobileMenu.
 
