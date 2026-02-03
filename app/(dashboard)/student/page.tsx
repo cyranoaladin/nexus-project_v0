@@ -9,6 +9,8 @@ import { StudentCalendarWrapper } from '@/components/ui/student-calendar-wrapper
 import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 interface DashboardData {
   student: {
     id: string;

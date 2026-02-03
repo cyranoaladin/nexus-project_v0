@@ -75,6 +75,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error('Failed to fetch student credits', error);
     logger.logRequest(500);
-    return handleApiError(error, 'GET /api/student/credits');
+    return await handleApiError(error, 'GET /api/student/credits');
   }
 }
