@@ -323,7 +323,8 @@ Create Playwright E2E test infrastructure for student dashboard.
 
 ---
 
-### [ ] Step: E2E Test - ARIA Interaction
+### [x] Step: E2E Test - ARIA Interaction
+<!-- chat-id: 4cc7b423-eb71-4d68-a156-67d6393a6c2d -->
 
 Write E2E test for student asking ARIA a question with streaming response.
 
