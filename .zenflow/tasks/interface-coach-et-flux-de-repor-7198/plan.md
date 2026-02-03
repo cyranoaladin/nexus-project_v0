@@ -387,7 +387,7 @@ npm run dev  # Test in browser as coach user
 
 ---
 
-### [ ] Step 7: Add Email Notification Template and Service
+### [x] Step 7: Add Email Notification Template and Service
 <!-- chat-id: 3d8ccd4f-fb77-4756-bc81-b763b276ad35 -->
 
 **Objective**: Create email template and sending function for parent notifications
