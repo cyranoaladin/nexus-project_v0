@@ -43,5 +43,8 @@ export default defineConfig({
     command: 'npm run dev',
     url: baseURL,
     reuseExistingServer: process.env.REUSE_EXISTING_SERVER === 'true' || !process.env.CI,
+    env: {
+      DISABLE_MIDDLEWARE: 'true',
+    },
   },
 });

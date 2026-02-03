@@ -12,9 +12,9 @@ import type pino from 'pino';
 // Lazy import logger to avoid loading Pino in Edge runtime (middleware)
 // Only load when actually needed (in handleApiError)
 let _logger: pino.Logger | null = null;
-function getLogger(): pino.Logger {
+async function getLogger(): Promise<pino.Logger> {
   if (!_logger) {
-    const { logger } = require('@/lib/logger');
+    const { logger } = await import('@/lib/logger');
     _logger = logger;
   }
   return _logger!;
@@ -216,12 +216,12 @@ export function handleZodError(error: ZodError): NextResponse<ApiErrorResponse> 
  * }
  * ```
  */
-export function handleApiError(
+export async function handleApiError(
   error: unknown,
   context?: string,
   requestLogger?: pino.Logger
-): NextResponse<ApiErrorResponse> {
-  const log = requestLogger || getLogger();
+): Promise<NextResponse<ApiErrorResponse>> {
+  const log = requestLogger || await getLogger();
 
   if (error instanceof ApiError) {
     // ApiError is expected, log at warn level
