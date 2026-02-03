@@ -1,0 +1,1441 @@
+{
+  "parent": {
+    "id": "parent-test-001",
+    "email": "parent.dashboard@test.com",
+    "password": "password123",
+    "role": "PARENT",
+    "firstName": "Marie",
+    "lastName": "Dupont",
+    "phone": "+216 20 123 456",
+    "parentProfile": {
+      "id": "parent-profile-001",
+      "address": "12 Rue de la République",
+      "city": "Tunis",
+      "country": "Tunisie"
+    }
+  },
+  "children": [
+    {
+      "id": "student-test-001",
+      "email": "yasmine.dupont@test.com",
+      "password": "password123",
+      "role": "ELEVE",
+      "firstName": "Yasmine",
+      "lastName": "Dupont",
+      "studentProfile": {
+        "id": "student-profile-001",
+        "grade": "Terminale",
+        "school": "Lycée Pilote Ariana",
+        "birthDate": "2007-04-15"
+      },
+      "student": {
+        "id": "student-001",
+        "grade": "Terminale",
+        "school": "Lycée Pilote Ariana",
+        "credits": 8,
+        "totalSessions": 24,
+        "completedSessions": 18,
+        "subscription": {
+          "planName": "IMMERSION",
+          "monthlyPrice": 600,
+          "creditsPerMonth": 12,
+          "status": "ACTIVE",
+          "startDate": "2025-11-01",
+          "endDate": "2026-11-01",
+          "ariaSubjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI"],
+          "ariaCost": 120
+        }
+      }
+    },
+    {
+      "id": "student-test-002",
+      "email": "karim.dupont@test.com",
+      "password": "password123",
+      "role": "ELEVE",
+      "firstName": "Karim",
+      "lastName": "Dupont",
+      "studentProfile": {
+        "id": "student-profile-002",
+        "grade": "Première",
+        "school": "Lycée Pilote Ariana",
+        "birthDate": "2008-09-22"
+      },
+      "student": {
+        "id": "student-002",
+        "grade": "Première",
+        "school": "Lycée Pilote Ariana",
+        "credits": 5,
+        "totalSessions": 16,
+        "completedSessions": 12,
+        "subscription": {
+          "planName": "HYBRIDE",
+          "monthlyPrice": 400,
+          "creditsPerMonth": 8,
+          "status": "ACTIVE",
+          "startDate": "2025-11-01",
+          "endDate": "2026-11-01",
+          "ariaSubjects": ["MATHEMATIQUES", "FRANCAIS"],
+          "ariaCost": 80
+        }
+      }
+    }
+  ],
+  "coaches": [
+    {
+      "id": "coach-test-001",
+      "email": "helios@test.com",
+      "password": "password123",
+      "role": "COACH",
+      "firstName": "Alexandre",
+      "lastName": "Martin",
+      "coachProfile": {
+        "id": "coach-profile-001",
+        "title": "Agrégé",
+        "pseudonym": "Hélios",
+        "tag": "🎓 Agrégé",
+        "description": "Expert en mathématiques et physique",
+        "philosophy": "L'apprentissage par la compréhension profonde",
+        "subjects": "[\"MATHEMATIQUES\", \"PHYSIQUE_CHIMIE\", \"NSI\"]"
+      }
+    },
+    {
+      "id": "coach-test-002",
+      "email": "zenon@test.com",
+      "password": "password123",
+      "role": "COACH",
+      "firstName": "Sophie",
+      "lastName": "Bernard",
+      "coachProfile": {
+        "id": "coach-profile-002",
+        "title": "Certifiée",
+        "pseudonym": "Zénon",
+        "tag": "🎯 Stratège",
+        "description": "Spécialiste français et philosophie",
+        "philosophy": "La réflexion critique avant tout",
+        "subjects": "[\"FRANCAIS\", \"PHILOSOPHIE\", \"HISTOIRE_GEO\"]"
+      }
+    }
+  ],
+  "badges": [
+    {
+      "id": "badge-001",
+      "name": "Premier Pas",
+      "description": "Première session complétée avec succès",
+      "category": "ASSIDUITE",
+      "icon": "🎯",
+      "condition": "Complete first session"
+    },
+    {
+      "id": "badge-002",
+      "name": "Régularité Bronze",
+      "description": "5 sessions complétées",
+      "category": "ASSIDUITE",
+      "icon": "🥉",
+      "condition": "Complete 5 sessions"
+    },
+    {
+      "id": "badge-003",
+      "name": "Régularité Argent",
+      "description": "10 sessions complétées",
+      "category": "ASSIDUITE",
+      "icon": "🥈",
+      "condition": "Complete 10 sessions"
+    },
+    {
+      "id": "badge-004",
+      "name": "Régularité Or",
+      "description": "20 sessions complétées",
+      "category": "ASSIDUITE",
+      "icon": "🥇",
+      "condition": "Complete 20 sessions"
+    },
+    {
+      "id": "badge-005",
+      "name": "Présence Parfaite",
+      "description": "Aucune absence pendant un mois",
+      "category": "ASSIDUITE",
+      "icon": "⭐",
+      "condition": "Perfect attendance for 30 days"
+    },
+    {
+      "id": "badge-006",
+      "name": "Progression Rapide",
+      "description": "Amélioration de 20% en un mois",
+      "category": "PROGRESSION",
+      "icon": "📈",
+      "condition": "20% improvement in one month"
+    },
+    {
+      "id": "badge-007",
+      "name": "Mathématicien",
+      "description": "Excellence en mathématiques",
+      "category": "PROGRESSION",
+      "icon": "🔢",
+      "condition": "High performance in mathematics"
+    },
+    {
+      "id": "badge-008",
+      "name": "Scientifique",
+      "description": "Excellence en sciences",
+      "category": "PROGRESSION",
+      "icon": "🔬",
+      "condition": "High performance in sciences"
+    },
+    {
+      "id": "badge-009",
+      "name": "Littéraire",
+      "description": "Excellence en français",
+      "category": "PROGRESSION",
+      "icon": "📚",
+      "condition": "High performance in literature"
+    },
+    {
+      "id": "badge-010",
+      "name": "Progrès Constant",
+      "description": "Progression sur 3 mois consécutifs",
+      "category": "PROGRESSION",
+      "icon": "📊",
+      "condition": "Consistent progress for 3 months"
+    },
+    {
+      "id": "badge-011",
+      "name": "Question Pertinente",
+      "description": "Première question posée à ARIA",
+      "category": "CURIOSITE",
+      "icon": "❓",
+      "condition": "Ask first question to ARIA"
+    },
+    {
+      "id": "badge-012",
+      "name": "Explorateur",
+      "description": "10 conversations ARIA",
+      "category": "CURIOSITE",
+      "icon": "🧭",
+      "condition": "Complete 10 ARIA conversations"
+    },
+    {
+      "id": "badge-013",
+      "name": "Chercheur",
+      "description": "50 questions posées à ARIA",
+      "category": "CURIOSITE",
+      "icon": "🔍",
+      "condition": "Ask 50 questions to ARIA"
+    },
+    {
+      "id": "badge-014",
+      "name": "Multidisciplinaire",
+      "description": "Sessions dans 3 matières différentes",
+      "category": "CURIOSITE",
+      "icon": "🌟",
+      "condition": "Sessions in 3 different subjects"
+    },
+    {
+      "id": "badge-015",
+      "name": "Esprit Critique",
+      "description": "Feedback constructif donné",
+      "category": "CURIOSITE",
+      "icon": "💡",
+      "condition": "Provide constructive feedback"
+    },
+    {
+      "id": "badge-016",
+      "name": "Assidu de la Semaine",
+      "description": "Toutes les sessions de la semaine complétées",
+      "category": "ASSIDUITE",
+      "icon": "🏆",
+      "condition": "Complete all weekly sessions"
+    },
+    {
+      "id": "badge-017",
+      "name": "Progresseur du Mois",
+      "description": "Plus grande progression du mois",
+      "category": "PROGRESSION",
+      "icon": "🚀",
+      "condition": "Highest monthly progress"
+    },
+    {
+      "id": "badge-018",
+      "name": "Penseur Créatif",
+      "description": "Réponses créatives en philosophie",
+      "category": "CURIOSITE",
+      "icon": "🎨",
+      "condition": "Creative answers in philosophy"
+    }
+  ],
+  "studentBadges": [
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-001",
+      "earnedAt": "2025-11-15T10:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-002",
+      "earnedAt": "2025-12-05T14:20:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-003",
+      "earnedAt": "2025-12-28T09:15:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-004",
+      "earnedAt": "2026-01-20T11:45:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-006",
+      "earnedAt": "2025-12-01T16:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-007",
+      "earnedAt": "2025-12-15T10:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-008",
+      "earnedAt": "2026-01-10T14:20:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-011",
+      "earnedAt": "2025-11-18T13:45:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-012",
+      "earnedAt": "2025-12-20T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-014",
+      "earnedAt": "2026-01-05T09:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-016",
+      "earnedAt": "2026-01-28T18:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "badgeId": "badge-017",
+      "earnedAt": "2026-02-01T12:00:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-001",
+      "earnedAt": "2025-11-20T11:00:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-002",
+      "earnedAt": "2025-12-10T13:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-003",
+      "earnedAt": "2026-01-15T10:45:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-009",
+      "earnedAt": "2025-12-18T14:00:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-011",
+      "earnedAt": "2025-11-25T16:15:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-015",
+      "earnedAt": "2026-01-22T11:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "badgeId": "badge-018",
+      "earnedAt": "2026-01-30T15:45:00Z"
+    }
+  ],
+  "sessions": [
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Algèbre - Équations du second degré",
+      "description": "Révision des équations du second degré",
+      "scheduledDate": "2025-11-05",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-05T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Mécanique - Forces et mouvements",
+      "description": "Étude des forces et mouvements",
+      "scheduledDate": "2025-11-08",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-08T11:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Fonctions - Dérivées",
+      "description": "Calcul de dérivées",
+      "scheduledDate": "2025-11-12",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-12T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "NSI",
+      "title": "Algorithmes - Tri",
+      "description": "Algorithmes de tri",
+      "scheduledDate": "2025-11-15",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-11-15T17:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Suites numériques",
+      "description": "Étude des suites",
+      "scheduledDate": "2025-11-19",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-19T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Électricité - Circuits",
+      "description": "Analyse de circuits électriques",
+      "scheduledDate": "2025-11-22",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-22T11:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Intégrales",
+      "description": "Calcul intégral",
+      "scheduledDate": "2025-11-26",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-26T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Probabilités",
+      "description": "Lois de probabilité",
+      "scheduledDate": "2025-11-29",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-29T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "NSI",
+      "title": "Bases de données",
+      "description": "SQL et bases relationnelles",
+      "scheduledDate": "2025-12-03",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-12-03T17:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Géométrie dans l'espace",
+      "description": "Étude géométrique 3D",
+      "scheduledDate": "2025-12-06",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-06T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Ondes et vibrations",
+      "description": "Physique des ondes",
+      "scheduledDate": "2025-12-10",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-10T11:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Fonctions exponentielles",
+      "description": "Étude de l'exponentielle",
+      "scheduledDate": "2025-12-13",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-13T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Logarithmes",
+      "description": "Fonction logarithme",
+      "scheduledDate": "2025-12-17",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-17T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "NSI",
+      "title": "Programmation orientée objet",
+      "description": "POO en Python",
+      "scheduledDate": "2025-12-20",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-20T17:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Nombres complexes",
+      "description": "Introduction aux complexes",
+      "scheduledDate": "2026-01-07",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2026-01-07T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Thermodynamique",
+      "description": "Principes thermodynamiques",
+      "scheduledDate": "2026-01-10",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2026-01-10T11:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Équations différentielles",
+      "description": "Résolution d'équations différentielles",
+      "scheduledDate": "2026-01-14",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2026-01-14T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Révision BAC - Analyse",
+      "description": "Préparation analyse",
+      "scheduledDate": "2026-01-17",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2026-01-17T15:30:00Z"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Préparation examen blanc",
+      "description": "Entraînement examen",
+      "scheduledDate": "2026-01-21",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Révision BAC - Physique",
+      "description": "Préparation physique",
+      "scheduledDate": "2026-01-24",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "NSI",
+      "title": "Projet final NSI",
+      "description": "Accompagnement projet",
+      "scheduledDate": "2026-01-28",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Session intensive - Géométrie",
+      "description": "Géométrie approfondie",
+      "scheduledDate": "2026-01-31",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Préparation concours",
+      "description": "Préparation aux concours",
+      "scheduledDate": "2026-02-04",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-001",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "PHYSIQUE_CHIMIE",
+      "title": "Chimie organique",
+      "description": "Étude chimie organique",
+      "scheduledDate": "2026-02-07",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Dissertation - Méthodologie",
+      "description": "Méthodologie de dissertation",
+      "scheduledDate": "2025-11-06",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-06T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Fonctions - Généralités",
+      "description": "Introduction aux fonctions",
+      "scheduledDate": "2025-11-09",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-11-09T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Analyse de texte",
+      "description": "Commentaire de texte",
+      "scheduledDate": "2025-11-13",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-13T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Équations et inéquations",
+      "description": "Résolution d'équations",
+      "scheduledDate": "2025-11-16",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-11-16T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Grammaire - Analyse",
+      "description": "Analyse grammaticale",
+      "scheduledDate": "2025-11-20",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-20T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Vecteurs et géométrie",
+      "description": "Géométrie vectorielle",
+      "scheduledDate": "2025-11-23",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-23T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Littérature - Roman",
+      "description": "Étude du roman",
+      "scheduledDate": "2025-11-27",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-11-27T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Probabilités - Introduction",
+      "description": "Bases de probabilités",
+      "scheduledDate": "2025-11-30",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-11-30T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Poésie - Analyse",
+      "description": "Analyse poétique",
+      "scheduledDate": "2025-12-04",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-04T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Fonctions affines",
+      "description": "Étude fonctions affines",
+      "scheduledDate": "2025-12-07",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 4,
+      "completedAt": "2025-12-07T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Théâtre - Molière",
+      "description": "Étude de Molière",
+      "scheduledDate": "2025-12-11",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-11T16:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Statistiques",
+      "description": "Bases de statistiques",
+      "scheduledDate": "2025-12-14",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "COMPLETED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE",
+      "rating": 5,
+      "completedAt": "2025-12-14T14:30:00Z"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Révision trimestrielle",
+      "description": "Révisions générales",
+      "scheduledDate": "2026-01-08",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Préparation examen",
+      "description": "Entraînement examen",
+      "scheduledDate": "2026-01-11",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-001",
+      "parentId": "parent-test-001",
+      "subject": "MATHEMATIQUES",
+      "title": "Géométrie plane",
+      "description": "Étude géométrique",
+      "scheduledDate": "2026-01-15",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    },
+    {
+      "studentId": "student-test-002",
+      "coachId": "coach-test-002",
+      "parentId": "parent-test-001",
+      "subject": "FRANCAIS",
+      "title": "Argumentation",
+      "description": "Techniques d'argumentation",
+      "scheduledDate": "2026-01-18",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "duration": 90,
+      "status": "SCHEDULED",
+      "creditsUsed": 1,
+      "type": "INDIVIDUAL",
+      "modality": "ONLINE"
+    }
+  ],
+  "creditTransactions": [
+    {
+      "studentId": "student-001",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 12,
+      "description": "Allocation mensuelle - Novembre 2025",
+      "createdAt": "2025-11-01T00:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-11-05T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Physique-Chimie",
+      "createdAt": "2025-11-08T11:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-11-12T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session NSI",
+      "createdAt": "2025-11-15T17:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 12,
+      "description": "Allocation mensuelle - Décembre 2025",
+      "createdAt": "2025-12-01T00:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-12-06T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Physique-Chimie",
+      "createdAt": "2025-12-10T11:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-12-13T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-12-17T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 12,
+      "description": "Allocation mensuelle - Janvier 2026",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2026-01-07T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Physique-Chimie",
+      "createdAt": "2026-01-10T11:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2026-01-14T15:30:00Z"
+    },
+    {
+      "studentId": "student-001",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2026-01-17T15:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 8,
+      "description": "Allocation mensuelle - Novembre 2025",
+      "createdAt": "2025-11-01T00:00:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Français",
+      "createdAt": "2025-11-06T16:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-11-09T14:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Français",
+      "createdAt": "2025-11-13T16:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-11-16T14:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 8,
+      "description": "Allocation mensuelle - Décembre 2025",
+      "createdAt": "2025-12-01T00:00:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Français",
+      "createdAt": "2025-12-04T16:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-12-07T14:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Français",
+      "createdAt": "2025-12-11T16:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "USAGE",
+      "amount": -1,
+      "description": "Utilisation - Session Mathématiques",
+      "createdAt": "2025-12-14T14:30:00Z"
+    },
+    {
+      "studentId": "student-002",
+      "type": "MONTHLY_ALLOCATION",
+      "amount": 8,
+      "description": "Allocation mensuelle - Janvier 2026",
+      "createdAt": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "payments": [
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 600,
+      "currency": "TND",
+      "description": "Abonnement IMMERSION - Yasmine (Novembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_nov2025_yasmine_001",
+      "createdAt": "2025-11-01T08:00:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 400,
+      "currency": "TND",
+      "description": "Abonnement HYBRIDE - Karim (Novembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_nov2025_karim_001",
+      "createdAt": "2025-11-01T08:05:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 120,
+      "currency": "TND",
+      "description": "Add-on ARIA - 3 matières - Yasmine (Novembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_nov2025_aria_yasmine_001",
+      "createdAt": "2025-11-01T08:10:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 80,
+      "currency": "TND",
+      "description": "Add-on ARIA - 2 matières - Karim (Novembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_nov2025_aria_karim_001",
+      "createdAt": "2025-11-01T08:15:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 600,
+      "currency": "TND",
+      "description": "Abonnement IMMERSION - Yasmine (Décembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_dec2025_yasmine_001",
+      "createdAt": "2025-12-01T08:00:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 400,
+      "currency": "TND",
+      "description": "Abonnement HYBRIDE - Karim (Décembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_dec2025_karim_001",
+      "createdAt": "2025-12-01T08:05:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 120,
+      "currency": "TND",
+      "description": "Add-on ARIA - 3 matières - Yasmine (Décembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_dec2025_aria_yasmine_001",
+      "createdAt": "2025-12-01T08:10:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 80,
+      "currency": "TND",
+      "description": "Add-on ARIA - 2 matières - Karim (Décembre 2025)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_dec2025_aria_karim_001",
+      "createdAt": "2025-12-01T08:15:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 600,
+      "currency": "TND",
+      "description": "Abonnement IMMERSION - Yasmine (Janvier 2026)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_jan2026_yasmine_001",
+      "createdAt": "2026-01-01T08:00:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 400,
+      "currency": "TND",
+      "description": "Abonnement HYBRIDE - Karim (Janvier 2026)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_jan2026_karim_001",
+      "createdAt": "2026-01-01T08:05:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 120,
+      "currency": "TND",
+      "description": "Add-on ARIA - 3 matières - Yasmine (Janvier 2026)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_jan2026_aria_yasmine_001",
+      "createdAt": "2026-01-01T08:10:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 80,
+      "currency": "TND",
+      "description": "Add-on ARIA - 2 matières - Karim (Janvier 2026)",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_jan2026_aria_karim_001",
+      "createdAt": "2026-01-01T08:15:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "CREDIT_PACK",
+      "amount": 200,
+      "currency": "TND",
+      "description": "Pack 5 crédits supplémentaires - Yasmine",
+      "status": "COMPLETED",
+      "method": "konnect",
+      "externalId": "pay_credits_yasmine_001",
+      "createdAt": "2025-11-15T14:30:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 600,
+      "currency": "TND",
+      "description": "Abonnement IMMERSION - Yasmine (Février 2026)",
+      "status": "PENDING",
+      "method": "konnect",
+      "externalId": "pay_feb2026_yasmine_001",
+      "createdAt": "2026-02-01T08:00:00Z"
+    },
+    {
+      "userId": "parent-test-001",
+      "type": "SUBSCRIPTION",
+      "amount": 400,
+      "currency": "TND",
+      "description": "Abonnement HYBRIDE - Karim (Février 2026)",
+      "status": "PENDING",
+      "method": "konnect",
+      "externalId": "pay_feb2026_karim_001",
+      "createdAt": "2026-02-01T08:05:00Z"
+    }
+  ],
+  "testCredentials": {
+    "parent": {
+      "email": "parent.dashboard@test.com",
+      "password": "password123"
+    },
+    "students": [
+      {
+        "email": "yasmine.dupont@test.com",
+        "password": "password123"
+      },
+      {
+        "email": "karim.dupont@test.com",
+        "password": "password123"
+      }
+    ],
+    "coaches": [
+      {
+        "email": "helios@test.com",
+        "password": "password123"
+      },
+      {
+        "email": "zenon@test.com",
+        "password": "password123"
+      }
+    ]
+  }
+}

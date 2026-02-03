@@ -265,7 +265,7 @@ Update the parent dashboard page to include new components.
 
 ---
 
-### [ ] Step: Create E2E Test Fixtures
+### [x] Step: Create E2E Test Fixtures
 <!-- chat-id: f8301848-5996-45e2-81b2-82aecd1419ea -->
 
 Create test data fixtures for E2E testing.
@@ -280,12 +280,17 @@ Create test data fixtures for E2E testing.
 - Document test credentials and data structure
 
 **Verification**:
-- [ ] Fixture file created with comprehensive data
-- [ ] Data structure matches API response format
-- [ ] Covers all test scenarios (multiple children, various badge categories, different transaction types)
+- [x] Fixture file created with comprehensive data
+- [x] Data structure matches API response format
+- [x] Covers all test scenarios (multiple children, various badge categories, different transaction types)
 
 **Files Created**:
-- `parent.json` (location TBD based on E2E setup)
+- `e2e/fixtures/parent.json`
+- `e2e/fixtures/README.md`
+- `scripts/seed-parent-dashboard-e2e.ts`
+
+**Files Modified**:
+- `package.json` (added test:e2e:seed:parent script)
 
 ---
 

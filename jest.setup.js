@@ -1,6 +1,11 @@
 // Set NODE_ENV before any imports
 process.env.NODE_ENV = 'development';
 
+// Polyfill setImmediate for pino logger (required in jsdom)
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (fn, ...args) => setTimeout(fn, 0, ...args);
+}
+
 import '@testing-library/jest-dom';
 
 // Mock Prisma client
@@ -240,12 +245,29 @@ jest.mock('framer-motion', () => {
     motion: new Proxy({}, {
       get: (target, prop) => {
         return React.forwardRef((props, ref) => {
-          const { children, initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
+          const { 
+            children, 
+            initial, 
+            animate, 
+            exit, 
+            transition, 
+            whileHover, 
+            whileTap, 
+            whileInView,
+            viewport,
+            ...rest 
+          } = props;
           return React.createElement(prop, { ...rest, ref }, children);
         });
       }
     }),
     AnimatePresence: ({ children }) => children,
-    useReducedMotion: () => false,
+    useReducedMotion: jest.fn(() => false),
+    useAnimation: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      set: jest.fn(),
+    })),
+    useInView: jest.fn(() => true),
   };
 });
