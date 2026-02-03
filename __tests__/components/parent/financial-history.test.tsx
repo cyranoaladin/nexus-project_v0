@@ -314,6 +314,26 @@ describe('FinancialHistory Component', () => {
       expect(amountHeader.parentElement).toBeInTheDocument();
     });
 
+    test('should sort by status when status header is clicked', async () => {
+      const user = userEvent.setup();
+      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      
+      const statusHeader = screen.getByText('Statut');
+      await user.click(statusHeader);
+      
+      expect(statusHeader.parentElement).toBeInTheDocument();
+    });
+
+    test('should sort by child when child header is clicked', async () => {
+      const user = userEvent.setup();
+      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      
+      const enfantHeader = screen.getByText('Enfant');
+      await user.click(enfantHeader);
+      
+      expect(enfantHeader.parentElement).toBeInTheDocument();
+    });
+
     test('should toggle sort direction on repeated clicks', async () => {
       const user = userEvent.setup();
       render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
