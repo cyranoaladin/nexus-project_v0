@@ -195,19 +195,20 @@ Create the Git operations layer that wraps Git CLI commands.
 
 ---
 
-### [ ] Step: Conflict Detection Logic
+### [x] Step: Conflict Detection Logic
+<!-- chat-id: 6756a130-609f-4a69-8ed1-36f91c505edc -->
 
 Implement multi-strategy conflict detection between branches.
 
 **Tasks:**
-- [ ] Implement `core/git/diff.ts` with detailed diff analysis
-- [ ] Implement `core/git/merge.ts` with merge-tree based conflict detection
-- [ ] Implement `checkConflicts(base, target)`: detect content conflicts
-- [ ] Detect delete/modify conflicts (file deleted in one branch, modified in other)
-- [ ] Detect rename conflicts
-- [ ] Detect mode/permission conflicts
-- [ ] Implement `core/sync/conflicts.ts` with ConflictDetector class
-- [ ] Write unit tests with various conflict scenarios
+- [x] Implement `core/git/diff.ts` with detailed diff analysis
+- [x] Implement `core/git/merge.ts` with merge-tree based conflict detection
+- [x] Implement `checkConflicts(base, target)`: detect content conflicts
+- [x] Detect delete/modify conflicts (file deleted in one branch, modified in other)
+- [x] Detect rename conflicts
+- [x] Detect mode/permission conflicts
+- [x] Implement `core/sync/conflicts.ts` with ConflictDetector class
+- [x] Write unit tests with various conflict scenarios
 
 **Verification:**
 - Detects actual conflicts correctly (no false negatives)
