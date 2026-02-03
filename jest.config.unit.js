@@ -8,9 +8,16 @@ const customJestConfig = {
   displayName: 'Unit Tests',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+    url: 'http://localhost',
+  },
+  globals: {
+    'process.env.NODE_ENV': 'development',
+  },
   testMatch: [
     '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
-    '**/__tests__/components/ui/**/*.(test|spec).(js|ts|tsx)',
+    '**/__tests__/components/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/ui/**/*.(test|spec).(js|ts|tsx)',
     '**/tests/**/*.(test|spec).(js|ts|tsx)',
   ],
