@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { format, isSameDay, isToday, addMinutes } from "date-fns";
-import { Calendar, Clock, User, Video } from "lucide-react";
+import { Calendar, Clock, User, Video, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import SessionBooking from "@/components/ui/session-booking";
 import { cn } from "@/lib/utils";
 import "react-day-picker/style.css";
 
@@ -28,12 +30,24 @@ interface SessionData {
 
 interface SessionCalendarProps {
   sessions: SessionData[];
+  studentId: string;
+  parentId?: string;
+  userCredits: number;
   className?: string;
+  onBookingComplete?: () => void;
 }
 
-export function SessionCalendar({ sessions, className }: SessionCalendarProps) {
+export function SessionCalendar({ 
+  sessions, 
+  studentId, 
+  parentId, 
+  userCredits, 
+  className,
+  onBookingComplete 
+}: SessionCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
 
   const today = new Date();
   const nextMonth = new Date();
@@ -106,14 +120,32 @@ export function SessionCalendar({ sessions, className }: SessionCalendarProps) {
 
   const selectedDateSessions = selectedDate ? getSessionsForDate(selectedDate) : [];
 
+  const handleBookingComplete = async () => {
+    setIsBookingDialogOpen(false);
+    if (onBookingComplete) {
+      onBookingComplete();
+    }
+  };
+
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Calendrier des sessions
-        </CardTitle>
-      </CardHeader>
+    <>
+      <Card className={cn("w-full", className)}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Calendrier des sessions
+            </CardTitle>
+            <Button
+              size="sm"
+              onClick={() => setIsBookingDialogOpen(true)}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Réserver
+            </Button>
+          </div>
+        </CardHeader>
       <CardContent>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
@@ -250,5 +282,17 @@ export function SessionCalendar({ sessions, className }: SessionCalendarProps) {
         `}</style>
       </CardContent>
     </Card>
+
+    <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
+      <DialogContent size="xl" className="max-h-[90vh] overflow-y-auto">
+        <SessionBooking
+          studentId={studentId}
+          parentId={parentId}
+          userCredits={userCredits}
+          onBookingComplete={handleBookingComplete}
+        />
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
