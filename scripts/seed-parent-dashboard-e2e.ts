@@ -70,7 +70,12 @@ async function main() {
     where: { userId: { in: ['student-test-001', 'student-test-002'] } }
   });
   await prisma.coachProfile.deleteMany({
-    where: { userId: { in: ['coach-test-001', 'coach-test-002'] } }
+    where: { 
+      OR: [
+        { userId: { in: ['coach-test-001', 'coach-test-002'] } },
+        { pseudonym: { in: ['Hélios', 'Zénon'] } }
+      ]
+    }
   });
   await prisma.parentProfile.deleteMany({
     where: { userId: fixtureData.parent.id }

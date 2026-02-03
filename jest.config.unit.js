@@ -6,14 +6,12 @@ const createJestConfig = nextJest({
 
 const customJestConfig = {
   displayName: 'Unit Tests',
+  setupFiles: ['<rootDir>/jest.env.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   testEnvironmentOptions: {
     customExportConditions: [''],
     url: 'http://localhost',
-  },
-  globals: {
-    'process.env.NODE_ENV': 'development',
   },
   testMatch: [
     '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
