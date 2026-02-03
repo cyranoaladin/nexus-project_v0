@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Calendar, CreditCard, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import AddChildDialog from "./add-child-dialog"
 import CreditPurchaseDialog from "./credit-purchase-dialog"
@@ -20,6 +20,81 @@ import { Footer } from "@/components/layout/footer"
 import { BadgeDisplay } from "@/components/ui/parent/badge-display"
 import { ProgressChart } from "@/components/ui/parent/progress-chart"
 import { FinancialHistory } from "@/components/ui/parent/financial-history"
+
+interface ApiResponse {
+  parent: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  children: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    grade: string;
+    school: string;
+    credits: number;
+    subscription: string;
+    subscriptionDetails: {
+      planName: string;
+      monthlyPrice: number;
+      status: string;
+      startDate: string;
+      endDate: string;
+    } | null;
+    nextSession: {
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+    } | null;
+    progress: number;
+    subjectProgress: Record<string, number>;
+    badges?: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      icon: string | null;
+      earnedAt: string;
+      isRecent: boolean;
+    }>;
+    progressHistory?: Array<{
+      date: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    subjectProgressHistory?: Array<{
+      subject: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    sessions: Array<{
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+      duration: number;
+    }>;
+  }>;
+  financialHistory?: Array<{
+    id: string;
+    type: string;
+    description: string;
+    amount: number;
+    status?: string;
+    date: string;
+    childId?: string;
+    childName?: string;
+  }>;
+}
 
 interface ParentDashboardData {
   parent: {
@@ -115,8 +190,26 @@ export default function DashboardParent() {
         throw new Error('Failed to fetch dashboard data')
       }
       
-      const data = await response.json()
-      setDashboardData(data)
+      const data: ApiResponse = await response.json()
+      
+      const transformedData: ParentDashboardData = {
+        ...data,
+        children: data.children.map((child) => ({
+          ...child,
+          badges: child.badges?.map((badge) => ({
+            ...badge,
+            earnedAt: new Date(badge.earnedAt)
+          })) || [],
+          progressHistory: child.progressHistory || [],
+          subjectProgressHistory: child.subjectProgressHistory || []
+        })),
+        financialHistory: data.financialHistory?.map((transaction) => ({
+          ...transaction,
+          date: new Date(transaction.date)
+        })) || []
+      }
+      
+      setDashboardData(transformedData)
       
       if (data.children.length > 0 && !selectedChild) {
         setSelectedChild(data.children[0].id)
@@ -435,7 +528,7 @@ export default function DashboardParent() {
               <div className="mb-6 sm:mb-8">
                 <FinancialHistory 
                   transactions={dashboardData.financialHistory}
-                  children={dashboardData.children.map(child => ({
+                  childrenList={dashboardData.children.map(child => ({
                     id: child.id,
                     firstName: child.firstName,
                     lastName: child.lastName
