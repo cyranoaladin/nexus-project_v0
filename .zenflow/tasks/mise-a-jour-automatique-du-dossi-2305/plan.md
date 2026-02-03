@@ -247,33 +247,34 @@ Build the rule loading, validation, and evaluation engine.
 
 ---
 
-### [ ] Step: Workflow Engine Core
+### [x] Step: Workflow Engine Core
+<!-- chat-id: 4e3e96fb-5ec8-49c1-a285-182b234991ba -->
 
 Build the workflow loading, orchestration, and execution engine.
 
 **Tasks:**
-- [ ] Implement `core/workflows/loader.ts` to load YAML workflow files
-- [ ] Implement `core/workflows/state.ts` for workflow execution state management
-- [ ] Implement `core/workflows/orchestrator.ts` for step orchestration
-- [ ] Implement `core/workflows/engine.ts` with WorkflowEngine class
-- [ ] Implement `loadWorkflow(name)`: load workflow from YAML
-- [ ] Implement `validateWorkflow(workflow)`: validate against schema
-- [ ] Implement `executeWorkflow(name, inputs)`: run workflow steps sequentially
-- [ ] Implement step execution: shell commands, JavaScript scripts
-- [ ] Implement conditional execution (when/unless)
-- [ ] Implement step timeout handling
-- [ ] Implement error handling strategies (abort, continue, skip_to_step, rollback_to_step)
-- [ ] Persist execution state to `.zenflow/state/executions/`
-- [ ] Write unit tests for workflow execution
+- [x] Implement `core/workflows/loader.ts` to load YAML workflow files
+- [x] Implement `core/workflows/state.ts` for workflow execution state management
+- [x] Implement `core/workflows/orchestrator.ts` for step orchestration
+- [x] Implement `core/workflows/engine.ts` with WorkflowEngine class
+- [x] Implement `loadWorkflow(name)`: load workflow from YAML
+- [x] Implement `validateWorkflow(workflow)`: validate against schema
+- [x] Implement `executeWorkflow(name, inputs)`: run workflow steps sequentially
+- [x] Implement step execution: shell commands, JavaScript scripts
+- [x] Implement conditional execution (when/unless)
+- [x] Implement step timeout handling
+- [x] Implement error handling strategies (abort, continue, skip_to_step, rollback_to_step)
+- [x] Persist execution state to `.zenflow/state/executions/`
+- [x] Write unit tests for workflow execution
 
 **Verification:**
-- Workflows load from YAML correctly
-- Steps execute in order
-- Conditional logic works
-- Timeouts are enforced
-- Error handling works (abort, rollback, continue)
-- State is persisted correctly
-- Unit tests pass
+- ✅ Workflows load from YAML correctly
+- ✅ Steps execute in order
+- ✅ Conditional logic works
+- ✅ Timeouts are enforced
+- ✅ Error handling works (abort, rollback, continue)
+- ✅ State is persisted correctly
+- ✅ Unit tests pass (82 passed, 2 skipped)
 
 **References:** spec.md sections 5.2 (WorkflowEngine API), 4.1 (Workflow interfaces), REQ-WORKFLOW-001-003
 
