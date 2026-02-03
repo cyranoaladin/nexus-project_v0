@@ -238,7 +238,8 @@ Create calendar widget with session highlights using react-day-picker.
 
 ---
 
-### [ ] Step: Session Booking Integration
+### [x] Step: Session Booking Integration
+<!-- chat-id: 96fdb4c1-2e63-415e-a6d4-8b623eb3b427 -->
 
 Integrate session booking into calendar using Dialog component.
 

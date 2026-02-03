@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AriaEmbeddedChat } from '@/components/ui/aria-embedded-chat';
+import { StudentCalendarWrapper } from '@/components/ui/student-calendar-wrapper';
 import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award } from 'lucide-react';
 
 interface DashboardData {
@@ -38,6 +39,18 @@ interface DashboardData {
       pseudonym: string;
     };
   } | null;
+  allSessions: Array<{
+    id: string;
+    title: string;
+    subject: string;
+    status: string;
+    scheduledAt: string;
+    coach: {
+      firstName: string;
+      lastName: string;
+      pseudonym: string;
+    } | null;
+  }>;
   recentSessions: Array<{
     id: string;
     title: string;
@@ -279,17 +292,12 @@ export default async function StudentDashboardPage() {
 
           {/* Right Column - 40% (2/5) */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Placeholder for Calendar - Will be added in next step */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Calendrier</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-neutral-500">
-                  Calendrier de réservation - À venir
-                </div>
-              </CardContent>
-            </Card>
+            {/* Session Calendar */}
+            <StudentCalendarWrapper
+              sessions={data.allSessions}
+              studentId={data.student.id}
+              userCredits={data.credits.balance}
+            />
 
             {/* Recent Sessions */}
             <Card>
