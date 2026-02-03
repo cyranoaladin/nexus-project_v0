@@ -392,6 +392,7 @@ Create the high-level SyncManager that coordinates all sync operations.
 ---
 
 ### [ ] Step: Default Rule and Workflow YAML Files
+<!-- chat-id: 3bdcfa0d-f08d-4843-b4ca-bc18134af0fc -->
 
 Create the primary rule and workflow that enable automatic synchronization.
 
