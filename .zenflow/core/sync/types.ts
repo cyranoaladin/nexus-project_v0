@@ -39,3 +39,17 @@ export interface SyncConfig {
   notificationChannels: ('console' | 'log' | 'email' | 'webhook')[];
   verificationCommands: string[];
 }
+
+export interface ValidationCheck {
+  name: string;
+  passed: boolean;
+  message?: string;
+  details?: any;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  checks: ValidationCheck[];
+  errors: string[];
+  warnings: string[];
+}
