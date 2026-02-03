@@ -171,6 +171,102 @@ describe('ProgressChart Component', () => {
       });
     });
 
+    test('should select 1 month time range', async () => {
+      const user = userEvent.setup();
+      const today = new Date();
+      const longHistory = Array.from({ length: 52 }, (_, i) => ({
+        date: new Date(today.getFullYear(), today.getMonth(), today.getDate() - i * 7).toISOString(),
+        progress: 50 + i,
+        completedSessions: i + 5,
+        totalSessions: i + 10,
+      }));
+
+      render(
+        <ProgressChart 
+          progressHistory={longHistory} 
+          subjectProgressHistory={mockSubjectProgressHistory} 
+        />
+      );
+
+      const timeRangeButton = screen.getByText('3 mois');
+      await user.click(timeRangeButton);
+
+      await waitFor(() => {
+        const option1M = screen.getByText('1 mois');
+        expect(option1M).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('1 mois'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+      });
+    });
+
+    test('should select 6 months time range', async () => {
+      const user = userEvent.setup();
+      const today = new Date();
+      const longHistory = Array.from({ length: 52 }, (_, i) => ({
+        date: new Date(today.getFullYear(), today.getMonth(), today.getDate() - i * 7).toISOString(),
+        progress: 50 + i,
+        completedSessions: i + 5,
+        totalSessions: i + 10,
+      }));
+
+      render(
+        <ProgressChart 
+          progressHistory={longHistory} 
+          subjectProgressHistory={mockSubjectProgressHistory} 
+        />
+      );
+
+      const timeRangeButton = screen.getByText('3 mois');
+      await user.click(timeRangeButton);
+
+      await waitFor(() => {
+        const option6M = screen.getByText('6 mois');
+        expect(option6M).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('6 mois'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+      });
+    });
+
+    test('should select 1 year time range', async () => {
+      const user = userEvent.setup();
+      const today = new Date();
+      const longHistory = Array.from({ length: 52 }, (_, i) => ({
+        date: new Date(today.getFullYear(), today.getMonth(), today.getDate() - i * 7).toISOString(),
+        progress: 50 + i,
+        completedSessions: i + 5,
+        totalSessions: i + 10,
+      }));
+
+      render(
+        <ProgressChart 
+          progressHistory={longHistory} 
+          subjectProgressHistory={mockSubjectProgressHistory} 
+        />
+      );
+
+      const timeRangeButton = screen.getByText('3 mois');
+      await user.click(timeRangeButton);
+
+      await waitFor(() => {
+        const option1Y = screen.getByText('1 an');
+        expect(option1Y).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('1 an'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+      });
+    });
+
     test('should not display time range selector for subjects view', async () => {
       const user = userEvent.setup();
       render(
