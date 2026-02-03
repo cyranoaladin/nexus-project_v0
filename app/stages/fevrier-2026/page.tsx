@@ -29,7 +29,7 @@ import {
 
 export default function StagesFevrier2026Page() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white scroll-smooth">
       {/* Tracking */}
       <ScrollDepthTracker />
 

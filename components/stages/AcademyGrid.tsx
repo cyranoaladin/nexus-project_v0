@@ -125,11 +125,11 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                     Réserver une consultation gratuite
                   </a>
                   <a
-                    href={academy.detailsAnchor}
+                    href="#faq"
                     className="block w-full text-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 text-xs font-semibold transition-all"
-                    aria-label="Voir les détails"
+                    aria-label="Voir les questions fréquentes"
                   >
-                    Voir les détails
+                    Questions fréquentes
                   </a>
                 </div>
               </div>
