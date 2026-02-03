@@ -297,6 +297,7 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
+                data-testid="aria-message"
                 className={`max-w-[85%] rounded-xl p-4 shadow-sm ${
                   message.role === 'user'
                     ? 'bg-blue-600 text-white'
@@ -342,7 +343,7 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
 
           {isLoading && !isStreaming && (
             <div className="flex justify-start">
-              <div className="bg-blue-50 rounded-xl p-4 border border-slate-200">
+              <div data-testid="loading" className="bg-blue-50 rounded-xl p-4 border border-slate-200">
                 <div className="flex items-center space-x-2">
                   <Bot className="w-5 h-5 text-blue-600" />
                   <div className="flex space-x-1">
