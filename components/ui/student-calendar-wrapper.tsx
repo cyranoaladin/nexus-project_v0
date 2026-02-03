@@ -2,6 +2,7 @@
 
 import { SessionCalendar } from "@/components/ui/session-calendar";
 import { useRouter } from "next/navigation";
+import { memo } from "react";
 
 interface SessionData {
   id: string;
@@ -22,7 +23,7 @@ interface StudentCalendarWrapperProps {
   userCredits: number;
 }
 
-export function StudentCalendarWrapper({
+export const StudentCalendarWrapper = memo(function StudentCalendarWrapper({
   sessions,
   studentId,
   parentId,
@@ -58,4 +59,4 @@ export function StudentCalendarWrapper({
       onBookingComplete={handleBookingComplete}
     />
   );
-}
+})
