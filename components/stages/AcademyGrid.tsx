@@ -26,8 +26,14 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 text-center mb-4">
             Nos Académies Février 2026
           </h2>
-          <p className="text-lg text-slate-600 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 text-center mb-4 max-w-2xl mx-auto">
             Maîtrise, progression, trajectoire. Choisissez votre palier.
+          </p>
+          
+          {/* Clarification Première & Terminale */}
+          <p className="text-sm text-slate-500 text-center mb-8 max-w-xl mx-auto">
+            Chaque académie s'adapte au niveau (Première ou Terminale). 
+            La différence essentielle se joue sur le <strong>pallier</strong> choisi.
           </p>
 
           {/* Filters */}
@@ -40,24 +46,24 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                   : 'bg-white text-slate-600 border border-slate-300 hover:border-blue-400'
               }`}
             >
-              Tous
+              Toutes les académies
             </button>
             <button
               onClick={() => setFilter('premiere')}
-              className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+              className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'premiere'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-white text-slate-600 border border-slate-300 hover:border-blue-400'
+                  ? 'bg-slate-600 text-white shadow-lg'
+                  : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
               }`}
             >
               Première
             </button>
             <button
               onClick={() => setFilter('terminale')}
-              className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+              className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'terminale'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-white text-slate-600 border border-slate-300 hover:border-blue-400'
+                  ? 'bg-slate-600 text-white shadow-lg'
+                  : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
               }`}
             >
               Terminale
@@ -71,10 +77,17 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 key={academy.id}
                 className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400 hover:-translate-y-1 flex flex-col"
               >
-                {/* Badge */}
-                <div className="mb-4">
+                {/* Badges (Objectif + Pallier) */}
+                <div className="flex flex-wrap gap-2 mb-4">
                   <span className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
                     {academy.badge}
+                  </span>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                    academy.tier === 'pallier1' 
+                      ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                      : 'bg-purple-100 text-purple-700 border border-purple-300'
+                  }`}>
+                    {academy.tier === 'pallier1' ? 'Pallier 1 — Prépa Bac' : 'Pallier 2 — Excellence'}
                   </span>
                 </div>
 

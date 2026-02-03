@@ -28,12 +28,21 @@ export function StagesHero({ stats }: StagesHeroProps) {
           {/* H1 */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight mb-6">
             STAGES FÉVRIER —<br />
+            <span className="text-blue-300 text-2xl md:text-4xl">PREMIÈRE & TERMINALE</span><br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
               LE BOOST DÉCISIF
             </span><br />
             POUR FAIRE LA DIFFÉRENCE<br />
             <span className="text-blue-300 text-3xl md:text-5xl">(MATHS & NSI)</span>
           </h1>
+
+          {/* Sous-texte explicite */}
+          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6 max-w-3xl mx-auto mb-6">
+            <p className="text-base md:text-lg text-white leading-relaxed">
+              Ces stages s'adressent aux élèves de <strong>Première et Terminale</strong> préparant le baccalauréat français. 
+              Les contenus sont adaptés au niveau de chaque élève, tout en conservant une exigence et une méthode communes.
+            </p>
+          </div>
 
           {/* Sous-texte */}
           <p className="text-lg md:text-xl text-blue-100 mb-4 max-w-3xl mx-auto leading-relaxed">
