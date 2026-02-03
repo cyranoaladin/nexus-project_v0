@@ -13,7 +13,7 @@ export function UrgencyBanner({ closingDate }: UrgencyBannerProps) {
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 shadow-lg">
+    <div className="sticky top-0 z-[60] bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 shadow-lg">
       <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-bold">
           <span className="animate-pulse">⚠️</span>

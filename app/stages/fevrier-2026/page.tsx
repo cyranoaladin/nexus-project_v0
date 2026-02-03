@@ -33,11 +33,11 @@ export default function StagesFevrier2026Page() {
       {/* Tracking */}
       <ScrollDepthTracker />
 
-      {/* Header */}
-      <Header />
-
       {/* A — Top Banner (urgence) */}
       <UrgencyBanner closingDate="10/02" />
+
+      {/* Header */}
+      <Header />
 
       <main>
         {/* B — HERO (above the fold) */}

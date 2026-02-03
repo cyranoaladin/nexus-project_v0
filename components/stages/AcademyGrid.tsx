@@ -69,7 +69,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
             {filtered.map((academy) => (
               <div
                 key={academy.id}
-                className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400 flex flex-col"
+                className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400 hover:-translate-y-1 flex flex-col"
               >
                 {/* Badge */}
                 <div className="mb-4">
