@@ -18,6 +18,9 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid|glob)/)',
+  ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   coverageThreshold: {
