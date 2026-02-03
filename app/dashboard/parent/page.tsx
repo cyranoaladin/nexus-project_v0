@@ -17,6 +17,9 @@ import AriaAddonDialog from "./aria-addon-dialog"
 import InvoiceDetailsDialog from "./invoice-details-dialog"
 import SessionBooking from "@/components/ui/session-booking"
 import { Footer } from "@/components/layout/footer"
+import { BadgeDisplay } from "@/components/ui/parent/badge-display"
+import { ProgressChart } from "@/components/ui/parent/progress-chart"
+import { FinancialHistory } from "@/components/ui/parent/financial-history"
 
 interface ParentDashboardData {
   parent: {
@@ -50,6 +53,27 @@ interface ParentDashboardData {
     } | null;
     progress: number;
     subjectProgress: Record<string, number>;
+    badges: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      icon: string | null;
+      earnedAt: Date;
+      isRecent: boolean;
+    }>;
+    progressHistory: Array<{
+      date: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    subjectProgressHistory: Array<{
+      subject: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
     sessions: Array<{
       id: string;
       subject: string;
@@ -59,6 +83,16 @@ interface ParentDashboardData {
       status: string;
       duration: number;
     }>;
+  }>;
+  financialHistory: Array<{
+    id: string;
+    type: string;
+    description: string;
+    amount: number;
+    status?: string;
+    date: Date;
+    childId?: string;
+    childName?: string;
   }>;
 }
 
@@ -269,6 +303,13 @@ export default function DashboardParent() {
               </CardContent>
             </Card>
 
+            {/* Badges Display */}
+            {currentChild?.badges && currentChild.badges.length > 0 && (
+              <div className="mb-6 sm:mb-8">
+                <BadgeDisplay badges={currentChild.badges} />
+              </div>
+            )}
+
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
               {/* Agenda de l'Enfant */}
@@ -308,43 +349,13 @@ export default function DashboardParent() {
                 </CardContent>
               </Card>
 
-              {/* Progression */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
-                    <span className="text-base sm:text-lg">Progression par Matière</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 sm:space-y-4">
-                    {currentChild?.subjectProgress && Object.keys(currentChild?.subjectProgress).length > 0 ? (
-                      Object.entries(currentChild?.subjectProgress).map(([subject, progress]) => (
-                        <div key={subject}>
-                          <div className="flex justify-between text-xs sm:text-sm mb-1">
-                            <span>{subject}</span>
-                            <span>{progress}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-300" 
-                              style={{ 
-                                width: `${progress}%`,
-                                backgroundColor: progress > 80 ? '#10B981' : progress > 60 ? '#3B82F6' : progress > 40 ? '#F59E0B' : '#EF4444'
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-500">Aucune progression disponible</p>
-                        <p className="text-xs text-gray-400 mt-1">Les données apparaîtront après les premières sessions</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Progression Chart */}
+              {currentChild?.progressHistory && currentChild?.subjectProgressHistory && (
+                <ProgressChart 
+                  progressHistory={currentChild.progressHistory}
+                  subjectProgressHistory={currentChild.subjectProgressHistory}
+                />
+              )}
             </div>
 
             {/* Section Abonnement et Facturation */}
@@ -418,6 +429,20 @@ export default function DashboardParent() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Financial History */}
+            {dashboardData?.financialHistory && dashboardData.financialHistory.length > 0 && (
+              <div className="mb-6 sm:mb-8">
+                <FinancialHistory 
+                  transactions={dashboardData.financialHistory}
+                  children={dashboardData.children.map(child => ({
+                    id: child.id,
+                    firstName: child.firstName,
+                    lastName: child.lastName
+                  }))}
+                />
+              </div>
+            )}
           </>
         )}
 
