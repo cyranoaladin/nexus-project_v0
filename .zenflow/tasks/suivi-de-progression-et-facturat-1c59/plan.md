@@ -339,6 +339,7 @@ Create end-to-end tests for the parent dashboard.
 ---
 
 ### [ ] Step: Performance & Security Testing
+<!-- chat-id: bc24d7bb-a1a0-4321-9f43-c61311b15e92 -->
 
 Test performance, security, and accessibility.
 
