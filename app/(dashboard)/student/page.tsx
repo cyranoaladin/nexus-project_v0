@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AriaEmbeddedChat } from '@/components/ui/aria-embedded-chat';
 import { StudentCalendarWrapper } from '@/components/ui/student-calendar-wrapper';
-import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award } from 'lucide-react';
+import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface DashboardData {
   student: {
@@ -302,46 +303,82 @@ export default async function StudentDashboardPage() {
             {/* Recent Sessions */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-2 text-brand-primary" />
-                  Sessions Récentes
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Calendar className="w-5 h-5 mr-2 text-brand-primary" />
+                    Sessions Récentes
+                  </div>
+                  <Link 
+                    href="/dashboard/eleve/mes-sessions"
+                    className="text-xs text-brand-primary hover:text-brand-primary/80 font-medium flex items-center"
+                  >
+                    Voir tout
+                    <ArrowRight className="w-3 h-3 ml-1" />
+                  </Link>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {data.recentSessions && data.recentSessions.length > 0 ? (
-                  <div className="space-y-4">
-                    {data.recentSessions.slice(0, 3).map((session) => (
-                      <div
+                  <div className="space-y-3">
+                    {data.recentSessions.slice(0, 5).map((session) => (
+                      <Link
                         key={session.id}
-                        className="flex items-start justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
+                        href="/dashboard/eleve/mes-sessions"
+                        className="block p-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-colors"
                       >
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-neutral-900 text-sm truncate">
-                            {session.title}
-                          </h4>
-                          <p className="text-xs text-neutral-600">{session.subject}</p>
-                          <p className="text-xs font-medium text-brand-primary">
-                            {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
-                          </p>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-neutral-900 text-sm truncate">
+                              {session.title}
+                            </h4>
+                            <p className="text-xs text-neutral-600 mt-0.5">{session.subject}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-neutral-500">
+                                {new Date(session.scheduledAt).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </p>
+                              {session.coach && (
+                                <p className="text-xs text-neutral-500">
+                                  • {session.coach.pseudonym}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ml-2 flex-shrink-0 ${
+                            session.status === 'COMPLETED' 
+                              ? 'bg-green-100 text-green-800' 
+                              : session.status === 'SCHEDULED'
+                              ? 'bg-blue-100 text-blue-800'
+                              : session.status === 'CANCELLED'
+                              ? 'bg-red-100 text-red-800'
+                              : session.status === 'IN_PROGRESS'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {session.status === 'COMPLETED' ? 'Terminée' :
+                             session.status === 'SCHEDULED' ? 'Programmée' :
+                             session.status === 'CANCELLED' ? 'Annulée' :
+                             session.status === 'IN_PROGRESS' ? 'En cours' :
+                             session.status}
+                          </span>
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ml-2 ${
-                          session.status === 'COMPLETED' 
-                            ? 'bg-green-100 text-green-800' 
-                            : session.status === 'SCHEDULED'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {session.status}
-                        </span>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
                     <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-neutral-500 mb-3">
                       Aucune session récente
                     </p>
+                    <Link href="/dashboard/eleve/sessions">
+                      <Button variant="outline" size="sm">
+                        Réserver une session
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </CardContent>
