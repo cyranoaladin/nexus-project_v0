@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AriaEmbeddedChat } from '@/components/ui/aria-embedded-chat';
 import { CreditCard, Calendar, LogOut, User, TrendingUp, TrendingDown, Award } from 'lucide-react';
 
 interface DashboardData {
@@ -270,17 +271,10 @@ export default async function StudentDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left Column - 60% (3/5) */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Placeholder for ARIA Chat - Will be added in next step */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Assistant ARIA</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-neutral-500">
-                  Interface de chat ARIA - À venir
-                </div>
-              </CardContent>
-            </Card>
+            {/* ARIA Chat Component */}
+            <div className="h-[600px]">
+              <AriaEmbeddedChat studentId={data.student.id} />
+            </div>
           </div>
 
           {/* Right Column - 40% (2/5) */}
