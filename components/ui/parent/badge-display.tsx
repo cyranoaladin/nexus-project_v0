@@ -70,17 +70,17 @@ export function BadgeDisplay({ badges }: BadgeDisplayProps) {
       </CardHeader>
       <CardContent>
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
-            <TabsTrigger value="all" className="text-xs sm:text-sm">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6" aria-label="Filtrer les badges par catégorie">
+            <TabsTrigger value="all" className="text-xs sm:text-sm" aria-label={`Tous les badges, ${categoryCounts.all} badges`}>
               Tous ({categoryCounts.all})
             </TabsTrigger>
-            <TabsTrigger value="ASSIDUITE" className="text-xs sm:text-sm">
+            <TabsTrigger value="ASSIDUITE" className="text-xs sm:text-sm" aria-label={`Badges d'assiduité, ${categoryCounts.ASSIDUITE} badges`}>
               {BADGE_CATEGORIES.ASSIDUITE} ({categoryCounts.ASSIDUITE})
             </TabsTrigger>
-            <TabsTrigger value="PROGRESSION" className="text-xs sm:text-sm">
+            <TabsTrigger value="PROGRESSION" className="text-xs sm:text-sm" aria-label={`Badges de progression, ${categoryCounts.PROGRESSION} badges`}>
               {BADGE_CATEGORIES.PROGRESSION} ({categoryCounts.PROGRESSION})
             </TabsTrigger>
-            <TabsTrigger value="CURIOSITE" className="text-xs sm:text-sm">
+            <TabsTrigger value="CURIOSITE" className="text-xs sm:text-sm" aria-label={`Badges de curiosité, ${categoryCounts.CURIOSITE} badges`}>
               {BADGE_CATEGORIES.CURIOSITE} ({categoryCounts.CURIOSITE})
             </TabsTrigger>
           </TabsList>
