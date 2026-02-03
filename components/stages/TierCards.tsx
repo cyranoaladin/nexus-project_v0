@@ -30,7 +30,7 @@ export function TierCards({ tiers }: TierCardsProps) {
             {tiers.map((tier) => (
               <div
                 key={tier.id}
-                className="bg-white border-2 border-slate-200 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400"
+                className="bg-white border-2 border-slate-200 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400 hover:-translate-y-1"
               >
                 <div className="mb-4">
                   <h3 className="text-2xl font-black text-slate-900 mb-2">{tier.title}</h3>
