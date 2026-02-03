@@ -32,9 +32,18 @@ jest.mock('@/lib/payments', () => ({
   upsertPaymentByExternalId: jest.fn()
 }));
 
+// Valid CUID-format test IDs
+const TEST_IDS = {
+  parent: 'clparent123456789abc',
+  student: 'clstudent12345678abc',
+  payment: 'clpayment12345678abc',
+  user: 'cluser1234567890abcd',
+  parentProfile: 'clpprofile123456789a'
+};
+
 const mockParentSession = {
   user: {
-    id: 'parent-123',
+    id: TEST_IDS.parent,
     email: 'parent@nexus.com',
     role: 'PARENT' as const,
     firstName: 'Parent',
@@ -197,7 +206,7 @@ describe('POST /api/payments/konnect', () => {
   });
 
   describe('Ownership Validation', () => {
-    it.skip('should return 404 when student does not belong to parent', async () => {
+    it('should return 404 when student does not belong to parent', async () => {
       (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
 
       const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
@@ -206,7 +215,7 @@ describe('POST /api/payments/konnect', () => {
         body: JSON.stringify({
           type: 'subscription',
           key: 'monthly-premium',
-          studentId: 'other-student-123',
+          studentId: 'clabcd1234567890abcd', // Valid CUID format
           amount: 5000,
           description: 'Abonnement mensuel'
         })
@@ -220,7 +229,7 @@ describe('POST /api/payments/konnect', () => {
       expect(data.message).toContain('Student');
     });
 
-    it.skip('should verify parent-student relationship', async () => {
+    it('should verify parent-student relationship', async () => {
       (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
 
       const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
@@ -229,7 +238,7 @@ describe('POST /api/payments/konnect', () => {
         body: JSON.stringify({
           type: 'subscription',
           key: 'monthly-premium',
-          studentId: 'student-123',
+          studentId: TEST_IDS.student,
           amount: 5000,
           description: 'Test'
         })
@@ -240,9 +249,9 @@ describe('POST /api/payments/konnect', () => {
       // Verify query checks parent-student relationship
       expect(prisma.student.findFirst).toHaveBeenCalledWith({
         where: {
-          id: 'student-123',
+          id: TEST_IDS.student,
           parent: {
-            userId: 'parent-123'
+            userId: TEST_IDS.parent
           }
         }
       });
@@ -250,16 +259,16 @@ describe('POST /api/payments/konnect', () => {
   });
 
   describe('Payment Creation', () => {
-    it.skip('should create payment successfully for subscription', async () => {
+    it('should create payment successfully for subscription', async () => {
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
 
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
         payment: {
-          id: 'payment-123',
+          id: TEST_IDS.payment,
           externalId: 'ext-123',
           amount: 5000,
           status: 'PENDING'
@@ -272,7 +281,7 @@ describe('POST /api/payments/konnect', () => {
         body: JSON.stringify({
           type: 'subscription',
           key: 'monthly-premium',
-          studentId: 'student-123',
+          studentId: TEST_IDS.student,
           amount: 5000,
           description: 'Abonnement Premium Mensuel'
         })
@@ -283,13 +292,12 @@ describe('POST /api/payments/konnect', () => {
 
       expect(response.status).toBe(201);
       expect(data.success).toBe(true);
-      expect(data.paymentId).toBe('payment-123');
-      expect(data.paymentUrl).toContain('payment-123');
+      expect(data.paymentId).toBe(TEST_IDS.payment);
+      expect(data.paymentUrl).toContain(TEST_IDS.payment);
       expect(data.message).toContain('Konnect');
     });
 
-    // TODO: Fix complex mock setup for payment type mapping
-    it.skip('should map payment types correctly', async () => {
+    it('should map payment types correctly', async () => {
       const testCases = [
         { type: 'subscription', expectedMappedType: 'SUBSCRIPTION' },
         { type: 'addon', expectedMappedType: 'SPECIAL_PACK' },
@@ -303,12 +311,12 @@ describe('POST /api/payments/konnect', () => {
         (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
         ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
         (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-          id: 'student-123',
-          userId: 'user-123',
-          parentId: 'parent-profile-123'
+          id: TEST_IDS.student,
+          userId: TEST_IDS.user,
+          parentId: TEST_IDS.parentProfile
         });
         (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-          payment: { id: 'payment-123' }
+          payment: { id: TEST_IDS.payment }
         });
 
         const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
@@ -317,7 +325,7 @@ describe('POST /api/payments/konnect', () => {
           body: JSON.stringify({
             type,
             key: 'test-key',
-            studentId: 'student-123',
+            studentId: TEST_IDS.student,
             amount: 5000,
             description: 'Test'
           })
@@ -333,15 +341,15 @@ describe('POST /api/payments/konnect', () => {
       }
     });
 
-    it.skip('should include all required metadata', async () => {
+    it('should include all required metadata', async () => {
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
 
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-        payment: { id: 'payment-123' }
+        payment: { id: TEST_IDS.payment }
       });
 
       const request = createMockRequest('http://localhost:3000/api/payments/konnect', {
@@ -350,7 +358,7 @@ describe('POST /api/payments/konnect', () => {
         body: JSON.stringify({
           type: 'subscription',
           key: 'monthly-premium',
-          studentId: 'student-123',
+          studentId: TEST_IDS.student,
           amount: 5000,
           description: 'Abonnement Premium'
         })
@@ -362,12 +370,12 @@ describe('POST /api/payments/konnect', () => {
         expect.objectContaining({
           method: 'konnect',
           type: 'SUBSCRIPTION',
-          userId: 'parent-123',
+          userId: TEST_IDS.parent,
           amount: 5000,
           currency: 'TND',
           description: 'Abonnement Premium',
           metadata: {
-            studentId: 'student-123',
+            studentId: TEST_IDS.student,
             itemKey: 'monthly-premium',
             itemType: 'subscription'
           }
@@ -378,22 +386,21 @@ describe('POST /api/payments/konnect', () => {
 
   describe('Idempotency', () => {
 
-    // TODO: Fix mock setup for multiple sequential POST calls
-    it.skip('should generate deterministic externalId for same request', async () => {
+    it('should generate deterministic externalId for same request', async () => {
       // Setup mocks
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-        payment: { id: 'payment-123' }
+        payment: { id: TEST_IDS.payment }
       });
 
       const requestBody = {
         type: 'subscription' as const,
         key: 'monthly-premium',
-        studentId: 'student-123',
+        studentId: TEST_IDS.student,
         amount: 5000,
         description: 'Test'
       };
@@ -413,12 +420,12 @@ describe('POST /api/payments/konnect', () => {
       (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
       ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-        payment: { id: 'payment-123' }
+        payment: { id: TEST_IDS.payment }
       });
 
       // Second request (identical)
@@ -436,21 +443,21 @@ describe('POST /api/payments/konnect', () => {
       expect(firstExternalId).toBeDefined();
     });
 
-    it.skip('should generate different externalId for different amounts', async () => {
+    it('should generate different externalId for different amounts', async () => {
       // Setup mocks for first request
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-        payment: { id: 'payment-123' }
+        payment: { id: TEST_IDS.payment }
       });
 
       const baseRequest = {
         type: 'subscription' as const,
         key: 'monthly-premium',
-        studentId: 'student-123',
+        studentId: TEST_IDS.student,
         description: 'Test'
       };
 
@@ -469,12 +476,12 @@ describe('POST /api/payments/konnect', () => {
       (requireRole as jest.Mock).mockResolvedValue(mockParentSession);
       ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
       (prisma.student.findFirst as jest.Mock).mockResolvedValue({
-        id: 'student-123',
-        userId: 'user-123',
-        parentId: 'parent-profile-123'
+        id: TEST_IDS.student,
+        userId: TEST_IDS.user,
+        parentId: TEST_IDS.parentProfile
       });
       (upsertPaymentByExternalId as jest.Mock).mockResolvedValue({
-        payment: { id: 'payment-124' }
+        payment: { id: 'clpayment12345678abd' }
       });
 
       // Request with amount 7000
