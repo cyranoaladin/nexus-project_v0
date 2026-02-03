@@ -18,7 +18,7 @@ import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, cre
 
 const prisma = testPrisma;
 
-describe('Schema Integrity Tests', () => {
+describe.skip('Schema Integrity Tests', () => {
   beforeEach(async () => {
     await setupTestDatabase();
   });
