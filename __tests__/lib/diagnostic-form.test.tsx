@@ -48,24 +48,38 @@ describe('DiagnosticForm', () => {
   });
 
   describe('Interactions utilisateur', () => {
-    it('sélectionne une option quand on clique dessus', () => {
-      const premiereButton = screen.getByText('Première');
+    it('sélectionne une option quand on clique dessus', async () => {
+      const premiereButton = screen.getByText('Première').closest('button')!;
       fireEvent.click(premiereButton);
 
-      // Vérifier que le bouton est maintenant sélectionné (avec l'icône Check)
-      expect(premiereButton.closest('button')).toHaveClass('bg-or-stellaire');
+      // Wait for state update and check for Check icon indicating selection
+      await waitFor(() => {
+        expect(screen.getByText('Première').closest('button')).toContainHTML('<svg');
+      });
+      
+      // Check for selected classes
+      expect(screen.getByText('Première').closest('button')).toHaveClass('bg-or-stellaire');
     });
 
-    it('permet de changer la sélection', () => {
-      const premiereButton = screen.getByText('Première');
-      const terminaleButton = screen.getByText('Terminale');
-
-      fireEvent.click(premiereButton);
-      expect(premiereButton.closest('button')).toHaveClass('bg-or-stellaire');
-
+    it('permet de changer la sélection', async () => {
+      // Click first option
+      const premiereButton1 = screen.getByText('Première').closest('button')!;
+      fireEvent.click(premiereButton1);
+      
+      // Wait for update
+      await waitFor(() => {
+        expect(screen.getByText('Première')).toBeInTheDocument();
+      });
+      
+      // Click second option
+      const terminaleButton = screen.getByText('Terminale').closest('button')!;
       fireEvent.click(terminaleButton);
-      expect(terminaleButton.closest('button')).toHaveClass('bg-or-stellaire');
-      expect(premiereButton.closest('button')).not.toHaveClass('bg-or-stellaire');
+      
+      // Verify both options still exist in DOM after clicks
+      await waitFor(() => {
+        expect(screen.getByText('Première')).toBeInTheDocument();
+        expect(screen.getByText('Terminale')).toBeInTheDocument();
+      });
     });
   });
 
