@@ -89,6 +89,6 @@ export async function POST(request: NextRequest) {
     }, 201);
 
   } catch (error) {
-    return handleApiError(error, 'POST /api/payments/konnect');
+    return await handleApiError(error, 'POST /api/payments/konnect');
   }
 }
