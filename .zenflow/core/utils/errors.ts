@@ -38,6 +38,14 @@ export class ConfigurationError extends ZenflowError {
   }
 }
 
+export class ConfigValidationError extends ZenflowError {
+  constructor(message: string, public validationErrors?: string[]) {
+    super(message);
+    this.name = 'ConfigValidationError';
+    Object.setPrototypeOf(this, ConfigValidationError.prototype);
+  }
+}
+
 export class RuleExecutionError extends ZenflowError {
   constructor(message: string, public ruleName?: string) {
     super(message);

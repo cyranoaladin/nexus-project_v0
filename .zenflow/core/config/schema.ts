@@ -98,11 +98,11 @@ export const ZenflowSettingsSchema = z.object({
   copy_files: z.array(z.string()).optional(),
   theme: ThemeConfigSchema.optional(),
   accessibility: AccessibilityConfigSchema.optional(),
-  sync: SyncConfigSchema.optional(),
-  rules: RulesConfigSchema.optional(),
-  workflows: WorkflowsConfigSchema.optional(),
-  logging: LoggingConfigSchema.optional(),
-  git: GitConfigSchema.optional(),
+  sync: SyncConfigSchema.default({}),
+  rules: RulesConfigSchema.default({}),
+  workflows: WorkflowsConfigSchema.default({}),
+  logging: LoggingConfigSchema.default({}),
+  git: GitConfigSchema.default({}),
 });
 
 export type ZenflowSettings = z.infer<typeof ZenflowSettingsSchema>;
