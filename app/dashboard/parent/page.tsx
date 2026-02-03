@@ -545,7 +545,6 @@ export default function DashboardParent() {
             parentId={session?.user?.id}
             userCredits={currentChild?.credits}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
               refreshDashboardData();
               setActiveTab('dashboard');
             }}
