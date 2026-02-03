@@ -9,14 +9,31 @@ jest.mock('next/link', () => {
   };
 });
 
-// Mock de framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
-    p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
+// Mock next/image
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: ({ src, alt, ...props }: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={alt} {...props} />;
   },
 }));
+
+// Mock de framer-motion
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    motion: {
+      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+      h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
+      p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
+      button: React.forwardRef(({ children, whileHover, whileTap, transition, ...props }: any, ref: any) => (
+        <button {...props} ref={ref}>{children}</button>
+      )),
+    },
+    useReducedMotion: () => false,
+    AnimatePresence: ({ children }: any) => children,
+  };
+});
 
 // Mock de window.location
 const mockLocation = {
@@ -35,14 +52,17 @@ describe('HeroSection', () => {
   it('renders the main headline correctly', () => {
     render(<HeroSection />);
 
-    expect(screen.getByText(/Votre Réussite Scolaire/i)).toBeInTheDocument();
-    expect(screen.getByText(/Avec l'Excellence Française/i)).toBeInTheDocument();
+    // "Pédagogie Augmentée" appears in both badge and headline
+    const pedagogieElements = screen.getAllByText(/Pédagogie Augmentée/i);
+    expect(pedagogieElements.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/pour Réussir son Bac/i)).toBeInTheDocument();
   });
 
   it('renders the description text', () => {
     render(<HeroSection />);
 
-    expect(screen.getByText(/L'accompagnement premium qui transforme/i)).toBeInTheDocument();
+    expect(screen.getByText(/professeurs d'élite de l'enseignement français/i)).toBeInTheDocument();
+    expect(screen.getByText(/plateforme intelligente ARIA/i)).toBeInTheDocument();
   });
 
   it('renders both CTA buttons', () => {
@@ -72,17 +92,24 @@ describe('HeroSection', () => {
     render(<HeroSection />);
 
     // Vérifier la présence des piliers principaux
-    expect(screen.getByText(/Coachs Agrégés/i)).toBeInTheDocument();
-    expect(screen.getByText(/IA 24\/7/i)).toBeInTheDocument();
-    expect(screen.getByText(/Expertise Enseignement Français/i)).toBeInTheDocument();
-    expect(screen.getByText(/Spécialiste NSI/i)).toBeInTheDocument();
+    expect(screen.getByText(/Agrégés & Certifiés/i)).toBeInTheDocument();
+    expect(screen.getByText(/IA ARIA/i)).toBeInTheDocument();
+    
+    // Check for pillar features using partial text matching
+    expect(screen.getByText((content, element) => {
+      return element?.textContent?.includes('IA ARIA') && element?.textContent?.includes('24/7');
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText(/Enseignement Français/i)).toBeInTheDocument();
+    expect(screen.getByText(/DIU NSI/i)).toBeInTheDocument();
   });
 
   it('displays trust indicators', () => {
     render(<HeroSection />);
 
-    expect(screen.getByText(/Garantie/i)).toBeInTheDocument();
-    expect(screen.getByText(/Résultats/i)).toBeInTheDocument();
+    expect(screen.getByText(/Notre Force : L'Excellence de nos Experts/i)).toBeInTheDocument();
+    expect(screen.getByText(/\+150/i)).toBeInTheDocument();
+    expect(screen.getByText(/Années d'Expérience Cumulée/i)).toBeInTheDocument();
   });
 
   it('has proper accessibility attributes', () => {
