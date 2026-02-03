@@ -2,7 +2,11 @@
   "name": "nexus-reussite-app",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "zenflow": ".zenflow/cli/index.ts"
+  },
   "scripts": {
+    "zenflow": "tsx .zenflow/cli/index.ts",
     "dev": "next dev",
     "build": "next build && node scripts/copy-public-assets.js",
     "build:base": "next build",

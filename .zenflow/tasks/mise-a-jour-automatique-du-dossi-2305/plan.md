@@ -280,7 +280,8 @@ Build the workflow loading, orchestration, and execution engine.
 
 ---
 
-### [ ] Step: CLI Framework Setup
+### [x] Step: CLI Framework Setup
+<!-- chat-id: c14ca00e-36b5-4c01-8adf-c6af08dde278 -->
 
 Create the command-line interface structure using Commander.js.
 
