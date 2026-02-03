@@ -77,10 +77,10 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
   const hasProgressData = progressHistory.length > 0;
   const hasSubjectData = subjectProgressHistory.length > 0;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = React.useCallback(({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+        <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3" data-testid="custom-tooltip">
           <p className="font-medium text-sm mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2">
@@ -102,12 +102,12 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
       );
     }
     return null;
-  };
+  }, []);
 
-  const SubjectTooltip = ({ active, payload, label }: any) => {
+  const SubjectTooltip = React.useCallback(({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+        <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3" data-testid="subject-tooltip">
           <p className="font-medium text-sm mb-2">{label}</p>
           <p className="text-sm text-neutral-600">
             Progression: <span className="font-semibold">{payload[0].value}%</span>
@@ -119,7 +119,7 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
       );
     }
     return null;
-  };
+  }, []);
 
   return (
     <Card>
