@@ -268,36 +268,36 @@ export const academies: Academy[] = [
 // FAQ
 export const faq: FAQ[] = [
   {
-    question: 'À qui s'adressent ces stages ?',
-    answer: 'Aux élèves de Première et Terminale (système français, tunisien, candidats libres) qui souhaitent consolider leurs acquis, combler des lacunes ou viser une mention. Deux paliers : Prépa Bac pour sécuriser, Excellence pour approfondir.'
+    question: "À qui s'adressent ces stages ?",
+    answer: "Aux élèves de Première et Terminale (système français, tunisien, candidats libres) qui souhaitent consolider leurs acquis, combler des lacunes ou viser une mention. Deux paliers : Prépa Bac pour sécuriser, Excellence pour approfondir."
   },
   {
-    question: 'Pourquoi proposer un stage en février ?',
-    answer: 'Février est un moment clé : c'est là que se jouent la dynamique de fin d'année, la confiance et la maîtrise avant la dernière ligne droite des dossiers d'admission et du Bac. Une semaine structurée permet de transformer le travail en points décisifs.'
+    question: "Pourquoi proposer un stage en février ?",
+    answer: "Février est un moment clé : c'est là que se jouent la dynamique de fin d'année, la confiance et la maîtrise avant la dernière ligne droite des dossiers d'admission et du Bac. Une semaine structurée permet de transformer le travail en points décisifs."
   },
   {
-    question: 'Quels sont les objectifs pédagogiques ?',
-    answer: 'Pallier 1 : consolider les bases, corriger les erreurs récurrentes, installer des méthodes fiables. Pallier 2 : transformer un bon niveau en maîtrise solide, viser une mention, préparer la suite (prépa/ingénieur). Cadre exigeant, bilans individualisés, épreuves blanches.'
+    question: "Quels sont les objectifs pédagogiques ?",
+    answer: "Pallier 1 : consolider les bases, corriger les erreurs récurrentes, installer des méthodes fiables. Pallier 2 : transformer un bon niveau en maîtrise solide, viser une mention, préparer la suite (prépa/ingénieur). Cadre exigeant, bilans individualisés, épreuves blanches."
   },
   {
-    question: 'Les stages garantissent-ils des résultats ?',
-    answer: 'Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé.'
+    question: "Les stages garantissent-ils des résultats ?",
+    answer: "Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé."
   },
   {
-    question: 'Quel est le rythme pendant la semaine ?',
-    answer: 'Pallier 1 : ~22h (5h/jour sur 4 jours + révisions + tests). Pallier 2 : ~30h (6h/jour sur 4 jours + exposé + tests). Adaptation possible au rythme Ramadan (organisation matin/après-midi). Groupes de 6 élèves maximum.'
+    question: "Quel est le rythme pendant la semaine ?",
+    answer: "Pallier 1 : ~22h (5h/jour sur 4 jours + révisions + tests). Pallier 2 : ~30h (6h/jour sur 4 jours + exposé + tests). Adaptation possible au rythme Ramadan (organisation matin/après-midi). Groupes de 6 élèves maximum."
   },
   {
-    question: 'Qui encadre les stages ?',
-    answer: 'Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé.'
+    question: "Qui encadre les stages ?",
+    answer: "Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé."
   },
   {
-    question: 'Candidats libres : comment cela se passe ?',
-    answer: 'Nous accueillons les candidats libres. Important : vous ne passez pas l'épreuve pratique (NSI). Le stage se concentre sur les fondamentaux et l'écrit. Bilan individualisé en fin de stage avec plan de travail autonome.'
+    question: "Candidats libres : comment cela se passe ?",
+    answer: "Nous accueillons les candidats libres. Important : vous ne passez pas l'épreuve pratique (NSI). Le stage se concentre sur les fondamentaux et l'écrit. Bilan individualisé en fin de stage avec plan de travail autonome."
   },
   {
-    question: 'Épreuve pratique & Grand Oral : quand les travailler ?',
-    answer: 'L'épreuve pratique (NSI) et le Grand Oral ne sont pas au centre du stage de février. Ils seront travaillés spécifiquement lors des vacances de printemps via un pack dédié. Février = fondamentaux + méthode + confiance.'
+    question: "Épreuve pratique & Grand Oral : quand les travailler ?",
+    answer: "L'épreuve pratique (NSI) et le Grand Oral ne sont pas au centre du stage de février. Ils seront travaillés spécifiquement lors des vacances de printemps via un pack dédié. Février = fondamentaux + méthode + confiance."
   }
 ];
 
@@ -311,21 +311,21 @@ export const stats: Stat[] = [
 // TESTIMONIALS
 export const testimonials: Testimonial[] = [
   {
-    quote: '8 jours qui ont changé mon orientation',
-    author: 'Sarah',
-    role: 'Terminale',
+    quote: "8 jours qui ont changé mon orientation",
+    author: "Sarah",
+    role: "Terminale",
     tags: ['NSI', 'Pallier 2']
   },
   {
-    quote: 'J'ai enfin compris la dérivation et les suites. Le cadre exigeant m'a forcé à progresser.',
-    author: 'Mehdi K.',
-    role: 'Première Maths',
+    quote: "J'ai enfin compris la dérivation et les suites. Le cadre exigeant m'a forcé à progresser.",
+    author: "Mehdi K.",
+    role: "Première Maths",
     tags: ['Maths', 'Pallier 1']
   },
   {
-    quote: 'Le module Excellence m'a préparé à Louis-le-Grand. J'ai eu ma mention TB.',
-    author: 'Thomas L.',
-    role: 'Terminale Maths',
+    quote: "Le module Excellence m'a préparé à Louis-le-Grand. J'ai eu ma mention TB.",
+    author: "Thomas L.",
+    role: "Terminale Maths",
     tags: ['Maths', 'Pallier 2', 'Mention TB']
   }
 ];
