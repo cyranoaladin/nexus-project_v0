@@ -220,27 +220,28 @@ Implement multi-strategy conflict detection between branches.
 
 ---
 
-### [ ] Step: Rule Engine Core
+### [x] Step: Rule Engine Core
+<!-- chat-id: 59132416-6f6d-4356-84ef-30e730b7f904 -->
 
 Build the rule loading, validation, and evaluation engine.
 
 **Tasks:**
-- [ ] Implement `core/rules/loader.ts` to load YAML rule files
-- [ ] Implement `core/rules/evaluator.ts` to evaluate rule conditions
-- [ ] Implement `core/rules/engine.ts` with RuleEngine class
-- [ ] Implement `loadRules()`: discover and load all rules from `.zenflow/rules/`
-- [ ] Implement `validateRule(rule)`: validate against schema
-- [ ] Implement `evaluateRule(rule, event)`: check if rule should trigger
-- [ ] Implement trigger matching logic (branch patterns, event types)
-- [ ] Implement condition evaluation (branch_check, worktree_active, no_conflicts, disk_space)
-- [ ] Write unit tests for rule loading and evaluation
+- [x] Implement `core/rules/loader.ts` to load YAML rule files
+- [x] Implement `core/rules/evaluator.ts` to evaluate rule conditions
+- [x] Implement `core/rules/engine.ts` with RuleEngine class
+- [x] Implement `loadRules()`: discover and load all rules from `.zenflow/rules/`
+- [x] Implement `validateRule(rule)`: validate against schema
+- [x] Implement `evaluateRule(rule, event)`: check if rule should trigger
+- [x] Implement trigger matching logic (branch patterns, event types)
+- [x] Implement condition evaluation (branch_check, worktree_active, no_conflicts, disk_space)
+- [x] Write unit tests for rule loading and evaluation
 
 **Verification:**
-- Rules are loaded from YAML files correctly
-- Rule validation works (valid/invalid rules)
-- Trigger matching works correctly
-- Condition evaluation is accurate
-- Unit tests pass
+- ✅ Rules are loaded from YAML files correctly
+- ✅ Rule validation works (valid/invalid rules)
+- ✅ Trigger matching works correctly
+- ✅ Condition evaluation is accurate
+- ✅ Unit tests pass (104 tests passing)
 
 **References:** spec.md sections 5.2 (RuleEngine API), 4.1 (Rule interfaces), REQ-RULE-001-003
 
