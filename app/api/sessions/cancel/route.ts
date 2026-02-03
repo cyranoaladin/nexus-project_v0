@@ -128,6 +128,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error('Failed to cancel session', error);
     logger.logRequest(500);
-    return handleApiError(error, 'POST /api/sessions/cancel');
+    return await handleApiError(error, 'POST /api/sessions/cancel');
   }
 }
