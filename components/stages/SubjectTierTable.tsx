@@ -21,17 +21,28 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 text-center mb-4">
             Maths & NSI : ce que couvre février
           </h2>
-          <p className="text-lg text-slate-600 text-center mb-12 max-w-3xl mx-auto">
+          <p className="text-lg text-slate-600 text-center mb-4 max-w-3xl mx-auto">
             Fondamentaux, méthode, confiance. Sans catalogue, sans superflu.
           </p>
+          
+          {/* Sous-label explicite */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-3xl mx-auto mb-12">
+            <p className="text-sm text-blue-900 text-center leading-relaxed">
+              Les contenus sont adaptés au niveau (<strong>Première ou Terminale</strong>) et au pallier choisi, 
+              afin de garantir une progression cohérente et efficace.
+            </p>
+          </div>
 
           {/* Subjects */}
           <div className="space-y-12">
             {subjectsContent.map((subject) => (
               <div key={subject.subject} className="bg-slate-50 rounded-3xl p-8 border border-slate-200">
-                <h3 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-wide">
-                  {subject.subject === 'maths' ? '📐 Mathématiques' : '💻 NSI'}
-                </h3>
+                <div className="mb-8">
+                  <h3 className="text-2xl font-black text-slate-900 uppercase tracking-wide">
+                    {subject.subject === 'maths' ? '📐 Mathématiques' : '💻 NSI'}
+                  </h3>
+                  <p className="text-sm text-slate-500 mt-1">Première & Terminale</p>
+                </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                   {/* Pallier 1 */}
