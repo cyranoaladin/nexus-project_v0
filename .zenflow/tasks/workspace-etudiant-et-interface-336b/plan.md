@@ -356,7 +356,8 @@ Write E2E test for student asking ARIA a question with streaming response.
 
 ---
 
-### [ ] Step: Polish and Accessibility
+### [x] Step: Polish and Accessibility
+<!-- chat-id: d44a619a-77d9-4f76-a52f-b62dfdbb29a7 -->
 
 Add loading states, error boundaries, and accessibility improvements.
 

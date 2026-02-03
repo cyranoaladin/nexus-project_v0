@@ -7,8 +7,18 @@
 
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { logger } from '@/lib/logger';
 import type pino from 'pino';
+
+// Lazy import logger to avoid loading Pino in Edge runtime (middleware)
+// Only load when actually needed (in handleApiError)
+let _logger: pino.Logger | null = null;
+function getLogger(): pino.Logger {
+  if (!_logger) {
+    const { logger } = require('@/lib/logger');
+    _logger = logger;
+  }
+  return _logger!;
+}
 
 /**
  * Standard HTTP Status Codes
@@ -211,7 +221,7 @@ export function handleApiError(
   context?: string,
   requestLogger?: pino.Logger
 ): NextResponse<ApiErrorResponse> {
-  const log = requestLogger || logger;
+  const log = requestLogger || getLogger();
 
   if (error instanceof ApiError) {
     // ApiError is expected, log at warn level

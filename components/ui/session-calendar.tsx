@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { DayPicker } from "react-day-picker";
 import { format, isSameDay, isToday, addMinutes } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Calendar, Clock, User, Video, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import SessionBooking from "@/components/ui/session-booking";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { cn } from "@/lib/utils";
 import "react-day-picker/style.css";
 
@@ -37,7 +39,7 @@ interface SessionCalendarProps {
   onBookingComplete?: () => void;
 }
 
-export function SessionCalendar({ 
+const SessionCalendarInner = memo(function SessionCalendarInner({ 
   sessions, 
   studentId, 
   parentId, 
@@ -129,19 +131,20 @@ export function SessionCalendar({
 
   return (
     <>
-      <Card className={cn("w-full", className)}>
+      <Card className={cn("w-full", className)} role="region" aria-label="Calendrier des sessions">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-5 w-5" aria-hidden="true" />
               Calendrier des sessions
             </CardTitle>
             <Button
               size="sm"
               onClick={() => setIsBookingDialogOpen(true)}
               className="flex items-center gap-1"
+              aria-label="Réserver une session"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Réserver
             </Button>
           </div>
@@ -157,6 +160,7 @@ export function SessionCalendar({
                 disabled={{ before: today }}
                 fromDate={today}
                 toDate={nextMonth}
+                locale={fr}
                 modifiers={{
                   scheduled: sessionDates,
                 }}
@@ -183,6 +187,7 @@ export function SessionCalendar({
                   outside: "text-gray-400 opacity-50",
                   disabled: "text-gray-400 opacity-50",
                 }}
+                aria-label="Calendrier de sélection de date"
               />
             </div>
           </PopoverTrigger>
@@ -216,12 +221,12 @@ export function SessionCalendar({
                       <div className="space-y-1 text-xs text-gray-600">
                         {session.coach && (
                           <div className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
+                            <User className="h-3 w-3" aria-hidden="true" />
                             <span>{session.coach.firstName} {session.coach.lastName}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="h-3 w-3" aria-hidden="true" />
                           <span>{session.startTime} - {session.endTime}</span>
                         </div>
                       </div>
@@ -233,8 +238,9 @@ export function SessionCalendar({
                           onClick={() => {
                             window.location.href = `/session/${session.id}`;
                           }}
+                          aria-label={`Rejoindre la session ${session.title}`}
                         >
-                          <Video className="h-3 w-3 mr-1" />
+                          <Video className="h-3 w-3 mr-1" aria-hidden="true" />
                           Rejoindre la session
                         </Button>
                       )}
@@ -295,4 +301,12 @@ export function SessionCalendar({
     </Dialog>
     </>
   );
+})
+
+export function SessionCalendar(props: SessionCalendarProps) {
+  return (
+    <ErrorBoundary>
+      <SessionCalendarInner {...props} />
+    </ErrorBoundary>
+  )
 }
