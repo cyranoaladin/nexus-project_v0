@@ -137,7 +137,7 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
           
           <div className="flex gap-2">
             <Select value={chartType} onValueChange={(value) => setChartType(value as "trend" | "subjects")}>
-              <SelectTrigger className="w-[140px] h-10">
+              <SelectTrigger className="w-[140px] h-10" aria-label="Type de graphique">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -148,7 +148,7 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
 
             {chartType === "trend" && (
               <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRange)}>
-                <SelectTrigger className="w-[120px] h-10">
+                <SelectTrigger className="w-[120px] h-10" aria-label="Période d'affichage">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,37 +167,39 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
       <CardContent>
         {chartType === "trend" ? (
           hasProgressData && formattedProgressData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={formattedProgressData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="formattedDate" 
-                  stroke="#6B7280"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis 
-                  stroke="#6B7280"
-                  style={{ fontSize: '12px' }}
-                  domain={[0, 100]}
-                  ticks={[0, 25, 50, 75, 100]}
-                  tickFormatter={(value) => `${value}%`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  wrapperStyle={{ paddingTop: '20px' }}
-                  iconType="line"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="progress" 
-                  stroke="#2563EB" 
-                  strokeWidth={3}
-                  dot={{ fill: "#2563EB", r: 4 }}
-                  activeDot={{ r: 6 }}
-                  name="Progression"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div role="img" aria-label="Graphique d'évolution de la progression au fil du temps">
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={formattedProgressData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis 
+                    dataKey="formattedDate" 
+                    stroke="#6B7280"
+                    style={{ fontSize: '12px' }}
+                  />
+                  <YAxis 
+                    stroke="#6B7280"
+                    style={{ fontSize: '12px' }}
+                    domain={[0, 100]}
+                    ticks={[0, 25, 50, 75, 100]}
+                    tickFormatter={(value) => `${value}%`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '20px' }}
+                    iconType="line"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="progress" 
+                    stroke="#2563EB" 
+                    strokeWidth={3}
+                    dot={{ fill: "#2563EB", r: 4 }}
+                    activeDot={{ r: 6 }}
+                    name="Progression"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 mb-4">
@@ -213,46 +215,48 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
           )
         ) : (
           hasSubjectData ? (
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart 
-                data={subjectProgressHistory} 
-                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="subject" 
-                  stroke="#6B7280"
-                  style={{ fontSize: '12px' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis 
-                  stroke="#6B7280"
-                  style={{ fontSize: '12px' }}
-                  domain={[0, 100]}
-                  ticks={[0, 25, 50, 75, 100]}
-                  tickFormatter={(value) => `${value}%`}
-                />
-                <Tooltip content={<SubjectTooltip />} />
-                <Legend 
-                  wrapperStyle={{ paddingTop: '20px' }}
-                  iconType="rect"
-                />
-                <Bar 
-                  dataKey="progress" 
-                  name="Progression par matière"
-                  radius={[8, 8, 0, 0]}
+            <div role="img" aria-label="Graphique de progression par matière">
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart 
+                  data={subjectProgressHistory} 
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
                 >
-                  {subjectProgressHistory.map((entry, index) => (
-                    <rect 
-                      key={`cell-${index}`} 
-                      fill={getSubjectColor(entry.subject)}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis 
+                    dataKey="subject" 
+                    stroke="#6B7280"
+                    style={{ fontSize: '12px' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    stroke="#6B7280"
+                    style={{ fontSize: '12px' }}
+                    domain={[0, 100]}
+                    ticks={[0, 25, 50, 75, 100]}
+                    tickFormatter={(value) => `${value}%`}
+                  />
+                  <Tooltip content={<SubjectTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '20px' }}
+                    iconType="rect"
+                  />
+                  <Bar 
+                    dataKey="progress" 
+                    name="Progression par matière"
+                    radius={[8, 8, 0, 0]}
+                  >
+                    {subjectProgressHistory.map((entry, index) => (
+                      <rect 
+                        key={`cell-${index}`} 
+                        fill={getSubjectColor(entry.subject)}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 mb-4">

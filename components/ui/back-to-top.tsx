@@ -39,6 +39,7 @@ export function BackToTop() {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
       )}
       aria-label="Retour en haut"
+      data-testid="back-to-top"
     >
       <ArrowUp className="h-6 w-6" />
     </button>
