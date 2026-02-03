@@ -443,7 +443,7 @@ export default function DashboardParent() {
               </Card>
 
               {/* Progression Chart */}
-              {currentChild?.progressHistory && currentChild?.subjectProgressHistory && (
+              {currentChild && (
                 <ProgressChart 
                   progressHistory={currentChild.progressHistory}
                   subjectProgressHistory={currentChild.subjectProgressHistory}
