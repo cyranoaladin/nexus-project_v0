@@ -280,6 +280,10 @@ export const faq: FAQ[] = [
     answer: "Pallier 1 : consolider les bases, corriger les erreurs récurrentes, installer des méthodes fiables. Pallier 2 : transformer un bon niveau en maîtrise solide, viser une mention, préparer la suite (prépa/ingénieur). Cadre exigeant, bilans individualisés, épreuves blanches."
   },
   {
+    question: "Comment choisir entre le Pallier 1 et le Pallier 2 ?",
+    answer: "Le choix du pallier dépend avant tout du niveau actuel de l'élève, de sa régularité de travail et de ses objectifs. Le Pallier 1 s'adresse aux élèves qui souhaitent consolider les bases, corriger leurs erreurs récurrentes et sécuriser le baccalauréat. Il convient particulièrement aux élèves en difficulté, aux profils fragiles et aux candidats libres. Le Pallier 2 s'adresse aux élèves déjà solides, qui maîtrisent l'essentiel du programme et souhaitent approfondir, viser une meilleure mention et préparer la suite de leur parcours (prépa, études scientifiques, ingénierie). En cas de doute, une consultation gratuite permet d'analyser la situation de l'élève et de recommander le pallier le plus adapté."
+  },
+  {
     question: "Les stages garantissent-ils des résultats ?",
     answer: "Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé."
   },
