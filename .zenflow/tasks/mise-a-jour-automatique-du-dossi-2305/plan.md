@@ -55,7 +55,8 @@ Save to `{@artifacts_path}/plan.md`.
 
 ## Phase 1: Foundation & Core Infrastructure
 
-### [ ] Step: Project Structure and Dependencies
+### [x] Step: Project Structure and Dependencies
+<!-- chat-id: 8da3d459-13d0-4e69-8f70-28219c1f90cc -->
 
 Set up the foundational directory structure and install required dependencies for the Zenflow system.
 
