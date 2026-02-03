@@ -9,7 +9,7 @@ import { NotificationType, SessionStatus } from '@prisma/client';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +22,7 @@ export async function POST(
     }
 
     const coachUserId = session.user.id;
-    const { sessionId } = params;
+    const { sessionId } = await params;
 
     const body = await request.json();
     const validationResult = reportSubmissionSchema.safeParse(body);
@@ -192,7 +192,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -204,7 +204,7 @@ export async function GET(
       );
     }
 
-    const { sessionId } = params;
+    const { sessionId } = await params;
 
     const report = await prisma.sessionReport.findUnique({
       where: { sessionId },
