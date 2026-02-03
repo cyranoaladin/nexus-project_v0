@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Send, Bot, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react"
 import { Subject } from "@/types/enums"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 interface Message {
   id: string
@@ -34,7 +35,7 @@ interface AriaEmbeddedChatProps {
   studentId: string
 }
 
-export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
+const AriaEmbeddedChatInner = memo(function AriaEmbeddedChatInner({ studentId }: AriaEmbeddedChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES)
@@ -247,17 +248,17 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col" role="region" aria-label="Assistant ARIA">
       <CardHeader className="border-b bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
         <CardTitle className="text-xl font-bold flex items-center gap-2">
-          <Bot className="w-6 h-6" />
+          <Bot className="w-6 h-6" aria-hidden="true" />
           ARIA - Assistant IA
         </CardTitle>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col p-4 overflow-hidden">
         <div className="mb-4">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">
+          <Label htmlFor="subject-select" className="text-sm font-medium text-gray-700 mb-2 block">
             Matière :
           </Label>
           <Select 
@@ -268,7 +269,7 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
               setConversationId("")
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="subject-select" className="w-full" aria-label="Sélectionner une matière">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -281,10 +282,15 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
           </Select>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <div 
+          className="flex-1 overflow-y-auto space-y-4 mb-4" 
+          role="log" 
+          aria-live="polite"
+          aria-label="Historique de conversation"
+        >
           {messages.length === 0 && (
             <div className="text-center text-gray-500 py-12">
-              <Bot className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <Bot className="w-16 h-16 mx-auto mb-4 text-gray-300" aria-hidden="true" />
               <p className="text-sm">
                 Posez votre première question sur <strong>{SUBJECTS_OPTIONS.find(s => s.value === selectedSubject)?.label}</strong> !
               </p>
@@ -298,6 +304,8 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
             >
               <div
                 data-testid="aria-message"
+                role={message.role === 'user' ? 'article' : 'article'}
+                aria-label={message.role === 'user' ? 'Votre message' : 'Réponse ARIA'}
                 className={`max-w-[85%] rounded-xl p-4 shadow-sm ${
                   message.role === 'user'
                     ? 'bg-blue-600 text-white'
@@ -306,34 +314,42 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
               >
                 <div className="flex items-start space-x-2">
                   {message.role === 'assistant' && (
-                    <Bot className="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0" />
+                    <Bot className="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0" aria-hidden="true" />
                   )}
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
                     {message.content}
                     {message.id === streamingMessageId && isStreaming && (
-                      <span className="inline-block w-2 h-4 ml-1 bg-blue-600 animate-pulse" />
+                      <span className="inline-block w-2 h-4 ml-1 bg-blue-600 animate-pulse" aria-label="En cours de réception" />
                     )}
                   </p>
                 </div>
                 
                 {message.role === 'assistant' && message.id !== streamingMessageId && message.content && (
                   <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-200">
-                    <span className="text-xs text-gray-500">Cette réponse vous a-t-elle aidé ?</span>
+                    <span className="text-xs text-gray-500" id={`feedback-label-${message.id}`}>
+                      Cette réponse vous a-t-elle aidé ?
+                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback(message.id, true)}
                       className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-gray-400'}`}
+                      aria-label="Utile"
+                      aria-pressed={message.feedback === true}
+                      aria-describedby={`feedback-label-${message.id}`}
                     >
-                      <ThumbsUp className="w-3 h-3" />
+                      <ThumbsUp className="w-3 h-3" aria-hidden="true" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback(message.id, false)}
                       className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-red-600' : 'text-gray-400'}`}
+                      aria-label="Pas utile"
+                      aria-pressed={message.feedback === false}
+                      aria-describedby={`feedback-label-${message.id}`}
                     >
-                      <ThumbsDown className="w-3 h-3" />
+                      <ThumbsDown className="w-3 h-3" aria-hidden="true" />
                     </Button>
                   </div>
                 )}
@@ -343,13 +359,18 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
 
           {isLoading && !isStreaming && (
             <div className="flex justify-start">
-              <div data-testid="loading" className="bg-blue-50 rounded-xl p-4 border border-slate-200">
+              <div 
+                data-testid="loading" 
+                className="bg-blue-50 rounded-xl p-4 border border-slate-200"
+                role="status"
+                aria-label="Chargement de la réponse"
+              >
                 <div className="flex items-center space-x-2">
-                  <Bot className="w-5 h-5 text-blue-600" />
+                  <Bot className="w-5 h-5 text-blue-600" aria-hidden="true" />
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" aria-hidden="true" />
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} aria-hidden="true" />
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} aria-hidden="true" />
                   </div>
                 </div>
               </div>
@@ -360,36 +381,60 @@ export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div 
+            className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
 
-        <div className="border-t pt-4">
+        <form 
+          className="border-t pt-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSendMessage()
+          }}
+        >
           <div className="flex space-x-2">
             <Input
+              id="message-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Posez votre question..."
               disabled={isLoading}
               className="flex-1"
+              aria-label="Votre question"
+              autoComplete="off"
             />
             <Button
+              type="submit"
               onClick={handleSendMessage}
               disabled={!input.trim() || isLoading}
               size="default"
               className="px-4"
+              aria-label="Envoyer le message"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4" aria-hidden="true" />
               )}
+              <span className="sr-only">Envoyer</span>
             </Button>
           </div>
-        </div>
+        </form>
       </CardContent>
     </Card>
+  )
+})
+
+export function AriaEmbeddedChat({ studentId }: AriaEmbeddedChatProps) {
+  return (
+    <ErrorBoundary>
+      <AriaEmbeddedChatInner studentId={studentId} />
+    </ErrorBoundary>
   )
 }

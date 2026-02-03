@@ -90,16 +90,23 @@ interface DashboardData {
 
 async function getDashboardData(): Promise<DashboardData> {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/student/dashboard`, {
-    cache: 'no-store',
-    credentials: 'include',
-  });
   
-  if (!res.ok) {
-    throw new Error('Failed to fetch dashboard data');
+  try {
+    const res = await fetch(`${baseUrl}/api/student/dashboard`, {
+      cache: 'no-store',
+      credentials: 'include',
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Failed to fetch dashboard data: ${res.status} ${errorText}`);
+    }
+    
+    return res.json();
+  } catch (error) {
+    console.error('Dashboard data fetch error:', error);
+    throw error;
   }
-  
-  return res.json();
 }
 
 function LogoutButton() {
@@ -150,27 +157,27 @@ export default async function StudentDashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">
             Bonjour {data.student.firstName} ! 👋
           </h2>
-          <p className="text-neutral-600">
+          <p className="text-sm sm:text-base text-neutral-600">
             Bienvenue dans votre nouvel espace Nexus Réussite.
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Solde de Crédits */}
-          <Card>
+          <Card role="region" aria-label="Solde de crédits">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Solde de Crédits</CardTitle>
               <CreditCard className="h-4 w-4 text-brand-primary" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-brand-primary">
+              <div className="text-xl sm:text-2xl font-bold text-brand-primary" aria-label={`${data.credits.balance} crédits disponibles`}>
                 {data.credits.balance} crédits
               </div>
               <p className="text-xs text-neutral-600 mt-1">
@@ -230,7 +237,7 @@ export default async function StudentDashboardPage() {
           </Card>
 
           {/* Prochaine Session */}
-          <Card>
+          <Card role="region" aria-label="Prochaine session">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Prochaine Session</CardTitle>
               <Calendar className="h-4 w-4 text-success" aria-hidden="true" />
@@ -265,7 +272,7 @@ export default async function StudentDashboardPage() {
           </Card>
 
           {/* Badge Progress */}
-          <Card>
+          <Card role="region" aria-label="Progression et badges">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Progression</CardTitle>
               <Award className="h-4 w-4 text-purple-600" aria-hidden="true" />
@@ -282,17 +289,17 @@ export default async function StudentDashboardPage() {
         </div>
 
         {/* Main Dashboard Grid - 60% Left / 40% Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
           {/* Left Column - 60% (3/5) */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="lg:col-span-3 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* ARIA Chat Component */}
-            <div className="h-[600px]">
+            <div className="h-[500px] sm:h-[600px]">
               <AriaEmbeddedChat studentId={data.student.id} />
             </div>
           </div>
 
           {/* Right Column - 40% (2/5) */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Session Calendar */}
             <StudentCalendarWrapper
               sessions={data.allSessions}
@@ -301,19 +308,20 @@ export default async function StudentDashboardPage() {
             />
 
             {/* Recent Sessions */}
-            <Card>
+            <Card role="region" aria-label="Sessions récentes">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-brand-primary" />
+                    <Calendar className="w-5 h-5 mr-2 text-brand-primary" aria-hidden="true" />
                     Sessions Récentes
                   </div>
                   <Link 
                     href="/dashboard/eleve/mes-sessions"
                     className="text-xs text-brand-primary hover:text-brand-primary/80 font-medium flex items-center"
+                    aria-label="Voir toutes les sessions"
                   >
                     Voir tout
-                    <ArrowRight className="w-3 h-3 ml-1" />
+                    <ArrowRight className="w-3 h-3 ml-1" aria-hidden="true" />
                   </Link>
                 </CardTitle>
               </CardHeader>
@@ -324,10 +332,11 @@ export default async function StudentDashboardPage() {
                       <Link
                         key={session.id}
                         href="/dashboard/eleve/mes-sessions"
-                        className="block p-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-colors"
+                        className="block p-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+                        aria-label={`Session ${session.title} - ${session.subject}`}
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0 w-full sm:w-auto">
                             <h4 className="font-medium text-neutral-900 text-sm truncate">
                               {session.title}
                             </h4>
@@ -370,12 +379,12 @@ export default async function StudentDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                    <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" aria-hidden="true" />
                     <p className="text-sm text-neutral-500 mb-3">
                       Aucune session récente
                     </p>
                     <Link href="/dashboard/eleve/sessions">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" aria-label="Réserver une session">
                         Réserver une session
                       </Button>
                     </Link>

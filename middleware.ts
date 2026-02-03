@@ -1,7 +1,13 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 import { RateLimitPresets } from '@/lib/middleware/rateLimit'
-// import { createLogger } from '@/lib/middleware/logger' // Disabled for Edge runtime compatibility
+
+// Simple Edge-compatible logger (console-based)
+function logSecurityEvent(event: string, data: Record<string, unknown>): void {
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn('[Security]', event, JSON.stringify(data));
+  }
+}
 
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
@@ -33,15 +39,15 @@ export default withAuth(
       const rateLimitResult = RateLimitPresets.auth(req, 'auth:login')
       
       if (rateLimitResult) {
-        // const logger = createLogger(req) // Disabled for Edge runtime compatibility
-        // const forwarded = req.headers.get('x-forwarded-for')
-        // const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        const forwarded = req.headers.get('x-forwarded-for')
+        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
         
-        // logger.logSecurityEvent('rate_limit_exceeded', 429, {
-        //   ip,
-        //   path: pathname,
-        //   attempt: 'login',
-        // })
+        logSecurityEvent('rate_limit_exceeded', {
+          ip,
+          path: pathname,
+          attempt: 'login',
+          statusCode: 429,
+        })
         
         return applySecurityHeaders(rateLimitResult)
       }
@@ -58,15 +64,15 @@ export default withAuth(
       }
       
       if (rateLimitResult) {
-        // const logger = createLogger(req) // Disabled for Edge runtime compatibility
-        // const forwarded = req.headers.get('x-forwarded-for')
-        // const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        const forwarded = req.headers.get('x-forwarded-for')
+        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
         
-        // logger.logSecurityEvent('rate_limit_exceeded', 429, {
-        //   ip,
-        //   path: pathname,
-        //   userId: token?.sub,
-        // })
+        logSecurityEvent('rate_limit_exceeded', {
+          ip,
+          path: pathname,
+          userId: token?.sub,
+          statusCode: 429,
+        })
         
         return applySecurityHeaders(rateLimitResult)
       }
