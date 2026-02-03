@@ -75,7 +75,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
           </div>
 
           {/* Testimonial */}
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto mb-10">
+          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto mb-10 hover:bg-white/10 transition-all">
             <p className="text-lg italic text-white mb-2">"8 jours qui ont changé mon orientation"</p>
             <p className="text-sm text-blue-200">— Sarah, Terminale</p>
           </div>
