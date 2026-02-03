@@ -1,3 +1,6 @@
+// Set NODE_ENV before any imports
+process.env.NODE_ENV = 'development';
+
 import '@testing-library/jest-dom';
 
 // Mock Prisma client
@@ -51,13 +54,57 @@ jest.mock('next-auth', () => ({
 // Mock Radix Select used in tests to behave like native select
 jest.mock('@/components/ui/select', () => {
   const React = require('react');
-  const Select = ({ children, value, onValueChange, ...props }) => (
-    <select {...props} value={value} onChange={(e) => onValueChange?.(e.target.value)}>{children}</select>
-  );
-  const SelectTrigger = () => null;
-  const SelectValue = () => null;
-  const SelectContent = ({ children }) => <>{children}</>;
-  const SelectItem = ({ value, children }) => <option value={value}>{children}</option>;
+  const SelectContext = React.createContext({ value: null, onValueChange: () => {} });
+  
+  const Select = ({ children, value, onValueChange, defaultValue, ...props }) => {
+    const [selectedValue, setSelectedValue] = React.useState(value || defaultValue || '');
+    
+    React.useEffect(() => {
+      if (value !== undefined) {
+        setSelectedValue(value);
+      }
+    }, [value]);
+    
+    const handleChange = React.useCallback((newValue) => {
+      if (value === undefined) {
+        setSelectedValue(newValue);
+      }
+      onValueChange?.(newValue);
+    }, [value, onValueChange]);
+    
+    return (
+      <SelectContext.Provider value={{ value: selectedValue, onValueChange: handleChange }}>
+        <div {...props}>{children}</div>
+      </SelectContext.Provider>
+    );
+  };
+  
+  const SelectTrigger = ({ children }) => {
+    const { value } = React.useContext(SelectContext);
+    return <button type="button">{value || children}</button>;
+  };
+  
+  const SelectValue = ({ placeholder }) => {
+    const { value } = React.useContext(SelectContext);
+    return <>{value || placeholder}</>;
+  };
+  
+  const SelectContent = ({ children }) => {
+    return <div role="listbox">{children}</div>;
+  };
+  
+  const SelectItem = ({ value, children }) => {
+    const context = React.useContext(SelectContext);
+    return (
+      <button 
+        role="option" 
+        onClick={() => context.onValueChange(value)}
+      >
+        {children}
+      </button>
+    );
+  };
+  
   return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };
 });
 
@@ -79,14 +126,68 @@ jest.mock('@/components/ui/checkbox', () => {
   };
 });
 
+// Mock Radix Tabs to render all content in tests
+jest.mock('@/components/ui/tabs', () => {
+  const React = require('react');
+  const TabsContext = React.createContext({ selectedValue: null, onValueChange: () => {} });
+  
+  return {
+    Tabs: function Tabs({ children, value: controlledValue, defaultValue, onValueChange, ...props }) {
+      const [selectedValue, setSelectedValue] = React.useState(controlledValue || defaultValue || 'all');
+      
+      React.useEffect(() => {
+        if (controlledValue !== undefined) {
+          setSelectedValue(controlledValue);
+        }
+      }, [controlledValue]);
+      
+      const handleValueChange = React.useCallback((newValue) => {
+        if (controlledValue === undefined) {
+          setSelectedValue(newValue);
+        }
+        onValueChange?.(newValue);
+      }, [controlledValue, onValueChange]);
+      
+      return (
+        <TabsContext.Provider value={{ selectedValue, onValueChange: handleValueChange }}>
+          <div data-testid="tabs" {...props}>{children}</div>
+        </TabsContext.Provider>
+      );
+    },
+    TabsList: function TabsList({ children, ...props }) {
+      return <div role="tablist" {...props}>{children}</div>;
+    },
+    TabsTrigger: function TabsTrigger({ value, children, ...props }) {
+      const context = React.useContext(TabsContext);
+      return (
+        <button 
+          role="tab" 
+          aria-label={value}
+          onClick={() => context.onValueChange(value)}
+          {...props}
+        >
+          {children}
+        </button>
+      );
+    },
+    TabsContent: function TabsContent({ children, value, ...props }) {
+      const context = React.useContext(TabsContext);
+      if (context.selectedValue !== value) return null;
+      return <div role="tabpanel" data-value={value} {...props}>{children}</div>;
+    },
+  };
+});
+
 // Silence presence animations in tests
-jest.mock('@radix-ui/react-presence', () => ({
-  Presence: ({ children }) => children,
-}));
+jest.mock('@radix-ui/react-presence', () => {
+  const React = require('react');
+  return {
+    Presence: ({ children, present }) => present !== false ? <>{children}</> : null,
+  };
+});
 
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.NODE_ENV = 'test';
 
 // Mock window.alert for jsdom environment (force override, JS-safe)
 if (typeof globalThis !== 'undefined') {
@@ -95,6 +196,10 @@ if (typeof globalThis !== 'undefined') {
   globalThis.alert = jest.fn();
   globalThis.window.alert = globalThis.alert;
 }
+
+// Mock URL.createObjectURL and URL.revokeObjectURL
+global.URL.createObjectURL = jest.fn(() => 'mock-object-url');
+global.URL.revokeObjectURL = jest.fn();
 
 // jest.setup.js
 // Polyfill IntersectionObserver pour Jest/jsdom (Node global)
