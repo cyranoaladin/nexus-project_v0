@@ -48,24 +48,32 @@ describe('DiagnosticForm', () => {
   });
 
   describe('Interactions utilisateur', () => {
-    it('sélectionne une option quand on clique dessus', () => {
+    it('sélectionne une option quand on clique dessus', async () => {
       const premiereButton = screen.getByText('Première');
       fireEvent.click(premiereButton);
 
+      // Wait for state update and verify the Check icon appears
+      await waitFor(() => {
+        expect(premiereButton.closest('button')).toContainHTML('<svg');
+      });
+      
       // Vérifier que le bouton est maintenant sélectionné (avec l'icône Check)
       expect(premiereButton.closest('button')).toHaveClass('bg-or-stellaire');
     });
 
-    it('permet de changer la sélection', () => {
-      const premiereButton = screen.getByText('Première');
-      const terminaleButton = screen.getByText('Terminale');
+    it('permet de changer la sélection', async () => {
+      fireEvent.click(screen.getByText('Première'));
+      
+      await waitFor(() => {
+        expect(screen.getByText('Première').closest('button')).toHaveClass('bg-or-stellaire');
+      });
 
-      fireEvent.click(premiereButton);
-      expect(premiereButton.closest('button')).toHaveClass('bg-or-stellaire');
-
-      fireEvent.click(terminaleButton);
-      expect(terminaleButton.closest('button')).toHaveClass('bg-or-stellaire');
-      expect(premiereButton.closest('button')).not.toHaveClass('bg-or-stellaire');
+      fireEvent.click(screen.getByText('Terminale'));
+      
+      await waitFor(() => {
+        expect(screen.getByText('Terminale').closest('button')).toHaveClass('bg-or-stellaire');
+        expect(screen.getByText('Première').closest('button')).not.toHaveClass('bg-or-stellaire');
+      });
     });
   });
 
