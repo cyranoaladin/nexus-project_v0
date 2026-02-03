@@ -18,6 +18,13 @@ const nextConfig = {
 
   transpilePackages: ['framer-motion'],
 
+  webpack: (config, { isServer, dev, nextRuntime }) => {
+    if (nextRuntime === 'edge' && dev) {
+      config.devtool = 'source-map';
+    }
+    return config;
+  },
+
   // Configuration pour les images - DÉSACTIVATION COMPLÈTE pour éviter erreurs 400
   images: {
     unoptimized: true, // Désactiver l'optimisation d'images Next.js
