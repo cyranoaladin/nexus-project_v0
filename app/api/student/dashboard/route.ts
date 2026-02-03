@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         },
         sessions: {
           where: {
-            status: { in: ['SCHEDULED', 'COMPLETED'] }
+            status: { in: ['SCHEDULED', 'COMPLETED', 'CONFIRMED'] }
           },
           include: {
             coach: {
@@ -44,8 +44,7 @@ export async function GET(request: NextRequest) {
               }
             }
           },
-          orderBy: { scheduledAt: 'desc' },
-          take: 5
+          orderBy: { scheduledAt: 'desc' }
         },
         ariaConversations: {
           orderBy: { createdAt: 'desc' },
@@ -77,10 +76,25 @@ export async function GET(request: NextRequest) {
     }, 0);
 
     // Get next session
-    const nextSession = student.sessions.find((session) => 
-      session.status === 'SCHEDULED' && 
+    const upcomingSessions = student.sessions.filter((session) => 
+      (session.status === 'SCHEDULED' || session.status === 'CONFIRMED') && 
       new Date(session.scheduledAt) > new Date()
     );
+    const nextSession = upcomingSessions[0];
+
+    // Get all sessions for calendar
+    const allSessions = student.sessions.map((session) => ({
+      id: session.id,
+      title: session.title,
+      subject: session.subject,
+      status: session.status,
+      scheduledAt: session.scheduledAt,
+      coach: session.coach ? {
+        firstName: session.coach.user.firstName,
+        lastName: session.coach.user.lastName,
+        pseudonym: session.coach.pseudonym
+      } : null
+    }));
 
     // Get recent ARIA messages count
     const today = new Date();
@@ -124,7 +138,8 @@ export async function GET(request: NextRequest) {
           pseudonym: nextSession.coach.pseudonym
         } : null
       } : null,
-      recentSessions: student.sessions.map((session) => ({
+      allSessions: allSessions,
+      recentSessions: student.sessions.slice(0, 5).map((session) => ({
         id: session.id,
         title: session.title,
         subject: session.subject,
