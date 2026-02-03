@@ -87,10 +87,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations spécifiques selon le rôle
-  parentProfile ParentProfile?
+  parentProfile  ParentProfile?
   studentProfile StudentProfile?
-  student Student?
-  coachProfile CoachProfile?
+  student        Student?
+  coachProfile   CoachProfile?
 
   // Relations communes
   sentMessages     Message[] @relation("MessageSender")
@@ -99,16 +99,16 @@ model User {
 
   // Coach specific relations
   coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
-  coachSessions      SessionBooking[]    @relation("CoachSessions")
+  coachSessions       SessionBooking[]    @relation("CoachSessions")
 
   // Student specific relations
-  studentSessions    SessionBooking[]    @relation("StudentSessions")
+  studentSessions SessionBooking[] @relation("StudentSessions")
 
   // Parent specific relations
-  parentSessions     SessionBooking[]    @relation("ParentSessions")
+  parentSessions SessionBooking[] @relation("ParentSessions")
 
   // Notification relations
-  notifications      SessionNotification[] @relation("UserNotifications")
+  notifications SessionNotification[] @relation("UserNotifications")
 
   @@index([role])
   @@map("users")
@@ -138,16 +138,16 @@ model StudentProfile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
-  grade        String? // Classe (Seconde, Première, Terminale)
-  school       String?
-  birthDate    DateTime?
+  grade     String? // Classe (Seconde, Première, Terminale)
+  school    String?
+  birthDate DateTime?
 
   @@map("student_profiles")
 }
 
 // Modèle Élève (entité métier)
 model Student {
-  id       String @id @default(cuid())
+  id       String        @id @default(cuid())
   parentId String
   parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
 
@@ -160,19 +160,19 @@ model Student {
   birthDate DateTime?
 
   // Crédits et sessions
-  credits            Int @default(0)
-  totalSessions      Int @default(0)
-  completedSessions  Int @default(0)
+  credits           Int @default(0)
+  totalSessions     Int @default(0)
+  completedSessions Int @default(0)
 
   // Relations
-  subscriptions    Subscription[]
-  creditTransactions CreditTransaction[]
-  sessions         Session[]
-  ariaConversations AriaConversation[]
-  badges           StudentBadge[]
-  reports          StudentReport[]
+  subscriptions        Subscription[]
+  creditTransactions   CreditTransaction[]
+  sessions             Session[]
+  ariaConversations    AriaConversation[]
+  badges               StudentBadge[]
+  reports              StudentReport[]
   subscriptionRequests SubscriptionRequest[]
-  sessionReports   SessionReport[]
+  sessionReports       SessionReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -195,15 +195,15 @@ model CoachProfile {
   expertise   String?
 
   // Spécialités (JSON string pour SQLite)
-  subjects    String // JSON array des subjects
+  subjects String // JSON array des subjects
 
   // Disponibilités
-  availableOnline     Boolean @default(true)
-  availableInPerson   Boolean @default(true)
+  availableOnline   Boolean @default(true)
+  availableInPerson Boolean @default(true)
 
   // Relations
-  sessions    Session[]
-  reports     StudentReport[]
+  sessions       Session[]
+  reports        StudentReport[]
   sessionReports SessionReport[]
 
   createdAt DateTime @default(now())
@@ -214,14 +214,14 @@ model CoachProfile {
 
 // Modèle Abonnement
 model Subscription {
-  id        String             @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
-  student   Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   // Détails de l'abonnement
-  planName      String // ACCES_PLATEFORME, HYBRIDE, IMMERSION
-  monthlyPrice  Int    // Prix en TND
-  creditsPerMonth Int  // Crédits inclus par mois
+  planName        String // ACCES_PLATEFORME, HYBRIDE, IMMERSION
+  monthlyPrice    Int // Prix en TND
+  creditsPerMonth Int // Crédits inclus par mois
 
   // Statut et dates
   status    SubscriptionStatus
@@ -230,7 +230,7 @@ model Subscription {
 
   // Add-ons ARIA (JSON string pour SQLite)
   ariaSubjects String @default("[]") // JSON array des matières ARIA activées
-  ariaCost     Int       @default(0) // Coût mensuel des add-ons ARIA
+  ariaCost     Int    @default(0) // Coût mensuel des add-ons ARIA
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -241,18 +241,18 @@ model Subscription {
 
 // Modèle Transaction de Crédits
 model CreditTransaction {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   // Détails de la transaction
   type        String // MONTHLY_ALLOCATION, PURCHASE, USAGE, REFUND, EXPIRATION
-  amount      Float  // Peut être négatif pour les utilisations
+  amount      Float // Peut être négatif pour les utilisations
   description String
 
   // Métadonnées
-  sessionId   String? // Si lié à une session
-  expiresAt   DateTime? // Pour les crédits avec expiration
+  sessionId String? // Si lié à une session
+  expiresAt DateTime? // Pour les crédits avec expiration
 
   createdAt DateTime @default(now())
 
@@ -267,7 +267,7 @@ model CreditTransaction {
 
 // Modèle Session (Cours/Ateliers)
 model Session {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
@@ -282,16 +282,16 @@ model Session {
 
   // Planification
   scheduledAt DateTime
-  duration    Int      // Durée en minutes
-  location    String?  // Pour le présentiel ou lien visio
+  duration    Int // Durée en minutes
+  location    String? // Pour le présentiel ou lien visio
 
   // Coût et statut
   creditCost Float
   status     SessionStatus @default(SCHEDULED)
 
   // Compte-rendu
-  report      String?
-  reportedAt  DateTime?
+  report     String?
+  reportedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -304,14 +304,14 @@ model Session {
 
 // Modèle Conversation ARIA
 model AriaConversation {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  subject   Subject
-  title     String?
+  subject Subject
+  title   String?
 
-  messages  AriaMessage[]
+  messages AriaMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -322,7 +322,7 @@ model AriaConversation {
 
 // Modèle Message ARIA
 model AriaMessage {
-  id             String @id @default(cuid())
+  id             String           @id @default(cuid())
   conversationId String
   conversation   AriaConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
@@ -340,8 +340,8 @@ model AriaMessage {
 
 // Modèle Badge
 model Badge {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String
   category    String // ASSIDUITE, PROGRESSION, CURIOSITE
   icon        String?
@@ -357,7 +357,7 @@ model Badge {
 
 // Modèle Attribution de Badge
 model StudentBadge {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
@@ -372,7 +372,7 @@ model StudentBadge {
 
 // Modèle Rapport Élève
 model StudentReport {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
@@ -380,15 +380,15 @@ model StudentReport {
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Educational records outlive coach employment
 
   // Contenu du rapport
-  title       String
-  content     String
-  period      String // "Semaine du X", "Mois de Y", etc.
+  title   String
+  content String
+  period  String // "Semaine du X", "Mois de Y", etc.
 
   // Métriques
-  sessionsCount    Int     @default(0)
-  averageGrade     Float?
-  progressNotes    String?
-  recommendations  String?
+  sessionsCount   Int     @default(0)
+  averageGrade    Float?
+  progressNotes   String?
+  recommendations String?
 
   createdAt DateTime @default(now())
 
@@ -404,7 +404,7 @@ model Payment {
   // Détails du paiement
   type        PaymentType
   amount      Float
-  currency    String @default("TND")
+  currency    String      @default("TND")
   description String
 
   // Statut et méthode
@@ -413,7 +413,7 @@ model Payment {
 
   // Métadonnées
   externalId String? // ID de transaction externe
-  metadata   Json?   // Données supplémentaires
+  metadata   Json? // Données supplémentaires
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -425,20 +425,20 @@ model Payment {
 
 // Modèle Message (Chat)
 model Message {
-  id         String @id @default(cuid())
-  senderId   String?
-  sender     User?  @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
+  id       String  @id @default(cuid())
+  senderId String?
+  sender   User?   @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
   receiverId String?
-  receiver   User?  @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
+  receiver   User?   @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull) // Preserve communication history while anonymizing deleted users
 
-  content    String
-  fileUrl    String? // Pour les pièces jointes
-  fileName   String?
+  content  String
+  fileUrl  String? // Pour les pièces jointes
+  fileName String?
 
-  readAt     DateTime?
+  readAt DateTime?
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@map("messages")
 }
@@ -463,20 +463,20 @@ model PedagogicalContent {
 
 // Modèle pour les demandes de modification d'abonnement
 model SubscriptionRequest {
-  id              String   @id @default(cuid())
-  studentId       String
-  requestType     String   // PLAN_CHANGE, ARIA_ADDON, INVOICE_DETAILS
-  planName        String?
-  monthlyPrice    Float
-  reason          String?
-  status          String   // PENDING, APPROVED, REJECTED
-  requestedBy     String
+  id               String    @id @default(cuid())
+  studentId        String
+  requestType      String // PLAN_CHANGE, ARIA_ADDON, INVOICE_DETAILS
+  planName         String?
+  monthlyPrice     Float
+  reason           String?
+  status           String // PENDING, APPROVED, REJECTED
+  requestedBy      String
   requestedByEmail String
-  processedBy     String?
-  processedAt     DateTime?
-  rejectionReason String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  processedBy      String?
+  processedAt      DateTime?
+  rejectionReason  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   // Relations
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -486,16 +486,16 @@ model SubscriptionRequest {
 
 // Modèle pour les notifications système
 model Notification {
-  id          String   @id @default(cuid())
-  userId      String   // ID de l'utilisateur qui reçoit la notification
-  userRole    UserRole // Rôle de l'utilisateur (ASSISTANTE, ADMIN, etc.)
-  type        String   // SUBSCRIPTION_REQUEST, CREDIT_REQUEST, etc.
-  title       String
-  message     String
-  data        String   // JSON string pour données supplémentaires
-  read        Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String // ID de l'utilisateur qui reçoit la notification
+  userRole  UserRole // Rôle de l'utilisateur (ASSISTANTE, ADMIN, etc.)
+  type      String // SUBSCRIPTION_REQUEST, CREDIT_REQUEST, etc.
+  title     String
+  message   String
+  data      String // JSON string pour données supplémentaires
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, read])
   @@index([userRole])
@@ -506,26 +506,26 @@ model Notification {
 
 // Coach Availability Management
 model CoachAvailability {
-  id          String   @id @default(cuid())
-  coachId     String
-  coach       User     @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  coachId String
+  coach   User   @relation("CoachAvailability", fields: [coachId], references: [id], onDelete: Cascade)
 
   // Day of week (0 = Sunday, 1 = Monday, etc.)
-  dayOfWeek   Int
-  startTime   String   // "09:00"
-  endTime     String   // "17:00"
+  dayOfWeek Int
+  startTime String // "09:00"
+  endTime   String // "17:00"
 
   // For specific dates (holidays, special availability)
   specificDate DateTime?
-  isAvailable Boolean  @default(true)
+  isAvailable  Boolean   @default(true)
 
   // Recurring pattern
-  isRecurring Boolean  @default(true)
-  validFrom   DateTime @default(now())
+  isRecurring Boolean   @default(true)
+  validFrom   DateTime  @default(now())
   validUntil  DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([coachId, dayOfWeek, startTime, endTime, specificDate])
   @@index([coachId, dayOfWeek])
@@ -534,106 +534,106 @@ model CoachAvailability {
 
 // Session Booking Management
 model SessionBooking {
-  id            String           @id @default(cuid())
+  id String @id @default(cuid())
 
   // Participants
-  studentId     String
-  student       User             @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
-  coachId       String
-  coach         User             @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
-  parentId      String?
-  parent        User?            @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
+  studentId String
+  student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  coachId   String
+  coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    User?   @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
 
   // Session Details
-  subject       Subject
-  title         String
-  description   String?
+  subject     Subject
+  title       String
+  description String?
 
   // Scheduling
   scheduledDate DateTime
-  startTime     String           // "14:00"
-  endTime       String           // "15:00"
-  duration      Int              // Duration in minutes
+  startTime     String // "14:00"
+  endTime       String // "15:00"
+  duration      Int // Duration in minutes
 
   // Status Management
-  status        SessionStatus    @default(SCHEDULED)
+  status SessionStatus @default(SCHEDULED)
 
   // Session Type
-  type          SessionType      @default(INDIVIDUAL)
-  modality      SessionModality  @default(ONLINE)
+  type     SessionType     @default(INDIVIDUAL)
+  modality SessionModality @default(ONLINE)
 
   // Location/Meeting Info
-  meetingUrl    String?
-  meetingId     String?
-  location      String?
+  meetingUrl String?
+  meetingId  String?
+  location   String?
 
   // Credits & Payment
-  creditsUsed   Int              @default(1)
+  creditsUsed Int @default(1)
 
   // Feedback & Notes
-  coachNotes    String?
-  studentNotes  String?
-  rating        Int?             // 1-5 stars
-  feedback      String?
+  coachNotes   String?
+  studentNotes String?
+  rating       Int? // 1-5 stars
+  feedback     String?
 
   // Attendance
   studentAttended Boolean?
-  coachAttended   Boolean        @default(true)
+  coachAttended   Boolean  @default(true)
 
   // Timestamps
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  completedAt   DateTime?
-  cancelledAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  cancelledAt DateTime?
 
   // Email reminders tracking (avoid duplicate sends at session level)
-  reminderSent  Boolean          @default(false)
+  reminderSent Boolean @default(false)
 
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
   report        SessionReport?
 
+  // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
+  // overlapping bookings for same coach/date (Prisma doesn't support EXCLUDE syntax)
+  // See migration: 20260201201415_add_session_overlap_prevention
+
   @@index([studentId, scheduledDate])
   @@index([coachId, scheduledDate])
   @@index([status, scheduledDate])
   @@index([scheduledDate])
-
-  // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
-  // overlapping bookings for same coach/date (Prisma doesn't support EXCLUDE syntax)
-  // See migration: 20260201201415_add_session_overlap_prevention
 }
 
 // Session Report Management
 model SessionReport {
-  id                String            @id @default(cuid())
-  sessionId         String            @unique
-  session           SessionBooking    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  sessionId String         @unique
+  session   SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   // Participants (duplicated for quick access)
-  studentId         String
-  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  coachId           String
-  coach             CoachProfile      @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  coachId   String
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 
   // Report Content
-  summary           String            // General session summary
-  topicsCovered     String            // Topics covered during the session
-  performanceRating Int               // 1-5 stars
-  progressNotes     String            // Student progress observations
-  recommendations   String            // Recommendations for next sessions
+  summary           String // General session summary
+  topicsCovered     String // Topics covered during the session
+  performanceRating Int // 1-5 stars
+  progressNotes     String // Student progress observations
+  recommendations   String // Recommendations for next sessions
 
   // Attendance & Engagement
-  attendance        Boolean           // Student attended
-  engagementLevel   EngagementLevel?  // LOW, MEDIUM, HIGH
+  attendance      Boolean // Student attended
+  engagementLevel EngagementLevel? // LOW, MEDIUM, HIGH
 
   // Homework & Next Steps
-  homeworkAssigned  String?           // Homework assigned (optional)
-  nextSessionFocus  String?           // Suggested focus for next session (optional)
+  homeworkAssigned String? // Homework assigned (optional)
+  nextSessionFocus String? // Suggested focus for next session (optional)
 
   // Timestamps
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studentId, createdAt])
   @@index([coachId, createdAt])
@@ -642,29 +642,29 @@ model SessionReport {
 
 // Notification System
 model SessionNotification {
-  id          String             @id @default(cuid())
-  sessionId   String
-  session     SessionBooking     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  sessionId String
+  session   SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   // Recipients
-  userId      String
-  user        User               @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
 
   // Notification Details
-  type        NotificationType
-  title       String
-  message     String
+  type    NotificationType
+  title   String
+  message String
 
   // Status
-  status      NotificationStatus @default(PENDING)
-  sentAt      DateTime?
-  readAt      DateTime?
+  status NotificationStatus @default(PENDING)
+  sentAt DateTime?
+  readAt DateTime?
 
   // Delivery Method
-  method      NotificationMethod @default(EMAIL)
+  method NotificationMethod @default(EMAIL)
 
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, status])
   @@index([sessionId])
@@ -672,22 +672,22 @@ model SessionNotification {
 
 // Reminder System
 model SessionReminder {
-  id          String         @id @default(cuid())
-  sessionId   String
-  session     SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  sessionId String
+  session   SessionBooking @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   // Reminder Timing
   reminderType ReminderType
   scheduledFor DateTime
 
   // Status
-  sent        Boolean        @default(false)
-  sentAt      DateTime?
+  sent   Boolean   @default(false)
+  sentAt DateTime?
 
   // Prevent sending reminders multiple times
-  reminderSent Boolean      @default(false)
+  reminderSent Boolean @default(false)
 
-  createdAt   DateTime       @default(now())
+  createdAt DateTime @default(now())
 
   @@index([scheduledFor, sent])
   @@index([sessionId])
@@ -720,11 +720,11 @@ enum NotificationType {
 
 // Cron Job Execution Tracking
 model CronExecution {
-  id           String    @id @default(cuid())
-  jobName      String    // e.g., "monthly-allocation", "credit-expiration"
-  executionKey String    // e.g., "2026-02" for monthly jobs, or timestamp for others
+  id           String              @id @default(cuid())
+  jobName      String // e.g., "monthly-allocation", "credit-expiration"
+  executionKey String // e.g., "2026-02" for monthly jobs, or timestamp for others
   status       CronExecutionStatus
-  startedAt    DateTime  @default(now())
+  startedAt    DateTime            @default(now())
   completedAt  DateTime?
   error        String?
   metadata     Json?
