@@ -10,7 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest --projects jest.config.unit.js jest.config.integration.js --runInBand",
-    "test:unit": "jest --config jest.config.unit.js",
+    "test:unit": "NODE_ENV=development jest --config jest.config.unit.js",
     "test:unit:watch": "jest --config jest.config.unit.js --watch",
     "test:integration": "jest --config jest.config.integration.js --runInBand",
     "test:integration:watch": "jest --config jest.config.integration.js --watch",

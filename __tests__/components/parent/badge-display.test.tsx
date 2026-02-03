@@ -61,10 +61,12 @@ const mockBadges = [
 
 describe('BadgeDisplay Component', () => {
   describe('Rendering with badges', () => {
-    test('should render all badges by default', () => {
+    test('should render all badges by default', async () => {
       render(<BadgeDisplay badges={mockBadges} />);
       
-      expect(screen.getByText('Badge Assiduité 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Badge Assiduité 1')).toBeInTheDocument();
+      });
       expect(screen.getByText('Badge Progression 1')).toBeInTheDocument();
       expect(screen.getByText('Badge Curiosité 1')).toBeInTheDocument();
       expect(screen.getByText('Badge Assiduité 2')).toBeInTheDocument();
