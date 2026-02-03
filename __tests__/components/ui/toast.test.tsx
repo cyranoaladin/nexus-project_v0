@@ -232,17 +232,17 @@ describe('Toast', () => {
     });
 
     it('handles closed state', () => {
-      const { container } = render(
+      render(
         <ToastProvider>
           <Toast open={false} onOpenChange={() => {}}>
-            <ToastTitle>Test</ToastTitle>
+            <ToastTitle>Closed Toast</ToastTitle>
           </Toast>
           <ToastViewport />
         </ToastProvider>
       );
 
-      const toast = container.querySelector('[data-state="closed"]');
-      expect(toast).toBeInTheDocument();
+      // Radix UI doesn't render closed toasts in the DOM
+      expect(screen.queryByText('Closed Toast')).not.toBeInTheDocument();
     });
   });
 });
