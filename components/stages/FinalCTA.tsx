@@ -99,12 +99,12 @@ export function FinalCTA({ closingDate }: FinalCTAProps) {
 
           {/* CTA final */}
           <a
-            href="#contact-form"
+            href="https://nexusreussite.tn/bilan-gratuit"
             onClick={handleCTAClick}
             className="inline-block rounded-full bg-white text-red-600 px-12 py-5 text-xl font-black hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
             aria-label="Réserver une consultation gratuite"
           >
-            Réserver une consultation gratuite
+            📅 Réserver une consultation gratuite
           </a>
         </div>
       </div>
