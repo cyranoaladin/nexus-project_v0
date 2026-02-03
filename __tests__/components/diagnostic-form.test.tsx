@@ -43,22 +43,20 @@ describe('DiagnosticForm', () => {
     });
 
     it('n\'affiche pas de recommandation initialement', () => {
-      expect(screen.queryByText('Notre recommandation personnalisée :')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Votre recommandation personnalisée/)).not.toBeInTheDocument();
     });
   });
 
   describe('Interactions utilisateur', () => {
     it('sélectionne une option quand on clique dessus', async () => {
-      const premiereButton = screen.getByText('Première');
-      fireEvent.click(premiereButton);
+      fireEvent.click(screen.getByText('Première'));
 
-      // Wait for state update and verify the Check icon appears
+      // Wait for state update and verify the Check icon appears and bg-or-stellaire class is applied
       await waitFor(() => {
-        expect(premiereButton.closest('button')).toContainHTML('<svg');
+        const button = screen.getByText('Première').closest('button');
+        expect(button).toContainHTML('<svg');
+        expect(button).toHaveClass('bg-or-stellaire');
       });
-      
-      // Vérifier que le bouton est maintenant sélectionné (avec l'icône Check)
-      expect(premiereButton.closest('button')).toHaveClass('bg-or-stellaire');
     });
 
     it('permet de changer la sélection', async () => {
@@ -88,8 +86,14 @@ describe('DiagnosticForm', () => {
       // Sélectionner Français
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
+      // Click validation button
       await waitFor(() => {
-        expect(screen.getByText('Notre recommandation personnalisée :')).toBeInTheDocument();
+        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Votre recommandation personnalisée/)).toBeInTheDocument();
       });
     });
 
@@ -99,8 +103,12 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
-        expect(screen.getByText('Odyssée Première : Le Parcours Anticipé')).toBeInTheDocument();
-        expect(screen.getByText('Académie du Français')).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
+        expect(screen.getByText(/Académie du Français/)).toBeInTheDocument();
       });
     });
 
@@ -110,8 +118,12 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Obtenir une Mention'));
 
       await waitFor(() => {
-        expect(screen.getByText('Odyssée Terminale : La Stratégie Mention')).toBeInTheDocument();
-        expect(screen.getByText('Académie de Février')).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
+        expect(screen.getByText(/Académie de Février/)).toBeInTheDocument();
       });
     });
 
@@ -121,8 +133,12 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Construire un excellent dossier Parcoursup'));
 
       await waitFor(() => {
-        expect(screen.getByText('Odyssée Terminale : La Stratégie Mention')).toBeInTheDocument();
-        expect(screen.getByText('Académie Python')).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
+        expect(screen.getByText(/Académie Python/)).toBeInTheDocument();
       });
     });
 
@@ -132,7 +148,11 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Avoir un cadre pour obtenir son Bac (pour C. Libre)'));
 
       await waitFor(() => {
-        expect(screen.getByText('Odyssée Individuel : La Préparation Intégrale')).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Odyssée Individuel : La Préparation Intégrale/)).toBeInTheDocument();
       });
     });
   });
@@ -145,7 +165,13 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
-        expect(screen.getByText('Notre recommandation personnalisée :')).toBeInTheDocument();
+        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
+      });
+      
+      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Votre recommandation personnalisée/)).toBeInTheDocument();
       });
     });
 
@@ -192,7 +218,14 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
 
       await waitFor(() => {
+        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
+      });
+      
+      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
+
+      await waitFor(() => {
         const links = screen.getAllByRole('link');
+        expect(links.length).toBeGreaterThan(0);
         links.forEach(link => {
           expect(link).toHaveAttribute('href');
         });
