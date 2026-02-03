@@ -404,6 +404,7 @@ Test performance, security, and accessibility.
 ---
 
 ### [ ] Step: Final Verification & Cleanup
+<!-- chat-id: e126ff39-a95f-4c90-b9e2-59f697be49d3 -->
 
 Run all tests, build production bundle, and clean up code.
 
