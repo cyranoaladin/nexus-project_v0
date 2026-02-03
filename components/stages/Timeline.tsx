@@ -34,7 +34,7 @@ export function Timeline({ items }: TimelineProps) {
             {items.map((item, idx) => (
               <div
                 key={idx}
-                className="relative bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                className="relative bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
               >
                 <div className="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
                   {idx + 1}
