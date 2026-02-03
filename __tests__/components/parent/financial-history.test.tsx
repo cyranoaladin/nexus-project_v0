@@ -65,7 +65,7 @@ const mockTransactions = [
 describe('FinancialHistory Component', () => {
   describe('Table rendering', () => {
     test('should render all transactions correctly', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText('Achat de crédits - Pack 10h')).toBeInTheDocument();
       expect(screen.getByText('Séance de mathématiques')).toBeInTheDocument();
@@ -73,14 +73,14 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should display correct transaction count', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const countElements = screen.getAllByText(/5 transactions/);
       expect(countElements.length).toBeGreaterThan(0);
     });
 
     test('should render table headers', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText('Date')).toBeInTheDocument();
       expect(screen.getByText('Type')).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should display child names in transactions', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const marieElements = screen.getAllByText(/Marie Dupont/);
       const paulElements = screen.getAllByText(/Paul Dupont/);
@@ -102,7 +102,7 @@ describe('FinancialHistory Component', () => {
 
   describe('Status badges', () => {
     test('should display status badges with correct colors', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const completed = screen.getAllByText('Complétée');
       const pending = screen.getAllByText('En attente');
@@ -114,7 +114,7 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should apply correct color classes for different statuses', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const completedBadges = screen.getAllByText('Complétée');
       expect(completedBadges[0].closest('.text-green-800') || completedBadges[0].parentElement).toBeTruthy();
@@ -130,7 +130,7 @@ describe('FinancialHistory Component', () => {
   describe('Filters', () => {
     test('should filter transactions by type', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const typeFilter = screen.getByText('Tous les types');
       await user.click(typeFilter);
@@ -151,7 +151,7 @@ describe('FinancialHistory Component', () => {
 
     test('should filter transactions by child', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const childFilter = screen.getByText('Tous les enfants');
       await user.click(childFilter);
@@ -172,7 +172,7 @@ describe('FinancialHistory Component', () => {
 
     test('should filter transactions by status', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const statusFilter = screen.getByText('Tous les statuts');
       await user.click(statusFilter);
@@ -185,7 +185,7 @@ describe('FinancialHistory Component', () => {
 
     test('should filter transactions by date range', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const dateFromInput = screen.getByPlaceholderText('Date début');
       const dateToInput = screen.getByPlaceholderText('Date fin');
@@ -201,7 +201,7 @@ describe('FinancialHistory Component', () => {
 
     test('should clear all filters when reset button is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const typeFilter = screen.getByText('Tous les types');
       await user.click(typeFilter);
@@ -235,7 +235,7 @@ describe('FinancialHistory Component', () => {
         childName: 'Marie Dupont',
       }));
       
-      render(<FinancialHistory transactions={manyTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={manyTransactions} childrenList={mockChildren} />);
       
       const rows = screen.getAllByRole('row');
       expect(rows.length).toBeLessThanOrEqual(21);
@@ -253,7 +253,7 @@ describe('FinancialHistory Component', () => {
         childName: 'Marie Dupont',
       }));
       
-      render(<FinancialHistory transactions={manyTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={manyTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText(/Charger plus/)).toBeInTheDocument();
       expect(screen.getByText(/10 restantes/)).toBeInTheDocument();
@@ -272,7 +272,7 @@ describe('FinancialHistory Component', () => {
         childName: 'Marie Dupont',
       }));
       
-      render(<FinancialHistory transactions={manyTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={manyTransactions} childrenList={mockChildren} />);
       
       const loadMoreButton = screen.getByText(/Charger plus/);
       await user.click(loadMoreButton);
@@ -286,7 +286,7 @@ describe('FinancialHistory Component', () => {
   describe('Sorting', () => {
     test('should sort by date when date header is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const dateHeader = screen.getByText('Date');
       await user.click(dateHeader);
@@ -296,7 +296,7 @@ describe('FinancialHistory Component', () => {
 
     test('should sort by type when type header is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const typeHeader = screen.getByText('Type');
       await user.click(typeHeader);
@@ -306,7 +306,7 @@ describe('FinancialHistory Component', () => {
 
     test('should sort by amount when amount header is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const amountHeader = screen.getByText('Montant');
       await user.click(amountHeader);
@@ -316,7 +316,7 @@ describe('FinancialHistory Component', () => {
 
     test('should sort by status when status header is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const statusHeader = screen.getByText('Statut');
       await user.click(statusHeader);
@@ -326,7 +326,7 @@ describe('FinancialHistory Component', () => {
 
     test('should sort by child when child header is clicked', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const enfantHeader = screen.getByText('Enfant');
       await user.click(enfantHeader);
@@ -336,7 +336,7 @@ describe('FinancialHistory Component', () => {
 
     test('should toggle sort direction on repeated clicks', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const dateHeader = screen.getByText('Date');
       await user.click(dateHeader);
@@ -348,7 +348,7 @@ describe('FinancialHistory Component', () => {
 
   describe('CSV Export', () => {
     test('should display export CSV button', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText('Exporter CSV')).toBeInTheDocument();
     });
@@ -357,7 +357,7 @@ describe('FinancialHistory Component', () => {
       const user = userEvent.setup();
       const createElementSpy = jest.spyOn(document, 'createElement');
       
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const exportButton = screen.getByText('Exporter CSV');
       await user.click(exportButton);
@@ -370,7 +370,7 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should disable export button when no transactions', () => {
-      render(<FinancialHistory transactions={[]} children={mockChildren} />);
+      render(<FinancialHistory transactions={[]} childrenList={mockChildren} />);
       
       const exportButton = screen.getByText('Exporter CSV');
       expect(exportButton).toBeDisabled();
@@ -382,7 +382,7 @@ describe('FinancialHistory Component', () => {
       const mockAppendChild = jest.spyOn(document.body, 'appendChild');
       const mockRemoveChild = jest.spyOn(document.body, 'removeChild');
       
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const exportButton = screen.getByText('Exporter CSV');
       await user.click(exportButton);
@@ -398,7 +398,7 @@ describe('FinancialHistory Component', () => {
 
   describe('Empty state', () => {
     test('should display empty state when no transactions', () => {
-      render(<FinancialHistory transactions={[]} children={mockChildren} />);
+      render(<FinancialHistory transactions={[]} childrenList={mockChildren} />);
       
       expect(screen.getByText('Aucune transaction trouvée')).toBeInTheDocument();
       expect(screen.getByText(/Les transactions apparaîtront ici/)).toBeInTheDocument();
@@ -406,7 +406,7 @@ describe('FinancialHistory Component', () => {
 
     test('should display appropriate message when filters yield no results', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const dateFromInput = screen.getByPlaceholderText('Date début');
       await user.type(dateFromInput, '2025-01-01');
@@ -418,7 +418,7 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should not display table when no transactions', () => {
-      render(<FinancialHistory transactions={[]} children={mockChildren} />);
+      render(<FinancialHistory transactions={[]} childrenList={mockChildren} />);
       
       expect(screen.queryByRole('table')).not.toBeInTheDocument();
     });
@@ -426,7 +426,7 @@ describe('FinancialHistory Component', () => {
 
   describe('Amount display', () => {
     test('should display positive amounts in green', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const rows = screen.getAllByRole('row');
       const firstPayment = rows.find(row => row.textContent?.includes('Achat de crédits - Pack 10h'));
@@ -434,7 +434,7 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should display negative amounts in red', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const rows = screen.getAllByRole('row');
       const creditUsage = rows.find(row => row.textContent?.includes('Séance de mathématiques'));
@@ -442,13 +442,13 @@ describe('FinancialHistory Component', () => {
     });
 
     test('should prefix positive amounts with + sign', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText(/\+250/)).toBeInTheDocument();
     });
 
     test('should show negative amounts with - sign', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const negativeAmounts = screen.getAllByText(/-25/);
       expect(negativeAmounts.length).toBeGreaterThan(0);
@@ -468,7 +468,7 @@ describe('FinancialHistory Component', () => {
         },
       ];
       
-      render(<FinancialHistory transactions={transactionsWithoutChild} children={mockChildren} />);
+      render(<FinancialHistory transactions={transactionsWithoutChild} childrenList={mockChildren} />);
       
       expect(screen.getByText('Parent payment')).toBeInTheDocument();
     });
@@ -484,13 +484,13 @@ describe('FinancialHistory Component', () => {
         },
       ];
       
-      render(<FinancialHistory transactions={transactionsWithoutStatus} children={mockChildren} />);
+      render(<FinancialHistory transactions={transactionsWithoutStatus} childrenList={mockChildren} />);
       
       expect(screen.getByText('Test transaction')).toBeInTheDocument();
     });
 
     test('should handle empty children array', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={[]} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={[]} />);
       
       expect(screen.queryByText('Tous les enfants')).not.toBeInTheDocument();
     });
@@ -507,7 +507,7 @@ describe('FinancialHistory Component', () => {
         },
       ];
       
-      render(<FinancialHistory transactions={longDescTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={longDescTransactions} childrenList={mockChildren} />);
       
       expect(screen.getByText(/This is a very long transaction description/)).toBeInTheDocument();
     });
@@ -516,14 +516,14 @@ describe('FinancialHistory Component', () => {
   describe('Transaction count display', () => {
     test('should display singular form for 1 transaction', () => {
       const singleTransaction = [mockTransactions[0]];
-      render(<FinancialHistory transactions={singleTransaction} children={mockChildren} />);
+      render(<FinancialHistory transactions={singleTransaction} childrenList={mockChildren} />);
       
       const transactionCounts = screen.getAllByText(/1 transaction\b/);
       expect(transactionCounts.length).toBeGreaterThan(0);
     });
 
     test('should display plural form for multiple transactions', () => {
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const transactionCounts = screen.getAllByText(/5 transactions/);
       expect(transactionCounts.length).toBeGreaterThan(0);
@@ -531,7 +531,7 @@ describe('FinancialHistory Component', () => {
 
     test('should update count after filtering', async () => {
       const user = userEvent.setup();
-      render(<FinancialHistory transactions={mockTransactions} children={mockChildren} />);
+      render(<FinancialHistory transactions={mockTransactions} childrenList={mockChildren} />);
       
       const initial5 = screen.getAllByText(/5 transactions/);
       expect(initial5.length).toBeGreaterThan(0);
