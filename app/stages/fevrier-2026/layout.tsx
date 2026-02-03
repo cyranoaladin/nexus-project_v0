@@ -139,42 +139,42 @@ export default function StagesFevrier2026Layout({
             mainEntity: [
               {
                 '@type': 'Question',
-                name: 'À qui s'adressent ces stages ?',
+                name: "À qui s'adressent ces stages ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Aux élèves de Première et Terminale (système français, tunisien, candidats libres) qui souhaitent consolider leurs acquis, combler des lacunes ou viser une mention. Deux paliers : Prépa Bac pour sécuriser, Excellence pour approfondir.',
+                  text: "Aux élèves de Première et Terminale (système français, tunisien, candidats libres) qui souhaitent consolider leurs acquis, combler des lacunes ou viser une mention. Deux paliers : Prépa Bac pour sécuriser, Excellence pour approfondir.",
                 },
               },
               {
                 '@type': 'Question',
-                name: 'Pourquoi proposer un stage en février ?',
+                name: "Pourquoi proposer un stage en février ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Février est un moment clé : c'est là que se jouent la dynamique de fin d'année, la confiance et la maîtrise avant la dernière ligne droite des dossiers d'admission et du Bac.',
+                  text: "Février est un moment clé : c'est là que se jouent la dynamique de fin d'année, la confiance et la maîtrise avant la dernière ligne droite des dossiers d'admission et du Bac.",
                 },
               },
               {
                 '@type': 'Question',
-                name: 'Les stages garantissent-ils des résultats ?',
+                name: "Les stages garantissent-ils des résultats ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé.',
+                  text: "Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé.",
                 },
               },
               {
                 '@type': 'Question',
-                name: 'Qui encadre les stages ?',
+                name: "Qui encadre les stages ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé.',
+                  text: "Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé.",
                 },
               },
               {
                 '@type': 'Question',
-                name: 'Épreuve pratique & Grand Oral : quand les travailler ?',
+                name: "Épreuve pratique & Grand Oral : quand les travailler ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'L'épreuve pratique (NSI) et le Grand Oral ne sont pas au centre du stage de février. Ils seront travaillés spécifiquement lors des vacances de printemps via un pack dédié. Février = fondamentaux + méthode + confiance.',
+                  text: "L'épreuve pratique (NSI) et le Grand Oral ne sont pas au centre du stage de février. Ils seront travaillés spécifiquement lors des vacances de printemps via un pack dédié. Février = fondamentaux + méthode + confiance.",
                 },
               },
             ],
