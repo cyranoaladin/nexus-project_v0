@@ -328,12 +328,12 @@ export default function DashboardParent() {
                 {/* Sélecteur Multi-Enfants */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" aria-hidden="true" />
                     <span className="text-sm font-medium text-gray-700">Enfant :</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Select value={selectedChild} onValueChange={setSelectedChild}>
-                      <SelectTrigger className="w-full sm:w-48">
+                      <SelectTrigger className="w-full sm:w-48" aria-label="Sélectionner un enfant">
                         <SelectValue placeholder="Sélectionner un enfant" />
                       </SelectTrigger>
                       <SelectContent>

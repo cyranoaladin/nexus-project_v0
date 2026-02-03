@@ -216,7 +216,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
 
           <div className="flex gap-2">
             {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters} aria-label="Réinitialiser tous les filtres">
                 <X className="w-4 h-4 mr-1" />
                 Réinitialiser
               </Button>
@@ -226,6 +226,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
               size="sm" 
               onClick={handleExportCSV}
               disabled={sortedTransactions.length === 0}
+              aria-label="Exporter l'historique en format CSV"
             >
               <Download className="w-4 h-4 mr-2" />
               Exporter CSV
@@ -237,7 +238,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
       <CardContent>
         <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10" aria-label="Filtrer par type de transaction">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -252,7 +253,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
 
           {childrenList.length > 0 && (
             <Select value={childFilter} onValueChange={setChildFilter}>
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-10" aria-label="Filtrer par enfant">
                 <SelectValue placeholder="Enfant" />
               </SelectTrigger>
               <SelectContent>
@@ -267,7 +268,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
           )}
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10" aria-label="Filtrer par statut">
               <SelectValue placeholder="Statut" />
             </SelectTrigger>
             <SelectContent>
@@ -286,6 +287,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
             onChange={(e) => setDateFrom(e.target.value)}
             placeholder="Date début"
             className="h-10"
+            aria-label="Date de début"
           />
 
           <Input
@@ -294,6 +296,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
             onChange={(e) => setDateTo(e.target.value)}
             placeholder="Date fin"
             className="h-10"
+            aria-label="Date de fin"
           />
         </div>
 
@@ -314,12 +317,14 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
         ) : (
           <>
             <div className="rounded-lg border border-neutral-200 overflow-hidden">
-              <Table>
+              <Table role="table" aria-label="Historique des transactions financières">
                 <TableHeader>
                   <TableRow className="bg-neutral-50">
                     <TableHead 
                       className="cursor-pointer select-none hover:bg-neutral-100"
                       onClick={() => handleSort("date")}
+                      role="columnheader"
+                      aria-sort={sortField === "date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                     >
                       <div className="flex items-center">
                         Date
@@ -329,16 +334,20 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
                     <TableHead 
                       className="cursor-pointer select-none hover:bg-neutral-100"
                       onClick={() => handleSort("type")}
+                      role="columnheader"
+                      aria-sort={sortField === "type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                     >
                       <div className="flex items-center">
                         Type
                         {getSortIcon("type")}
                       </div>
                     </TableHead>
-                    <TableHead>Description</TableHead>
+                    <TableHead role="columnheader">Description</TableHead>
                     <TableHead 
                       className="cursor-pointer select-none hover:bg-neutral-100 text-right"
                       onClick={() => handleSort("amount")}
+                      role="columnheader"
+                      aria-sort={sortField === "amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                     >
                       <div className="flex items-center justify-end">
                         Montant
@@ -348,6 +357,8 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
                     <TableHead 
                       className="cursor-pointer select-none hover:bg-neutral-100"
                       onClick={() => handleSort("status")}
+                      role="columnheader"
+                      aria-sort={sortField === "status" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                     >
                       <div className="flex items-center">
                         Statut
@@ -358,6 +369,8 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
                       <TableHead 
                         className="cursor-pointer select-none hover:bg-neutral-100"
                         onClick={() => handleSort("child")}
+                        role="columnheader"
+                        aria-sort={sortField === "child" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                       >
                         <div className="flex items-center">
                           Enfant
@@ -424,7 +437,11 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
 
             {hasMore && (
               <div className="mt-6 text-center">
-                <Button variant="outline" onClick={handleLoadMore}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleLoadMore}
+                  aria-label={`Charger plus de transactions, ${sortedTransactions.length - displayedCount} restantes`}
+                >
                   Charger plus ({sortedTransactions.length - displayedCount} restantes)
                 </Button>
               </div>
