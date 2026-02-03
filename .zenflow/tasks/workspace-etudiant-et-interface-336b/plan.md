@@ -269,7 +269,8 @@ Integrate session booking into calendar using Dialog component.
 
 ---
 
-### [ ] Step: Recent Sessions List
+### [x] Step: Recent Sessions List
+<!-- chat-id: 166795bf-8de8-460b-8dc3-f3115e0f4475 -->
 
 Add recent sessions list to dashboard bottom section.
 
