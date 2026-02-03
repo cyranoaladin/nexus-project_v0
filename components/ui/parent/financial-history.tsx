@@ -23,7 +23,7 @@ interface FinancialTransaction {
 
 interface FinancialHistoryProps {
   transactions: FinancialTransaction[];
-  children?: Array<{ id: string; firstName: string; lastName: string }>;
+  childrenList?: Array<{ id: string; firstName: string; lastName: string }>;
 }
 
 type SortField = "date" | "type" | "amount" | "status" | "child";
@@ -45,7 +45,7 @@ const STATUS_LABELS = {
   CANCELLED: "Annulée"
 } as const;
 
-export function FinancialHistory({ transactions, children = [] }: FinancialHistoryProps) {
+export function FinancialHistory({ transactions, childrenList = [] }: FinancialHistoryProps) {
   const [typeFilter, setTypeFilter] = React.useState<string>("all");
   const [childFilter, setChildFilter] = React.useState<string>("all");
   const [dateFrom, setDateFrom] = React.useState<string>("");
@@ -250,14 +250,14 @@ export function FinancialHistory({ transactions, children = [] }: FinancialHisto
             </SelectContent>
           </Select>
 
-          {children.length > 0 && (
+          {childrenList.length > 0 && (
             <Select value={childFilter} onValueChange={setChildFilter}>
               <SelectTrigger className="h-10">
                 <SelectValue placeholder="Enfant" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les enfants</SelectItem>
-                {children.map(child => (
+                {childrenList.map(child => (
                   <SelectItem key={child.id} value={child.id}>
                     {child.firstName} {child.lastName}
                   </SelectItem>
@@ -354,7 +354,7 @@ export function FinancialHistory({ transactions, children = [] }: FinancialHisto
                         {getSortIcon("status")}
                       </div>
                     </TableHead>
-                    {children.length > 0 && (
+                    {childrenList.length > 0 && (
                       <TableHead 
                         className="cursor-pointer select-none hover:bg-neutral-100"
                         onClick={() => handleSort("child")}
@@ -409,7 +409,7 @@ export function FinancialHistory({ transactions, children = [] }: FinancialHisto
                           <span className="text-sm text-neutral-400">N/A</span>
                         )}
                       </TableCell>
-                      {children.length > 0 && (
+                      {childrenList.length > 0 && (
                         <TableCell>
                           <span className="text-sm text-neutral-700">
                             {transaction.childName || "Parent"}
