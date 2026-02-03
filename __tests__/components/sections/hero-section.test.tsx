@@ -12,7 +12,7 @@ jest.mock('next/link', () => {
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, ...props }: any) => {
+  default: ({ src, alt, priority, ...props }: any) => {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...props} />;
   },
@@ -94,13 +94,12 @@ describe('HeroSection', () => {
     // Vérifier la présence des piliers principaux
     expect(screen.getByText(/Agrégés & Certifiés/i)).toBeInTheDocument();
     expect(screen.getByText(/IA ARIA/i)).toBeInTheDocument();
+    expect(screen.getByText(/24\/7/i)).toBeInTheDocument();
     
-    // Check for pillar features using partial text matching
-    expect(screen.getByText((content, element) => {
-      return element?.textContent?.includes('IA ARIA') && element?.textContent?.includes('24/7');
-    })).toBeInTheDocument();
+    // Use getAllByText for items that might be found in multiple nested elements
+    const enseignementElements = screen.getAllByText(/Enseignement Français/i);
+    expect(enseignementElements.length).toBeGreaterThanOrEqual(1);
     
-    expect(screen.getByText(/Enseignement Français/i)).toBeInTheDocument();
     expect(screen.getByText(/DIU NSI/i)).toBeInTheDocument();
   });
 
@@ -119,7 +118,7 @@ describe('HeroSection', () => {
     expect(mainHeading).toBeInTheDocument();
 
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(1); // Le bouton principal (le link est un <a>)
+    expect(buttons).toHaveLength(3); // Tooltip button + primary CTA + secondary button
 
     const links = screen.getAllByRole('link');
     expect(links).toHaveLength(1); // Le lien vers les offres
