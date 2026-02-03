@@ -138,6 +138,7 @@ export async function GET(request: NextRequest) {
       // Process badges with isRecent flag (within last 7 days)
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
       
       const badges: BadgeData[] = student.badges.map(sb => ({
         id: sb.badge.id,
@@ -146,7 +147,7 @@ export async function GET(request: NextRequest) {
         category: sb.badge.category,
         icon: sb.badge.icon,
         earnedAt: sb.earnedAt,
-        isRecent: sb.earnedAt >= sevenDaysAgo
+        isRecent: sb.earnedAt > sevenDaysAgo
       }));
 
       // Get next session
