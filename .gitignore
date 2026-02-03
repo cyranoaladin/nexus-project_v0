@@ -27,6 +27,7 @@ storage/
 # Test artifacts
 test-results/
 playwright-report/
+e2e/.auth/*.json
 
 # Archives
 *.tgz
