@@ -1,7 +1,7 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 import { RateLimitPresets } from '@/lib/middleware/rateLimit'
-import { createLogger } from '@/lib/middleware/logger'
+// import { createLogger } from '@/lib/middleware/logger' // Disabled for Edge runtime compatibility
 
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
@@ -33,15 +33,15 @@ export default withAuth(
       const rateLimitResult = RateLimitPresets.auth(req, 'auth:login')
       
       if (rateLimitResult) {
-        const logger = createLogger(req)
-        const forwarded = req.headers.get('x-forwarded-for')
-        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        // const logger = createLogger(req) // Disabled for Edge runtime compatibility
+        // const forwarded = req.headers.get('x-forwarded-for')
+        // const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
         
-        logger.logSecurityEvent('rate_limit_exceeded', 429, {
-          ip,
-          path: pathname,
-          attempt: 'login',
-        })
+        // logger.logSecurityEvent('rate_limit_exceeded', 429, {
+        //   ip,
+        //   path: pathname,
+        //   attempt: 'login',
+        // })
         
         return applySecurityHeaders(rateLimitResult)
       }
@@ -58,15 +58,15 @@ export default withAuth(
       }
       
       if (rateLimitResult) {
-        const logger = createLogger(req)
-        const forwarded = req.headers.get('x-forwarded-for')
-        const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
+        // const logger = createLogger(req) // Disabled for Edge runtime compatibility
+        // const forwarded = req.headers.get('x-forwarded-for')
+        // const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
         
-        logger.logSecurityEvent('rate_limit_exceeded', 429, {
-          ip,
-          path: pathname,
-          userId: token?.sub,
-        })
+        // logger.logSecurityEvent('rate_limit_exceeded', 429, {
+        //   ip,
+        //   path: pathname,
+        //   userId: token?.sub,
+        // })
         
         return applySecurityHeaders(rateLimitResult)
       }
@@ -81,6 +81,11 @@ export default withAuth(
 
       // Vérification des rôles spécifiques
       if (pathname.startsWith('/dashboard/eleve') && token.role !== 'ELEVE') {
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+        return applySecurityHeaders(redirectResponse)
+      }
+      
+      if (pathname.startsWith('/dashboard/student') && token.role !== 'ELEVE') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
       }
