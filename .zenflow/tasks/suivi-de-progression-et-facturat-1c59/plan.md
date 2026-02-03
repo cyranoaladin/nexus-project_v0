@@ -232,6 +232,7 @@ Create unit tests for all new components.
 ---
 
 ### [ ] Step: Integrate Components into Parent Dashboard
+<!-- chat-id: 56bee799-32ea-4218-a660-ca7e818d60b3 -->
 
 Update the parent dashboard page to include new components.
 
