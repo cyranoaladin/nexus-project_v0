@@ -45,6 +45,7 @@ export class SyncManager {
   }
 
   async syncWorktree(branch: string, options: SyncOptions = {}): Promise<SyncOperation> {
+    // Merge provided options with defaults from config
     const mergedOptions: SyncOptions = {
       force: options.force ?? false,
       dryRun: options.dryRun ?? false,
@@ -58,9 +59,11 @@ export class SyncManager {
       options: mergedOptions,
     });
 
+    // Create a unique sync operation ID for tracking
     const syncId = uuidv4();
     const startedAt = new Date();
 
+    // Initialize sync operation record
     let syncOperation: SyncOperation = {
       id: syncId,
       worktree_branch: branch,
@@ -70,8 +73,10 @@ export class SyncManager {
     };
 
     try {
+      // Ensure state directory exists for saving sync operations
       await this.ensureStatePath();
 
+      // Check if this worktree is in the exclusion list (e.g., experimental branches)
       if (this.isExcluded(branch)) {
         const errorMessage = `Worktree branch ${branch} is in excluded list`;
         syncOperation.status = 'failure';
@@ -83,9 +88,11 @@ export class SyncManager {
         throw new ValidationError(errorMessage);
       }
 
+      // Mark sync as running and persist state
       syncOperation.status = 'running';
       await this.saveSyncOperation(syncOperation);
 
+      // Pre-sync validation: check worktree exists, disk space, repo health
       const validationResult = await this.validateSync(branch);
       if (!validationResult.valid) {
         syncOperation.status = 'failure';
