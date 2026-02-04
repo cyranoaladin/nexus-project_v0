@@ -25,14 +25,19 @@ export function StagesHero({ stats }: StagesHeroProps) {
 
       <div className="container relative z-10 mx-auto px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center">
+          {/* Slogan */}
+          <p className="text-sm md:text-base text-yellow-300 font-semibold mb-2 uppercase tracking-wider">
+            Nexus Réussite, le déclic vers ta réussite !
+          </p>
+
           {/* H1 */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight mb-6">
-            STAGES FÉVRIER —<br />
-            <span className="text-blue-300 text-2xl md:text-4xl">PREMIÈRE & TERMINALE</span><br />
+            STAGE DE FÉVRIER —<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
               LE BOOST DÉCISIF
             </span><br />
-            POUR FAIRE LA DIFFÉRENCE<br />
+            POUR FAIRE LA DIFFÉRENCE !<br />
+            <span className="text-blue-300 text-2xl md:text-4xl mt-2 inline-block">PREMIÈRE & TERMINALE</span><br />
             <span className="text-blue-300 text-3xl md:text-5xl">(MATHS & NSI)</span>
           </h1>
 

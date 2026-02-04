@@ -115,17 +115,18 @@ export const subjectsContent: SubjectTierContent[] = [
   {
     subject: 'nsi',
     pallier1: [
-      'TAD et POO',
-      'SQL conception et interrogation',
-      'Récursivité',
-      'Structures : pile, file, AB/ABR, graphes',
-      'Exercices types bac'
+      'TAD (Types Abstraits de Données) et POO',
+      'SQL : conception et interrogation de bases de données',
+      'Récursivité : maîtrise et applications',
+      'Structures de données : pile, file, arbres binaires/ABR, graphes',
+      'Exercices types Bac : entraînement méthodique'
     ],
     pallier2: [
-      'Tests de maîtrise sur bases',
-      'Renforcement sur points faibles uniquement',
-      'Approfondissement sur exercices plus fins',
-      'Travail spécifique rédaction (important)'
+      'Tests de maîtrise sur les fondamentaux',
+      'Renforcement ciblé sur les points faibles',
+      'Approfondissement : exercices avancés et rédaction fine',
+      'Exposé de maîtrise : préparation études supérieures (Prépa/Ingénieur)',
+      'Travail spécifique sur la rédaction technique'
     ]
   }
 ];
@@ -172,13 +173,13 @@ export const academies: Academy[] = [
     subject: 'nsi',
     level: 'terminale',
     badge: '💻 FONDAMENTAUX',
-    objective: 'Consolider TAD, POO, SQL, structures',
+    objective: 'Consolider les essentiels : TAD, POO, SQL, structures',
     durationHours: 22,
     groupSizeMax: 6,
     price: 590,
     earlyBirdPrice: 502,
     seatsLeft: 4,
-    promise: 'Méthode structurée, exercices types Bac. Pack printemps pour épreuve pratique.',
+    promise: 'Méthode structurée, exercices types Bac, récursivité maîtrisée. L\'épreuve pratique sera travaillée au printemps.',
     detailsAnchor: '#details-nsi-t-p1'
   },
   {
@@ -188,13 +189,13 @@ export const academies: Academy[] = [
     subject: 'nsi',
     level: 'terminale',
     badge: '🚀 INGÉNIEUR',
-    objective: 'Maîtrise avancée et trajectoire ingénieur',
+    objective: 'Renforcement avancé et préparation études supérieures',
     durationHours: 30,
     groupSizeMax: 6,
     price: 990,
     earlyBirdPrice: 842,
     seatsLeft: 3,
-    promise: 'Approfondissement, rédaction fine, tests exigeants. Trajectoire prépa/ingénieur.',
+    promise: 'Approfondissement, rédaction fine, exposé de maîtrise. Trajectoire prépa/ingénieur.',
     detailsAnchor: '#details-nsi-t-p2'
   },
   
@@ -238,13 +239,13 @@ export const academies: Academy[] = [
     subject: 'nsi',
     level: 'premiere',
     badge: '🌐 CODING STARTER',
-    objective: 'Web, Python, algorithmique de base',
+    objective: 'Consolider Web, Python, algorithmique de base',
     durationHours: 22,
     groupSizeMax: 6,
     price: 490,
     earlyBirdPrice: 417,
     seatsLeft: 6,
-    promise: 'Web (HTML/CSS), Python, traitement données. Projet fonctionnel.',
+    promise: 'Web (HTML/CSS), Python fondamental, traitement de données. Méthode structurée et projet fonctionnel.',
     detailsAnchor: '#details-nsi-p-p1'
   },
   {
@@ -254,13 +255,13 @@ export const academies: Academy[] = [
     subject: 'nsi',
     level: 'premiere',
     badge: '🤖 MAKER AVANCÉ',
-    objective: 'Algo avancé, projet web dynamique',
+    objective: 'Renforcement avancé : algo, architecture, projet',
     durationHours: 30,
     groupSizeMax: 6,
     price: 990,
     earlyBirdPrice: 842,
     seatsLeft: 4,
-    promise: 'Algo gloutons, Full Stack, architecture. Portfolio Github.',
+    promise: 'Algo gloutons, Full Stack, architecture logicielle. Exposé de maîtrise et portfolio Github.',
     detailsAnchor: '#details-nsi-p-p2'
   }
 ];
@@ -359,21 +360,21 @@ export const timeline = [
 // HOURS SCHEDULE
 export const hoursSchedule = {
   pallier1: {
-    description: '~22h (5h/jour sur 4 jours + révisions + tests)',
+    description: '~22h sur une semaine structurée',
     detail: [
-      'Lun-Jeu : 5h/jour (théorie + pratique)',
-      'Mercredi : révisions dirigées',
-      'Jeudi : tests',
-      'Samedi : test final + bilan'
+      'Lundi-Mardi : Cours (théorie + pratique)',
+      'Mercredi : Travail personnel ou soutien individualisé',
+      'Jeudi-Vendredi : Cours (consolidation + exercices)',
+      'Samedi : Test général + bilan individualisé'
     ]
   },
   pallier2: {
-    description: '~30h (6h/jour sur 4 jours + exposé + tests)',
+    description: '~30h sur une semaine intensive',
     detail: [
-      'Lun-Jeu : 6h/jour (théorie + pratique avancée)',
-      'Mercredi : exposé + approfondissement',
-      'Jeudi : tests de maîtrise',
-      'Samedi : test final + bilan individualisé'
+      'Lundi-Mardi : Cours (théorie + pratique avancée)',
+      'Mercredi : Exposé de maîtrise + approfondissement',
+      'Jeudi-Vendredi : Cours (exercices avancés + rédaction fine)',
+      'Samedi : Test général + bilan individualisé'
     ]
   },
   note: 'Adaptation possible au rythme Ramadan (organisation matin/après-midi).'
