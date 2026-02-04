@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { DollarSign, Download, ArrowUpDown, ArrowUp, ArrowDown, Filter, X } from "lucide-react"
+import { DollarSign, Download, ArrowUpDown, ArrowUp, ArrowDown, X } from "lucide-react"
 import { formatDate, formatPrice } from "@/lib/utils"
 
 interface FinancialTransaction {
