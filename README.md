@@ -92,3 +92,107 @@ Pour plus de détails, voir :
 - `DOCUMENTATION_TECHNIQUE_LIVRAISON.md`
 - `ENVIRONMENT_REFERENCE.md`
 - `README_TESTS.md`
+
+## 11) Zenflow — Synchronisation Automatique des Worktrees
+
+### Qu'est-ce que Zenflow ?
+
+**Zenflow** est un système de synchronisation automatique et de gestion de workflows pour les worktrees Git. Il automatise la synchronisation des modifications depuis les worktrees de développement vers le dossier principal, garantissant ainsi la cohérence du dépôt.
+
+### Fonctionnalités principales
+
+- **Synchronisation automatique** : Fusionne automatiquement les modifications des worktrees vers main lors des commits
+- **Détection de conflits** : Vérifie les conflits avant la synchronisation pour éviter les échecs de merge
+- **Rollback sécurisé** : Système de backup et rollback intégré
+- **Moteur de règles** : Règles configurables pour déclencher les workflows
+- **Interface CLI** : Outils en ligne de commande complets pour la gestion
+
+### Démarrage rapide
+
+#### Synchronisation manuelle
+
+Synchroniser un worktree spécifique :
+```bash
+zenflow sync worktree <nom-de-branche>
+```
+
+Synchroniser tous les worktrees actifs :
+```bash
+zenflow sync auto
+```
+
+Prévisualiser les changements sans les appliquer :
+```bash
+zenflow sync worktree <nom-de-branche> --dry-run
+```
+
+#### Synchronisation automatique
+
+Installer les hooks Git dans tous les worktrees :
+```bash
+bash scripts/zenflow/install-hooks.sh
+```
+
+Démarrer le daemon (optionnel) :
+```bash
+zenflow daemon start
+```
+
+#### Commandes utiles
+
+```bash
+# Voir l'historique des synchronisations
+zenflow sync list
+
+# Afficher les détails d'une synchronisation
+zenflow sync show <sync-id>
+
+# Annuler une synchronisation
+zenflow sync rollback <sync-id>
+
+# Gérer les règles
+zenflow rule list
+zenflow rule enable <nom-règle>
+zenflow rule disable <nom-règle>
+
+# Gérer les workflows
+zenflow workflow list
+zenflow workflow run <nom-workflow>
+
+# Consulter les logs du daemon
+zenflow daemon logs --follow
+```
+
+### Configuration
+
+La configuration Zenflow se trouve dans `.zenflow/settings.json`. Vous pouvez personnaliser :
+
+- **Synchronisation** : Auto-push, nombre de tentatives, stratégie de conflit
+- **Règles** : Chargement automatique, validation stricte
+- **Workflows** : Limite d'exécution concurrente
+- **Logging** : Niveaux de log, rotation des fichiers
+
+### Documentation complète
+
+Pour plus d'informations sur Zenflow :
+
+- **[Guide utilisateur](./docs/zenflow-user-guide.md)** : Installation, utilisation, référence CLI
+- **[Guide d'exemples](./docs/zenflow-examples.md)** : Cas d'usage courants et exemples pratiques
+- **[Guide de dépannage](./docs/zenflow-troubleshooting.md)** : Résolution de problèmes et débogage
+
+### Désactiver Zenflow
+
+Si vous souhaitez désactiver temporairement la synchronisation automatique :
+
+```bash
+# Désactiver la règle de synchronisation
+zenflow rule disable worktree-to-main-sync
+
+# Arrêter le daemon
+zenflow daemon stop
+```
+
+Pour une désactivation permanente, supprimez les hooks Git :
+```bash
+bash scripts/zenflow/uninstall-hooks.sh
+```
