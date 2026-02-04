@@ -13,13 +13,14 @@ const customJestConfig = {
     '**/__tests__/transactions/**/*.(test|spec).(js|ts)',
     '**/__tests__/database/**/*.(test|spec).(js|ts)',
     '**/__tests__/middleware/**/*.(test|spec).(js|ts)',
+    '**/.zenflow/tests/integration/**/*.(test|spec).(js|ts)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.integration.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(@auth/prisma-adapter|next-auth)/)',
+    'node_modules/(?!(@auth/prisma-adapter|next-auth|uuid)/)',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
