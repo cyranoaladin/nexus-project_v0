@@ -1,0 +1,9 @@
+{
+  "id": "0c76dac0-7b65-4549-bfd1-e9d18e97bed1",
+  "worktree_branch": "refs/heads/optimisation-et-securisation-du-d5ee",
+  "commit_hash": "",
+  "status": "failure",
+  "started_at": "2026-02-04T11:30:48.836Z",
+  "error": "Sync validation failed: Repository health check failed: git fsck exited with code 2",
+  "completed_at": "2026-02-04T11:30:55.419Z"
+}
