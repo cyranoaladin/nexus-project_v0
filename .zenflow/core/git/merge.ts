@@ -88,17 +88,21 @@ export class MergeAnalyzer {
       const sanitizedBase = this.sanitizeBranchName(base);
       const sanitizedTarget = this.sanitizeBranchName(target);
 
+      // Find the common ancestor commit of both branches
       const { stdout: mergeBaseOutput } = await execAsync(
         `git merge-base ${sanitizedBase} ${sanitizedTarget}`,
         { cwd: this.repoPath }
       );
       const mergeBase = mergeBaseOutput.trim();
 
+      // Perform a three-way merge simulation without touching the working tree
+      // This shows what would happen if we merged these branches
       const { stdout } = await execAsync(
         `git merge-tree ${mergeBase} ${sanitizedBase} ${sanitizedTarget}`,
         { cwd: this.repoPath, maxBuffer: 50 * 1024 * 1024 }
       );
 
+      // Check for Git conflict markers in the merge-tree output
       const conflictMarkers = stdout.match(/<<<<<<<|>>>>>>>/g);
       const hasConflicts = conflictMarkers !== null && conflictMarkers.length > 0;
 
@@ -112,14 +116,17 @@ export class MergeAnalyzer {
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
 
+          // Extract the filename from diff headers (e.g., "+++ b/src/file.ts")
           const fileDiffMatch = line.match(/^\+\+\+ [ab]\/(.+)$/);
           if (fileDiffMatch) {
             currentFile = fileDiffMatch[1];
           }
 
+          // When we encounter a conflict marker, parse the conflicting sections
           if (line.includes('<<<<<<<') && currentFile) {
             conflictedFiles.add(currentFile);
 
+            // Find the end of this conflict block (marked by '>>>>>>>')
             let endLine = i;
             for (let j = i + 1; j < lines.length; j++) {
               if (lines[j].includes('>>>>>>>')) {
@@ -128,12 +135,16 @@ export class MergeAnalyzer {
               }
             }
 
+            // Extract the conflicting content from both sides
+            // Structure: <<<<<<< base\n[base content]\n=======\n[target content]\n>>>>>>> target
             const conflictLines = lines.slice(i, endLine + 1);
+            const separatorIndex = conflictLines.findIndex(l => l.includes('======='));
+            
             const baseContent = conflictLines
-              .slice(1, conflictLines.findIndex(l => l.includes('=======')))
+              .slice(1, separatorIndex)
               .join('\n');
             const targetContent = conflictLines
-              .slice(conflictLines.findIndex(l => l.includes('=======')) + 1, -1)
+              .slice(separatorIndex + 1, -1)
               .join('\n');
 
             contentConflicts.push({
@@ -167,11 +178,13 @@ export class MergeAnalyzer {
       const sanitizedBase = this.sanitizeBranchName(base);
       const sanitizedTarget = this.sanitizeBranchName(target);
 
+      // Get file changes from base to target (what changed in target relative to base)
       const { stdout: baseToTarget } = await execAsync(
         `git diff --name-status ${sanitizedBase}...${sanitizedTarget}`,
         { cwd: this.repoPath }
       );
 
+      // Get file changes from target to base (what changed in base relative to target)
       const { stdout: targetToBase } = await execAsync(
         `git diff --name-status ${sanitizedTarget}...${sanitizedBase}`,
         { cwd: this.repoPath }
@@ -182,15 +195,19 @@ export class MergeAnalyzer {
 
       const conflicts: ConflictDetail[] = [];
 
+      // Check each file for delete/modify conflicts
+      // This occurs when one branch deletes a file while the other modifies it
       for (const [file, baseStatus] of Array.from(baseChanges.entries())) {
         const targetStatus = targetChanges.get(file);
 
+        // Case 1: File deleted in base but modified in target
         if (baseStatus === 'D' && targetStatus === 'M') {
           conflicts.push({
             file,
             type: 'delete/modify',
             description: `File deleted in ${base} but modified in ${target}`,
           });
+        // Case 2: File modified in base but deleted in target
         } else if (baseStatus === 'M' && targetStatus === 'D') {
           conflicts.push({
             file,
