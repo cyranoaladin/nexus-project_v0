@@ -5,7 +5,8 @@ import { SafeMerger } from './merger';
 import { SyncValidator } from './validator';
 import { RollbackManager } from './rollback';
 import { getLogger } from '../utils/logger';
-import { SyncOperationError, ValidationError } from '../utils/errors';
+import { SyncOperationError, ValidationError, RateLimitError } from '../utils/errors';
+import { globalRateLimiters } from '../utils/security';
 import type {
   SyncOperation,
   SyncOptions,
@@ -169,17 +170,47 @@ export class SyncManager {
 
       if (mergedOptions.autoPush && syncOperation.status === 'success') {
         try {
+          const rateLimitKey = `push:${branch}`;
+          
+          if (!globalRateLimiters.push.checkLimit(rateLimitKey)) {
+            const retryAfter = globalRateLimiters.push.getTimeUntilReset(rateLimitKey);
+            const retrySeconds = Math.ceil(retryAfter / 1000);
+            
+            this.logger.warn('Push rate limit exceeded', {
+              branch,
+              syncId,
+              retryAfterSeconds: retrySeconds,
+            });
+            
+            throw new RateLimitError(
+              `Push rate limit exceeded. Maximum 1 push per minute. Retry after ${retrySeconds} seconds.`,
+              'push',
+              retryAfter
+            );
+          }
+          
           await this.gitClient.push('origin', 'main');
           this.logger.info('Changes pushed to remote', { branch, syncId });
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          this.logger.warn('Failed to push changes to remote', {
-            branch,
-            syncId,
-            error: message,
-          });
-          syncOperation.error = `Merge succeeded but push failed: ${message}`;
+          
+          if (error instanceof RateLimitError) {
+            syncOperation.error = error.message;
+            syncOperation.status = 'failure';
+          } else {
+            this.logger.warn('Failed to push changes to remote', {
+              branch,
+              syncId,
+              error: message,
+            });
+            syncOperation.error = `Merge succeeded but push failed: ${message}`;
+          }
+          
           await this.saveSyncOperation(syncOperation);
+          
+          if (error instanceof RateLimitError) {
+            throw error;
+          }
         }
       }
 

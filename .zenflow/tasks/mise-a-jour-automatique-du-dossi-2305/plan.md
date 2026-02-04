@@ -509,27 +509,27 @@ Perform the one-time sync of all active worktrees to main directory.
 
 ## Phase 3: Full Automation & Event Detection
 
-### [ ] Step: Event Detection System
+### [x] Step: Event Detection System
 <!-- chat-id: 5a521262-4c45-4bd4-a7d7-72c33ae036ef -->
 
 Implement the event detection and emission system.
 
 **Tasks:**
-- [ ] Implement `core/events/types.ts` with Event interfaces
-- [ ] Implement `core/events/emitter.ts` with EventEmitter class
-- [ ] Implement `core/events/detector.ts` with file system watcher (Chokidar)
-- [ ] Configure Chokidar to watch worktree directories
-- [ ] Emit events on: commit detection, file changes
-- [ ] Implement event debouncing (wait 5 seconds after last change)
-- [ ] Implement event queue for processing
-- [ ] Write tests for event detection and emission
+- [x] Implement `core/events/types.ts` with Event interfaces
+- [x] Implement `core/events/emitter.ts` with EventEmitter class
+- [x] Implement `core/events/detector.ts` with file system watcher (Chokidar)
+- [x] Configure Chokidar to watch worktree directories
+- [x] Emit events on: commit detection, file changes
+- [x] Implement event debouncing (wait 5 seconds after last change)
+- [x] Implement event queue for processing
+- [x] Write tests for event detection and emission
 
 **Verification:**
-- File changes are detected
-- Events are emitted correctly
-- Debouncing prevents duplicate events
-- Event queue works
-- Tests pass
+- ✅ File changes are detected
+- ✅ Events are emitted correctly
+- ✅ Debouncing prevents duplicate events
+- ✅ Event queue works
+- ✅ Tests pass (38/38 tests passing)
 
 **References:** spec.md sections 1.2 (Event Detector), 3.2 (events module)
 

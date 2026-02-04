@@ -1,0 +1,233 @@
+{
+  "id": "2874d902-0b8e-4bfe-8e87-19fbc2761539",
+  "worktree_branch": "refs/heads/stage-fevrier-8a9a",
+  "commit_hash": "",
+  "status": "failure",
+  "started_at": "2026-02-04T11:31:08.104Z",
+  "diff_summary": {
+    "files_changed": 31,
+    "insertions": 4518,
+    "deletions": 27,
+    "files": [
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/AJUSTEMENTS_FINAL.md",
+        "status": "A",
+        "insertions": 271,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/CONFORMITE.md",
+        "status": "A",
+        "insertions": 276,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/FICHIERS_MODIFIES.txt",
+        "status": "A",
+        "insertions": 65,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/PR_SUMMARY.md",
+        "status": "A",
+        "insertions": 301,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/RESUME_AJUSTEMENTS.md",
+        "status": "A",
+        "insertions": 61,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/contenu-final.md",
+        "status": "A",
+        "insertions": 817,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/plan.md",
+        "status": "A",
+        "insertions": 66,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/stage-fevrier-8a9a/report.md",
+        "status": "A",
+        "insertions": 262,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "__tests__/stages/fevrier2026-cta-count.test.tsx",
+        "status": "A",
+        "insertions": 81,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "__tests__/stages/fevrier2026-data.test.ts",
+        "status": "A",
+        "insertions": 152,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/stages/fevrier-2026/layout.tsx",
+        "status": "A",
+        "insertions": 186,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/stages/fevrier-2026/page.tsx",
+        "status": "A",
+        "insertions": 78,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/AcademyGrid.tsx",
+        "status": "A",
+        "insertions": 155,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/FAQAccordion.tsx",
+        "status": "A",
+        "insertions": 84,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/FinalCTA.tsx",
+        "status": "A",
+        "insertions": 106,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/HoursSchedule.tsx",
+        "status": "A",
+        "insertions": 82,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/ScrollDepthTracker.tsx",
+        "status": "A",
+        "insertions": 31,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/SocialProof.tsx",
+        "status": "A",
+        "insertions": 115,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/StagesHero.tsx",
+        "status": "A",
+        "insertions": 116,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/StagesReservationForm.tsx",
+        "status": "A",
+        "insertions": 270,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/StickyMobileCTA.tsx",
+        "status": "A",
+        "insertions": 37,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/SubjectTierTable.tsx",
+        "status": "A",
+        "insertions": 104,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/TierCards.tsx",
+        "status": "A",
+        "insertions": 93,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/Timeline.tsx",
+        "status": "A",
+        "insertions": 63,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/stages/UrgencyBanner.tsx",
+        "status": "A",
+        "insertions": 33,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "data/stages/fevrier2026.ts",
+        "status": "A",
+        "insertions": 381,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "e2e/stages-fevrier2026.spec.ts",
+        "status": "A",
+        "insertions": 114,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "jest.config.unit.js",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/analytics-stages.ts",
+        "status": "A",
+        "insertions": 55,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "package-lock.json",
+        "status": "M",
+        "insertions": 61,
+        "deletions": 26,
+        "binary": false
+      },
+      {
+        "path": "tsconfig.tsbuildinfo",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      }
+    ]
+  },
+  "error": "Failed to check conflicts between main and refs/heads/stage-fevrier-8a9a: Failed to analyze merge-tree: stdout maxBuffer length exceeded",
+  "completed_at": "2026-02-04T11:31:14.374Z"
+}
