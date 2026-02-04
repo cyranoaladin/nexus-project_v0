@@ -88,6 +88,9 @@ jest.mock('@radix-ui/react-presence', () => ({
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NODE_ENV = 'test';
 
+// Configure React for testing environment (React 18+)
+global.IS_REACT_ACT_ENVIRONMENT = true;
+
 // Mock window.alert for jsdom environment (force override, JS-safe)
 if (typeof globalThis !== 'undefined') {
   if (!globalThis.window) globalThis.window = {};
