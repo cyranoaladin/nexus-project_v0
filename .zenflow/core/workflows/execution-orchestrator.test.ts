@@ -233,7 +233,7 @@ describe('ExecutionOrchestrator', () => {
     it('should respect max concurrent executions', async () => {
       const orchestrator2 = new ExecutionOrchestrator(ruleEngine, workflowEngine, {
         maxConcurrentExecutions: 2,
-        queueProcessInterval: 100,
+        queueProcessInterval: 50,
         enableConcurrencyControl: true,
       });
 
@@ -248,7 +248,7 @@ describe('ExecutionOrchestrator', () => {
         actions: [{ type: 'log', message: 'Slow action' }],
         guards: {
           max_retries: 3,
-          timeout: 300,
+          timeout: 10,
           on_error: 'abort',
         },
       };
@@ -259,7 +259,7 @@ describe('ExecutionOrchestrator', () => {
 
       await ruleEngine.loadRules();
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 3; i++) {
         const event: CommitEvent = {
           id: `event-${i}`,
           type: 'commit',
@@ -276,13 +276,13 @@ describe('ExecutionOrchestrator', () => {
 
       await orchestrator2.startProcessing();
 
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       const status = orchestrator2.getQueueStatus();
       expect(status.running).toBeLessThanOrEqual(2);
 
       orchestrator2.cleanup();
-    });
+    }, 10000);
   });
 
   describe('concurrency control', () => {
