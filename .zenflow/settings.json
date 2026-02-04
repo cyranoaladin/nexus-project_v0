@@ -150,5 +150,39 @@
       "normal": "4.5:1",
       "large": "3:1"
     }
+  },
+  "sync": {
+    "enabled": true,
+    "auto_push": false,
+    "max_retries": 3,
+    "timeout": 300,
+    "conflict_strategy": "abort",
+    "excluded_worktrees": [],
+    "notification_channels": ["console", "log"],
+    "verification_commands": []
+  },
+  "rules": {
+    "directory": ".zenflow/rules",
+    "auto_load": true,
+    "validation_strict": true
+  },
+  "workflows": {
+    "directory": ".zenflow/workflows",
+    "state_directory": ".zenflow/state/executions",
+    "max_concurrent": 1
+  },
+  "logging": {
+    "level": "info",
+    "directory": ".zenflow/logs",
+    "rotation": "daily",
+    "retention_days": 30,
+    "max_size_mb": 100,
+    "format": "text"
+  },
+  "git": {
+    "main_directory": ".",
+    "worktrees_directory": "../",
+    "remote": "origin",
+    "default_branch": "main"
   }
 }

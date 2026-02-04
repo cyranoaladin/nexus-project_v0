@@ -13,10 +13,14 @@ const customJestConfig = {
     '**/__tests__/components/ui/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/ui/**/*.(test|spec).(js|ts|tsx)',
     '**/tests/**/*.(test|spec).(js|ts|tsx)',
+    '**/.zenflow/**/*.(test|spec).(js|ts|tsx)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid|glob|chokidar)/)',
+  ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   coverageThreshold: {

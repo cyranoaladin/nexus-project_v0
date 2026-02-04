@@ -1,0 +1,135 @@
+{
+  "id": "13925fab-df92-4e0b-a6dc-1bc01fe558a8",
+  "worktree_branch": "refs/heads/interface-coach-et-flux-de-repor-7198",
+  "commit_hash": "",
+  "status": "failure",
+  "started_at": "2026-02-04T11:30:35.993Z",
+  "diff_summary": {
+    "files_changed": 17,
+    "insertions": 4648,
+    "deletions": 210,
+    "files": [
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/deployment-checklist.md",
+        "status": "A",
+        "insertions": 343,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/e2e-testing-report.md",
+        "status": "A",
+        "insertions": 499,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/implementation-summary.md",
+        "status": "A",
+        "insertions": 565,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/plan.md",
+        "status": "A",
+        "insertions": 611,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/requirements.md",
+        "status": "A",
+        "insertions": 480,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/interface-coach-et-flux-de-repor-7198/spec.md",
+        "status": "A",
+        "insertions": 1014,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/api/coach/sessions/[sessionId]/report/route.ts",
+        "status": "A",
+        "insertions": 261,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/dashboard/coach/page.tsx",
+        "status": "M",
+        "insertions": 44,
+        "deletions": 24,
+        "binary": false
+      },
+      {
+        "path": "components/ui/session-report-dialog.tsx",
+        "status": "A",
+        "insertions": 56,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/session-report-form.tsx",
+        "status": "A",
+        "insertions": 324,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/email-service.ts",
+        "status": "M",
+        "insertions": 78,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/validation/index.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/validation/session-report.ts",
+        "status": "A",
+        "insertions": 65,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "package-lock.json",
+        "status": "M",
+        "insertions": 61,
+        "deletions": 26,
+        "binary": false
+      },
+      {
+        "path": "prisma/migrations/20260202210244_add_session_reports/migration.sql",
+        "status": "A",
+        "insertions": 41,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "prisma/schema.prisma",
+        "status": "M",
+        "insertions": 204,
+        "deletions": 159,
+        "binary": false
+      },
+      {
+        "path": "tsconfig.tsbuildinfo",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      }
+    ]
+  },
+  "error": "Failed to check conflicts between main and refs/heads/interface-coach-et-flux-de-repor-7198: Failed to analyze merge-tree: stdout maxBuffer length exceeded",
+  "completed_at": "2026-02-04T11:30:42.438Z"
+}
