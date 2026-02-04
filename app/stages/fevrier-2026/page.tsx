@@ -65,7 +65,7 @@ export default function StagesFevrier2026Page() {
         <SocialProof testimonials={testimonials} />
 
         {/* J — Closing / Urgence finale */}
-        <FinalCTA closingDate={deadlines.registrationCloseDate} />
+        <FinalCTA closingDate={deadlines.registrationCloseDate} academies={academies} />
       </main>
 
       {/* Footer */}
