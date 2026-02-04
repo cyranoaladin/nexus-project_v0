@@ -160,7 +160,15 @@ describe('RBAC Matrix', () => {
 
   describe('Sessions API', () => {
     describe('GET /api/sessions', () => {
-      // NOTE: These tests require a running server and are better suited for E2E testing
+      // SKIPPED: These tests reference a non-existent endpoint `/api/sessions`
+      // The actual session endpoints are:
+      // - GET /api/student/sessions (requires ELEVE role)
+      // - POST /api/sessions/book (requires PARENT role)
+      // - POST /api/sessions/cancel (requires ELEVE, COACH, or ASSISTANTE role)
+      // - GET /api/sessions/video (requires ELEVE or COACH role)
+      // 
+      // These tests use fetch() which requires a running HTTP server (E2E tests)
+      // and should be migrated to Playwright e2e tests or removed if not needed
       it.skip('allows ANONYMOUS users to view sessions', async () => {
         mockSession(null);
 
