@@ -24,7 +24,7 @@ find_zenflow_cli() {
     return 1
 }
 
-ZENFLOW_CLI=$(find_zenflow_cli)
+ZENFLOW_CLI=$(find_zenflow_cli) || true
 
 if [[ -z "$ZENFLOW_CLI" ]]; then
     echo "Zenflow: Warning - zenflow CLI not found, skipping pre-push validation" >&2
