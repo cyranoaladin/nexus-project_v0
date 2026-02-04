@@ -28,6 +28,14 @@ storage/
 test-results/
 playwright-report/
 
+# Performance test artifacts
+.zenflow/tests/performance/results.json
+.zenflow/tests/performance/baseline.json
+.zenflow/tests/performance/comparison.json
+.zenflow/tests/performance/profiles/
+.zenflow/tests/performance/snapshots/
+.zenflow/tests/performance/coverage/
+
 # Archives
 *.tgz
 
