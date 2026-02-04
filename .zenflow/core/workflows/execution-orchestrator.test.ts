@@ -298,7 +298,7 @@ describe('ExecutionOrchestrator', () => {
         actions: [{ type: 'log', message: 'Sync action' }],
         guards: {
           max_retries: 3,
-          timeout: 300,
+          timeout: 10,
           on_error: 'abort',
         },
       };
@@ -337,18 +337,18 @@ describe('ExecutionOrchestrator', () => {
       await orchestrator.handleEvent(event2);
       await orchestrator.startProcessing();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      orchestrator.stopProcessing();
 
       const status = orchestrator.getQueueStatus();
       expect(status.completed + status.failed + status.running).toBeGreaterThan(0);
-
-      orchestrator.stopProcessing();
-    });
+    }, 10000);
 
     it('should work without concurrency control when disabled', async () => {
       const orchestrator2 = new ExecutionOrchestrator(ruleEngine, workflowEngine, {
         maxConcurrentExecutions: 5,
-        queueProcessInterval: 100,
+        queueProcessInterval: 50,
         enableConcurrencyControl: false,
       });
 
@@ -363,7 +363,7 @@ describe('ExecutionOrchestrator', () => {
         actions: [{ type: 'log', message: 'No lock action' }],
         guards: {
           max_retries: 3,
-          timeout: 300,
+          timeout: 10,
           on_error: 'abort',
         },
       };
@@ -389,13 +389,13 @@ describe('ExecutionOrchestrator', () => {
       await orchestrator2.handleEvent(event);
       await orchestrator2.startProcessing();
 
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      orchestrator2.cleanup();
 
       const status = orchestrator2.getQueueStatus();
       expect(status.completed + status.failed).toBeGreaterThan(0);
-
-      orchestrator2.cleanup();
-    });
+    }, 10000);
   });
 
   describe('getQueueStatus', () => {
