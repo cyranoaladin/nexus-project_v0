@@ -479,27 +479,29 @@ Implement CLI commands for managing rules and workflows.
 
 ---
 
-### [ ] Step: Initial Synchronization
+### [x] Step: Initial Synchronization
+<!-- chat-id: f4b0bc8e-afbf-4a6f-b20c-dba3443921ad -->
 
 Perform the one-time sync of all active worktrees to main directory.
 
 **Tasks:**
-- [ ] Run `zenflow sync --auto --dry-run` to preview changes
-- [ ] Review dry-run output for any conflicts or issues
-- [ ] Run `zenflow sync --auto` to execute initial sync
-- [ ] Verify all worktree changes are in main directory
-- [ ] Verify Git history is preserved
-- [ ] Verify commit messages follow pattern
-- [ ] Run `npm run lint` and `npm run typecheck` in main directory
-- [ ] Fix any issues introduced by sync
-- [ ] Document any worktrees that couldn't be synced (conflicts)
+- [x] Run `zenflow sync --auto --dry-run` to preview changes
+- [x] Review dry-run output for any conflicts or issues
+- [x] Run `zenflow sync --auto` to execute initial sync
+- [x] Verify all worktree changes are in main directory
+- [x] Verify Git history is preserved
+- [x] Verify commit messages follow pattern
+- [x] Run `npm run lint` and `npm run typecheck` in main directory
+- [x] Fix any issues introduced by sync
+- [x] Document any worktrees that couldn't be synced (conflicts)
 
 **Verification:**
-- All syncable worktrees are synchronized
-- Main directory reflects all changes
-- No unintended changes occurred
-- Lint and typecheck pass
-- Git history is clean
+- ✅ All syncable worktrees are synchronized (10/11 excluding current)
+- ✅ Main directory reflects all changes
+- ✅ No unintended changes occurred
+- ✅ Lint and typecheck pass
+- ✅ Git history is clean
+- ⚠️ 2 worktrees require manual resolution (documented in initial-sync-results.md)
 
 **References:** spec.md section REQ-SYNC-001 to REQ-SYNC-005, Étape 2 from task description
 
@@ -508,6 +510,7 @@ Perform the one-time sync of all active worktrees to main directory.
 ## Phase 3: Full Automation & Event Detection
 
 ### [ ] Step: Event Detection System
+<!-- chat-id: 5a521262-4c45-4bd4-a7d7-72c33ae036ef -->
 
 Implement the event detection and emission system.
 
@@ -533,6 +536,7 @@ Implement the event detection and emission system.
 ---
 
 ### [ ] Step: Git Hooks Implementation
+<!-- chat-id: 0d26152f-57c2-42da-83b2-8acee126c58b -->
 
 Create and install Git hooks in worktrees to trigger sync events.
 
@@ -557,6 +561,7 @@ Create and install Git hooks in worktrees to trigger sync events.
 ---
 
 ### [ ] Step: Orchestrator and Concurrency Control
+<!-- chat-id: 6963211a-7f61-4123-82f4-b48d1501cd55 -->
 
 Implement the orchestrator that coordinates events, rules, and workflows.
 
@@ -582,6 +587,7 @@ Implement the orchestrator that coordinates events, rules, and workflows.
 ---
 
 ### [ ] Step: Daemon Service Implementation
+<!-- chat-id: 9d502021-c1d5-4ab5-9b73-5106c5ad622a -->
 
 Create the background daemon service for continuous monitoring.
 
@@ -609,6 +615,7 @@ Create the background daemon service for continuous monitoring.
 ---
 
 ### [ ] Step: CLI Daemon and Status Commands
+<!-- chat-id: 318a4899-e4b7-4084-b62f-f13292171e3b -->
 
 Implement CLI commands for daemon control and status monitoring.
 
@@ -638,6 +645,7 @@ Implement CLI commands for daemon control and status monitoring.
 ---
 
 ### [ ] Step: End-to-End Automation Testing
+<!-- chat-id: 3c4f511e-dd98-4296-8494-732a53b8a97e -->
 
 Test the complete automated sync cycle from commit to main directory update.
 
@@ -669,6 +677,7 @@ Test the complete automated sync cycle from commit to main directory update.
 ## Phase 4: Testing, Hardening & Documentation
 
 ### [ ] Step: Comprehensive Unit Testing
+<!-- chat-id: afcd2e01-2f22-451f-83a8-ae0ee65bf694 -->
 
 Achieve >80% unit test coverage across all modules.
 
@@ -696,6 +705,7 @@ Achieve >80% unit test coverage across all modules.
 ---
 
 ### [ ] Step: Integration Testing
+<!-- chat-id: 46ac02a0-018b-42de-94b2-f3816cdbec69 -->
 
 Create integration tests for component interactions.
 
@@ -722,6 +732,7 @@ Create integration tests for component interactions.
 ---
 
 ### [ ] Step: Error Handling and Security Hardening
+<!-- chat-id: c967c8df-3307-449f-b191-a31485df6bcf -->
 
 Enhance error handling and secure the system against common vulnerabilities.
 
@@ -750,6 +761,7 @@ Enhance error handling and secure the system against common vulnerabilities.
 ---
 
 ### [ ] Step: User Documentation
+<!-- chat-id: 47a33074-e15a-4d6b-9614-8d5b334c623c -->
 
 Create comprehensive user-facing documentation.
 
@@ -784,6 +796,7 @@ Create comprehensive user-facing documentation.
 ---
 
 ### [ ] Step: Technical Documentation
+<!-- chat-id: e0504853-ff9a-4a56-bfb6-fb40e90aa418 -->
 
 Create technical documentation for maintainers and contributors.
 
@@ -819,6 +832,7 @@ Create technical documentation for maintainers and contributors.
 ---
 
 ### [ ] Step: Performance Testing and Optimization
+<!-- chat-id: f193c906-0210-44ee-a226-c4c749a47a63 -->
 
 Test performance and optimize bottlenecks.
 
@@ -845,6 +859,7 @@ Test performance and optimize bottlenecks.
 ---
 
 ### [ ] Step: Final Validation and Acceptance Testing
+<!-- chat-id: 68bd9f63-923a-4408-b3e9-fc08e9375e77 -->
 
 Run all validation checks and complete manual testing checklist.
 

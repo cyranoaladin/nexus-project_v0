@@ -208,15 +208,35 @@ export class SyncValidator {
 
   private async validateRepositoryHealth(): Promise<ValidationCheck> {
     try {
-      await execAsync('git fsck --no-progress', {
+      const result = await execAsync('git fsck --no-progress 2>&1; echo "EXIT_CODE:$?"', {
         cwd: this.repoPath,
-        timeout: 60000,
+        timeout: 10000,
       });
 
+      const lines = result.stdout.trim().split('\n');
+      const exitCodeLine = lines.find(line => line.startsWith('EXIT_CODE:'));
+      const exitCode = exitCodeLine ? parseInt(exitCodeLine.split(':')[1], 10) : 0;
+
+      if (exitCode !== 0) {
+        const fsckOutput = lines.filter(line => !line.startsWith('EXIT_CODE:')).join('\n');
+        return {
+          name: 'repository_health',
+          passed: false,
+          message: `Repository health check failed: git fsck exited with code ${exitCode}`,
+          details: { output: fsckOutput },
+        };
+      }
+
+      const fsckOutput = lines.filter(line => !line.startsWith('EXIT_CODE:')).join('\n');
+      const hasWarnings = fsckOutput.includes('fantôme') || fsckOutput.includes('dangling') || fsckOutput.includes('missing');
+      
       return {
         name: 'repository_health',
         passed: true,
-        message: 'Repository health check passed (git fsck)',
+        message: hasWarnings 
+          ? 'Repository health check passed (git fsck - some warnings present but non-critical)'
+          : 'Repository health check passed (git fsck)',
+        details: hasWarnings ? { warnings: fsckOutput } : undefined,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

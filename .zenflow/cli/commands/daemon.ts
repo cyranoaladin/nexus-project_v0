@@ -1,5 +1,14 @@
 import { Command } from 'commander';
 import { createOutput } from '../utils/output';
+import { DaemonManager } from '../../daemon/manager';
+import path from 'path';
+
+function getRepoPath(configPath?: string): string {
+  if (configPath) {
+    return path.dirname(path.dirname(path.resolve(configPath)));
+  }
+  return process.cwd();
+}
 
 export function createDaemonCommand(globalOptions: any): Command {
   const command = new Command('daemon');
@@ -11,7 +20,15 @@ export function createDaemonCommand(globalOptions: any): Command {
     .action(async () => {
       const output = createOutput(globalOptions);
       try {
-        output.info('Start daemon - to be implemented');
+        const repoPath = getRepoPath(globalOptions.config);
+        const manager = new DaemonManager(repoPath);
+        
+        output.info('Starting Zenflow daemon...');
+        await manager.start();
+        
+        const status = await manager.getStatus();
+        output.success(`Daemon started successfully (PID: ${status.pid})`);
+        output.info(`Logs: ${path.join(repoPath, '.zenflow/logs/daemon.log')}`);
       } catch (error) {
         output.error('Failed to start daemon', error as Error);
         process.exit(1);
@@ -24,7 +41,13 @@ export function createDaemonCommand(globalOptions: any): Command {
     .action(async () => {
       const output = createOutput(globalOptions);
       try {
-        output.info('Stop daemon - to be implemented');
+        const repoPath = getRepoPath(globalOptions.config);
+        const manager = new DaemonManager(repoPath);
+        
+        output.info('Stopping Zenflow daemon...');
+        await manager.stop();
+        
+        output.success('Daemon stopped successfully');
       } catch (error) {
         output.error('Failed to stop daemon', error as Error);
         process.exit(1);
@@ -37,7 +60,14 @@ export function createDaemonCommand(globalOptions: any): Command {
     .action(async () => {
       const output = createOutput(globalOptions);
       try {
-        output.info('Restart daemon - to be implemented');
+        const repoPath = getRepoPath(globalOptions.config);
+        const manager = new DaemonManager(repoPath);
+        
+        output.info('Restarting Zenflow daemon...');
+        await manager.restart();
+        
+        const status = await manager.getStatus();
+        output.success(`Daemon restarted successfully (PID: ${status.pid})`);
       } catch (error) {
         output.error('Failed to restart daemon', error as Error);
         process.exit(1);
@@ -52,11 +82,33 @@ export function createDaemonCommand(globalOptions: any): Command {
     .action(async (options) => {
       const output = createOutput(globalOptions);
       try {
-        output.info('View daemon logs - to be implemented');
+        const repoPath = getRepoPath(globalOptions.config);
+        const manager = new DaemonManager(repoPath);
+        const lines = parseInt(options.lines, 10);
+        
         if (options.follow) {
-          output.debug('Follow mode enabled');
+          output.info('Following daemon logs (press Ctrl+C to exit)...');
+          output.newline();
+          
+          const stopFollowing = await manager.followLogs((line: string) => {
+            console.log(line);
+          });
+          
+          process.on('SIGINT', () => {
+            stopFollowing();
+            output.newline();
+            output.info('Stopped following logs');
+            process.exit(0);
+          });
+        } else {
+          const logLines = await manager.getLogs(lines);
+          
+          if (logLines.length === 0) {
+            output.info('No logs available');
+          } else {
+            logLines.forEach(line => console.log(line));
+          }
         }
-        output.debug(`Lines: ${options.lines}`);
       } catch (error) {
         output.error('Failed to view daemon logs', error as Error);
         process.exit(1);

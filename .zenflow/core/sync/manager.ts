@@ -221,9 +221,10 @@ export class SyncManager {
     try {
       const worktrees = await this.analyzer.listAllWorktrees();
       
-      const syncableWorktrees = worktrees.filter(
-        wt => wt.branch !== 'main' && !this.isExcluded(wt.branch)
-      );
+      const syncableWorktrees = worktrees.filter(wt => {
+        const branchName = wt.branch.replace('refs/heads/', '');
+        return branchName !== 'main' && !this.isExcluded(wt.branch);
+      });
 
       if (syncableWorktrees.length === 0) {
         this.logger.info('No syncable worktrees found');
