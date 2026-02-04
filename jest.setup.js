@@ -86,7 +86,7 @@ jest.mock('@radix-ui/react-presence', () => ({
 
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'development';
 
 // Configure React for testing environment (React 18+)
 global.IS_REACT_ACT_ENVIRONMENT = true;
