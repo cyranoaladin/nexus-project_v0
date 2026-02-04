@@ -96,7 +96,7 @@ export class MergeAnalyzer {
 
       const { stdout } = await execAsync(
         `git merge-tree ${mergeBase} ${sanitizedBase} ${sanitizedTarget}`,
-        { cwd: this.repoPath }
+        { cwd: this.repoPath, maxBuffer: 50 * 1024 * 1024 }
       );
 
       const conflictMarkers = stdout.match(/<<<<<<<|>>>>>>>/g);

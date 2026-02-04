@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { jest } from '@jest/globals';
 import { Command } from 'commander';
 import { createStatusCommand } from './status';
 import { DaemonManager } from '../../daemon/manager';
 import { SyncManager } from '../../core/sync/manager';
 import { GitClient } from '../../core/git/client';
 
-vi.mock('../../daemon/manager');
-vi.mock('../../core/sync/manager');
-vi.mock('../../core/git/client');
-vi.mock('fs/promises');
+jest.mock('../../daemon/manager');
+jest.mock('../../core/sync/manager');
+jest.mock('../../core/git/client');
+jest.mock('fs/promises');
 
 describe('Status Commands', () => {
   let consoleLogSpy: any;
@@ -16,13 +16,13 @@ describe('Status Commands', () => {
   let processExitSpy: any;
 
   beforeEach(() => {
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    processExitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any);
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => {}) as any);
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('status (overall)', () => {
@@ -50,16 +50,16 @@ describe('Status Commands', () => {
         },
       ];
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue(mockWorktrees),
+      (GitClient as jest.MockedClass<typeof GitClient>).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue(mockWorktrees),
       } as any));
 
-      vi.mocked(SyncManager).mockImplementation(() => ({
-        getSyncHistory: vi.fn().mockResolvedValue(mockSyncs),
+      (SyncManager as jest.MockedClass<typeof SyncManager>).mockImplementation(() => ({
+        getSyncHistory: jest.fn().mockResolvedValue(mockSyncs),
       } as any));
 
       const command = createStatusCommand({});
@@ -78,16 +78,16 @@ describe('Status Commands', () => {
         { path: '/repo', branch: 'main', commit: 'abc1234', locked: false, prunable: false },
       ];
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue(mockWorktrees),
+      (jest.mocked as any)(GitClient).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue(mockWorktrees),
       } as any));
 
-      vi.mocked(SyncManager).mockImplementation(() => ({
-        getSyncHistory: vi.fn().mockResolvedValue([]),
+      (jest.mocked as any)(SyncManager).mockImplementation(() => ({
+        getSyncHistory: jest.fn().mockResolvedValue([]),
       } as any));
 
       const command = createStatusCommand({});
@@ -109,16 +109,16 @@ describe('Status Commands', () => {
         { path: '/repo', branch: 'main', commit: 'abc1234', locked: false, prunable: false },
       ];
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue(mockWorktrees),
+      (jest.mocked as any)(GitClient).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue(mockWorktrees),
       } as any));
 
-      vi.mocked(SyncManager).mockImplementation(() => ({
-        getSyncHistory: vi.fn().mockResolvedValue([]),
+      (jest.mocked as any)(SyncManager).mockImplementation(() => ({
+        getSyncHistory: jest.fn().mockResolvedValue([]),
       } as any));
 
       const command = createStatusCommand({ json: true });
@@ -154,12 +154,12 @@ describe('Status Commands', () => {
         },
       ];
 
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue(mockWorktrees),
+      (jest.mocked as any)(GitClient).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue(mockWorktrees),
       } as any));
 
-      vi.mocked(SyncManager).mockImplementation(() => ({
-        getSyncHistory: vi.fn().mockResolvedValue(mockSyncHistory),
+      (jest.mocked as any)(SyncManager).mockImplementation(() => ({
+        getSyncHistory: jest.fn().mockResolvedValue(mockSyncHistory),
       } as any));
 
       const command = createStatusCommand({});
@@ -171,8 +171,8 @@ describe('Status Commands', () => {
     });
 
     it('should show message when no worktrees found', async () => {
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue([]),
+      (jest.mocked as any)(GitClient).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue([]),
       } as any));
 
       const command = createStatusCommand({});
@@ -186,12 +186,12 @@ describe('Status Commands', () => {
         { path: '/repo', branch: 'main', commit: 'abc1234567', locked: false, prunable: false },
       ];
 
-      vi.mocked(GitClient).mockImplementation(() => ({
-        listWorktrees: vi.fn().mockResolvedValue(mockWorktrees),
+      (jest.mocked as any)(GitClient).mockImplementation(() => ({
+        listWorktrees: jest.fn().mockResolvedValue(mockWorktrees),
       } as any));
 
-      vi.mocked(SyncManager).mockImplementation(() => ({
-        getSyncHistory: vi.fn().mockResolvedValue([]),
+      (jest.mocked as any)(SyncManager).mockImplementation(() => ({
+        getSyncHistory: jest.fn().mockResolvedValue([]),
       } as any));
 
       const command = createStatusCommand({ json: true });
@@ -220,8 +220,8 @@ describe('Status Commands', () => {
         health: 'healthy' as const,
       };
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
       const command = createStatusCommand({});
@@ -237,8 +237,8 @@ describe('Status Commands', () => {
         running: false,
       };
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
       const command = createStatusCommand({});
@@ -257,8 +257,8 @@ describe('Status Commands', () => {
         health: 'healthy' as const,
       };
 
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockResolvedValue(mockDaemonStatus),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockResolvedValue(mockDaemonStatus),
       } as any));
 
       const command = createStatusCommand({ json: true });
@@ -279,8 +279,8 @@ describe('Status Commands', () => {
 
   describe('error handling', () => {
     it('should handle errors gracefully', async () => {
-      vi.mocked(DaemonManager).mockImplementation(() => ({
-        getStatus: vi.fn().mockRejectedValue(new Error('Test error')),
+      (jest.mocked as any)(DaemonManager).mockImplementation(() => ({
+        getStatus: jest.fn().mockRejectedValue(new Error('Test error')),
       } as any));
 
       const command = createStatusCommand({});
