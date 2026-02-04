@@ -17,6 +17,8 @@ const customJestConfig = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^react$': '<rootDir>/node_modules/react/index.js',
+    '^react-dom$': '<rootDir>/node_modules/react-dom/index.js',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
