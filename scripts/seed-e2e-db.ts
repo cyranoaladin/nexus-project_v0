@@ -55,7 +55,15 @@ async function main() {
       role: UserRole.PARENT,
       firstName: 'Test',
       lastName: 'Parent',
+      parentProfile: {
+        create: {
+          address: '123 Test St',
+          city: 'Test City',
+          country: 'Test Country'
+        }
+      }
     },
+    include: { parentProfile: true }
   });
   console.log(`  ✓ Parent: ${parent.email}`);
 
@@ -66,9 +74,27 @@ async function main() {
       role: UserRole.ELEVE,
       firstName: 'Test',
       lastName: 'Student',
+      studentProfile: {
+        create: {
+          grade: 'Terminale',
+          school: 'Lycée Test'
+        }
+      }
     },
+    include: { studentProfile: true }
   });
-  console.log(`  ✓ Student: ${student.email}`);
+
+  // Create Student Entity linked to Parent
+  await prisma.student.create({
+    data: {
+      userId: student.id,
+      parentId: parent.parentProfile!.id,
+      credits: 10,
+      totalSessions: 5
+    }
+  });
+
+  console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
 
   const coach = await prisma.user.create({
     data: {
