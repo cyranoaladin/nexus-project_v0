@@ -3,14 +3,13 @@
  * Verifies that the logger correctly captures exceptions
  */
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { logger, createRequestLogger, sanitizeLogData } from '@/lib/logger';
 
 describe('Logger', () => {
     let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
 
     beforeEach(() => {
-        // Spy on console.error to capture log output
         consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     });
 
@@ -32,7 +31,6 @@ describe('Logger', () => {
                 },
             }, 'Test error occurred');
 
-            // Verify error was logged
             expect(consoleErrorSpy).toHaveBeenCalled();
         });
 
@@ -66,7 +64,7 @@ describe('Logger', () => {
             expect(requestLogger).toBeDefined();
 
             requestLogger.info('Test request log');
-            expect(consoleErrorSpy).not.toHaveBeenCalled(); // Info logs don't trigger error spy
+            expect(consoleErrorSpy).not.toHaveBeenCalled();
         });
     });
 
@@ -100,25 +98,33 @@ describe('Logger', () => {
 
             const sanitized = sanitizeLogData(data);
 
-            expect(sanitized.user).toEqual({ name: 'John', password: 'secret' }); // Nested not sanitized in current implementation
+            expect(sanitized.user).toEqual({ name: 'John', password: 'secret' });
             expect(sanitized.creditCard).toBe('[REDACTED]');
         });
     });
 
     describe('Log Levels', () => {
         it('should respect log level configuration', () => {
-            // In test environment, logger should be silent
             logger.debug('Debug message');
             logger.info('Info message');
             logger.warn('Warning message');
 
-            // No logs should be output in test mode
             expect(consoleErrorSpy).not.toHaveBeenCalled();
         });
     });
 });
 
 describe('API Error Logging', () => {
+    let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
+
+    beforeEach(() => {
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    });
+
+    afterEach(() => {
+        consoleErrorSpy.mockRestore();
+    });
+
     it('should log API route errors', async () => {
         const mockError = new Error('Database connection failed');
 
@@ -142,7 +148,6 @@ describe('API Error Logging', () => {
             reason: 'Invalid credentials',
         }, 'Authentication failed');
 
-        // Warning logs should be captured
-        expect(consoleErrorSpy).not.toHaveBeenCalled(); // Warnings don't trigger error spy
+        expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 });
