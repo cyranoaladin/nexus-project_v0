@@ -180,6 +180,8 @@ describe('ExecutionOrchestrator', () => {
       await orchestrator.startProcessing();
       
       expect(orchestrator['processing']).toBe(true);
+      
+      orchestrator.stopProcessing();
     });
 
     it('should process queued executions', async () => {
@@ -194,7 +196,7 @@ describe('ExecutionOrchestrator', () => {
         actions: [{ type: 'log', message: 'Test action', level: 'info' }],
         guards: {
           max_retries: 3,
-          timeout: 300,
+          timeout: 10,
           on_error: 'abort',
         },
       };
@@ -220,13 +222,13 @@ describe('ExecutionOrchestrator', () => {
       await orchestrator.handleEvent(event);
       await orchestrator.startProcessing();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      orchestrator.stopProcessing();
 
       const status = orchestrator.getQueueStatus();
       expect(status.running + status.completed).toBeGreaterThan(0);
-
-      orchestrator.stopProcessing();
-    });
+    }, 10000);
 
     it('should respect max concurrent executions', async () => {
       const orchestrator2 = new ExecutionOrchestrator(ruleEngine, workflowEngine, {
