@@ -41,7 +41,7 @@ describe('Tooltip', () => {
       expect(screen.queryByText('Tooltip content')).not.toBeInTheDocument();
     });
 
-    it('renders tooltip content structure', () => {
+    it('renders tooltip content structure', async () => {
       // Radix UI Tooltip content doesn't render visibly in jsdom
       // Test that trigger renders without errors when open={true}
       const { container } = render(
@@ -55,7 +55,9 @@ describe('Tooltip', () => {
         </TooltipProvider>
       );
 
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
       expect(container.querySelector('[data-state]')).toBeInTheDocument();
     });
 
@@ -95,7 +97,7 @@ describe('Tooltip', () => {
       expect(button).toHaveFocus();
     });
 
-    it('supports controlled open state', () => {
+    it('supports controlled open state', async () => {
       // Tooltip accepts open prop without errors
       const { container, rerender } = render(
         <TooltipProvider>
@@ -122,12 +124,14 @@ describe('Tooltip', () => {
       );
 
       // Trigger still accessible after state change
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
     });
   });
 
   describe('Styling', () => {
-    it('applies default styles to content', () => {
+    it('applies default styles to content', async () => {
       const { container } = render(
         <TooltipProvider>
           <Tooltip open={true}>
@@ -141,12 +145,14 @@ describe('Tooltip', () => {
 
       // Radix UI TooltipContent doesn't render visibly in jsdom
       // Verify trigger is accessible and component structure exists
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
       const stateElement = container.querySelector('[data-state]');
       expect(stateElement).toBeInTheDocument();
     });
 
-    it('supports custom className on content', () => {
+    it('supports custom className on content', async () => {
       const { container } = render(
         <TooltipProvider>
           <Tooltip open={true}>
@@ -160,11 +166,13 @@ describe('Tooltip', () => {
 
       // TooltipContent accepts className prop without errors
       // Verify component renders without crashing
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
       expect(container.querySelector('[data-state]')).toBeInTheDocument();
     });
 
-    it('renders with sideOffset prop', () => {
+    it('renders with sideOffset prop', async () => {
       render(
         <TooltipProvider>
           <Tooltip open={true}>
@@ -177,12 +185,14 @@ describe('Tooltip', () => {
       );
 
       // TooltipContent accepts sideOffset prop without errors
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
     });
   });
 
   describe('Accessibility', () => {
-    it('content has proper role when open', () => {
+    it('content has proper role when open', async () => {
       const { container } = render(
         <TooltipProvider>
           <Tooltip open={true}>
@@ -196,7 +206,9 @@ describe('Tooltip', () => {
 
       // Radix UI adds role="tooltip" automatically
       // Content doesn't render in jsdom, but verify structure exists
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
       expect(container.querySelector('[data-state]')).toBeInTheDocument();
     });
 
@@ -233,7 +245,7 @@ describe('Tooltip', () => {
       expect(screen.getByText('Trigger')).toBeInTheDocument();
     });
 
-    it('handles complex content', () => {
+    it('handles complex content', async () => {
       const { container } = render(
         <TooltipProvider>
           <Tooltip open={true}>
@@ -250,7 +262,9 @@ describe('Tooltip', () => {
 
       // TooltipContent can accept complex nested content without errors
       // Verify tooltip structure is properly rendered
-      expect(screen.getByText('Trigger')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Trigger')).toBeInTheDocument();
+      });
       expect(container.querySelector('[data-state]')).toBeInTheDocument();
     });
 
