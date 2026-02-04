@@ -391,26 +391,26 @@ Create the high-level SyncManager that coordinates all sync operations.
 
 ---
 
-### [ ] Step: Default Rule and Workflow YAML Files
+### [x] Step: Default Rule and Workflow YAML Files
 <!-- chat-id: 3bdcfa0d-f08d-4843-b4ca-bc18134af0fc -->
 
 Create the primary rule and workflow that enable automatic synchronization.
 
 **Tasks:**
-- [ ] Create `.zenflow/rules/sync/worktree-to-main.yaml` (from spec.md section 14.1)
-- [ ] Create `.zenflow/workflows/sync-worktree-to-main.yaml` (from spec.md section 14.1)
-- [ ] Create `.zenflow/workflows/rollback-sync.yaml` for sync rollback
-- [ ] Create `.zenflow/workflows/validate-worktree.yaml` for pre-sync validation
-- [ ] Validate all YAML files against schemas
+- [x] Create `.zenflow/rules/sync/worktree-to-main.yaml` (from spec.md section 14.1)
+- [x] Create `.zenflow/workflows/sync-worktree-to-main.yaml` (from spec.md section 14.1)
+- [x] Create `.zenflow/workflows/rollback-sync.yaml` for sync rollback
+- [x] Create `.zenflow/workflows/validate-worktree.yaml` for pre-sync validation
+- [x] Validate all YAML files against schemas
 - [ ] Test rule trigger conditions
 - [ ] Test workflow execution with test worktree
 
 **Verification:**
-- YAML files are valid (schema validation passes)
-- Rule triggers on correct events
-- Workflow executes all steps successfully
-- Rollback workflow restores previous state
-- Dry-run mode works (no actual changes)
+- ✅ YAML files are valid (schema validation passes)
+- ⏭️ Rule triggers on correct events (requires daemon/CLI implementation)
+- ⏭️ Workflow executes all steps successfully (requires workflow engine integration)
+- ⏭️ Rollback workflow restores previous state (requires sync manager integration)
+- ⏭️ Dry-run mode works (no actual changes) (requires CLI implementation)
 
 **References:** spec.md sections 14.1 (file templates), REQ-RULE-001, REQ-WORKFLOW-001
 
