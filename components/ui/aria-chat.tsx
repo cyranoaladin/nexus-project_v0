@@ -41,7 +41,7 @@ export function AriaChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [selectedSubject, setSelectedSubject] = useState<Subject>(Subject.MATHEMATIQUES)
-  const [conversationId, setConversationId] = useState<string>("")
+  const [conversationId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
@@ -87,29 +87,43 @@ export function AriaChat() {
         })
       })
 
-      const result = await response.json()
-
       if (response.ok) {
+        // Create a placeholder message for streaming
+        const ariaMessageId = Date.now().toString();
         const ariaMessage: Message = {
-          id: result.message.id,
+          id: ariaMessageId,
           role: 'assistant',
-          content: result.message.content,
-          timestamp: new Date(result.message.createdAt)
+          content: '',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, ariaMessage]);
+
+        // Stream handling
+        if (!response.body) throw new Error("No response body");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          if (value) {
+            const chunk = decoder.decode(value, { stream: true });
+            setMessages(prev => prev.map(msg =>
+              msg.id === ariaMessageId
+                ? { ...msg, content: msg.content + chunk }
+                : msg
+            ));
+          }
         }
 
-        setMessages(prev => [...prev, ariaMessage])
-        
-        if (!conversationId) {
-          setConversationId(result.conversation.id)
-        }
+        // Note: Badges and Conversations are handled server-side now. 
+        // Client assumes success or we'd need a separate poll/websocket for metadata if critical.
 
-        // Afficher les nouveaux badges si il y en a
-        if (result.newBadges && result.newBadges.length > 0) {
-          // TODO: Afficher notification de nouveaux badges
-          console.log('Nouveaux badges:', result.newBadges)
-        }
       } else {
-        throw new Error(result.error || 'Erreur lors de la communication avec ARIA')
+        const result = await response.json();
+        throw new Error(result.error || 'Erreur lors de la communication avec ARIA');
       }
     } catch (error) {
       console.error('Erreur ARIA:', error)
@@ -138,7 +152,7 @@ export function AriaChat() {
     setIsLoading(true)
 
     setTimeout(() => {
-      const demoResponse = messages.length === 0 
+      const demoResponse = messages.length === 0
         ? "Bonjour ! Je suis ARIA, votre assistant IA pédagogique. Pour accéder à toutes mes fonctionnalités et bénéficier d'un suivi personnalisé, connectez-vous à votre compte Nexus Réussite."
         : "Pour continuer notre conversation et accéder à mes contenus pédagogiques exclusifs, veuillez vous connecter à votre compte."
 
@@ -170,7 +184,7 @@ export function AriaChat() {
       })
 
       // Mettre à jour le message avec le feedback
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg.id === messageId ? { ...msg, feedback } : msg
       ))
     } catch (error) {
@@ -200,7 +214,7 @@ export function AriaChat() {
         >
           <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
         </Button>
-        
+
         {/* Bulle d'invitation */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -311,11 +325,10 @@ export function AriaChat() {
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-xl p-4 shadow-sm ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-50 text-bleu-nuit border border-slate-200'
-                        }`}
+                        className={`max-w-[85%] rounded-xl p-4 shadow-sm ${message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-blue-50 text-bleu-nuit border border-slate-200'
+                          }`}
                       >
                         <div className="flex items-start space-x-2">
                           {message.role === 'assistant' && (
@@ -323,7 +336,7 @@ export function AriaChat() {
                           )}
                           <p className="text-sm leading-relaxed">{message.content}</p>
                         </div>
-                        
+
                         {/* Feedback pour les réponses ARIA */}
                         {message.role === 'assistant' && isAuthenticated && (
                           <div className="flex items-center space-x-2 mt-3">
@@ -402,7 +415,7 @@ export function AriaChat() {
                         </Select>
                       </div>
                     )}
-                    
+
                     <div className="flex space-x-3">
                       <Input
                         value={input}
