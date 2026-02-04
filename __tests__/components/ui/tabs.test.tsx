@@ -13,11 +13,13 @@ import {
   TabsContent,
 } from '@/components/ui/tabs';
 
-// SKIPPED: Radix UI Tabs mock requires deeper Next.js module resolution integration
+// SKIPPED: Next.js Jest configuration bypasses Radix UI mocks
 // The @radix-ui/react-tabs package cannot be properly mocked in Next.js jest environment
-// Both inline mocks (jest.mock) and manual mocks (__mocks__) are bypassed by Next.js module resolution
+// Both inline mocks (jest.mock) and manual mocks (__mocks__/@radix-ui/react-tabs.js) are bypassed
+// by Next.js's custom module resolution in next/jest createJestConfig
 // This is a known limitation with Next.js jest and Radix UI testing
 // The component itself works correctly in production - this is purely a testing infrastructure issue
+// Alternative: Test this component with E2E tests (Playwright/Cypress) instead
 describe.skip('Tabs', () => {
   const renderBasicTabs = () => {
     return render(
