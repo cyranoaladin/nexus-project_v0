@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { analytics } from '@/lib/analytics-stages';
+import { StagesReservationForm } from './StagesReservationForm';
+import type { Academy } from '@/data/stages/fevrier2026';
 
 interface FinalCTAProps {
   closingDate: string;
+  academies: Academy[];
 }
 
-export function FinalCTA({ closingDate }: FinalCTAProps) {
+export function FinalCTA({ closingDate, academies }: FinalCTAProps) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
@@ -29,10 +31,6 @@ export function FinalCTA({ closingDate }: FinalCTAProps) {
     const interval = setInterval(calculateTimeLeft, 60000);
     return () => clearInterval(interval);
   }, [closingDate]);
-
-  const handleCTAClick = () => {
-    analytics.ctaClick('final-cta', 'Réserver une consultation gratuite');
-  };
 
   return (
     <section id="reservation" className="py-20 bg-gradient-to-br from-red-600 to-orange-600 text-white">
@@ -97,15 +95,10 @@ export function FinalCTA({ closingDate }: FinalCTAProps) {
             </div>
           </div>
 
-          {/* CTA final */}
-          <a
-            href="https://nexusreussite.tn/bilan-gratuit"
-            onClick={handleCTAClick}
-            className="inline-block rounded-full bg-white text-red-600 px-12 py-5 text-xl font-black hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
-            aria-label="Réserver une consultation gratuite"
-          >
-            📅 Réserver une consultation gratuite
-          </a>
+          {/* Formulaire de réservation */}
+          <div className="max-w-2xl mx-auto">
+            <StagesReservationForm academies={academies} />
+          </div>
         </div>
       </div>
     </section>
