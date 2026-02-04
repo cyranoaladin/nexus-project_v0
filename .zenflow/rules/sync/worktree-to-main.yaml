@@ -1,0 +1,48 @@
+name: worktree-to-main-sync
+version: 1.0.0
+description: Automatically sync worktree changes to main directory on commit
+author: zenflow-system
+enabled: true
+
+triggers:
+  - type: commit
+    branches:
+      pattern: "*-[a-f0-9]{4}"
+    events:
+      - post-commit
+
+conditions:
+  - type: branch_check
+    not_branch: main
+  
+  - type: worktree_active
+  
+  - type: no_conflicts
+    with_branch: main
+  
+  - type: disk_space
+    min_gb: 1
+
+actions:
+  - type: log
+    level: info
+    message: "Triggering sync for ${trigger.branch}"
+  
+  - type: run_workflow
+    workflow: sync-worktree-to-main
+    inputs:
+      worktree_branch: "${trigger.branch}"
+      commit_hash: "${trigger.commit}"
+      dry_run: false
+  
+  - type: notify
+    on_success: true
+    on_failure: true
+    channels:
+      - console
+      - log
+
+guards:
+  max_retries: 3
+  timeout: 600
+  on_error: rollback

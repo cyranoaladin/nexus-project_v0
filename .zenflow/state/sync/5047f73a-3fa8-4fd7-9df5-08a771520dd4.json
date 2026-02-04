@@ -1,0 +1,293 @@
+{
+  "id": "5047f73a-3fa8-4fd7-9df5-08a771520dd4",
+  "worktree_branch": "refs/heads/workspace-etudiant-et-interface-336b",
+  "commit_hash": "",
+  "status": "success",
+  "started_at": "2026-02-04T11:12:59.661Z",
+  "diff_summary": {
+    "files_changed": 39,
+    "insertions": 4175,
+    "deletions": 205,
+    "files": [
+      {
+        "path": ".gitignore",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/workspace-etudiant-et-interface-336b/plan.md",
+        "status": "A",
+        "insertions": 412,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/workspace-etudiant-et-interface-336b/requirements.md",
+        "status": "A",
+        "insertions": 465,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": ".zenflow/tasks/workspace-etudiant-et-interface-336b/spec.md",
+        "status": "A",
+        "insertions": 928,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "E2E_TESTING_NOTES.md",
+        "status": "A",
+        "insertions": 62,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "__tests__/api/error-logging.test.ts",
+        "status": "M",
+        "insertions": 25,
+        "deletions": 25,
+        "binary": false
+      },
+      {
+        "path": "app/(dashboard)/student/error.tsx",
+        "status": "A",
+        "insertions": 70,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/(dashboard)/student/loading.tsx",
+        "status": "A",
+        "insertions": 5,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/(dashboard)/student/page.tsx",
+        "status": "A",
+        "insertions": 402,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/api/admin/users/route.ts",
+        "status": "M",
+        "insertions": 4,
+        "deletions": 4,
+        "binary": false
+      },
+      {
+        "path": "app/api/aria/chat/route.ts",
+        "status": "M",
+        "insertions": 113,
+        "deletions": 5,
+        "binary": false
+      },
+      {
+        "path": "app/api/aria/conversations/route.ts",
+        "status": "A",
+        "insertions": 111,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "app/api/payments/konnect/route.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "app/api/sessions/book/route.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "app/api/sessions/cancel/route.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "app/api/student/credits/route.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "app/api/student/dashboard/route.ts",
+        "status": "M",
+        "insertions": 21,
+        "deletions": 6,
+        "binary": false
+      },
+      {
+        "path": "app/api/student/sessions/route.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "components/ui/accordion.tsx",
+        "status": "M",
+        "insertions": 2,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/aria-embedded-chat.tsx",
+        "status": "A",
+        "insertions": 440,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/button.tsx",
+        "status": "M",
+        "insertions": 2,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/dashboard-skeleton.tsx",
+        "status": "A",
+        "insertions": 89,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/error-boundary.tsx",
+        "status": "A",
+        "insertions": 84,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/session-calendar.tsx",
+        "status": "A",
+        "insertions": 312,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "components/ui/student-calendar-wrapper.tsx",
+        "status": "A",
+        "insertions": 62,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "e2e/.auth/.gitkeep",
+        "status": "A",
+        "insertions": 0,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "e2e/auth.setup.ts",
+        "status": "A",
+        "insertions": 21,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "e2e/student-aria.spec.ts",
+        "status": "A",
+        "insertions": 108,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/api/errors.ts",
+        "status": "M",
+        "insertions": 14,
+        "deletions": 4,
+        "binary": false
+      },
+      {
+        "path": "lib/aria-streaming.ts",
+        "status": "A",
+        "insertions": 106,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/middleware/errors.ts",
+        "status": "A",
+        "insertions": 52,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "lib/middleware/rateLimit.ts",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      },
+      {
+        "path": "middleware.e2e.ts",
+        "status": "A",
+        "insertions": 9,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "middleware.prod.ts",
+        "status": "C",
+        "insertions": 150,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "middleware.ts",
+        "status": "M",
+        "insertions": 4,
+        "deletions": 125,
+        "binary": false
+      },
+      {
+        "path": "package-lock.json",
+        "status": "M",
+        "insertions": 61,
+        "deletions": 26,
+        "binary": false
+      },
+      {
+        "path": "playwright.config.ts",
+        "status": "M",
+        "insertions": 16,
+        "deletions": 3,
+        "binary": false
+      },
+      {
+        "path": "test-with-middleware-swap.sh",
+        "status": "A",
+        "insertions": 17,
+        "deletions": 0,
+        "binary": false
+      },
+      {
+        "path": "tsconfig.tsbuildinfo",
+        "status": "M",
+        "insertions": 1,
+        "deletions": 1,
+        "binary": false
+      }
+    ]
+  },
+  "conflict_info": {
+    "has_conflicts": false,
+    "conflicted_files": [],
+    "details": []
+  },
+  "completed_at": "2026-02-04T11:13:06.438Z"
+}
