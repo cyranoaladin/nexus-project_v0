@@ -10,182 +10,189 @@ const ACADEMIES = [
   // TERMINALE
   {
     id: "maths-bac-garanti",
-    title: "🛡️ MATHS : PROTOCOLE SÉCURITÉ",
-    badge: "SÉCURITÉ DOSSIER",
+    title: "🛡️ MATHS : ESSENTIELS BAC",
+    badge: "PALLIER 1 — ESSENTIELS",
     price: 590,
     early: 502,
-    tier: "essentielle",
-    audience: "Terminale EDS Maths",
+    tier: "Pallier 1",
+    audience: "Terminale EDS Maths • Première & Terminale",
     duration: "24h (20h Maths + 4h Python)",
     group: "6 élèves max",
     expert: "Professeur Agrégé",
-    category: ["terminale", "maths", "essentielle", "budget"],
-    description: "Ne jouez pas à la roulette russe avec votre moyenne. Verrouillez le 14/20.",
+    category: ["terminale", "maths", "essentielle", "budget", "pallier1"],
+    description: "Consolider les fondamentaux, corriger les erreurs récurrentes et acquérir des méthodes fiables pour l'écrit.",
     features: [
-      "Analyse Tactique : Ne plus jamais bloquer sur une Suite",
-      "Géométrie 3D : La méthode visuelle pour plier l'exo en 15 min",
-      "Rédaction 'Jury-Proof' : Les phrases qui déclenchent les points",
-      "Bonus : Le Hack Calculatrice pour vérifier vos résultats",
+      "Analyse & Fonctions : Maîtriser les suites, logarithmes et continuité",
+      "Géométrie 3D : Méthode structurée pour le calcul vectoriel",
+      "Rédaction Bac : Techniques de justification et présentation",
+      "Probabilités : Variables aléatoires et lois de probabilité",
     ],
     seats: 5,
     tone: "essential",
-    cta: "Sécuriser mon Bac",
+    cta: "Consolider mes bases",
   },
   {
     id: "maths-mention-max",
-    title: "👑 MATHS : MAJOR & TESCIA",
-    badge: "VISER L'ÉLITE",
+    title: "👑 MATHS : EXCELLENCE & PRÉPA",
+    badge: "PALLIER 2 — EXCELLENCE",
     price: 990,
     early: 842,
-    tier: "premium",
-    audience: "Terminale Maths Expertes + Prépas",
+    tier: "Pallier 2",
+    audience: "Terminale Maths Expertes • Objectif Prépa",
     duration: "32h",
     group: "6 élèves max",
     expert: "Agrégé & Jury Concours",
-    category: ["terminale", "maths", "premium"],
-    description: "Le programme des Prépas d'élite. Pour ceux qui trouvent le 16/20 banal.",
+    category: ["terminale", "maths", "premium", "pallier2"],
+    description: "Approfondir les notions fines, travailler le raisonnement avancé et préparer les concours d'excellence.",
     features: [
-      "Hors-Piste : Arithmétique & Équations Diff. (Niveau MPSI)",
-      "Avantage Concurrentiel : Certification TeSciA (Logique & QCM)",
-      "Grand Oral : Devenez l'orateur que le jury n'oubliera pas",
-      "Objectif : Dossier Louis-le-Grand / Ginette / EPFL",
+      "Arithmétique Avancée : Congruences, divisibilité (niveau MPSI)",
+      "Équations Différentielles : Primitives et résolution",
+      "Préparation TeSciA : Logique, dénombrement et QCM",
+      "Raisonnement & Rédaction : Niveau prépa scientifique",
     ],
     seats: 3,
     tone: "premium",
-    cta: "Rejoindre l'Élite",
+    cta: "Viser l'Excellence",
   },
   {
-    id: "nsi-commando",
-    title: "💻 NSI : CRASH-TEST ECE",
-    badge: "URGENCE BAC",
+    id: "nsi-fondamentaux",
+    title: "💻 NSI : FONDAMENTAUX BAC",
+    badge: "PALLIER 1 — ESSENTIELS",
     price: 590,
     early: 502,
-    tier: "essentielle",
-    audience: "Terminale EDS NSI",
+    tier: "Pallier 1",
+    audience: "Terminale EDS NSI • Première & Terminale",
     duration: "24h",
     group: "6 élèves max",
-    expert: "Expert NSI & Jury ECE",
-    category: ["terminale", "nsi", "essentielle", "budget"],
-    description: "L'épreuve pratique est un champ de mines. Nous vous donnons le démineur.",
+    expert: "Professeur NSI Certifié",
+    category: ["terminale", "nsi", "essentielle", "budget", "pallier1"],
+    description: "Consolider les structures de données, l'algorithmique et les bases de données pour l'épreuve écrite.",
     features: [
-      "Simulateur ECE : Coding sous pression en conditions réelles",
-      "Kit de Survie : Les 10 algorithmes à connaître par cœur",
-      "SQL & Data : Maîtriser les requêtes complexes pour l'écrit",
-      "Debug Express : Repérer une erreur en moins de 120 secondes",
+      "Structures de Données : Arbres, graphes, piles et files expliqués",
+      "Algorithmique : Complexité, tris et parcours",
+      "SQL & Bases de Données : Requêtes et modèle relationnel",
+      "Programmation Orientée Objet : Concepts et applications",
     ],
     seats: 4,
     tone: "essential",
-    cta: "Sauver mon ECE",
+    cta: "Consolider mes bases",
   },
 
   // PREMIERE
   {
     id: "maths-strategiques",
-    title: "🏗️ MATHS : REBOOT & FONDATIONS",
-    badge: "PACK PREMIÈRE",
+    title: "🏗️ MATHS : ESSENTIELS PREMIÈRE",
+    badge: "PALLIER 1 — ESSENTIELS",
     price: 490,
     early: 417,
-    tier: "essentielle",
+    tier: "Pallier 1",
     audience: "Première EDS Maths",
     duration: "20h",
     group: "6 élèves max",
-    expert: "Professeur Lycée",
-    category: ["premiere", "maths", "essentielle", "budget"],
-    description: "Stoppez l'hémorragie. Transformez vos lacunes en socle solide.",
+    expert: "Professeur Certifié",
+    category: ["premiere", "maths", "essentielle", "budget", "pallier1"],
+    description: "Consolider les fondamentaux de Première pour préparer l'épreuve finale et construire un socle solide.",
     features: [
-      "Déclic Dérivation : Comprendre enfin le sens des variations",
-      "Spécial 'Fin de Spé' : Training intensif pour l'épreuve écrite finale",
-      "Python Starter : Les scripts indispensables pour ne pas couler",
-      "Méthodologie : Comment gratter des points 'gratuits' sur la forme",
+      "Dérivation : Maîtriser le sens de variation et les applications",
+      "Préparation Épreuve Finale : Entraînement sur exercices types Bac",
+      "Python : Algorithmes et scripts essentiels",
+      "Méthodologie : Rédaction et présentation pour optimiser les points",
     ],
     seats: 6,
     tone: "essential",
-    cta: "Redémarrer du bon pied",
+    cta: "Consolider mes bases",
   },
   {
     id: "maths-premiere-excellence",
-    title: "🚀 MATHS : HORS-NORME (PRÉPA)",
-    badge: "OBJECTIF MENTION",
+    title: "🚀 MATHS : OBJECTIF AVANCÉ",
+    badge: "PALLIER 2 — EXCELLENCE",
     price: 990,
     early: 842,
-    tier: "premium",
-    audience: "Première VIsant Maths Expertes",
+    tier: "Pallier 2",
+    audience: "Première • Objectif Maths Expertes",
     duration: "30h",
     group: "6 élèves max",
     expert: "Agrégé de Mathématiques",
-    category: ["premiere", "maths", "premium"],
-    description: "Pourquoi attendre la Terminale ? Prenez 6 mois d'avance sur la concurrence.",
+    category: ["premiere", "maths", "premium", "pallier2"],
+    description: "Approfondir les notions, anticiper le programme de Terminale et développer un raisonnement avancé.",
     features: [
-      "Anticipation : Initiation aux Limites et à la Continuité",
-      "Challenge : Problèmes ouverts type Concours Général",
-      "Produit Scalaire Expert : La clé de voûte de la géométrie vectorielle",
-      "Asset Parcoursup : Un bulletin de Première qui impressionne",
+      "Analyse Avancée : Initiation aux limites et à la continuité",
+      "Raisonnement : Problèmes ouverts et démonstrations",
+      "Produit Scalaire : Maîtrise approfondie de la géométrie vectorielle",
+      "Anticipation Terminale : Suites numériques et optimisation",
     ],
     seats: 4,
     tone: "premium",
-    cta: "Prendre le Lead",
+    cta: "Viser l'Excellence",
   },
   {
     id: "nsi-decouverte",
     title: "🌐 NSI : START-UP & WEB",
-    badge: "CODING STARTER",
+    badge: "PALLIER 1 — ESSENTIELS",
     price: 490,
     early: 417,
-    tier: "essentielle",
+    tier: "Pallier 1",
     audience: "Première Spé NSI",
     duration: "20h",
     group: "6 élèves max",
     expert: "Professeur NSI",
-    category: ["premiere", "nsi", "essentielle", "budget"],
-    description: "Passez de l'autre côté de l'écran. Comprenez (enfin) ce que vous codez.",
+    category: ["premiere", "nsi", "essentielle", "budget", "pallier1"],
+    description: "Comprendre les fondamentaux du web et de la programmation Python pour construire des bases solides.",
     features: [
-      "Web Design : Créer et publier une page HTML/CSS pro",
-      "Logique Python : Boucles & Conditions sans douleur",
-      "Données : Manipuler des fichiers CSV comme un Data Analyst",
-      "Projet : Un premier site fonctionnel à montrer",
+      "Web Design : Créer une page HTML/CSS structurée",
+      "Python : Boucles, conditions et structures de données",
+      "Traitement de Données : Manipuler des fichiers CSV",
+      "Projet : Site statique fonctionnel",
     ],
     seats: 6,
     tone: "essential",
-    cta: "Valider la NSI",
+    cta: "Consolider mes bases",
   },
   {
     id: "nsi-premiere-avance",
     title: "🤖 NSI : ENGINEERING & MAKER",
-    badge: "FUTUR INGÉNIEUR",
+    badge: "PALLIER 2 — EXCELLENCE",
     price: 990,
     early: 842,
-    tier: "premium",
-    audience: "Première NSI Passionnés",
+    tier: "Pallier 2",
+    audience: "Première NSI • Profils Avancés",
     duration: "30h",
     group: "6 élèves max",
     expert: "Ingénieur & Professeur",
-    category: ["premiere", "nsi", "premium"],
-    description: "Ne soyez pas utilisateur. Soyez Créateur. Le niveau ingénieur dès la Première.",
+    category: ["premiere", "nsi", "premium", "pallier2"],
+    description: "Approfondir l'algorithmique, développer des projets avancés et comprendre l'architecture logicielle.",
     features: [
-      "Algo Pure : Complexité, Tris et Gloutons expliqués",
-      "Full Stack : Développer un site dynamique ou un jeu (PyGame)",
-      "Architecture : Comprendre Linux et l'OS (Operating System)",
-      "Portfolio Github : Votre premier atout pour un dossier Tech",
+      "Algorithmique : Complexité, tris et algorithmes gloutons",
+      "Développement : Site dynamique ou jeu (PyGame)",
+      "Architecture : Comprendre Linux et les systèmes d'exploitation",
+      "Portfolio : Projets GitHub pour valoriser le dossier",
     ],
     seats: 4,
     tone: "premium",
-    cta: "Devenir Ingénieur",
+    cta: "Viser l'Excellence",
   },
 ];
 
 const TESTIMONIALS = [
   {
     quote:
-      "Tout le monde avait 16 en maths dans ma classe. Avec le module TeSciA de Nexus, j'ai pu montrer à Louis-le-Grand que je savais vraiment raisonner. Admis.",
-    author: "Thomas L.",
+      "Le stage m'a permis de structurer ma méthode et d'aller au fond des raisonnements. J'ai compris ce que les jurys attendent vraiment. J'ai ensuite intégré une prépa MPSI à Louis-le-Grand.",
+    author: "M. Ben Salah",
     role: "Prépa MPSI",
-    stats: ["Admis Louis-le-Grand", "Top 1% TeSciA"],
+    stats: ["Louis-le-Grand", "Maths Expertes"],
+  },
+  {
+    quote:
+      "Le cadre de travail et l'exigence du stage m'ont aidée à progresser sur les points qui me bloquaient vraiment. J'ai gagné en rigueur et en confiance pour la suite.",
+    author: "S. Trabelsi",
+    role: "Prépa MP2I",
+    stats: ["Sainte-Geneviève", "NSI Spécialité"],
   },
 ];
 
 const PROGRAMS = [
   {
-    title: "🛡️ MATHS : PROTOCOLE SÉCURITÉ (Terminale)",
+    title: "🛡️ MATHS : ESSENTIELS BAC (Terminale) — Pallier 1",
     blocks: [
       "J1-J2 : Analyse & Fonctions (Suites, Logarithmes, Continuité)",
       "J3-J4 : Géométrie dans l'Espace & Calcul Vectoriel",
@@ -195,27 +202,27 @@ const PROGRAMS = [
     total: "24h (20h Maths + 4h Python)"
   },
   {
-    title: "👑 MATHS : MAJOR & TESCIA (Terminale)",
+    title: "👑 MATHS : EXCELLENCE & PRÉPA (Terminale) — Pallier 2",
     blocks: [
       "Module 1 : Arithmétique (Congruences, Divisibilité)",
       "Module 2 : Équations Différentielles & Primitives",
       "Module 3 : Préparation TeSciA (Logique, Dénombrement)",
-      "Module 4 : Grand Oral & Oraux de Concours"
+      "Module 4 : Raisonnement & Rédaction Avancée"
     ],
     total: "32h Excellence"
   },
   {
-    title: "💻 NSI : CRASH-TEST ECE (Terminale)",
+    title: "💻 NSI : FONDAMENTAUX BAC (Terminale) — Pallier 1",
     blocks: [
       "Jour 1-2 : Structures de Données (Arbres, Graphes, Piles/Files)",
       "Jour 3 : Bases de Données (SQL, Modèle Relationnel)",
       "Jour 4 : Programmation Orientée Objet & Algorithmique",
-      "Jour 5-6 : Entraînement ECE Intensif (Sujets 2024/2025)"
+      "Jour 5-6 : Entraînement sur exercices types Bac écrit"
     ],
     total: "24h Pratique"
   },
   {
-    title: "🏗️ MATHS : REBOOT & FONDATIONS (Première)",
+    title: "🏗️ MATHS : ESSENTIELS PREMIÈRE — Pallier 1",
     blocks: [
       "Bloc 1 : Maîtrise de la Dérivation & Applications",
       "Bloc 2 : Produit Scalaire & Géométrie",
@@ -225,7 +232,7 @@ const PROGRAMS = [
     total: "20h Fondations"
   },
   {
-    title: "🚀 MATHS : HORS-NORME / PRÉPA (Première)",
+    title: "🚀 MATHS : OBJECTIF AVANCÉ (Première) — Pallier 2",
     blocks: [
       "Module 1 : Analyse Avancée & Optimisation",
       "Module 2 : Géométrie Vectorielle & Produit Scalaire",
@@ -254,44 +261,6 @@ const PROGRAMS = [
     ],
     total: "30h Maker"
   }
-];
-
-const PLANNING = [
-  {
-    day: "Matin (09h-12h)",
-    slots: [
-      "Bloc Théorie & Méthodologie",
-      "Reverse Engineering des sujets",
-      "Analyse des pièges classiques",
-      "Techniques de résolution rapide",
-    ],
-  },
-  {
-    day: "Midi (12h-13h)",
-    slots: [
-      "Pause Déjeuner",
-      "Networking Élèves/Profs",
-      "Détente & Discussions Orientation",
-    ],
-  },
-  {
-    day: "Après-midi (13h-15h30)",
-    slots: [
-      "Entraînement Intensif",
-      "Labo de Code (NSI)",
-      "Résolution de problèmes complexes",
-      "Exercices types Bac & Concours",
-    ],
-  },
-  {
-    day: "Fin d'aprem (15h30-16h30)",
-    slots: [
-      "Option Grand Oral",
-      "Coaching Mental & Gestion du stress",
-      "Debriefing personnalisé",
-      "Points d'étape individuels",
-    ],
-  },
 ];
 
 
@@ -491,15 +460,21 @@ export default function AcademiesHiverPage() {
                 </div>
                 <h1 className="mt-8 text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
                   STAGES FÉVRIER <br />
-                  <span className="text-white">OBJECTIF MENTION</span>
+                  <span className="text-white">CONSOLIDATION & MÉTHODE</span>
                 </h1>
+
+                <p className="mt-6 text-lg text-blue-100 leading-relaxed max-w-2xl">
+                  Ces stages s'adressent aux élèves de <strong className="text-white">Première et Terminale</strong>.
+                  Les contenus sont adaptés au niveau de chacun, tout en conservant une méthode et une exigence communes.
+                </p>
+
                 <div className="mt-8 space-y-4">
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-xl">🎓</span>
+                    <span className="text-xl">🎯</span>
                     <div>
                       <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Terminale</div>
                       <div className="text-blue-200 text-sm leading-relaxed">
-                        Dernière ligne droite pour <strong className="text-white">Parcoursup</strong>, la <strong className="text-white">Mention TB</strong> et le <strong className="text-white">TeSciA</strong>.
+                        Consolider avant <strong className="text-white">Parcoursup</strong>, les conseils de classe et les évaluations finales.
                       </div>
                     </div>
                   </div>
@@ -508,7 +483,7 @@ export default function AcademiesHiverPage() {
                     <div>
                       <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Première</div>
                       <div className="text-blue-200 text-sm leading-relaxed">
-                        Préparez votre <strong className="text-white">Épreuve de Spécialité</strong> (Bac) et assurez votre passage.
+                        Préparer l'<strong className="text-white">Épreuve de Spécialité</strong> et construire un socle solide pour la Terminale.
                       </div>
                     </div>
                   </div>
@@ -529,11 +504,11 @@ export default function AcademiesHiverPage() {
                   </div>
                   <div className="text-center border-l border-white/20">
                     <div className="text-3xl font-bold text-white">+{stats.progress}</div>
-                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">points moyenne</div>
+                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">progression moyenne</div>
                   </div>
                   <div className="text-center border-l border-white/20">
                     <div className="text-3xl font-bold text-white">{stats.mentions}+</div>
-                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">mentions TB</div>
+                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">élèves accompagnés</div>
                   </div>
                 </div>
               </div>
@@ -590,7 +565,7 @@ export default function AcademiesHiverPage() {
             <div className="text-center max-w-5xl mx-auto mb-20">
               <span className="text-blue-400 font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block animate-pulse">Calendrier Stratégique</span>
               <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-12">
-                Février : Le <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400">Tournant Décisif</span>
+                Février : Un <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400">Moment Clé de Consolidation</span>
               </h2>
 
               <div className="grid md:grid-cols-2 gap-8 text-left">
@@ -609,17 +584,25 @@ export default function AcademiesHiverPage() {
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3 text-sm text-slate-400">
                       <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">1</div>
-                      <span className="items-center"><strong className="text-white">Dossier :</strong> Remonter la moyenne du T2 impérativement.</span>
+                      <span className="items-center"><strong className="text-white">Dossier :</strong> Consolider la moyenne avant les conseils de classe.</span>
                     </li>
                     <li className="flex items-start gap-3 text-sm text-slate-400">
                       <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">2</div>
-                      <span className="items-center"><strong className="text-white">NSI :</strong> Sécuriser les 5 points de l'épreuve pratique (ECE).</span>
+                      <span className="items-center"><strong className="text-white">NSI :</strong> Maîtriser les fondamentaux pour l'écrit et le contrôle continu.</span>
                     </li>
                     <li className="flex items-start gap-3 text-sm text-slate-400">
                       <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">3</div>
                       <span className="items-center"><strong className="text-white">Distinction :</strong> Le module TeSciA pour se démarquer.</span>
                     </li>
                   </ul>
+
+                  <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                    <p className="text-sm text-blue-200">
+                      <strong className="text-white">À noter :</strong> L'épreuve pratique NSI et le Grand Oral
+                      seront travaillés spécifiquement lors des <strong className="text-white">vacances de printemps</strong>,
+                      via un pack dédié à leur préparation.
+                    </p>
+                  </div>
                 </div>
 
                 {/* PREMIERE */}
@@ -690,6 +673,19 @@ export default function AcademiesHiverPage() {
               </div>
             </div>
 
+            {/* CLAUSE DE TRANSPARENCE (OBLIGATOIRE) */}
+            <div className="max-w-4xl mx-auto mb-16">
+              <div className="bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-xl">
+                <p className="text-slate-300 text-sm leading-relaxed italic">
+                  <strong className="text-white not-italic">Engagement de transparence :</strong>
+                  Les résultats dépendent du travail personnel et de l'implication de chaque élève.
+                  Les stages offrent un cadre structuré, exigeant et bienveillant, mais ne constituent
+                  pas une garantie chiffrée. Notre objectif est de fournir les méthodes, l'entraînement
+                  et le suivi nécessaires pour maximiser les chances de progression.
+                </p>
+              </div>
+            </div>
+
             {/* TIMELINE */}
             <div className="relative max-w-5xl mx-auto mb-32">
               {/* Connecting Line */}
@@ -749,34 +745,37 @@ export default function AcademiesHiverPage() {
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {[
                 {
-                  icon: "📉",
-                  title: "Besoin de remonter ?",
-                  subtitle: "Moyenne < 12",
-                  text: "Visez le 14+ pour sécuriser le dossier.",
-                  solution: "Stage Rattrapage",
+                  icon: "📚",
+                  title: "Pallier 1 — Essentiels",
+                  subtitle: "Consolider les bases",
+                  text: "Maîtriser les fondamentaux, corriger les lacunes et acquérir des méthodes fiables.",
+                  solution: "Voir les académies Pallier 1",
                   gradient: "from-slate-800 to-slate-900",
                   border: "border-slate-700",
-                  check: "text-slate-400"
+                  check: "text-slate-400",
+                  academyId: "maths-bac-garanti"
                 },
                 {
                   icon: "🎯",
-                  title: "Viser l'Excellence",
-                  subtitle: "Objectif Prépa",
-                  text: "Passer de 15 à 18 pour viser Louis-le-Grand.",
-                  solution: "Maths Expertes",
+                  title: "Pallier 2 — Excellence",
+                  subtitle: "Objectif Avancé",
+                  text: "Approfondir les notions fines, développer le raisonnement et préparer les concours.",
+                  solution: "Voir les académies Pallier 2",
                   gradient: "from-slate-900 to-blue-950",
                   border: "border-blue-500/30",
-                  check: "text-blue-400"
+                  check: "text-blue-400",
+                  academyId: "maths-mention-max"
                 },
                 {
-                  icon: "🚨",
-                  title: "Urgence NSI",
-                  subtitle: "Épreuve Pratique",
-                  text: "Ne perdez pas de points bêtement au Bac.",
-                  solution: "Bootcamp ECE",
-                  gradient: "from-red-950/30 to-slate-900",
-                  border: "border-red-500/30",
-                  check: "text-red-400"
+                  icon: "💻",
+                  title: "Consolider en NSI",
+                  subtitle: "Fondamentaux",
+                  text: "Maîtriser les structures de données et l'algorithmique pour l'écrit.",
+                  solution: "Pallier 1 — NSI Essentiels",
+                  gradient: "from-purple-950/30 to-slate-900",
+                  border: "border-purple-500/30",
+                  check: "text-purple-400",
+                  academyId: "nsi-fondamentaux"
                 },
               ].map((item, idx) => (
                 <div key={idx} className={`relative group p-[1px] rounded-[2rem] bg-gradient-to-b from-white/10 to-transparent hover:from-white/20 transition-all duration-300`}>
@@ -1192,36 +1191,149 @@ export default function AcademiesHiverPage() {
           </div>
         </section>
 
-        {/* PLANNING */}
+        {/* PLANNING - RYTHME DES SÉANCES */}
         <section id="planning" className="py-24 bg-slate-900 border-y border-white/10 relative overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
-          <div className="container mx-auto px-4 md:px-6 relative z-10">
-            <h2 className="text-3xl md:text-5xl font-black text-white text-center mb-16 tracking-tight">
-              Une Journée <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Commando</span>
+          <div className="container mx-auto px-4 md:px-6 relative z-10 max-w-5xl">
+            <h2 className="text-3xl md:text-5xl font-black text-white text-center mb-8 tracking-tight">
+              Rythme des <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Séances de Stage</span>
             </h2>
-            <div className="grid gap-6 md:grid-cols-4 max-w-7xl mx-auto">
-              {PLANNING.map((period, i) => (
-                <div key={i} className="group relative bg-white/5 border border-white/10 p-6 rounded-3xl hover:bg-white/10 transition-colors hover:-translate-y-1 duration-300">
-                  <div className="absolute top-0 right-0 p-4 opacity-50 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{period.day.split('(')[1].replace(')', '')}</div>
-                  <div className="text-xl font-bold text-blue-300 mb-6 flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                    {period.day.split('(')[0].trim()}
+
+            <p className="text-slate-300 text-center max-w-3xl mx-auto mb-6 leading-relaxed">
+              Les stages se déroulent sur plusieurs jours, avec des <strong className="text-white">séances quotidiennes de 3 à 4 heures</strong>,
+              afin de garantir un travail intensif sans saturation, propice à la concentration et à l'assimilation durable.
+            </p>
+
+            <p className="text-slate-400 text-center max-w-3xl mx-auto mb-16 leading-relaxed text-sm">
+              Chaque séance est construite autour d'une alternance équilibrée entre apports méthodologiques,
+              entraînement progressif et accompagnement individualisé, adaptée au pallier suivi (Essentiels ou Excellence).
+            </p>
+
+            {/* Les 4 phases d'une séance */}
+            <div className="grid gap-8 md:grid-cols-2 mb-12">
+              {/* Phase 1 */}
+              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-2xl font-black text-blue-400">
+                    ①
                   </div>
-                  <ul className="space-y-4">
-                    {period.slots.map((slot, k) => (
-                      <li key={k} className="flex items-start gap-3 text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
-                        <div className="w-1.5 h-1.5 bg-nexus-red rounded-full mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                        {slot}
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-xl font-bold text-white">Apports ciblés & méthodologie</h3>
                 </div>
-              ))}
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Chaque séance débute par un temps d'explication structuré sur les notions travaillées :
+                </p>
+                <ul className="space-y-2 text-sm text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>clarification des concepts essentiels,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>mise en évidence des méthodes attendues,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>analyse des erreurs fréquentes et des pièges classiques.</span>
+                  </li>
+                </ul>
+                <p className="text-slate-500 text-xs mt-4 italic">
+                  L'objectif est de donner aux élèves des outils clairs et réutilisables, applicables immédiatement aux exercices.
+                </p>
+              </div>
+
+              {/* Phase 2 */}
+              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl font-black text-purple-400">
+                    ②
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Exercices guidés en petit groupe</h3>
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Les élèves mettent ensuite en pratique les notions à travers :
+                </p>
+                <ul className="space-y-2 text-sm text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>des exercices progressifs,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>des questions types Bac,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>des situations permettant de vérifier la compréhension réelle.</span>
+                  </li>
+                </ul>
+                <p className="text-slate-500 text-xs mt-4 italic">
+                  Les enseignants accompagnent chaque élève au plus près, en intervenant rapidement pour corriger les incompréhensions et ajuster la méthode.
+                </p>
+              </div>
+
+              {/* Phase 3 */}
+              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-2xl font-black text-orange-400">
+                    ③
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Entraînement approfondi</h3>
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Une partie de la séance est consacrée à un travail plus autonome, toujours encadré :
+                </p>
+                <ul className="space-y-2 text-sm text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>consolidation des bases pour le Pallier 1,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>approfondissement et raisonnement plus exigeant pour le Pallier 2.</span>
+                  </li>
+                </ul>
+                <p className="text-slate-500 text-xs mt-4 italic">
+                  Ce temps permet de développer l'autonomie, la rigueur et la confiance face aux sujets.
+                </p>
+              </div>
+
+              {/* Phase 4 */}
+              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-2xl font-black text-green-400">
+                    ④
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Corrections & retours individualisés</h3>
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Chaque séance se termine par :
+                </p>
+                <ul className="space-y-2 text-sm text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>une correction détaillée des travaux réalisés,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>un bilan rapide des acquis,</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">•</span>
+                    <span>des conseils personnalisés pour poursuivre le travail entre deux séances.</span>
+                  </li>
+                </ul>
+                <p className="text-slate-500 text-xs mt-4 italic">
+                  Les élèves repartent avec une vision précise de leurs progrès et des points à renforcer.
+                </p>
+              </div>
             </div>
+
+            {/* Note finale */}
             <div className="mt-12 text-center">
-              <p className="text-slate-400 text-sm font-medium max-w-2xl mx-auto">
-                * Le rythme est intensif. Les pauses sont dédiées au networking et à l'échange avec les intervenants.
+              <p className="text-slate-400 text-sm font-medium max-w-3xl mx-auto leading-relaxed">
+                Ce rythme est répété sur l'ensemble du stage et s'intègre dans une progression globale,
+                cohérente avec les volumes horaires et les objectifs annoncés pour chaque académie.
               </p>
             </div>
           </div>
@@ -1265,6 +1377,73 @@ export default function AcademiesHiverPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ PÉDAGOGIQUE */}
+        <section id="faq" className="py-20 bg-slate-900">
+          <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+            <h2 className="text-3xl md:text-4xl font-black text-white text-center mb-12">
+              Questions Fréquentes
+            </h2>
+
+            <div className="space-y-6">
+              {/* Question 1 : Choix du pallier */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Comment choisir entre le Pallier 1 (Essentiels) et le Pallier 2 (Excellence) ?
+                </h3>
+                <p className="text-slate-300 leading-relaxed mb-4">
+                  <strong className="text-white">Pallier 1 — Essentiels / Prépa Bac</strong> :
+                  Recommandé si vous avez besoin de consolider les bases, corriger des lacunes,
+                  ou si votre moyenne actuelle est inférieure à 12/20. Idéal pour les élèves en
+                  difficulté, les profils fragiles, ou ceux issus du système tunisien.
+                </p>
+                <p className="text-slate-300 leading-relaxed mb-4">
+                  <strong className="text-white">Pallier 2 — Excellence / Objectif Avancé</strong> :
+                  Recommandé si vous maîtrisez déjà les fondamentaux et visez la mention,
+                  une prépa scientifique, ou souhaitez approfondir les notions fines.
+                  Moyenne actuelle généralement ≥ 14/20.
+                </p>
+                <p className="text-blue-300 text-sm">
+                  👉 <strong>Une consultation gratuite</strong> permet de recommander le pallier
+                  le plus adapté à votre profil et vos objectifs.
+                </p>
+              </div>
+
+              {/* Question 2 : NSI et épreuve pratique */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Le stage de février prépare-t-il à l'épreuve pratique NSI (ECE) ?
+                </h3>
+                <p className="text-slate-300 leading-relaxed mb-4">
+                  Non. Le stage de février se concentre sur les <strong className="text-white">
+                    fondamentaux nécessaires pour l'écrit</strong> : structures de données,
+                  algorithmique, SQL, et programmation orientée objet.
+                </p>
+                <p className="text-slate-300 leading-relaxed mb-4">
+                  L'<strong className="text-white">épreuve pratique NSI et le Grand Oral</strong>
+                  seront travaillés spécifiquement lors des <strong className="text-white">
+                    vacances de printemps</strong>, via un pack dédié à leur préparation.
+                </p>
+                <p className="text-slate-400 text-sm italic">
+                  Note : Les candidats libres ne passent pas l'épreuve pratique NSI.
+                </p>
+              </div>
+
+              {/* Question 3 : Première vs Terminale */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Les stages sont-ils différents pour la Première et la Terminale ?
+                </h3>
+                <p className="text-slate-300 leading-relaxed">
+                  Oui, les contenus sont adaptés au niveau de chaque classe. Cependant,
+                  la <strong className="text-white">méthode pédagogique et l'exigence</strong>
+                  restent les mêmes : groupes de 6 élèves maximum, professeurs certifiés,
+                  et approche structurée par paliers (Essentiels ou Excellence).
+                </p>
+              </div>
             </div>
           </div>
         </section>

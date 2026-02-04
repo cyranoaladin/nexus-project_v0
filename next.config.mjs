@@ -3,16 +3,18 @@ const nextConfig = {
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 
+  // Fix workspace root warning
+  outputFileTracingRoot: '/home/alaeddine/Bureau/nexus-project_v0',
+
   // Ne pas bloquer le build sur les erreurs ESLint (on traitera via `npm run lint` séparé)
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // [SOLUTION] Configuration expérimentale pour forcer l'inclusion des fichiers Prisma
+  // [SOLUTION] Moved from experimental to top-level in Next.js 15
+  serverExternalPackages: ['@prisma/client'],
+
   experimental: {
-    // Cette option est cruciale. Elle demande à Next.js de copier les fichiers
-    // nécessaires du client Prisma dans le build standalone.
-    serverComponentsExternalPackages: ['@prisma/client'],
     webpackBuildWorker: false,
   },
 

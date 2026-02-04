@@ -19,7 +19,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
     "connect-src 'self' https:",
     "frame-ancestors 'self'"
   ].join('; '))
-  
+
   return response
 }
 
@@ -31,18 +31,18 @@ export default withAuth(
     // Rate limiting for authentication endpoint
     if (pathname === '/api/auth/callback/credentials') {
       const rateLimitResult = RateLimitPresets.auth(req, 'auth:login')
-      
+
       if (rateLimitResult) {
         const logger = createLogger(req)
         const forwarded = req.headers.get('x-forwarded-for')
         const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
-        
+
         logger.logSecurityEvent('rate_limit_exceeded', 429, {
           ip,
           path: pathname,
           attempt: 'login',
         })
-        
+
         return applySecurityHeaders(rateLimitResult)
       }
     }
@@ -50,24 +50,24 @@ export default withAuth(
     // Rate limiting for ARIA endpoints
     if (pathname.startsWith('/api/aria/')) {
       let rateLimitResult = null
-      
+
       if (pathname === '/api/aria/chat') {
         rateLimitResult = RateLimitPresets.expensive(req, 'aria:chat')
       } else if (pathname === '/api/aria/feedback') {
         rateLimitResult = RateLimitPresets.api(req, 'aria:feedback')
       }
-      
+
       if (rateLimitResult) {
         const logger = createLogger(req)
         const forwarded = req.headers.get('x-forwarded-for')
         const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown'
-        
+
         logger.logSecurityEvent('rate_limit_exceeded', 429, {
           ip,
           path: pathname,
           userId: token?.sub,
         })
-        
+
         return applySecurityHeaders(rateLimitResult)
       }
     }
@@ -79,27 +79,55 @@ export default withAuth(
         return applySecurityHeaders(redirectResponse)
       }
 
+      // Redirection automatique vers le dashboard spécifique au rôle
+      if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        let targetPath = '/dashboard'
+
+        switch (token.role) {
+          case 'PARENT':
+            targetPath = '/dashboard/parent'
+            break
+          case 'ELEVE':
+            targetPath = '/dashboard/eleve'
+            break
+          case 'COACH':
+            targetPath = '/dashboard/coach'
+            break
+          case 'ADMIN':
+            targetPath = '/dashboard/admin'
+            break
+          case 'ASSISTANTE':
+            targetPath = '/dashboard/assistante'
+            break
+        }
+
+        if (targetPath !== '/dashboard') {
+          const redirectResponse = NextResponse.redirect(new URL(targetPath, req.url))
+          return applySecurityHeaders(redirectResponse)
+        }
+      }
+
       // Vérification des rôles spécifiques
       if (pathname.startsWith('/dashboard/eleve') && token.role !== 'ELEVE') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
       }
-      
+
       if (pathname.startsWith('/dashboard/parent') && token.role !== 'PARENT') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
       }
-      
+
       if (pathname.startsWith('/dashboard/coach') && token.role !== 'COACH') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
       }
-      
+
       if (pathname.startsWith('/dashboard/assistante') && token.role !== 'ASSISTANTE') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
       }
-      
+
       if (pathname.startsWith('/dashboard/admin') && token.role !== 'ADMIN') {
         const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
         return applySecurityHeaders(redirectResponse)
@@ -115,7 +143,7 @@ export default withAuth(
         if (!req.nextUrl.pathname.startsWith('/dashboard')) {
           return true
         }
-        
+
         // Exiger une authentification pour les dashboards
         return !!token
       },
