@@ -1,16 +1,23 @@
+jest.mock('uuid', () => ({
+  v4: () => 'test-uuid-1234-5678-90ab-cdef',
+}));
+
 import { createStatusCommand } from './status';
 
 jest.mock('../../daemon/manager');
 jest.mock('../../core/sync/manager');
 jest.mock('../../core/git/client');
 jest.mock('../utils/output');
-jest.mock('fs/promises');
+
+const mockReadFile = jest.fn();
+jest.mock('fs/promises', () => ({
+  readFile: mockReadFile,
+}));
 
 import { DaemonManager } from '../../daemon/manager';
 import { SyncManager } from '../../core/sync/manager';
 import { GitClient } from '../../core/git/client';
 import { createOutput } from '../utils/output';
-import * as fs from 'fs/promises';
 
 describe('Status Command', () => {
   let mockOutput: any;
@@ -52,7 +59,7 @@ describe('Status Command', () => {
     (SyncManager as jest.Mock).mockImplementation(() => mockSyncManager);
     (GitClient as jest.Mock).mockImplementation(() => mockGitClient);
     
-    (fs.readFile as jest.Mock).mockResolvedValue(JSON.stringify({}));
+    mockReadFile.mockResolvedValue(JSON.stringify({}));
   });
 
   describe('status (overall)', () => {
@@ -90,7 +97,7 @@ describe('Status Command', () => {
 
       const command = createStatusCommand(globalOptions);
       
-      await command.parseAsync(['node', 'test'], { from: 'user' });
+      await command.parseAsync([], { from: 'user' });
 
       expect(mockOutput.info).toHaveBeenCalledWith(expect.stringContaining('Zenflow System Status'));
       expect(mockOutput.success).toHaveBeenCalledWith(expect.stringContaining('Running'));
@@ -106,7 +113,7 @@ describe('Status Command', () => {
 
       const command = createStatusCommand(globalOptions);
       
-      await command.parseAsync(['node', 'test'], { from: 'user' });
+      await command.parseAsync([], { from: 'user' });
 
       expect(mockOutput.warning).toHaveBeenCalledWith(expect.stringContaining('Stopped'));
     });
@@ -123,7 +130,7 @@ describe('Status Command', () => {
 
       const command = createStatusCommand(globalOptions);
       
-      await command.parseAsync(['node', 'test'], { from: 'user' });
+      await command.parseAsync([], { from: 'user' });
 
       expect(mockOutput.debug).toHaveBeenCalledWith(expect.stringContaining('Total operations: 3'));
       expect(mockOutput.debug).toHaveBeenCalledWith(expect.stringContaining('Success: 1'));
@@ -138,7 +145,7 @@ describe('Status Command', () => {
 
       const command = createStatusCommand(jsonOptions);
       
-      await command.parseAsync(['node', 'test'], { from: 'user' });
+      await command.parseAsync([], { from: 'user' });
 
       expect(mockOutput.json).toHaveBeenCalled();
     });
@@ -153,7 +160,7 @@ describe('Status Command', () => {
       const command = createStatusCommand(globalOptions);
       
       try {
-        await command.parseAsync(['node', 'test'], { from: 'user' });
+        await command.parseAsync([], { from: 'user' });
       } catch (error) {
         expect((error as Error).message).toContain('Process exited');
       }
@@ -188,7 +195,7 @@ describe('Status Command', () => {
       const worktreesCmd = command.commands.find(c => c.name() === 'worktrees');
 
       if (worktreesCmd) {
-        await worktreesCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await worktreesCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.table).toHaveBeenCalled();
@@ -203,7 +210,7 @@ describe('Status Command', () => {
       const worktreesCmd = command.commands.find(c => c.name() === 'worktrees');
 
       if (worktreesCmd) {
-        await worktreesCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await worktreesCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.info).toHaveBeenCalledWith('No worktrees found');
@@ -221,7 +228,7 @@ describe('Status Command', () => {
       const worktreesCmd = command.commands.find(c => c.name() === 'worktrees');
 
       if (worktreesCmd) {
-        await worktreesCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await worktreesCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.json).toHaveBeenCalled();
@@ -237,7 +244,7 @@ describe('Status Command', () => {
       const worktreesCmd = command.commands.find(c => c.name() === 'worktrees');
 
       if (worktreesCmd) {
-        await worktreesCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await worktreesCmd.parseAsync([], { from: 'user' });
       }
 
       const tableData = mockOutput.table.mock.calls[0][0];
@@ -254,7 +261,7 @@ describe('Status Command', () => {
       const worktreesCmd = command.commands.find(c => c.name() === 'worktrees');
 
       if (worktreesCmd) {
-        await worktreesCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await worktreesCmd.parseAsync([], { from: 'user' });
       }
 
       const tableData = mockOutput.table.mock.calls[0][0];
@@ -276,7 +283,7 @@ describe('Status Command', () => {
       const serviceCmd = command.commands.find(c => c.name() === 'service');
 
       if (serviceCmd) {
-        await serviceCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await serviceCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.success).toHaveBeenCalledWith(expect.stringContaining('Running'));
@@ -292,7 +299,7 @@ describe('Status Command', () => {
       const serviceCmd = command.commands.find(c => c.name() === 'service');
 
       if (serviceCmd) {
-        await serviceCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await serviceCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.warning).toHaveBeenCalledWith(expect.stringContaining('Stopped'));
@@ -310,7 +317,7 @@ describe('Status Command', () => {
       const serviceCmd = command.commands.find(c => c.name() === 'service');
 
       if (serviceCmd) {
-        await serviceCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await serviceCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.json).toHaveBeenCalled();
@@ -328,7 +335,7 @@ describe('Status Command', () => {
 
       if (serviceCmd) {
         try {
-          await serviceCmd.parseAsync(['node', 'test'], { from: 'user' });
+          await serviceCmd.parseAsync([], { from: 'user' });
         } catch (error) {
           expect((error as Error).message).toContain('Process exited');
         }

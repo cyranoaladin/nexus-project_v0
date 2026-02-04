@@ -1,3 +1,12 @@
+jest.mock('../utils/logger', () => ({
+  getLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 import { StepOrchestrator, createOrchestrator } from './orchestrator';
 import { WorkflowStateManager } from './state';
 import { WorkflowExecution, WorkflowStep } from './types';
@@ -119,7 +128,7 @@ describe('StepOrchestrator', () => {
         id: 'timeout-step',
         name: 'Timeout Step',
         type: 'shell',
-        command: 'sleep 5',
+        command: 'node -e "setTimeout(() => {}, 10000)"',
         timeout: 1,
       };
 
@@ -283,7 +292,7 @@ describe('StepOrchestrator', () => {
         id: 'undefined-var-step',
         name: 'Undefined Variable Step',
         type: 'shell',
-        command: 'echo "${nonExistent}"',
+        command: 'echo \'${nonExistent}\'',
       };
 
       stateManager.addStepExecution(execution.id, step.id);
