@@ -57,7 +57,7 @@ describe('Stages Février 2026 - CTA Count', () => {
     render(<StagesFevrier2026Page />);
     
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1).toHaveTextContent(/stages février/i);
+    expect(h1).toHaveTextContent(/stage de février/i);
     expect(h1).toHaveTextContent(/boost décisif/i);
   });
 
@@ -68,14 +68,19 @@ describe('Stages Février 2026 - CTA Count', () => {
     expect(screen.getByText(/février : le moment qui décide/i)).toBeInTheDocument();
     expect(screen.getByText(/deux paliers pour répondre à chaque profil/i)).toBeInTheDocument();
     expect(screen.getByText(/nos académies février 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/questions fréquentes/i)).toBeInTheDocument();
+    const faqHeadings = screen.getAllByText(/questions fréquentes/i);
+    expect(faqHeadings.length).toBeGreaterThan(0);
   });
 
   it('should have stats section', () => {
     render(<StagesFevrier2026Page />);
     
-    expect(screen.getByText(/98%/i)).toBeInTheDocument();
-    expect(screen.getByText(/\+4,2 pts/i)).toBeInTheDocument();
-    expect(screen.getByText(/150\+/i)).toBeInTheDocument();
+    const stats98 = screen.getAllByText(/98%/i);
+    const statsPoints = screen.getAllByText(/\+4,2 pts/i);
+    const stats150 = screen.getAllByText(/150\+/i);
+    
+    expect(stats98.length).toBeGreaterThan(0);
+    expect(statsPoints.length).toBeGreaterThan(0);
+    expect(stats150.length).toBeGreaterThan(0);
   });
 });

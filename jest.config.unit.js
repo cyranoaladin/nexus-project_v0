@@ -4,6 +4,9 @@ const createJestConfig = nextJest({
   dir: './',
 });
 
+// Force React to load development build in tests
+process.env.NODE_ENV = 'development';
+
 const customJestConfig = {
   displayName: 'Unit Tests',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -17,8 +20,6 @@ const customJestConfig = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    '^react$': '<rootDir>/node_modules/react/index.js',
-    '^react-dom$': '<rootDir>/node_modules/react-dom/index.js',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
