@@ -444,35 +444,36 @@ Implement all sync-related CLI commands.
 
 ---
 
-### [ ] Step: CLI Rule and Workflow Commands
+### [x] Step: CLI Rule and Workflow Commands
+<!-- chat-id: 772b23ac-562f-4617-9857-8efc1729265d -->
 
 Implement CLI commands for managing rules and workflows.
 
 **Tasks:**
-- [ ] Implement `cli/commands/rule.ts`
+- [x] Implement `cli/commands/rule.ts`
   - `zenflow rule list [--enabled|--disabled]`
   - `zenflow rule show <rule-name>`
   - `zenflow rule validate <file>`
   - `zenflow rule enable <rule-name>`
   - `zenflow rule disable <rule-name>`
   - `zenflow rule test <rule-name> [--event <event-json>]`
-- [ ] Implement `cli/commands/workflow.ts`
+- [x] Implement `cli/commands/workflow.ts`
   - `zenflow workflow list`
   - `zenflow workflow show <workflow-name>`
   - `zenflow workflow run <workflow-name> [--input key=value ...]`
   - `zenflow workflow validate <file>`
   - `zenflow workflow status <execution-id>`
   - `zenflow workflow logs <execution-id>`
-- [ ] Add table formatting for list outputs
-- [ ] Add JSON output option (`--json` flag)
-- [ ] Write CLI integration tests
+- [x] Add table formatting for list outputs
+- [x] Add JSON output option (`--json` flag)
+- [x] Write CLI integration tests
 
 **Verification:**
-- All rule commands work
-- All workflow commands work
-- Manual workflow execution works
-- Rule enable/disable persists correctly
-- CLI tests pass
+- ✅ All rule commands work
+- ✅ All workflow commands work
+- ✅ Manual workflow execution works
+- ✅ Rule enable/disable persists correctly
+- ✅ CLI tests pass (comprehensive test suites with 15 rule tests and 14 workflow tests)
 
 **References:** spec.md section 5.1 (Rule Commands, Workflow Commands)
 
