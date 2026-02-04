@@ -31,7 +31,7 @@ describe('Daemon Commands', () => {
         health: 'healthy',
       });
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         start: mockStart,
         getStatus: mockGetStatus,
       } as any));
@@ -48,7 +48,7 @@ describe('Daemon Commands', () => {
     it('should handle start errors', async () => {
       const mockStart = jest.fn().mockRejectedValue(new Error('Daemon is already running'));
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         start: mockStart,
       } as any));
 
@@ -64,7 +64,7 @@ describe('Daemon Commands', () => {
     it('should stop the daemon successfully', async () => {
       const mockStop = jest.fn().mockResolvedValue(undefined);
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         stop: mockStop,
       } as any));
 
@@ -78,7 +78,7 @@ describe('Daemon Commands', () => {
     it('should handle stop errors', async () => {
       const mockStop = jest.fn().mockRejectedValue(new Error('Daemon is not running'));
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         stop: mockStop,
       } as any));
 
@@ -101,7 +101,7 @@ describe('Daemon Commands', () => {
         health: 'healthy',
       });
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         restart: mockRestart,
         getStatus: mockGetStatus,
       } as any));
@@ -118,7 +118,7 @@ describe('Daemon Commands', () => {
     it('should handle restart errors', async () => {
       const mockRestart = jest.fn().mockRejectedValue(new Error('Failed to restart'));
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         restart: mockRestart,
       } as any));
 
@@ -138,7 +138,7 @@ describe('Daemon Commands', () => {
         'Log line 3',
       ]);
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         getLogs: mockGetLogs,
       } as any));
 
@@ -157,7 +157,7 @@ describe('Daemon Commands', () => {
         'Log line 2',
       ]);
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         getLogs: mockGetLogs,
       } as any));
 
@@ -170,7 +170,7 @@ describe('Daemon Commands', () => {
     it('should show message when no logs available', async () => {
       const mockGetLogs = jest.fn().mockResolvedValue([]);
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         getLogs: mockGetLogs,
       } as any));
 
@@ -187,7 +187,7 @@ describe('Daemon Commands', () => {
         return jest.fn();
       });
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         followLogs: mockFollowLogs,
       } as any));
 
@@ -203,7 +203,7 @@ describe('Daemon Commands', () => {
     it('should handle log viewing errors', async () => {
       const mockGetLogs = jest.fn().mockRejectedValue(new Error('Cannot read log file'));
 
-      jest.mocked(DaemonManager).mockImplementation(() => ({
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation(() => ({
         getLogs: mockGetLogs,
       } as any));
 
@@ -223,7 +223,7 @@ describe('Daemon Commands', () => {
         pid: 12345,
       });
 
-      jest.mocked(DaemonManager).mockImplementation((repoPath: string) => {
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation((repoPath: string) => {
         expect(repoPath).toBe(process.cwd());
         return {
           start: mockStart,
@@ -246,7 +246,7 @@ describe('Daemon Commands', () => {
 
       const configPath = '/custom/path/.zenflow/settings.json';
 
-      jest.mocked(DaemonManager).mockImplementation((repoPath: string) => {
+      (DaemonManager as jest.MockedClass<typeof DaemonManager>).mockImplementation((repoPath: string) => {
         expect(repoPath).toContain('/custom/path');
         return {
           start: mockStart,
