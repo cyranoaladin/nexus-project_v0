@@ -276,3 +276,61 @@ export const globalRateLimiters = {
   push: new RateLimiter(1, 60),
   sync: new RateLimiter(10, 60),
 };
+
+export class FilePermissionValidator {
+  static async checkReadPermission(filePath: string): Promise<boolean> {
+    const fs = await import('fs/promises');
+    try {
+      await fs.access(filePath, (await import('fs')).constants.R_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static async checkWritePermission(filePath: string): Promise<boolean> {
+    const fs = await import('fs/promises');
+    try {
+      await fs.access(filePath, (await import('fs')).constants.W_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static async checkExecutePermission(filePath: string): Promise<boolean> {
+    const fs = await import('fs/promises');
+    try {
+      await fs.access(filePath, (await import('fs')).constants.X_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static async ensureDirectoryWritable(dirPath: string): Promise<void> {
+    const fs = await import('fs/promises');
+    const fsSync = await import('fs');
+    
+    try {
+      await fs.access(dirPath, fsSync.constants.W_OK);
+    } catch (error) {
+      throw new ValidationError(
+        `Directory is not writable: ${dirPath}. Check permissions.`
+      );
+    }
+  }
+
+  static async ensureFileReadable(filePath: string): Promise<void> {
+    const fs = await import('fs/promises');
+    const fsSync = await import('fs');
+    
+    try {
+      await fs.access(filePath, fsSync.constants.R_OK);
+    } catch (error) {
+      throw new ValidationError(
+        `File is not readable: ${filePath}. Check permissions.`
+      );
+    }
+  }
+}

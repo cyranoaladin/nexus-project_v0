@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 import { ExecutionOrchestrator, createExecutionOrchestrator } from './execution-orchestrator';
 import { RuleEngine } from '../rules/engine';
 import { WorkflowEngine } from './engine';
