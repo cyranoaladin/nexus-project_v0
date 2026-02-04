@@ -159,52 +159,6 @@ describe('RBAC Matrix', () => {
   // =============================================================================
 
   describe('Sessions API', () => {
-    describe('GET /api/sessions', () => {
-      // SKIPPED: These tests reference a non-existent endpoint `/api/sessions`
-      // The actual session endpoints are:
-      // - GET /api/student/sessions (requires ELEVE role)
-      // - POST /api/sessions/book (requires PARENT role)
-      // - POST /api/sessions/cancel (requires ELEVE, COACH, or ASSISTANTE role)
-      // - GET /api/sessions/video (requires ELEVE or COACH role)
-      // 
-      // These tests use fetch() which requires a running HTTP server (E2E tests)
-      // and should be migrated to Playwright e2e tests or removed if not needed
-      it.skip('allows ANONYMOUS users to view sessions', async () => {
-        mockSession(null);
-
-        const response = await fetch('http://localhost:3000/api/sessions', {
-          method: 'GET',
-        });
-
-        // Public endpoint - should work for everyone
-        expect([200, 304]).toContain(response.status);
-      });
-
-      it.skip('allows STUDENT users to view sessions', async () => {
-        mockSession(UserRole.ELEVE);
-
-        const response = await fetch('http://localhost:3000/api/sessions', {
-          method: 'GET',
-        });
-
-        expect([200, 304]).toContain(response.status);
-      });
-
-      it.skip('allows all authenticated roles to view sessions', async () => {
-        const roles = [UserRole.PARENT, UserRole.COACH, UserRole.ADMIN];
-
-        for (const role of roles) {
-          mockSession(role);
-
-          const response = await fetch('http://localhost:3000/api/sessions', {
-            method: 'GET',
-          });
-
-          expect([200, 304]).toContain(response.status);
-        }
-      });
-    });
-
     describe('POST /api/sessions/book', () => {
       it('rejects ANONYMOUS users with 401', async () => {
         mockSession(null);
