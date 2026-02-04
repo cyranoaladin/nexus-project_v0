@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { loadConfig } from '../config/loader';
 import type { LoggingConfig } from '../config/schema';
+import { SecurityValidator } from './security';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 
@@ -33,10 +34,13 @@ function ensureLogDirectory(directory: string): void {
 
 function createTextFormat() {
   return printf(({ level, message, timestamp, ...metadata }) => {
-    const metaStr = Object.keys(metadata).length > 0 
-      ? ` ${JSON.stringify(metadata)}` 
+    const redactedMetadata = SecurityValidator.redactSensitiveData(metadata);
+    const redactedMessage = SecurityValidator.redactSensitiveData(message);
+    
+    const metaStr = Object.keys(redactedMetadata).length > 0 
+      ? ` ${JSON.stringify(redactedMetadata)}` 
       : '';
-    return `${timestamp} [${level}]: ${message}${metaStr}`;
+    return `${timestamp} [${level}]: ${redactedMessage}${metaStr}`;
   });
 }
 

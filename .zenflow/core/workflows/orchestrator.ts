@@ -3,7 +3,8 @@ import { promisify } from 'util';
 import { WorkflowStep, WorkflowExecution } from './types';
 import { WorkflowStateManager } from './state';
 import { getLogger } from '../utils/logger';
-import { WorkflowExecutionError, TimeoutError } from '../utils/errors';
+import { WorkflowExecutionError, TimeoutError, SecurityError } from '../utils/errors';
+import { SecurityValidator } from '../utils/security';
 
 const execAsync = promisify(exec);
 const logger = getLogger();
@@ -163,6 +164,19 @@ export class StepOrchestrator {
 
     const command = this.interpolateVariables(step.command, context);
     
+    try {
+      SecurityValidator.sanitizeShellCommand(command);
+    } catch (error) {
+      logger.error('Shell command blocked by security validation', {
+        stepId: step.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new SecurityError(
+        `Shell command blocked: ${error instanceof Error ? error.message : String(error)}`,
+        'COMMAND_INJECTION'
+      );
+    }
+    
     logger.debug('Executing shell command', {
       stepId: step.id,
       command,
@@ -171,6 +185,7 @@ export class StepOrchestrator {
     const { stdout, stderr } = await execAsync(command, {
       cwd: process.cwd(),
       env: { ...process.env },
+      timeout: (step.timeout || 300) * 1000,
     });
 
     const outputs: Record<string, unknown> = {
