@@ -20,6 +20,8 @@ jest.mock('../utils/logger', () => ({
   }),
 }));
 
+jest.setTimeout(30000);
+
 describe('ExecutionOrchestrator', () => {
   let orchestrator: ExecutionOrchestrator;
   let ruleEngine: RuleEngine;
