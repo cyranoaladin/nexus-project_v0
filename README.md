@@ -92,3 +92,107 @@ Pour plus de détails, voir :
 - `DOCUMENTATION_TECHNIQUE_LIVRAISON.md`
 - `ENVIRONMENT_REFERENCE.md`
 - `README_TESTS.md`
+
+## 11)  — Synchronisation Automatique des Worktrees
+
+### Qu'est-ce que  ?
+
+**** est un système de synchronisation automatique et de gestion de workflows pour les worktrees Git. Il automatise la synchronisation des modifications depuis les worktrees de développement vers le dossier principal, garantissant ainsi la cohérence du dépôt.
+
+### Fonctionnalités principales
+
+- **Synchronisation automatique** : Fusionne automatiquement les modifications des worktrees vers main lors des commits
+- **Détection de conflits** : Vérifie les conflits avant la synchronisation pour éviter les échecs de merge
+- **Rollback sécurisé** : Système de backup et rollback intégré
+- **Moteur de règles** : Règles configurables pour déclencher les workflows
+- **Interface CLI** : Outils en ligne de commande complets pour la gestion
+
+### Démarrage rapide
+
+#### Synchronisation manuelle
+
+Synchroniser un worktree spécifique :
+```bash
+ sync worktree <nom-de-branche>
+```
+
+Synchroniser tous les worktrees actifs :
+```bash
+ sync auto
+```
+
+Prévisualiser les changements sans les appliquer :
+```bash
+ sync worktree <nom-de-branche> --dry-run
+```
+
+#### Synchronisation automatique
+
+Installer les hooks Git dans tous les worktrees :
+```bash
+bash scripts//install-hooks.sh
+```
+
+Démarrer le daemon (optionnel) :
+```bash
+ daemon start
+```
+
+#### Commandes utiles
+
+```bash
+# Voir l'historique des synchronisations
+ sync list
+
+# Afficher les détails d'une synchronisation
+ sync show <sync-id>
+
+# Annuler une synchronisation
+ sync rollback <sync-id>
+
+# Gérer les règles
+ rule list
+ rule enable <nom-règle>
+ rule disable <nom-règle>
+
+# Gérer les workflows
+ workflow list
+ workflow run <nom-workflow>
+
+# Consulter les logs du daemon
+ daemon logs --follow
+```
+
+### Configuration
+
+La configuration  se trouve dans `/settings.json`. Vous pouvez personnaliser :
+
+- **Synchronisation** : Auto-push, nombre de tentatives, stratégie de conflit
+- **Règles** : Chargement automatique, validation stricte
+- **Workflows** : Limite d'exécution concurrente
+- **Logging** : Niveaux de log, rotation des fichiers
+
+### Documentation complète
+
+Pour plus d'informations sur  :
+
+- **[Guide utilisateur](./docs/-user-guide.md)** : Installation, utilisation, référence CLI
+- **[Guide d'exemples](./docs/-examples.md)** : Cas d'usage courants et exemples pratiques
+- **[Guide de dépannage](./docs/-troubleshooting.md)** : Résolution de problèmes et débogage
+
+### Désactiver 
+
+Si vous souhaitez désactiver temporairement la synchronisation automatique :
+
+```bash
+# Désactiver la règle de synchronisation
+ rule disable worktree-to-main-sync
+
+# Arrêter le daemon
+ daemon stop
+```
+
+Pour une désactivation permanente, supprimez les hooks Git :
+```bash
+bash scripts//uninstall-hooks.sh
+```
