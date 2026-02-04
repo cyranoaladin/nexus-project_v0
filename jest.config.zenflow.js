@@ -7,6 +7,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   displayName: 'Zenflow Tests',
   testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/.zenflow/jest.setup.zenflow.js'],
   testMatch: [
     '**/.zenflow/**/*.(test|spec).(js|ts|tsx)',
   ],
@@ -14,7 +15,7 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(uuid|glob|chokidar)/)',
+    'node_modules/(?!(uuid|glob|chokidar|@auth)/)',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
