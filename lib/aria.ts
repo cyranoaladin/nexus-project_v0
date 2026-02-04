@@ -145,6 +145,74 @@ export async function saveAriaConversation(
   return { conversation, ariaMessage };
 }
 
+// Génération de réponse ARIA en streaming
+export async function generateAriaStream(
+  studentId: string,
+  subject: Subject,
+  message: string,
+  conversationHistory: Array<{ role: string; content: string; }> = [],
+  onComplete?: (fullResponse: string) => Promise<void>
+): Promise<ReadableStream> {
+  // Recherche dans la base de connaissances
+  const knowledgeBase = await searchKnowledgeBase(message, subject);
+
+  // Construction du contexte
+  let context = '';
+  if (knowledgeBase.length > 0) {
+    context = '\n\nCONTEXTE NEXUS RÉUSSITE :\n';
+    knowledgeBase.forEach((content, index) => {
+      context += `${index + 1}. ${content.title}\n${content.content}\n\n`;
+    });
+  }
+
+  // Construction des messages pour OpenAI
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    {
+      role: 'system',
+      content: ARIA_SYSTEM_PROMPT + context
+    },
+    ...conversationHistory.map(msg => ({
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content
+    })),
+    {
+      role: 'user',
+      content: `Matière : ${subject}\n\nQuestion : ${message}`
+    }
+  ];
+
+  const stream = await openai.chat.completions.create({
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    messages,
+    max_tokens: 1000,
+    temperature: 0.7,
+    stream: true,
+  });
+
+  const encoder = new TextEncoder();
+  let fullResponse = '';
+
+  return new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            fullResponse += content;
+            controller.enqueue(encoder.encode(content));
+          }
+        }
+        controller.close();
+        if (onComplete) {
+          await onComplete(fullResponse);
+        }
+      } catch (e) {
+        controller.error(e);
+      }
+    },
+  });
+}
+
 // Enregistrement du feedback utilisateur
 export async function recordAriaFeedback(messageId: string, feedback: boolean) {
   return await prisma.ariaMessage.update({

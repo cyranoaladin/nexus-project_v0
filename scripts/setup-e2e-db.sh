@@ -45,7 +45,7 @@ echo "✅ Database is ready!"
 # Run Prisma migrations
 echo "📦 Running Prisma migrations..."
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public" \
-  npx prisma migrate deploy
+  npx prisma db push --accept-data-loss
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
