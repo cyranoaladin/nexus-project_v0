@@ -1,0 +1,189 @@
+name: rollback-sync
+version: 1.0.0
+description: Rollback a previous sync operation to restore main directory state
+author: zenflow-system
+
+inputs:
+  - name: sync_id
+    type: string
+    required: true
+    description: ID of the sync operation to rollback
+  
+  - name: verify_backup
+    type: boolean
+    default: true
+    description: Verify backup exists before rollback
+
+outputs:
+  - name: rollback_status
+    type: string
+    description: "success or failure"
+  
+  - name: restored_commit
+    type: string
+    description: Commit hash restored after rollback
+
+steps:
+  - id: load-sync-state
+    name: Load Sync Operation State
+    type: shell
+    command: |
+      SYNC_STATE_FILE="/home/alaeddine/.zenflow/worktrees/mise-a-jour-automatique-du-dossi-2305/.zenflow/state/executions/${inputs.sync_id}.json"
+      if [ ! -f "$SYNC_STATE_FILE" ]; then
+        echo "ERROR: Sync state file not found: $SYNC_STATE_FILE"
+        exit 1
+      fi
+      cat "$SYNC_STATE_FILE"
+    on_failure: abort
+  
+  - id: verify-backup-exists
+    name: Verify Backup Stash Exists
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      git stash list | grep -q "zenflow-backup" || {
+        echo "WARNING: No zenflow backup found in stash"
+        exit 1
+      }
+      echo "Backup stash found"
+    when: ${inputs.verify_backup}
+    on_failure: abort
+  
+  - id: check-current-state
+    name: Check Current Repository State
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      if [ -n "$(git status --porcelain)" ]; then
+        echo "WARNING: Working directory has uncommitted changes"
+        echo "Current changes will be stashed before rollback"
+      fi
+      git status --short
+  
+  - id: stash-current-changes
+    name: Stash Current Uncommitted Changes
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      if [ -n "$(git status --porcelain)" ]; then
+        timestamp=$(date +%Y%m%d-%H%M%S)
+        git stash push --include-untracked -m "zenflow-rollback-temp-${timestamp}"
+        echo "Current changes stashed"
+      else
+        echo "No uncommitted changes to stash"
+      fi
+  
+  - id: reset-to-previous-commit
+    name: Reset to Previous Commit
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      CURRENT_COMMIT=$(git rev-parse HEAD)
+      echo "Current commit: $CURRENT_COMMIT"
+      
+      git reset --hard HEAD~1
+      
+      RESTORED_COMMIT=$(git rev-parse HEAD)
+      echo "Restored commit: $RESTORED_COMMIT"
+      echo "$RESTORED_COMMIT" > /tmp/zenflow-rollback-commit.txt
+    timeout: 60
+    on_failure: skip_to_step:rollback-failed
+  
+  - id: restore-backup-stash
+    name: Restore Backup from Stash
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      
+      BACKUP_STASH=$(git stash list | grep "zenflow-backup" | head -n 1 | cut -d: -f1)
+      
+      if [ -z "$BACKUP_STASH" ]; then
+        echo "WARNING: No backup stash found, skipping restore"
+        exit 0
+      fi
+      
+      echo "Restoring from stash: $BACKUP_STASH"
+      git stash pop "$BACKUP_STASH"
+      
+      echo "Backup restored successfully"
+    continue_on_error: true
+  
+  - id: verify-rollback
+    name: Verify Rollback Success
+    type: shell
+    command: |
+      cd /home/alaeddine/Bureau/nexus-project_v0
+      
+      if [ -f /tmp/zenflow-rollback-commit.txt ]; then
+        RESTORED_COMMIT=$(cat /tmp/zenflow-rollback-commit.txt)
+        CURRENT_COMMIT=$(git rev-parse HEAD)
+        
+        if [ "$CURRENT_COMMIT" = "$RESTORED_COMMIT" ]; then
+          echo "Rollback verified: restored to $RESTORED_COMMIT"
+          exit 0
+        else
+          echo "ERROR: Rollback verification failed"
+          echo "Expected: $RESTORED_COMMIT"
+          echo "Current: $CURRENT_COMMIT"
+          exit 1
+        fi
+      else
+        echo "ERROR: Rollback commit information not found"
+        exit 1
+      fi
+    on_failure: skip_to_step:rollback-failed
+  
+  - id: update-sync-state
+    name: Update Sync Operation State
+    type: shell
+    command: |
+      SYNC_STATE_FILE="/home/alaeddine/.zenflow/worktrees/mise-a-jour-automatique-du-dossi-2305/.zenflow/state/executions/${inputs.sync_id}.json"
+      
+      if [ -f "$SYNC_STATE_FILE" ]; then
+        timestamp=$(date -Iseconds)
+        echo "Marking sync ${inputs.sync_id} as rolled back at $timestamp"
+        
+        # Update the state file (simple append, in real implementation would use jq)
+        echo "Rolled back at: $timestamp" >> "$SYNC_STATE_FILE"
+      fi
+  
+  - id: log-success
+    name: Log Successful Rollback
+    type: shell
+    command: |
+      echo "Rollback completed successfully for sync: ${inputs.sync_id}"
+      RESTORED_COMMIT=$(cat /tmp/zenflow-rollback-commit.txt 2>/dev/null || echo "unknown")
+      echo "Restored to commit: $RESTORED_COMMIT"
+      rm -f /tmp/zenflow-rollback-commit.txt
+  
+  - id: rollback-failed
+    name: Handle Rollback Failure
+    type: shell
+    when: step:reset-to-previous-commit == failure or step:verify-rollback == failure
+    command: |
+      echo "ERROR: Rollback failed for sync: ${inputs.sync_id}"
+      echo "Manual intervention required"
+      echo "Repository state may be inconsistent"
+      echo "Please review git status and logs"
+      exit 1
+
+error_handling:
+  strategy: abort
+  cleanup_steps:
+    - name: Log Rollback Error
+      type: shell
+      command: |
+        echo "Rollback error for sync ${inputs.sync_id}" >> /var/log/zenflow/rollback-errors.log
+        echo "Error: ${error.message}" >> /var/log/zenflow/rollback-errors.log
+        echo "Timestamp: $(date -Iseconds)" >> /var/log/zenflow/rollback-errors.log
+
+notifications:
+  on_success:
+    - type: log
+      level: info
+      message: "Successfully rolled back sync ${inputs.sync_id}"
+  
+  on_failure:
+    - type: log
+      level: error
+      message: "Failed to rollback sync ${inputs.sync_id}: ${error.message}"
