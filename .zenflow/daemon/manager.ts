@@ -199,20 +199,56 @@ export class DaemonManager {
     const logFile = path.join(this.repoPath, '.zenflow', 'logs', 'daemon.log');
     
     const fs = await import('fs');
-    const Tail = require('tail').Tail;
+    const readline = await import('readline');
     
-    const tail = new Tail(logFile, {
-      follow: true,
-      useWatchFile: true,
-    });
+    let watching = true;
+    let fileHandle: fs.promises.FileHandle | null = null;
+    let position = 0;
 
-    tail.on('line', callback);
-    tail.on('error', (error: Error) => {
-      this.logger.error('Error following logs', { error });
-    });
+    try {
+      const stats = await fs.promises.stat(logFile);
+      position = stats.size;
+    } catch (error) {
+    }
+
+    const watchInterval = setInterval(async () => {
+      if (!watching) return;
+
+      try {
+        const stats = await fs.promises.stat(logFile);
+        
+        if (stats.size > position) {
+          const stream = fs.createReadStream(logFile, {
+            start: position,
+            encoding: 'utf-8',
+          });
+
+          const rl = readline.createInterface({
+            input: stream,
+            crlfDelay: Infinity,
+          });
+
+          for await (const line of rl) {
+            if (line.trim()) {
+              callback(line);
+            }
+          }
+
+          position = stats.size;
+        }
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+          this.logger.error('Error following logs', { error });
+        }
+      }
+    }, 500);
 
     return () => {
-      tail.unwatch();
+      watching = false;
+      clearInterval(watchInterval);
+      if (fileHandle) {
+        fileHandle.close().catch(() => {});
+      }
     };
   }
 }

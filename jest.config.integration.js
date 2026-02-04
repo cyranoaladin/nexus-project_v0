@@ -20,7 +20,7 @@ const customJestConfig = {
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.integration.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(@auth/prisma-adapter|next-auth)/)',
+    'node_modules/(?!(@auth/prisma-adapter|next-auth|uuid)/)',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
