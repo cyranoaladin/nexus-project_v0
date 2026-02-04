@@ -58,7 +58,7 @@ describe('Daemon Command', () => {
       const startCmd = command.commands.find(c => c.name() === 'start');
 
       if (startCmd) {
-        await startCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await startCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockManager.start).toHaveBeenCalled();
@@ -77,7 +77,7 @@ describe('Daemon Command', () => {
 
       if (startCmd) {
         try {
-          await startCmd.parseAsync(['node', 'test'], { from: 'user' });
+          await startCmd.parseAsync([], { from: 'user' });
         } catch (error) {
           expect((error as Error).message).toContain('Process exited');
         }
@@ -98,7 +98,7 @@ describe('Daemon Command', () => {
       const stopCmd = command.commands.find(c => c.name() === 'stop');
 
       if (stopCmd) {
-        await stopCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await stopCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockManager.stop).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe('Daemon Command', () => {
 
       if (stopCmd) {
         try {
-          await stopCmd.parseAsync(['node', 'test'], { from: 'user' });
+          await stopCmd.parseAsync([], { from: 'user' });
         } catch (error) {
           expect((error as Error).message).toContain('Process exited');
         }
@@ -141,7 +141,7 @@ describe('Daemon Command', () => {
       const restartCmd = command.commands.find(c => c.name() === 'restart');
 
       if (restartCmd) {
-        await restartCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await restartCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockManager.restart).toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('Daemon Command', () => {
 
       if (restartCmd) {
         try {
-          await restartCmd.parseAsync(['node', 'test'], { from: 'user' });
+          await restartCmd.parseAsync([], { from: 'user' });
         } catch (error) {
           expect((error as Error).message).toContain('Process exited');
         }
@@ -183,7 +183,7 @@ describe('Daemon Command', () => {
       const logsCmd = command.commands.find(c => c.name() === 'logs');
 
       if (logsCmd) {
-        await logsCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await logsCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockManager.getLogs).toHaveBeenCalledWith(50);
@@ -199,7 +199,7 @@ describe('Daemon Command', () => {
       const logsCmd = command.commands.find(c => c.name() === 'logs');
 
       if (logsCmd) {
-        await logsCmd.parseAsync(['node', 'test', '--lines', '100'], { from: 'user' });
+        await logsCmd.parseAsync(['--lines', '100'], { from: 'user' });
       }
 
       expect(mockManager.getLogs).toHaveBeenCalledWith(100);
@@ -212,7 +212,7 @@ describe('Daemon Command', () => {
       const logsCmd = command.commands.find(c => c.name() === 'logs');
 
       if (logsCmd) {
-        await logsCmd.parseAsync(['node', 'test'], { from: 'user' });
+        await logsCmd.parseAsync([], { from: 'user' });
       }
 
       expect(mockOutput.info).toHaveBeenCalledWith('No logs available');
@@ -223,30 +223,32 @@ describe('Daemon Command', () => {
       mockManager.followLogs.mockResolvedValue(stopFollowing);
 
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
+        // Don't throw, just track that exit was called
+      });
+      
+      let signalHandler: any;
       const mockOn = jest.spyOn(process, 'on').mockImplementation((event: string, handler: any) => {
         if (event === 'SIGINT') {
-          setTimeout(() => handler(), 10);
+          signalHandler = handler;
         }
         return process;
-      });
-
-      const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
-        throw new Error(`Process exited with code ${code}`);
       });
 
       const command = createDaemonCommand(globalOptions);
       const logsCmd = command.commands.find(c => c.name() === 'logs');
 
       if (logsCmd) {
-        try {
-          await logsCmd.parseAsync(['node', 'test', '--follow'], { from: 'user' });
-          await new Promise(resolve => setTimeout(resolve, 20));
-        } catch (error) {
-          expect((error as Error).message).toContain('Process exited');
+        await logsCmd.parseAsync(['--follow'], { from: 'user' });
+        
+        // Trigger SIGINT handler
+        if (signalHandler) {
+          signalHandler();
         }
       }
 
       expect(mockManager.followLogs).toHaveBeenCalled();
+      expect(mockExit).toHaveBeenCalledWith(0);
       
       consoleSpy.mockRestore();
       mockOn.mockRestore();
@@ -265,7 +267,7 @@ describe('Daemon Command', () => {
 
       if (logsCmd) {
         try {
-          await logsCmd.parseAsync(['node', 'test'], { from: 'user' });
+          await logsCmd.parseAsync([], { from: 'user' });
         } catch (error) {
           expect((error as Error).message).toContain('Process exited');
         }
