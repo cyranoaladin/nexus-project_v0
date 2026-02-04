@@ -27,7 +27,7 @@ find__cli() {
     return 1
 }
 
-_CLI=$(find__cli)
+_CLI=$(find__cli) || true
 
 if [[ -z "$_CLI" ]]; then
     echo ": Warning -  CLI not found, skipping auto-sync" >&2
