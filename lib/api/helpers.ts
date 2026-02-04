@@ -27,7 +27,7 @@ export async function safeJsonParse<T = unknown>(request: NextRequest): Promise<
   try {
     const body = await request.json();
     return body as T;
-  } catch (error) {
+  } catch {
     throw ApiError.badRequest('Invalid JSON in request body');
   }
 }
