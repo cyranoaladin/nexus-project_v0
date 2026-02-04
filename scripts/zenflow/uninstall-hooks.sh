@@ -198,15 +198,15 @@ main() {
         
         if [[ "$worktree_branch" == "main" ]] || [[ "$worktree_branch" == "master" ]]; then
             log_verbose "  Skipped: main repository"
-            ((skipped_count++))
+            skipped_count=$((skipped_count + 1))
             continue
         fi
         
         for hook_name in "post-commit" "pre-push"; do
             if uninstall_hook "$worktree_path" "$worktree_branch" "$hook_name"; then
-                ((removed_count++))
+                removed_count=$((removed_count + 1))
             else
-                ((failed_count++))
+                failed_count=$((failed_count + 1))
             fi
         done
         

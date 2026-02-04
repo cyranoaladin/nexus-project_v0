@@ -1,4 +1,4 @@
-import http from 'http';
+import * as http from 'http';
 import { getLogger } from '../core/utils/logger';
 import { RuleEngine } from '../core/rules/engine';
 import { WorkflowEngine } from '../core/workflows/engine';
@@ -17,7 +17,7 @@ export class HealthCheck {
   private config: HealthCheckConfig;
   private server: http.Server | null = null;
   private startTime: Date;
-  private isRunning = false;
+  private running = false;
 
   constructor(config: HealthCheckConfig) {
     this.config = config;
@@ -26,7 +26,7 @@ export class HealthCheck {
   }
 
   async start(): Promise<void> {
-    if (this.isRunning) {
+    if (this.running) {
       this.logger.warn('Health check service is already running');
       return;
     }
@@ -44,7 +44,7 @@ export class HealthCheck {
       });
 
       this.server.listen(this.config.port, () => {
-        this.isRunning = true;
+        this.running = true;
         this.logger.info('Health check service started', {
           port: this.config.port,
         });
@@ -54,7 +54,7 @@ export class HealthCheck {
   }
 
   async stop(): Promise<void> {
-    if (!this.server || !this.isRunning) {
+    if (!this.server || !this.running) {
       return;
     }
 
@@ -66,7 +66,7 @@ export class HealthCheck {
           });
           reject(error);
         } else {
-          this.isRunning = false;
+          this.running = false;
           this.logger.info('Health check service stopped');
           resolve();
         }
@@ -200,6 +200,6 @@ export class HealthCheck {
   }
 
   isRunning(): boolean {
-    return this.isRunning;
+    return this.running;
   }
 }
