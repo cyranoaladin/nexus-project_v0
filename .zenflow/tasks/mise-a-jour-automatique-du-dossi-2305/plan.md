@@ -614,31 +614,31 @@ Create the background daemon service for continuous monitoring.
 
 ---
 
-### [ ] Step: CLI Daemon and Status Commands
+### [x] Step: CLI Daemon and Status Commands
 <!-- chat-id: 318a4899-e4b7-4084-b62f-f13292171e3b -->
 
 Implement CLI commands for daemon control and status monitoring.
 
 **Tasks:**
-- [ ] Implement `cli/commands/status.ts`
+- [x] Implement `cli/commands/status.ts`
   - `zenflow status`: overall system status
   - `zenflow status worktrees`: list all worktrees with sync status
   - `zenflow status service`: daemon status
-- [ ] Implement daemon commands in `cli/commands/sync.ts` or separate file
+- [x] Implement daemon commands in `cli/commands/daemon.ts`
   - `zenflow daemon start`: start background daemon
   - `zenflow daemon stop`: stop daemon gracefully
   - `zenflow daemon restart`: restart daemon
   - `zenflow daemon logs [--follow] [--lines <n>]`: view daemon logs
-- [ ] Add service status indicators (running, stopped, health)
-- [ ] Add formatted table output for worktree status
-- [ ] Write CLI tests
+- [x] Add service status indicators (running, stopped, health)
+- [x] Add formatted table output for worktree status
+- [x] Write CLI tests
 
 **Verification:**
-- Status commands show accurate information
-- Daemon commands control the service correctly
-- Log viewing works with follow mode
-- Output is clear and helpful
-- CLI tests pass
+- ✅ Status commands show accurate information
+- ✅ Daemon commands control the service correctly
+- ✅ Log viewing works with follow mode
+- ✅ Output is clear and helpful
+- ✅ CLI tests pass
 
 **References:** spec.md section 5.1 (Status Commands, Daemon Commands)
 
@@ -731,7 +731,7 @@ Create integration tests for component interactions.
 
 ---
 
-### [ ] Step: Error Handling and Security Hardening
+### [x] Step: Error Handling and Security Hardening
 <!-- chat-id: c967c8df-3307-449f-b191-a31485df6bcf -->
 
 Enhance error handling and secure the system against common vulnerabilities.
