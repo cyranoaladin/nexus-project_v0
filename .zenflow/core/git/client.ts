@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import path from 'path';
 import { GitOperationError } from '../utils/errors';
 import { getLogger } from '../utils/logger';
+import { SecurityValidator } from '../utils/security';
 import type { Worktree, DiffSummary, FileDiff, ConflictInfo, MergeResult } from './types';
 
 const execAsync = promisify(exec);
@@ -105,8 +106,11 @@ export class GitClient {
     try {
       this.logger.debug('Computing diff', { base, target });
       
+      const sanitizedBase = SecurityValidator.validateBranchName(base);
+      const sanitizedTarget = SecurityValidator.validateBranchName(target);
+      
       const { stdout } = await execAsync(
-        `git diff --stat --numstat ${this.sanitizeBranchName(base)}...${this.sanitizeBranchName(target)}`,
+        `git diff --stat --numstat ${sanitizedBase}...${sanitizedTarget}`,
         { cwd: this.repoPath }
       );
 
@@ -175,8 +179,11 @@ export class GitClient {
     try {
       this.logger.debug('Checking for conflicts', { base, target });
       
+      const sanitizedBase = SecurityValidator.validateBranchName(base);
+      const sanitizedTarget = SecurityValidator.validateBranchName(target);
+      
       const { stdout } = await execAsync(
-        `git merge-tree $(git merge-base ${this.sanitizeBranchName(base)} ${this.sanitizeBranchName(target)}) ${this.sanitizeBranchName(base)} ${this.sanitizeBranchName(target)}`,
+        `git merge-tree $(git merge-base ${sanitizedBase} ${sanitizedTarget}) ${sanitizedBase} ${sanitizedTarget}`,
         { cwd: this.repoPath }
       );
 
@@ -251,8 +258,11 @@ export class GitClient {
         };
       }
 
+      const sanitizedBranch = SecurityValidator.validateBranchName(branch);
+      const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
+      
       const { stdout } = await execAsync(
-        `git merge --no-ff -m "${this.sanitizeCommitMessage(message)}" ${this.sanitizeBranchName(branch)}`,
+        `git merge --no-ff -m "${sanitizedMessage}" ${sanitizedBranch}`,
         { cwd: this.repoPath }
       );
 
@@ -290,7 +300,10 @@ export class GitClient {
       this.logger.debug('Creating commit', { message, filesCount: files?.length });
       
       if (files && files.length > 0) {
-        const sanitizedFiles = files.map(f => this.sanitizeFilePath(f));
+        const sanitizedFiles = files.map(f => {
+          const validated = SecurityValidator.validateFilePath(f, this.repoPath);
+          return SecurityValidator.escapeShellArg(validated);
+        });
         await execAsync(`git add ${sanitizedFiles.join(' ')}`, { cwd: this.repoPath });
         this.logger.debug('Files staged', { count: files.length });
       } else {
@@ -298,8 +311,10 @@ export class GitClient {
         this.logger.debug('All changes staged');
       }
 
+      const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
+      
       const { stdout } = await execAsync(
-        `git commit -m "${this.sanitizeCommitMessage(message)}"`,
+        `git commit -m "${sanitizedMessage}"`,
         { cwd: this.repoPath }
       );
 
@@ -323,8 +338,11 @@ export class GitClient {
     try {
       this.logger.info('Pushing to remote', { remote, branch });
       
+      const sanitizedRemote = SecurityValidator.validateRemoteName(remote);
+      const sanitizedBranch = SecurityValidator.validateBranchName(branch);
+      
       await execAsync(
-        `git push ${this.sanitizeBranchName(remote)} ${this.sanitizeBranchName(branch)}`,
+        `git push ${sanitizedRemote} ${sanitizedBranch}`,
         { cwd: this.repoPath, timeout: 60000 }
       );
 
@@ -343,8 +361,10 @@ export class GitClient {
     try {
       this.logger.debug('Creating stash', { message });
       
+      const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
+      
       const { stdout } = await execAsync(
-        `git stash push -m "${this.sanitizeCommitMessage(message)}"`,
+        `git stash push -m "${sanitizedMessage}"`,
         { cwd: this.repoPath }
       );
 
@@ -368,8 +388,10 @@ export class GitClient {
     try {
       this.logger.info('Applying stash', { stashId });
       
+      const sanitizedStashId = SecurityValidator.validateStashId(stashId);
+      
       await execAsync(
-        `git stash apply ${this.sanitizeStashId(stashId)}`,
+        `git stash apply ${sanitizedStashId}`,
         { cwd: this.repoPath }
       );
 
@@ -384,38 +406,4 @@ export class GitClient {
     }
   }
 
-  private sanitizeBranchName(branch: string): string {
-    if (!/^[a-zA-Z0-9/_-]+$/.test(branch)) {
-      throw new GitOperationError(
-        `Invalid branch name: ${branch}`,
-        undefined
-      );
-    }
-    return branch;
-  }
-
-  private sanitizeCommitMessage(message: string): string {
-    return message.replace(/"/g, '\\"').replace(/\n/g, '\\n');
-  }
-
-  private sanitizeFilePath(filePath: string): string {
-    const normalized = path.normalize(filePath);
-    if (normalized.includes('..')) {
-      throw new GitOperationError(
-        `Path traversal detected in file path: ${filePath}`,
-        undefined
-      );
-    }
-    return `"${normalized.replace(/"/g, '\\"')}"`;
-  }
-
-  private sanitizeStashId(stashId: string): string {
-    if (!/^stash@\{\d+\}$/.test(stashId)) {
-      throw new GitOperationError(
-        `Invalid stash ID: ${stashId}`,
-        undefined
-      );
-    }
-    return stashId;
-  }
 }
