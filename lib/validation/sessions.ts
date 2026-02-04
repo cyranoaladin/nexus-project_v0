@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod';
-import { idSchema, dateRangeSchema } from './common';
+import { idSchema } from './common';
 
 /**
  * Session booking schema (POST /api/sessions/book)
