@@ -270,7 +270,7 @@ describe('Logger System', () => {
 
   describe('environment-specific behavior', () => {
     it('should use silent level in test environment', () => {
-      expect(process.env.NODE_ENV).toBe('test');
+      expect(process.env.JEST_WORKER_ID).toBeDefined();
       expect(logger.level).toBe('silent');
     });
 
