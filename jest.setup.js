@@ -1,6 +1,11 @@
 // Set NODE_ENV before any imports
 process.env.NODE_ENV = 'development';
 
+// Load test environment variables
+const dotenv = require('dotenv');
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+
 // Polyfill setImmediate for pino logger (required in jsdom)
 if (typeof global.setImmediate === 'undefined') {
   global.setImmediate = (fn, ...args) => setTimeout(fn, 0, ...args);
