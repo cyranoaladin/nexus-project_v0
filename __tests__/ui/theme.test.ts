@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { designTokens } from '@/lib/theme/tokens';
+import { designTokens, getColor } from '@/lib/theme/tokens';
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -462,6 +462,54 @@ describe('Theme Configuration', () => {
       gsapRequiredVariables.forEach((variable) => {
         expect(cssContent).toContain(variable);
       });
+    });
+  });
+
+  describe('getColor Helper', () => {
+    it('should return color value for valid path', () => {
+      expect(getColor('brand.primary')).toBe('#2563EB');
+      expect(getColor('brand.secondary')).toBe('#EF4444');
+      expect(getColor('brand.accent')).toBe('#2EE9F6');
+    });
+
+    it('should return color value for nested path', () => {
+      expect(getColor('semantic.success')).toBe('#10B981');
+      expect(getColor('semantic.warning')).toBe('#F59E0B');
+      expect(getColor('semantic.error')).toBe('#EF4444');
+      expect(getColor('semantic.info')).toBe('#3B82F6');
+    });
+
+    it('should return color value for neutral scale', () => {
+      expect(getColor('neutral.50')).toBe('#F9FAFB');
+      expect(getColor('neutral.500')).toBe('#6B7280');
+      expect(getColor('neutral.950')).toBe('#0B0C10');
+    });
+
+    it('should return color value for surface colors', () => {
+      expect(getColor('surface.dark')).toBe('#0B0C10');
+      expect(getColor('surface.card')).toBe('#111318');
+    });
+
+    it('should return fallback color for invalid path', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      
+      const result = getColor('invalid.path');
+      
+      expect(result).toBe('#000000');
+      expect(consoleSpy).toHaveBeenCalledWith('Color token not found: invalid.path');
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should return fallback color for partially invalid path', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      
+      const result = getColor('brand.nonexistent');
+      
+      expect(result).toBe('#000000');
+      expect(consoleSpy).toHaveBeenCalledWith('Color token not found: brand.nonexistent');
+      
+      consoleSpy.mockRestore();
     });
   });
 });
