@@ -1,5 +1,15 @@
 import '@testing-library/jest-dom';
 
+// Polyfill setImmediate for Pino logger (used by thread-stream)
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (callback, ...args) => {
+    return setTimeout(callback, 0, ...args);
+  };
+  global.clearImmediate = (id) => {
+    return clearTimeout(id);
+  };
+}
+
 // Mock Prisma client
 jest.mock('./lib/prisma', () => ({
   prisma: {
