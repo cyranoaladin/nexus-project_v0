@@ -1,3 +1,7 @@
+jest.mock('uuid', () => ({
+  v4: () => 'test-uuid-1234-5678-90ab-cdef',
+}));
+
 import http from 'http';
 import { DaemonServer, startDaemon, stopDaemon } from './server';
 import { getEventEmitter } from '../core/events/emitter';
