@@ -1,3 +1,7 @@
+jest.mock('uuid', () => ({
+  v4: () => 'test-uuid-1234-5678-90ab-cdef',
+}));
+
 import * as path from 'path';
 import * as os from 'os';
 import { Profiler } from './profiler';
