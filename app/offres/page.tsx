@@ -17,8 +17,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { BackToTop } from "@/components/ui/back-to-top";
 
 const packs = [
@@ -226,7 +226,7 @@ export default function OffresPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-200">
-      <Header />
+      <CorporateNavbar />
 
       <main>
         {/* HERO */}
@@ -830,7 +830,7 @@ export default function OffresPage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
       <BackToTop />
     </div>
   );
