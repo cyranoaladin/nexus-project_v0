@@ -51,16 +51,17 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step: Foundation & Setup
+### [x] Step: Foundation & Setup
+<!-- chat-id: f00cc682-bb7c-4d47-9a1e-e653ab9d2570 -->
 
 Establish baseline and create migration inventory.
 
 **Tasks:**
-- [ ] Run full test suite to capture baseline state
-- [ ] Create MIGRATION_LOG.md with page-by-page checklist
-- [ ] Document current state: take screenshots of all 15+ public pages
-- [ ] Create color migration reference map (deprecated → new tokens)
-- [ ] Verify all design system infrastructure is in place
+- [x] Run full test suite to capture baseline state
+- [x] Create MIGRATION_LOG.md with page-by-page checklist
+- [x] Document current state: take screenshots of all 15+ public pages
+- [x] Create color migration reference map (deprecated → new tokens)
+- [x] Verify all design system infrastructure is in place
 
 **Deliverables:**
 - MIGRATION_LOG.md with inventory of all pages
