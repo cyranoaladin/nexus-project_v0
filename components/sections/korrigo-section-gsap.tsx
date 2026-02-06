@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FileCheck, BarChart3, Users, Zap, Shield, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -128,7 +129,7 @@ const KorrigoSectionGSAP = () => {
                     {features.map((feature, index) => (
                         <div
                             key={index}
-                            className="korrigo-feature card-dark p-6 md:p-8 hover:border-brand-accent/40 transition-all duration-300"
+                            className="korrigo-feature bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-6 md:p-8 hover:border-brand-accent/40 transition-all duration-300"
                         >
                             <div className={`w-14 h-14 rounded-xl ${feature.color} flex items-center justify-center mb-6`}>
                                 <feature.icon className="w-7 h-7 text-brand-accent" />
@@ -145,9 +146,11 @@ const KorrigoSectionGSAP = () => {
 
                 {/* CTA */}
                 <div className="mt-12 text-center">
-                    <Link href="/contact?sujet=korrigo" className="btn-primary inline-block">
-                        Découvrir Korrigo
-                    </Link>
+                    <Button asChild className="inline-block">
+                        <Link href="/contact?sujet=korrigo">
+                            Découvrir Korrigo
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </section>
