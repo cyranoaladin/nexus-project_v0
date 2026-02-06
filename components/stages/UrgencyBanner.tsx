@@ -9,7 +9,7 @@ interface UrgencyBannerProps {
 
 export function UrgencyBanner({ closingDate }: UrgencyBannerProps) {
   const handleCTAClick = () => {
-    analytics.ctaClick('urgency-banner', 'Réserver un bilan gratuit');
+    analytics.ctaClick('urgency-banner', 'Réserver une consultation gratuite');
   };
 
   return (
@@ -23,9 +23,9 @@ export function UrgencyBanner({ closingDate }: UrgencyBannerProps) {
           href="#reservation"
           onClick={handleCTAClick}
           className="rounded-full bg-white text-red-600 px-6 py-2 text-sm font-bold hover:bg-gray-100 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
-          aria-label="Réserver un bilan gratuit"
+          aria-label="Réserver une consultation gratuite"
         >
-          Réserver un bilan gratuit
+          Réserver une consultation gratuite
         </a>
       </div>
     </div>
