@@ -29,14 +29,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".zenflow/**/*.ts",
-    ".zenflow/**/*.tsx"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    ".zenflow/state/**/*",
-    ".zenflow/tasks/**/*",
-    ".zenflow/cli/**/*"
+    ".zenflow/**/*"
   ]
 }
