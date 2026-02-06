@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "public"."EngagementLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+
 -- CreateTable
 CREATE TABLE "public"."session_reports" (
     "id" TEXT NOT NULL,

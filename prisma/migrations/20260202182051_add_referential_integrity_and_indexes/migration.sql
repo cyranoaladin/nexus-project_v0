@@ -50,8 +50,9 @@ CREATE INDEX "notifications_userId_read_idx" ON "public"."notifications"("userId
 -- CreateIndex
 CREATE INDEX "notifications_userRole_idx" ON "public"."notifications"("userRole");
 
--- CreateIndex
-CREATE UNIQUE INDEX "payments_externalId_method_key" ON "public"."payments"("externalId", "method");
+-- CreateIndex (skip if already exists from payment_idempotency migration)
+-- DROP INDEX IF EXISTS "public"."payments_externalId_method_key";
+-- CREATE UNIQUE INDEX "payments_externalId_method_key" ON "public"."payments"("externalId", "method");
 
 -- CreateIndex
 CREATE INDEX "sessions_studentId_idx" ON "public"."sessions"("studentId");
