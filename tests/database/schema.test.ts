@@ -1,4 +1,8 @@
 /**
+ * @jest-environment node
+ */
+
+/**
  * Database Schema Integrity Tests
  * Validates Prisma schema relations, constraints, and indexes
  */
