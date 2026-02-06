@@ -1,7 +1,7 @@
 "use client";
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function ConfirmationPage() {
   return (
     <div className="min-h-screen bg-neutral-50">
-      <Header />
+      <CorporateNavbar />
 
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
@@ -158,7 +158,7 @@ export default function ConfirmationPage() {
         </div>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

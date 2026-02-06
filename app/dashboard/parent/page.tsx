@@ -16,7 +16,7 @@ import SubscriptionChangeDialog from "./subscription-change-dialog"
 import AriaAddonDialog from "./aria-addon-dialog"
 import InvoiceDetailsDialog from "./invoice-details-dialog"
 import SessionBooking from "@/components/ui/session-booking"
-import { Footer } from "@/components/layout/footer"
+import { CorporateFooter } from "@/components/layout/CorporateFooter"
 
 interface ParentDashboardData {
   parent: {
@@ -434,7 +434,7 @@ export default function DashboardParent() {
           />
         )}
       </main>
-      <Footer />
+      <CorporateFooter />
     </div>
   )
 }

@@ -55,64 +55,17 @@ const config = {
           foreground: "hsl(var(--accent-foreground))",
         },
 
-        // ===== DEPRECATED COLORS (Migrate to new design system) =====
-        // ⚠️ WARNING: These colors are still in use and cannot be removed yet
-        // See migration status below for each color group
-
-        /**
-         * @deprecated Use neutral scale or surface colors instead
-         * midnight-blue → neutral.700, neutral.800, neutral.900
-         *
-         * STATUS: Still in use in legacy sections (components/sections/)
-         * 18 usages in: problem-solution-section.tsx, home-hero.tsx, etc.
-         * Cannot be removed until legacy sections are migrated
-         */
-        'midnight-blue': {
-          DEFAULT: '#1e293b',
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d7fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#1e1b4b',
-          950: '#0f172a',
-        },
+        // ===== LEGACY COLORS (Kept for backward compatibility) =====
+        // NOTE: These colors are no longer actively used in modern components
+        // Kept for deep-midnight body background and potential legacy references
 
         /**
          * @deprecated Use surface.darker instead
          * deep-midnight → surface.darker
-         *
-         * STATUS: Still in use (mostly in app/globals.css body styling)
-         * Cannot be removed until body background is migrated
+         * 
+         * STATUS: Used only in app/globals.css body styling
          */
         'deep-midnight': '#020617',
-
-        /**
-         * @deprecated Use brand colors instead
-         * nexus.blue → brand.primary
-         * nexus.red → brand.secondary
-         * nexus.cyan → brand.accent
-         * nexus.dark → surface.dark
-         * nexus.charcoal → surface.card
-         *
-         * STATUS: Still in use in legacy sections (12 files in components/sections/)
-         * - home-hero.tsx, cta-section.tsx, problem-solution-section.tsx, etc.
-         * Cannot be removed until legacy sections are migrated
-         * NOTE: CSS variable aliases maintained in globals.css for GSAP compatibility
-         */
-        nexus: {
-          blue: '#2563EB',
-          red: '#EF4444',
-          dark: '#0B0C10',
-          charcoal: '#111318',
-          cyan: '#2EE9F6',
-          white: '#F4F6FA',
-          gray: '#A6A9B4',
-        },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
