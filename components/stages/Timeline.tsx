@@ -14,7 +14,7 @@ interface TimelineProps {
 
 export function Timeline({ items }: TimelineProps) {
   const handleCTAClick = () => {
-    analytics.ctaClick('timeline', 'Réserver un bilan gratuit');
+    analytics.ctaClick('timeline', 'Réserver une consultation gratuite');
   };
 
   return (
@@ -51,9 +51,9 @@ export function Timeline({ items }: TimelineProps) {
               href="#reservation"
               onClick={handleCTAClick}
               className="inline-block rounded-full bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg"
-              aria-label="Réserver un bilan gratuit"
+              aria-label="Réserver une consultation gratuite"
             >
-              Réserver un bilan gratuit
+              Réserver une consultation gratuite
             </a>
           </div>
         </div>

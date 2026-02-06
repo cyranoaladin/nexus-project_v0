@@ -65,33 +65,25 @@ export function FinalCTA({ closingDate, academies }: FinalCTAProps) {
             Février peut changer la dynamique de fin d'année. À condition d'agir maintenant.
           </p>
 
-          {/* Places restantes */}
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6 mb-10 max-w-2xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <div className="font-bold mb-1">Maths Term. P1</div>
-                <div className="text-yellow-300">5 places</div>
-              </div>
-              <div>
-                <div className="font-bold mb-1">Maths Term. P2</div>
-                <div className="text-yellow-300">3 places</div>
-              </div>
-              <div>
-                <div className="font-bold mb-1">NSI Term. P1</div>
-                <div className="text-yellow-300">4 places</div>
-              </div>
-              <div>
-                <div className="font-bold mb-1">NSI Term. P2</div>
-                <div className="text-yellow-300">3 places</div>
-              </div>
-              <div>
-                <div className="font-bold mb-1">Première Maths</div>
-                <div className="text-green-300">6 places</div>
-              </div>
-              <div>
-                <div className="font-bold mb-1">Première NSI</div>
-                <div className="text-green-300">6 places</div>
-              </div>
+          {/* Places restantes - Dynamique */}
+          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6 mb-10 max-w-3xl mx-auto">
+            <h3 className="text-lg font-bold mb-4 text-center">Places restantes par académie</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              {academies.map((academy) => {
+                const colorClass = academy.seatsLeft <= 3 ? 'text-red-300' : academy.seatsLeft <= 5 ? 'text-yellow-300' : 'text-green-300';
+                const levelLabel = academy.level === 'terminale' ? 'Term.' : '1ère';
+                const tierLabel = academy.tier === 'pallier1' ? 'P1' : 'P2';
+                const subjectLabel = academy.subject === 'maths' ? 'Maths' : 'NSI';
+                
+                return (
+                  <div key={academy.id} className="text-center">
+                    <div className="font-bold mb-1 text-white">{subjectLabel} {levelLabel} {tierLabel}</div>
+                    <div className={`${colorClass} font-bold`}>
+                      {academy.seatsLeft} {academy.seatsLeft === 1 ? 'place' : 'places'}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
