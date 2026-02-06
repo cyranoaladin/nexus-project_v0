@@ -97,6 +97,7 @@ Execute all unit tests and fix failures to achieve 100% pass rate.
 ---
 
 ### [ ] Step 3: Integration Test Execution & Fixes
+<!-- chat-id: d7ccf3f2-b4e7-4aee-a130-dc1c2cd6bc22 -->
 
 Execute all integration tests with database and fix API/database issues.
 
