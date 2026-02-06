@@ -47,6 +47,7 @@ Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 ## Implementation Steps
 
 ### [ ] Step 1: Environment & Build Validation
+<!-- chat-id: 86e55812-8c6f-4046-8589-99f06d251601 -->
 
 Validate environment setup and fix all build errors.
 

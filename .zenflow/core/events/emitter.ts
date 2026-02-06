@@ -87,7 +87,7 @@ export class EventEmitter {
         events = events.filter(e => e.source === filter.source);
       }
       if (filter.since) {
-        events = events.filter(e => e.timestamp >= filter.since);
+        events = events.filter(e => e.timestamp >= filter.since!);
       }
     }
 
