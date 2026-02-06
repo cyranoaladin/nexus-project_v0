@@ -235,7 +235,7 @@ export default function OffresPage() {
           <div className="absolute -top-10 right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-[140px]" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white font-serif">
+              <h1 className="text-4xl md:text-6xl font-bold text-white font-display">
                 Investissez dans la seule garantie de réussite au Bac.
               </h1>
               <p className="mt-4 text-lg text-neutral-300">
@@ -307,7 +307,7 @@ export default function OffresPage() {
         <section id="offres-principales" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Votre solution clé-en-main
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -437,7 +437,7 @@ export default function OffresPage() {
         <section id="packs-specialises" className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Packs à la carte pour besoins spécifiques
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -506,7 +506,7 @@ export default function OffresPage() {
         {/* COMPARAISON */}
         <section id="comparaison" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Pourquoi Nexus Réussite vaut 2× plus... et coûte 40% moins cher
             </h2>
 
@@ -541,7 +541,7 @@ export default function OffresPage() {
         {/* ROI CALCULATOR */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Calculez votre économie réelle
             </h2>
 
@@ -650,7 +650,7 @@ export default function OffresPage() {
         {/* GARANTIES */}
         <section id="garanties" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Votre réussite, notre engagement contractuel
             </h2>
 
@@ -735,7 +735,7 @@ export default function OffresPage() {
         {/* FUNNEL */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Trouvez la solution parfaite en 2 minutes
             </h2>
 
@@ -802,7 +802,7 @@ export default function OffresPage() {
         <section className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="rounded-3xl border border-gold-500/30 bg-white/5 p-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Prêt à transformer l'avenir de votre enfant ?
               </h2>
               <p className="mt-3 text-neutral-300">

@@ -510,7 +510,7 @@ export function BusinessModelSection() {
                             </li>
                           ))}
                         </ul>
-                        <Button className="btn-primary w-full h-14 text-lg font-semibold" asChild>
+                        <Button className="w-full h-14 text-lg font-semibold" asChild>
                           <Link href="/bilan-gratuit">
                             Réserver ce Pack
                           </Link>
@@ -557,7 +557,7 @@ export function BusinessModelSection() {
                           <span className="text-gray-700 leading-relaxed">Préparation spécifique aux épreuves</span>
                         </li>
                       </ul>
-                      <Button className="btn-primary w-full h-14 text-lg font-semibold" asChild>
+                      <Button className="w-full h-14 text-lg font-semibold" asChild>
                         <Link href="/contact">
                           Contactez-nous pour un bilan et un devis adapté
                         </Link>

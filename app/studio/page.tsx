@@ -15,7 +15,7 @@ export default function StudioPage() {
                 <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-midnight-800/10 blur-3xl" />
                 <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="max-w-3xl">
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-serif">
+                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-display">
                             Nexus Studio : Architectes d'Intelligence Artificielle.
                         </h1>
                         <p className="text-xl text-slate-300 leading-relaxed">
