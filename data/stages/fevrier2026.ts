@@ -316,7 +316,7 @@ export const stats: Stat[] = [
 // TESTIMONIALS
 export const testimonials: Testimonial[] = [
   {
-    quote: "8 jours qui ont changé mon orientation",
+    quote: "Une semaine qui a changé mon orientation",
     author: "Sarah",
     role: "Terminale",
     tags: ['NSI', 'Pallier 2']

@@ -90,7 +90,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
 
           {/* Testimonial */}
           <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto mb-10 hover:bg-white/10 transition-all">
-            <p className="text-lg italic text-white mb-2">"8 jours qui ont changé mon orientation"</p>
+            <p className="text-lg italic text-white mb-2">"Une semaine qui a changé mon orientation"</p>
             <p className="text-sm text-blue-200">— Sarah, Terminale</p>
           </div>
 
@@ -98,7 +98,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
               <span className="text-green-400">✓</span>
-              <span>6 à 8 élèves max par groupe</span>
+              <span>6 élèves max par groupe</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
               <span className="text-green-400">✓</span>
