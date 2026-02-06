@@ -358,77 +358,13 @@ body {
     position: relative;
   }
 
-  /* ⚠️ DEPRECATED: Use <Button> component instead
-   * Still used in: hero-section.tsx, korrigo-section-gsap.tsx, proof-section-gsap.tsx,
-   * offer-section-gsap.tsx, business-model-section.tsx, comparison-table-section.tsx,
-   * micro-engagement-section.tsx, aria-widget.tsx
-   * TODO: Migrate these files to use Button component
+  /* All deprecated button and card utilities have been removed.
+   * Use shadcn/ui components instead:
+   * - <Button variant="default"> for primary buttons
+   * - <Button variant="outline"> for secondary buttons
+   * - <Card> component for all card styles
+   * - <Badge> component for labels
    */
-  .btn-primary {
-    @apply bg-brand-accent text-surface-dark font-semibold px-6 py-3 rounded-full transition-all duration-300;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary:hover {
-    background-color: #25D1DD;
-    box-shadow: 0 0 30px rgba(46, 233, 246, 0.3);
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent);
-    transition: left 0.5s ease;
-  }
-
-  .btn-primary:hover::before {
-    left: 100%;
-  }
-
-  /* ⚠️ DEPRECATED: Use <Button variant="outline"> instead */
-  .btn-secondary {
-    @apply border border-white/20 text-foreground px-6 py-3 rounded-full transition-all duration-300;
-  }
-
-  .btn-secondary:hover {
-    border-color: rgb(var(--color-brand-accent));
-    color: rgb(var(--color-brand-accent));
-  }
-
-  /* ⚠️ DEPRECATED: Use <Card> component with variants instead
-   * Still used in: business-model-section.tsx, comparison-table-section.tsx, guarantee-section.tsx
-   * TODO: Migrate these files to use Card component
-   */
-  .card-enhanced {
-    @apply bg-white rounded-2xl border border-neutral-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
-  }
-
-  .card-popular {
-    @apply border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-white shadow-xl;
-  }
-
-  .card-premium {
-    @apply border-2 border-neutral-900 bg-gradient-to-br from-neutral-50 to-white shadow-2xl;
-  }
-
-  /* ⚠️ DEPRECATED: Use <Badge> component with variants instead
-   * No current usages found - safe to remove in future cleanup
-   */
-  .badge-popular {
-    @apply bg-blue-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
-  }
-
-  .badge-premium {
-    @apply bg-error text-white px-4 py-2 rounded-full font-semibold shadow-lg flex items-center gap-2;
-  }
 }
 
 @layer utilities {
