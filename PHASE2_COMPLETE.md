@@ -62,14 +62,18 @@ All auth and dashboard pages now use unified Corporate layout:
 
 ### ✅ 3. Deprecated Colors Removed from Tailwind Config
 
-**Removed:**
+**Removed from tailwind.config.mjs:**
 - ❌ `midnight-blue` color palette (12 shades)
 - ❌ `nexus` color object (7 colors)
 - ❌ All associated deprecation warnings
 
-**Kept (intentionally):**
+**Removed from code (migrated to design system):**
+- ❌ All `gold-400/500/600` usages → migrated to `brand-accent`
+- ❌ All `midnight-*` usages → migrated to `surface-darker` / `neutral-*`
+
+**Kept in tailwind.config.mjs (intentionally):**
 - ✓ `deep-midnight` (#020617) - Used in app/globals.css body styling
-- ✓ `gold` colors - Still valid for premium features per design system
+- ✓ `gold` scale (400/500/600) - Reserved for future premium features, not actively used in code
 
 ### ✅ 4. Legacy Layout Files Removed
 
@@ -243,10 +247,12 @@ The codebase now has:
 
 These are optional improvements, not blockers:
 
-1. **Migrate body background** from `deep-midnight` to `surface-darker` in globals.css
-2. **Bundle size optimization** - analyze and tree-shake unused utilities
-3. **Performance audit** - Lighthouse CI integration
-4. **Visual regression testing** - Percy or Chromatic setup
+1. **Visual QA Review** - Manually verify all 23 pages for design consistency across breakpoints
+2. **Accessibility Audit** - Run Lighthouse/axe on sample pages to verify WCAG 2.1 AA compliance maintained
+3. **Migrate body background** from `deep-midnight` to `surface-darker` in globals.css (low priority)
+4. **Bundle size optimization** - Analyze and tree-shake unused utilities
+5. **Performance audit** - Lighthouse CI integration
+6. **Visual regression testing** - Percy or Chromatic setup
 
 ---
 
