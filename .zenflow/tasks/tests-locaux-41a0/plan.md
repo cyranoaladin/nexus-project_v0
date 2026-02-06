@@ -46,7 +46,7 @@ Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 
 ## Implementation Steps
 
-### [ ] Step 1: Environment & Build Validation
+### [x] Step 1: Environment & Build Validation
 <!-- chat-id: 86e55812-8c6f-4046-8589-99f06d251601 -->
 
 Validate environment setup and fix all build errors.
@@ -60,9 +60,9 @@ Validate environment setup and fix all build errors.
 - Run typecheck: `npm run typecheck` and fix type errors
 
 **Verification**:
-- [ ] `npm run build` completes successfully
-- [ ] `npm run lint` passes with 0 errors
-- [ ] `npm run typecheck` passes with 0 errors
+- [x] `npm run build` completes successfully
+- [x] `npm run lint` passes with 0 errors
+- [x] `npm run typecheck` passes with 0 errors
 
 **Deliverable**: Commit "fix: resolve build and type errors"
 
