@@ -18,12 +18,13 @@
  * - Payments API
  */
 
-import { PrismaClient, UserRole, Subject } from '@prisma/client';
+import { UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { testPrisma } from '../setup/test-database';
 
-const prisma = new PrismaClient();
+const prisma = testPrisma;
 
 // Mock getServerSession for role-based testing
 jest.mock('next-auth', () => ({
@@ -114,11 +115,14 @@ describe('RBAC Matrix', () => {
     console.log('🧹 Cleaning up RBAC test fixtures...');
 
     // Clean up in order (foreign keys)
-    await prisma.sessionBooking.deleteMany({
-      where: {
-        coachId: testUsers.coach.id,
-      },
-    });
+    // Only clean if users were successfully created
+    if (testUsers.coach?.id) {
+      await prisma.sessionBooking.deleteMany({
+        where: {
+          coachId: testUsers.coach.id,
+        },
+      });
+    }
     await prisma.user.deleteMany({
       where: {
         email: { contains: '-rbac@test.com' },
