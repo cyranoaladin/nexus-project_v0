@@ -26,9 +26,10 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: baseURL,
-    reuseExistingServer: process.env.REUSE_EXISTING_SERVER === 'true' || !process.env.CI,
-  },
+  // webServer disabled - run dev server manually before running tests
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: baseURL,
+  //   reuseExistingServer: true,
+  // },
 });
