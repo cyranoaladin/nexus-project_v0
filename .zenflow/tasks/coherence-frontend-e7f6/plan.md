@@ -131,7 +131,7 @@ npm run verify:quick
 
 ---
 
-### [ ] Step: Layout Unification - Remaining Pages
+### [x] Step: Layout Unification - Remaining Pages
 <!-- chat-id: f788c3e1-1df8-4373-87fb-496f9e47acb7 -->
 
 Complete layout migration for remaining public pages.

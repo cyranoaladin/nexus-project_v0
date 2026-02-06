@@ -101,7 +101,7 @@ const TrinityServicesGSAP = () => {
 
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-nexus-cyan mb-4 block">
+                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-accent mb-4 block">
                         La Trinité Nexus
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white max-w-3xl mx-auto leading-tight">

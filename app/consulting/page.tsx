@@ -19,7 +19,7 @@ export default function ConsultingPage() {
                             <LineChart size={16} strokeWidth={1.5} />
                             <span>Nexus Consulting</span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-serif">
+                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-display">
                             Expertise 360° : L'Alliance de la Pédagogie et de la Technologie.
                         </h1>
                         <p className="text-xl text-slate-300 leading-relaxed">
@@ -33,7 +33,7 @@ export default function ConsultingPage() {
             <section className="py-24 bg-midnight-950">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-white mb-4 font-serif">Nos 4 Piliers d'Intervention</h2>
+                        <h2 className="text-3xl font-bold text-white mb-4 font-display">Nos 4 Piliers d'Intervention</h2>
                         <p className="text-slate-300">
                             Une approche complète pour moderniser votre établissement et sécuriser vos parcours pédagogiques.
                         </p>
@@ -76,7 +76,7 @@ export default function ConsultingPage() {
             <section className="py-20 border-t border-white/10 bg-midnight-950">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center">
-                        <h2 className="text-3xl font-bold text-white mb-6 font-serif">Un projet spécifique ?</h2>
+                        <h2 className="text-3xl font-bold text-white mb-6 font-display">Un projet spécifique ?</h2>
                         <a href="/contact" className="inline-flex h-12 items-center justify-center rounded-full border border-gold-500 px-8 text-sm font-semibold text-white transition-all hover:bg-gold-500 hover:text-slate-950">
                             Contacter la Direction Technique
                         </a>
