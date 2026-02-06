@@ -84,10 +84,4 @@ export const WorkflowSchema = z.object({
   notifications: NotificationsSchema.optional(),
 });
 
-export type Workflow = z.infer<typeof WorkflowSchema>;
-export type WorkflowInput = z.infer<typeof WorkflowInputSchema>;
-export type WorkflowOutput = z.infer<typeof WorkflowOutputSchema>;
-export type WorkflowStep = z.infer<typeof WorkflowStepSchema>;
-export type ErrorHandling = z.infer<typeof ErrorHandlingSchema>;
-export type Notifications = z.infer<typeof NotificationsSchema>;
-export type NotificationAction = z.infer<typeof NotificationActionSchema>;
+

@@ -202,7 +202,6 @@ export class DaemonManager {
     const readline = await import('readline');
     
     let watching = true;
-    let fileHandle: fs.promises.FileHandle | null = null;
     let position = 0;
 
     try {
@@ -246,9 +245,6 @@ export class DaemonManager {
     return () => {
       watching = false;
       clearInterval(watchInterval);
-      if (fileHandle) {
-        fileHandle.close().catch(() => {});
-      }
     };
   }
 }

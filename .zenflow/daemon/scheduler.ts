@@ -10,7 +10,7 @@ export class TaskScheduler {
   private workflowEngine: WorkflowEngine;
   private tasks: Map<string, ScheduledTask> = new Map();
   private timers: Map<string, NodeJS.Timeout> = new Map();
-  private isRunning = false;
+  private _isRunning = false;
   private configPath: string;
 
   constructor(workflowEngine: WorkflowEngine, configPath = '.zenflow/scheduler.yaml') {
@@ -20,7 +20,7 @@ export class TaskScheduler {
   }
 
   async start(): Promise<void> {
-    if (this.isRunning) {
+    if (this._isRunning) {
       this.logger.warn('Scheduler is already running');
       return;
     }
@@ -30,7 +30,7 @@ export class TaskScheduler {
     try {
       await this.loadTasks();
       this.scheduleTasks();
-      this.isRunning = true;
+      this._isRunning = true;
       this.logger.info(`Scheduler started with ${this.tasks.size} tasks`);
     } catch (error) {
       this.logger.error('Failed to start scheduler', {
@@ -41,7 +41,7 @@ export class TaskScheduler {
   }
 
   stop(): void {
-    if (!this.isRunning) {
+    if (!this._isRunning) {
       return;
     }
 
@@ -53,7 +53,7 @@ export class TaskScheduler {
     }
 
     this.timers.clear();
-    this.isRunning = false;
+    this._isRunning = false;
     this.logger.info('Scheduler stopped');
   }
 
@@ -214,7 +214,7 @@ export class TaskScheduler {
       name: task.name,
     });
 
-    if (this.isRunning && task.enabled) {
+    if (this._isRunning && task.enabled) {
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -255,7 +255,7 @@ export class TaskScheduler {
     task.enabled = true;
     this.logger.info('Task enabled', { taskId });
 
-    if (this.isRunning) {
+    if (this._isRunning) {
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -296,7 +296,7 @@ export class TaskScheduler {
   }
 
   isRunning(): boolean {
-    return this.isRunning;
+    return this._isRunning;
   }
 
   private async saveTasks(): Promise<void> {
