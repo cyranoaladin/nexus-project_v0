@@ -64,3 +64,8 @@ Implement the task according to the technical specification and general engineer
    - What was implemented
    - How the solution was tested
    - The biggest issues or challenges encountered
+
+### [x] Step: offres
+<!-- chat-id: 8255b608-73a0-441a-ad31-fdac9a86d546 -->
+
+Vous allez affiner les offres d'une manière plus claire, les intégrer d'une manière cohérente dans la partie recherche et aussi intégrer toutes les offres dans le formulaire d'inscription. pour le paiement en ligne par carte bancaire, il faut faire appraitre un message "bientôt disponible" lorsqu'un utilisateur clique dessus. et puis dans l'option paiement par virement bancaire, mettez les donnes bancaires
