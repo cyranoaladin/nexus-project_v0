@@ -140,6 +140,7 @@ describe('DaemonServer', () => {
 
     it('should respond to readiness check requests', async () => {
       await daemon.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/ready');
 
@@ -150,6 +151,7 @@ describe('DaemonServer', () => {
 
     it('should respond to metrics requests', async () => {
       await daemon.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/metrics');
 
@@ -161,6 +163,7 @@ describe('DaemonServer', () => {
 
     it('should return 404 for unknown endpoints', async () => {
       await daemon.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/unknown');
 

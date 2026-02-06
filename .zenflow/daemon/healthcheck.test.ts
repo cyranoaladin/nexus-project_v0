@@ -92,6 +92,7 @@ describe('HealthCheck', () => {
 
     it('should respond to / with health status', async () => {
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/');
 
@@ -103,6 +104,7 @@ describe('HealthCheck', () => {
     it('should report degraded status when queue is elevated', async () => {
       mockEventEmitter.getQueueSize.mockReturnValue(600);
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/health');
 
@@ -115,6 +117,7 @@ describe('HealthCheck', () => {
     it('should report unhealthy status when queue is overloaded', async () => {
       mockEventEmitter.getQueueSize.mockReturnValue(1500);
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/health');
 
@@ -138,6 +141,7 @@ describe('HealthCheck', () => {
   describe('Readiness Endpoint', () => {
     it('should respond to /ready with 200 when ready', async () => {
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/ready');
 
@@ -150,6 +154,7 @@ describe('HealthCheck', () => {
     it('should respond to /ready with 503 when not ready', async () => {
       mockEventEmitter.getQueueSize.mockReturnValue(1500);
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/ready');
 
@@ -179,6 +184,7 @@ describe('HealthCheck', () => {
   describe('Unknown Endpoints', () => {
     it('should return 404 for unknown endpoints', async () => {
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/unknown');
 
@@ -195,6 +201,7 @@ describe('HealthCheck', () => {
       });
 
       await healthCheck.start();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const response = await makeHttpRequest(testPort, '/health');
 

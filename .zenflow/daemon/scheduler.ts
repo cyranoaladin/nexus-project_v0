@@ -158,12 +158,14 @@ export class TaskScheduler {
       return patterns[cron];
     }
 
-    const match = cron.match(/^(\d+)\s+(minute|hour|day)s?$/i);
+    const match = cron.match(/^(\d+)\s+(millisecond|second|minute|hour|day)s?$/i);
     if (match) {
       const value = parseInt(match[1], 10);
       const unit = match[2].toLowerCase();
 
       const multipliers: Record<string, number> = {
+        millisecond: 1,
+        second: 1000,
         minute: 60 * 1000,
         hour: 60 * 60 * 1000,
         day: 24 * 60 * 60 * 1000,
