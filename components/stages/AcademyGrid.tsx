@@ -75,56 +75,113 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
             {filtered.map((academy) => (
               <div
                 key={academy.id}
-                className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:border-blue-400 hover:-translate-y-1 flex flex-col"
+                className={`relative bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 flex flex-col ${
+                  academy.tier === 'pallier1'
+                    ? 'border-2 border-blue-300 hover:border-blue-500'
+                    : 'border-2 border-purple-400 hover:border-purple-600 ring-4 ring-purple-100'
+                }`}
               >
-                {/* Badges (Objectif + Pallier) */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                {/* Ribbon for Pallier 2 */}
+                {academy.tier === 'pallier2' && (
+                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                    ⭐ EXCELLENCE
+                  </div>
+                )}
+
+                {/* Badge principal (Objectif) */}
+                <div className="mb-3">
+                  <span className={`inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-md ${
+                    academy.tier === 'pallier1'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white'
+                      : 'bg-gradient-to-r from-purple-600 to-purple-800 text-white'
+                  }`}>
                     {academy.badge}
                   </span>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                    academy.tier === 'pallier1' 
-                      ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                      : 'bg-purple-100 text-purple-700 border border-purple-300'
+                </div>
+
+                {/* Pallier badge avec description claire */}
+                <div className={`mb-4 p-3 rounded-lg ${
+                  academy.tier === 'pallier1'
+                    ? 'bg-blue-50 border border-blue-200'
+                    : 'bg-purple-50 border border-purple-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs font-bold uppercase ${
+                      academy.tier === 'pallier1' ? 'text-blue-700' : 'text-purple-700'
+                    }`}>
+                      {academy.tier === 'pallier1' ? '📚 Pallier 1' : '🚀 Pallier 2'}
+                    </span>
+                    <span className={`text-xs font-semibold ${
+                      academy.tier === 'pallier1' ? 'text-blue-600' : 'text-purple-600'
+                    }`}>
+                      {academy.tier === 'pallier1' ? 'Prépa Bac' : 'Excellence'}
+                    </span>
+                  </div>
+                  <p className={`text-xs mt-1 ${
+                    academy.tier === 'pallier1' ? 'text-blue-800' : 'text-purple-800'
                   }`}>
-                    {academy.tier === 'pallier1' ? 'Pallier 1 — Prépa Bac' : 'Pallier 2 — Excellence'}
-                  </span>
+                    {academy.tier === 'pallier1' 
+                      ? 'Consolider les bases, méthode fiable' 
+                      : 'Viser la mention, maîtrise avancée'}
+                  </p>
                 </div>
 
                 {/* Title */}
                 <h3 className="text-xl font-black text-slate-900 mb-2">{academy.title}</h3>
 
                 {/* Objective */}
-                <p className="text-sm text-slate-600 mb-4">{academy.objective}</p>
+                <p className="text-sm text-slate-600 mb-4 font-medium">{academy.objective}</p>
 
-                {/* Info */}
-                <div className="space-y-2 text-xs text-slate-700 mb-4">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Durée :</span>
-                    <span>{academy.durationHours}h</span>
+                {/* Info en cards */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div className="bg-slate-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Durée</div>
+                    <div className="text-sm font-bold text-slate-900">{academy.durationHours}h</div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Groupe :</span>
-                    <span>{academy.groupSizeMax} élèves max</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Niveau :</span>
-                    <span className="capitalize">{academy.level}</span>
+                  <div className="bg-slate-50 rounded-lg p-2 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Groupe</div>
+                    <div className="text-sm font-bold text-slate-900">{academy.groupSizeMax} élèves</div>
                   </div>
                 </div>
 
-                {/* Promise */}
-                <p className="text-sm text-slate-700 italic mb-6 flex-grow">{academy.promise}</p>
+                {/* Niveau badge */}
+                <div className="mb-4">
+                  <span className="inline-block bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold border border-slate-300">
+                    📖 Niveau: <span className="capitalize">{academy.level}</span>
+                  </span>
+                </div>
 
-                {/* Pricing */}
-                <div className="bg-slate-50 rounded-xl p-4 mb-4">
+                {/* Promise */}
+                <div className="bg-gradient-to-r from-slate-50 to-white border-l-4 border-blue-500 rounded-lg p-3 mb-6 flex-grow">
+                  <p className="text-xs text-slate-700 leading-relaxed">{academy.promise}</p>
+                </div>
+
+                {/* Pricing - mise en avant */}
+                <div className={`rounded-xl p-4 mb-4 ${
+                  academy.tier === 'pallier1'
+                    ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200'
+                    : 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300'
+                }`}>
                   <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-xs text-slate-500 line-through">{academy.price} TND</span>
-                    <span className="text-2xl font-black text-blue-600">{academy.earlyBirdPrice} TND</span>
+                    <span className="text-xs text-slate-500 line-through">Prix: {academy.price} TND</span>
+                    <div className="text-right">
+                      <div className={`text-2xl font-black ${
+                        academy.tier === 'pallier1' ? 'text-blue-700' : 'text-purple-700'
+                      }`}>
+                        {academy.earlyBirdPrice} TND
+                      </div>
+                      <div className="text-xs text-slate-600 font-semibold">Early Bird</div>
+                    </div>
                   </div>
-                  <p className="text-xs text-green-600 font-semibold">
-                    🎟️ Early Bird • {academy.seatsLeft} places restantes
-                  </p>
+                  <div className="mt-2 pt-2 border-t border-slate-300">
+                    <p className="text-xs font-bold text-center">
+                      {academy.seatsLeft <= 3 ? (
+                        <span className="text-red-600">🔥 Plus que {academy.seatsLeft} places!</span>
+                      ) : (
+                        <span className="text-green-600">✅ {academy.seatsLeft} places restantes</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
 
                 {/* CTAs */}
@@ -132,17 +189,21 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                   <a
                     href="#reservation"
                     onClick={() => handleSelectAcademy(academy.id)}
-                    className="block w-full text-center rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg"
+                    className={`block w-full text-center rounded-full px-6 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg ${
+                      academy.tier === 'pallier1'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white'
+                    }`}
                     aria-label="Réserver une consultation gratuite"
                   >
-                    Réserver une consultation gratuite
+                    📅 Réserver une consultation
                   </a>
                   <a
                     href="#faq"
-                    className="block w-full text-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 text-xs font-semibold transition-all"
+                    className="block w-full text-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 text-xs font-semibold transition-all border border-slate-300"
                     aria-label="Voir les questions fréquentes"
                   >
-                    Questions fréquentes
+                    ❓ Questions fréquentes
                   </a>
                 </div>
               </div>
