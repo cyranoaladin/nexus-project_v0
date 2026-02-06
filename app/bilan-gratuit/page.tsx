@@ -216,7 +216,7 @@ export default function BilanGratuitPage() {
               <CheckCircle className="w-4 h-4 mr-2" aria-hidden="true" />
               Bilan Stratégique Gratuit
             </Badge>
-            <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
+            <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
               Créez Votre Compte Parent et Élève
             </h1>
             <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto px-4">

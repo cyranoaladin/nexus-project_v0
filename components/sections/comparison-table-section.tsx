@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function ComparisonTableSection() {
   const comparisonData = [
@@ -132,12 +134,11 @@ export function ComparisonTableSection() {
               <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
                 Rejoignez les familles qui ont fait le choix de l'excellence et transformé le parcours scolaire de leur enfant.
               </p>
-              <a
-                href="/offres"
-                className="btn-primary bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 inline-block"
-              >
-                Découvrir Nos Offres
-              </a>
+              <Button asChild className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg">
+                <Link href="/offres">
+                  Découvrir Nos Offres
+                </Link>
+              </Button>
             </div>
           </motion.div>
         </motion.div>
