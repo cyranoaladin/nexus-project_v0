@@ -157,7 +157,7 @@ npm run typecheck
 
 ---
 
-### [ ] Step: Color Migration - Page Components
+### [x] Step: Color Migration - Page Components
 <!-- chat-id: a8f14f5a-633c-4a16-a77c-d58ddfc469f5 -->
 
 Replace deprecated color classes in all page files.
@@ -229,7 +229,7 @@ npm run verify:quick
 
 ---
 
-### [ ] Step: Component Standardization - Buttons & Cards
+### [x] Step: Component Standardization - Buttons & Cards
 <!-- chat-id: ad5ba326-8994-4cfa-9303-c55c353ebd09 -->
 
 Replace utility classes with shadcn/ui components.
