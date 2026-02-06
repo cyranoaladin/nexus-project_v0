@@ -87,7 +87,7 @@ export class ExecutionOrchestrator {
         continue;
       }
 
-      const matches = await this.ruleEngine.evaluateRule(rule.name, event);
+      const matches = await this.ruleEngine.evaluateRule(rule, event);
 
       if (matches) {
         matchingRules.push(rule);
