@@ -21,7 +21,7 @@ export default function ContactPage() {
             <Badge variant="outline" className="mb-4 border-brand-accent/40 text-brand-accent">
               Réponse garantie 7j/7
             </Badge>
-            <h1 className="font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+            <h1 className="font-display text-3xl font-bold text-white md:text-4xl lg:text-5xl">
               Votre première question mérite une réponse d'expert.
             </h1>
             <p className="mt-4 text-base text-slate-300 md:text-lg">
@@ -36,7 +36,7 @@ export default function ContactPage() {
 
           <section className="mt-16">
             <div className="text-center">
-              <h2 className="font-heading text-2xl font-bold text-white md:text-3xl">
+              <h2 className="font-display text-2xl font-bold text-white md:text-3xl">
                 Contact direct
               </h2>
               <p className="mt-2 text-slate-300">

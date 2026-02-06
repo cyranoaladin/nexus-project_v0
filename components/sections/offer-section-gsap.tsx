@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { School, Users, Briefcase, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -214,10 +215,12 @@ const OfferSection = () => {
                             ))}
                         </ul>
 
-                        <Link href="/contact" className="btn-primary flex items-center justify-center gap-2 mt-8 w-full">
-                            <span>{tabContent[activeTab].cta}</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <Button asChild className="flex items-center justify-center gap-2 mt-8 w-full">
+                            <Link href="/contact">
+                                <span>{tabContent[activeTab].cta}</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </Button>
                     </div>
                 </div>
 
