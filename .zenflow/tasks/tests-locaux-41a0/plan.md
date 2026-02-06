@@ -161,6 +161,7 @@ Execute all E2E tests and fix UI/workflow issues to achieve stable pass rate.
 ---
 
 ### [ ] Step 5: Production Environment Validation
+<!-- chat-id: 764f9ef5-39e1-4d68-822e-00f008582693 -->
 
 Validate the application runs correctly in production-like conditions.
 
