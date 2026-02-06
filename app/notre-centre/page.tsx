@@ -12,8 +12,8 @@ import {
   Mic,
   Wifi,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 export default function NotreCentrePage() {
   const structuredData = {
@@ -32,8 +32,8 @@ export default function NotreCentrePage() {
   };
 
   return (
-    <div className="min-h-screen bg-midnight-950 text-slate-200">
-      <Header />
+    <div className="min-h-screen bg-surface-darker text-slate-200">
+      <CorporateNavbar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -232,7 +232,7 @@ export default function NotreCentrePage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

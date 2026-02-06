@@ -92,11 +92,10 @@
   --radius-card: 18px;
   --radius-full: 9999px;
 
-  /* Legacy Nexus variables (keep for GSAP sections) */
-  /* TODO: Migrate GSAP sections to use --color-* variables */
-  --nexus-dark: #0B0C10;
-  --nexus-charcoal: #111318;
-  --nexus-cyan: #2EE9F6;
+  /* GSAP-compatible color aliases (mapped to design system) */
+  --nexus-dark: rgb(var(--color-surface-dark));
+  --nexus-charcoal: rgb(var(--color-surface-card));
+  --nexus-cyan: rgb(var(--color-brand-accent));
   --nexus-white: #F4F6FA;
   --nexus-gray: #A6A9B4;
   --deep-midnight: #0F172A;

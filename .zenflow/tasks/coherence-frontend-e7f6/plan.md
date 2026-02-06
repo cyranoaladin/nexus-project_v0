@@ -76,7 +76,8 @@ npm run verify:quick  # All tests pass
 
 ---
 
-### [ ] Step: Layout Unification - High Priority Pages
+### [x] Step: Layout Unification - High Priority Pages
+<!-- chat-id: 3e074507-d2fe-4d6b-9485-25e5a5a8b1d0 -->
 
 Migrate high-priority pages (famille, contact, bilan-gratuit) to CorporateNavbar/CorporateFooter.
 
@@ -103,7 +104,8 @@ npm run typecheck
 
 ---
 
-### [ ] Step: Layout Unification - Medium Priority Pages
+### [x] Step: Layout Unification - Medium Priority Pages
+<!-- chat-id: 5bca9092-4054-4fb8-bcf1-e684619464f9 -->
 
 Migrate medium-priority pages (stages, offres, equipe, notre-centre) to unified layout.
 
@@ -130,6 +132,7 @@ npm run verify:quick
 ---
 
 ### [ ] Step: Layout Unification - Remaining Pages
+<!-- chat-id: f788c3e1-1df8-4373-87fb-496f9e47acb7 -->
 
 Complete layout migration for remaining public pages.
 
@@ -155,6 +158,7 @@ npm run typecheck
 ---
 
 ### [ ] Step: Color Migration - Page Components
+<!-- chat-id: a8f14f5a-633c-4a16-a77c-d58ddfc469f5 -->
 
 Replace deprecated color classes in all page files.
 
@@ -190,6 +194,7 @@ npm run verify:quick
 ---
 
 ### [ ] Step: Color Migration - GSAP Sections
+<!-- chat-id: a90ba6ed-c744-496b-8b0e-20f19205e666 -->
 
 Update GSAP sections to use CSS variables instead of hardcoded colors.
 
@@ -225,6 +230,7 @@ npm run verify:quick
 ---
 
 ### [ ] Step: Component Standardization - Buttons & Cards
+<!-- chat-id: ad5ba326-8994-4cfa-9303-c55c353ebd09 -->
 
 Replace utility classes with shadcn/ui components.
 
@@ -250,6 +256,7 @@ npm run test:unit
 ---
 
 ### [ ] Step: Typography & Spacing Standardization
+<!-- chat-id: 7a438104-272d-46a9-8152-03228eb17504 -->
 
 Ensure consistent typography and spacing across all pages.
 
