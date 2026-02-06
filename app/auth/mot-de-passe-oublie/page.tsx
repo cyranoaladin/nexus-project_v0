@@ -1,7 +1,7 @@
 "use client";
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,7 +38,7 @@ export default function MotDePasseOubliePage() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <CorporateNavbar />
 
         <main className="py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
@@ -93,14 +93,14 @@ export default function MotDePasseOubliePage() {
           </div>
         </main>
 
-        <Footer />
+        <CorporateFooter />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <CorporateNavbar />
 
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
@@ -170,7 +170,7 @@ export default function MotDePasseOubliePage() {
         </div>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

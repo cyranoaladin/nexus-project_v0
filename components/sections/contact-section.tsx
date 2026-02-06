@@ -21,12 +21,12 @@ export default function ContactSection() {
   const [active, setActive] = useState<TabKey>("schools");
 
   return (
-    <section id="contact" className="bg-midnight-950 py-24">
+    <section id="contact" className="bg-surface-darker py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-10 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-200 backdrop-blur-md">
-            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-gold-500/10 blur-3xl" />
-            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-midnight-800/30 blur-3xl" />
+            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-brand-accent/10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-neutral-800/30 blur-3xl" />
             <div className="relative space-y-6">
               <div>
                 <h3 className="text-xl font-semibold text-white">Nous contacter</h3>
@@ -36,15 +36,15 @@ export default function ContactSection() {
               </div>
               <div className="space-y-4 text-sm">
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-gold-400" />
+                  <Phone className="h-4 w-4 text-brand-accent" />
                   <span>+216 99 19 28 29</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-gold-400" />
+                  <Mail className="h-4 w-4 text-brand-accent" />
                   <span>contact@nexusreussite.academy</span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-gold-400 mt-0.5" />
+                  <MapPin className="h-4 w-4 text-brand-accent mt-0.5" />
                   <div>
                     <div>Centre Urbain Nord</div>
                     <div>Immeuble VENUS, Apt. C13</div>
@@ -70,8 +70,8 @@ export default function ContactSection() {
                     onClick={() => setActive(tab.key)}
                     className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
                       isActive
-                        ? "border-gold-500 bg-gold-500/10 text-gold-400"
-                        : "border-white/10 bg-black/20 text-slate-300 hover:border-gold-500/40"
+                        ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                        : "border-white/10 bg-black/20 text-slate-300 hover:border-brand-accent/40"
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -84,7 +84,7 @@ export default function ContactSection() {
             <div className="mt-8">
               {active === "schools" && (
                 <>
-                  <h2 className="text-2xl font-bold text-white font-serif">
+                  <h2 className="text-2xl font-bold text-white font-display">
                     Transformez votre établissement.
                   </h2>
                   <p className="mt-2 text-sm text-slate-300">
@@ -94,7 +94,7 @@ export default function ContactSection() {
               )}
               {active === "families" && (
                 <>
-                  <h2 className="text-2xl font-bold text-white font-serif">
+                  <h2 className="text-2xl font-bold text-white font-display">
                     L&apos;excellence scolaire commence ici.
                   </h2>
                   <p className="mt-2 text-sm text-slate-300">
@@ -102,7 +102,7 @@ export default function ContactSection() {
                   </p>
                   <a
                     href="/famille"
-                    className="mt-4 inline-flex items-center text-sm font-semibold text-gold-400 hover:text-white transition"
+                    className="mt-4 inline-flex items-center text-sm font-semibold text-brand-accent hover:text-white transition"
                   >
                     Voir le détail des offres →
                   </a>
@@ -110,7 +110,7 @@ export default function ContactSection() {
               )}
               {active === "pros" && (
                 <>
-                  <h2 className="text-2xl font-bold text-white font-serif">
+                  <h2 className="text-2xl font-bold text-white font-display">
                     Boostez votre carrière Tech.
                   </h2>
                   <p className="mt-2 text-sm text-slate-300">
@@ -128,7 +128,7 @@ export default function ContactSection() {
                   </label>
                   <input
                     type="text"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                     placeholder="Votre nom"
                   />
                 </div>
@@ -138,7 +138,7 @@ export default function ContactSection() {
                   </label>
                   <input
                     type="email"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                     placeholder="email@exemple.com"
                   />
                 </div>
@@ -152,7 +152,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                       placeholder="Lycée / École"
                     />
                   </div>
@@ -162,7 +162,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                       placeholder="Direction, DSI, Responsable..."
                     />
                   </div>
@@ -177,7 +177,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                       placeholder="Terminale, Première..."
                     />
                   </div>
@@ -187,7 +187,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                       placeholder="Nom du lycée"
                     />
                   </div>
@@ -198,7 +198,7 @@ export default function ContactSection() {
                 <div>
                   <a
                     href="/offres"
-                    className="text-sm font-semibold text-gold-400 hover:text-gold-300"
+                    className="text-sm font-semibold text-brand-accent hover:text-brand-accent/80"
                   >
                     Voir le détail des offres
                   </a>
@@ -212,7 +212,7 @@ export default function ContactSection() {
                   </label>
                   <input
                     type="text"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                     placeholder="Débutant, Intermédiaire, Avancé"
                   />
                 </div>
@@ -226,7 +226,7 @@ export default function ContactSection() {
                     ? "Je cherche"
                     : "Programme"}
                 </label>
-                <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-brand-accent focus:outline-none">
                   {active === "schools" && (
                     <>
                       <option>Nexus Digital Campus (LMS & pilotage)</option>
@@ -275,7 +275,7 @@ export default function ContactSection() {
                   Message (optionnel)
                 </label>
                 <textarea
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-500 focus:outline-none"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
                   rows={4}
                   placeholder="Décrivez brièvement votre besoin"
                 />
@@ -283,7 +283,7 @@ export default function ContactSection() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-gold-500 px-8 text-sm font-bold text-black transition hover:bg-gold-400"
+                className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand-accent px-8 text-sm font-bold text-black transition hover:bg-brand-accent-dark"
               >
                 {CTA_LABELS[active]}
               </button>
