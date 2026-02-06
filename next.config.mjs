@@ -3,8 +3,8 @@ const nextConfig = {
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 
-  // Fix workspace root warning
-  outputFileTracingRoot: '/home/alaeddine/Bureau/nexus-project_v0',
+  // Fix workspace root warning - disabled for Docker builds
+  // outputFileTracingRoot: '/home/alaeddine/Bureau/nexus-project_v0',
 
   // Ne pas bloquer le build sur les erreurs ESLint (on traitera via `npm run lint` séparé)
   eslint: {
