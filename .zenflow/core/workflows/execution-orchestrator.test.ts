@@ -391,10 +391,12 @@ describe('ExecutionOrchestrator', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      orchestrator2.cleanup();
+      orchestrator2.stopProcessing();
 
       const status = orchestrator2.getQueueStatus();
       expect(status.completed + status.failed).toBeGreaterThan(0);
+      
+      orchestrator2.cleanup();
     }, 10000);
   });
 
