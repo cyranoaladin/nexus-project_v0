@@ -46,7 +46,7 @@ export default function MotDePasseOubliePage() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h1 className="font-heading text-2xl font-bold text-slate-900 mb-4">
+              <h1 className="font-display text-2xl font-bold text-slate-900 mb-4">
                 Email Envoyé !
               </h1>
               <p className="text-slate-900">
@@ -106,7 +106,7 @@ export default function MotDePasseOubliePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <div className="text-center mb-8">
             {/* Badge optionnel désactivé pour lint */}
-            <h1 className="font-heading text-3xl font-bold text-slate-900 mb-4">
+            <h1 className="font-display text-3xl font-bold text-slate-900 mb-4">
               Mot de Passe Oublié
             </h1>
             <p className="text-slate-900">

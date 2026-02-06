@@ -35,7 +35,7 @@ export default function ConfirmationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="font-heading text-3xl md:text-4xl font-bold text-neutral-900 mb-4"
+              className="font-display text-3xl md:text-4xl font-bold text-neutral-900 mb-4"
             >
               Félicitations ! Votre Bilan est Créé
             </motion.h1>

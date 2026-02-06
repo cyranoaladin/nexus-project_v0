@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TrendingUp, Users, Award, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,7 +63,7 @@ const ProofSectionGSAP = () => {
             value: 42,
             suffix: '%',
             label: 'Augmentation moyenne des résultats',
-            color: 'bg-nexus-cyan/10'
+            color: 'bg-brand-accent/10'
         },
         {
             icon: Users,
@@ -91,16 +92,16 @@ const ProofSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="proof"
-            className="bg-nexus-dark py-20 md:py-32 px-4 md:px-6 lg:px-12"
+            className="bg-surface-dark py-20 md:py-32 px-4 md:px-6 lg:px-12"
         >
             <div className="w-full max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <span className="label-mono text-nexus-cyan block mb-4">Résultats mesurables</span>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-nexus-white mb-6">
+                    <span className="label-mono text-brand-accent block mb-4">Résultats mesurables</span>
+                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
                         L'Impact en Chiffres
                     </h2>
-                    <p className="text-nexus-gray text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                         Des résultats concrets et mesurables pour nos partenaires et élèves.
                     </p>
                 </div>
@@ -110,15 +111,15 @@ const ProofSectionGSAP = () => {
                     {stats.map((stat, index) => (
                         <div
                             key={index}
-                            className="proof-stat card-dark p-8 text-center hover:border-nexus-cyan/40 transition-all duration-300"
+                            className="proof-stat bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-8 text-center hover:border-brand-accent/40 transition-all duration-300"
                         >
                             <div className={`w-16 h-16 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-6`}>
-                                <stat.icon className="w-8 h-8 text-nexus-cyan" />
+                                <stat.icon className="w-8 h-8 text-brand-accent" />
                             </div>
-                            <div className="font-display text-5xl font-bold text-nexus-white mb-3">
+                            <div className="font-display text-5xl font-bold text-white mb-3">
                                 <span className="count-up" data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
                             </div>
-                            <p className="text-nexus-gray text-sm leading-relaxed">
+                            <p className="text-neutral-400 text-sm leading-relaxed">
                                 {stat.label}
                             </p>
                         </div>
@@ -126,16 +127,16 @@ const ProofSectionGSAP = () => {
                 </div>
 
                 {/* Bottom CTA */}
-                <div className="mt-12 card-dark p-8 md:p-12 text-center">
-                    <h3 className="font-display text-2xl md:text-3xl font-bold text-nexus-white mb-4">
+                <div className="mt-12 bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-8 md:p-12 text-center transition-all duration-300">
+                    <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-4">
                         Prêt à transformer votre établissement ?
                     </h3>
-                    <p className="text-nexus-gray text-base md:text-lg mb-6 max-w-2xl mx-auto">
+                    <p className="text-neutral-400 text-base md:text-lg mb-6 max-w-2xl mx-auto">
                         Rejoignez les établissements qui ont choisi l'excellence avec Nexus Réussite.
                     </p>
-                    <button className="btn-primary">
+                    <Button>
                         Demander une démo
-                    </button>
+                    </Button>
                 </div>
             </div>
         </section>

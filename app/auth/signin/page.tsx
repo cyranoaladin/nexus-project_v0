@@ -61,7 +61,7 @@ export default function SignInPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-primary/10 rounded-full mb-6">
               <LogIn className="w-8 h-8 text-brand-primary" aria-hidden="true" />
             </div>
-            <h1 className="font-heading text-3xl font-bold text-neutral-900 mb-4">
+            <h1 className="font-display text-3xl font-bold text-neutral-900 mb-4">
               Bon Retour sur Nexus Réussite
             </h1>
             <p className="text-neutral-600">

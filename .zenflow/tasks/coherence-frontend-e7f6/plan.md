@@ -193,7 +193,7 @@ npm run verify:quick
 
 ---
 
-### [ ] Step: Color Migration - GSAP Sections
+### [x] Step: Color Migration - GSAP Sections
 <!-- chat-id: a90ba6ed-c744-496b-8b0e-20f19205e666 -->
 
 Update GSAP sections to use CSS variables instead of hardcoded colors.
