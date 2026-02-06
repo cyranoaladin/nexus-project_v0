@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/home/alaeddine/.zenflow/worktrees/tests-locaux-41a0/.zenflow/logs/.6b8bb9f1ca09d0ba0d0acf03d649dd7190717b27-audit.json",
+    "files": [
+        {
+            "date": 1770416702828,
+            "name": "/home/alaeddine/.zenflow/worktrees/tests-locaux-41a0/.zenflow/logs/zenflow-2026-02-06.log",
+            "hash": "1f0f49d2848ffcf871895ac03f3f8eaf2eb37f02cdbeb4a646c9088f41310422"
+        }
+    ],
+    "hashType": "sha256"
+}
