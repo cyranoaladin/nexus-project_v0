@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { TechNavbar } from '@/components/layout/TechNavbar';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { useLanguage } from '@/context/LanguageContext';
 import { AlertTriangle, Info } from 'lucide-react';
@@ -10,8 +10,8 @@ export default function MentionsLegalesPage() {
     const { language } = useLanguage();
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-            <TechNavbar />
+        <div className="min-h-screen bg-surface-darker text-slate-900 font-sans">
+            <CorporateNavbar />
             
             <main className="pt-32 pb-20">
                 <div className="container mx-auto px-4 max-w-4xl">
