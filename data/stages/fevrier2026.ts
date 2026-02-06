@@ -56,6 +56,46 @@ export interface Deadlines {
   earlyBirdEndDate: string;
 }
 
+export interface Situation {
+  id: string;
+  icon: string;
+  title: string;
+  problem: string;
+  question: string;
+  solution: string;
+  ctaText: string;
+  ctaLink: string;
+}
+
+export interface DaySchedule {
+  id: string;
+  day: string;
+  date: string;
+  pallier1: {
+    morning: string[];
+    afternoon: string[];
+  };
+  pallier2: {
+    morning: string[];
+    afternoon: string[];
+  };
+  highlight?: boolean;
+}
+
+export interface MaterialCategory {
+  title: string;
+  icon: string;
+  items: string[];
+  note?: string;
+}
+
+export interface SubjectMaterials {
+  subject: string;
+  icon: string;
+  description: string;
+  categories: MaterialCategory[];
+}
+
 // TIERS (Paliers)
 export const tiers: TierInfo[] = [
   {
@@ -379,3 +419,307 @@ export const hoursSchedule = {
   },
   note: 'Adaptation possible au rythme Ramadan (organisation matin/après-midi).'
 };
+
+// SITUATIONS
+export const situations: Situation[] = [
+  {
+    id: 'struggling',
+    icon: '📉',
+    title: 'Note 9-12/20',
+    problem: 'Votre enfant oscille entre 9 et 12/20. Les bases sont fragiles, les erreurs se répètent, et la confiance s\'érode.',
+    question: 'Mon enfant a un niveau faible, est-ce adapté ?',
+    solution: 'Le Pallier 1 (Prépa Bac) est conçu pour cela : consolider les fondamentaux, corriger les erreurs récurrentes, installer des méthodes fiables. Petits groupes (6 max), bilan individualisé, épreuves blanches.',
+    ctaText: 'Voir Pallier 1',
+    ctaLink: '#academies'
+  },
+  {
+    id: 'excellence',
+    icon: '🎯',
+    title: 'Objectif Mention TB',
+    problem: 'Votre enfant a entre 14 et 16/20. Il/elle maîtrise l\'essentiel mais manque de finesse pour viser la mention TB et préparer la suite (prépa, ingénieur).',
+    question: 'Comment passer de "bon" à "excellent" ?',
+    solution: 'Le Pallier 2 (Excellence) transforme un bon niveau en maîtrise solide : tests de maîtrise, approfondissement ciblé, rédaction fine, exposé de maîtrise. Cadre exigeant pour trajectoire prépa/ingénieur.',
+    ctaText: 'Voir Pallier 2',
+    ctaLink: '#academies'
+  },
+  {
+    id: 'nsi-practical',
+    icon: '💻',
+    title: 'Épreuve pratique NSI',
+    problem: 'L\'épreuve pratique NSI approche et votre enfant manque de confiance sur la programmation en temps limité.',
+    question: 'L\'épreuve pratique sera-t-elle travaillée en février ?',
+    solution: 'Non. Février = fondamentaux + méthode + confiance. L\'épreuve pratique sera travaillée spécifiquement au printemps via un pack dédié. Février prépare le terrain solide pour réussir ensuite.',
+    ctaText: 'Voir NSI Février',
+    ctaLink: '#academies'
+  }
+];
+
+// DETAILED SCHEDULE
+export const detailedSchedule: DaySchedule[] = [
+  {
+    id: 'monday',
+    day: 'Lundi 16 février',
+    date: 'Jour 1 — Lancement',
+    pallier1: {
+      morning: [
+        'Accueil et diagnostic de niveau',
+        'Cours magistral : notions essentielles (théorie)',
+        'Méthode et structuration du raisonnement'
+      ],
+      afternoon: [
+        'Exercices d\'application guidés',
+        'Correction collective et analyse des erreurs',
+        'Synthèse du jour + plan de travail personnel'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Test de maîtrise initial (diagnostic précis)',
+        'Cours avancé : rappels rapides + approfondissement',
+        'Identification des points faibles individuels'
+      ],
+      afternoon: [
+        'Exercices avancés avec rédaction fine',
+        'Correction exigeante et feedback personnalisé',
+        'Travail autonome guidé + synthèse'
+      ]
+    }
+  },
+  {
+    id: 'tuesday',
+    day: 'Mardi 17 février',
+    date: 'Jour 2 — Consolidation',
+    pallier1: {
+      morning: [
+        'Cours : suite du programme (théorie + méthode)',
+        'Exercices types Bac (difficulté progressive)',
+        'Gestion du temps et organisation'
+      ],
+      afternoon: [
+        'Pratique intensive : exercices encadrés',
+        'Correction détaillée avec méthode explicite',
+        'Bilan intermédiaire individuel (5-10 min/élève)'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Cours avancé : notions complexes',
+        'Exercices de raisonnement et démonstration',
+        'Techniques de rédaction mathématique/technique'
+      ],
+      afternoon: [
+        'Problèmes ouverts et situations nouvelles',
+        'Correction exigeante + analyse fine',
+        'Travail personnel dirigé sur points faibles'
+      ]
+    }
+  },
+  {
+    id: 'wednesday',
+    day: 'Mercredi 18 février',
+    date: 'Jour 3 — Autonomie & Soutien',
+    pallier1: {
+      morning: [
+        'Travail personnel guidé (révisions ciblées)',
+        'Soutien individualisé (selon besoins identifiés)',
+        'Exercices de remédiation ou d\'approfondissement'
+      ],
+      afternoon: [
+        'Exercices en autonomie supervisée',
+        'Feedback individuel sur progression',
+        'Repos ou révision légère (selon rythme Ramadan)'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Exposé de maîtrise (NSI) : préparation individuelle',
+        'Approfondissement thématique avancé',
+        'Travail personnel sur projet ou exercices complexes'
+      ],
+      afternoon: [
+        'Soutien ciblé sur difficultés identifiées',
+        'Rédaction fine : correction de copies',
+        'Préparation tests de fin de semaine'
+      ]
+    },
+    highlight: true
+  },
+  {
+    id: 'thursday',
+    day: 'Jeudi 19 février',
+    date: 'Jour 4 — Approfondissement',
+    pallier1: {
+      morning: [
+        'Cours : fin du programme + révisions transversales',
+        'Exercices types Bac (sujets complets)',
+        'Méthode de relecture et vérification'
+      ],
+      afternoon: [
+        'Épreuve blanche partielle (2h)',
+        'Correction immédiate et analyse des copies',
+        'Travail ciblé sur erreurs récurrentes'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Cours avancé : sujets difficiles et pièges',
+        'Exercices exigeants (niveau prépa/concours)',
+        'Rédaction mathématique/technique professionnelle'
+      ],
+      afternoon: [
+        'Problèmes ouverts et créativité mathématique',
+        'Correction exigeante avec notation stricte',
+        'Feedback personnalisé sur progression'
+      ]
+    }
+  },
+  {
+    id: 'friday',
+    day: 'Vendredi 20 février',
+    date: 'Jour 5 — Consolidation finale',
+    pallier1: {
+      morning: [
+        'Révisions guidées : synthèse de la semaine',
+        'Exercices de confiance (réussite garantie)',
+        'Préparation mentale au test général'
+      ],
+      afternoon: [
+        'Derniers points de méthode',
+        'Questions/réponses individualisées',
+        'Briefing avant test du samedi'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Synthèse avancée : consolidation des acquis',
+        'Exercices de synthèse (plusieurs chapitres)',
+        'Rédaction finale et perfectionnement'
+      ],
+      afternoon: [
+        'Préparation intensive au test général',
+        'Stratégie d\'examen et gestion du stress',
+        'Derniers ajustements personnalisés'
+      ]
+    }
+  },
+  {
+    id: 'saturday',
+    day: 'Samedi 21 février',
+    date: 'Jour 6 — Évaluation finale',
+    pallier1: {
+      morning: [
+        'Test général type Bac (3h)',
+        'Conditions réelles d\'examen',
+        'Notation stricte et professionnelle'
+      ],
+      afternoon: [
+        'Correction collective du test',
+        'Bilan individualisé (20 min/élève)',
+        'Plan de travail personnalisé jusqu\'au Bac'
+      ]
+    },
+    pallier2: {
+      morning: [
+        'Test général exigeant (3h30)',
+        'Conditions d\'examen avec niveau élevé',
+        'Évaluation stricte (critères prépa/concours)'
+      ],
+      afternoon: [
+        'Correction détaillée et analyse fine',
+        'Bilan individualisé approfondi (30 min/élève)',
+        'Trajectoire personnalisée vers l\'excellence'
+      ]
+    },
+    highlight: true
+  }
+];
+
+// REQUIRED MATERIALS
+export const requiredMaterials: SubjectMaterials[] = [
+  {
+    subject: 'Mathématiques',
+    icon: '📊',
+    description: 'Matériel de base + environnement Python',
+    categories: [
+      {
+        title: 'Matériel de base',
+        icon: '📝',
+        items: [
+          'Calculatrice scientifique (TI-83/84, Casio Graph ou NumWorks)',
+          'Trousse complète (stylos, crayons, gomme, règle, équerre, compas)',
+          'Cahier A4 ou classeur avec feuilles',
+          'Copies doubles pour les épreuves blanches'
+        ]
+      },
+      {
+        title: 'Environnement Python pour Maths',
+        icon: '🐍',
+        items: [
+          'Python 3.10+ installé (Anaconda ou Python.org)',
+          'SymPy (calcul symbolique : dérivées, limites, intégrales)',
+          'NumPy (calcul numérique et matrices)',
+          'Matplotlib (tracé de courbes et visualisation)',
+          'Jupyter Notebook ou IDE (VS Code, PyCharm, Thonny)'
+        ],
+        note: 'Installation guidée le premier jour si besoin. Nous fournirons un guide PDF avant le stage.'
+      },
+      {
+        title: 'Facultatif mais recommandé',
+        icon: '💡',
+        items: [
+          'Ordinateur portable (pour utiliser Python pendant le stage)',
+          'Formulaire personnel de révision (sera complété pendant le stage)',
+          'Anciennes copies corrigées (pour identifier les erreurs récurrentes)'
+        ]
+      }
+    ]
+  },
+  {
+    subject: 'NSI',
+    icon: '💻',
+    description: 'Setup technique complet',
+    categories: [
+      {
+        title: 'Matériel obligatoire',
+        icon: '🖥️',
+        items: [
+          'Ordinateur portable (Windows, macOS ou Linux)',
+          'Souris (recommandée pour coder confortablement)',
+          'Cahier ou bloc-notes pour algorithmes et schémas',
+          'Copies doubles pour l\'épreuve écrite'
+        ]
+      },
+      {
+        title: 'Stack Python NSI',
+        icon: '🐍',
+        items: [
+          'Python 3.10+ (installation standard)',
+          'IDE : VS Code, PyCharm ou Thonny',
+          'Extensions : Python, Pylint, autopep8',
+          'SQLite3 (inclus avec Python)',
+          'Bibliothèques : random, time, math, collections (standard library)'
+        ],
+        note: 'Vérification et installation guidée le jour 1. Un tutoriel vidéo sera envoyé 48h avant le stage.'
+      },
+      {
+        title: 'Stack Web (Première uniquement)',
+        icon: '🌐',
+        items: [
+          'Navigateur moderne (Chrome, Firefox ou Edge)',
+          'VS Code avec extensions : Live Server, HTML CSS Support',
+          'Notions de base HTML/CSS (seront consolidées pendant le stage)'
+        ]
+      },
+      {
+        title: 'Optionnel avancé (Pallier 2)',
+        icon: '🚀',
+        items: [
+          'Git + compte GitHub (pour portfolio)',
+          'Flask (framework web Python, installation guidée)',
+          'Postman ou équivalent (test API)',
+          'Notion ou Obsidian (prise de notes structurée)'
+        ]
+      }
+    ]
+  }
+];
