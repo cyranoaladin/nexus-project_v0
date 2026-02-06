@@ -337,7 +337,8 @@ npm run start  # Test production mode locally
 
 ---
 
-### [ ] Step: Cleanup & Deprecation
+### [x] Step: Cleanup & Deprecation
+<!-- chat-id: 68c893d9-61b8-461b-8508-d1b7472f7a0e -->
 
 Remove deprecated code and finalize documentation.
 
@@ -403,3 +404,29 @@ npm run build         # Confirm production build succeeds
 - MIGRATION_COMPLETE.md created with full QA report
 - MIGRATION_LOG.md updated with final status
 - See reports for detailed findings and recommendations
+
+---
+
+**CLEANUP PHASE COMPLETE - 2026-02-06 20:52:**
+
+✅ **Deprecated Code Removed:**
+- All deprecated utilities removed from globals.css (btn-*, card-enhanced, badge-*)
+- Deprecation comments updated in tailwind.config.mjs with current status
+- Legacy header.tsx/footer.tsx recreated as minimal components for out-of-scope pages
+
+⚠️ **Cannot Remove Yet (Phase 2):**
+- Deprecated colors (12 legacy section files still using midnight-*, nexus.*, gold-*)
+- .card-dark and .card-micro utilities (still used in GSAP sections)
+- Legacy layout components (6 auth/dashboard pages still importing)
+
+✅ **Verification:**
+- Lint: 0 errors ✅
+- No breaking changes
+- All public pages unaffected
+
+📋 **Phase 2 Recommendations:**
+1. Migrate 12 legacy section files (4-6 hours)
+2. Update auth/dashboard pages (2-3 hours)
+3. Complete final color cleanup
+
+See CLEANUP_SUMMARY.md for detailed cleanup report and Phase 2 recommendations.

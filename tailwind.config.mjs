@@ -63,7 +63,9 @@ const config = {
          * @deprecated Use neutral scale or surface colors instead
          * midnight-blue → neutral.700, neutral.800, neutral.900
          *
-         * STATUS: 0 usages found - can be removed in future
+         * STATUS: Still in use in legacy sections (components/sections/)
+         * 18 usages in: problem-solution-section.tsx, home-hero.tsx, etc.
+         * Cannot be removed until legacy sections are migrated
          */
         'midnight-blue': {
           DEFAULT: '#1e293b',
@@ -84,12 +86,8 @@ const config = {
          * @deprecated Use surface.darker instead
          * deep-midnight → surface.darker
          *
-         * STATUS: 59 usages found in:
-         * - app/contact/page.tsx
-         * - app/academy/page.tsx
-         * - app/famille/page.tsx
-         * - app/globals.css (body styling)
-         * TODO: Migrate these files before removal
+         * STATUS: Still in use (mostly in app/globals.css body styling)
+         * Cannot be removed until body background is migrated
          */
         'deep-midnight': '#020617',
 
@@ -101,12 +99,10 @@ const config = {
          * nexus.dark → surface.dark
          * nexus.charcoal → surface.card
          *
-         * STATUS: 74 usages found in:
-         * - app/globals.css (CSS variables)
-         * - components/sections/trinity-services-gsap.tsx
-         * - components/sections/korrigo-section-gsap.tsx
-         * - Other GSAP sections
-         * TODO: Migrate GSAP sections and CSS variables before removal
+         * STATUS: Still in use in legacy sections (12 files in components/sections/)
+         * - home-hero.tsx, cta-section.tsx, problem-solution-section.tsx, etc.
+         * Cannot be removed until legacy sections are migrated
+         * NOTE: CSS variable aliases maintained in globals.css for GSAP compatibility
          */
         nexus: {
           blue: '#2563EB',
