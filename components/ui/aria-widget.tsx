@@ -148,7 +148,7 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
                 />
                 <Button
                   onClick={handleEmailSubmit}
-                  className="w-full btn-primary"
+                  className="w-full"
                   disabled={!userEmail.trim()}
                 >
                   Continuer l'échange
@@ -166,7 +166,7 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
                 />
                 <Button
                   onClick={handleSendMessage}
-                  className="btn-primary px-3"
+                  className="px-3"
                   disabled={isLoading || !currentMessage.trim()}
                 >
                   <Send className="w-4 h-4" />
