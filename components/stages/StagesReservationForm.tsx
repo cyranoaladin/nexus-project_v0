@@ -15,7 +15,8 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
     phone: '',
     classe: '',
     academyId: '',
-    email: ''
+    email: '',
+    paymentMethod: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -51,6 +52,9 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email invalide';
     }
+    if (!formData.paymentMethod) {
+      newErrors.paymentMethod = 'Veuillez sélectionner un mode de paiement';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -80,7 +84,8 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           academyId: formData.academyId,
           academyTitle: selectedAcademy?.title || '',
           price: selectedAcademy?.earlyBirdPrice || 0,
-          email: formData.email
+          email: formData.email,
+          paymentMethod: formData.paymentMethod
         }),
       });
 
@@ -93,7 +98,8 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           phone: '',
           classe: '',
           academyId: '',
-          email: ''
+          email: '',
+          paymentMethod: ''
         });
       } else {
         alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement.');
@@ -238,6 +244,113 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           />
           {errors.classe && (
             <p className="text-red-600 text-sm mt-1">{errors.classe}</p>
+          )}
+        </div>
+
+        {/* Payment Method Selection */}
+        <div>
+          <label className="block text-sm font-bold text-slate-900 mb-3">
+            Mode de paiement *
+          </label>
+          <div className="space-y-3">
+            {/* Card Payment Option */}
+            <div
+              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                formData.paymentMethod === 'card'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-slate-300 bg-white hover:border-blue-300'
+              }`}
+              onClick={() => handleInputChange('paymentMethod', 'card')}
+            >
+              <div className="flex items-start">
+                <input
+                  type="radio"
+                  id="payment-card"
+                  name="paymentMethod"
+                  value="card"
+                  checked={formData.paymentMethod === 'card'}
+                  onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                  className="mt-1 mr-3"
+                />
+                <div className="flex-1">
+                  <label htmlFor="payment-card" className="font-semibold text-slate-900 cursor-pointer">
+                    💳 Paiement par carte bancaire
+                  </label>
+                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
+                    <p className="text-sm text-yellow-800 font-semibold">
+                      ⏳ Bientôt disponible
+                    </p>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      Le paiement en ligne par carte bancaire sera disponible prochainement.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Transfer Option */}
+            <div
+              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                formData.paymentMethod === 'transfer'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-slate-300 bg-white hover:border-blue-300'
+              }`}
+              onClick={() => handleInputChange('paymentMethod', 'transfer')}
+            >
+              <div className="flex items-start">
+                <input
+                  type="radio"
+                  id="payment-transfer"
+                  name="paymentMethod"
+                  value="transfer"
+                  checked={formData.paymentMethod === 'transfer'}
+                  onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                  className="mt-1 mr-3"
+                />
+                <div className="flex-1">
+                  <label htmlFor="payment-transfer" className="font-semibold text-slate-900 cursor-pointer">
+                    🏦 Virement bancaire
+                  </label>
+                  {formData.paymentMethod === 'transfer' && (
+                    <div className="mt-3 p-4 bg-white border-2 border-blue-200 rounded-lg">
+                      <h4 className="font-bold text-blue-900 mb-3 text-sm">
+                        📋 Coordonnées bancaires
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-start">
+                          <span className="text-slate-600 font-medium">Bénéficiaire:</span>
+                          <span className="text-slate-900 font-semibold text-right">STE M&M ACADEMY SUARL</span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-slate-600 font-medium">RIB:</span>
+                          <span className="text-slate-900 font-mono text-xs">25 079 000 0015690834 04</span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-slate-600 font-medium">IBAN:</span>
+                          <span className="text-slate-900 font-mono text-xs">TN59 25 079 000 0015690834 04</span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-slate-600 font-medium">BIC/SWIFT:</span>
+                          <span className="text-slate-900 font-mono text-xs">BZITNTNXXXX</span>
+                        </div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-slate-600 font-medium">Compte:</span>
+                          <span className="text-slate-900 text-xs">COMPTES CHÈQUES ENTREPRISES</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                        <p className="text-xs text-blue-800">
+                          💡 <strong>Important:</strong> Merci d'indiquer le nom de l'élève en référence du virement.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          {errors.paymentMethod && (
+            <p className="text-red-600 text-sm mt-2">{errors.paymentMethod}</p>
           )}
         </div>
       </div>
