@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-// Create a test database instance
+// Load test environment variables FIRST (override any existing vars)
+dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: true });
+
+// Create a test database instance AFTER loading env vars
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
