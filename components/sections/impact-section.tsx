@@ -40,10 +40,10 @@ const choices = [
 
 export default function ImpactSection() {
   return (
-    <section className="bg-midnight-950 py-20">
+    <section className="bg-surface-darker py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+          <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
             Impact mesurable, confiance durable
           </h2>
           <p className="mt-3 text-slate-300">
@@ -62,7 +62,7 @@ export default function ImpactSection() {
               </h3>
               <div className="mt-4 space-y-2">
                 {group.stats.map((stat) => (
-                  <div key={stat} className="text-gold-400 text-xl font-bold">
+                  <div key={stat} className="text-brand-accent text-xl font-bold">
                     {stat}
                   </div>
                 ))}
@@ -72,7 +72,7 @@ export default function ImpactSection() {
         </div>
 
         <div className="mt-12">
-          <h3 className="text-2xl font-bold text-white font-serif text-center">
+          <h3 className="text-2xl font-bold text-white font-display text-center">
             Quel impact recherchez-vous ?
           </h3>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -87,7 +87,7 @@ export default function ImpactSection() {
                 <p className="mt-3 text-slate-300">{choice.description}</p>
                 <a
                   href={choice.href}
-                  className="mt-6 inline-flex items-center justify-center rounded-full border border-gold-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-gold-500/10"
+                  className="mt-6 inline-flex items-center justify-center rounded-full border border-brand-accent px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-accent/10"
                 >
                   {choice.cta}
                 </a>

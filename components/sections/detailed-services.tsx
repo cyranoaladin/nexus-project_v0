@@ -197,10 +197,10 @@ export default function DetailedServices() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-midnight-950">
+    <section ref={sectionRef} className="py-24 bg-surface-darker">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold text-white font-serif">
+          <h2 className="text-3xl md:text-5xl font-bold text-white font-display">
             Détail de l’Offre
           </h2>
           <p className="mt-4 text-slate-300 max-w-3xl mx-auto">
@@ -217,8 +217,8 @@ export default function DetailedServices() {
                 id={tab.id}
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition border ${
                   active === tab.id
-                    ? "bg-gold-500 text-slate-950 border-gold-500"
-                    : "bg-white/5 text-slate-300 border-white/10 hover:border-gold-500/40"
+                    ? "bg-brand-accent text-slate-950 border-brand-accent"
+                    : "bg-white/5 text-slate-300 border-white/10 hover:border-brand-accent/40"
                 }`}
               >
                 {tab.label}
@@ -232,17 +232,17 @@ export default function DetailedServices() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/50 hover:bg-white/10"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="rounded-lg bg-gold-500/10 p-2 text-gold-500">
+                    <div className="rounded-lg bg-brand-accent/10 p-2 text-brand-accent">
                       {Icon ? <Icon className="h-5 w-5" strokeWidth={1.5} /> : null}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-1 font-serif">
+                      <h3 className="text-xl font-bold text-white mb-1 font-display">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-gold-500 font-semibold mb-2">
+                      <p className="text-sm text-brand-accent font-semibold mb-2">
                         {item.subtitle}
                       </p>
                       <p className="text-sm text-slate-300">
@@ -250,7 +250,7 @@ export default function DetailedServices() {
                       </p>
                       <button
                         onClick={() => setOpenItem(item)}
-                        className="mt-4 text-sm text-gold-500 underline-offset-4 hover:underline"
+                        className="mt-4 text-sm text-brand-accent underline-offset-4 hover:underline"
                       >
                         En savoir plus
                       </button>
@@ -262,8 +262,8 @@ export default function DetailedServices() {
           </div>
 
           {active === "parents_eleves" && (
-            <div className="mt-12 flex flex-col items-center justify-center gap-6 rounded-2xl border border-gold-500/30 bg-white/5 p-8 text-center backdrop-blur-md md:p-12">
-              <h3 className="text-2xl font-bold font-serif text-white">
+            <div className="mt-12 flex flex-col items-center justify-center gap-6 rounded-2xl border border-brand-accent/30 bg-white/5 p-8 text-center backdrop-blur-md md:p-12">
+              <h3 className="text-2xl font-bold font-display text-white">
                 Prêt à exceller ?
               </h3>
               <p className="text-slate-300 max-w-xl">
@@ -273,13 +273,13 @@ export default function DetailedServices() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href="/famille"
-                  className="rounded-full bg-gold-500 px-8 py-3 font-bold text-black hover:bg-gold-400 transition"
+                  className="rounded-full bg-brand-accent px-8 py-3 font-bold text-black hover:bg-brand-accent-dark transition"
                 >
                   Me connecter à mon Espace
                 </a>
                 <a
                   href="/famille"
-                  className="rounded-full border border-gold-500 px-8 py-3 font-bold text-white hover:bg-gold-500/10 transition"
+                  className="rounded-full border border-brand-accent px-8 py-3 font-bold text-white hover:bg-brand-accent/10 transition"
                 >
                   Voir la Démo Interactive
                 </a>
@@ -291,7 +291,7 @@ export default function DetailedServices() {
 
       {openItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-2xl rounded-3xl border border-gold-500 bg-midnight-950 p-8 text-white shadow-2xl">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-brand-accent bg-surface-darker p-8 text-white shadow-2xl">
             <button
               onClick={() => setOpenItem(null)}
               className="absolute right-4 top-4 rounded-full border border-white/10 bg-white/5 p-2 text-slate-300 hover:text-white"
@@ -300,13 +300,13 @@ export default function DetailedServices() {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="text-gold-500 text-xs uppercase tracking-widest">
+            <div className="text-brand-accent text-xs uppercase tracking-widest">
               {current.label}
             </div>
-            <h3 className="mt-2 text-2xl font-bold font-serif">
+            <h3 className="mt-2 text-2xl font-bold font-display">
               {openItem.title}
             </h3>
-            <p className="text-gold-500 font-semibold mt-1">
+            <p className="text-brand-accent font-semibold mt-1">
               {openItem.subtitle}
             </p>
             <p className="mt-4 text-slate-300 leading-relaxed">
@@ -316,7 +316,7 @@ export default function DetailedServices() {
             <div className="mt-6 space-y-3">
               {openItem.benefits.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3 text-slate-300">
-                  <CheckCircle2 className="h-5 w-5 text-gold-500 mt-0.5" />
+                  <CheckCircle2 className="h-5 w-5 text-brand-accent mt-0.5" />
                   <span>{benefit}</span>
                 </div>
               ))}
