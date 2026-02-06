@@ -36,6 +36,7 @@
   "exclude": [
     "node_modules",
     ".zenflow/state/**/*",
-    ".zenflow/tasks/**/*"
+    ".zenflow/tasks/**/*",
+    ".zenflow/cli/**/*"
   ]
 }
