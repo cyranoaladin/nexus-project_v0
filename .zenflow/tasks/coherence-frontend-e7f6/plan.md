@@ -36,7 +36,8 @@ Save to `{@artifacts_path}/spec.md` with:
 - Delivery phases (incremental, testable milestones)
 - Verification approach using project lint/test commands
 
-### [ ] Step: Planning
+### [x] Step: Planning
+<!-- chat-id: a3c01de9-5a2a-4924-8af5-ac1db39b3ab9 -->
 
 Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 
@@ -50,8 +51,312 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step: Implementation
+### [ ] Step: Foundation & Setup
 
-This step should be replaced with detailed implementation tasks from the Planning step.
+Establish baseline and create migration inventory.
 
-If Planning didn't replace this step, execute the tasks in `{@artifacts_path}/plan.md`, updating checkboxes as you go. Run planned tests/lint and record results in plan.md.
+**Tasks:**
+- [ ] Run full test suite to capture baseline state
+- [ ] Create MIGRATION_LOG.md with page-by-page checklist
+- [ ] Document current state: take screenshots of all 15+ public pages
+- [ ] Create color migration reference map (deprecated → new tokens)
+- [ ] Verify all design system infrastructure is in place
+
+**Deliverables:**
+- MIGRATION_LOG.md with inventory of all pages
+- Baseline test results documented
+- Visual baseline screenshots stored
+
+**Verification:**
+```bash
+npm run verify:quick  # All tests pass
+# Verify MIGRATION_LOG.md exists with complete page inventory
+```
+
+---
+
+### [ ] Step: Layout Unification - High Priority Pages
+
+Migrate high-priority pages (famille, contact, bilan-gratuit) to CorporateNavbar/CorporateFooter.
+
+**Pages to migrate:**
+- app/famille/page.tsx
+- app/contact/page.tsx  
+- app/bilan-gratuit/page.tsx
+
+**For each page:**
+- [ ] Update imports: Header/Footer → CorporateNavbar/CorporateFooter
+- [ ] Change main background: white → surface-darker
+- [ ] Update text colors for dark theme readability
+- [ ] Test navigation and mobile menu
+- [ ] Verify responsive behavior (mobile, tablet, desktop)
+
+**Verification per page:**
+```bash
+npm run lint
+npm run typecheck
+# Manual: Test navigation flow
+# Manual: Verify mobile menu opens/closes
+# Manual: Check responsive breakpoints
+```
+
+---
+
+### [ ] Step: Layout Unification - Medium Priority Pages
+
+Migrate medium-priority pages (stages, offres, equipe, notre-centre) to unified layout.
+
+**Pages to migrate:**
+- app/stages/page.tsx
+- app/offres/page.tsx
+- app/equipe/page.tsx
+- app/notre-centre/page.tsx
+
+**For each page:**
+- [ ] Update imports: Header/Footer → CorporateNavbar/CorporateFooter
+- [ ] Change main background to surface-darker
+- [ ] Adjust card and section backgrounds for dark theme
+- [ ] Update text colors for contrast
+- [ ] Test all page functionality
+
+**Verification:**
+```bash
+npm run verify:quick
+# Manual: Visual review of all 4 pages
+# Manual: Test navigation consistency
+```
+
+---
+
+### [ ] Step: Layout Unification - Remaining Pages
+
+Complete layout migration for remaining public pages.
+
+**Pages to migrate:**
+- app/plateforme/page.tsx
+- app/plateforme-aria/page.tsx
+- app/academies-hiver/page.tsx
+- app/mentions-legales/page.tsx (review TechNavbar usage)
+
+**For each page:**
+- [ ] Migrate to CorporateNavbar/CorporateFooter (or document exception for mentions-legales)
+- [ ] Update theme to dark
+- [ ] Test functionality
+- [ ] Verify mobile responsiveness
+
+**Verification:**
+```bash
+npm run lint
+npm run typecheck
+# Confirm all public pages use unified layout
+```
+
+---
+
+### [ ] Step: Color Migration - Page Components
+
+Replace deprecated color classes in all page files.
+
+**Files to migrate (8 priority files):**
+- app/contact/page.tsx (13 usages)
+- app/famille/page.tsx (32 usages)
+- app/academy/page.tsx (14 usages)
+- app/offres/page.tsx (43 usages)
+- app/equipe/page.tsx (38 usages)
+- app/notre-centre/page.tsx (18 usages)
+- app/studio/page.tsx (12 usages)
+- app/consulting/page.tsx (17 usages)
+
+**Migration map:**
+- `midnight-950`, `deep-midnight` → `surface-darker`
+- `midnight-blue-*` → `neutral-*` or `surface-*`
+- `nexus-cyan` → `brand-accent`
+- `nexus-dark` → `surface-dark`
+- `nexus-charcoal` → `surface-card`
+- `gold-400/500/600` → `brand-accent`
+
+**Verification:**
+```bash
+# Confirm zero deprecated color usage in pages
+grep -r "midnight-" app/
+grep -r "nexus\." app/
+grep -r "gold-[456]" app/
+# Should return no results
+
+npm run verify:quick
+```
+
+---
+
+### [ ] Step: Color Migration - GSAP Sections
+
+Update GSAP sections to use CSS variables instead of hardcoded colors.
+
+**Files to migrate (8 GSAP sections):**
+- components/sections/hero-section.tsx
+- components/sections/trinity-services-gsap.tsx
+- components/sections/korrigo-section-gsap.tsx
+- components/sections/proof-section-gsap.tsx
+- components/sections/offer-section-gsap.tsx
+- components/sections/business-model-section.tsx
+- components/sections/comparison-table-section.tsx
+- components/sections/micro-engagement-section.tsx
+
+**Pattern:**
+- Replace hardcoded hex colors with `var(--color-brand-accent)`, etc.
+- Test animations still work smoothly
+- Verify reduced-motion fallbacks
+
+**Add CSS variable aliases to globals.css:**
+```css
+--nexus-cyan-rgb: var(--color-brand-accent);
+--nexus-dark-rgb: var(--color-surface-dark);
+```
+
+**Verification:**
+```bash
+npm run verify:quick
+# Manual: Test all GSAP animations on home page
+# Manual: Verify 60fps performance
+# Manual: Test reduced-motion mode
+```
+
+---
+
+### [ ] Step: Component Standardization - Buttons & Cards
+
+Replace utility classes with shadcn/ui components.
+
+**Tasks:**
+- [ ] Find and replace all `.btn-primary` with `<Button variant="default">`
+- [ ] Find and replace all `.btn-secondary` with `<Button variant="outline">`
+- [ ] Find and replace all `.card-dark` with `<Card variant="default">`
+- [ ] Find and replace all `.card-micro` with `<Card variant="default" padding="sm">`
+- [ ] Update any custom label utilities to use `<Badge>` component
+
+**Verification:**
+```bash
+# Confirm zero deprecated utilities
+grep -r "btn-primary\|btn-secondary" app/ components/
+grep -r "card-dark\|card-micro" app/ components/
+# Should return no results (except globals.css comments)
+
+npm run lint
+npm run typecheck
+npm run test:unit
+```
+
+---
+
+### [ ] Step: Typography & Spacing Standardization
+
+Ensure consistent typography and spacing across all pages.
+
+**Typography tasks:**
+- [ ] Verify all headings (h1-h6) use `font-display` (Space Grotesk)
+- [ ] Verify body text uses `font-sans` (Inter)
+- [ ] Verify code/labels use `font-mono` (IBM Plex Mono)
+- [ ] Standardize heading sizes using responsive scale
+- [ ] Ensure text colors follow accessibility guidelines
+
+**Spacing tasks:**
+- [ ] Standardize section padding: `py-16 md:py-20 lg:py-24`
+- [ ] Standardize container widths: `max-w-7xl mx-auto px-6`
+- [ ] Standardize grid gaps: `gap-4`, `gap-6`, `gap-8`, `gap-12`
+- [ ] Ensure consistent card padding
+
+**Verification:**
+```bash
+npm run verify:quick
+# Manual: Visual review of typography hierarchy on 5+ pages
+# Manual: Check spacing consistency across pages
+```
+
+---
+
+### [ ] Step: Final Verification & Quality Assurance
+
+Comprehensive testing and quality assurance.
+
+**Visual review:**
+- [ ] Manually review all 15+ public pages
+- [ ] Compare against baseline screenshots
+- [ ] Check responsive breakpoints (320px, 768px, 1024px, 1920px)
+- [ ] Verify dark theme consistency across all pages
+
+**Accessibility audit:**
+- [ ] Test keyboard navigation (Tab, Enter, Esc)
+- [ ] Verify color contrast ratios (WCAG 2.1 AA)
+- [ ] Test screen reader compatibility
+- [ ] Test reduced-motion support
+
+**Performance testing:**
+- [ ] Run Lighthouse on key pages (/, /contact, /famille)
+- [ ] Compare scores to baseline (Performance ≥85, Accessibility ≥95)
+- [ ] Verify no bundle size increase
+- [ ] Test GSAP animation performance (60fps)
+
+**E2E testing:**
+```bash
+npm run test:e2e  # Full Playwright suite
+```
+
+**Production build:**
+```bash
+npm run build
+npm run start  # Test production mode locally
+```
+
+**Final checklist verification:**
+- [ ] All pages use CorporateNavbar + CorporateFooter
+- [ ] Zero deprecated colors: `grep -r "midnight-" app/ components/` returns nothing
+- [ ] Zero deprecated utilities: `grep -r "btn-primary" app/ components/` returns nothing
+- [ ] All tests pass: `npm run verify:quick`
+- [ ] Lighthouse scores meet targets
+
+**Documentation:**
+- [ ] Update MIGRATION_LOG.md with final status
+- [ ] Create MIGRATION_COMPLETE.md report
+- [ ] Update docs/DESIGN_SYSTEM.md (mark deprecated colors as removed)
+
+---
+
+### [ ] Step: Cleanup & Deprecation
+
+Remove deprecated code and finalize documentation.
+
+**Remove deprecated files:**
+```bash
+# After confirming zero usage:
+rm components/layout/header.tsx
+rm components/layout/footer.tsx
+```
+
+**Remove deprecated utilities from globals.css:**
+- [ ] Remove `.btn-primary`, `.btn-secondary` utilities
+- [ ] Remove `.card-dark`, `.card-micro` utilities
+- [ ] Remove CSS variable aliases for GSAP (if no longer needed)
+- [ ] Clean up TODOs and migration comments
+
+**Remove deprecated colors from tailwind.config.mjs:**
+- [ ] Remove `midnight-blue` colors
+- [ ] Remove `deep-midnight`
+- [ ] Remove `nexus` colors (if deprecated)
+- [ ] Update comments to reflect migration complete
+
+**Final documentation:**
+- [ ] Update MIGRATION_LOG.md with completion timestamp
+- [ ] Create release notes summarizing changes
+- [ ] Update README.md if needed
+- [ ] Archive migration artifacts
+
+**Final verification:**
+```bash
+npm run verify:quick  # Final sanity check
+npm run build         # Confirm production build succeeds
+```
+
+**Deliverables:**
+- Clean codebase with no deprecated code
+- Complete migration documentation
+- Production-ready build
