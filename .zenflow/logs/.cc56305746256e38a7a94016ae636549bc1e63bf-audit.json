@@ -14,6 +14,16 @@
             "date": 1770202674747,
             "name": "/home/alaeddine/.zenflow/worktrees/mise-a-jour-automatique-du-dossi-2305/.zenflow/logs/zenflow-2026-02-04.log",
             "hash": "eeb29c46ea636efce1188c58b6e3c627322ac65ddbfe36b0cb15b14e1a235820"
+        },
+        {
+            "date": 1770308927966,
+            "name": "/home/alaeddine/.zenflow/worktrees/mise-a-jour-automatique-du-dossi-2305/.zenflow/logs/zenflow-2026-02-05.log",
+            "hash": "f7c4dc51167b6bfb697fdd5384907c35f8213d5a6436f14e393cf55e561a88b0"
+        },
+        {
+            "date": 1770408279660,
+            "name": "/home/alaeddine/.zenflow/worktrees/mise-a-jour-automatique-du-dossi-2305/.zenflow/logs/zenflow-2026-02-06.log",
+            "hash": "6db00617535d3cd625713da1b1fefb316fb8b53def15978e1e994d4a1aa1ec6d"
         }
     ],
     "hashType": "sha256"

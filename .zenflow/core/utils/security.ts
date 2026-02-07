@@ -21,9 +21,9 @@ export class SecurityValidator {
       throw new GitOperationError('Branch name must be a non-empty string');
     }
 
-    if (!/^[a-zA-Z0-9/_-]+$/.test(branch)) {
+    if (!/^[a-zA-Z0-9/_.-]+$/.test(branch)) {
       throw new GitOperationError(
-        `Invalid branch name: contains forbidden characters. Only alphanumeric, '/', '_', and '-' are allowed`
+        `Invalid branch name: contains forbidden characters. Only alphanumeric, '/', '_', '-', and '.' are allowed`
       );
     }
 
@@ -147,7 +147,7 @@ export class SecurityValidator {
     if (typeof data === 'object' && data !== null) {
       const redacted: any = {};
       for (const [key, value] of Object.entries(data)) {
-        if (this.isSensitiveKey(key)) {
+        if (this.isSensitiveKey(key) && typeof value !== 'object') {
           redacted[key] = '[REDACTED]';
         } else {
           redacted[key] = this.redactSensitiveData(value);
@@ -167,19 +167,17 @@ export class SecurityValidator {
   private static redactSensitiveString(str: string): string {
     let redacted = str;
 
-    const tokenPattern = /([a-zA-Z0-9_-]{20,})/g;
-    redacted = redacted.replace(tokenPattern, (match) => {
-      if (match.length >= 32) {
-        return '[REDACTED_TOKEN]';
-      }
-      return match;
-    });
+    const jwtPattern = /eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g;
+    redacted = redacted.replace(jwtPattern, '[REDACTED_JWT]');
+
+    const githubTokenPattern = /gh[oprs]_[A-Za-z0-9]{36,}/g;
+    redacted = redacted.replace(githubTokenPattern, '[REDACTED_TOKEN]');
+
+    const tokenPattern = /([a-zA-Z0-9_-]{32,})/g;
+    redacted = redacted.replace(tokenPattern, '[REDACTED_TOKEN]');
 
     const base64Pattern = /([A-Za-z0-9+\/]{40,}={0,2})/g;
     redacted = redacted.replace(base64Pattern, '[REDACTED_BASE64]');
-
-    const jwtPattern = /eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g;
-    redacted = redacted.replace(jwtPattern, '[REDACTED_JWT]');
 
     return redacted;
   }

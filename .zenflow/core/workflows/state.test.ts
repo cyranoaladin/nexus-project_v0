@@ -1,3 +1,12 @@
+jest.mock('../utils/logger', () => ({
+  getLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+
 import fs from 'fs';
 import path from 'path';
 import { WorkflowStateManager } from './state';

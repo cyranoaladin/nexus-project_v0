@@ -96,7 +96,12 @@ export class HealthCheck {
   private handleHealthCheck(res: http.ServerResponse): void {
     try {
       const status = this.getHealthStatus();
-      const statusCode = status.status === 'healthy' ? 200 : 503;
+      let statusCode = 200;
+      if (status.status === 'unhealthy') {
+        statusCode = 503;
+      } else if (status.status === 'healthy' || status.status === 'degraded') {
+        statusCode = 200;
+      }
       this.sendResponse(res, statusCode, status);
     } catch (error) {
       this.logger.error('Error generating health status', {
