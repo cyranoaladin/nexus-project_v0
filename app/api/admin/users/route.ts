@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error('Failed to list users', error);
     logger.logRequest(500);
-    return handleApiError(error, 'GET /api/admin/users');
+    return await handleApiError(error, 'GET /api/admin/users');
   }
 }
 
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error('Failed to create user', error);
     logger.logRequest(500);
-    return handleApiError(error, 'POST /api/admin/users');
+    return await handleApiError(error, 'POST /api/admin/users');
   }
 }
 
@@ -268,7 +268,7 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error) {
-    return handleApiError(error, 'PATCH /api/admin/users');
+    return await handleApiError(error, 'PATCH /api/admin/users');
   }
 }
 
@@ -312,6 +312,6 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    return handleApiError(error, 'DELETE /api/admin/users');
+    return await handleApiError(error, 'DELETE /api/admin/users');
   }
 }
