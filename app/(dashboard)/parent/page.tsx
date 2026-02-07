@@ -16,11 +16,28 @@ interface DashboardData {
         grade: string | null;
         school: string | null;
         credits: number;
-        badges: Array<{ id: string; name: string; icon: string }>;
-        recentScores: Array<{ subject: string; score: number; date: string }>;
+        badges: Array<{ 
+            id: string; 
+            name: string; 
+            icon: string | null;
+            category: string;
+            earnedAt: string;
+        }>;
+        recentScores: Array<{ 
+            subject: string; 
+            rating: number;
+            date: string;
+        }>;
         recentSessions: Array<{ id: string; subject: string; date: string; coachName: string }>;
     }>;
-    payments: Array<{ id: string; amount: number; status: string; createdAt: string }>;
+    payments: Array<{ 
+        id: string; 
+        date: string;
+        amount: number; 
+        description: string;
+        type: string;
+        status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+    }>;
 }
 
 export default function ParentDashboard() {
