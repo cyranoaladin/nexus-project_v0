@@ -28,6 +28,14 @@ storage/
 test-results/
 playwright-report/
 
+# Performance test artifacts
+/tests/performance/results.json
+/tests/performance/baseline.json
+/tests/performance/comparison.json
+/tests/performance/profiles/
+/tests/performance/snapshots/
+/tests/performance/coverage/
+
 # Archives
 *.tgz
 
