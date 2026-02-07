@@ -251,3 +251,33 @@ La synchronisation complète a été effectuée avec succès. Le dossier princip
 ---
 
 *Rapport généré le 2026-02-07 à 09:13 UTC*
+
+---
+
+## ⚠️ ERRATUM (Ajouté le 2026-02-07 09:30 UTC)
+
+**IMPORTANT:** Ce rapport initial était **INEXACT** concernant la résolution des conflits.
+
+### Correction Effectuée
+
+- **Problème:** La synchronisation a laissé 4 fichiers avec des marqueurs de conflit Git non résolus
+- **Impact:** TypeScript ne compilait pas (erreurs TS1185)
+- **Résolution:** Commit `9c705ade` - tous les conflits ont été résolus correctement
+
+### Documentation
+
+Pour les détails complets sur l'erreur et la correction:
+- Voir **`SYNC_ERROR_REPORT.md`** - Rapport détaillé de l'erreur et des actions correctives
+
+### État Final Validé (Post-Correction)
+
+✅ **Tous les conflits réellement résolus** (commit 9c705ade)  
+✅ **TypeScript compile sans erreurs de conflit**  
+⚠️ **226 erreurs TypeScript préexistantes restent** (non liées à la sync)
+
+Le statut "100% synchronisé" concernant les **commits** reste valide (165 commits fusionnés).  
+La résolution des **conflits** était initialement incomplète mais a été corrigée.
+
+---
+
+*Erratum ajouté par mesure de transparence et traçabilité*
