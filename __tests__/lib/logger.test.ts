@@ -49,8 +49,8 @@ describe('Logger System', () => {
       expect(infoSpy).toHaveBeenCalledWith(logData, 'User logged in');
     });
 
-    it('should be silent in test environment', () => {
-      expect(logger.level).toBe('silent');
+    it('should use debug level in development environment', () => {
+      expect(logger.level).toBe('debug');
     });
   });
 
@@ -269,9 +269,9 @@ describe('Logger System', () => {
   });
 
   describe('environment-specific behavior', () => {
-    it('should use silent level in test environment', () => {
-      expect(process.env.JEST_WORKER_ID).toBeDefined();
-      expect(logger.level).toBe('silent');
+    it('should use debug level in development environment', () => {
+      expect(process.env.NODE_ENV).toBe('development');
+      expect(logger.level).toBe('debug');
     });
 
     it('should have base context with environment', () => {

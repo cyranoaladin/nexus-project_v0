@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { refundSessionBookingById } from '@/lib/credits';
+import { refundSessionBookingById, canCancelBooking } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { SessionStatus } from '@prisma/client';
@@ -73,28 +73,21 @@ export async function POST(request: NextRequest) {
     const sessionDate = new Date(
       `${sessionToCancel.scheduledDate.toISOString().split('T')[0]}T${sessionToCancel.startTime}`
     );
-    const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    let canRefund = false;
-
-    // Cancellation policy based on session type
-    if (
-      sessionToCancel.type === 'INDIVIDUAL' ||
-      sessionToCancel.modality === 'HYBRID' ||
-      sessionToCancel.modality === 'ONLINE'
-    ) {
-      canRefund = hoursUntilSession >= 24; // 24h notice required
-    } else if (
-      sessionToCancel.type === 'GROUP' ||
-      sessionToCancel.type === 'MASTERCLASS'
-    ) {
-      canRefund = hoursUntilSession >= 48; // 48h notice required
-    }
+    // Use the centralized cancellation policy function
+    let canRefund = canCancelBooking(
+      sessionToCancel.type,
+      sessionToCancel.modality,
+      sessionDate,
+      now
+    );
 
     // Assistantes can always override (for exceptional cases)
     if (session.user.role === 'ASSISTANTE') {
       canRefund = true;
     }
+    
+    const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     // Cancel the session
     await prisma.sessionBooking.update({

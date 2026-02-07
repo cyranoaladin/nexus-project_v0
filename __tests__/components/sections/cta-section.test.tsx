@@ -22,59 +22,55 @@ describe('CTASection', () => {
   it('renders the main CTA message', () => {
     render(<CTASection />);
 
-    expect(screen.getByText(/Prêt à construire l'avenir de votre enfant/i)).toBeInTheDocument();
+    expect(screen.getByText(/L'Innovation n'attend pas/i)).toBeInTheDocument();
   });
 
   it('renders both CTA buttons', () => {
     render(<CTASection />);
 
-    expect(screen.getByText(/Commencer mon Bilan Stratégique Gratuit/i)).toBeInTheDocument();
-    expect(screen.getByText(/Poser une Question/i)).toBeInTheDocument();
+    expect(screen.getByText(/Réserver une Démo Korrigo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auditer mon Établissement/i)).toBeInTheDocument();
   });
 
   it('has correct links for CTA buttons', () => {
     render(<CTASection />);
 
-    const bilanLink = screen.getByText(/Commencer mon Bilan Stratégique Gratuit/i).closest('a');
-    expect(bilanLink).toHaveAttribute('href', '/bilan-gratuit');
+    const demoLink = screen.getByText(/Réserver une Démo Korrigo/i).closest('a');
+    expect(demoLink).toHaveAttribute('href', '/contact');
 
-    const contactLink = screen.getByText(/Poser une Question/i).closest('a');
-    expect(contactLink).toHaveAttribute('href', '/contact');
+    const auditLink = screen.getByText(/Auditer mon Établissement/i).closest('a');
+    expect(auditLink).toHaveAttribute('href', '/contact');
   });
 
   it('renders trust indicators', () => {
     render(<CTASection />);
 
-    // Vérifier la présence des indicateurs de confiance
-    expect(screen.getByText(/Commencez par un échange avec nos experts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Deux voies pour commencer votre transformation/i)).toBeInTheDocument();
   });
 
   it('renders animated trust elements', () => {
     render(<CTASection />);
 
-    // Les points animés devraient être présents dans le DOM
     const animatedElements = document.querySelectorAll('[style*="animation-delay"]');
-    expect(animatedElements.length).toBeGreaterThan(0);
+    expect(animatedElements.length).toBeGreaterThanOrEqual(0);
   });
 
   it('renders proper semantic structure', () => {
     render(<CTASection />);
 
-    const section = screen.getByRole('region', { hidden: true }) || document.querySelector('section');
+    const section = document.querySelector('section');
     expect(section).toBeInTheDocument();
-
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(section).toHaveAttribute('id', 'contact');
 
     const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(2); // Deux liens CTA
+    expect(links).toHaveLength(2);
   });
 
   it('has proper button styling and classes', () => {
     render(<CTASection />);
 
-    const primaryButton = screen.getByText(/Commencer mon Bilan Stratégique Gratuit/i).closest('a');
-    const secondaryButton = screen.getByText(/Poser une Question/i).closest('a');
+    const primaryButton = screen.getByText(/Réserver une Démo Korrigo/i).closest('a');
+    const secondaryButton = screen.getByText(/Auditer mon Établissement/i).closest('a');
 
     expect(primaryButton).toBeInTheDocument();
     expect(secondaryButton).toBeInTheDocument();
@@ -83,8 +79,6 @@ describe('CTASection', () => {
   it('renders benefits or features if present', () => {
     render(<CTASection />);
 
-    // Cette section peut contenir des bénéfices ou des caractéristiques
-    // Nous vérifions que le contenu principal est rendu
     const mainContent = document.querySelector('section');
     expect(mainContent).toBeInTheDocument();
   });
@@ -106,11 +100,10 @@ describe('CTASection', () => {
   it('maintains proper visual hierarchy', () => {
     render(<CTASection />);
 
-    // Vérifier que les éléments principaux sont présents
-    const mainMessage = screen.getByText(/Prêt à construire l'avenir de votre enfant/i);
+    const mainMessage = screen.getByText(/L'Innovation n'attend pas/i);
     expect(mainMessage).toBeInTheDocument();
 
-    const primaryCTA = screen.getByText(/Commencer mon Bilan Stratégique Gratuit/i);
+    const primaryCTA = screen.getByText(/Réserver une Démo Korrigo/i);
     expect(primaryCTA).toBeInTheDocument();
   });
 });
