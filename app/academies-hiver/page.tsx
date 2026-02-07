@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, ShieldCheck, Star, TrendingUp } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 const ACADEMIES = [
   // TERMINALE
@@ -446,8 +446,8 @@ export default function AcademiesHiverPage() {
 
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans">
-      <Header />
+    <div className="min-h-screen bg-surface-darker text-slate-900 font-sans">
+      <CorporateNavbar />
 
       <style jsx global>{`
         html {
@@ -1386,7 +1386,7 @@ export default function AcademiesHiverPage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

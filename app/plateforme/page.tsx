@@ -1,7 +1,7 @@
 "use client";
 
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import CTASection from "@/components/sections/cta-section";
 import { ExpertsHighlightSection } from "@/components/sections/experts-highlight-section";
 import { GuaranteeSection } from "@/components/sections/guarantee-section";
@@ -14,8 +14,8 @@ import { AriaChat } from "@/components/ui/aria-chat";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <div className="min-h-screen bg-surface-darker">
+      <CorporateNavbar />
       <main>
         <HeroSection />
         <PillarsSection />
@@ -28,7 +28,7 @@ export default function HomePage() {
         <CTASection />
 
       </main>
-      <Footer />
+      <CorporateFooter />
       <AriaChat />
     </div>
   );
