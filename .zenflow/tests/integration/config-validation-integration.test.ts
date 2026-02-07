@@ -73,13 +73,11 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(config, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       expect(loadedConfig).toBeDefined();
       expect(loadedConfig.project.name).toBe('test-project');
 
-      const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
-      expect(validationResult.errors).toBeUndefined();
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should reject invalid configuration', async () => {
@@ -97,7 +95,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(invalidConfig, null, 2), 'utf-8');
 
-      await expect(loader.loadSettings()).rejects.toThrow();
+      expect(() => loader.load()).toThrow();
     });
 
     it('should use default values when optional fields are missing', async () => {
@@ -112,7 +110,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(minimalConfig, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.sync).toBeDefined();
       expect(loadedConfig.rules).toBeDefined();
@@ -120,8 +118,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.logging).toBeDefined();
       expect(loadedConfig.git).toBeDefined();
 
-      const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate sync configuration options', async () => {
@@ -143,7 +140,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(configWithSyncOptions, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toHaveLength(2);
@@ -151,7 +148,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.sync.excludedBranches).toContain('production');
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate rules configuration', async () => {
@@ -170,13 +167,13 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(configWithRules, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.rules.directory).toBe('.zenflow/custom-rules');
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate workflow configuration', async () => {
@@ -196,14 +193,14 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(configWithWorkflows, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.workflows.directory).toBe('.zenflow/custom-workflows');
       expect(loadedConfig.workflows.stateDirectory).toBe('.zenflow/workflow-state');
       expect(loadedConfig.workflows.maxConcurrent).toBe(5);
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate logging configuration', async () => {
@@ -224,7 +221,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(configWithLogging, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.logging.level).toBe('debug');
       expect(loadedConfig.logging.directory).toBe('.zenflow/custom-logs');
@@ -232,27 +229,27 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.logging.maxSize).toBe('200m');
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
   });
 
   describe('Config error handling', () => {
     it('should throw error when settings file does not exist', async () => {
-      await expect(loader.loadSettings()).rejects.toThrow();
+      expect(() => loader.load()).toThrow();
     });
 
     it('should reject malformed JSON', async () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, '{ invalid json }', 'utf-8');
 
-      await expect(loader.loadSettings()).rejects.toThrow();
+      expect(() => loader.load()).toThrow();
     });
 
     it('should reject empty configuration', async () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, '{}', 'utf-8');
 
-      await expect(loader.loadSettings()).rejects.toThrow();
+      expect(() => loader.load()).toThrow();
     });
 
     it('should validate and report multiple errors', async () => {
@@ -270,11 +267,7 @@ describe('Config Loader + Validator Integration', () => {
         },
       };
 
-      const validationResult = validator.validateSettings(configWithErrors as any);
-      
-      expect(validationResult.valid).toBe(false);
-      expect(validationResult.errors).toBeDefined();
-      expect(validationResult.errors!.length).toBeGreaterThan(0);
+      expect(() => validator.validateSettings(configWithErrors as any)).toThrow();
     });
   });
 
@@ -294,7 +287,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(partialConfig, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.conflictStrategy).toBeDefined();
@@ -303,7 +296,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.logging).toBeDefined();
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should allow overriding default values', async () => {
@@ -329,7 +322,7 @@ describe('Config Loader + Validator Integration', () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(customConfig, null, 2), 'utf-8');
 
-      const loadedConfig = await loader.loadSettings();
+      const loadedConfig = loader.load();
       
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toEqual(['custom-command']);
@@ -338,7 +331,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
       const validationResult = validator.validateSettings(loadedConfig);
-      expect(validationResult.valid).toBe(true);
+      expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
   });
 });

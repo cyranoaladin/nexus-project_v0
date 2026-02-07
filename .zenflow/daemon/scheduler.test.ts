@@ -251,7 +251,7 @@ describe('TaskScheduler', () => {
         id: 'exec-task',
         name: 'Execution Task',
         workflow: 'test-workflow',
-        cron: '100 minute',
+        cron: '50 milliseconds',
         enabled: true,
         inputs: { test: 'value' },
       };
@@ -293,7 +293,7 @@ describe('TaskScheduler', () => {
         id: 'error-task',
         name: 'Error Task',
         workflow: 'test-workflow',
-        cron: '100 minute',
+        cron: '50 milliseconds',
         enabled: true,
       };
 

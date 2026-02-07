@@ -1,7 +1,6 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { exec } from 'child_process';
-import { DiffAnalyzer } from './diff';
 import { GitOperationError } from '../utils/errors';
+import { DiffAnalyzer } from './diff';
 
 jest.mock('child_process');
 jest.mock('../utils/logger', () => ({
@@ -20,8 +19,8 @@ describe('DiffAnalyzer', () => {
   const repoPath = '/test/repo';
 
   beforeEach(() => {
-    analyzer = new DiffAnalyzer(repoPath);
     jest.clearAllMocks();
+    analyzer = new DiffAnalyzer(repoPath);
   });
 
   afterEach(() => {
@@ -37,7 +36,7 @@ describe('DiffAnalyzer', () => {
 M\tsrc/file2.ts`;
 
       let callCount = 0;
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
         callCount++;
         if (callCount === 1) {
           callback(null, { stdout: numstatOutput, stderr: '' });
@@ -66,7 +65,7 @@ M\tsrc/file2.ts`;
 M\tsrc/file.ts`;
 
       let callCount = 0;
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
         callCount++;
         if (callCount === 1) {
           callback(null, { stdout: numstatOutput, stderr: '' });
@@ -90,7 +89,7 @@ M\tsrc/file.ts`;
       const nameStatusOutput = `R100\tsrc/oldFile.ts\tsrc/newFile.ts`;
 
       let callCount = 0;
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
         callCount++;
         if (callCount === 1) {
           callback(null, { stdout: numstatOutput, stderr: '' });
@@ -114,7 +113,7 @@ M\tsrc/file.ts`;
       const nameStatusOutput = `C100\tsrc/originalFile.ts\tsrc/copyFile.ts`;
 
       let callCount = 0;
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
         callCount++;
         if (callCount === 1) {
           callback(null, { stdout: numstatOutput, stderr: '' });
@@ -137,7 +136,7 @@ M\tsrc/file.ts`;
       const nameStatusOutput = `D\tsrc/deletedFile.ts`;
 
       let callCount = 0;
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
         callCount++;
         if (callCount === 1) {
           callback(null, { stdout: numstatOutput, stderr: '' });
@@ -156,8 +155,8 @@ M\tsrc/file.ts`;
     });
 
     it('should throw GitOperationError on command failure', async () => {
-      mockExec.mockImplementation((cmd: string, opts: any, callback: any) => {
-        callback(new Error('Command failed'), null);
+      mockExec.mockImplementation((cmd: string, options: any, callback: any) => {
+        callback(new Error('Command failed'), null, null);
       });
 
       await expect(analyzer.analyzeDetailed('main', 'feature')).rejects.toThrow(GitOperationError);

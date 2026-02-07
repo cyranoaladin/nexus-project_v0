@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import yaml from 'js-yaml';
 import { getLogger } from '../core/utils/logger';
 import { WorkflowEngine } from '../core/workflows/engine';
@@ -10,7 +10,7 @@ export class TaskScheduler {
   private workflowEngine: WorkflowEngine;
   private tasks: Map<string, ScheduledTask> = new Map();
   private timers: Map<string, NodeJS.Timeout> = new Map();
-  private isRunning = false;
+  private running = false;
   private configPath: string;
 
   constructor(workflowEngine: WorkflowEngine, configPath = '.zenflow/scheduler.yaml') {
@@ -20,7 +20,7 @@ export class TaskScheduler {
   }
 
   async start(): Promise<void> {
-    if (this.isRunning) {
+    if (this.running) {
       this.logger.warn('Scheduler is already running');
       return;
     }
@@ -30,7 +30,7 @@ export class TaskScheduler {
     try {
       await this.loadTasks();
       this.scheduleTasks();
-      this.isRunning = true;
+      this.running = true;
       this.logger.info(`Scheduler started with ${this.tasks.size} tasks`);
     } catch (error) {
       this.logger.error('Failed to start scheduler', {
@@ -41,19 +41,19 @@ export class TaskScheduler {
   }
 
   stop(): void {
-    if (!this.isRunning) {
+    if (!this.running) {
       return;
     }
 
     this.logger.info('Stopping task scheduler');
 
-    for (const [taskId, timer] of this.timers.entries()) {
+    for (const [taskId, timer] of Array.from(this.timers.entries())) {
       clearInterval(timer);
       this.logger.debug('Cleared timer for task', { taskId });
     }
 
     this.timers.clear();
-    this.isRunning = false;
+    this.running = false;
     this.logger.info('Scheduler stopped');
   }
 
@@ -118,7 +118,7 @@ export class TaskScheduler {
   }
 
   private scheduleTasks(): void {
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       if (!task.enabled) {
         this.logger.debug('Skipping disabled task', { taskId });
         continue;
@@ -158,12 +158,14 @@ export class TaskScheduler {
       return patterns[cron];
     }
 
-    const match = cron.match(/^(\d+)\s+(minute|hour|day)s?$/i);
+    const match = cron.match(/^(\d+)\s+(millisecond|second|minute|hour|day)s?$/i);
     if (match) {
       const value = parseInt(match[1], 10);
       const unit = match[2].toLowerCase();
 
       const multipliers: Record<string, number> = {
+        millisecond: 1,
+        second: 1000,
         minute: 60 * 1000,
         hour: 60 * 60 * 1000,
         day: 24 * 60 * 60 * 1000,
@@ -214,7 +216,7 @@ export class TaskScheduler {
       name: task.name,
     });
 
-    if (this.isRunning && task.enabled) {
+    if (this.running && task.enabled) {
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -255,7 +257,7 @@ export class TaskScheduler {
     task.enabled = true;
     this.logger.info('Task enabled', { taskId });
 
-    if (this.isRunning) {
+    if (this.running) {
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -296,7 +298,7 @@ export class TaskScheduler {
   }
 
   isRunning(): boolean {
-    return this.isRunning;
+    return this.running;
   }
 
   private async saveTasks(): Promise<void> {
