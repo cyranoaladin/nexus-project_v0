@@ -4,18 +4,12 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Award,
-  Bot,
   Check,
   CheckCircle2,
   ChevronRight,
-  GraduationCap,
-  LineChart,
-  MessageCircle,
   ShieldCheck,
   Sparkles,
-  Star,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
