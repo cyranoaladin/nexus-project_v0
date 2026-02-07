@@ -4,7 +4,7 @@ import { parseKeyValuePairs, ValidationError } from '../utils/validation';
 import { WorkflowEngine } from '../../core/workflows/engine';
 import { WorkflowLoader } from '../../core/workflows/loader';
 import { loadConfig } from '../../core/config/loader';
-import type { Workflow, WorkflowExecution } from '../../core/workflows/types';
+import type { Workflow, WorkflowExecution, StepExecution } from '../../core/workflows/types';
 
 function getWorkflowEngine(configPath?: string): WorkflowEngine {
   const config = loadConfig(configPath);
@@ -50,6 +50,17 @@ function formatExecutionStatus(status: WorkflowExecution['status']): string {
     success: '✅',
     failure: '❌',
     rolled_back: '⏪',
+  };
+  return statusColors[status] || status;
+}
+
+function formatStepStatus(status: StepExecution['status']): string {
+  const statusColors: Record<StepExecution['status'], string> = {
+    pending: '⏳',
+    running: '▶️ ',
+    success: '✅',
+    failure: '❌',
+    skipped: '⏭️ ',
   };
   return statusColors[status] || status;
 }
@@ -144,9 +155,6 @@ export function createWorkflowCommand(globalOptions: any): Command {
         output.info('📝 Steps:');
         workflow.steps.forEach((step, idx) => {
           output.info(`  ${idx + 1}. ${step.name} (${step.type})`);
-          if (step.description) {
-            output.info(`     ${step.description}`);
-          }
         });
 
         if (workflow.outputs.length > 0) {
@@ -161,8 +169,6 @@ export function createWorkflowCommand(globalOptions: any): Command {
         output.info('⚠️  Error Handling:');
         output.list([
           `  Strategy: ${workflow.error_handling.strategy}`,
-          `  Max Retries: ${workflow.error_handling.max_retries ?? 0}`,
-          `  Timeout: ${workflow.error_handling.timeout ?? 'none'}s`,
         ], '');
       } catch (error) {
         output.error(`Failed to show workflow: ${workflowName}`, error as Error);
@@ -219,7 +225,7 @@ export function createWorkflowCommand(globalOptions: any): Command {
           output.newline();
           output.info('Steps:');
           execution.steps.forEach((step, idx) => {
-            const statusIcon = formatExecutionStatus(step.status);
+            const statusIcon = formatStepStatus(step.status);
             output.info(`  ${idx + 1}. ${statusIcon} ${step.step_id} - ${step.status}`);
           });
         }
@@ -339,7 +345,7 @@ export function createWorkflowCommand(globalOptions: any): Command {
           output.newline();
           output.info('📝 Steps:');
           execution.steps.forEach((step, idx) => {
-            const statusIcon = formatExecutionStatus(step.status);
+            const statusIcon = formatStepStatus(step.status);
             const duration = step.started_at && step.completed_at 
               ? ` (${formatDuration(step.started_at, step.completed_at)})`
               : '';
@@ -401,7 +407,7 @@ export function createWorkflowCommand(globalOptions: any): Command {
         output.newline();
 
         execution.steps.forEach((step, idx) => {
-          const statusIcon = formatExecutionStatus(step.status);
+          const statusIcon = formatStepStatus(step.status);
           output.info(`${idx + 1}. ${statusIcon} ${step.step_id}`);
           output.info(`   Status: ${step.status}`);
           
