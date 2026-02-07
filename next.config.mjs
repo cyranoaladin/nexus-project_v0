@@ -14,9 +14,7 @@ const nextConfig = {
   // [SOLUTION] Moved from experimental to top-level in Next.js 15
   serverExternalPackages: ['@prisma/client'],
 
-  experimental: {
-    webpackBuildWorker: false,
-  },
+
 
   transpilePackages: ['framer-motion'],
 

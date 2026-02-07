@@ -56,27 +56,37 @@ export async function GET() {
 
     console.log('[Parent Dashboard API] Fetching parent profile for user:', session.user.id);
 
-    // Fetch Parent Profile and Children
+    // Fetch Parent Profile and Children with UPCOMING sessions
     const parentProfile = await prisma.parentProfile.findUnique({
       where: { userId: session.user.id },
       include: {
         children: {
           include: {
-            user: true,
+            user: {
+              include: {
+                studentSessions: {
+                  where: {
+                    status: 'SCHEDULED'
+                  },
+                  orderBy: { scheduledDate: 'asc' },
+                  take: 5,
+                  select: {
+                    id: true,
+                    subject: true,
+                    scheduledDate: true,
+                    startTime: true,
+                    endTime: true,
+                    status: true,
+                    modality: true,
+                    type: true,
+                    coachId: true
+                  }
+                }
+              }
+            },
             badges: {
               include: {
                 badge: true
-              }
-            },
-            sessions: {
-              where: { status: 'COMPLETED' },
-              orderBy: { scheduledAt: 'desc' },
-              take: 5,
-              select: {
-                id: true,
-                subject: true,
-                scheduledAt: true,
-                status: true
               }
             }
           }
@@ -91,7 +101,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Profil parent introuvable' }, { status: 404 });
     }
 
-    // Fetch Payments (Linked to User)
+    // Fetch Payments
     const payments = await prisma.payment.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' },
@@ -101,34 +111,68 @@ export async function GET() {
     console.log('[Parent Dashboard API] Found', payments.length, 'payments');
 
     // Transform data for frontend
-    // @ts-expect-error - Prisma type mismatch between payload and actual data structure
-    const childrenData = parentProfile.children.map((child: ChildWithRelations) => ({
-      id: child.id,
-      name: `${child.user.firstName || ''} ${child.user.lastName || ''}`.trim() || child.user.email,
-      grade: child.grade,
-      school: child.school,
-      credits: child.credits,
-      // @ts-expect-error - Type inference issue with Prisma relations
-      badges: child.badges.map((sb: StudentBadge) => ({
-        id: sb.badge.id,
-        name: sb.badge.name,
-        icon: sb.badge.icon,
-        category: sb.badge.category,
-        earnedAt: sb.earnedAt.toISOString()
-      })),
-      recentScores: [], // Empty for now - would need session reports data
-      // @ts-expect-error - Type inference issue with Prisma relations
-      recentSessions: child.sessions.map((s: SessionData) => ({
+    const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
+      // Fetch coach names for sessions if needed, or use placeholder
+      // For simplicity/performance in this fix, we map sessions directly
+
+      const mappedSessions = child.user.studentSessions.map(s => ({
         id: s.id,
         subject: s.subject,
-        date: s.scheduledAt.toISOString(),
-        coachName: 'Coach' // Would need to join with coach data
-      }))
+        scheduledAt: s.scheduledDate.toISOString(),
+        coachName: 'Coach',
+        type: s.type === 'INDIVIDUAL' ? 'COURS_ONLINE' : 'COURS_COLLECTIF', // Use generic types for now
+        status: s.status,
+        duration: 60
+      }));
+
+      const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;
+
+      return {
+        id: child.id,
+        firstName: child.user.firstName || '',
+        lastName: child.user.lastName || '',
+        // name: ... (Frontend uses firstName/lastName in interface usually?)
+        // Page.tsx uses: firstName, lastName.
+        // Interface says: firstName, lastName in parent object.
+        // Children objects in Page.tsx interface: id, firstName, lastName, ...
+        // So we must match that.
+
+        grade: child.grade,
+        school: child.school,
+        credits: child.credits,
+
+        // Subscription details (mock or from DB)
+        subscription: "Standard", // Default
+        subscriptionDetails: null,
+
+        nextSession: nextSession,
+
+        progress: 0, // Mock
+        subjectProgress: {}, // Mock
+
+        sessions: mappedSessions,
+
+        // Fix badges mapping
+        badges: child.badges.map((sb: StudentBadge) => ({
+          id: sb.badge.id,
+          name: sb.badge.name,
+          icon: sb.badge.icon,
+          category: sb.badge.category,
+          earnedAt: sb.earnedAt.toISOString()
+        }))
+      };
     }));
 
     console.log('[Parent Dashboard API] Returning data for', childrenData.length, 'children');
 
     return NextResponse.json({
+      // Parent info
+      parent: {
+        id: session.user.id,
+        firstName: session.user.firstName || '',
+        lastName: session.user.lastName || '',
+        email: session.user.email || ''
+      },
       children: childrenData,
       payments: payments.map(p => ({
         id: p.id,

@@ -21,7 +21,7 @@ export class DaemonServer {
 
   constructor(config?: Partial<DaemonConfig>) {
     const settings = loadConfig();
-    
+
     this.config = {
       eventProcessingInterval: config?.eventProcessingInterval ?? 1000,
       maxBatchSize: config?.maxBatchSize ?? 10,
@@ -33,6 +33,7 @@ export class DaemonServer {
     this.ruleEngine = new RuleEngine({
       rulesDirectory: '.zenflow/rules',
       autoLoad: true,
+      validationStrict: true,
     });
 
     this.workflowEngine = new WorkflowEngine({
@@ -50,7 +51,7 @@ export class DaemonServer {
     });
 
     this.setupSignalHandlers();
-    
+
     this.logger.info('DaemonServer initialized', {
       config: this.config,
     });
@@ -143,7 +144,7 @@ export class DaemonServer {
     });
 
     try {
-      const matchingRules = await this.ruleEngine.evaluateEvent(event);
+      const matchingRules = await this.ruleEngine.findMatchingRules(event);
 
       if (matchingRules.length === 0) {
         this.logger.debug('No rules matched for event', { eventId: event.id });
@@ -153,7 +154,7 @@ export class DaemonServer {
       this.logger.info('Rules matched for event', {
         eventId: event.id,
         ruleCount: matchingRules.length,
-        ruleNames: matchingRules.map(r => r.name),
+        ruleNames: matchingRules.map((r: { name: string }) => r.name),
       });
 
       for (const rule of matchingRules) {
@@ -163,27 +164,31 @@ export class DaemonServer {
         }
 
         try {
-          this.logger.info('Executing workflow for rule', {
-            ruleName: rule.name,
-            workflowName: rule.action.workflow,
-          });
+          for (const action of rule.actions) {
+            const workflowName = (action as { workflow?: string }).workflow;
+            if (!workflowName) continue;
 
-          const inputs = this.buildWorkflowInputs(rule.action.inputs || {}, event);
+            this.logger.info('Executing workflow for rule', {
+              ruleName: rule.name,
+              workflowName,
+            });
 
-          await this.workflowEngine.executeWorkflow(
-            rule.action.workflow,
-            inputs
-          );
+            const inputs = this.buildWorkflowInputs((action as { inputs?: Record<string, unknown> }).inputs || {}, event);
 
-          this.logger.info('Workflow execution completed', {
-            ruleName: rule.name,
-            workflowName: rule.action.workflow,
-          });
+            await this.workflowEngine.executeWorkflow(
+              workflowName,
+              inputs
+            );
+
+            this.logger.info('Workflow execution completed', {
+              ruleName: rule.name,
+              workflowName,
+            });
+          }
 
         } catch (error) {
           this.logger.error('Workflow execution failed', {
             ruleName: rule.name,
-            workflowName: rule.action.workflow,
             error: error instanceof Error ? error.message : String(error),
           });
         }
@@ -220,7 +225,7 @@ export class DaemonServer {
   private setupSignalHandlers(): void {
     const handleShutdown = async (signal: string) => {
       this.logger.info(`Received ${signal}, initiating graceful shutdown`);
-      
+
       try {
         await this.stop();
         process.exit(0);

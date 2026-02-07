@@ -61,13 +61,13 @@ describe('DiagnosticForm', () => {
 
     it('permet de changer la sélection', async () => {
       fireEvent.click(screen.getByText('Première'));
-      
+
       await waitFor(() => {
         expect(screen.getByText('Première').closest('button')).toHaveClass('bg-or-stellaire');
       });
 
       fireEvent.click(screen.getByText('Terminale'));
-      
+
       await waitFor(() => {
         expect(screen.getByText('Terminale').closest('button')).toHaveClass('bg-or-stellaire');
         expect(screen.getByText('Première').closest('button')).not.toHaveClass('bg-or-stellaire');
@@ -108,7 +108,7 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
-        expect(screen.getByText(/Académie du Français/)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026 — Maths ou NSI Première/)).toBeInTheDocument();
       });
     });
 
@@ -123,7 +123,7 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-        expect(screen.getByText(/Académie de Février/)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026 — Excellence Terminale/)).toBeInTheDocument();
       });
     });
 
@@ -138,11 +138,12 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-        expect(screen.getByText(/Académie Python/)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026 — Prépa Bac Terminale/)).toBeInTheDocument();
       });
     });
 
     it('affiche la bonne recommandation pour Candidat Libre', async () => {
+      // render(<DiagnosticForm />); // Removed duplicate render (handled in beforeEach)
       fireEvent.click(screen.getByText('Terminale'));
       fireEvent.click(screen.getByText('Candidat Libre'));
       fireEvent.click(screen.getByText('Avoir un cadre pour obtenir son Bac (pour C. Libre)'));
@@ -153,6 +154,7 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Individuel : La Préparation Intégrale/)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026 — Candidats Libres/)).toBeInTheDocument();
       });
     });
   });
@@ -167,7 +169,7 @@ describe('DiagnosticForm', () => {
       await waitFor(() => {
         expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
       });
-      
+
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {
@@ -188,7 +190,7 @@ describe('DiagnosticForm', () => {
       const academieButton = screen.getByText('Voir cette académie');
 
       expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#odyssee');
-      expect(academieButton.closest('a')).toHaveAttribute('href', '/offres#academies');
+      expect(academieButton.closest('a')).toHaveAttribute('href', '/stages/fevrier-2026#academies');
     });
   });
 
@@ -220,7 +222,7 @@ describe('DiagnosticForm', () => {
       await waitFor(() => {
         expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
       });
-      
+
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {

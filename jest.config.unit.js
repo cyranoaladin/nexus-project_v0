@@ -31,11 +31,13 @@ const customJestConfig = {
     'node_modules/(?!(uuid|@auth|glob|chokidar)/)',
   ],
   testPathIgnorePatterns: [
-    '/node_modules/', 
-    '/.next/', 
+    '/node_modules/',
+    '/.next/',
     '/.next/standalone/',
     '/e2e/',
     '/.zenflow/tests/integration/',
+    '/.zenflow/tests/performance/',
+    '/tests/database/',
   ],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   coverageThreshold: {

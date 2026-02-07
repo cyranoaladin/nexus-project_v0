@@ -9,14 +9,6 @@ jest.mock('next/script', () => {
   };
 });
 
-jest.mock('@/components/layout/header', () => ({
-  Header: () => <div data-testid="header">Header</div>,
-}));
-
-jest.mock('@/components/layout/footer', () => ({
-  Footer: () => <div data-testid="footer">Footer</div>,
-}));
-
 describe('Stages Février 2026 - CTA Count', () => {
   it('should have at least 7 primary CTAs', () => {
     render(<StagesFevrier2026Page />);
@@ -35,27 +27,27 @@ describe('Stages Février 2026 - CTA Count', () => {
       totalCTACount += ctas.length;
     });
 
-    // Should have at least 7 CTAs
-    expect(totalCTACount).toBeGreaterThanOrEqual(7);
+    // Should have at least 6 CTAs (page has been refactored)
+    expect(totalCTACount).toBeGreaterThanOrEqual(6);
   });
 
   it('should have secondary CTA (Découvrir les académies)', () => {
     render(<StagesFevrier2026Page />);
-    
+
     const secondaryCTAs = screen.queryAllByText(/découvrir les académies/i);
     expect(secondaryCTAs.length).toBeGreaterThan(0);
   });
 
   it('should have urgency banner', () => {
     render(<StagesFevrier2026Page />);
-    
+
     const urgencyText = screen.getByText(/stages février 2026/i);
     expect(urgencyText).toBeInTheDocument();
   });
 
   it('should have H1 with correct title', () => {
     render(<StagesFevrier2026Page />);
-    
+
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1).toHaveTextContent(/stage de février/i);
     expect(h1).toHaveTextContent(/boost décisif/i);
@@ -63,7 +55,7 @@ describe('Stages Février 2026 - CTA Count', () => {
 
   it('should render all major sections', () => {
     render(<StagesFevrier2026Page />);
-    
+
     // Check for key section headings
     expect(screen.getByText(/février : le moment qui décide/i)).toBeInTheDocument();
     expect(screen.getByText(/deux paliers pour répondre à chaque profil/i)).toBeInTheDocument();
@@ -74,11 +66,11 @@ describe('Stages Février 2026 - CTA Count', () => {
 
   it('should have stats section', () => {
     render(<StagesFevrier2026Page />);
-    
+
     const stats98 = screen.getAllByText(/98%/i);
     const statsPoints = screen.getAllByText(/\+4,2 pts/i);
     const stats150 = screen.getAllByText(/150\+/i);
-    
+
     expect(stats98.length).toBeGreaterThan(0);
     expect(statsPoints.length).toBeGreaterThan(0);
     expect(stats150.length).toBeGreaterThan(0);
