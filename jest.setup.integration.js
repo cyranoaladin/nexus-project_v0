@@ -124,6 +124,8 @@ jest.mock('./lib/prisma', () => ({
     parentProfile: {
       create: jest.fn(),
       count: jest.fn(),
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
     },
     studentProfile: {
       create: jest.fn(),
@@ -160,8 +162,10 @@ jest.mock('./lib/prisma', () => ({
     },
     sessionBooking: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       count: jest.fn(),
       findMany: jest.fn(),
+      groupBy: jest.fn(),
     },
     $transaction: jest.fn(),
   },
@@ -193,7 +197,7 @@ jest.mock('./lib/middleware/rateLimit', () => ({
 // Environment variables for tests
 process.env.NODE_ENV = 'test';
 process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://nexus_user:test_password_change_in_real_prod@localhost:5434/nexus_reussite_prod?schema=public';
+process.env.TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://nexus_user:test_password_change_in_real_prod@localhost:5434/nexus_test?schema=public';
 
 // Ensure all jest.fn() calls are cleared between tests to avoid cross-test leakage
 afterEach(() => {

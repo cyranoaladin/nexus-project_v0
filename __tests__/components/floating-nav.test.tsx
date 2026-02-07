@@ -2,13 +2,20 @@ import { FloatingNav } from '@/components/ui/floating-nav';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
-  useTransform: () => ({ get: () => 1 }),
-}));
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    motion: {
+      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+      button: React.forwardRef(({ children, whileHover, whileTap, transition, ...props }: any, ref: any) => (
+        <button {...props} ref={ref}>{children}</button>
+      )),
+    },
+    useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+    useTransform: () => ({ get: () => 1 }),
+    useReducedMotion: () => false,
+  };
+});
 
 // Mock document.querySelector pour le scroll
 const mockScrollIntoView = jest.fn();
@@ -53,7 +60,9 @@ describe('FloatingNav', () => {
   it('a les bonnes classes CSS', () => {
     render(<FloatingNav />);
 
-    const navContainer = screen.getByText('Cortex').closest('div')?.parentElement;
+    const button = screen.getByText('Cortex');
+    // Navigate up: button -> flex div -> bg-white div -> motion.div (fixed container)
+    const navContainer = button.closest('div')?.parentElement?.parentElement;
     expect(navContainer).toHaveClass('fixed');
     expect(navContainer).toHaveClass('bottom-6');
     expect(navContainer).toHaveClass('left-1/2');

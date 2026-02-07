@@ -137,19 +137,65 @@ describe('Credits System', () => {
 });
 
 describe('Booking Cancellation Logic', () => {
-  // Note: These tests would require implementation of canCancelBooking function
-  // which doesn't exist yet in the credits.ts file
   describe('canCancelBooking', () => {
-    it.skip('should return true if cancellation is 25 hours before a particular course', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return true if cancellation is 25 hours before an individual course', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-02T11:00:00Z'); // 25 hours later
+      
+      const result = canCancelBooking('INDIVIDUAL', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(true);
     });
 
-    it.skip('should return false if cancellation is 23 hours before a particular course', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return false if cancellation is 23 hours before an individual course', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-02T09:00:00Z'); // 23 hours later
+      
+      const result = canCancelBooking('INDIVIDUAL', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(false);
     });
 
-    it.skip('should return false if cancellation is 47 hours before a group workshop', () => {
-      // This test would be implemented once canCancelBooking function is created
+    it('should return false if cancellation is 47 hours before a group workshop', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-03T09:00:00Z'); // 47 hours later
+      
+      const result = canCancelBooking('GROUP', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(false);
+    });
+
+    it('should return true if cancellation is 49 hours before a group workshop', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-03T11:00:00Z'); // 49 hours later
+      
+      const result = canCancelBooking('GROUP', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(true);
+    });
+
+    it('should return true if cancellation is 25 hours before an online course', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-02T11:00:00Z'); // 25 hours later
+      
+      const result = canCancelBooking('GROUP', 'ONLINE', sessionDate, now);
+      expect(result).toBe(true); // ONLINE modality requires only 24h
+    });
+
+    it('should return true if cancellation is 25 hours before a hybrid course', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-02T11:00:00Z'); // 25 hours later
+      
+      const result = canCancelBooking('GROUP', 'HYBRID', sessionDate, now);
+      expect(result).toBe(true); // HYBRID modality requires only 24h
     });
   });
 });

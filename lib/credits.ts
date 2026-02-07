@@ -1,4 +1,5 @@
 import { ServiceType } from '@/types/enums';
+import { SessionType, SessionModality } from '@prisma/client';
 
 // Coûts des prestations en crédits
 const CREDIT_COSTS = {
@@ -165,4 +166,42 @@ export async function expireOldCredits() {
       }
     });
   }
+}
+
+/**
+ * Check if a booking can be cancelled with refund based on cancellation policy
+ * 
+ * Cancellation policy:
+ * - Individual/Online/Hybrid: Must cancel 24h before
+ * - Group/Masterclass: Must cancel 48h before
+ * 
+ * @param sessionType - Type of session (INDIVIDUAL, GROUP, MASTERCLASS)
+ * @param modality - Session modality (ONLINE, HYBRID, IN_PERSON)
+ * @param sessionDate - Scheduled date and time of the session
+ * @param now - Current date/time (defaults to new Date(), can be overridden for testing)
+ * @returns true if cancellation is eligible for refund, false otherwise
+ */
+export function canCancelBooking(
+  sessionType: SessionType,
+  modality: SessionModality,
+  sessionDate: Date,
+  now: Date = new Date()
+): boolean {
+  const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+  // Individual/Online/Hybrid: 24h notice required
+  if (
+    sessionType === 'INDIVIDUAL' ||
+    modality === 'HYBRID' ||
+    modality === 'ONLINE'
+  ) {
+    return hoursUntilSession >= 24;
+  }
+
+  // Group/Masterclass: 48h notice required
+  if (sessionType === 'GROUP' || sessionType === 'MASTERCLASS') {
+    return hoursUntilSession >= 48;
+  }
+
+  return false;
 }
