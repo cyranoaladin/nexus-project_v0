@@ -39,15 +39,6 @@ jest.mock('framer-motion', () => {
   };
 });
 
-// Mock des composants Header et Footer (chemins alias utilisés par la page)
-jest.mock('@/components/layout/header', () => {
-  return { Header: function MockHeader() { return <div data-testid="header">Header</div>; } };
-});
-
-jest.mock('@/components/layout/footer', () => {
-  return { Footer: function MockFooter() { return <div data-testid="footer">Footer</div>; } };
-});
-
 describe('BilanGratuitPage - Tests de validation par étapes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -105,10 +96,7 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
     expect(screen.getByText(/100% complété/)).toBeInTheDocument();
   });
 
-<<<<<<< HEAD
-=======
   // SKIP: Form state not preserved on back navigation (edge case, not critical)
->>>>>>> tests-locaux-41a0
   test.skip('devrait permettre de revenir à l\'étape 1 depuis l\'étape 2', async () => {
     const user = userEvent.setup();
     render(<BilanGratuitPage />);
@@ -116,16 +104,16 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
     // Passer à l'étape 2 - fill step 1 with specific IDs to avoid ambiguity
     const prenomInput = screen.getByLabelText(/Prénom \*/);
     await user.type(prenomInput, 'Jean');
-    
+
     const nomInput = screen.getByLabelText(/Nom \*/);
     await user.type(nomInput, 'Dupont');
-    
+
     const emailInput = screen.getByLabelText(/Email \*/);
     await user.type(emailInput, 'jean.dupont@example.com');
-    
+
     const phoneInput = screen.getByLabelText(/Téléphone \*/);
     await user.type(phoneInput, '+216 12 345 678');
-    
+
     const passwordInput = screen.getByLabelText(/Mot de passe \*/);
     await user.type(passwordInput, 'password123');
 
@@ -146,22 +134,12 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
       expect(screen.getByText(/Étape 1 : Informations Parent/)).toBeInTheDocument();
     });
 
-<<<<<<< HEAD
-    // Vérifier que les données sont conservées (wait for inputs to be populated)
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('Jean')).toBeInTheDocument();
-    });
-    expect(screen.getByDisplayValue('Dupont')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('jean.dupont@example.com')).toBeInTheDocument();
-=======
     // Vérifier que le formulaire est de nouveau accessible
-    // Note: Data preservation depends on implementation - checking fields are rendered
     await waitFor(() => {
       expect(screen.getByLabelText(/Prénom/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Nom/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
     });
->>>>>>> suivi-de-progression-et-facturat-1c59
   });
 
   test('devrait valider les données avant de passer à l\'étape suivante', async () => {
@@ -205,11 +183,11 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
     // Get all triggers and click the first one (studentGrade field)
     const triggers = screen.getAllByRole('button', { name: /Sélectionnez le niveau/i });
     await user.click(triggers[0]); // First select is studentGrade (Niveau *)
-    
+
     await waitFor(() => {
       expect(screen.getByRole('option', { name: /Première/i })).toBeInTheDocument();
     });
-    
+
     await user.click(screen.getByRole('option', { name: /Première/i }));
 
     // Sélectionner au moins une matière

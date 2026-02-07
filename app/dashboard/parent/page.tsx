@@ -73,16 +73,16 @@ export default function DashboardParent() {
     try {
       setLoading(true)
       setError(null)
-      
+
       const response = await fetch('/api/parent/dashboard')
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard data')
       }
-      
+
       const data = await response.json()
       setDashboardData(data)
-      
+
       if (data.children.length > 0 && !selectedChild) {
         setSelectedChild(data.children[0].id)
       }
@@ -156,7 +156,7 @@ export default function DashboardParent() {
               </div>
 
               {/* Navigation Tabs */}
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'booking')} className="ml-4">
+              <Tabs value={activeTab} onValueChange={(value: string) => setActiveTab(value as 'dashboard' | 'booking')} className="ml-4">
                 <TabsList>
                   <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
                     Tableau de Bord
@@ -196,7 +196,7 @@ export default function DashboardParent() {
                     Suivez les progrès et gérez l'accompagnement de vos enfants.
                   </p>
                 </div>
-                
+
                 {/* Sélecteur Multi-Enfants */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
@@ -257,8 +257,8 @@ export default function DashboardParent() {
                   </div>
                   <div className="text-center space-y-1">
                     <div className="text-xs sm:text-sm font-medium text-gray-900">
-                      {currentChild?.nextSession ? 
-                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` : 
+                      {currentChild?.nextSession ?
+                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` :
                         'Aucune session'
                       }
                     </div>
@@ -282,7 +282,7 @@ export default function DashboardParent() {
                   <div className="space-y-3 sm:space-y-4">
                     {currentChild?.sessions && currentChild?.sessions.length > 0 ? (
                       currentChild?.sessions.map((session) => (
-                        <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
+                        <div key={session.id} data-testid="session-card" className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
                           <div className="flex-1">
                             <p className="font-medium text-gray-900 text-sm sm:text-base">{session.subject}</p>
                             <p className="text-xs sm:text-sm text-gray-600">
@@ -325,9 +325,9 @@ export default function DashboardParent() {
                             <span>{progress}%</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-300" 
-                              style={{ 
+                            <div
+                              className="h-2 rounded-full transition-all duration-300"
+                              style={{
                                 width: `${progress}%`,
                                 backgroundColor: progress > 80 ? '#10B981' : progress > 60 ? '#3B82F6' : progress > 40 ? '#F59E0B' : '#EF4444'
                               }}
@@ -365,7 +365,7 @@ export default function DashboardParent() {
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND/mois
                     </p>
-                    <SubscriptionChangeDialog 
+                    <SubscriptionChangeDialog
                       studentId={currentChild?.id ?? ''}
                       studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
                       currentPlan={currentChild?.subscriptionDetails?.planName || currentChild?.subscription || 'Aucune formule'}
@@ -377,15 +377,15 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Prochaine Facturation</h3>
                     <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
-                      {currentChild?.subscriptionDetails?.endDate ? 
-                        new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : 
+                      {currentChild?.subscriptionDetails?.endDate ?
+                        new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) :
                         'N/A'
                       }
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND
                     </p>
-                    <InvoiceDetailsDialog 
+                    <InvoiceDetailsDialog
                       subscriptionDetails={currentChild?.subscriptionDetails || null}
                       studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
                     />
@@ -395,12 +395,12 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Actions</h3>
                     <div className="space-y-2">
-                      <CreditPurchaseDialog 
+                      <CreditPurchaseDialog
                         studentId={currentChild?.id ?? ''}
                         studentName={`${currentChild?.firstName ?? ''} ${currentChild?.lastName ?? ''}`}
                         onPurchaseComplete={refreshDashboardData}
                       />
-                      <AriaAddonDialog 
+                      <AriaAddonDialog
                         studentId={currentChild?.id ?? ''}
                         studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
                         onRequestComplete={refreshDashboardData}

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get the current session
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ELEVE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
     const studentId = session.user.id;
 
     // Fetch student data
+    console.log(`[Student Dashboard API] Session: ${JSON.stringify(session)}`);
+    console.log(`[Student Dashboard API] Fetching student data for user: ${studentId}`);
+
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       include: {
@@ -64,11 +67,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (!student) {
+      console.log(`[Student Dashboard API] Student not found for userId: ${studentId}`);
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
       );
     }
+    console.log(`[Student Dashboard API] Student found: ${student.id}`);
 
     // Calculate available credits
     const creditBalance = student.creditTransactions.reduce((balance: number, transaction) => {
@@ -76,8 +81,8 @@ export async function GET(request: NextRequest) {
     }, 0);
 
     // Get next session
-    const upcomingSessions = student.sessions.filter((session) => 
-      (session.status === 'SCHEDULED' || session.status === 'CONFIRMED') && 
+    const upcomingSessions = student.sessions.filter((session) =>
+      (session.status === 'SCHEDULED' || session.status === 'CONFIRMED') &&
       new Date(session.scheduledAt) > new Date()
     );
     const nextSession = upcomingSessions[0];
@@ -100,7 +105,7 @@ export async function GET(request: NextRequest) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const ariaMessagesToday = student.ariaConversations.reduce((count: number, conversation) => {
-      const messagesToday = conversation.messages.filter((message) => 
+      const messagesToday = conversation.messages.filter((message) =>
         new Date(message.createdAt) >= today
       ).length;
       return count + messagesToday;

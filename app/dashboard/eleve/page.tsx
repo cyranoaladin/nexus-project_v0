@@ -98,14 +98,16 @@ export default function DashboardEleve() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/student/dashboard');
-        
+
         if (!response.ok) {
+          console.error(`[Student Dashboard] Failed to fetch data. Status: ${response.status}`);
           throw new Error('Failed to fetch dashboard data');
         }
-        
+
         const data = await response.json();
+        console.log('[Student Dashboard] Data received:', data);
         setDashboardData(data);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -231,9 +233,9 @@ export default function DashboardEleve() {
                   {dashboardData?.nextSession ? (
                     <>
                       <div className="text-xl font-bold text-neutral-900">
-                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', { 
-                          day: '2-digit', 
-                          month: 'short' 
+                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: 'short'
                         })}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">
@@ -296,11 +298,10 @@ export default function DashboardEleve() {
                             </p>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              session.status === 'completed' 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-yellow-100 text-yellow-800'
-                            }`}>
+                              }`}>
                               {session.status}
                             </span>
                           </div>
@@ -316,7 +317,7 @@ export default function DashboardEleve() {
                       <p className="text-gray-500">
                         Vos sessions apparaîtront ici une fois programmées.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => setActiveTab('booking')}
                         className="mt-4"
                       >
@@ -351,8 +352,8 @@ export default function DashboardEleve() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-auto p-4 flex flex-col items-center space-y-2"
                     onClick={() => setActiveTab('booking')}
                   >

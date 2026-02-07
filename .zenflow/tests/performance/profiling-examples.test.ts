@@ -13,13 +13,14 @@ import type { SyncConfig } from '../../core/sync/types';
 const TEST_BASE_PATH = path.join(os.tmpdir(), 'zenflow-profiling-tests');
 
 const DEFAULT_SYNC_CONFIG: SyncConfig = {
+  enabled: true,
   autoPush: false,
-  createBackup: true,
-  defaultRemote: 'origin',
-  mainBranch: 'main',
-  mergeStrategy: 'no-ff',
-  validateBeforeSync: true,
-  rollbackOnError: true,
+  maxRetries: 3,
+  timeout: 300000,
+  conflictStrategy: 'abort',
+  excludedWorktrees: [],
+  notificationChannels: ['console'],
+  verificationCommands: [],
 };
 
 describe('Profiling Examples', () => {
@@ -31,14 +32,14 @@ describe('Profiling Examples', () => {
 
   afterEach(() => {
     profiler.printSummary();
-    
+
     const profilePath = path.join(
       process.cwd(),
       '.zenflow/tests/performance/profiles',
       `profile-${Date.now()}.json`
     );
     profiler.exportToJSON(profilePath);
-    
+
     profiler.destroy();
   });
 
@@ -107,12 +108,12 @@ describe('Profiling Examples', () => {
     );
 
     console.log(`Conflict detection completed in ${profile.duration.toFixed(2)}ms`);
-    console.log(`Found ${conflicts.length} conflicts`);
+    console.log(`Has conflicts: ${conflicts.has_conflicts}`);
 
     await generator.cleanup();
 
     expect(conflicts).toBeDefined();
-    expect(Array.isArray(conflicts)).toBe(true);
+    expect(conflicts.has_conflicts).toBe(false);
   }, 180000);
 
   it('should profile batch operations', async () => {
@@ -127,7 +128,7 @@ describe('Profiling Examples', () => {
     const generator = new TestRepoGenerator(config);
     const repoPath = await generator.create();
     const worktreePaths = await generator.createWorktrees(repoPath);
-    
+
     for (const wtPath of worktreePaths) {
       await generator.populateWorktree(wtPath, 'small');
     }
@@ -179,11 +180,11 @@ describe('Profiling Examples', () => {
     );
 
     console.log(`Validation completed in ${profile.duration.toFixed(2)}ms`);
-    console.log(`Validation passed: ${validationResult.isValid}`);
+    console.log(`Validation passed: ${validationResult.valid}`);
 
     await generator.cleanup();
 
     expect(validationResult).toBeDefined();
-    expect(validationResult.isValid).toBe(true);
+    expect(validationResult.valid).toBe(true);
   }, 120000);
 });
