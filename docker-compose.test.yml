@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: nexus-postgres-test
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: nexus_user
+      POSTGRES_PASSWORD: test_password_change_in_real_prod
+      POSTGRES_DB: nexus_test
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U nexus_user -d nexus_test" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5

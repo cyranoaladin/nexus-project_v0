@@ -13,13 +13,14 @@ import type { SyncConfig } from '../../core/sync/types';
 const TEST_BASE_PATH = path.join(os.tmpdir(), 'zenflow-perf-tests');
 
 const DEFAULT_SYNC_CONFIG: SyncConfig = {
+  enabled: true,
   autoPush: false,
-  createBackup: true,
-  defaultRemote: 'origin',
-  mainBranch: 'main',
-  mergeStrategy: 'no-ff',
-  validateBeforeSync: true,
-  rollbackOnError: true,
+  maxRetries: 3,
+  timeout: 300000,
+  conflictStrategy: 'abort',
+  excludedWorktrees: [],
+  notificationChannels: ['console'],
+  verificationCommands: [],
 };
 
 describe('Sync Performance Benchmarks', () => {
@@ -27,7 +28,7 @@ describe('Sync Performance Benchmarks', () => {
 
   afterAll(() => {
     PerformanceMonitor.printBenchmarkResults(benchmarkResults);
-    
+
     const resultsPath = path.join(process.cwd(), '.zenflow/tests/performance/results.json');
     PerformanceMonitor.exportResultsToJSON(benchmarkResults, resultsPath);
     console.log(`\nResults exported to: ${resultsPath}`);
@@ -83,7 +84,7 @@ describe('Sync Performance Benchmarks', () => {
       const generator = new TestRepoGenerator(config);
       const repoPath = await generator.create();
       const worktreePaths = await generator.createWorktrees(repoPath);
-      
+
       for (const wtPath of worktreePaths) {
         await generator.populateWorktree(wtPath, 'small');
       }
@@ -160,7 +161,7 @@ describe('Sync Performance Benchmarks', () => {
       const generator = new TestRepoGenerator(config);
       const repoPath = await generator.create();
       const worktreePaths = await generator.createWorktrees(repoPath);
-      
+
       for (const wtPath of worktreePaths) {
         await generator.populateWorktree(wtPath, 'medium');
       }
@@ -237,7 +238,7 @@ describe('Sync Performance Benchmarks', () => {
       const generator = new TestRepoGenerator(config);
       const repoPath = await generator.create();
       const worktreePaths = await generator.createWorktrees(repoPath);
-      
+
       for (const wtPath of worktreePaths) {
         await generator.populateWorktree(wtPath, 'medium');
       }

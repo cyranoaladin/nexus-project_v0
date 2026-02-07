@@ -16,10 +16,31 @@ export class GitClient {
     this.repoPath = path.resolve(repoPath);
   }
 
+  async getCurrentBranch(): Promise<string> {
+    try {
+      this.logger.debug('Getting current branch', { repoPath: this.repoPath });
+
+      const { stdout } = await execAsync('git rev-parse --abbrev-ref HEAD', {
+        cwd: this.repoPath,
+      });
+
+      const branch = stdout.trim();
+      this.logger.debug('Current branch', { branch });
+      return branch;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to get current branch', { error: message });
+      throw new GitOperationError(
+        `Failed to get current branch: ${message}`,
+        'git rev-parse --abbrev-ref HEAD'
+      );
+    }
+  }
+
   async listWorktrees(): Promise<Worktree[]> {
     try {
       this.logger.debug('Listing worktrees', { repoPath: this.repoPath });
-      
+
       const { stdout } = await execAsync('git worktree list --porcelain', {
         cwd: this.repoPath,
       });
@@ -81,16 +102,16 @@ export class GitClient {
   async getWorktree(branch: string): Promise<Worktree | null> {
     try {
       this.logger.debug('Getting worktree for branch', { branch });
-      
+
       const worktrees = await this.listWorktrees();
       const worktree = worktrees.find(wt => wt.branch === branch || wt.branch === `refs/heads/${branch}`);
-      
+
       if (worktree) {
         this.logger.debug('Found worktree', { branch, path: worktree.path });
       } else {
         this.logger.debug('Worktree not found', { branch });
       }
-      
+
       return worktree || null;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -105,10 +126,10 @@ export class GitClient {
   async diff(base: string, target: string): Promise<DiffSummary> {
     try {
       this.logger.debug('Computing diff', { base, target });
-      
+
       const sanitizedBase = SecurityValidator.validateBranchName(base);
       const sanitizedTarget = SecurityValidator.validateBranchName(target);
-      
+
       const { stdout } = await execAsync(
         `git diff --stat --numstat ${sanitizedBase}...${sanitizedTarget}`,
         { cwd: this.repoPath }
@@ -178,10 +199,10 @@ export class GitClient {
   async checkConflicts(base: string, target: string): Promise<ConflictInfo> {
     try {
       this.logger.debug('Checking for conflicts', { base, target });
-      
+
       const sanitizedBase = SecurityValidator.validateBranchName(base);
       const sanitizedTarget = SecurityValidator.validateBranchName(target);
-      
+
       const { stdout } = await execAsync(
         `git merge-tree $(git merge-base ${sanitizedBase} ${sanitizedTarget}) ${sanitizedBase} ${sanitizedTarget}`,
         { cwd: this.repoPath }
@@ -243,9 +264,9 @@ export class GitClient {
   async merge(branch: string, message: string): Promise<MergeResult> {
     try {
       this.logger.info('Starting merge', { branch, message });
-      
+
       const conflicts = await this.checkConflicts('HEAD', branch);
-      
+
       if (conflicts.has_conflicts) {
         this.logger.warn('Merge aborted due to conflicts', {
           branch,
@@ -260,7 +281,7 @@ export class GitClient {
 
       const sanitizedBranch = SecurityValidator.validateBranchName(branch);
       const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
-      
+
       const { stdout } = await execAsync(
         `git merge --no-ff -m "${sanitizedMessage}" ${sanitizedBranch}`,
         { cwd: this.repoPath }
@@ -278,7 +299,7 @@ export class GitClient {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error('Merge failed', { branch, error: message });
-      
+
       try {
         await execAsync('git merge --abort', { cwd: this.repoPath });
         this.logger.info('Merge aborted');
@@ -298,7 +319,7 @@ export class GitClient {
   async createCommit(message: string, files?: string[]): Promise<string> {
     try {
       this.logger.debug('Creating commit', { message, filesCount: files?.length });
-      
+
       if (files && files.length > 0) {
         const sanitizedFiles = files.map(f => {
           const validated = SecurityValidator.validateFilePath(f, this.repoPath);
@@ -312,7 +333,7 @@ export class GitClient {
       }
 
       const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
-      
+
       const { stdout } = await execAsync(
         `git commit -m "${sanitizedMessage}"`,
         { cwd: this.repoPath }
@@ -337,10 +358,10 @@ export class GitClient {
   async push(remote: string, branch: string): Promise<void> {
     try {
       this.logger.info('Pushing to remote', { remote, branch });
-      
+
       const sanitizedRemote = SecurityValidator.validateRemoteName(remote);
       const sanitizedBranch = SecurityValidator.validateBranchName(branch);
-      
+
       await execAsync(
         `git push ${sanitizedRemote} ${sanitizedBranch}`,
         { cwd: this.repoPath, timeout: 60000 }
@@ -360,9 +381,9 @@ export class GitClient {
   async createStash(message: string): Promise<string> {
     try {
       this.logger.debug('Creating stash', { message });
-      
+
       const sanitizedMessage = SecurityValidator.sanitizeCommitMessage(message);
-      
+
       const { stdout } = await execAsync(
         `git stash push -m "${sanitizedMessage}"`,
         { cwd: this.repoPath }
@@ -387,9 +408,9 @@ export class GitClient {
   async applyStash(stashId: string): Promise<void> {
     try {
       this.logger.info('Applying stash', { stashId });
-      
+
       const sanitizedStashId = SecurityValidator.validateStashId(stashId);
-      
+
       await execAsync(
         `git stash apply ${sanitizedStashId}`,
         { cwd: this.repoPath }

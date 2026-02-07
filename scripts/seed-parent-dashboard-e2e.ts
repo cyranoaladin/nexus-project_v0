@@ -13,7 +13,7 @@
  */
 
 import { PrismaClient, UserRole, Subject, SessionStatus, SubscriptionStatus, PaymentType, PaymentStatus } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
@@ -70,7 +70,7 @@ async function main() {
     where: { userId: { in: ['student-test-001', 'student-test-002'] } }
   });
   await prisma.coachProfile.deleteMany({
-    where: { 
+    where: {
       OR: [
         { userId: { in: ['coach-test-001', 'coach-test-002'] } },
         { pseudonym: { in: ['Hélios', 'Zénon'] } }
@@ -99,7 +99,24 @@ async function main() {
   // =============================================================================
   // PASSWORD HASH
   // =============================================================================
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // Hash for 'password123' generated locally to avoid bcrypt dependency in container
+  const hashedPassword = '$2b$10$TAnmu8rftT19nLPATB/V4ebYdw2X1l8KPFACHusCMv6ffcKWfiaxO';
+
+  // =============================================================================
+  // CREATE ADMIN USER
+  // =============================================================================
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@test.com' },
+    update: {},
+    create: {
+      email: 'admin@test.com',
+      password: hashedPassword,
+      firstName: 'Admin',
+      lastName: 'Test',
+      role: 'ADMIN',
+    },
+  });
+  console.log(`👨‍💼 Admin User: ${adminUser.email}`);
 
   // =============================================================================
   // CREATE PARENT USER
