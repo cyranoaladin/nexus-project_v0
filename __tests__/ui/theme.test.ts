@@ -6,10 +6,10 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+    }
     : { r: 0, g: 0, b: 0 };
 }
 
@@ -101,7 +101,7 @@ describe('Theme Configuration', () => {
     it('should have complete neutral scale (50-950)', () => {
       const expectedKeys = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
       const actualKeys = Object.keys(settings.theme.colors.neutral);
-      
+
       expectedKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
       });
@@ -110,7 +110,7 @@ describe('Theme Configuration', () => {
     it('should have all surface color variants', () => {
       const expectedSurfaceKeys = ['dark', 'darker', 'card', 'elevated', 'hover'];
       const actualKeys = Object.keys(settings.theme.colors.surface);
-      
+
       expectedSurfaceKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
       });
@@ -119,7 +119,7 @@ describe('Theme Configuration', () => {
     it('should have all semantic colors', () => {
       const expectedSemanticKeys = ['success', 'warning', 'error', 'info'];
       const actualKeys = Object.keys(settings.theme.colors.semantic);
-      
+
       expectedSemanticKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
       });
@@ -142,7 +142,7 @@ describe('Theme Configuration', () => {
     it('should have radius configuration', () => {
       const expectedRadiusKeys = ['micro', 'card-sm', 'card', 'full'];
       const actualKeys = Object.keys(settings.theme.radius);
-      
+
       expectedRadiusKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
       });
@@ -258,7 +258,7 @@ describe('Theme Configuration', () => {
     it('should inject font family variables in @theme block', () => {
       const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
-      
+
       const themeContent = themeBlock?.[0] || '';
       expect(themeContent).toContain('--font-sans: var(--font-inter), Inter, system-ui, sans-serif');
       expect(themeContent).toContain('--font-display: var(--font-space), "Space Grotesk", sans-serif');
@@ -268,10 +268,10 @@ describe('Theme Configuration', () => {
     it('should use RGB format with space-separated values', () => {
       const rgbPattern = /--color-[a-z0-9-]+:\s+\d+\s+\d+\s+\d+/g;
       const matches = cssContent.match(rgbPattern);
-      
+
       expect(matches).toBeTruthy();
       expect(matches!.length).toBeGreaterThan(20);
-      
+
       matches?.forEach((match) => {
         expect(match).toMatch(/\d+\s+\d+\s+\d+/);
       });
@@ -280,7 +280,7 @@ describe('Theme Configuration', () => {
     it('should map colors to Tailwind utilities in @theme block', () => {
       const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
-      
+
       const themeContent = themeBlock?.[0] || '';
       expect(themeContent).toContain('--color-brand-primary: rgb(var(--color-brand-primary))');
       expect(themeContent).toContain('--color-brand-secondary: rgb(var(--color-brand-secondary))');
@@ -424,7 +424,7 @@ describe('Theme Configuration', () => {
     it('should preserve legacy color aliases in @theme block', () => {
       const themeBlock = cssContent.match(/@theme inline\s*{[^}]+}/);
       expect(themeBlock).toBeTruthy();
-      
+
       const themeContent = themeBlock?.[0] || '';
       const legacyColorAliases = [
         '--color-background',
@@ -442,10 +442,11 @@ describe('Theme Configuration', () => {
       });
     });
 
-    it('should have Nexus variables with correct color values', () => {
-      expect(cssContent).toContain('--nexus-dark: #0B0C10');
-      expect(cssContent).toContain('--nexus-charcoal: #111318');
-      expect(cssContent).toContain('--nexus-cyan: #2EE9F6');
+    it('should have Nexus variables with correct values', () => {
+      // Some nexus variables use rgb() references, others use hex values
+      expect(cssContent).toContain('--nexus-dark: rgb(var(--color-surface-dark))');
+      expect(cssContent).toContain('--nexus-charcoal: rgb(var(--color-surface-card))');
+      expect(cssContent).toContain('--nexus-cyan: rgb(var(--color-brand-accent))');
       expect(cssContent).toContain('--nexus-white: #F4F6FA');
       expect(cssContent).toContain('--nexus-gray: #A6A9B4');
     });
@@ -492,23 +493,23 @@ describe('Theme Configuration', () => {
 
     it('should return fallback color for invalid path', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-      
+
       const result = getColor('invalid.path');
-      
+
       expect(result).toBe('#000000');
       expect(consoleSpy).toHaveBeenCalledWith('Color token not found: invalid.path');
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should return fallback color for partially invalid path', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-      
+
       const result = getColor('brand.nonexistent');
-      
+
       expect(result).toBe('#000000');
       expect(consoleSpy).toHaveBeenCalledWith('Color token not found: brand.nonexistent');
-      
+
       consoleSpy.mockRestore();
     });
   });

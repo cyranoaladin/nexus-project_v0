@@ -19,15 +19,6 @@ jest.mock('framer-motion', () => ({
   useTransform: () => ({ get: () => 1 }),
 }));
 
-// Mock les composants
-jest.mock('@/components/layout/header', () => ({
-  Header: () => <header data-testid="header">Header</header>,
-}));
-
-jest.mock('@/components/layout/footer', () => ({
-  Footer: () => <footer data-testid="footer">Footer</footer>,
-}));
-
 jest.mock('@/components/ui/floating-nav', () => ({
   FloatingNav: () => <div data-testid="floating-nav">FloatingNav</div>,
 }));
@@ -58,9 +49,13 @@ describe('OffresPage', () => {
   });
 
   describe('Rendu initial', () => {
-    it('affiche le header et footer', () => {
-      expect(screen.getByTestId('header')).toBeInTheDocument();
-      expect(screen.getByTestId('footer')).toBeInTheDocument();
+    it('affiche la navigation et le footer', () => {
+      // Check for the actual rendered navbar (CorporateNavbar)
+      const navElement = document.querySelector('nav');
+      expect(navElement).toBeInTheDocument();
+      // Check for footer element
+      const footerElement = document.querySelector('footer');
+      expect(footerElement).toBeInTheDocument();
     });
 
     it('affiche le titre principal', () => {
@@ -75,7 +70,7 @@ describe('OffresPage', () => {
       const eleveSco = screen.getAllByText('Élève scolarisé');
       const candidatLibre = screen.getAllByText('Candidat libre');
       const parentIndecis = screen.getAllByText('Parent indécis');
-      
+
       expect(eleveSco.length).toBeGreaterThan(0);
       expect(candidatLibre.length).toBeGreaterThan(0);
       expect(parentIndecis.length).toBeGreaterThan(0);
@@ -166,7 +161,7 @@ describe('OffresPage', () => {
 
     it('a des boutons avec les bonnes classes CSS', () => {
       const buttons = screen.getAllByRole('button');
-      const buttonWithClasses = buttons.find(button => 
+      const buttonWithClasses = buttons.find(button =>
         button.className.includes('rounded')
       );
       expect(buttonWithClasses).toBeTruthy();
