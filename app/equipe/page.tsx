@@ -1,16 +1,6 @@
 "use client";
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import {
-  Award,
-  BadgeCheck,
-  ChevronRight,
-  Filter,
-  MessageCircle,
-  Star,
-  TrendingUp,
-  Users,
-} from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 

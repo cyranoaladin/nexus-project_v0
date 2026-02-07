@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
-import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { successResponse, handleApiError } from '@/lib/api/errors';
 import { assertExists } from '@/lib/api/helpers';
 import type { CreditTransaction } from '@prisma/client';
 import { UserRole } from '@/types/enums';

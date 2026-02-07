@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     // Handle Prisma transaction errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const prismaError = error as { code: string; meta?: any };
+      const prismaError = error as { code: string; meta?: Record<string, unknown> };
 
       // P2034: Transaction failed due to serialization conflict
       if (prismaError.code === 'P2034') {

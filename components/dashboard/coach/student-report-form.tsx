@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, FileText, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Save, CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface StudentReportFormProps {
     sessionId: string;
@@ -74,7 +74,7 @@ export function StudentReportForm({
         }
     };
 
-    const handleChange = (field: string, value: any) => {
+    const handleChange = (field: string, value: string | number | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 

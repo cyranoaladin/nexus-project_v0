@@ -10,18 +10,18 @@ export interface ApiError {
     error: {
         code: string;
         message: string;
-        details?: any;
+        details?: unknown;
         timestamp: string;
     };
 }
 
-export interface ApiSuccess<T = any> {
+export interface ApiSuccess<T = unknown> {
     success: true;
     data: T;
     timestamp: string;
 }
 
-export type ApiResponse<T = any> = ApiSuccess<T> | ApiError;
+export type ApiResponse<T = unknown> = ApiSuccess<T> | ApiError;
 
 /**
  * Standard error codes
@@ -61,7 +61,7 @@ export function createErrorResponse(
     code: string,
     message: string,
     statusCode: number = 500,
-    details?: any
+    details?: unknown
 ): NextResponse<ApiError> {
     const errorResponse: ApiError = {
         success: false,
@@ -118,7 +118,7 @@ export function handleApiError(error: unknown, context?: string): NextResponse<A
 
     // Prisma errors
     if (error && typeof error === 'object' && 'code' in error) {
-        const prismaError = error as any;
+        const prismaError = error as { code: string; meta?: Record<string, unknown> };
 
         if (prismaError.code === 'P2002') {
             return createErrorResponse(
@@ -162,7 +162,7 @@ export function handleApiError(error: unknown, context?: string): NextResponse<A
  * Validate required fields in request body
  */
 export function validateRequiredFields(
-    body: any,
+    body: Record<string, unknown>,
     requiredFields: string[]
 ): { valid: boolean; missing?: string[] } {
     const missing = requiredFields.filter(field => !body[field]);

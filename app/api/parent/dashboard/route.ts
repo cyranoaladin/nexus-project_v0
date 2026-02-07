@@ -2,6 +2,25 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import type { Prisma } from '@prisma/client';
+
+type ChildWithRelations = Prisma.StudentProfileGetPayload<{
+  include: {
+    user: true;
+    badges: {
+      include: {
+        badge: true;
+      };
+    };
+    sessions: true;
+  };
+}>;
+
+type StudentBadge = Prisma.StudentBadgeGetPayload<{
+  include: {
+    badge: true;
+  };
+}>;
 
 export async function GET() {
   try {
@@ -66,13 +85,13 @@ export async function GET() {
     console.log('[Parent Dashboard API] Found', payments.length, 'payments');
 
     // Transform data for frontend
-    const childrenData = parentProfile.children.map((child: any) => ({
+    const childrenData = parentProfile.children.map((child: ChildWithRelations) => ({
       id: child.id,
       name: `${child.user.firstName || ''} ${child.user.lastName || ''}`.trim() || child.user.email,
       grade: child.grade,
       school: child.school,
       credits: child.credits,
-      badges: child.badges.map((sb: any) => ({
+      badges: child.badges.map((sb: StudentBadge) => ({
         id: sb.badge.id,
         name: sb.badge.name,
         icon: sb.badge.icon,
