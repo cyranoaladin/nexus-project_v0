@@ -10,11 +10,7 @@ export class TaskScheduler {
   private workflowEngine: WorkflowEngine;
   private tasks: Map<string, ScheduledTask> = new Map();
   private timers: Map<string, NodeJS.Timeout> = new Map();
-<<<<<<< HEAD
-  private running = false;
-=======
   private _isRunning = false;
->>>>>>> tests-locaux-41a0
   private configPath: string;
 
   constructor(workflowEngine: WorkflowEngine, configPath = '.zenflow/scheduler.yaml') {
@@ -24,11 +20,7 @@ export class TaskScheduler {
   }
 
   async start(): Promise<void> {
-<<<<<<< HEAD
-    if (this.running) {
-=======
     if (this._isRunning) {
->>>>>>> tests-locaux-41a0
       this.logger.warn('Scheduler is already running');
       return;
     }
@@ -38,11 +30,7 @@ export class TaskScheduler {
     try {
       await this.loadTasks();
       this.scheduleTasks();
-<<<<<<< HEAD
-      this.running = true;
-=======
       this._isRunning = true;
->>>>>>> tests-locaux-41a0
       this.logger.info(`Scheduler started with ${this.tasks.size} tasks`);
     } catch (error) {
       this.logger.error('Failed to start scheduler', {
@@ -53,11 +41,7 @@ export class TaskScheduler {
   }
 
   stop(): void {
-<<<<<<< HEAD
-    if (!this.running) {
-=======
     if (!this._isRunning) {
->>>>>>> tests-locaux-41a0
       return;
     }
 
@@ -69,11 +53,7 @@ export class TaskScheduler {
     }
 
     this.timers.clear();
-<<<<<<< HEAD
-    this.running = false;
-=======
     this._isRunning = false;
->>>>>>> tests-locaux-41a0
     this.logger.info('Scheduler stopped');
   }
 
@@ -236,11 +216,7 @@ export class TaskScheduler {
       name: task.name,
     });
 
-<<<<<<< HEAD
-    if (this.running && task.enabled) {
-=======
     if (this._isRunning && task.enabled) {
->>>>>>> tests-locaux-41a0
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -281,11 +257,7 @@ export class TaskScheduler {
     task.enabled = true;
     this.logger.info('Task enabled', { taskId });
 
-<<<<<<< HEAD
-    if (this.running) {
-=======
     if (this._isRunning) {
->>>>>>> tests-locaux-41a0
       const intervalMs = this.parseCronToInterval(task.cron);
       if (intervalMs !== null) {
         const timer = setInterval(async () => {
@@ -326,11 +298,7 @@ export class TaskScheduler {
   }
 
   isRunning(): boolean {
-<<<<<<< HEAD
-    return this.running;
-=======
     return this._isRunning;
->>>>>>> tests-locaux-41a0
   }
 
   private async saveTasks(): Promise<void> {
