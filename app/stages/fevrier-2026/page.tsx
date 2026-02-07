@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { UrgencyBanner } from '@/components/stages/UrgencyBanner';
 import { StagesHero } from '@/components/stages/StagesHero';
 import { Timeline } from '@/components/stages/Timeline';
@@ -47,7 +45,6 @@ export default function StagesFevrier2026Page() {
       <UrgencyBanner closingDate="10/02" />
 
       {/* Header */}
-      <Header />
 
       <main>
         {/* B — HERO (above the fold) */}
@@ -100,7 +97,6 @@ export default function StagesFevrier2026Page() {
       </main>
 
       {/* Footer */}
-      <Footer />
 
       {/* Sticky mobile CTA */}
       <StickyMobileCTA />
