@@ -181,6 +181,21 @@ jest.mock('./lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined)
 }));
 
+// Mock uuid module to avoid ES6 module issues
+jest.mock('uuid', () => {
+  const actual = jest.requireActual('crypto');
+  return {
+    v4: () => actual.randomUUID(),
+    v1: () => actual.randomUUID(),
+    v5: () => actual.randomUUID(),
+    v3: () => actual.randomUUID(),
+    v6: () => actual.randomUUID(),
+    v7: () => actual.randomUUID(),
+    validate: () => true,
+    version: () => 4,
+  };
+});
+
 // Mock rate limiter to always allow requests in tests
 jest.mock('./lib/middleware/rateLimit', () => ({
   rateLimit: () => () => null,

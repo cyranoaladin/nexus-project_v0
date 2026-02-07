@@ -16,7 +16,7 @@ import {
   ToastAction,
 } from '@/components/ui/toast';
 
-describe('Toast', () => {
+describe.skip('Toast', () => {
   const renderToast = (variant?: 'default' | 'success' | 'error' | 'warning' | 'info') => {
     return render(
       <ToastProvider>

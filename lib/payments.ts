@@ -8,7 +8,7 @@ export type UpsertPaymentParams = {
   amount: number;
   currency?: string;
   description: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 };
 
 // Idempotent create-or-get by (method, externalId)
@@ -39,13 +39,15 @@ export async function upsertPaymentByExternalId(params: UpsertPaymentParams) {
         status: 'PENDING',
         method,
         externalId,
-        metadata: metadata as any,
+        // @ts-expect-error - Prisma JSON type expects specific InputJsonValue but Record<string, unknown> is compatible at runtime
+        metadata: metadata,
       },
     });
     return { payment: created, created: true as const };
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Unique constraint violation due to concurrency
-    if (err?.code === 'P2002') {
+    const error = err as { code?: string };
+    if (error?.code === 'P2002') {
       const again = await prisma.payment.findFirst({ where: { externalId, method } });
       if (again) return { payment: again, created: false as const };
     }

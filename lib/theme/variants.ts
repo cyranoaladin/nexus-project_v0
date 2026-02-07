@@ -402,7 +402,7 @@ export function getVariantDescription(
   type: 'variant' | 'size',
   value: string
 ): string {
-  const componentDef = componentVariants[component] as any;
+  const componentDef = componentVariants[component] as Record<string, Record<string, { description?: string }>>;
   const typeDef = componentDef[type];
   const variant = typeDef?.[value];
 
