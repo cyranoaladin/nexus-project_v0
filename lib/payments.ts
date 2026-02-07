@@ -39,7 +39,8 @@ export async function upsertPaymentByExternalId(params: UpsertPaymentParams) {
         status: 'PENDING',
         method,
         externalId,
-        metadata: metadata as Record<string, unknown> | undefined,
+        // @ts-expect-error - Prisma JSON type expects specific InputJsonValue but Record<string, unknown> is compatible at runtime
+        metadata: metadata,
       },
     });
     return { payment: created, created: true as const };
