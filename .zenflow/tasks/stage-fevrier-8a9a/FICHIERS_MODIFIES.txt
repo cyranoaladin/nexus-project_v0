@@ -1,0 +1,65 @@
+================================================================================
+AJUSTEMENTS PAGE STAGES FÉVRIER 2026
+Fichiers Modifiés — Chemins Exacts
+================================================================================
+
+📦 DATA (1 fichier)
+================================================================================
+/home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/data/stages/fevrier2026.ts
+
+Modification :
+  - Ligne 282-285 : Ajout FAQ question 4 "Comment choisir entre le Pallier 1 et le Pallier 2 ?"
+
+================================================================================
+
+🎨 COMPONENTS (3 fichiers)
+================================================================================
+
+1. /home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/components/stages/StagesHero.tsx
+
+Modifications :
+  - Ligne 30-31 : Ajout "PREMIÈRE & TERMINALE" dans H1
+  - Ligne 39-45 : Ajout encadré explicatif (bg-white/10)
+
+--------------------------------------------------------------------------------
+
+2. /home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/components/stages/SubjectTierTable.tsx
+
+Modifications :
+  - Ligne 28-34 : Ajout encadré explicatif (bg-blue-50)
+  - Ligne 40-45 : Ajout sous-label "Première & Terminale" sous chaque matière
+
+--------------------------------------------------------------------------------
+
+3. /home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/components/stages/AcademyGrid.tsx
+
+Modifications :
+  - Ligne 33-37 : Ajout texte explicatif sur pallier vs niveau
+  - Ligne 49 : Bouton "Tous" → "Toutes les académies"
+  - Ligne 53-70 : Filtres Première/Terminale rendus secondaires (gris, text-xs)
+  - Ligne 80-92 : Ajout badge Pallier visible (bleu/violet)
+
+================================================================================
+
+📄 DOCUMENTATION (2 fichiers créés)
+================================================================================
+
+1. /home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/.zenflow/tasks/stage-fevrier-8a9a/AJUSTEMENTS_FINAL.md
+   → Documentation complète des ajustements (impact, justification, vérifications)
+
+2. /home/alaeddine/.zenflow/worktrees/stage-fevrier-8a9a/.zenflow/tasks/stage-fevrier-8a9a/RESUME_AJUSTEMENTS.md
+   → Résumé exécutif (1 page)
+
+================================================================================
+
+TOTAL FICHIERS MODIFIÉS : 4 fichiers de code
+TOTAL FICHIERS CRÉÉS : 2 fichiers de documentation
+
+================================================================================
+
+BUILD STATUS : ✅ Success (npm run build)
+TYPESCRIPT : ✅ No errors (tsc --noEmit)
+PAGE SIZE : 10.1 kB (+0.73 kB vs avant)
+FIRST LOAD JS : 162 kB (+1 kB vs avant)
+
+================================================================================

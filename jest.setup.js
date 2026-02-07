@@ -1,5 +1,15 @@
 import '@testing-library/jest-dom';
 
+// Polyfill setImmediate for Pino logger (used by thread-stream)
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (callback, ...args) => {
+    return setTimeout(callback, 0, ...args);
+  };
+  global.clearImmediate = (id) => {
+    return clearTimeout(id);
+  };
+}
+
 // Mock Prisma client
 jest.mock('./lib/prisma', () => ({
   prisma: {
@@ -86,7 +96,10 @@ jest.mock('@radix-ui/react-presence', () => ({
 
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'development';
+
+// Configure React for testing environment (React 18+)
+global.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mock window.alert for jsdom environment (force override, JS-safe)
 if (typeof globalThis !== 'undefined') {
