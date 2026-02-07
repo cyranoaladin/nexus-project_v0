@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Footer } from "@/components/layout/footer";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 interface Child {
   id: string;
@@ -495,7 +495,7 @@ export default function AbonnementsPage() {
         </Dialog>
       </main>
     </div>
-    <Footer />  
+    <CorporateFooter />  
     </>
   );
 }

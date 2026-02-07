@@ -12,8 +12,8 @@ import {
   Mic,
   Wifi,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 export default function NotreCentrePage() {
   const structuredData = {
@@ -32,8 +32,8 @@ export default function NotreCentrePage() {
   };
 
   return (
-    <div className="min-h-screen bg-midnight-950 text-slate-200">
-      <Header />
+    <div className="min-h-screen bg-surface-darker text-slate-200">
+      <CorporateNavbar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -41,13 +41,13 @@ export default function NotreCentrePage() {
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden bg-midnight-950 py-24">
-          <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
-          <div className="absolute right-10 top-8 h-64 w-64 rounded-full bg-gold-500/10 blur-[120px]" />
+        <section className="relative overflow-hidden bg-surface-darker py-24">
+          <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
+          <div className="absolute right-10 top-8 h-64 w-64 rounded-full bg-brand-accent/10 blur-[120px]" />
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="grid gap-10 lg:grid-cols-2 items-center">
               <div>
-                <h1 className="text-4xl md:text-6xl font-bold text-white font-serif">
+                <h1 className="text-4xl md:text-6xl font-bold text-white font-display">
                   Votre Campus d&apos;Excellence à Tunis.
                 </h1>
                 <p className="mt-5 text-lg text-slate-300">
@@ -56,7 +56,7 @@ export default function NotreCentrePage() {
                 </p>
                 <a
                   href="#visite"
-                  className="mt-8 inline-flex items-center justify-center rounded-full bg-gold-500 px-8 py-3 text-sm font-semibold text-black hover:bg-gold-400 transition"
+                  className="mt-8 inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-black hover:bg-brand-accent transition"
                 >
                   Réserver ma visite guidée
                 </a>
@@ -71,9 +71,9 @@ export default function NotreCentrePage() {
         </section>
 
         {/* EXPÉRIENCE */}
-        <section className="bg-midnight-950 py-20">
+        <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               L&apos;Expérience Nexus
             </h2>
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -105,7 +105,7 @@ export default function NotreCentrePage() {
                     key={item.title}
                     className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
                   >
-                    <Icon className="h-6 w-6 text-gold-400" />
+                    <Icon className="h-6 w-6 text-brand-accent" />
                     <h3 className="mt-4 text-lg font-semibold text-white">
                       {item.title}
                     </h3>
@@ -118,9 +118,9 @@ export default function NotreCentrePage() {
         </section>
 
         {/* VISITE VIRTUELLE */}
-        <section className="bg-midnight-950 py-20">
+        <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Entrez dans l&apos;excellence.
             </h2>
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +140,7 @@ export default function NotreCentrePage() {
         </section>
 
         {/* POURQUOI LE CENTRE */}
-        <section className="bg-midnight-950 py-20">
+        <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-6 md:grid-cols-3">
               {[
@@ -172,35 +172,35 @@ export default function NotreCentrePage() {
         </section>
 
         {/* NOUS TROUVER */}
-        <section className="bg-midnight-950 py-20">
+        <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-                <h2 className="text-2xl font-bold text-white font-serif">
+                <h2 className="text-2xl font-bold text-white font-display">
                   Nous trouver
                 </h2>
                 <div className="mt-6 space-y-4 text-slate-300 text-sm">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-4 w-4 text-gold-400 mt-0.5" />
+                    <MapPin className="h-4 w-4 text-brand-accent mt-0.5" />
                     <div>
                       Immeuble VENUS, Apt. C13<br />
                       Centre Urbain Nord, 1082 Tunis
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="h-4 w-4 text-gold-400" />
+                    <Clock className="h-4 w-4 text-brand-accent" />
                     <span>Lun-Sam : 09h - 20h</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-gold-400" />
+                    <Phone className="h-4 w-4 text-brand-accent" />
                     <span>+216 99 19 28 29</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-gold-400" />
+                    <Mail className="h-4 w-4 text-brand-accent" />
                     <span>contact@nexusreussite.academy</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Wifi className="h-4 w-4 text-gold-400" />
+                    <Wifi className="h-4 w-4 text-brand-accent" />
                     <span>Wifi haut débit pour les familles</span>
                   </div>
                 </div>
@@ -215,15 +215,15 @@ export default function NotreCentrePage() {
         </section>
 
         {/* CTA FINAL */}
-        <section id="visite" className="bg-midnight-950 py-20">
+        <section id="visite" className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-10 text-center backdrop-blur-md">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+            <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-10 text-center backdrop-blur-md">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 La confiance se gagne sur place.
               </h2>
               <a
                 href="/contact"
-                className="mt-6 inline-flex items-center justify-center rounded-full bg-gold-500 px-8 py-3 text-sm font-semibold text-black hover:bg-gold-400 transition"
+                className="mt-6 inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-black hover:bg-brand-accent transition"
               >
                 Prendre rendez-vous pour une visite
               </a>
@@ -232,7 +232,7 @@ export default function NotreCentrePage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

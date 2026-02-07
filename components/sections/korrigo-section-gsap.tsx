@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FileCheck, BarChart3, Users, Zap, Shield, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,7 +71,7 @@ const KorrigoSectionGSAP = () => {
             icon: FileCheck,
             title: 'Correction Assistée',
             description: 'IA qui aide à corriger plus vite sans perdre en qualité',
-            color: 'bg-nexus-cyan/10'
+            color: 'bg-brand-accent/10'
         },
         {
             icon: BarChart3,
@@ -108,17 +109,17 @@ const KorrigoSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="korrigo"
-            className="section-pinned bg-nexus-dark flex items-center justify-center py-20 px-4 md:px-6 lg:px-12"
+            className="section-pinned bg-surface-dark flex items-center justify-center py-20 px-4 md:px-6 lg:px-12"
             style={{ zIndex: 50 }}
         >
             <div ref={contentRef} className="w-full max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="korrigo-header text-center mb-12 md:mb-16">
-                    <span className="label-mono text-nexus-cyan block mb-4">Plateforme phare</span>
-                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-nexus-white mb-6">
+                    <span className="label-mono text-brand-accent block mb-4">Plateforme phare</span>
+                    <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
                         Korrigo Engine
                     </h2>
-                    <p className="text-nexus-gray text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                         La plateforme de correction et de pilotage pédagogique qui révolutionne le métier d'enseignant.
                     </p>
                 </div>
@@ -128,15 +129,15 @@ const KorrigoSectionGSAP = () => {
                     {features.map((feature, index) => (
                         <div
                             key={index}
-                            className="korrigo-feature card-dark p-6 md:p-8 hover:border-nexus-cyan/40 transition-all duration-300"
+                            className="korrigo-feature bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-6 md:p-8 hover:border-brand-accent/40 transition-all duration-300"
                         >
                             <div className={`w-14 h-14 rounded-xl ${feature.color} flex items-center justify-center mb-6`}>
-                                <feature.icon className="w-7 h-7 text-nexus-cyan" />
+                                <feature.icon className="w-7 h-7 text-brand-accent" />
                             </div>
-                            <h3 className="font-display font-semibold text-nexus-white text-xl mb-3">
+                            <h3 className="font-display font-semibold text-white text-xl mb-3">
                                 {feature.title}
                             </h3>
-                            <p className="text-nexus-gray text-sm md:text-base leading-relaxed">
+                            <p className="text-neutral-400 text-sm md:text-base leading-relaxed">
                                 {feature.description}
                             </p>
                         </div>
@@ -145,9 +146,11 @@ const KorrigoSectionGSAP = () => {
 
                 {/* CTA */}
                 <div className="mt-12 text-center">
-                    <Link href="/contact?sujet=korrigo" className="btn-primary inline-block">
-                        Découvrir Korrigo
-                    </Link>
+                    <Button asChild className="inline-block">
+                        <Link href="/contact?sujet=korrigo">
+                            Découvrir Korrigo
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </section>

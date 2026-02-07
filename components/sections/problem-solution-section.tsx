@@ -5,10 +5,10 @@ import { Building2, Users, Briefcase } from "lucide-react";
 
 export default function ProblemSolutionSection() {
   return (
-    <section id="parcours" className="bg-midnight-950 py-20">
+    <section id="parcours" className="bg-surface-darker py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+          <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
             Choisissez votre parcours
           </h2>
           <p className="mt-3 text-slate-300">
@@ -19,9 +19,9 @@ export default function ProblemSolutionSection() {
         <div className="grid gap-6 lg:grid-cols-3">
           <a
             href="#etablissements"
-            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/50 hover:bg-white/10"
           >
-            <div className="flex items-center gap-3 text-gold-400">
+            <div className="flex items-center gap-3 text-brand-accent">
               <Building2 className="h-5 w-5" />
               <span className="text-sm font-semibold tracking-wider">
                 ÉTABLISSEMENTS
@@ -37,9 +37,9 @@ export default function ProblemSolutionSection() {
 
           <a
             href="#parents_eleves"
-            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/50 hover:bg-white/10"
           >
-            <div className="flex items-center gap-3 text-gold-400">
+            <div className="flex items-center gap-3 text-brand-accent">
               <Users className="h-5 w-5" />
               <span className="text-sm font-semibold tracking-wider">
                 PARENTS & ÉLÈVES
@@ -55,9 +55,9 @@ export default function ProblemSolutionSection() {
 
           <a
             href="#formation_tech"
-            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/50 hover:bg-white/10"
+            className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/50 hover:bg-white/10"
           >
-            <div className="flex items-center gap-3 text-gold-400">
+            <div className="flex items-center gap-3 text-brand-accent">
               <Briefcase className="h-5 w-5" />
               <span className="text-sm font-semibold tracking-wider">
                 PROFESSIONNELS
