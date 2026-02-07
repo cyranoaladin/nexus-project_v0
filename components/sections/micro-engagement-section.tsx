@@ -37,7 +37,8 @@ export function MicroEngagementSection() {
             >
               <Button
                 onClick={() => setShowAriaWidget(true)}
-                className="btn-primary h-14 px-8 text-lg group relative overflow-hidden"
+                size="lg"
+                className="h-14 px-8 text-lg group relative overflow-hidden"
               >
                 <div className="flex items-center gap-3">
                   <BrainCircuit className="w-6 h-6" />

@@ -55,68 +55,17 @@ const config = {
           foreground: "hsl(var(--accent-foreground))",
         },
 
-        // ===== DEPRECATED COLORS (Migrate to new design system) =====
-        // ⚠️ WARNING: These colors are still in use and cannot be removed yet
-        // See migration status below for each color group
-
-        /**
-         * @deprecated Use neutral scale or surface colors instead
-         * midnight-blue → neutral.700, neutral.800, neutral.900
-         *
-         * STATUS: 0 usages found - can be removed in future
-         */
-        'midnight-blue': {
-          DEFAULT: '#1e293b',
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d7fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#1e1b4b',
-          950: '#0f172a',
-        },
+        // ===== LEGACY COLORS (Kept for backward compatibility) =====
+        // NOTE: These colors are no longer actively used in modern components
+        // Kept for deep-midnight body background and potential legacy references
 
         /**
          * @deprecated Use surface.darker instead
          * deep-midnight → surface.darker
-         *
-         * STATUS: 59 usages found in:
-         * - app/contact/page.tsx
-         * - app/academy/page.tsx
-         * - app/famille/page.tsx
-         * - app/globals.css (body styling)
-         * TODO: Migrate these files before removal
+         * 
+         * STATUS: Used only in app/globals.css body styling
          */
         'deep-midnight': '#020617',
-
-        /**
-         * @deprecated Use brand colors instead
-         * nexus.blue → brand.primary
-         * nexus.red → brand.secondary
-         * nexus.cyan → brand.accent
-         * nexus.dark → surface.dark
-         * nexus.charcoal → surface.card
-         *
-         * STATUS: 74 usages found in:
-         * - app/globals.css (CSS variables)
-         * - components/sections/trinity-services-gsap.tsx
-         * - components/sections/korrigo-section-gsap.tsx
-         * - Other GSAP sections
-         * TODO: Migrate GSAP sections and CSS variables before removal
-         */
-        nexus: {
-          blue: '#2563EB',
-          red: '#EF4444',
-          dark: '#0B0C10',
-          charcoal: '#111318',
-          cyan: '#2EE9F6',
-          white: '#F4F6FA',
-          gray: '#A6A9B4',
-        },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'sans-serif'],

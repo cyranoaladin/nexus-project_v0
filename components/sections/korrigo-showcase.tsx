@@ -18,7 +18,7 @@ export default function KorrigoShowcase() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: true, amount: 0.3 }}
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
               Nos Réalisations : La Preuve par l&apos;Exemple.
             </h2>
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
@@ -30,7 +30,7 @@ export default function KorrigoShowcase() {
 
             <div className="space-y-5">
               <div className="flex items-start gap-4">
-                <div className="mt-1 rounded-lg bg-gold-500/10 p-2 text-gold-400">
+                <div className="mt-1 rounded-lg bg-brand-accent/10 p-2 text-brand-accent">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <p className="text-slate-300">
@@ -40,7 +40,7 @@ export default function KorrigoShowcase() {
                 </p>
               </div>
               <div className="flex items-start gap-4">
-                <div className="mt-1 rounded-lg bg-gold-500/10 p-2 text-gold-400">
+                <div className="mt-1 rounded-lg bg-brand-accent/10 p-2 text-brand-accent">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <p className="text-slate-300">
@@ -50,7 +50,7 @@ export default function KorrigoShowcase() {
                 </p>
               </div>
               <div className="flex items-start gap-4">
-                <div className="mt-1 rounded-lg bg-gold-500/10 p-2 text-gold-400">
+                <div className="mt-1 rounded-lg bg-brand-accent/10 p-2 text-brand-accent">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <p className="text-slate-300">
@@ -67,7 +67,7 @@ export default function KorrigoShowcase() {
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-gold-400 text-sm font-semibold mb-1">
+                  <div className="text-brand-accent text-sm font-semibold mb-1">
                     Smart Ingest Engine™
                   </div>
                   <div className="text-slate-300 text-sm">
@@ -75,7 +75,7 @@ export default function KorrigoShowcase() {
                   </div>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-gold-400 text-sm font-semibold mb-1">
+                  <div className="text-brand-accent text-sm font-semibold mb-1">
                     Rapid-ID Desk
                   </div>
                   <div className="text-slate-300 text-sm">
@@ -83,7 +83,7 @@ export default function KorrigoShowcase() {
                   </div>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-gold-400 text-sm font-semibold mb-1">
+                  <div className="text-brand-accent text-sm font-semibold mb-1">
                     Vector Grading Studio
                   </div>
                   <div className="text-slate-300 text-sm">
@@ -91,7 +91,7 @@ export default function KorrigoShowcase() {
                   </div>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-gold-400 text-sm font-semibold mb-1">
+                  <div className="text-brand-accent text-sm font-semibold mb-1">
                     Universal Data Sync
                   </div>
                   <div className="text-slate-300 text-sm">
@@ -104,7 +104,7 @@ export default function KorrigoShowcase() {
             <div className="mt-8">
               <a
                 href="#contact"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-gold-500 px-6 text-sm font-semibold text-black transition-all hover:bg-gold-400 hover:shadow-[0_0_24px_rgba(234,179,8,0.35)]"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-brand-accent px-6 text-sm font-semibold text-black transition-all hover:bg-brand-accent-dark hover:shadow-[0_0_24px_rgba(234,179,8,0.35)]"
               >
                 Demander une Démo
               </a>
@@ -118,8 +118,8 @@ export default function KorrigoShowcase() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: true, amount: 0.3 }}
           >
-            <div className="relative flex items-center justify-center rounded-2xl bg-white/5 p-8 backdrop-blur-md border border-white/10 shadow-2xl shadow-gold-500/10">
-              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold-500/20 blur-[110px]" />
+            <div className="relative flex items-center justify-center rounded-2xl bg-white/5 p-8 backdrop-blur-md border border-white/10 shadow-2xl shadow-brand-accent/10">
+              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-accent/20 blur-[110px]" />
               <motion.div
                 className="relative z-10"
                 animate={{ y: [0, -6, 0] }}

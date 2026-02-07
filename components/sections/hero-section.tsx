@@ -78,8 +78,8 @@ export function HeroSection() {
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="tech-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="1" fill="#3B82F6" />
-                <path d="M 0 20 L 40 20 M 20 0 L 20 40" stroke="#3B82F6" strokeWidth="0.5" opacity="0.3" />
+                <circle cx="20" cy="20" r="1" fill="var(--color-brand-primary)" />
+                <path d="M 0 20 L 40 20 M 20 0 L 20 40" stroke="var(--color-brand-primary)" strokeWidth="0.5" opacity="0.3" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#tech-grid)" />
@@ -187,18 +187,19 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center mb-6 md:mb-8"
         >
-          <button
+          <Button
             onClick={() => {
               // TODO: Ouvrir modale bilan gratuit directement
               window.location.href = '/bilan-gratuit';
             }}
-            className="btn-primary h-12 md:h-16 px-6 md:px-10 text-base md:text-lg group inline-flex items-center justify-center"
+            size="lg"
+            className="h-12 md:h-16 px-6 md:px-10 text-base md:text-lg group inline-flex items-center justify-center"
           >
             Commencer mon Bilan Stratégique Gratuit
             <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
-          </button>
+          </Button>
           <Link href="/offres">
-            <Button className="btn-secondary h-12 md:h-16 px-6 md:px-10 text-base md:text-lg">
+            <Button variant="outline" size="lg" className="h-12 md:h-16 px-6 md:px-10 text-base md:text-lg">
               Découvrir nos Offres
             </Button>
           </Link>

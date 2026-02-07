@@ -8,10 +8,10 @@ const noiseBg =
 
 export default function PillarsGrid() {
   return (
-    <section id="pilliers" className="py-24 bg-midnight-950">
+    <section id="pilliers" className="py-24 bg-surface-darker">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-5xl font-bold text-white font-serif">
+          <h2 className="text-3xl md:text-5xl font-bold text-white font-display">
             Une Approche Holistique.
           </h2>
           <p className="mt-4 text-slate-300 max-w-3xl mx-auto">
@@ -21,17 +21,17 @@ export default function PillarsGrid() {
 
         <div className="grid gap-8 lg:grid-cols-3 lg:grid-rows-2">
           {/* Nexus Stratégie */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md shadow-2xl transition hover:border-gold-500/60 hover:bg-white/10">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md shadow-2xl transition hover:border-brand-accent/60 hover:bg-white/10">
             <div className={`pointer-events-none absolute inset-0 opacity-[0.06] ${noiseBg}`} />
             <div className="relative z-10">
-              <div className="flex items-center gap-2 text-gold-500 mb-6">
+              <div className="flex items-center gap-2 text-brand-accent mb-6">
                 <Landmark className="h-6 w-6" strokeWidth={1.5} />
                 <Compass className="h-6 w-6" strokeWidth={1.5} />
               </div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-gold-500">
+              <div className="text-xs font-semibold uppercase tracking-widest text-brand-accent">
                 Nexus Stratégie
               </div>
-              <h3 className="mt-2 text-2xl font-bold text-white font-serif">
+              <h3 className="mt-2 text-2xl font-bold text-white font-display">
                 Pilotez avec vision.
               </h3>
               <ul className="mt-6 space-y-3 text-slate-400 text-sm">
@@ -43,18 +43,18 @@ export default function PillarsGrid() {
           </div>
 
           {/* Nexus Studio - featured */}
-          <div className="relative overflow-hidden rounded-3xl border border-gold-600/40 bg-white/5 p-10 backdrop-blur-md shadow-2xl transition hover:border-gold-500/80 hover:bg-white/10 lg:col-span-2 lg:row-span-2">
+          <div className="relative overflow-hidden rounded-3xl border border-brand-accent/40 bg-white/5 p-10 backdrop-blur-md shadow-2xl transition hover:border-brand-accent/80 hover:bg-white/10 lg:col-span-2 lg:row-span-2">
             <div className={`pointer-events-none absolute inset-0 opacity-[0.08] ${noiseBg}`} />
-            <div className="absolute -top-16 right-10 h-48 w-48 rounded-full bg-gold-500/10 blur-[120px]" />
+            <div className="absolute -top-16 right-10 h-48 w-48 rounded-full bg-brand-accent/10 blur-[120px]" />
             <div className="relative z-10">
-              <div className="flex items-center gap-2 text-gold-500 mb-6">
+              <div className="flex items-center gap-2 text-brand-accent mb-6">
                 <ServerCog className="h-6 w-6" strokeWidth={1.5} />
                 <Bot className="h-6 w-6" strokeWidth={1.5} />
               </div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-gold-500">
+              <div className="text-xs font-semibold uppercase tracking-widest text-brand-accent">
                 Nexus Studio
               </div>
-              <h3 className="mt-2 text-3xl font-bold text-white font-serif">
+              <h3 className="mt-2 text-3xl font-bold text-white font-display">
                 L'IA qui travaille pour vous.
               </h3>
               <ul className="mt-6 space-y-3 text-slate-300 text-sm md:text-base">
@@ -66,17 +66,17 @@ export default function PillarsGrid() {
           </div>
 
           {/* Nexus Academy */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md shadow-2xl transition hover:border-gold-500/60 hover:bg-white/10">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md shadow-2xl transition hover:border-brand-accent/60 hover:bg-white/10">
             <div className={`pointer-events-none absolute inset-0 opacity-[0.06] ${noiseBg}`} />
             <div className="relative z-10">
-              <div className="flex items-center gap-2 text-gold-500 mb-6">
+              <div className="flex items-center gap-2 text-brand-accent mb-6">
                 <Users className="h-6 w-6" strokeWidth={1.5} />
                 <BrainCircuit className="h-6 w-6" strokeWidth={1.5} />
               </div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-gold-500">
+              <div className="text-xs font-semibold uppercase tracking-widest text-brand-accent">
                 Nexus Academy
               </div>
-              <h3 className="mt-2 text-2xl font-bold text-white font-serif">
+              <h3 className="mt-2 text-2xl font-bold text-white font-display">
                 Élevez les compétences.
               </h3>
               <ul className="mt-6 space-y-3 text-slate-400 text-sm">
