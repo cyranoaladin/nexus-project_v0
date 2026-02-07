@@ -20,10 +20,10 @@ describe('ConflictDetector', () => {
   let mockCheckConflicts: jest.MockedFunction<any>;
 
   beforeEach(() => {
-    detector = new ConflictDetector(repoPath);
+    jest.clearAllMocks();
     mockCheckConflicts = jest.fn();
     MergeAnalyzer.prototype.checkConflicts = mockCheckConflicts;
-    jest.clearAllMocks();
+    detector = new ConflictDetector(repoPath);
   });
 
   describe('detectConflicts', () => {
