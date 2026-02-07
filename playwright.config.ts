@@ -22,9 +22,22 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    { 
+      name: 'chromium', 
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup']
+    },
+    { 
+      name: 'firefox', 
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup']
+    },
+    { 
+      name: 'webkit', 
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['setup']
+    },
   ],
   // webServer disabled - run dev server manually before running tests
   // webServer: {
