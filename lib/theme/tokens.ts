@@ -294,10 +294,12 @@ export type SurfaceColor = keyof typeof designTokens.colors.surface;
  */
 export function getColor(path: string): string {
   const parts = path.split('.');
-  let value: any = designTokens.colors;
+  let value: Record<string, unknown> | string = designTokens.colors;
 
   for (const part of parts) {
-    value = value[part];
+    if (typeof value === 'object' && value !== null) {
+      value = (value as Record<string, unknown>)[part] as Record<string, unknown> | string;
+    }
     if (value === undefined) {
       console.warn(`Color token not found: ${path}`);
       return '#000000';

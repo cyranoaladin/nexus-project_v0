@@ -4,7 +4,7 @@ import React from 'react';
 import { TechNavbar } from '@/components/layout/TechNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { useLanguage } from '@/context/LanguageContext';
-import { AlertTriangle, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 export default function MentionsLegalesPage() {
     const { language } = useLanguage();
