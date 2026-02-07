@@ -27,6 +27,7 @@ storage/
 # Test artifacts
 test-results/
 playwright-report/
+e2e/.auth/*.json
 
 # Performance test artifacts
 .zenflow/tests/performance/results.json

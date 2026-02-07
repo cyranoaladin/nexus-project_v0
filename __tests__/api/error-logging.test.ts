@@ -19,7 +19,7 @@ describe('API Error Logging Integration', () => {
   });
 
   describe('handleApiError with logger integration', () => {
-    it('should log ApiError exceptions with structured logger', () => {
+    it('should log ApiError exceptions with structured logger', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const apiError = new ApiError(
@@ -29,7 +29,7 @@ describe('API Error Logging Integration', () => {
         { userId: 'user-123' }
       );
 
-      const response = handleApiError(apiError, 'GET /api/users/123');
+      const response = await handleApiError(apiError, 'GET /api/users/123');
       
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         {
@@ -45,12 +45,12 @@ describe('API Error Logging Integration', () => {
       expect(response.status).toBe(HttpStatus.NOT_FOUND);
     });
 
-    it('should log unexpected errors with logger.error and include stack trace', () => {
+    it('should log unexpected errors with logger.error and include stack trace', async () => {
       const loggerErrorSpy = jest.spyOn(logger, 'error');
       
       const unexpectedError = new Error('Database connection failed');
       
-      const response = handleApiError(unexpectedError, 'POST /api/sessions/book');
+      const response = await handleApiError(unexpectedError, 'POST /api/sessions/book');
       
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         {
@@ -66,7 +66,7 @@ describe('API Error Logging Integration', () => {
       expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
-    it('should log ZodError validation failures with logger.warn', () => {
+    it('should log ZodError validation failures with logger.warn', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const zodError = new ZodError([
@@ -79,7 +79,7 @@ describe('API Error Logging Integration', () => {
         },
       ]);
 
-      const response = handleApiError(zodError, 'POST /api/users');
+      const response = await handleApiError(zodError, 'POST /api/users');
       
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         {
@@ -102,7 +102,7 @@ describe('API Error Logging Integration', () => {
         value: 'invalid-email' 
       });
 
-      const response = handleApiError(apiError);
+      const response = await handleApiError(apiError);
       const data = await response.json();
 
       expect(data).toEqual({
@@ -124,7 +124,7 @@ describe('API Error Logging Integration', () => {
         },
       ]);
 
-      const response = handleApiError(zodError);
+      const response = await handleApiError(zodError);
       const data = await response.json();
 
       expect(data).toEqual({
@@ -146,7 +146,7 @@ describe('API Error Logging Integration', () => {
     it('should NOT expose internal error details in response for unexpected errors', async () => {
       const sensitiveError = new Error('Database password: secret123, connection string: postgresql://...');
 
-      const response = handleApiError(sensitiveError);
+      const response = await handleApiError(sensitiveError);
       const data = await response.json();
 
       expect(data).toEqual({
@@ -162,7 +162,7 @@ describe('API Error Logging Integration', () => {
   });
 
   describe('request context in logs', () => {
-    it('should include request context when using request logger', () => {
+    it('should include request context when using request logger', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const requestLogger = logger.child({
@@ -174,7 +174,7 @@ describe('API Error Logging Integration', () => {
 
       const apiError = ApiError.forbidden('Insufficient credits');
 
-      handleApiError(apiError, 'POST /api/sessions/book', requestLogger);
+      await handleApiError(apiError, 'POST /api/sessions/book', requestLogger);
 
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         {
@@ -188,12 +188,12 @@ describe('API Error Logging Integration', () => {
       );
     });
 
-    it('should use global logger if request logger not provided', () => {
+    it('should use global logger if request logger not provided', async () => {
       const loggerErrorSpy = jest.spyOn(logger, 'error');
       
       const error = new Error('Unexpected error');
 
-      handleApiError(error, 'DELETE /api/sessions/123');
+      await handleApiError(error, 'DELETE /api/sessions/123');
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -214,7 +214,7 @@ describe('API Error Logging Integration', () => {
         try {
           throw new Error('Simulated database failure');
         } catch (error) {
-          return handleApiError(error, 'GET /api/test');
+          return await handleApiError(error, 'GET /api/test');
         }
       }
 
@@ -253,7 +253,7 @@ describe('API Error Logging Integration', () => {
             throw new Error('Unhandled exception');
           }
         } catch (error) {
-          return handleApiError(error, 'POST /api/test');
+          return await handleApiError(error, 'POST /api/test');
         }
       }
 
@@ -299,7 +299,7 @@ describe('API Error Logging Integration', () => {
         token: 'abc-token-xyz',
       });
 
-      const response = handleApiError(apiError, 'POST /api/auth/login', requestLogger);
+      const response = await handleApiError(apiError, 'POST /api/auth/login', requestLogger);
       const data = await response.json();
 
       expect(data.details).toBeDefined();
@@ -310,7 +310,7 @@ describe('API Error Logging Integration', () => {
 
     it('should handle errors without details gracefully', async () => {
       const error = ApiError.internal();
-      const response = handleApiError(error);
+      const response = await handleApiError(error);
       const data = await response.json();
 
       expect(data.details).toBeUndefined();
@@ -322,11 +322,11 @@ describe('API Error Logging Integration', () => {
   });
 
   describe('error logging with different error types', () => {
-    it('should log NotFound errors appropriately', () => {
+    it('should log NotFound errors appropriately', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const error = ApiError.notFound('Session');
-      handleApiError(error, 'GET /api/sessions/999');
+      await handleApiError(error, 'GET /api/sessions/999');
 
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -338,11 +338,11 @@ describe('API Error Logging Integration', () => {
       );
     });
 
-    it('should log Conflict errors appropriately', () => {
+    it('should log Conflict errors appropriately', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const error = ApiError.conflict('Email already exists');
-      handleApiError(error, 'POST /api/users');
+      await handleApiError(error, 'POST /api/users');
 
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -354,11 +354,11 @@ describe('API Error Logging Integration', () => {
       );
     });
 
-    it('should log ServiceUnavailable errors appropriately', () => {
+    it('should log ServiceUnavailable errors appropriately', async () => {
       const loggerWarnSpy = jest.spyOn(logger, 'warn');
       
       const error = ApiError.serviceUnavailable('Payment gateway unavailable');
-      handleApiError(error, 'POST /api/payments');
+      await handleApiError(error, 'POST /api/payments');
 
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -372,11 +372,11 @@ describe('API Error Logging Integration', () => {
   });
 
   describe('error logging without context', () => {
-    it('should handle errors when context is not provided', () => {
+    it('should handle errors when context is not provided', async () => {
       const loggerErrorSpy = jest.spyOn(logger, 'error');
       
       const error = new Error('No context error');
-      const response = handleApiError(error);
+      const response = await handleApiError(error);
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({

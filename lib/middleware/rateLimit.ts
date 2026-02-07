@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { errorResponse, HttpStatus, ErrorCode } from '@/lib/api/errors';
+import { errorResponse, HttpStatus, ErrorCode } from './errors';
 
 interface RateLimitConfig {
   windowMs: number;  // Time window in milliseconds
