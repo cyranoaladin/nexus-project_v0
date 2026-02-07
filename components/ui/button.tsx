@@ -59,6 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const MotionButton = motion.button
 
     return (
+      // @ts-expect-error - framer-motion v11 type conflict with React 19 onDrag prop
       <MotionButton
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
@@ -67,7 +68,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={prefersReducedMotion || isDisabled ? undefined : { scale: 1.02 }}
         whileTap={prefersReducedMotion || isDisabled ? undefined : { scale: 0.98 }}
         transition={{ duration: 0.2 }}
-        {...(props as any)}
+        {...props}
       >
         {loading && (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />

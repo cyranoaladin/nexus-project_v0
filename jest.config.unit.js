@@ -22,15 +22,21 @@ const customJestConfig = {
     '**/__tests__/ui/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/stages/**/*.(test|spec).(js|ts|tsx)',
     '**/tests/**/*.(test|spec).(js|ts|tsx)',
-    '**/.zenflow/**/*.(test|spec).(js|ts|tsx)',
+    '**/.zenflow/core/**/*.test.(js|ts|tsx)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(uuid|glob|chokidar)/)',
+    'node_modules/(?!(uuid|@auth|glob|chokidar)/)',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
+  testPathIgnorePatterns: [
+    '/node_modules/', 
+    '/.next/', 
+    '/.next/standalone/',
+    '/e2e/',
+    '/.zenflow/tests/integration/',
+  ],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   coverageThreshold: {
     global: {

@@ -128,10 +128,10 @@ export class EventDetector {
       .on('add', (filePath) => this.handleFileChange(worktreePath, branch, filePath, 'created'))
       .on('change', (filePath) => this.handleFileChange(worktreePath, branch, filePath, 'modified'))
       .on('unlink', (filePath) => this.handleFileChange(worktreePath, branch, filePath, 'deleted'))
-      .on('error', (error) => {
+      .on('error', (error: unknown) => {
         this.logger.error('Watcher error', {
           worktreePath,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
       })
       .on('ready', () => {
@@ -230,7 +230,7 @@ export class EventDetector {
           commit_hash: currentHash,
           commit_message: commitInfo.message,
           author: commitInfo.author,
-        });
+        } as Omit<CommitEvent, 'id' | 'timestamp'>);
 
         this.pendingChanges.get(worktreePath)?.clear();
         const existingTimer = this.debounceTimers.get(worktreePath);
@@ -331,7 +331,7 @@ export class EventDetector {
       branch,
       files_changed,
       change_type: changeType,
-    });
+    } as Omit<FileChangeEvent, 'id' | 'timestamp'>);
 
     changes.clear();
     this.debounceTimers.delete(worktreePath);
