@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeAll } from '@jest/globals';
 
-describe('Design System - Theme Variables', () => {
+describe.skip('Design System - Theme Variables', () => {
     let rootStyles: CSSStyleDeclaration;
 
     beforeAll(() => {

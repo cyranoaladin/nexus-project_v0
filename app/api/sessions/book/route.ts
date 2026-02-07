@@ -397,7 +397,7 @@ export async function POST(req: NextRequest) {
 
     // Handle database constraint violations and transaction errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const dbError = error as { code: string; meta?: any };
+      const dbError = error as { code: string; meta?: Record<string, unknown> };
 
       // 23P01: Exclusion constraint violation (overlapping sessions)
       if (dbError.code === '23P01') {

@@ -194,5 +194,5 @@ export function isStaff(session: AuthSession): boolean {
 export function isErrorResponse(result: AuthSession | NextResponse): result is NextResponse {
   // Check if result has response-like properties (json, status)
   // This works better with mocks than instanceof
-  return result && typeof (result as any).json === 'function' && 'status' in result;
+  return result && typeof (result as NextResponse).json === 'function' && 'status' in result;
 }

@@ -22,9 +22,9 @@ function getRuleEngine(configPath?: string): RuleEngine {
 function formatRuleTriggers(rule: Rule): string {
   return rule.triggers
     .map(t => {
-      const parts = [t.type];
-      if (t.branches?.include) {
-        parts.push(`branches: ${t.branches.include.join(', ')}`);
+      const parts: string[] = [t.type];
+      if (t.branches?.pattern) {
+        parts.push(`branches: ${t.branches.pattern}`);
       }
       return parts.join(' | ');
     })
@@ -129,11 +129,8 @@ export function createRuleCommand(globalOptions: any): Command {
         output.info('🎯 Triggers:');
         rule.triggers.forEach((trigger, idx) => {
           output.info(`  ${idx + 1}. Type: ${trigger.type}`);
-          if (trigger.branches?.include) {
-            output.info(`     Branches: ${trigger.branches.include.join(', ')}`);
-          }
-          if (trigger.branches?.exclude) {
-            output.info(`     Exclude: ${trigger.branches.exclude.join(', ')}`);
+          if (trigger.branches?.pattern) {
+            output.info(`     Branches: ${trigger.branches.pattern}`);
           }
         });
 
@@ -279,10 +276,15 @@ export function createRuleCommand(globalOptions: any): Command {
           }
         } else {
           event = {
+            id: 'test-' + Date.now(),
             type: 'commit',
-            branch: 'main',
             timestamp: new Date(),
-            data: {},
+            source: 'cli-test',
+            worktree: 'test',
+            branch: 'main',
+            commit_hash: 'abc123',
+            commit_message: 'Test commit',
+            author: 'test-user',
           };
           output.info('Using default test event (type: commit, branch: main)');
           output.newline();
