@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Calendar, CreditCard, TrendingUp, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Calendar, CreditCard, Users, User, LogOut, Loader2, AlertCircle } from "lucide-react"
 import { signOut } from "next-auth/react"
 import AddChildDialog from "./add-child-dialog"
 import CreditPurchaseDialog from "./credit-purchase-dialog"
@@ -16,7 +16,85 @@ import SubscriptionChangeDialog from "./subscription-change-dialog"
 import AriaAddonDialog from "./aria-addon-dialog"
 import InvoiceDetailsDialog from "./invoice-details-dialog"
 import SessionBooking from "@/components/ui/session-booking"
-import { CorporateFooter } from "@/components/layout/CorporateFooter"
+import { Footer } from "@/components/layout/footer"
+import { BadgeDisplay } from "@/components/ui/parent/badge-display"
+import { ProgressChart } from "@/components/ui/parent/progress-chart"
+import { FinancialHistory } from "@/components/ui/parent/financial-history"
+
+interface ApiResponse {
+  parent: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  children: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    grade: string;
+    school: string;
+    credits: number;
+    subscription: string;
+    subscriptionDetails: {
+      planName: string;
+      monthlyPrice: number;
+      status: string;
+      startDate: string;
+      endDate: string;
+    } | null;
+    nextSession: {
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+    } | null;
+    progress: number;
+    subjectProgress: Record<string, number>;
+    badges?: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      icon: string | null;
+      earnedAt: string;
+      isRecent: boolean;
+    }>;
+    progressHistory?: Array<{
+      date: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    subjectProgressHistory?: Array<{
+      subject: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    sessions: Array<{
+      id: string;
+      subject: string;
+      scheduledAt: string;
+      coachName: string;
+      type: string;
+      status: string;
+      duration: number;
+    }>;
+  }>;
+  financialHistory?: Array<{
+    id: string;
+    type: string;
+    description: string;
+    amount: number;
+    status?: string;
+    date: string;
+    childId?: string;
+    childName?: string;
+  }>;
+}
 
 interface ParentDashboardData {
   parent: {
@@ -50,6 +128,27 @@ interface ParentDashboardData {
     } | null;
     progress: number;
     subjectProgress: Record<string, number>;
+    badges: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      icon: string | null;
+      earnedAt: Date;
+      isRecent: boolean;
+    }>;
+    progressHistory: Array<{
+      date: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
+    subjectProgressHistory: Array<{
+      subject: string;
+      progress: number;
+      completedSessions: number;
+      totalSessions: number;
+    }>;
     sessions: Array<{
       id: string;
       subject: string;
@@ -59,6 +158,16 @@ interface ParentDashboardData {
       status: string;
       duration: number;
     }>;
+  }>;
+  financialHistory: Array<{
+    id: string;
+    type: string;
+    description: string;
+    amount: number;
+    status?: string;
+    date: Date;
+    childId?: string;
+    childName?: string;
   }>;
 }
 
@@ -81,8 +190,26 @@ export default function DashboardParent() {
         throw new Error('Failed to fetch dashboard data')
       }
       
-      const data = await response.json()
-      setDashboardData(data)
+      const data: ApiResponse = await response.json()
+      
+      const transformedData: ParentDashboardData = {
+        ...data,
+        children: data.children.map((child) => ({
+          ...child,
+          badges: child.badges?.map((badge) => ({
+            ...badge,
+            earnedAt: new Date(badge.earnedAt)
+          })) || [],
+          progressHistory: child.progressHistory || [],
+          subjectProgressHistory: child.subjectProgressHistory || []
+        })),
+        financialHistory: data.financialHistory?.map((transaction) => ({
+          ...transaction,
+          date: new Date(transaction.date)
+        })) || []
+      }
+      
+      setDashboardData(transformedData)
       
       if (data.children.length > 0 && !selectedChild) {
         setSelectedChild(data.children[0].id)
@@ -201,12 +328,12 @@ export default function DashboardParent() {
                 {/* Sélecteur Multi-Enfants */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" aria-hidden="true" />
                     <span className="text-sm font-medium text-gray-700">Enfant :</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Select value={selectedChild} onValueChange={setSelectedChild}>
-                      <SelectTrigger className="w-full sm:w-48">
+                      <SelectTrigger className="w-full sm:w-48" aria-label="Sélectionner un enfant">
                         <SelectValue placeholder="Sélectionner un enfant" />
                       </SelectTrigger>
                       <SelectContent>
@@ -269,6 +396,13 @@ export default function DashboardParent() {
               </CardContent>
             </Card>
 
+            {/* Badges Display */}
+            {currentChild?.badges && currentChild.badges.length > 0 && (
+              <div className="mb-6 sm:mb-8">
+                <BadgeDisplay badges={currentChild.badges} />
+              </div>
+            )}
+
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
               {/* Agenda de l'Enfant */}
@@ -308,43 +442,13 @@ export default function DashboardParent() {
                 </CardContent>
               </Card>
 
-              {/* Progression */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
-                    <span className="text-base sm:text-lg">Progression par Matière</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 sm:space-y-4">
-                    {currentChild?.subjectProgress && Object.keys(currentChild?.subjectProgress).length > 0 ? (
-                      Object.entries(currentChild?.subjectProgress).map(([subject, progress]) => (
-                        <div key={subject}>
-                          <div className="flex justify-between text-xs sm:text-sm mb-1">
-                            <span>{subject}</span>
-                            <span>{progress}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-300" 
-                              style={{ 
-                                width: `${progress}%`,
-                                backgroundColor: progress > 80 ? '#10B981' : progress > 60 ? '#3B82F6' : progress > 40 ? '#F59E0B' : '#EF4444'
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-500">Aucune progression disponible</p>
-                        <p className="text-xs text-gray-400 mt-1">Les données apparaîtront après les premières sessions</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Progression Chart */}
+              {currentChild && (
+                <ProgressChart 
+                  progressHistory={currentChild.progressHistory}
+                  subjectProgressHistory={currentChild.subjectProgressHistory}
+                />
+              )}
             </div>
 
             {/* Section Abonnement et Facturation */}
@@ -418,6 +522,20 @@ export default function DashboardParent() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Financial History */}
+            {dashboardData?.financialHistory && dashboardData.financialHistory.length > 0 && (
+              <div className="mb-6 sm:mb-8">
+                <FinancialHistory 
+                  transactions={dashboardData.financialHistory}
+                  childrenList={dashboardData.children.map(child => ({
+                    id: child.id,
+                    firstName: child.firstName,
+                    lastName: child.lastName
+                  }))}
+                />
+              </div>
+            )}
           </>
         )}
 
@@ -427,14 +545,13 @@ export default function DashboardParent() {
             parentId={session?.user?.id}
             userCredits={currentChild?.credits}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
               refreshDashboardData();
               setActiveTab('dashboard');
             }}
           />
         )}
       </main>
-      <CorporateFooter />
+      <Footer />
     </div>
   )
 }

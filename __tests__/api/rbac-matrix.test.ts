@@ -18,12 +18,13 @@
  * - Payments API
  */
 
-import { PrismaClient, UserRole, Subject } from '@prisma/client';
+import { UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { testPrisma } from '../setup/test-database';
 
-const prisma = new PrismaClient();
+const prisma = testPrisma;
 
 // Mock getServerSession for role-based testing
 jest.mock('next-auth', () => ({
@@ -114,11 +115,14 @@ describe('RBAC Matrix', () => {
     console.log('🧹 Cleaning up RBAC test fixtures...');
 
     // Clean up in order (foreign keys)
-    await prisma.sessionBooking.deleteMany({
-      where: {
-        coachId: testUsers.coach.id,
-      },
-    });
+    // Only clean if users were successfully created
+    if (testUsers.coach?.id) {
+      await prisma.sessionBooking.deleteMany({
+        where: {
+          coachId: testUsers.coach.id,
+        },
+      });
+    }
     await prisma.user.deleteMany({
       where: {
         email: { contains: '-rbac@test.com' },
@@ -159,44 +163,6 @@ describe('RBAC Matrix', () => {
   // =============================================================================
 
   describe('Sessions API', () => {
-    describe('GET /api/sessions', () => {
-      // NOTE: These tests require a running server and are better suited for E2E testing
-      it.skip('allows ANONYMOUS users to view sessions', async () => {
-        mockSession(null);
-
-        const response = await fetch('http://localhost:3000/api/sessions', {
-          method: 'GET',
-        });
-
-        // Public endpoint - should work for everyone
-        expect([200, 304]).toContain(response.status);
-      });
-
-      it.skip('allows STUDENT users to view sessions', async () => {
-        mockSession(UserRole.ELEVE);
-
-        const response = await fetch('http://localhost:3000/api/sessions', {
-          method: 'GET',
-        });
-
-        expect([200, 304]).toContain(response.status);
-      });
-
-      it.skip('allows all authenticated roles to view sessions', async () => {
-        const roles = [UserRole.PARENT, UserRole.COACH, UserRole.ADMIN];
-
-        for (const role of roles) {
-          mockSession(role);
-
-          const response = await fetch('http://localhost:3000/api/sessions', {
-            method: 'GET',
-          });
-
-          expect([200, 304]).toContain(response.status);
-        }
-      });
-    });
-
     describe('POST /api/sessions/book', () => {
       it('rejects ANONYMOUS users with 401', async () => {
         mockSession(null);
