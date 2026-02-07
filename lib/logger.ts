@@ -1,7 +1,7 @@
 import pino from 'pino';
 
 const isDev = process.env.NODE_ENV === 'development';
-const isTest = process.env.NODE_ENV === 'test';
+const isTest = process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
 const logLevel = process.env.LOG_LEVEL || (isDev ? 'debug' : 'info');
 
 export const logger = pino({
