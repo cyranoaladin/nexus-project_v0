@@ -55,36 +55,42 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
   'Première-Lycée-Français': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
-    academie: 'Académie du Français',
-    academieDescription: 'Stage dédié à la réussite des Épreuves Anticipées de Français',
+    academie: 'Stage Février 2026 — Maths ou NSI Première',
+    academieDescription: 'Consolidez vos bases en Maths ou NSI pendant les vacances de février. Deux palliers disponibles selon votre niveau.',
     parcoursLink: '/offres#odyssee',
-    academieLink: '/offres#academies'
+    academieLink: '/stages/fevrier-2026#academies'
   },
   'Terminale-Lycée-Mention': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
-    academie: 'Académie de Février',
-    academieDescription: 'Booster de spécialité pour approfondir vos matières clés',
+    academie: 'Stage Février 2026 — Excellence Terminale',
+    academieDescription: 'Pallier 2 Excellence : maîtrise avancée, rédaction fine, viser la mention TB en Maths ou NSI',
     parcoursLink: '/offres#odyssee',
-    academieLink: '/offres#academies'
+    academieLink: '/stages/fevrier-2026#academies'
   },
   'Terminale-Lycée-Parcoursup': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
-    academie: 'Académie Python',
-    academieDescription: 'Atelier de perfectionnement en programmation',
+    academie: 'Stage Février 2026 — Prépa Bac Terminale',
+    academieDescription: 'Pallier 1 Prépa Bac : consolider les fondamentaux en Maths ou NSI avant les conseils de classe décisifs',
     parcoursLink: '/offres#odyssee',
-    academieLink: '/offres#academies'
+    academieLink: '/stages/fevrier-2026#academies'
   },
   'Première-Lycée-Controle': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
-    parcoursLink: '/offres#odyssee'
+    academie: 'Stage Février 2026 — Première Maths ou NSI',
+    academieDescription: 'Stage intensif pour renforcer vos bases et améliorer vos notes du 2ᵉ trimestre',
+    parcoursLink: '/offres#odyssee',
+    academieLink: '/stages/fevrier-2026#academies'
   },
   'CandidatLibre-Cadre': {
     parcours: 'Odyssée Individuel : La Préparation Intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
-    parcoursLink: '/offres#odyssee'
+    academie: 'Stage Février 2026 — Candidats Libres',
+    academieDescription: 'Cadre structuré et méthode rigoureuse pour préparer le Bac en candidat libre',
+    parcoursLink: '/offres#odyssee',
+    academieLink: '/stages/fevrier-2026#academies'
   }
 };
 
