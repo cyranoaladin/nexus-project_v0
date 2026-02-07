@@ -413,6 +413,6 @@ export async function POST(req: NextRequest) {
     }
 
     logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
-    return handleApiError(error, 'POST /api/sessions/book');
+    return await handleApiError(error, 'POST /api/sessions/book');
   }
 }
