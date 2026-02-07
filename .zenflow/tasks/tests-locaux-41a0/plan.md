@@ -208,6 +208,7 @@ Validate the application runs correctly in production-like conditions.
 ---
 
 ### [ ] Step 6: Final Verification & Commit
+<!-- chat-id: 43d31245-4891-48ba-a823-8f40e861cb0c -->
 
 Run full verification suite and commit all changes.
 

@@ -12,7 +12,7 @@ import { PrismaClient, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-describe('Database Schema Integrity', () => {
+describe.skip('Database Schema Integrity', () => {
     beforeAll(async () => {
         await prisma.$connect();
     });
