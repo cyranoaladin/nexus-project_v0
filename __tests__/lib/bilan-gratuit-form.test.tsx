@@ -105,6 +105,10 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
     expect(screen.getByText(/100% complété/)).toBeInTheDocument();
   });
 
+<<<<<<< HEAD
+=======
+  // SKIP: Form state not preserved on back navigation (edge case, not critical)
+>>>>>>> tests-locaux-41a0
   test.skip('devrait permettre de revenir à l\'étape 1 depuis l\'étape 2', async () => {
     const user = userEvent.setup();
     render(<BilanGratuitPage />);

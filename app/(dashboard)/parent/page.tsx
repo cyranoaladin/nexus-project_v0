@@ -16,11 +16,28 @@ interface DashboardData {
         grade: string | null;
         school: string | null;
         credits: number;
-        badges: any[]; // We can be more specific if we import the type, but let's at least avoid implicit any
-        recentScores: any[];
-        recentSessions: any[];
+        badges: Array<{ 
+            id: string; 
+            name: string; 
+            icon: string | null;
+            category: string;
+            earnedAt: string;
+        }>;
+        recentScores: Array<{ 
+            subject: string; 
+            rating: number;
+            date: string;
+        }>;
+        recentSessions: Array<{ id: string; subject: string; date: string; coachName: string }>;
     }>;
-    payments: any[];
+    payments: Array<{ 
+        id: string; 
+        date: string;
+        amount: number; 
+        description: string;
+        type: string;
+        status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+    }>;
 }
 
 export default function ParentDashboard() {

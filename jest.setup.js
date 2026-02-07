@@ -12,6 +12,14 @@ if (typeof global.setImmediate === 'undefined') {
 }
 
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+// Polyfill Web APIs for Next.js server components
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Polyfill setImmediate for winston logger
+global.setImmediate = global.setImmediate || ((fn, ...args) => setTimeout(fn, 0, ...args));
 
 // Mock Prisma client
 jest.mock('./lib/prisma', () => ({
