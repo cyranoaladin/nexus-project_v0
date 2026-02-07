@@ -1,6 +1,6 @@
 'use client';
 
-import { Footer } from '@/components/layout/footer';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -429,7 +429,7 @@ export default function DashboardAdmin() {
           </Card>
         </div>
       </main>
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

@@ -17,8 +17,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { BackToTop } from "@/components/ui/back-to-top";
 
 const packs = [
@@ -226,16 +226,16 @@ export default function OffresPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-200">
-      <Header />
+      <CorporateNavbar />
 
       <main>
         {/* HERO */}
         <section className="relative overflow-hidden py-20">
           <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
-          <div className="absolute -top-10 right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-[140px]" />
+          <div className="absolute -top-10 right-10 h-72 w-72 rounded-full bg-brand-accent/10 blur-[140px]" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white font-serif">
+              <h1 className="text-4xl md:text-6xl font-bold text-white font-display">
                 Investissez dans la seule garantie de réussite au Bac.
               </h1>
               <p className="mt-4 text-lg text-neutral-300">
@@ -265,10 +265,10 @@ export default function OffresPage() {
                 <a
                   key={item.title}
                   href={item.anchor}
-                  className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-gold-500/40 hover:bg-white/10"
+                  className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/40 hover:bg-white/10"
                 >
                   {item.badge && (
-                    <span className="inline-flex items-center rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-400">
+                    <span className="inline-flex items-center rounded-full border border-brand-accent/40 bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
                       {item.badge}
                     </span>
                   )}
@@ -276,7 +276,7 @@ export default function OffresPage() {
                     {item.title}
                   </h3>
                   <p className="mt-2 text-sm text-neutral-300">{item.text}</p>
-                  <div className="mt-4 inline-flex items-center text-sm font-semibold text-gold-400">
+                  <div className="mt-4 inline-flex items-center text-sm font-semibold text-brand-accent">
                     Voir ma solution <ChevronRight className="ml-1 h-4 w-4" />
                   </div>
                 </a>
@@ -307,7 +307,7 @@ export default function OffresPage() {
         <section id="offres-principales" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Votre solution clé-en-main
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -320,22 +320,22 @@ export default function OffresPage() {
               <button
                 type="button"
                 onClick={() => setBillingAnnual(!billingAnnual)}
-                className="relative h-6 w-12 rounded-full border border-gold-500/40 bg-black/30"
+                className="relative h-6 w-12 rounded-full border border-brand-accent/40 bg-black/30"
               >
                 <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-gold-500 transition ${
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-brand-accent transition ${
                     billingAnnual ? "right-0.5" : "left-0.5"
                   }`}
                 />
               </button>
               <span>
-                Paiement Annuel <strong className="text-gold-400">(-2 mois offerts)</strong>
+                Paiement Annuel <strong className="text-brand-accent">(-2 mois offerts)</strong>
               </span>
             </div>
 
             <div className="mt-10 grid gap-8 lg:grid-cols-2">
-              <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-8 shadow-2xl shadow-gold-500/10">
-                <div className="inline-flex items-center rounded-full bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-400">
+              <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-8 shadow-2xl shadow-brand-accent/10">
+                <div className="inline-flex items-center rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
                   🎯 PLUS POPULAIRE
                 </div>
                 <div className="mt-4 flex items-center justify-between">
@@ -361,7 +361,7 @@ export default function OffresPage() {
                     "Coaching Parcoursup inclus",
                   ].map((item) => (
                     <div key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-gold-400 mt-1" />
+                      <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -369,14 +369,14 @@ export default function OffresPage() {
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
                   Valeur réelle : <span className="line-through">450 TND/mois</span>
-                  <div className="text-gold-400 font-semibold">Vous économisez 151 TND/mois</div>
+                  <div className="text-brand-accent font-semibold">Vous économisez 151 TND/mois</div>
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=excellence" className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center">
+                  <Link href="/bilan-gratuit?programme=excellence" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center">
                     Choisir l&apos;Excellence →
                   </Link>
-                  <a href="#details-excellence" className="text-sm text-gold-400 hover:text-white">
+                  <a href="#details-excellence" className="text-sm text-brand-accent hover:text-white">
                     Voir tous les détails
                   </a>
                 </div>
@@ -409,7 +409,7 @@ export default function OffresPage() {
                     "Garantie 100% Bac ou remboursé",
                   ].map((item) => (
                     <div key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-gold-400 mt-1" />
+                      <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -417,14 +417,14 @@ export default function OffresPage() {
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
                   Valeur réelle : <span className="line-through">3 200 TND/an</span>
-                  <div className="text-gold-400 font-semibold">Vous économisez 1 210 TND</div>
+                  <div className="text-brand-accent font-semibold">Vous économisez 1 210 TND</div>
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=bac-garanti" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
+                  <Link href="/bilan-gratuit?programme=bac-garanti" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
                     Sécuriser mon Bac →
                   </Link>
-                  <a href="#details-bac" className="text-sm text-gold-400 hover:text-white">
+                  <a href="#details-bac" className="text-sm text-brand-accent hover:text-white">
                     Voir tous les détails
                   </a>
                 </div>
@@ -437,7 +437,7 @@ export default function OffresPage() {
         <section id="packs-specialises" className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Packs à la carte pour besoins spécifiques
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -449,9 +449,9 @@ export default function OffresPage() {
               {packs.map((pack) => (
                 <div
                   key={pack.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-gold-500/40 transition"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-brand-accent/40 transition"
                 >
-                  <div className="text-xs text-gold-400 font-semibold">{pack.badge}</div>
+                  <div className="text-xs text-brand-accent font-semibold">{pack.badge}</div>
                   <h3 className="mt-3 text-xl font-semibold text-white">{pack.title}</h3>
                   <div className="mt-2 text-2xl font-bold text-white">
                     {pack.price} <span className="text-sm text-neutral-300">TND</span>
@@ -461,7 +461,7 @@ export default function OffresPage() {
                   <ul className="mt-4 space-y-2 text-sm text-neutral-200">
                     {pack.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-gold-400 mt-0.5" />
+                        <Check className="h-4 w-4 text-brand-accent mt-0.5" />
                         {feature}
                       </li>
                     ))}
@@ -469,7 +469,7 @@ export default function OffresPage() {
 
                   {pack.expert && (
                     <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 font-semibold">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-accent/20 text-brand-accent font-semibold">
                         {pack.expert.name.slice(0, 1)}
                       </div>
                       <div>
@@ -494,7 +494,7 @@ export default function OffresPage() {
                     <p className="mt-4 text-xs text-neutral-400">⚠️ {pack.note}</p>
                   )}
 
-                  <Link href="/bilan-gratuit?programme=pack-specialise" className="mt-4 w-full rounded-full border border-gold-500/40 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/10 transition text-center block">
+                  <Link href="/bilan-gratuit?programme=pack-specialise" className="mt-4 w-full rounded-full border border-brand-accent/40 px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-accent/10 transition text-center block">
                     {pack.cta}
                   </Link>
                 </div>
@@ -506,7 +506,7 @@ export default function OffresPage() {
         {/* COMPARAISON */}
         <section id="comparaison" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Pourquoi Nexus Réussite vaut 2× plus... et coûte 40% moins cher
             </h2>
 
@@ -515,7 +515,7 @@ export default function OffresPage() {
                 <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-4 border-b border-white/10 px-6 py-4 text-sm text-neutral-300">
                   <div>Critère</div>
                   <div>Prof Particulier</div>
-                  <div className="text-gold-400 font-semibold">Nexus Réussite</div>
+                  <div className="text-brand-accent font-semibold">Nexus Réussite</div>
                   <div>Autre EdTech</div>
                 </div>
                 {comparisonRows.map((row) => (
@@ -541,7 +541,7 @@ export default function OffresPage() {
         {/* ROI CALCULATOR */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Calculez votre économie réelle
             </h2>
 
@@ -600,7 +600,7 @@ export default function OffresPage() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-gold-500/30 bg-white/5 p-6">
+              <div className="rounded-3xl border border-brand-accent/30 bg-white/5 p-6">
                 <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] items-center">
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <h3 className="text-sm text-neutral-300">Votre solution actuelle</h3>
@@ -614,7 +614,7 @@ export default function OffresPage() {
                     </ul>
                   </div>
 
-                  <div className="text-gold-400 text-2xl font-bold">→</div>
+                  <div className="text-brand-accent text-2xl font-bold">→</div>
 
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <h3 className="text-sm text-neutral-300">Avec Nexus Réussite</h3>
@@ -629,9 +629,9 @@ export default function OffresPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-gold-500/30 bg-black/30 p-4 text-center">
+                <div className="mt-6 rounded-2xl border border-brand-accent/30 bg-black/30 p-4 text-center">
                   <div className="text-sm text-neutral-300">Votre économie mensuelle :</div>
-                  <div id="savings-amount" className="text-3xl font-bold text-gold-400">
+                  <div id="savings-amount" className="text-3xl font-bold text-brand-accent">
                     {savings} TND
                   </div>
                   <div className="text-xs text-neutral-400">
@@ -639,7 +639,7 @@ export default function OffresPage() {
                   </div>
                 </div>
 
-                <Link href="/bilan-gratuit" className="mt-6 w-full rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center block">
+                <Link href="/bilan-gratuit" className="mt-6 w-full rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center block">
                   Démarrer avec Nexus
                 </Link>
               </div>
@@ -650,7 +650,7 @@ export default function OffresPage() {
         {/* GARANTIES */}
         <section id="garanties" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Votre réussite, notre engagement contractuel
             </h2>
 
@@ -680,12 +680,12 @@ export default function OffresPage() {
                 const Icon = item.icon;
                 return (
                   <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-gold-500/10 text-gold-400">
+                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand-accent/10 text-brand-accent">
                       <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="text-lg font-semibold text-white">{item.title}</h3>
                     <p className="mt-2 text-sm text-neutral-300">{item.text}</p>
-                    <a href="#" className="mt-3 inline-flex text-xs text-gold-400 hover:text-white">
+                    <a href="#" className="mt-3 inline-flex text-xs text-brand-accent hover:text-white">
                       Voir les conditions détaillées
                     </a>
                   </div>
@@ -702,7 +702,7 @@ export default function OffresPage() {
                   { value: "150+", label: "Mentions TB" },
                 ].map((stat) => (
                   <div key={stat.label}>
-                    <div className="text-3xl font-bold text-gold-400">{stat.value}</div>
+                    <div className="text-3xl font-bold text-brand-accent">{stat.value}</div>
                     <div className="text-sm text-neutral-300">{stat.label}</div>
                   </div>
                 ))}
@@ -735,18 +735,18 @@ export default function OffresPage() {
         {/* FUNNEL */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Trouvez la solution parfaite en 2 minutes
             </h2>
 
             <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
               <div className="mb-6 flex items-center justify-between text-sm text-neutral-300">
                 <span>Étape {Math.min(quizStep + 1, 3)}/3</span>
-                <span className="text-gold-400">Progression</span>
+                <span className="text-brand-accent">Progression</span>
               </div>
               <div className="h-2 w-full rounded-full bg-white/10">
                 <div
-                  className="h-2 rounded-full bg-gold-500 transition"
+                  className="h-2 rounded-full bg-brand-accent transition"
                   style={{ width: `${(Math.min(quizStep + 1, 3) / 3) * 100}%` }}
                 />
               </div>
@@ -763,8 +763,8 @@ export default function OffresPage() {
                         onClick={() => handleQuiz(option.value)}
                         className={`rounded-2xl border px-4 py-3 text-sm transition ${
                           selectedOption === option.value
-                            ? "border-gold-500 bg-gold-500/10 text-gold-400"
-                            : "border-white/10 bg-black/20 text-neutral-200 hover:border-gold-500/40"
+                            ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                            : "border-white/10 bg-black/20 text-neutral-200 hover:border-brand-accent/40"
                         }`}
                       >
                         {option.label}
@@ -774,19 +774,19 @@ export default function OffresPage() {
                 </div>
               ) : (
                 <div className="mt-8">
-                  <div className="rounded-2xl border border-gold-500/40 bg-black/30 p-6 text-center">
+                  <div className="rounded-2xl border border-brand-accent/40 bg-black/30 p-6 text-center">
                     <h3 className="text-xl font-semibold text-white">Notre recommandation :</h3>
                     <p className="mt-2 text-neutral-300">{quizRecommendation}</p>
-                    <div className="mt-4 text-2xl font-bold text-gold-400">
+                    <div className="mt-4 text-2xl font-bold text-brand-accent">
                       299 TND/mois
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                      <Link href="/bilan-gratuit?programme=recommande" className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition text-center">
+                      <Link href="/bilan-gratuit?programme=recommande" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center">
                         Choisir cette solution
                       </Link>
                       <button
                         onClick={resetQuiz}
-                        className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                        className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
                       >
                         Recommencer le quiz
                       </button>
@@ -801,8 +801,8 @@ export default function OffresPage() {
         {/* FINAL CTA */}
         <section className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-gold-500/30 bg-white/5 p-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+            <div className="rounded-3xl border border-brand-accent/30 bg-white/5 p-10 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Prêt à transformer l'avenir de votre enfant ?
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -811,18 +811,18 @@ export default function OffresPage() {
               <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
                 <a
                   href="/bilan-gratuit"
-                  className="rounded-full bg-gold-500 px-8 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                  className="rounded-full bg-brand-accent px-8 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
                 >
                   Commencer mon bilan gratuit
                 </a>
                 <a
                   href="/contact"
-                  className="rounded-full border border-gold-500 px-8 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                  className="rounded-full border border-brand-accent px-8 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
                 >
                   Parler à un expert
                 </a>
               </div>
-              <div className="mt-6 text-sm text-gold-400">
+              <div className="mt-6 text-sm text-brand-accent">
                 ⚠️ Places limitées pour Septembre · Prochain créneau disponible : Demain 10h
               </div>
             </div>
@@ -830,7 +830,7 @@ export default function OffresPage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
       <BackToTop />
     </div>
   );

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { School, Users, Briefcase, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -149,22 +150,22 @@ const OfferSection = () => {
                 {/* Left Photo Card */}
                 <div
                     ref={photoCardRef}
-                    className="absolute left-[6vw] top-[14vh] w-[44vw] h-[72vh] card-dark overflow-hidden rounded-[18px] border border-white/10"
+                    className="absolute left-[6vw] top-[14vh] w-[44vw] h-[72vh] bg-surface-card overflow-hidden rounded-[18px] border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-0.5"
                 >
                     <img
                         src="/images/classroom.jpg"
                         alt="Salle de classe"
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#111318]/60 via-transparent to-[#111318]/80" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-surface-card/60 via-transparent to-surface-card/80" />
 
                     {/* Overlay Content */}
                     <div className="absolute bottom-6 left-6 right-6">
-                        <span className="label-mono text-nexus-cyan block mb-1">Nexus Réussite</span>
+                        <span className="label-mono text-brand-accent block mb-1">Nexus Réussite</span>
                         <h3 className="font-display text-2xl font-bold text-white mt-2">
                             Des livrables concrets
                         </h3>
-                        <p className="text-gray-400 text-sm mt-1">
+                        <p className="text-neutral-400 text-sm mt-1">
                             Pensés pour la direction, l'IT et les équipes pédagogiques.
                         </p>
                     </div>
@@ -183,14 +184,14 @@ const OfferSection = () => {
                                 onClick={() => setActiveTab(index)}
                                 className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-medium
                           transition-all duration-300 relative ${activeTab === index
-                                        ? 'text-cyan-400'
-                                        : 'text-gray-400 hover:text-white'
+                                        ? 'text-brand-accent'
+                                        : 'text-neutral-400 hover:text-white'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />
                                 <span className="hidden sm:inline">{tab.label}</span>
                                 {activeTab === index && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-cyan-400" />
+                                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-accent" />
                                 )}
                             </button>
                         ))}
@@ -198,7 +199,7 @@ const OfferSection = () => {
 
                     {/* Tab Content */}
                     <div className="flex-1 flex flex-col justify-center py-6">
-                        <span className="label-mono text-cyan-400 block mb-2">{tabContent[activeTab].subtitle}</span>
+                        <span className="label-mono text-brand-accent block mb-2">{tabContent[activeTab].subtitle}</span>
                         <h3 className="font-display text-2xl font-bold text-white mt-2">
                             {tabContent[activeTab].title}
                         </h3>
@@ -206,18 +207,20 @@ const OfferSection = () => {
                         <ul className="mt-6 space-y-4">
                             {tabContent[activeTab].items.map((item, idx) => (
                                 <li key={idx} className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-cyan-400/10 flex items-center justify-center flex-shrink-0">
-                                        <item.icon className="w-4 h-4 text-cyan-400" />
+                                    <div className="w-8 h-8 rounded-lg bg-brand-accent/10 flex items-center justify-center flex-shrink-0">
+                                        <item.icon className="w-4 h-4 text-brand-accent" />
                                     </div>
-                                    <span className="text-gray-300 text-sm">{item.text}</span>
+                                    <span className="text-neutral-300 text-sm">{item.text}</span>
                                 </li>
                             ))}
                         </ul>
 
-                        <Link href="/contact" className="btn-primary flex items-center justify-center gap-2 mt-8 w-full">
-                            <span>{tabContent[activeTab].cta}</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <Button asChild className="flex items-center justify-center gap-2 mt-8 w-full">
+                            <Link href="/contact">
+                                <span>{tabContent[activeTab].cta}</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </Button>
                     </div>
                 </div>
 
@@ -227,26 +230,26 @@ const OfferSection = () => {
                     className="absolute left-[6vw] top-[88vh] w-[88vw] h-[10vh] flex gap-[2vw]"
                 >
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
-                        <GraduationCap className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                        <GraduationCap className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Stratégie</span>
-                            <span className="block text-gray-400 text-[10px]">Pilotage avec vision</span>
+                            <span className="block text-neutral-400 text-[10px]">Pilotage avec vision</span>
                         </div>
                     </div>
 
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
-                        <Bot className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                        <Bot className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Studio</span>
-                            <span className="block text-gray-400 text-[10px]">L'IA qui travaille pour vous</span>
+                            <span className="block text-neutral-400 text-[10px]">L'IA qui travaille pour vous</span>
                         </div>
                     </div>
 
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
-                        <FileCheck className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                        <FileCheck className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Nexus Academy</span>
-                            <span className="block text-gray-400 text-[10px]">Élevez les compétences</span>
+                            <span className="block text-neutral-400 text-[10px]">Élevez les compétences</span>
                         </div>
                     </div>
                 </div>

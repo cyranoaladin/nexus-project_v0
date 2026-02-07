@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 const FEATURED = ["marc", "sophie", "yassine", "helene"];
 
@@ -498,18 +498,18 @@ export default function EquipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-midnight-950 text-slate-200">
-      <Header />
+    <div className="min-h-screen bg-surface-darker text-slate-200">
+      <CorporateNavbar />
 
       <main className="pb-20">
         {/* HERO */}
         <section className="relative overflow-hidden py-20">
-          <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
-          <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-[140px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
+          <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-brand-accent/10 blur-[140px]" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
               <div>
-                <h1 className="text-4xl md:text-6xl font-bold text-white font-serif">
+                <h1 className="text-4xl md:text-6xl font-bold text-white font-display">
                   L&apos;élite pédagogique qui transforme l&apos;angoisse en excellence
                 </h1>
                 <p className="mt-4 text-lg text-slate-300">
@@ -528,7 +528,7 @@ export default function EquipePage() {
                       key={stat.label}
                       className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
                     >
-                      <div className="text-2xl font-bold text-gold-400">{stat.value}</div>
+                      <div className="text-2xl font-bold text-brand-accent">{stat.value}</div>
                       <div className="text-xs text-slate-300">{stat.label}</div>
                     </div>
                   ))}
@@ -537,13 +537,13 @@ export default function EquipePage() {
                 <div className="mt-8 flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => mentorsRef.current?.scrollIntoView({ behavior: "smooth" })}
-                    className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                    className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
                   >
                     🎯 Trouver mon mentor idéal
                   </button>
                   <button
                     onClick={() => allExpertsRef.current?.scrollIntoView({ behavior: "smooth" })}
-                    className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                    className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
                   >
                     👥 Voir toute l&apos;équipe
                   </button>
@@ -551,12 +551,12 @@ export default function EquipePage() {
               </div>
 
               <div className="relative">
-                <div className="absolute -inset-6 rounded-full bg-gold-500/10 blur-3xl" />
+                <div className="absolute -inset-6 rounded-full bg-brand-accent/10 blur-3xl" />
                 <div className="relative rounded-3xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-md">
                   <div className="grid grid-cols-2 gap-4">
                     {featuredMentors.map((mentor) => (
                       <div key={mentor.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 font-bold">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-accent/20 text-brand-accent font-bold">
                           {mentor.name.slice(0, 1)}
                         </div>
                         <div className="mt-2 text-sm font-semibold text-white">{mentor.name}</div>
@@ -574,7 +574,7 @@ export default function EquipePage() {
         <section ref={mentorsRef} className="py-20 bg-black/20" id="matchingQuiz">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Trouvez le mentor qui parle le même langage que votre enfant
               </h2>
               <p className="mt-3 text-slate-300">
@@ -589,7 +589,7 @@ export default function EquipePage() {
                     <div
                       key={q.key}
                       className={`rounded-full px-3 py-1 border ${
-                        index <= quizStep ? "border-gold-500/50 text-gold-400" : "border-white/10"
+                        index <= quizStep ? "border-brand-accent/50 text-brand-accent" : "border-white/10"
                       }`}
                     >
                       {q.question.split(" ")[0]}
@@ -598,7 +598,7 @@ export default function EquipePage() {
                 </div>
                 <div className="mt-3 h-2 w-full rounded-full bg-white/10">
                   <div
-                    className="h-2 rounded-full bg-gold-500 transition"
+                    className="h-2 rounded-full bg-brand-accent transition"
                     style={{ width: `${((quizStep + 1) / quizQuestions.length) * 100}%` }}
                   />
                 </div>
@@ -614,7 +614,7 @@ export default function EquipePage() {
                       <button
                         key={option.value}
                         onClick={() => handleQuiz(option.value)}
-                        className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-200 hover:border-gold-500/40 transition"
+                        className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-200 hover:border-brand-accent/40 transition"
                       >
                         <span className="mr-2">{option.icon}</span>
                         {option.label}
@@ -625,7 +625,7 @@ export default function EquipePage() {
                     {quizStep > 0 && (
                       <button
                         onClick={() => setQuizStep(Math.max(quizStep - 1, 0))}
-                        className="rounded-full border border-gold-500 px-4 py-2 text-xs font-semibold text-gold-300"
+                        className="rounded-full border border-brand-accent px-4 py-2 text-xs font-semibold text-brand-accent"
                       >
                         ← Précédent
                       </button>
@@ -639,9 +639,9 @@ export default function EquipePage() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-3xl border border-gold-500/40 bg-black/30 p-6">
+                <div className="rounded-3xl border border-brand-accent/40 bg-black/30 p-6">
                   <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 text-3xl font-bold">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-accent/20 text-brand-accent text-3xl font-bold">
                       {quizResult.name.slice(0, 1)}
                     </div>
                     <div>
@@ -649,7 +649,7 @@ export default function EquipePage() {
                         Votre mentor idéal : {quizResult.name}
                       </h3>
                       <p className="mt-2 text-slate-300">{quizResult.tagline}</p>
-                      <div className="mt-2 text-sm text-gold-400">
+                      <div className="mt-2 text-sm text-brand-accent">
                         {quizResult.stats[0]} · {quizResult.experience}
                       </div>
                     </div>
@@ -657,13 +657,13 @@ export default function EquipePage() {
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <a
                       href="/contact"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
                     >
                       Réserver un diagnostic avec {quizResult.name}
                     </a>
                     <button
                       onClick={resetQuiz}
-                      className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                      className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
                     >
                       Voir 2 alternatives
                     </button>
@@ -678,7 +678,7 @@ export default function EquipePage() {
         <section className="py-20" id="featuredMentors">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Les mentors qui ont déjà transformé 500+ parcours
               </h2>
               <p className="mt-3 text-slate-300">Découvrez nos 4 experts les plus demandés</p>
@@ -688,11 +688,11 @@ export default function EquipePage() {
               {featuredMentors.map((mentor, index) => (
                 <div
                   key={mentor.id}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-gold-500/40 transition"
+                  className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-brand-accent/40 transition"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 text-xl font-bold">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-accent/20 text-brand-accent text-xl font-bold">
                         {mentor.name.slice(0, 1)}
                       </div>
                       <div>
@@ -701,7 +701,7 @@ export default function EquipePage() {
                       </div>
                     </div>
                     {index === 0 && (
-                      <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
+                      <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-xs text-brand-accent">
                         🔥 PLUS DEMANDÉ
                       </span>
                     )}
@@ -732,11 +732,11 @@ export default function EquipePage() {
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <a
                       href="/contact"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
                     >
                       📅 Réserver un diagnostic
                     </a>
-                    <a href="/contact?sujet=profil-mentor" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
+                    <a href="/contact?sujet=profil-mentor" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
                       Voir le profil complet
                     </a>
                   </div>
@@ -747,7 +747,7 @@ export default function EquipePage() {
             <div className="mt-10 text-center">
               <button
                 onClick={() => allExpertsRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
               >
                 👥 Voir tous nos experts spécialisés
               </button>
@@ -759,7 +759,7 @@ export default function EquipePage() {
         <section ref={allExpertsRef} className="py-20 bg-black/20" id="allExperts">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                 Notre Panthéon d&apos;Experts
               </h2>
               <p className="mt-3 text-slate-300">12 spécialistes, chacun maître dans son domaine</p>
@@ -773,8 +773,8 @@ export default function EquipePage() {
                   onClick={() => setFilters((prev) => ({ ...prev, category: category.value }))}
                   className={`rounded-full px-3 py-1 text-xs border transition ${
                     filters.category === category.value
-                      ? "border-gold-500 bg-gold-500/10 text-gold-400"
-                      : "border-white/10 text-slate-300 hover:border-gold-500/40"
+                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                      : "border-white/10 text-slate-300 hover:border-brand-accent/40"
                   }`}
                 >
                   {category.label}
@@ -795,7 +795,7 @@ export default function EquipePage() {
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "all" }))}
                 className={`rounded-full px-3 py-1 text-xs border transition ${
                   filters.availability === "all"
-                    ? "border-gold-500 bg-gold-500/10 text-gold-400"
+                    ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
                     : "border-white/10 text-slate-300"
                 }`}
               >
@@ -807,10 +807,10 @@ export default function EquipePage() {
               {visibleMentors.map((mentor) => (
                 <div
                   key={mentor.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm hover:border-gold-500/40 transition"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm hover:border-brand-accent/40 transition"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 font-bold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-accent/20 text-brand-accent font-bold">
                       {mentor.name.slice(0, 1)}
                     </div>
                     <div>
@@ -837,11 +837,11 @@ export default function EquipePage() {
                   <div className="mt-4 flex gap-2">
                     <a
                       href="/contact"
-                      className="flex-1 rounded-full bg-gold-500 px-3 py-2 text-xs font-semibold text-black text-center hover:bg-gold-400 transition"
+                      className="flex-1 rounded-full bg-brand-accent px-3 py-2 text-xs font-semibold text-black text-center hover:bg-brand-accent transition"
                     >
                       Réserver
                     </a>
-                    <a href="/contact?sujet=profil-mentor" className="flex-1 rounded-full border border-gold-500 px-3 py-2 text-xs font-semibold text-white hover:bg-gold-500/10 text-center">
+                    <a href="/contact?sujet=profil-mentor" className="flex-1 rounded-full border border-brand-accent px-3 py-2 text-xs font-semibold text-white hover:bg-brand-accent/10 text-center">
                       Profil
                     </a>
                   </div>
@@ -853,7 +853,7 @@ export default function EquipePage() {
               {visibleCount < filteredMentors.length && (
                 <button
                   onClick={() => setVisibleCount((prev) => Math.min(prev + 4, filteredMentors.length))}
-                  className="rounded-full border border-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-500/10"
+                  className="rounded-full border border-brand-accent px-6 py-3 text-sm font-semibold text-white hover:bg-brand-accent/10"
                 >
                   Charger plus d&apos;experts
                 </button>
@@ -868,7 +868,7 @@ export default function EquipePage() {
         {/* COMPARAISON */}
         <section className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
               Pourquoi nos experts valent 2× un professeur classique
             </h2>
 
@@ -884,10 +884,10 @@ export default function EquipePage() {
                   <li>✅ Aucun dashboard</li>
                 </ul>
               </div>
-              <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-6">
+              <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">Expert Nexus</h3>
-                  <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">MEILLEUR ROI</span>
+                  <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-xs text-brand-accent">MEILLEUR ROI</span>
                 </div>
                 <div className="mt-2 text-sm text-slate-300">37 TND/h*</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
@@ -908,13 +908,13 @@ export default function EquipePage() {
         {/* TRIAL */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-gold-500/30 bg-white/5 p-10">
+            <div className="rounded-3xl border border-brand-accent/30 bg-white/5 p-10">
               <div className="flex flex-col lg:flex-row lg:items-center gap-8">
                 <div className="flex-1">
-                  <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
                     Essayez sans le moindre risque
                   </h2>
-                  <div className="mt-2 inline-flex items-center rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
+                  <div className="mt-2 inline-flex items-center rounded-full bg-brand-accent/10 px-3 py-1 text-xs text-brand-accent">
                     🛡️ GARANTIE SATISFACTION
                   </div>
                   <ul className="mt-6 space-y-2 text-sm text-slate-300">
@@ -935,19 +935,19 @@ export default function EquipePage() {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <div className="text-3xl font-bold text-gold-400">30 TND</div>
+                    <div className="text-3xl font-bold text-brand-accent">30 TND</div>
                     <div className="text-sm text-slate-400">au lieu de 60 TND pour le premier cours</div>
                   </div>
                   <div className="mt-6 flex flex-col gap-3">
                     <a
                       href="/contact"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
                     >
                       📅 Réserver mon cours d&apos;essai
                     </a>
                     <a
                       href="/contact"
-                      className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                      className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
                     >
                       💬 Demander conseil à ARIA
                     </a>
@@ -959,7 +959,7 @@ export default function EquipePage() {
         </section>
       </main>
 
-      <Footer />
+      <CorporateFooter />
     </div>
   );
 }

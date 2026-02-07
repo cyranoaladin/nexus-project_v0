@@ -26,11 +26,11 @@ const staggerContainer = {
 
 export default function HomeHero() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-midnight-950 text-white">
+    <section className="relative min-h-screen overflow-hidden bg-surface-darker text-white">
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-midnight-950 via-midnight-950/70 to-midnight-950" />
-        <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-gold-500/10 blur-[140px]" />
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-midnight-800/20 blur-[140px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
+        <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-brand-accent/10 blur-[140px]" />
+        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-neutral-800/20 blur-[140px]" />
       </div>
 
       <div className="relative z-10 flex min-h-screen items-center">
@@ -43,7 +43,7 @@ export default function HomeHero() {
               className="max-w-3xl"
             >
               <motion.div variants={fadeInUp} className="mb-8">
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold-600/40 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gold-500 backdrop-blur-md">
+                <div className="inline-flex items-center gap-2 rounded-full border border-brand-accent/40 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-brand-accent backdrop-blur-md">
                   <Rocket className="h-4 w-4" />
                   Votre Partenaire Éducation 360°
                 </div>
@@ -51,7 +51,7 @@ export default function HomeHero() {
 
               <motion.h1
                 variants={fadeInUp}
-                className="text-4xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl font-serif"
+                className="text-4xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl font-display"
               >
                 Votre vision éducative, enfin réalisable à l&apos;ère de l&apos;IA.
               </motion.h1>
@@ -69,13 +69,13 @@ export default function HomeHero() {
               >
                 <a
                   href="/contact"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-gold-500 to-gold-600 px-8 text-sm font-semibold text-slate-950 shadow-lg hover:shadow-[0_0_24px_rgba(234,179,8,0.3)]"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-brand-accent to-brand-accent-dark px-8 text-sm font-semibold text-surface-dark shadow-lg hover:shadow-[0_0_24px_rgba(46,233,246,0.3)]"
                 >
                   Parler à un expert
                 </a>
                 <a
                   href="#methodologie"
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-gold-500 px-8 text-sm font-semibold text-white transition hover:bg-gold-500/10"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-brand-accent px-8 text-sm font-semibold text-white transition hover:bg-brand-accent/10"
                 >
                   Découvrir notre méthode
                 </a>
@@ -98,13 +98,13 @@ export default function HomeHero() {
                     <line x1="200" y1="200" x2="280" y2="280" stroke="#EAB308" strokeOpacity="0.2" strokeWidth="0.5" />
                   </svg>
 
-                  <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-midnight-950 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
-                    <Network className="h-6 w-6 text-gold-500" />
+                  <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-brand-accent/50 bg-surface-darker shadow-[0_0_30px_rgba(46,233,246,0.2)]">
+                    <Network className="h-6 w-6 text-brand-accent" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-slate-200">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-gold-500/60 hover:shadow-[0_0_24px_rgba(234,179,8,0.2)]">
-                      <div className="flex items-center gap-2 text-gold-400">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">
+                      <div className="flex items-center gap-2 text-brand-accent">
                         <GraduationCap className="h-5 w-5" />
                         <span className="text-sm font-semibold">Nexus Academy</span>
                       </div>
@@ -112,8 +112,8 @@ export default function HomeHero() {
                         Coaching Excellence & Visio
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-gold-500/60 hover:shadow-[0_0_24px_rgba(234,179,8,0.2)]">
-                      <div className="flex items-center gap-2 text-gold-400">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">
+                      <div className="flex items-center gap-2 text-brand-accent">
                         <Bot className="h-5 w-5" />
                         <span className="text-sm font-semibold">Agent ARIA</span>
                       </div>
@@ -121,8 +121,8 @@ export default function HomeHero() {
                         Tuteur IA disponible 24/7
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-gold-500/60 hover:shadow-[0_0_24px_rgba(234,179,8,0.2)]">
-                      <div className="flex items-center gap-2 text-gold-400">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">
+                      <div className="flex items-center gap-2 text-brand-accent">
                         <CheckCircle2 className="h-5 w-5" />
                         <span className="text-sm font-semibold">Korrigo Engine</span>
                       </div>
@@ -130,8 +130,8 @@ export default function HomeHero() {
                         Correction & Pilotage
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-gold-500/60 hover:shadow-[0_0_24px_rgba(234,179,8,0.2)]">
-                      <div className="flex items-center gap-2 text-gold-400">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">
+                      <div className="flex items-center gap-2 text-brand-accent">
                         <Landmark className="h-5 w-5" />
                         <span className="text-sm font-semibold">Audit & Conseil</span>
                       </div>

@@ -26,10 +26,10 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   return (
-    <section className="bg-midnight-950 py-20">
+    <section className="bg-surface-darker py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+          <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
             Ils nous font confiance
           </h2>
           <p className="mt-3 text-slate-300">
@@ -43,14 +43,14 @@ export default function TestimonialsSection() {
               key={item.name}
               className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
             >
-              <div className="flex items-center gap-1 text-gold-400">
+              <div className="flex items-center gap-1 text-brand-accent">
                 {[...Array(5)].map((_, index) => (
-                  <Star key={index} className="h-4 w-4 fill-gold-400" />
+                  <Star key={index} className="h-4 w-4 fill-brand-accent" />
                 ))}
               </div>
               <p className="mt-4 text-slate-200">{item.quote}</p>
               <div className="mt-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-sm font-semibold text-gold-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-sm font-semibold text-brand-accent">
                   {item.name
                     .split(" ")
                     .map((chunk) => chunk[0])

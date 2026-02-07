@@ -5,17 +5,17 @@ import { BrainCircuit, Scale, LineChart, Users } from "lucide-react";
 
 export default function KorrigoFeatures() {
   return (
-    <section className="bg-midnight-950 text-white py-20 md:py-24">
+    <section className="bg-surface-darker text-white py-20 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold">
+          <h2 className="text-3xl md:text-4xl font-display font-bold">
             Au-delà de la logistique : l&apos;Intelligence Pédagogique.
           </h2>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-gold-500/40 bg-white/5 p-6 shadow-2xl shadow-gold-500/10">
-            <div className="flex items-center gap-3 text-gold-400 mb-3">
+          <div className="rounded-2xl border border-brand-accent/40 bg-white/5 p-6 shadow-2xl shadow-brand-accent/10">
+            <div className="flex items-center gap-3 text-brand-accent mb-3">
               <BrainCircuit className="h-5 w-5" />
               <span className="text-sm font-semibold uppercase tracking-wider">
                 Smart Feedback (IA + RAG)
@@ -31,8 +31,8 @@ export default function KorrigoFeatures() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gold-500/40 bg-white/5 p-6 shadow-2xl shadow-gold-500/10">
-            <div className="flex items-center gap-3 text-gold-400 mb-3">
+          <div className="rounded-2xl border border-brand-accent/40 bg-white/5 p-6 shadow-2xl shadow-brand-accent/10">
+            <div className="flex items-center gap-3 text-brand-accent mb-3">
               <Scale className="h-5 w-5" />
               <span className="text-sm font-semibold uppercase tracking-wider">
                 Live Harmonizer
@@ -51,7 +51,7 @@ export default function KorrigoFeatures() {
 
         <div className="grid gap-4 mt-10 md:grid-cols-3">
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center gap-2 text-gold-400 mb-2">
+            <div className="flex items-center gap-2 text-brand-accent mb-2">
               <LineChart className="h-4 w-4" />
               <span className="text-sm font-semibold">
                 Pour l&apos;Administration
@@ -62,7 +62,7 @@ export default function KorrigoFeatures() {
             </p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center gap-2 text-gold-400 mb-2">
+            <div className="flex items-center gap-2 text-brand-accent mb-2">
               <Users className="h-4 w-4" />
               <span className="text-sm font-semibold">Pour les Enseignants</span>
             </div>
@@ -72,7 +72,7 @@ export default function KorrigoFeatures() {
             </p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center gap-2 text-gold-400 mb-2">
+            <div className="flex items-center gap-2 text-brand-accent mb-2">
               <LineChart className="h-4 w-4" />
               <span className="text-sm font-semibold">
                 Pour Étudiants/Familles
