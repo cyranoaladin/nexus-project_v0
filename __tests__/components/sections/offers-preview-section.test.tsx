@@ -11,17 +11,44 @@ jest.mock('next/link', () => {
 
 // Mock de next/image
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, ...props }: any) {
+  return function MockedImage({ src, alt, priority, ...props }: any) {
     return <img src={src} alt={alt} {...props} />;
   };
 });
 
 // Mock de framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-}));
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    motion: new Proxy({}, {
+      get: (target, prop) => {
+        return React.forwardRef((props: any, ref: any) => {
+          const { 
+            children, 
+            initial, 
+            animate, 
+            exit, 
+            transition, 
+            whileHover, 
+            whileTap, 
+            whileInView,
+            viewport,
+            ...rest 
+          } = props;
+          return React.createElement(prop, { ...rest, ref }, children);
+        });
+      }
+    }),
+    AnimatePresence: ({ children }: any) => children,
+    useReducedMotion: jest.fn(() => false),
+    useAnimation: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      set: jest.fn(),
+    })),
+    useInView: jest.fn(() => true),
+  };
+});
 
 describe('OffersPreviewSection', () => {
   it('renders the section title correctly', () => {
@@ -136,7 +163,8 @@ describe('OffersPreviewSection', () => {
   it('renders proper semantic structure', () => {
     render(<OffersPreviewSection />);
 
-    const section = screen.getByRole('region', { hidden: true }) || document.querySelector('section');
+    // Section element should exist
+    const section = document.querySelector('section');
     expect(section).toBeInTheDocument();
 
     const headings = screen.getAllByRole('heading');

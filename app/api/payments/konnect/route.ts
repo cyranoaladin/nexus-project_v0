@@ -7,7 +7,7 @@ import { upsertPaymentByExternalId } from '@/lib/payments';
 import { prisma } from '@/lib/prisma';
 import { createKonnectPaymentSchema } from '@/lib/validation';
 import { parseBody, assertExists } from '@/lib/api/helpers';
-import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { successResponse, handleApiError } from '@/lib/api/errors';
 import { UserRole } from '@/types/enums';
 
 export async function POST(request: NextRequest) {

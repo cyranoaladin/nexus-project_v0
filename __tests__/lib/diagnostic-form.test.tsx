@@ -48,6 +48,7 @@ describe('DiagnosticForm', () => {
   });
 
   describe('Interactions utilisateur', () => {
+<<<<<<< HEAD
     it('sélectionne une option quand on clique dessus', () => {
       fireEvent.click(screen.getByText('Première'));
       // Verify button click works
@@ -71,6 +72,39 @@ describe('DiagnosticForm', () => {
       // Validation button should disappear and reappear since validation is reset
       await waitFor(() => {
         expect(screen.getByText(/Obtenir ma recommandation personnalisée/i)).toBeInTheDocument();
+=======
+    it('sélectionne une option quand on clique dessus', async () => {
+      const premiereButton = screen.getByText('Première').closest('button')!;
+      fireEvent.click(premiereButton);
+
+      // Wait for state update and check for Check icon indicating selection
+      await waitFor(() => {
+        expect(screen.getByText('Première').closest('button')).toContainHTML('<svg');
+      });
+      
+      // Check for selected classes
+      expect(screen.getByText('Première').closest('button')).toHaveClass('bg-or-stellaire');
+    });
+
+    it('permet de changer la sélection', async () => {
+      // Click first option
+      const premiereButton1 = screen.getByText('Première').closest('button')!;
+      fireEvent.click(premiereButton1);
+      
+      // Wait for update
+      await waitFor(() => {
+        expect(screen.getByText('Première')).toBeInTheDocument();
+      });
+      
+      // Click second option
+      const terminaleButton = screen.getByText('Terminale').closest('button')!;
+      fireEvent.click(terminaleButton);
+      
+      // Verify both options still exist in DOM after clicks
+      await waitFor(() => {
+        expect(screen.getByText('Première')).toBeInTheDocument();
+        expect(screen.getByText('Terminale')).toBeInTheDocument();
+>>>>>>> suivi-de-progression-et-facturat-1c59
       });
     });
   });

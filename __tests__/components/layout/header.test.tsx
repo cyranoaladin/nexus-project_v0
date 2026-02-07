@@ -11,7 +11,7 @@ jest.mock('next/link', () => {
 
 // Mock de next/image
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, ...props }: any) {
+  return function MockedImage({ src, alt, priority, ...props }: any) {
     return <img src={src} alt={alt} {...props} />;
   };
 });
@@ -28,29 +28,31 @@ describe('Header', () => {
   it('renders all navigation links', () => {
     render(<Header />);
 
-    expect(screen.getByText(/Accueil/i)).toBeInTheDocument();
-    expect(screen.getByText(/Notre Équipe/i)).toBeInTheDocument();
-    expect(screen.getByText(/Offres & Tarifs/i)).toBeInTheDocument();
-    expect(screen.getByText(/Notre Centre/i)).toBeInTheDocument();
-    expect(screen.getByText(/Contact/i)).toBeInTheDocument();
+    // Navigation links appear in both desktop and mobile menus
+    expect(screen.getAllByText(/Accueil/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Notre Équipe/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Offres & Tarifs/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Notre Centre/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Contact/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('has correct navigation links', () => {
     render(<Header />);
 
-    const homeLink = screen.getByText(/Accueil/i).closest('a');
-    expect(homeLink).toHaveAttribute('href', '/');
+    // Links appear in both desktop and mobile menus, so use getAllByText and check the first one
+    const homeLink = screen.getAllByText(/Accueil/i)[0].closest('a');
+    expect(homeLink).toHaveAttribute('href', '/famille');
 
-    const teamLink = screen.getByText(/Notre Équipe/i).closest('a');
+    const teamLink = screen.getAllByText(/Notre Équipe/i)[0].closest('a');
     expect(teamLink).toHaveAttribute('href', '/equipe');
 
-    const offersLink = screen.getByText(/Offres & Tarifs/i).closest('a');
+    const offersLink = screen.getAllByText(/Offres & Tarifs/i)[0].closest('a');
     expect(offersLink).toHaveAttribute('href', '/offres');
 
-    const centerLink = screen.getByText(/Notre Centre/i).closest('a');
+    const centerLink = screen.getAllByText(/Notre Centre/i)[0].closest('a');
     expect(centerLink).toHaveAttribute('href', '/notre-centre');
 
-    const contactLink = screen.getByText(/Contact/i).closest('a');
+    const contactLink = screen.getAllByText(/Contact/i)[0].closest('a');
     expect(contactLink).toHaveAttribute('href', '/contact');
   });
 
@@ -130,7 +132,7 @@ describe('Header', () => {
     render(<Header />);
 
     const logoLink = screen.getByAltText(/Nexus Réussite/i).closest('a');
-    expect(logoLink).toHaveAttribute('href', '/');
+    expect(logoLink).toHaveAttribute('href', '/famille');
   });
 
   it('renders proper semantic structure', () => {
