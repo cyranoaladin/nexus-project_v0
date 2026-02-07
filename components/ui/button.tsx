@@ -59,6 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const MotionButton = motion.button
 
     return (
+      // @ts-expect-error - framer-motion v11 type conflict with React 19 onDrag prop
       <MotionButton
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
