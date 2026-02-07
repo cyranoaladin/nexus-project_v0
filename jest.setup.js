@@ -72,57 +72,57 @@ jest.mock('next-auth', () => ({
 // Mock Radix Select used in tests to behave like native select
 jest.mock('@/components/ui/select', () => {
   const React = require('react');
-  const SelectContext = React.createContext({ value: null, onValueChange: () => {} });
-  
+  const SelectContext = React.createContext({ value: null, onValueChange: () => { } });
+
   const Select = ({ children, value, onValueChange, defaultValue, ...props }) => {
     const [selectedValue, setSelectedValue] = React.useState(value || defaultValue || '');
-    
+
     React.useEffect(() => {
       if (value !== undefined) {
         setSelectedValue(value);
       }
     }, [value]);
-    
+
     const handleChange = React.useCallback((newValue) => {
       if (value === undefined) {
         setSelectedValue(newValue);
       }
       onValueChange?.(newValue);
     }, [value, onValueChange]);
-    
+
     return (
       <SelectContext.Provider value={{ value: selectedValue, onValueChange: handleChange }}>
         <div {...props}>{children}</div>
       </SelectContext.Provider>
     );
   };
-  
+
   const SelectTrigger = ({ children }) => {
     const { value } = React.useContext(SelectContext);
     return <button type="button">{value || children}</button>;
   };
-  
+
   const SelectValue = ({ placeholder }) => {
     const { value } = React.useContext(SelectContext);
     return <>{value || placeholder}</>;
   };
-  
+
   const SelectContent = ({ children }) => {
     return <div role="listbox">{children}</div>;
   };
-  
+
   const SelectItem = ({ value, children }) => {
     const context = React.useContext(SelectContext);
     return (
-      <button 
-        role="option" 
+      <button
+        role="option"
         onClick={() => context.onValueChange(value)}
       >
         {children}
       </button>
     );
   };
-  
+
   return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };
 });
 
@@ -147,25 +147,25 @@ jest.mock('@/components/ui/checkbox', () => {
 // Mock Radix Tabs to render all content in tests
 jest.mock('@/components/ui/tabs', () => {
   const React = require('react');
-  const TabsContext = React.createContext({ selectedValue: null, onValueChange: () => {} });
-  
+  const TabsContext = React.createContext({ selectedValue: null, onValueChange: () => { } });
+
   return {
     Tabs: function Tabs({ children, value: controlledValue, defaultValue, onValueChange, ...props }) {
       const [selectedValue, setSelectedValue] = React.useState(controlledValue || defaultValue || 'all');
-      
+
       React.useEffect(() => {
         if (controlledValue !== undefined) {
           setSelectedValue(controlledValue);
         }
       }, [controlledValue]);
-      
+
       const handleValueChange = React.useCallback((newValue) => {
         if (controlledValue === undefined) {
           setSelectedValue(newValue);
         }
         onValueChange?.(newValue);
       }, [controlledValue, onValueChange]);
-      
+
       return (
         <TabsContext.Provider value={{ selectedValue, onValueChange: handleValueChange }}>
           <div data-testid="tabs" {...props}>{children}</div>
@@ -178,8 +178,8 @@ jest.mock('@/components/ui/tabs', () => {
     TabsTrigger: function TabsTrigger({ value, children, ...props }) {
       const context = React.useContext(TabsContext);
       return (
-        <button 
-          role="tab" 
+        <button
+          role="tab"
           aria-label={value}
           onClick={() => context.onValueChange(value)}
           {...props}
@@ -228,6 +228,21 @@ global.IntersectionObserver = global.IntersectionObserver || class {
   disconnect() { }
 };
 
+// Polyfill matchMedia for Jest/jsdom (used by CorporateNavbar for reduced-motion)
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 // Mock GSAP
 jest.mock('gsap', () => ({
   gsap: {
@@ -258,17 +273,17 @@ jest.mock('framer-motion', () => {
     motion: new Proxy({}, {
       get: (target, prop) => {
         return React.forwardRef((props, ref) => {
-          const { 
-            children, 
-            initial, 
-            animate, 
-            exit, 
-            transition, 
-            whileHover, 
-            whileTap, 
+          const {
+            children,
+            initial,
+            animate,
+            exit,
+            transition,
+            whileHover,
+            whileTap,
             whileInView,
             viewport,
-            ...rest 
+            ...rest
           } = props;
           return React.createElement(prop, { ...rest, ref }, children);
         });
