@@ -10,4 +10,5 @@ export * from './common';
 // Domain-specific schemas
 export * from './users';
 export * from './sessions';
+export * from './session-report';
 export * from './payments';
