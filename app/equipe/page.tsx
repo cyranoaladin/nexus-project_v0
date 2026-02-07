@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 
 const FEATURED = ["marc", "sophie", "yassine", "helene"];
 
@@ -489,7 +487,6 @@ export default function EquipePage() {
 
   return (
     <div className="min-h-screen bg-midnight-950 text-slate-200">
-      <Header />
 
       <main className="pb-20">
         {/* HERO */}
@@ -949,7 +946,6 @@ export default function EquipePage() {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 }
