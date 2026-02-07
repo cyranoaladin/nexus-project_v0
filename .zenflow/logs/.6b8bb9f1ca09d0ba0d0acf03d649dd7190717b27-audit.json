@@ -9,6 +9,11 @@
             "date": 1770416702828,
             "name": "/home/alaeddine/.zenflow/worktrees/tests-locaux-41a0/.zenflow/logs/zenflow-2026-02-06.log",
             "hash": "1f0f49d2848ffcf871895ac03f3f8eaf2eb37f02cdbeb4a646c9088f41310422"
+        },
+        {
+            "date": 1770422529752,
+            "name": "/home/alaeddine/.zenflow/worktrees/tests-locaux-41a0/.zenflow/logs/zenflow-2026-02-07.log",
+            "hash": "2eaf1b29c8d8c72311cd2e0a03befd347bc1ea89196f707c54e9805a50e5b133"
         }
     ],
     "hashType": "sha256"
