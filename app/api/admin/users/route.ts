@@ -235,15 +235,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Hash password if provided
-    const updateData: Prisma.UserUpdateInput = {
-      ...validatedData,
-      ...(validatedData.password ? {
-        password: await bcrypt.hash(validatedData.password, 12)
-      } : {})
-    };
-
-    // Remove password from validated data to avoid passing plain text
-    delete (updateData as any).password;
+    const updateData: Prisma.UserUpdateInput = validatedData.password
+      ? {
+          ...validatedData,
+          password: await bcrypt.hash(validatedData.password, 12)
+        }
+      : {
+          ...validatedData,
+          password: undefined
+        };
 
     // Update user
     const updatedUser = await prisma.user.update({
