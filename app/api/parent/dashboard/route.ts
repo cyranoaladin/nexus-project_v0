@@ -31,6 +31,13 @@ type StudentBadge = Prisma.StudentBadgeGetPayload<{
   };
 }>;
 
+type SessionData = {
+  id: string;
+  subject: string;
+  scheduledAt: Date;
+  status: string;
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -111,7 +118,7 @@ export async function GET() {
       })),
       recentScores: [], // Empty for now - would need session reports data
       // @ts-expect-error - Type inference issue with Prisma relations
-      recentSessions: child.sessions.map((s: any) => ({
+      recentSessions: child.sessions.map((s: SessionData) => ({
         id: s.id,
         subject: s.subject,
         date: s.scheduledAt.toISOString(),
