@@ -66,6 +66,7 @@ describe('Daemon Command', () => {
     });
 
     it('should handle start failure', async () => {
+      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -106,6 +107,7 @@ describe('Daemon Command', () => {
     });
 
     it('should handle stop failure', async () => {
+      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -149,6 +151,7 @@ describe('Daemon Command', () => {
     });
 
     it('should handle restart failure', async () => {
+      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -223,11 +226,13 @@ describe('Daemon Command', () => {
       mockManager.followLogs.mockResolvedValue(stopFollowing);
 
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         // Don't throw, just track that exit was called
       }) as any;
       
       let signalHandler: any;
+      // @ts-expect-error - process.on mock type incompatibility
       const mockOn = jest.spyOn(process, 'on').mockImplementation((event: string, handler: any) => {
         if (event === 'SIGINT') {
           signalHandler = handler;
@@ -256,6 +261,7 @@ describe('Daemon Command', () => {
     });
 
     it('should handle logs failure', async () => {
+      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
