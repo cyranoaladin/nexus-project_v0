@@ -42,14 +42,11 @@ describe('Git Client + Sync Manager Integration', () => {
     gitClient = new GitClient(repoPath);
 
     const syncConfig: SyncConfig = {
-      enabled: true,
       autoPush: false,
-      maxRetries: 3,
-      timeout: 30000,
-      conflictStrategy: 'abort',
-      excludedWorktrees: [],
-      notificationChannels: ['console'],
       verificationCommands: [],
+      conflictStrategy: 'abort',
+      excludedBranches: [],
+      excludedPaths: [],
     };
 
     syncManager = new SyncManager(repoPath, syncConfig);

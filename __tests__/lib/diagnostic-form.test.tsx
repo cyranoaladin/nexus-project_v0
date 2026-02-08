@@ -1,9 +1,9 @@
 import { DiagnosticForm } from '@/components/ui/diagnostic-form';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, ...props }: { children: React.ReactNode; href: string;[key: string]: any }) {
+  return function MockLink({ children, href, ...props }: any) {
     return <a href={href} {...props}>{children}</a>;
   };
 });

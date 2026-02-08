@@ -28,15 +28,15 @@ const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: string |
 });
 
 const mockLoadConfig = jest.fn();
-const mockLoadRules = jest.fn<() => Promise<Rule[]>>();
-const mockGetRules = jest.fn<() => Rule[]>();
-const mockGetEnabledRules = jest.fn<() => Rule[]>();
-const mockGetDisabledRules = jest.fn<() => Rule[]>();
-const mockGetRule = jest.fn<(name: string) => Rule | undefined>();
+const mockLoadRules = jest.fn();
+const mockGetRules = jest.fn();
+const mockGetEnabledRules = jest.fn();
+const mockGetDisabledRules = jest.fn();
+const mockGetRule = jest.fn();
 const mockEnableRule = jest.fn();
 const mockDisableRule = jest.fn();
-const mockEvaluateRule = jest.fn<(rule: Rule, event: Event) => Promise<boolean>>();
-const mockValidateRuleFile = jest.fn<(path: string) => Promise<any>>();
+const mockEvaluateRule = jest.fn();
+const mockValidateRuleFile = jest.fn();
 const mockLoadRule = jest.fn();
 
 beforeEach(() => {
@@ -81,7 +81,8 @@ describe('Rule CLI Commands', () => {
       {
         type: 'commit',
         branches: {
-          pattern: 'feature/*',
+          include: ['feature/*'],
+          exclude: [],
         },
       },
     ],
@@ -199,7 +200,6 @@ describe('Rule CLI Commands', () => {
 
     it('should handle rule not found', async () => {
       mockLoadRules.mockResolvedValue([]);
-      // @ts-expect-error - Mock return type
       mockGetRule.mockReturnValue(undefined);
 
       const { createRuleCommand } = await import('./rule');
@@ -297,15 +297,10 @@ describe('Rule CLI Commands', () => {
     it('should test rule with custom event', async () => {
       const mockRule = createMockRule();
       const customEvent: Event = {
-        id: 'test-event-id',
-        type: 'commit' as const,
-        source: 'test',
-        timestamp: new Date(),
-        worktree: '/path/to/worktree',
+        type: 'commit',
         branch: 'feature/test',
-        commit_hash: 'abc123',
-        commit_message: 'Test commit',
-        author: 'Test User'
+        timestamp: new Date(),
+        data: { commit: 'abc123' },
       };
       
       mockLoadRules.mockResolvedValue([mockRule]);
