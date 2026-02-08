@@ -48,3 +48,20 @@ export interface EventDetectorConfig {
   debounceMs: number;
   ignorePatterns: string[];
 }
+
+// Type guards for Event union type
+export function isCommitEvent(event: Event): event is CommitEvent {
+  return event.type === 'commit';
+}
+
+export function isFileChangeEvent(event: Event): event is FileChangeEvent {
+  return event.type === 'file_change';
+}
+
+export function isScheduleEvent(event: Event): event is ScheduleEvent {
+  return event.type === 'schedule';
+}
+
+export function isManualEvent(event: Event): event is ManualEvent {
+  return event.type === 'manual';
+}
