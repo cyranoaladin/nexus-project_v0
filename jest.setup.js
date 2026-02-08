@@ -272,23 +272,21 @@ jest.mock('framer-motion', () => {
   return {
     motion: new Proxy({}, {
       get: (target, prop) => {
-        const Component = React.forwardRef((props, ref) => {
+        return React.forwardRef((props, ref) => {
           const {
             children,
-            initial: _initial,
-            animate: _animate,
-            exit: _exit,
-            transition: _transition,
-            whileHover: _whileHover,
-            whileTap: _whileTap,
-            whileInView: _whileInView,
-            viewport: _viewport,
+            initial,
+            animate,
+            exit,
+            transition,
+            whileHover,
+            whileTap,
+            whileInView,
+            viewport,
             ...rest
           } = props;
           return React.createElement(prop, { ...rest, ref }, children);
         });
-        Component.displayName = `Motion${String(prop)}`;
-        return Component;
       }
     }),
     AnimatePresence: ({ children }) => children,
