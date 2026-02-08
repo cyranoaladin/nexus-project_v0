@@ -29,7 +29,7 @@ describe('GET /api/parent/dashboard', () => {
     it('should return 401 when user is not authenticated', async () => {
       mockGetServerSession.mockResolvedValue(null);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET(); // NextRequest not needed for GET in this implementation
       const data = await response.json();
 
@@ -51,7 +51,7 @@ describe('GET /api/parent/dashboard', () => {
         expires: '2026-12-31'
       });
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -71,7 +71,7 @@ describe('GET /api/parent/dashboard', () => {
         expires: '2026-12-31'
       });
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -91,7 +91,7 @@ describe('GET /api/parent/dashboard', () => {
         expires: '2026-12-31'
       });
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -115,7 +115,7 @@ describe('GET /api/parent/dashboard', () => {
 
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -176,7 +176,7 @@ describe('GET /api/parent/dashboard', () => {
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockParentProfile);
       (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -271,7 +271,7 @@ describe('GET /api/parent/dashboard', () => {
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockParent);
       (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -331,7 +331,7 @@ describe('GET /api/parent/dashboard', () => {
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockParent);
       (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
@@ -429,7 +429,7 @@ describe('GET /api/parent/dashboard', () => {
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockParent);
       (prisma.payment.findMany as jest.Mock).mockResolvedValue([]);
 
-      const request = new NextRequest('http://localhost:3000/api/parent/dashboard');
+
       const response = await GET();
       const data = await response.json();
 
