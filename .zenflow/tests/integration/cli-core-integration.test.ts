@@ -118,6 +118,8 @@ describe('CLI + Core Engines Integration', () => {
       const config: RuleEngineConfig = {
         rulesDirectory: path.join(repoPath, '.zenflow', 'rules'),
         autoLoad: false,
+        validationStrict: false,
+        autoLoad: false,
       };
 
       const engine = new RuleEngine(config);
@@ -138,6 +140,8 @@ describe('CLI + Core Engines Integration', () => {
 
       const config = {
         rulesDirectory: path.join(repoPath, '.zenflow', 'rules'),
+        autoLoad: false,
+        validationStrict: false,
         autoLoad: false,
       };
 
@@ -251,7 +255,7 @@ describe('CLI + Core Engines Integration', () => {
       const { ConfigLoader } = await import('../../core/config/loader');
 
       const loader = new ConfigLoader(repoPath);
-      const settings = await loader.loadSettings();
+      const settings = await loader.load();
 
       expect(settings.project.name).toBe('test-project');
       expect(settings.sync.autoPush).toBe(false);
@@ -265,7 +269,7 @@ describe('CLI + Core Engines Integration', () => {
       const loader = new ConfigLoader(repoPath);
       const validator = new ConfigValidator();
 
-      const settings = await loader.loadSettings();
+      const settings = await loader.load();
       const validationResult = validator.validateSettings(settings);
 
       expect(validationResult.valid).toBe(true);
@@ -278,7 +282,7 @@ describe('CLI + Core Engines Integration', () => {
       const { ConfigLoader } = await import('../../core/config/loader');
 
       const loader = new ConfigLoader(repoPath);
-      const settings = await loader.loadSettings();
+      const settings = await loader.load();
 
       const syncManager = new SyncManager(repoPath, settings.sync);
 
@@ -300,7 +304,7 @@ describe('CLI + Core Engines Integration', () => {
       const { ConfigLoader } = await import('../../core/config/loader');
 
       const loader = new ConfigLoader(repoPath);
-      const settings = await loader.loadSettings();
+      const settings = await loader.load();
 
       const syncManager = new SyncManager(repoPath, settings.sync);
 
@@ -335,11 +339,13 @@ describe('CLI + Core Engines Integration', () => {
       const { ConfigLoader } = await import('../../core/config/loader');
 
       const loader = new ConfigLoader(repoPath);
-      const settings = await loader.loadSettings();
+      const settings = await loader.load();
 
       const syncManager = new SyncManager(repoPath, settings.sync);
       const ruleEngine = new RuleEngine({
         rulesDirectory: path.join(repoPath, '.zenflow', 'rules'),
+        autoLoad: true,
+        validationStrict: false,
         autoLoad: true,
       });
       const workflowEngine = new WorkflowEngine({

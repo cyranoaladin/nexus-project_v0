@@ -32,7 +32,7 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.on('commit', listener);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -57,7 +57,7 @@ describe('EventEmitter', () => {
     });
 
     it('should add event to queue', () => {
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -80,7 +80,7 @@ describe('EventEmitter', () => {
       emitter.on('event', genericListener);
       emitter.on('commit', specificListener);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -101,7 +101,7 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.on('commit', listener);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -120,7 +120,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener);
       emitter.off('commit', listener);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -141,7 +141,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener1);
       emitter.on('commit', listener2);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -162,7 +162,7 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.once('commit', listener);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -173,7 +173,7 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -192,7 +192,7 @@ describe('EventEmitter', () => {
     it('should return queue size', () => {
       expect(emitter.getQueueSize()).toBe(0);
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -207,7 +207,7 @@ describe('EventEmitter', () => {
     });
 
     it('should clear queue', () => {
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -226,7 +226,7 @@ describe('EventEmitter', () => {
 
   describe('getEvents', () => {
     beforeEach(() => {
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -237,7 +237,7 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'file_change' as const,
         source: 'watcher',
@@ -279,7 +279,7 @@ describe('EventEmitter', () => {
         processedEvents.push(event);
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -306,7 +306,7 @@ describe('EventEmitter', () => {
         throw new Error('Processing error');
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -330,7 +330,7 @@ describe('EventEmitter', () => {
       const processor = jest.fn(async () => {});
 
       for (let i = 0; i < 15; i++) {
-        // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+        // @ts-expect-error - Omit<Event> type narrowing issue
         emitter.emit({
           type: 'commit' as const,
           source: 'test',
@@ -390,7 +390,7 @@ describe('EventEmitter', () => {
 
       emitter.removeAllListeners('commit');
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -401,7 +401,7 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'file_change' as const,
         source: 'test',
@@ -425,7 +425,7 @@ describe('EventEmitter', () => {
 
       emitter.removeAllListeners();
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'commit' as const,
         source: 'test',
@@ -436,7 +436,7 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - EventEmitter.emit type narrowing issue with Omit<Event>
+      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
         type: 'file_change' as const,
         source: 'test',

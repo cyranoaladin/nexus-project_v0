@@ -45,7 +45,6 @@ beforeEach(() => {
   
   (require('../../core/config/loader') as any).loadConfig = mockLoadConfig;
   
-  // @ts-expect-error - Mock function typed as jest.fn() without explicit types
   mockLoadConfig.mockReturnValue({
     rules: {
       directory: '.zenflow/rules',
@@ -113,7 +112,6 @@ describe('Rule CLI Commands', () => {
         createMockRule({ name: 'rule-2', enabled: false }),
       ];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue(mockRules);
       mockGetRules.mockReturnValue(mockRules);
 
@@ -129,7 +127,6 @@ describe('Rule CLI Commands', () => {
     it('should filter enabled rules', async () => {
       const mockRules = [createMockRule({ enabled: true })];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue(mockRules);
       mockGetEnabledRules.mockReturnValue(mockRules);
 
@@ -144,7 +141,6 @@ describe('Rule CLI Commands', () => {
     it('should filter disabled rules', async () => {
       const mockRules = [createMockRule({ enabled: false })];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue(mockRules);
       mockGetDisabledRules.mockReturnValue(mockRules);
 
@@ -159,7 +155,6 @@ describe('Rule CLI Commands', () => {
     it('should output JSON when --json flag is set', async () => {
       const mockRules = [createMockRule()];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue(mockRules);
       mockGetRules.mockReturnValue(mockRules);
 
@@ -176,7 +171,6 @@ describe('Rule CLI Commands', () => {
     it('should show rule details', async () => {
       const mockRule = createMockRule({ name: 'test-rule' });
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
 
@@ -192,7 +186,6 @@ describe('Rule CLI Commands', () => {
     it('should output JSON when --json flag is set', async () => {
       const mockRule = createMockRule();
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
 
@@ -205,8 +198,8 @@ describe('Rule CLI Commands', () => {
     });
 
     it('should handle rule not found', async () => {
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([]);
+      // @ts-expect-error - Mock return type
       mockGetRule.mockReturnValue(undefined);
 
       const { createRuleCommand } = await import('./rule');
@@ -222,7 +215,6 @@ describe('Rule CLI Commands', () => {
     it('should validate a valid rule file', async () => {
       const mockRule = createMockRule();
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockValidateRuleFile.mockResolvedValue({ valid: true });
       mockLoadRule.mockResolvedValue(mockRule);
 
@@ -236,7 +228,6 @@ describe('Rule CLI Commands', () => {
     });
 
     it('should handle invalid rule file', async () => {
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockValidateRuleFile.mockResolvedValue({
         valid: false,
         errors: ['name: Required', 'version: Required'],
@@ -255,7 +246,6 @@ describe('Rule CLI Commands', () => {
     it('should enable a rule', async () => {
       const mockRule = createMockRule({ enabled: false });
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockEnableRule.mockResolvedValue(undefined);
 
@@ -273,7 +263,6 @@ describe('Rule CLI Commands', () => {
     it('should disable a rule', async () => {
       const mockRule = createMockRule({ enabled: true });
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockDisableRule.mockResolvedValue(undefined);
 
@@ -291,10 +280,8 @@ describe('Rule CLI Commands', () => {
     it('should test rule with default event', async () => {
       const mockRule = createMockRule();
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockEvaluateRule.mockResolvedValue(true);
 
       const { createRuleCommand } = await import('./rule');
@@ -321,10 +308,8 @@ describe('Rule CLI Commands', () => {
         author: 'Test User'
       };
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockEvaluateRule.mockResolvedValue(true);
 
       const { createRuleCommand } = await import('./rule');
@@ -345,10 +330,8 @@ describe('Rule CLI Commands', () => {
     it('should handle rule would not trigger', async () => {
       const mockRule = createMockRule();
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockEvaluateRule.mockResolvedValue(false);
 
       const { createRuleCommand } = await import('./rule');
@@ -362,7 +345,6 @@ describe('Rule CLI Commands', () => {
     it('should handle invalid event JSON', async () => {
       const mockRule = createMockRule();
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadRules.mockResolvedValue([mockRule]);
       mockGetRule.mockReturnValue(mockRule);
 

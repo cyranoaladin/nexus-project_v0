@@ -111,14 +111,14 @@ const ThemeRadiusSchema = z.object({
   full: z.string().optional(),
 });
 
-const ThemeConfigSchema = z.object({
+export const ThemeConfigSchema = z.object({
   colors: ThemeColorsSchema.optional(),
   typography: ThemeTypographySchema.optional(),
   spacing: ThemeSpacingSchema.optional(),
   radius: ThemeRadiusSchema.optional(),
 });
 
-const AccessibilityConfigSchema = z.object({
+export const AccessibilityConfigSchema = z.object({
   wcag: z.enum(['A', 'AA', 'AAA']).optional(),
   contrastRatios: z.object({
     normal: z.string().optional(),

@@ -40,7 +40,6 @@ beforeEach(() => {
   
   (require('../../core/config/loader') as any).loadConfig = mockLoadConfig;
   
-  // @ts-expect-error - Mock function typed as jest.fn() without explicit types
   mockLoadConfig.mockReturnValue({
     workflows: {
       directory: '.zenflow/workflows',
@@ -192,6 +191,7 @@ describe('Workflow CLI Commands', () => {
     });
 
     it('should handle workflow not found', async () => {
+      // @ts-expect-error - Mock return type
       mockLoadWorkflow.mockRejectedValue(new Error('Workflow not found: non-existent'));
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -345,6 +345,7 @@ describe('Workflow CLI Commands', () => {
     });
 
     it('should handle execution not found', async () => {
+      // @ts-expect-error - Mock return type
       mockGetExecutionStatus.mockRejectedValue(new Error('Execution not found'));
 
       const { createWorkflowCommand } = await import('./workflow');

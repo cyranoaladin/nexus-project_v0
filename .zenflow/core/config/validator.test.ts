@@ -184,8 +184,8 @@ describe('ConfigValidator', () => {
         level: 'debug' as const,
         directory: 'logs',
         rotation: 'weekly' as const,
-        retention_days: 60,
-        max_size_mb: 200,
+        retentionDays: 60,
+        maxSizeMb: 200,
         format: 'json' as const,
       };
 
@@ -194,8 +194,8 @@ describe('ConfigValidator', () => {
       expect(result.level).toBe('debug');
       expect(result.directory).toBe('logs');
       expect(result.rotation).toBe('weekly');
-      expect(result.retention_days).toBe(60);
-      expect(result.max_size_mb).toBe(200);
+      expect(result.retentionDays).toBe(60);
+      expect(result.maxSizeMb).toBe(200);
       expect(result.format).toBe('json');
     });
 
@@ -207,8 +207,8 @@ describe('ConfigValidator', () => {
       expect(result.level).toBe('info');
       expect(result.directory).toBe('.zenflow/logs');
       expect(result.rotation).toBe('daily');
-      expect(result.retention_days).toBe(30);
-      expect(result.max_size_mb).toBe(100);
+      expect(result.retentionDays).toBe(30);
+      expect(result.maxSizeMb).toBe(100);
       expect(result.format).toBe('text');
     });
 
@@ -224,18 +224,18 @@ describe('ConfigValidator', () => {
   describe('validateGit', () => {
     it('should validate git configuration', () => {
       const config = {
-        main_directory: '/home/user/project',
-        worktrees_directory: '/home/user/worktrees',
+        mainDirectory: '/home/user/project',
+        worktreesDirectory: '/home/user/worktrees',
         remote: 'upstream',
-        default_branch: 'develop',
+        defaultBranch: 'develop',
       };
 
       const result = validator.validateGit(config);
       
-      expect(result.main_directory).toBe('/home/user/project');
-      expect(result.worktrees_directory).toBe('/home/user/worktrees');
+      expect(result.mainDirectory).toBe('/home/user/project');
+      expect(result.worktreesDirectory).toBe('/home/user/worktrees');
       expect(result.remote).toBe('upstream');
-      expect(result.default_branch).toBe('develop');
+      expect(result.defaultBranch).toBe('develop');
     });
 
     it('should apply defaults for git config', () => {
@@ -243,10 +243,10 @@ describe('ConfigValidator', () => {
 
       const result = validator.validateGit(config);
       
-      expect(result.main_directory).toBe('.');
-      expect(result.worktrees_directory).toBe('../');
+      expect(result.mainDirectory).toBe('.');
+      expect(result.worktreesDirectory).toBe('../');
       expect(result.remote).toBe('origin');
-      expect(result.default_branch).toBe('main');
+      expect(result.defaultBranch).toBe('main');
     });
   });
 
