@@ -61,6 +61,7 @@ describe('Rule Engine + Workflow Engine Integration', () => {
     const ruleConfig: RuleEngineConfig = {
       rulesDirectory: rulesDir,
       autoLoad: false,
+      validationStrict: false,
     };
 
     const workflowConfig: WorkflowEngineConfig = {
