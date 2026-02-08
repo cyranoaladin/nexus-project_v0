@@ -30,7 +30,7 @@ jest.mock('commander', () => {
 const mockLoadConfig = jest.fn();
 const mockSyncAllWorktrees = jest.fn();
 const mockSyncWorktree = jest.fn();
-const mockGetSyncHistory = jest.fn();
+const mockGetSyncHistory = jest.fn<() => Promise<any[]>>();
 const mockRollbackSync = jest.fn();
 
 beforeEach(() => {
