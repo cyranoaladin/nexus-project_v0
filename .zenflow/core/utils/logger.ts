@@ -73,8 +73,8 @@ function createFileTransport(config: LoggingConfig): winston.transport {
       zippedArchive: true,
       level: config.level,
       handleExceptions: true,
-      maxSize: `${config.max_size_mb}m`,
-      maxFiles: `${config.retention_days}d`,
+      maxSize: `${config.maxSizeMb}m`,
+      maxFiles: `${config.retentionDays}d`,
       format: commonFormat,
     });
   } else if (config.rotation === 'weekly') {
@@ -85,8 +85,8 @@ function createFileTransport(config: LoggingConfig): winston.transport {
       zippedArchive: true,
       level: config.level,
       handleExceptions: true,
-      maxSize: `${config.max_size_mb}m`,
-      maxFiles: `${config.retention_days}d`,
+      maxSize: `${config.maxSizeMb}m`,
+      maxFiles: `${config.retentionDays}d`,
       format: commonFormat,
     });
   } else {
@@ -95,8 +95,8 @@ function createFileTransport(config: LoggingConfig): winston.transport {
       filename: 'zenflow.log',
       level: config.level,
       handleExceptions: true,
-      maxsize: config.max_size_mb * 1024 * 1024,
-      maxFiles: config.retention_days,
+      maxsize: config.maxSizeMb * 1024 * 1024,
+      maxFiles: config.retentionDays,
       format: commonFormat,
     });
   }
@@ -113,8 +113,8 @@ export function createLogger(configOverride?: Partial<LoggingConfig>): winston.L
       level: 'info',
       directory: '.zenflow/logs',
       rotation: 'daily',
-      retention_days: 30,
-      max_size_mb: 100,
+      retentionDays: 30,
+      maxSizeMb: 100,
       format: 'text',
       ...configOverride,
     };
