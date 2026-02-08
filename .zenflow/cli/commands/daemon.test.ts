@@ -225,7 +225,7 @@ describe('Daemon Command', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         // Don't throw, just track that exit was called
-      });
+      }) as any;
       
       let signalHandler: any;
       const mockOn = jest.spyOn(process, 'on').mockImplementation((event: string, handler: any) => {
@@ -233,7 +233,7 @@ describe('Daemon Command', () => {
           signalHandler = handler;
         }
         return process;
-      });
+      }) as any;
 
       const command = createDaemonCommand(globalOptions);
       const logsCmd = command.commands.find(c => c.name() === 'logs');

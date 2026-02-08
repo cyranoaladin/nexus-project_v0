@@ -89,13 +89,10 @@ describe('Workflow CLI Commands', () => {
         name: 'Test Step',
         type: 'shell',
         command: 'echo "test"',
-        description: 'Test step description',
       },
     ],
     error_handling: {
       strategy: 'abort',
-      max_retries: 3,
-      timeout: 300,
     },
     ...overrides,
   });
