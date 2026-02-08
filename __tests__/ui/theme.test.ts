@@ -34,7 +34,7 @@ function getContrastRatio(color1: string, color2: string): number {
 describe('Theme Configuration', () => {
   describe('Settings File', () => {
     const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
-    let settings: any;
+    let settings: Record<string, any>;
 
     beforeAll(() => {
       const rawSettings = fs.readFileSync(settingsPath, 'utf-8');
@@ -293,7 +293,7 @@ describe('Theme Configuration', () => {
 
   describe('WCAG Accessibility Compliance', () => {
     const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
-    let settings: any;
+    let settings: Record<string, any>;
     const WHITE = '#FFFFFF';
     const WCAG_AA_NORMAL = 4.5;
     const WCAG_AA_LARGE = 3.0;
