@@ -66,7 +66,6 @@ describe('Daemon Command', () => {
     });
 
     it('should handle start failure', async () => {
-      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -107,7 +106,6 @@ describe('Daemon Command', () => {
     });
 
     it('should handle stop failure', async () => {
-      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -151,7 +149,6 @@ describe('Daemon Command', () => {
     });
 
     it('should handle restart failure', async () => {
-      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });
@@ -261,7 +258,6 @@ describe('Daemon Command', () => {
     });
 
     it('should handle logs failure', async () => {
-      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         throw new Error(`Process exited with code ${code}`);
       });

@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import type { ZenflowSettings } from '../../core/config/schema';
 import { ConfigLoader } from '../../core/config/loader';
 import { ConfigValidator } from '../../core/config/validator';
-import type { ZenflowSettings } from '../../core/config/types';
 
 jest.mock('../../core/utils/logger', () => ({
   getLogger: jest.fn(() => ({
@@ -46,11 +46,11 @@ describe('Config Loader + Validator Integration', () => {
           autoPush: false,
           verificationCommands: ['npm run lint'],
           conflictStrategy: 'abort',
-          excludedBranches: ['main', 'develop'],
+          excludedWorktrees: ['main', 'develop'],
           excludedPaths: ['node_modules/', '.git/'],
         },
         rules: {
-          directory: '.zenflow/rules',
+          rulesDirectory: '.zenflow/rules',
           autoLoad: true,
         },
         workflows: {
@@ -132,7 +132,7 @@ describe('Config Loader + Validator Integration', () => {
           autoPush: true,
           verificationCommands: ['npm test', 'npm run build'],
           conflictStrategy: 'manual',
-          excludedBranches: ['production', 'staging'],
+          excludedWorktrees: ['production', 'staging'],
           excludedPaths: ['dist/', 'build/', '.next/'],
         },
       };
@@ -145,7 +145,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toHaveLength(2);
       expect(loadedConfig.sync.conflictStrategy).toBe('manual');
-      expect(loadedConfig.sync.excludedBranches).toContain('production');
+      expect(loadedConfig.sync.excludedWorktrees).toContain('production');
 
       const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
@@ -169,7 +169,7 @@ describe('Config Loader + Validator Integration', () => {
 
       const loadedConfig = loader.load();
       
-      expect(loadedConfig.rules.directory).toBe('.zenflow/custom-rules');
+      expect(loadedConfig.rules.rulesDirectory).toBe('.zenflow/custom-rules');
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
       const validationResult = validator.validateSettings(loadedConfig);
@@ -309,8 +309,8 @@ describe('Config Loader + Validator Integration', () => {
         sync: {
           autoPush: true,
           verificationCommands: ['custom-command'],
-          conflictStrategy: 'force',
-          excludedBranches: ['custom-branch'],
+          conflictStrategy: 'abort',
+          excludedWorktrees: ['custom-branch'],
           excludedPaths: ['custom-path/'],
         },
         rules: {
@@ -327,7 +327,7 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toEqual(['custom-command']);
       expect(loadedConfig.sync.conflictStrategy).toBe('force');
-      expect(loadedConfig.rules.directory).toBe('custom-rules');
+      expect(loadedConfig.rules.rulesDirectory).toBe('custom-rules');
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
       const validationResult = validator.validateSettings(loadedConfig);
