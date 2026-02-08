@@ -79,19 +79,17 @@ describe('Status Command', () => {
       });
 
       mockGitClient.listWorktrees.mockResolvedValue([
-        { path: '/path/to/worktree', branch: 'main', commit: 'abc123', prunable: false },
+        { path: '/path/to/worktree', branch: 'main', commit: 'abc123', locked: false, prunable: false },
       ]);
 
       mockSyncManager.getSyncHistory.mockResolvedValue([
         {
           id: 'sync1',
           worktree_branch: 'feature/test',
+          commit_hash: 'abc123',
           status: 'success',
           started_at: new Date(),
           completed_at: new Date(),
-          duration_ms: 1000,
-          files_changed: 5,
-          commits_synced: 2,
         },
       ]);
 
@@ -123,9 +121,6 @@ describe('Status Command', () => {
       mockGitClient.listWorktrees.mockResolvedValue([]);
       
       mockSyncManager.getSyncHistory.mockResolvedValue([
-        { id: '1', worktree_branch: 'branch1', status: 'success', started_at: new Date(), completed_at: new Date(), duration_ms: 1000, files_changed: 1, commits_synced: 1 },
-        { id: '2', worktree_branch: 'branch2', status: 'failure', started_at: new Date(), completed_at: new Date(), duration_ms: 500, files_changed: 0, commits_synced: 0 },
-        { id: '3', worktree_branch: 'branch3', status: 'conflict', started_at: new Date(), completed_at: new Date(), duration_ms: 200, files_changed: 0, commits_synced: 0 },
       ]);
 
       const command = createStatusCommand(globalOptions);
@@ -174,20 +169,18 @@ describe('Status Command', () => {
   describe('status worktrees', () => {
     it('should list worktrees with sync status', async () => {
       mockGitClient.listWorktrees.mockResolvedValue([
-        { path: '/path/to/wt1', branch: 'refs/heads/feature/test', commit: 'abc123456', prunable: false },
-        { path: '/path/to/wt2', branch: 'refs/heads/main', commit: 'def789012', prunable: false },
+        { path: '/path/to/wt1', branch: 'refs/heads/feature/test', commit: 'abc123456', locked: false, prunable: false },
+        { path: '/path/to/wt2', branch: 'refs/heads/main', commit: 'def789012', locked: false, prunable: false },
       ]);
 
       mockSyncManager.getSyncHistory.mockResolvedValue([
         {
           id: 'sync1',
           worktree_branch: 'feature/test',
+          commit_hash: 'abc123',
           status: 'success',
           started_at: new Date('2024-01-01T10:00:00Z'),
           completed_at: new Date('2024-01-01T10:01:00Z'),
-          duration_ms: 60000,
-          files_changed: 5,
-          commits_synced: 2,
         },
       ]);
 
@@ -220,7 +213,7 @@ describe('Status Command', () => {
       const jsonOptions = { ...globalOptions, json: true };
       
       mockGitClient.listWorktrees.mockResolvedValue([
-        { path: '/path', branch: 'main', commit: 'abc123', prunable: false },
+        { path: '/path', branch: 'main', commit: 'abc123', locked: false, prunable: false },
       ]);
       mockSyncManager.getSyncHistory.mockResolvedValue([]);
 
@@ -236,7 +229,7 @@ describe('Status Command', () => {
 
     it('should handle main worktree specially', async () => {
       mockGitClient.listWorktrees.mockResolvedValue([
-        { path: '/path/main', branch: 'main', commit: 'abc123', prunable: false },
+        { path: '/path/main', branch: 'main', commit: 'abc123', locked: false, prunable: false },
       ]);
       mockSyncManager.getSyncHistory.mockResolvedValue([]);
 
@@ -253,7 +246,7 @@ describe('Status Command', () => {
 
     it('should handle sync history errors', async () => {
       mockGitClient.listWorktrees.mockResolvedValue([
-        { path: '/path', branch: 'feature/test', commit: 'abc123', prunable: false },
+        { path: '/path', branch: 'feature/test', commit: 'abc123', locked: false, prunable: false },
       ]);
       mockSyncManager.getSyncHistory.mockRejectedValue(new Error('Failed'));
 

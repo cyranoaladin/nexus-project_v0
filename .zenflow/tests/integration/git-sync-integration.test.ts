@@ -45,8 +45,8 @@ describe('Git Client + Sync Manager Integration', () => {
       autoPush: false,
       verificationCommands: [],
       conflictStrategy: 'abort',
-      excludedBranches: [],
-      excludedPaths: [],
+      excludedWorktrees: [],
+      excludedWorktrees: [],
     };
 
     syncManager = new SyncManager(repoPath, syncConfig);

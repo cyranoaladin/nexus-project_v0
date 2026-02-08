@@ -32,7 +32,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -44,7 +44,7 @@ describe('EventEmitter', () => {
       expect(listener).toHaveBeenCalledTimes(1);
       const event = listener.mock.calls[0][0] as CommitEvent;
       expect(event).toMatchObject({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -56,7 +56,7 @@ describe('EventEmitter', () => {
 
     it('should add event to queue', () => {
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -78,7 +78,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', specificListener);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -98,7 +98,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -116,7 +116,7 @@ describe('EventEmitter', () => {
       emitter.off('commit', listener);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -136,7 +136,7 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener2);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -156,7 +156,7 @@ describe('EventEmitter', () => {
       emitter.once('commit', listener);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -166,7 +166,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -184,7 +184,7 @@ describe('EventEmitter', () => {
       expect(emitter.getQueueSize()).toBe(0);
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -198,7 +198,7 @@ describe('EventEmitter', () => {
 
     it('should clear queue', () => {
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -216,7 +216,7 @@ describe('EventEmitter', () => {
   describe('getEvents', () => {
     beforeEach(() => {
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree1',
         branch: 'feature/test',
@@ -226,7 +226,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'file_change',
+        type: 'file_change' as const,
         source: 'watcher',
         worktree: '/path/to/worktree2',
         branch: 'feature/test',
@@ -241,7 +241,7 @@ describe('EventEmitter', () => {
     });
 
     it('should filter events by type', () => {
-      const events = emitter.getEvents({ type: 'commit' });
+      const events = emitter.getEvents({ type: 'commit' as const });
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('commit');
     });
@@ -267,7 +267,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -293,7 +293,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -316,7 +316,7 @@ describe('EventEmitter', () => {
 
       for (let i = 0; i < 15; i++) {
         emitter.emit({
-          type: 'commit',
+          type: 'commit' as const,
           source: 'test',
           worktree: '/path/to/worktree',
           branch: 'feature/test',
@@ -375,7 +375,7 @@ describe('EventEmitter', () => {
       emitter.removeAllListeners('commit');
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -385,7 +385,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'file_change',
+        type: 'file_change' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -408,7 +408,7 @@ describe('EventEmitter', () => {
       emitter.removeAllListeners();
 
       emitter.emit({
-        type: 'commit',
+        type: 'commit' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -418,7 +418,7 @@ describe('EventEmitter', () => {
       });
 
       emitter.emit({
-        type: 'file_change',
+        type: 'file_change' as const,
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
