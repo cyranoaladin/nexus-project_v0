@@ -9,12 +9,12 @@ const mockFs = fs as jest.Mocked<typeof fs>;
 
 describe('ConfigLoader', () => {
   const validConfig = {
-    setup_script: 'npm install',
-    dev_server_script: 'npm run dev',
+    setupScript: 'npm install',
+    devServerScript: 'npm run dev',
     sync: {
       enabled: true,
-      auto_push: false,
-      max_retries: 3,
+      autoPush: false,
+      maxRetries: 3,
     },
     rules: {
       directory: '.zenflow/rules',
@@ -56,7 +56,7 @@ describe('ConfigLoader', () => {
       const config = loader.load();
 
       expect(config).toBeDefined();
-      expect(config.setup_script).toBe('npm install');
+      expect(config.setupScript).toBe('npm install');
       expect(config.sync?.enabled).toBe(true);
     });
 
@@ -67,8 +67,8 @@ describe('ConfigLoader', () => {
       const config = loader.load();
 
       expect(config.sync?.enabled).toBe(true);
-      expect(config.sync?.auto_push).toBe(false);
-      expect(config.sync?.max_retries).toBe(3);
+      expect(config.sync?.autoPush).toBe(false);
+      expect(config.sync?.maxRetries).toBe(3);
       expect(config.rules?.directory).toBe('.zenflow/rules');
       expect(config.workflows?.directory).toBe('.zenflow/workflows');
       expect(config.logging?.level).toBe('info');
@@ -78,7 +78,7 @@ describe('ConfigLoader', () => {
       const partialConfig = {
         sync: {
           enabled: false,
-          auto_push: true,
+          autoPush: true,
         },
       };
       mockFs.readFileSync.mockReturnValue(JSON.stringify(partialConfig));
@@ -87,8 +87,8 @@ describe('ConfigLoader', () => {
       const config = loader.load();
 
       expect(config.sync?.enabled).toBe(false);
-      expect(config.sync?.auto_push).toBe(true);
-      expect(config.sync?.max_retries).toBe(3);
+      expect(config.sync?.autoPush).toBe(true);
+      expect(config.sync?.maxRetries).toBe(3);
     });
 
     it('should cache configuration on first load', () => {
@@ -153,7 +153,7 @@ describe('ConfigLoader', () => {
     it('should validate integer constraints', () => {
       const invalidConfig = {
         sync: {
-          max_retries: -1,
+          maxRetries: -1,
         },
       };
       mockFs.readFileSync.mockReturnValue(JSON.stringify(invalidConfig));
@@ -166,7 +166,7 @@ describe('ConfigLoader', () => {
     it('should validate enum values', () => {
       const invalidConfig = {
         sync: {
-          conflict_strategy: 'invalid-strategy',
+          conflictStrategy: 'invalid-strategy',
         },
       };
       mockFs.readFileSync.mockReturnValue(JSON.stringify(invalidConfig));
@@ -202,13 +202,13 @@ describe('ConfigLoader', () => {
       const loader = new ConfigLoader();
       
       const config1 = loader.load();
-      expect(config1.setup_script).toBe('npm install');
+      expect(config1.setupScript).toBe('npm install');
 
-      const updatedConfig = { ...validConfig, setup_script: 'yarn install' };
+      const updatedConfig = { ...validConfig, setupScript: 'yarn install' };
       mockFs.readFileSync.mockReturnValue(JSON.stringify(updatedConfig));
 
       const config2 = loader.reload();
-      expect(config2.setup_script).toBe('yarn install');
+      expect(config2.setupScript).toBe('yarn install');
     });
   });
 
@@ -302,10 +302,10 @@ describe('ConfigLoader', () => {
   describe('array configuration', () => {
     it('should handle array configurations', () => {
       const configWithArrays = {
-        copy_files: ['.env', '.env.local'],
+        copyFiles: ['.env', '.env.local'],
         sync: {
-          excluded_worktrees: ['temp', 'test'],
-          notification_channels: ['console', 'log'],
+          excludedWorktrees: ['temp', 'test'],
+          notificationChannels: ['console', 'log'],
         },
       };
       mockFs.readFileSync.mockReturnValue(JSON.stringify(configWithArrays));
@@ -313,9 +313,9 @@ describe('ConfigLoader', () => {
       const loader = new ConfigLoader();
       const config = loader.load();
 
-      expect(config.copy_files).toEqual(['.env', '.env.local']);
-      expect(config.sync?.excluded_worktrees).toEqual(['temp', 'test']);
-      expect(config.sync?.notification_channels).toEqual(['console', 'log']);
+      expect(config.copyFiles).toEqual(['.env', '.env.local']);
+      expect(config.sync?.excludedWorktrees).toEqual(['temp', 'test']);
+      expect(config.sync?.notificationChannels).toEqual(['console', 'log']);
     });
   });
 });

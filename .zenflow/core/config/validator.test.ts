@@ -20,7 +20,7 @@ describe('ConfigValidator', () => {
       const config = {
         sync: {
           enabled: true,
-          auto_push: false,
+          autoPush: false,
         },
       };
 
@@ -36,7 +36,7 @@ describe('ConfigValidator', () => {
       const result = validator.validateSettings(config);
       
       expect(result.sync?.enabled).toBe(true);
-      expect(result.sync?.max_retries).toBe(3);
+      expect(result.sync?.maxRetries).toBe(3);
       expect(result.logging?.level).toBe('info');
     });
 
@@ -64,7 +64,7 @@ describe('ConfigValidator', () => {
     it('should throw error for out-of-range values', () => {
       const config = {
         sync: {
-          max_retries: 15,
+          maxRetries: 15,
         },
       };
 
@@ -76,15 +76,15 @@ describe('ConfigValidator', () => {
     it('should validate sync configuration', () => {
       const config = {
         enabled: true,
-        auto_push: true,
-        max_retries: 5,
+        autoPush: true,
+        maxRetries: 5,
       };
 
       const result = validator.validateSync(config);
       
       expect(result.enabled).toBe(true);
-      expect(result.auto_push).toBe(true);
-      expect(result.max_retries).toBe(5);
+      expect(result.autoPush).toBe(true);
+      expect(result.maxRetries).toBe(5);
     });
 
     it('should apply defaults for sync config', () => {
@@ -93,15 +93,15 @@ describe('ConfigValidator', () => {
       const result = validator.validateSync(config);
       
       expect(result.enabled).toBe(true);
-      expect(result.auto_push).toBe(false);
-      expect(result.max_retries).toBe(3);
+      expect(result.autoPush).toBe(false);
+      expect(result.maxRetries).toBe(3);
       expect(result.timeout).toBe(300);
-      expect(result.conflict_strategy).toBe('abort');
+      expect(result.conflictStrategy).toBe('abort');
     });
 
     it('should throw error for invalid sync config', () => {
       const config = {
-        max_retries: -5,
+        maxRetries: -5,
       };
 
       expect(() => validator.validateSync(config)).toThrow(ConfigValidationError);
@@ -113,15 +113,15 @@ describe('ConfigValidator', () => {
     it('should validate rules configuration', () => {
       const config = {
         directory: 'custom/rules',
-        auto_load: false,
-        validation_strict: true,
+        autoLoad: false,
+        validationStrict: true,
       };
 
       const result = validator.validateRules(config);
       
       expect(result.directory).toBe('custom/rules');
-      expect(result.auto_load).toBe(false);
-      expect(result.validation_strict).toBe(true);
+      expect(result.autoLoad).toBe(false);
+      expect(result.validationStrict).toBe(true);
     });
 
     it('should apply defaults for rules config', () => {
@@ -130,13 +130,13 @@ describe('ConfigValidator', () => {
       const result = validator.validateRules(config);
       
       expect(result.directory).toBe('.zenflow/rules');
-      expect(result.auto_load).toBe(true);
-      expect(result.validation_strict).toBe(true);
+      expect(result.autoLoad).toBe(true);
+      expect(result.validationStrict).toBe(true);
     });
 
     it('should throw error for invalid rules config', () => {
       const config = {
-        auto_load: 'yes',
+        autoLoad: 'yes',
       };
 
       expect(() => validator.validateRules(config)).toThrow(ConfigValidationError);
@@ -148,15 +148,15 @@ describe('ConfigValidator', () => {
     it('should validate workflows configuration', () => {
       const config = {
         directory: 'custom/workflows',
-        state_directory: 'custom/state',
-        max_concurrent: 3,
+        stateDirectory: 'custom/state',
+        maxConcurrent: 3,
       };
 
       const result = validator.validateWorkflows(config);
       
       expect(result.directory).toBe('custom/workflows');
-      expect(result.state_directory).toBe('custom/state');
-      expect(result.max_concurrent).toBe(3);
+      expect(result.stateDirectory).toBe('custom/state');
+      expect(result.maxConcurrent).toBe(3);
     });
 
     it('should apply defaults for workflows config', () => {
@@ -165,13 +165,13 @@ describe('ConfigValidator', () => {
       const result = validator.validateWorkflows(config);
       
       expect(result.directory).toBe('.zenflow/workflows');
-      expect(result.state_directory).toBe('.zenflow/state/executions');
-      expect(result.max_concurrent).toBe(1);
+      expect(result.stateDirectory).toBe('.zenflow/state/executions');
+      expect(result.maxConcurrent).toBe(1);
     });
 
-    it('should throw error for invalid max_concurrent', () => {
+    it('should throw error for invalid maxConcurrent', () => {
       const config = {
-        max_concurrent: 0,
+        maxConcurrent: 0,
       };
 
       expect(() => validator.validateWorkflows(config)).toThrow(ConfigValidationError);
@@ -363,7 +363,7 @@ describe('ConfigValidator', () => {
         rules: { directory: '.zenflow/rules' },
         workflows: {
           directory: '.zenflow/workflows',
-          state_directory: '.zenflow/state',
+          stateDirectory: '.zenflow/state',
         },
         logging: { directory: '.zenflow/logs' },
       };
@@ -418,7 +418,7 @@ describe('ConfigValidator', () => {
       });
 
       const config = {
-        workflows: { state_directory: '.zenflow/state' },
+        workflows: { stateDirectory: '.zenflow/state' },
       };
 
       const result = validator.validateDirectories(config);
