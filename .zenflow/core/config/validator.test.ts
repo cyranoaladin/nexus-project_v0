@@ -20,7 +20,7 @@ describe('ConfigValidator', () => {
       const config = {
         sync: {
           enabled: true,
-          autoPush: false,
+          auto_push: false,
         },
       };
 
@@ -36,7 +36,7 @@ describe('ConfigValidator', () => {
       const result = validator.validateSettings(config);
       
       expect(result.sync?.enabled).toBe(true);
-      expect(result.sync?.maxRetries).toBe(3);
+      expect(result.sync?.max_retries).toBe(3);
       expect(result.logging?.level).toBe('info');
     });
 
@@ -64,7 +64,7 @@ describe('ConfigValidator', () => {
     it('should throw error for out-of-range values', () => {
       const config = {
         sync: {
-          maxRetries: 15,
+          max_retries: 15,
         },
       };
 
@@ -76,15 +76,15 @@ describe('ConfigValidator', () => {
     it('should validate sync configuration', () => {
       const config = {
         enabled: true,
-        autoPush: true,
-        maxRetries: 5,
+        auto_push: true,
+        max_retries: 5,
       };
 
       const result = validator.validateSync(config);
       
       expect(result.enabled).toBe(true);
-      expect(result.autoPush).toBe(true);
-      expect(result.maxRetries).toBe(5);
+      expect(result.auto_push).toBe(true);
+      expect(result.max_retries).toBe(5);
     });
 
     it('should apply defaults for sync config', () => {
@@ -93,15 +93,15 @@ describe('ConfigValidator', () => {
       const result = validator.validateSync(config);
       
       expect(result.enabled).toBe(true);
-      expect(result.autoPush).toBe(false);
-      expect(result.maxRetries).toBe(3);
+      expect(result.auto_push).toBe(false);
+      expect(result.max_retries).toBe(3);
       expect(result.timeout).toBe(300);
-      expect(result.conflictStrategy).toBe('abort');
+      expect(result.conflict_strategy).toBe('abort');
     });
 
     it('should throw error for invalid sync config', () => {
       const config = {
-        maxRetries: -5,
+        max_retries: -5,
       };
 
       expect(() => validator.validateSync(config)).toThrow(ConfigValidationError);
@@ -113,15 +113,15 @@ describe('ConfigValidator', () => {
     it('should validate rules configuration', () => {
       const config = {
         directory: 'custom/rules',
-        autoLoad: false,
-        validationStrict: true,
+        auto_load: false,
+        validation_strict: true,
       };
 
       const result = validator.validateRules(config);
       
       expect(result.directory).toBe('custom/rules');
-      expect(result.autoLoad).toBe(false);
-      expect(result.validationStrict).toBe(true);
+      expect(result.auto_load).toBe(false);
+      expect(result.validation_strict).toBe(true);
     });
 
     it('should apply defaults for rules config', () => {
@@ -130,13 +130,13 @@ describe('ConfigValidator', () => {
       const result = validator.validateRules(config);
       
       expect(result.directory).toBe('.zenflow/rules');
-      expect(result.autoLoad).toBe(true);
-      expect(result.validationStrict).toBe(true);
+      expect(result.auto_load).toBe(true);
+      expect(result.validation_strict).toBe(true);
     });
 
     it('should throw error for invalid rules config', () => {
       const config = {
-        autoLoad: 'yes',
+        auto_load: 'yes',
       };
 
       expect(() => validator.validateRules(config)).toThrow(ConfigValidationError);
@@ -148,15 +148,15 @@ describe('ConfigValidator', () => {
     it('should validate workflows configuration', () => {
       const config = {
         directory: 'custom/workflows',
-        stateDirectory: 'custom/state',
-        maxConcurrent: 3,
+        state_directory: 'custom/state',
+        max_concurrent: 3,
       };
 
       const result = validator.validateWorkflows(config);
       
       expect(result.directory).toBe('custom/workflows');
-      expect(result.stateDirectory).toBe('custom/state');
-      expect(result.maxConcurrent).toBe(3);
+      expect(result.state_directory).toBe('custom/state');
+      expect(result.max_concurrent).toBe(3);
     });
 
     it('should apply defaults for workflows config', () => {
@@ -165,13 +165,13 @@ describe('ConfigValidator', () => {
       const result = validator.validateWorkflows(config);
       
       expect(result.directory).toBe('.zenflow/workflows');
-      expect(result.stateDirectory).toBe('.zenflow/state/executions');
-      expect(result.maxConcurrent).toBe(1);
+      expect(result.state_directory).toBe('.zenflow/state/executions');
+      expect(result.max_concurrent).toBe(1);
     });
 
-    it('should throw error for invalid maxConcurrent', () => {
+    it('should throw error for invalid max_concurrent', () => {
       const config = {
-        maxConcurrent: 0,
+        max_concurrent: 0,
       };
 
       expect(() => validator.validateWorkflows(config)).toThrow(ConfigValidationError);
@@ -184,8 +184,8 @@ describe('ConfigValidator', () => {
         level: 'debug' as const,
         directory: 'logs',
         rotation: 'weekly' as const,
-        retentionDays: 60,
-        maxSizeMb: 200,
+        retention_days: 60,
+        max_size_mb: 200,
         format: 'json' as const,
       };
 
@@ -194,8 +194,8 @@ describe('ConfigValidator', () => {
       expect(result.level).toBe('debug');
       expect(result.directory).toBe('logs');
       expect(result.rotation).toBe('weekly');
-      expect(result.retentionDays).toBe(60);
-      expect(result.maxSizeMb).toBe(200);
+      expect(result.retention_days).toBe(60);
+      expect(result.max_size_mb).toBe(200);
       expect(result.format).toBe('json');
     });
 
@@ -207,8 +207,8 @@ describe('ConfigValidator', () => {
       expect(result.level).toBe('info');
       expect(result.directory).toBe('.zenflow/logs');
       expect(result.rotation).toBe('daily');
-      expect(result.retentionDays).toBe(30);
-      expect(result.maxSizeMb).toBe(100);
+      expect(result.retention_days).toBe(30);
+      expect(result.max_size_mb).toBe(100);
       expect(result.format).toBe('text');
     });
 
@@ -224,18 +224,18 @@ describe('ConfigValidator', () => {
   describe('validateGit', () => {
     it('should validate git configuration', () => {
       const config = {
-        mainDirectory: '/home/user/project',
-        worktreesDirectory: '/home/user/worktrees',
+        main_directory: '/home/user/project',
+        worktrees_directory: '/home/user/worktrees',
         remote: 'upstream',
-        defaultBranch: 'develop',
+        default_branch: 'develop',
       };
 
       const result = validator.validateGit(config);
       
-      expect(result.mainDirectory).toBe('/home/user/project');
-      expect(result.worktreesDirectory).toBe('/home/user/worktrees');
+      expect(result.main_directory).toBe('/home/user/project');
+      expect(result.worktrees_directory).toBe('/home/user/worktrees');
       expect(result.remote).toBe('upstream');
-      expect(result.defaultBranch).toBe('develop');
+      expect(result.default_branch).toBe('develop');
     });
 
     it('should apply defaults for git config', () => {
@@ -243,10 +243,10 @@ describe('ConfigValidator', () => {
 
       const result = validator.validateGit(config);
       
-      expect(result.mainDirectory).toBe('.');
-      expect(result.worktreesDirectory).toBe('../');
+      expect(result.main_directory).toBe('.');
+      expect(result.worktrees_directory).toBe('../');
       expect(result.remote).toBe('origin');
-      expect(result.defaultBranch).toBe('main');
+      expect(result.default_branch).toBe('main');
     });
   });
 
@@ -363,7 +363,7 @@ describe('ConfigValidator', () => {
         rules: { directory: '.zenflow/rules' },
         workflows: {
           directory: '.zenflow/workflows',
-          stateDirectory: '.zenflow/state',
+          state_directory: '.zenflow/state',
         },
         logging: { directory: '.zenflow/logs' },
       };
@@ -418,7 +418,7 @@ describe('ConfigValidator', () => {
       });
 
       const config = {
-        workflows: { stateDirectory: '.zenflow/state' },
+        workflows: { state_directory: '.zenflow/state' },
       };
 
       const result = validator.validateDirectories(config);

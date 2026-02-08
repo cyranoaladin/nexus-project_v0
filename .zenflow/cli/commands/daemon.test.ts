@@ -223,19 +223,17 @@ describe('Daemon Command', () => {
       mockManager.followLogs.mockResolvedValue(stopFollowing);
 
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      // @ts-expect-error - process.exit mock cannot satisfy never return type
       const mockExit = jest.spyOn(process, 'exit').mockImplementation((code) => {
         // Don't throw, just track that exit was called
-      }) as any;
+      });
       
       let signalHandler: any;
-      // @ts-expect-error - process.on mock type incompatibility
       const mockOn = jest.spyOn(process, 'on').mockImplementation((event: string, handler: any) => {
         if (event === 'SIGINT') {
           signalHandler = handler;
         }
         return process;
-      }) as any;
+      });
 
       const command = createDaemonCommand(globalOptions);
       const logsCmd = command.commands.find(c => c.name() === 'logs');

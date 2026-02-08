@@ -1,6 +1,5 @@
 import { EventEmitter, getEventEmitter } from './emitter';
 import type { Event, CommitEvent, FileChangeEvent } from './types';
-import { createMockCommitEvent, createMockFileChangeEvent } from '../../tests/helpers/mock-factories';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'test-uuid-123'),
@@ -32,9 +31,8 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.on('commit', listener);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -46,7 +44,7 @@ describe('EventEmitter', () => {
       expect(listener).toHaveBeenCalledTimes(1);
       const event = listener.mock.calls[0][0] as CommitEvent;
       expect(event).toMatchObject({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -57,9 +55,8 @@ describe('EventEmitter', () => {
     });
 
     it('should add event to queue', () => {
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -80,9 +77,8 @@ describe('EventEmitter', () => {
       emitter.on('event', genericListener);
       emitter.on('commit', specificListener);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -101,9 +97,8 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.on('commit', listener);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -120,9 +115,8 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener);
       emitter.off('commit', listener);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -141,9 +135,8 @@ describe('EventEmitter', () => {
       emitter.on('commit', listener1);
       emitter.on('commit', listener2);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -162,9 +155,8 @@ describe('EventEmitter', () => {
       const listener = jest.fn();
       emitter.once('commit', listener);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -173,9 +165,8 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -192,9 +183,8 @@ describe('EventEmitter', () => {
     it('should return queue size', () => {
       expect(emitter.getQueueSize()).toBe(0);
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -207,9 +197,8 @@ describe('EventEmitter', () => {
     });
 
     it('should clear queue', () => {
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -226,9 +215,8 @@ describe('EventEmitter', () => {
 
   describe('getEvents', () => {
     beforeEach(() => {
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree1',
         branch: 'feature/test',
@@ -237,9 +225,8 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'file_change' as const,
+        type: 'file_change',
         source: 'watcher',
         worktree: '/path/to/worktree2',
         branch: 'feature/test',
@@ -254,7 +241,7 @@ describe('EventEmitter', () => {
     });
 
     it('should filter events by type', () => {
-      const events = emitter.getEvents({ type: 'commit' as const });
+      const events = emitter.getEvents({ type: 'commit' });
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('commit');
     });
@@ -279,9 +266,8 @@ describe('EventEmitter', () => {
         processedEvents.push(event);
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -306,9 +292,8 @@ describe('EventEmitter', () => {
         throw new Error('Processing error');
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -330,9 +315,8 @@ describe('EventEmitter', () => {
       const processor = jest.fn(async () => {});
 
       for (let i = 0; i < 15; i++) {
-        // @ts-expect-error - Omit<Event> type narrowing issue
         emitter.emit({
-          type: 'commit' as const,
+          type: 'commit',
           source: 'test',
           worktree: '/path/to/worktree',
           branch: 'feature/test',
@@ -390,9 +374,8 @@ describe('EventEmitter', () => {
 
       emitter.removeAllListeners('commit');
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -401,9 +384,8 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'file_change' as const,
+        type: 'file_change',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -425,9 +407,8 @@ describe('EventEmitter', () => {
 
       emitter.removeAllListeners();
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'commit' as const,
+        type: 'commit',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
@@ -436,9 +417,8 @@ describe('EventEmitter', () => {
         author: 'Test User',
       });
 
-      // @ts-expect-error - Omit<Event> type narrowing issue
       emitter.emit({
-        type: 'file_change' as const,
+        type: 'file_change',
         source: 'test',
         worktree: '/path/to/worktree',
         branch: 'feature/test',
