@@ -88,8 +88,8 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run TypeScript compiler
-        run: npm run typecheck
+      - name: Check TypeScript errors with threshold
+        run: node .github/scripts/check-typescript-errors.js 0
 
   # ===========================================================================
   # JOB 3: UNIT TESTS
