@@ -30,7 +30,7 @@ jest.mock('commander', () => {
 const mockLoadConfig = jest.fn();
 const mockSyncAllWorktrees = jest.fn();
 const mockSyncWorktree = jest.fn();
-const mockGetSyncHistory = jest.fn<() => Promise<any[]>>();
+const mockGetSyncHistory = jest.fn();
 const mockRollbackSync = jest.fn();
 
 beforeEach(() => {
@@ -83,7 +83,6 @@ describe('Sync CLI Commands', () => {
         createMockSyncOperation({ worktree_branch: 'feature/b' }),
       ];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncAllWorktrees.mockResolvedValue(mockResults);
 
       const { createSyncCommand } = await import('./sync');
@@ -98,7 +97,6 @@ describe('Sync CLI Commands', () => {
 
     it('should handle dry-run mode', async () => {
       const mockResults = [createMockSyncOperation()];
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncAllWorktrees.mockResolvedValue(mockResults);
 
       const { createSyncCommand } = await import('./sync');
@@ -112,7 +110,6 @@ describe('Sync CLI Commands', () => {
     });
 
     it('should handle no worktrees found', async () => {
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncAllWorktrees.mockResolvedValue([]);
 
       const { createSyncCommand } = await import('./sync');
@@ -132,7 +129,6 @@ describe('Sync CLI Commands', () => {
         createMockSyncOperation({ status: 'failure', error: 'Test error' }),
       ];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncAllWorktrees.mockResolvedValue(mockResults);
 
       const { createSyncCommand } = await import('./sync');
@@ -155,7 +151,6 @@ describe('Sync CLI Commands', () => {
         }),
       ];
       
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncAllWorktrees.mockResolvedValue(mockResults);
 
       const { createSyncCommand } = await import('./sync');
@@ -170,7 +165,6 @@ describe('Sync CLI Commands', () => {
   describe('zenflow sync worktree', () => {
     it('should sync a specific worktree', async () => {
       const mockResult = createMockSyncOperation();
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncWorktree.mockResolvedValue(mockResult);
 
       const { createSyncCommand } = await import('./sync');
@@ -186,7 +180,6 @@ describe('Sync CLI Commands', () => {
 
     it('should handle --force option', async () => {
       const mockResult = createMockSyncOperation();
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncWorktree.mockResolvedValue(mockResult);
 
       const { createSyncCommand } = await import('./sync');
@@ -202,7 +195,6 @@ describe('Sync CLI Commands', () => {
 
     it('should handle --dry-run option', async () => {
       const mockResult = createMockSyncOperation({ status: 'success' });
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncWorktree.mockResolvedValue(mockResult);
 
       const { createSyncCommand } = await import('./sync');
@@ -229,7 +221,6 @@ describe('Sync CLI Commands', () => {
           details: [],
         },
       });
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncWorktree.mockResolvedValue(mockResult);
 
       const { createSyncCommand } = await import('./sync');
@@ -251,7 +242,6 @@ describe('Sync CLI Commands', () => {
         status: 'failure',
         error: 'Sync failed',
       });
-      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockSyncWorktree.mockResolvedValue(mockResult);
 
       const { createSyncCommand } = await import('./sync');

@@ -9,13 +9,13 @@ import type { Event } from '../../core/events/types';
 
 function getRuleEngine(configPath?: string): RuleEngine {
   const config = loadConfig(configPath);
-  const rulesDirectory = config.rules?.rulesDirectory ?? '.zenflow/rules';
-  const autoLoad = config.rules?.autoLoad ?? true;
+  const rulesDirectory = config.rules?.directory ?? '.zenflow/rules';
+  const autoLoad = config.rules?.auto_load ?? true;
 
   return new RuleEngine({
     rulesDirectory,
     autoLoad,
-    validationStrict: config.rules?.validationStrict ?? true,
+    validationStrict: config.rules?.validation_strict ?? true,
   });
 }
 
@@ -177,7 +177,7 @@ export function createRuleCommand(globalOptions: any): Command {
         output.newline();
 
         const config = loadConfig(globalOptions.config);
-        const rulesDirectory = config.rules?.rulesDirectory ?? '.zenflow/rules';
+        const rulesDirectory = config.rules?.directory ?? '.zenflow/rules';
         const loader = new RuleLoader(rulesDirectory);
 
         const result = await loader.validateRuleFile(file);

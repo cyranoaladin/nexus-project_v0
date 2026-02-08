@@ -23,7 +23,7 @@ jest.mock('../../core/git/client', () => ({
     getWorktree: jest.fn().mockResolvedValue({
       path: '/test/worktree',
       branch: 'refs/heads/feature-branch',
-      commit_hash: 'abc123',
+      commit: 'abc123',
       locked: false,
       prunable: false,
     }),
@@ -83,8 +83,7 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       const workflow: Workflow = {
         name: 'test-workflow',
         version: '1.0.0',
-        description: '',
-        author: 'test',
+        description: 'Test workflow',
         inputs: [
           {
             name: 'branch',
@@ -92,7 +91,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
             required: true,
           },
         ],
-        outputs: [],
         steps: [
           {
             id: 'step-1',
@@ -131,8 +129,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
         ],
         guards: {
           on_error: 'continue',
-        max_retries: 3,
-        timeout: 300,
         },
       };
 
@@ -146,14 +142,13 @@ describe('Rule Engine + Workflow Engine Integration', () => {
 
       const event: CommitEvent = {
         type: 'commit',
-        id: 'test-event-id',
         timestamp: new Date(),
         source: 'git',
-        worktree: '/path/to/worktree',
         branch: 'feature-branch',
-        commit_hash: 'abc123',
-        commit_message: 'Test commit',
+        commit: 'abc123',
+        message: 'Test commit',
         author: 'Test Author',
+        files_changed: ['test.txt'],
       };
 
       const matchingRules = await ruleEngine.findMatchingRules(event);
@@ -172,10 +167,8 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       const workflow: Workflow = {
         name: 'failing-workflow',
         version: '1.0.0',
-        description: '',
-        author: 'test',
+        description: 'Workflow that fails',
         inputs: [],
-        outputs: [],
         steps: [
           {
             id: 'failing-step',
@@ -212,8 +205,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
         ],
         guards: {
           on_error: 'continue',
-        max_retries: 3,
-        timeout: 300,
         },
       };
 
@@ -226,15 +217,14 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       await ruleEngine.loadRules();
 
       const event: CommitEvent = {
-        id: 'test-event-id',
         type: 'commit',
         timestamp: new Date(),
         source: 'git',
-        worktree: '/path/to/worktree',
         branch: 'main',
-        commit_hash: 'def456',
-        commit_message: 'Test commit',
+        commit: 'def456',
+        message: 'Test commit',
         author: 'Test Author',
+        files_changed: ['test.txt'],
       };
 
       const matchingRules = await ruleEngine.findMatchingRules(event);
@@ -251,10 +241,8 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       const workflow1: Workflow = {
         name: 'workflow-1',
         version: '1.0.0',
-        description: '',
-        author: 'test',
+        description: 'First workflow',
         inputs: [],
-        outputs: [],
         steps: [
           {
             id: 'step-1',
@@ -272,10 +260,8 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       const workflow2: Workflow = {
         name: 'workflow-2',
         version: '1.0.0',
-        description: '',
-        author: 'test',
+        description: 'Second workflow',
         inputs: [],
-        outputs: [],
         steps: [
           {
             id: 'step-1',
@@ -312,8 +298,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
         ],
         guards: {
           on_error: 'continue',
-        max_retries: 3,
-        timeout: 300,
         },
       };
 
@@ -339,8 +323,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
         ],
         guards: {
           on_error: 'continue',
-        max_retries: 3,
-        timeout: 300,
         },
       };
 
@@ -360,15 +342,14 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       await ruleEngine.loadRules();
 
       const event: CommitEvent = {
-        id: 'test-event-id',
         type: 'commit',
         timestamp: new Date(),
         source: 'git',
-        worktree: '/path/to/worktree',
         branch: 'main',
-        commit_hash: 'ghi789',
-        commit_message: 'Test commit',
+        commit: 'ghi789',
+        message: 'Test commit',
         author: 'Test Author',
+        files_changed: ['test.txt'],
       };
 
       const matchingRules = await ruleEngine.findMatchingRules(event);
@@ -387,10 +368,8 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       const workflow: Workflow = {
         name: 'conditional-workflow',
         version: '1.0.0',
-        description: '',
-        author: 'test',
+        description: 'Conditional workflow',
         inputs: [],
-        outputs: [],
         steps: [
           {
             id: 'step-1',
@@ -432,8 +411,6 @@ describe('Rule Engine + Workflow Engine Integration', () => {
         ],
         guards: {
           on_error: 'continue',
-        max_retries: 3,
-        timeout: 300,
         },
       };
 
@@ -451,27 +428,25 @@ describe('Rule Engine + Workflow Engine Integration', () => {
       await ruleEngine.loadRules();
 
       const matchingEvent: CommitEvent = {
-        id: 'test-event-id',
         type: 'commit',
         timestamp: new Date(),
         source: 'git',
-        worktree: '/path/to/worktree',
         branch: 'feature-test',
-        commit_hash: 'abc123',
-        commit_message: 'Test commit',
+        commit: 'abc123',
+        message: 'Test commit',
         author: 'Test Author',
+        files_changed: ['test.txt'],
       };
 
       const nonMatchingEvent: CommitEvent = {
-        id: 'test-event-3',
         type: 'commit',
         timestamp: new Date(),
         source: 'git',
-        worktree: '/path/to/worktree',
         branch: 'main',
-        commit_hash: 'def456',
-        commit_message: 'Test commit',
+        commit: 'def456',
+        message: 'Test commit',
         author: 'Test Author',
+        files_changed: ['test.txt'],
       };
 
       const matchingRules = await ruleEngine.findMatchingRules(matchingEvent);

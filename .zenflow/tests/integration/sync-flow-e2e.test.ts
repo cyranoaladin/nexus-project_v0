@@ -42,14 +42,11 @@ describe('Complete Sync Flow End-to-End Tests', () => {
     await fs.mkdir(path.join(repoPath, '.zenflow', 'state', 'sync'), { recursive: true });
 
     syncConfig = {
-      enabled: true,
       autoPush: false,
-      maxRetries: 3,
-      timeout: 30000,
-      conflictStrategy: 'abort',
-      excludedWorktrees: [],
-      notificationChannels: ['console'],
       verificationCommands: [],
+      conflictStrategy: 'abort',
+      excludedBranches: [],
+      excludedPaths: [],
     };
 
     gitClient = new GitClient(repoPath);
@@ -253,7 +250,7 @@ describe('Complete Sync Flow End-to-End Tests', () => {
     it('should reject sync of excluded branches', async () => {
       const syncConfigWithExclusions: SyncConfig = {
         ...syncConfig,
-        excludedWorktrees: ['excluded-branch'],
+        excludedBranches: ['excluded-branch'],
       };
 
       const syncManagerWithExclusions = new SyncManager(repoPath, syncConfigWithExclusions);

@@ -11,13 +11,13 @@ function getSyncManager(configPath?: string): SyncManager {
   
   const syncConfig = {
     enabled: config.sync?.enabled ?? true,
-    autoPush: config.sync?.autoPush ?? false,
-    maxRetries: config.sync?.maxRetries ?? 3,
+    autoPush: config.sync?.auto_push ?? false,
+    maxRetries: config.sync?.max_retries ?? 3,
     timeout: config.sync?.timeout ?? 300,
-    conflictStrategy: config.sync?.conflictStrategy ?? 'abort',
-    excludedWorktrees: config.sync?.excludedWorktrees ?? [],
-    notificationChannels: config.sync?.notificationChannels ?? ['console', 'log'],
-    verificationCommands: config.sync?.verificationCommands ?? [],
+    conflictStrategy: config.sync?.conflict_strategy ?? 'abort',
+    excludedWorktrees: config.sync?.excluded_worktrees ?? [],
+    notificationChannels: config.sync?.notification_channels ?? ['console', 'log'],
+    verificationCommands: config.sync?.verification_commands ?? [],
   };
 
   return new SyncManager(repoPath, syncConfig as any);
