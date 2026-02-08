@@ -8,9 +8,9 @@ import type { Workflow, WorkflowExecution, StepExecution } from '../../core/work
 
 function getWorkflowEngine(configPath?: string): WorkflowEngine {
   const config = loadConfig(configPath);
-  const workflowsDirectory = config.workflows?.directory ?? '.zenflow/workflows';
-  const stateDirectory = config.workflows?.state_directory ?? '.zenflow/state/executions';
-  const maxConcurrent = config.workflows?.max_concurrent ?? 1;
+  const workflowsDirectory = config.workflows?.workflowsDirectory ?? '.zenflow/workflows';
+  const stateDirectory = config.workflows?.stateDirectory ?? '.zenflow/state/executions';
+  const maxConcurrent = config.workflows?.maxConcurrent ?? 1;
 
   return new WorkflowEngine({
     workflowsDirectory,
@@ -272,7 +272,7 @@ export function createWorkflowCommand(globalOptions: any): Command {
         output.newline();
 
         const config = loadConfig(globalOptions.config);
-        const workflowsDirectory = config.workflows?.directory ?? '.zenflow/workflows';
+        const workflowsDirectory = config.workflows?.workflowsDirectory ?? '.zenflow/workflows';
         const loader = new WorkflowLoader(workflowsDirectory);
 
         const workflow = await loader.loadWorkflowFromFile(file);
