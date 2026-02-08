@@ -40,6 +40,7 @@ beforeEach(() => {
   
   (require('../../core/config/loader') as any).loadConfig = mockLoadConfig;
   
+  // @ts-expect-error - Mock function typed as jest.fn() without explicit types
   mockLoadConfig.mockReturnValue({
     workflows: {
       directory: '.zenflow/workflows',
@@ -123,6 +124,7 @@ describe('Workflow CLI Commands', () => {
         createMockWorkflow({ name: 'workflow-2' }),
       ];
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflows.mockResolvedValue(mockWorkflows);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -136,6 +138,7 @@ describe('Workflow CLI Commands', () => {
     it('should output JSON when --json flag is set', async () => {
       const mockWorkflows = [createMockWorkflow()];
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflows.mockResolvedValue(mockWorkflows);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -147,6 +150,7 @@ describe('Workflow CLI Commands', () => {
     });
 
     it('should handle no workflows found', async () => {
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflows.mockResolvedValue([]);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -162,6 +166,7 @@ describe('Workflow CLI Commands', () => {
     it('should show workflow details', async () => {
       const mockWorkflow = createMockWorkflow({ name: 'test-workflow' });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflow.mockResolvedValue(mockWorkflow);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -175,6 +180,7 @@ describe('Workflow CLI Commands', () => {
     it('should output JSON when --json flag is set', async () => {
       const mockWorkflow = createMockWorkflow();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflow.mockResolvedValue(mockWorkflow);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -201,6 +207,7 @@ describe('Workflow CLI Commands', () => {
     it('should run workflow successfully', async () => {
       const mockExecution = createMockExecution();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockExecuteWorkflow.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -214,6 +221,7 @@ describe('Workflow CLI Commands', () => {
     it('should run workflow with inputs', async () => {
       const mockExecution = createMockExecution();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockExecuteWorkflow.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -242,6 +250,7 @@ describe('Workflow CLI Commands', () => {
         error: new Error('Step failed'),
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockExecuteWorkflow.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -258,6 +267,7 @@ describe('Workflow CLI Commands', () => {
         error: new Error('Rolled back'),
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockExecuteWorkflow.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -273,6 +283,7 @@ describe('Workflow CLI Commands', () => {
     it('should validate a valid workflow file', async () => {
       const mockWorkflow = createMockWorkflow();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflowFromFile.mockResolvedValue(mockWorkflow);
       mockValidateWorkflow.mockReturnValue({ valid: true });
 
@@ -288,6 +299,7 @@ describe('Workflow CLI Commands', () => {
     it('should handle invalid workflow file', async () => {
       const mockWorkflow = createMockWorkflow();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockLoadWorkflowFromFile.mockResolvedValue(mockWorkflow);
       mockValidateWorkflow.mockReturnValue({
         valid: false,
@@ -307,6 +319,7 @@ describe('Workflow CLI Commands', () => {
     it('should show execution status', async () => {
       const mockExecution = createMockExecution();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -320,6 +333,7 @@ describe('Workflow CLI Commands', () => {
     it('should output JSON when --json flag is set', async () => {
       const mockExecution = createMockExecution();
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -348,6 +362,7 @@ describe('Workflow CLI Commands', () => {
         current_step: 'step2',
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -379,6 +394,7 @@ describe('Workflow CLI Commands', () => {
         ],
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -394,6 +410,7 @@ describe('Workflow CLI Commands', () => {
         steps: [],
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
@@ -419,6 +436,7 @@ describe('Workflow CLI Commands', () => {
         error: new Error('Workflow failed at step step1'),
       });
       
+      // @ts-expect-error - Mock function typed as jest.fn() without explicit types
       mockGetExecutionStatus.mockResolvedValue(mockExecution);
 
       const { createWorkflowCommand } = await import('./workflow');
