@@ -36,37 +36,32 @@ describe('Config Loader + Validator Integration', () => {
 
   describe('Config loading and validation', () => {
     it('should load and validate a valid configuration', async () => {
-      const config: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const config = {
         sync: {
-          autoPush: false,
-          verificationCommands: ['npm run lint'],
-          conflictStrategy: 'abort',
-          excludedBranches: ['main', 'develop'],
-          excludedPaths: ['node_modules/', '.git/'],
+          auto_push: false,
+          verification_commands: ['npm run lint'],
+          conflict_strategy: 'abort',
+          excluded_worktrees: ['main', 'develop'],
         },
         rules: {
           directory: '.zenflow/rules',
-          autoLoad: true,
+          auto_load: true,
+          validation_strict: true,
         },
         workflows: {
           directory: '.zenflow/workflows',
-          stateDirectory: '.zenflow/state',
-          maxConcurrent: 2,
+          state_directory: '.zenflow/state',
+          max_concurrent: 2,
         },
         logging: {
           level: 'info',
           directory: '.zenflow/logs',
-          maxFiles: 30,
-          maxSize: '100m',
+          retention_days: 30,
+          max_size_mb: 100,
         },
         git: {
-          defaultRemote: 'origin',
-          defaultBranch: 'main',
+          remote: 'origin',
+          default_branch: 'main',
         },
       };
 
@@ -75,20 +70,16 @@ describe('Config Loader + Validator Integration', () => {
 
       const loadedConfig = loader.load();
       expect(loadedConfig).toBeDefined();
-      expect(loadedConfig.project.name).toBe('test-project');
+      expect(loadedConfig.sync.autoPush).toBe(false);
 
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should reject invalid configuration', async () => {
       const invalidConfig = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-        },
         sync: {
-          autoPush: 'invalid',
-          conflictStrategy: 'invalid_strategy',
+          auto_push: 'invalid',
+          conflict_strategy: 'invalid_strategy',
         },
       };
 
@@ -99,13 +90,7 @@ describe('Config Loader + Validator Integration', () => {
     });
 
     it('should use default values when optional fields are missing', async () => {
-      const minimalConfig = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
-      };
+      const minimalConfig = {};
 
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(minimalConfig, null, 2), 'utf-8');
@@ -122,18 +107,12 @@ describe('Config Loader + Validator Integration', () => {
     });
 
     it('should validate sync configuration options', async () => {
-      const configWithSyncOptions: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const configWithSyncOptions = {
         sync: {
-          autoPush: true,
-          verificationCommands: ['npm test', 'npm run build'],
-          conflictStrategy: 'manual',
-          excludedBranches: ['production', 'staging'],
-          excludedPaths: ['dist/', 'build/', '.next/'],
+          auto_push: true,
+          verification_commands: ['npm test', 'npm run build'],
+          conflict_strategy: 'manual',
+          excluded_worktrees: ['production', 'staging'],
         },
       };
 
@@ -145,22 +124,17 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toHaveLength(2);
       expect(loadedConfig.sync.conflictStrategy).toBe('manual');
-      expect(loadedConfig.sync.excludedBranches).toContain('production');
+      expect(loadedConfig.sync.excludedWorktrees).toContain('production');
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate rules configuration', async () => {
-      const configWithRules: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const configWithRules = {
         rules: {
           directory: '.zenflow/custom-rules',
-          autoLoad: false,
+          auto_load: false,
+          validation_strict: true,
         },
       };
 
@@ -169,24 +143,18 @@ describe('Config Loader + Validator Integration', () => {
 
       const loadedConfig = loader.load();
       
-      expect(loadedConfig.rules.directory).toBe('.zenflow/custom-rules');
+      expect(loadedConfig.rules.rulesDirectory).toBe('.zenflow/custom-rules');
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate workflow configuration', async () => {
-      const configWithWorkflows: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const configWithWorkflows = {
         workflows: {
           directory: '.zenflow/custom-workflows',
-          stateDirectory: '.zenflow/workflow-state',
-          maxConcurrent: 5,
+          state_directory: '.zenflow/workflow-state',
+          max_concurrent: 5,
         },
       };
 
@@ -195,26 +163,20 @@ describe('Config Loader + Validator Integration', () => {
 
       const loadedConfig = loader.load();
       
-      expect(loadedConfig.workflows.directory).toBe('.zenflow/custom-workflows');
+      expect(loadedConfig.workflows.workflowsDirectory).toBe('.zenflow/custom-workflows');
       expect(loadedConfig.workflows.stateDirectory).toBe('.zenflow/workflow-state');
       expect(loadedConfig.workflows.maxConcurrent).toBe(5);
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should validate logging configuration', async () => {
-      const configWithLogging: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const configWithLogging = {
         logging: {
           level: 'debug',
           directory: '.zenflow/custom-logs',
-          maxFiles: 60,
-          maxSize: '200m',
+          retention_days: 60,
+          max_size_mb: 200,
         },
       };
 
@@ -225,10 +187,9 @@ describe('Config Loader + Validator Integration', () => {
       
       expect(loadedConfig.logging.level).toBe('debug');
       expect(loadedConfig.logging.directory).toBe('.zenflow/custom-logs');
-      expect(loadedConfig.logging.maxFiles).toBe(60);
-      expect(loadedConfig.logging.maxSize).toBe('200m');
+      expect(loadedConfig.logging.retentionDays).toBe(60);
+      expect(loadedConfig.logging.maxSizeMb).toBe(200);
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
   });
@@ -245,25 +206,22 @@ describe('Config Loader + Validator Integration', () => {
       expect(() => loader.load()).toThrow();
     });
 
-    it('should reject empty configuration', async () => {
+    it('should accept empty configuration with defaults', async () => {
       const settingsPath = path.join(zenflowDir, 'settings.json');
       await fs.writeFile(settingsPath, '{}', 'utf-8');
 
-      expect(() => loader.load()).toThrow();
+      const loadedConfig = loader.load();
+      expect(loadedConfig).toBeDefined();
+      expect(loadedConfig.sync).toBeDefined();
     });
 
     it('should validate and report multiple errors', async () => {
       const configWithErrors = {
-        version: '1.0.0',
-        project: {
-          name: '',
-          root: '',
-        },
         sync: {
-          conflictStrategy: 'invalid',
+          conflict_strategy: 'invalid',
         },
         workflows: {
-          maxConcurrent: -1,
+          max_concurrent: -1,
         },
       };
 
@@ -274,13 +232,8 @@ describe('Config Loader + Validator Integration', () => {
   describe('Config merging with defaults', () => {
     it('should merge user config with default values', async () => {
       const partialConfig = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
         sync: {
-          autoPush: true,
+          auto_push: true,
         },
       };
 
@@ -295,27 +248,21 @@ describe('Config Loader + Validator Integration', () => {
       expect(loadedConfig.workflows).toBeDefined();
       expect(loadedConfig.logging).toBeDefined();
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
 
     it('should allow overriding default values', async () => {
-      const customConfig: ZenflowSettings = {
-        version: '1.0.0',
-        project: {
-          name: 'test-project',
-          root: tempDir,
-        },
+      const customConfig = {
         sync: {
-          autoPush: true,
-          verificationCommands: ['custom-command'],
-          conflictStrategy: 'force',
-          excludedBranches: ['custom-branch'],
-          excludedPaths: ['custom-path/'],
+          auto_push: true,
+          verification_commands: ['custom-command'],
+          conflict_strategy: 'abort',
+          excluded_worktrees: ['custom-branch'],
         },
         rules: {
           directory: 'custom-rules',
-          autoLoad: false,
+          auto_load: false,
+          validation_strict: true,
         },
       };
 
@@ -326,11 +273,10 @@ describe('Config Loader + Validator Integration', () => {
       
       expect(loadedConfig.sync.autoPush).toBe(true);
       expect(loadedConfig.sync.verificationCommands).toEqual(['custom-command']);
-      expect(loadedConfig.sync.conflictStrategy).toBe('force');
-      expect(loadedConfig.rules.directory).toBe('custom-rules');
+      expect(loadedConfig.sync.conflictStrategy).toBe('abort');
+      expect(loadedConfig.rules.rulesDirectory).toBe('custom-rules');
       expect(loadedConfig.rules.autoLoad).toBe(false);
 
-      const validationResult = validator.validateSettings(loadedConfig);
       expect(() => validator.validateSettings(loadedConfig)).not.toThrow();
     });
   });
