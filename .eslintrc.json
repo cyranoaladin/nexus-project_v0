@@ -42,6 +42,15 @@
         ],
         "@typescript-eslint/no-explicit-any": "warn"
       }
+    },
+    {
+      "files": [
+        "*.js",
+        "scripts/**/*.js"
+      ],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
     }
   ]
 }

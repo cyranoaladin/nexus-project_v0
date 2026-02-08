@@ -1,5 +1,5 @@
 
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('Parent Dashboard - API Test', async ({ page, context }) => {
     console.log('Logging in...');
