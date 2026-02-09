@@ -15,14 +15,21 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+  // NOTE: 'unsafe-inline' required by style jsx (stages, academies pages)
+  // NOTE: 'unsafe-eval' required by GSAP ScrollTrigger on homepage
+  // TODO: Migrate to CSS modules/Tailwind to remove unsafe-inline
+  // TODO: Migrate to CSS animations/Intersection Observer to remove unsafe-eval
   response.headers.set('Content-Security-Policy', [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https:",
-    "frame-ancestors 'self'"
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "connect-src 'self' https://api.openai.com https://api.konnect.network https://fonts.googleapis.com",
+    "frame-src 'self' https://meet.jit.si https://*.jitsi.net",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'"
   ].join('; '))
 
   return response
