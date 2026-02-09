@@ -90,11 +90,21 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
+      // Mock findFirst to return null (no existing transaction)
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(null);
       jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
 
       const result = await debitCredits('student-123', 1.25, 'session-123', 'Test session booking');
 
-      expect(result).toEqual(mockTransaction);
+      // Function now returns { transaction, created }
+      expect(result.transaction).toEqual(mockTransaction);
+      expect(result.created).toBe(true);
+      expect(prisma.creditTransaction.findFirst).toHaveBeenCalledWith({
+        where: {
+          sessionId: 'session-123',
+          type: 'USAGE'
+        }
+      });
       expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
@@ -104,6 +114,28 @@ describe('Credits System', () => {
           sessionId: 'session-123'
         }
       });
+    });
+
+    it('should return existing transaction if already exists (idempotency)', async () => {
+      jest.clearAllMocks();
+      const mockExistingTransaction = {
+        id: 'transaction-existing',
+        studentId: 'student-123',
+        type: 'USAGE',
+        amount: -1.25,
+        description: 'Test session booking',
+        sessionId: 'session-123'
+      };
+
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(mockExistingTransaction as any);
+
+      const result = await debitCredits('student-123', 1.25, 'session-123', 'Test session booking');
+
+      expect(result.transaction).toEqual(mockExistingTransaction);
+      expect(result.created).toBe(false);
+      expect(prisma.creditTransaction.findFirst).toHaveBeenCalled();
+      // create should NOT be called
+      expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
     });
   });
 
@@ -118,11 +150,21 @@ describe('Credits System', () => {
         sessionId: 'session-123'
       };
 
+      // Mock findFirst to return null (no existing refund)
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(null);
       jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTransaction as any);
 
       const result = await refundCredits('student-123', 1.25, 'session-123', 'Session cancellation refund');
 
-      expect(result).toEqual(mockTransaction);
+      // Function now returns { transaction, created }
+      expect(result.transaction).toEqual(mockTransaction);
+      expect(result.created).toBe(true);
+      expect(prisma.creditTransaction.findFirst).toHaveBeenCalledWith({
+        where: {
+          sessionId: 'session-123',
+          type: 'REFUND'
+        }
+      });
       expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
         data: {
           studentId: 'student-123',
@@ -132,6 +174,28 @@ describe('Credits System', () => {
           sessionId: 'session-123'
         }
       });
+    });
+
+    it('should return existing refund if already exists (idempotency)', async () => {
+      jest.clearAllMocks();
+      const mockExistingRefund = {
+        id: 'refund-existing',
+        studentId: 'student-123',
+        type: 'REFUND',
+        amount: 1.25,
+        description: 'Session cancellation refund',
+        sessionId: 'session-123'
+      };
+
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(mockExistingRefund as any);
+
+      const result = await refundCredits('student-123', 1.25, 'session-123', 'Session cancellation refund');
+
+      expect(result.transaction).toEqual(mockExistingRefund);
+      expect(result.created).toBe(false);
+      expect(prisma.creditTransaction.findFirst).toHaveBeenCalled();
+      // create should NOT be called
+      expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
     });
   });
 });
