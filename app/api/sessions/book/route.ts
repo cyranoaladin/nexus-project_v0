@@ -283,16 +283,26 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // 9. Create credit transaction for usage
-      await tx.creditTransaction.create({
-        data: {
-          studentId: studentRecord.id,
-          type: 'USAGE',
-          amount: -validatedData.creditsToUse,
-          description: `Session booking: ${validatedData.title} - ${validatedData.subject}`,
-          sessionId: sessionBooking.id
+      // 9. Create credit transaction for usage (idempotent via DB constraint)
+      // Check for existing USAGE transaction to avoid constraint violation
+      const existingUsage = await tx.creditTransaction.findFirst({
+        where: {
+          sessionId: sessionBooking.id,
+          type: 'USAGE'
         }
       });
+
+      if (!existingUsage) {
+        await tx.creditTransaction.create({
+          data: {
+            studentId: studentRecord.id,
+            type: 'USAGE',
+            amount: -validatedData.creditsToUse,
+            description: `Session booking: ${validatedData.title} - ${validatedData.subject}`,
+            sessionId: sessionBooking.id
+          }
+        });
+      }
 
       // 10. Create notifications
       const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
@@ -403,6 +413,12 @@ export async function POST(req: NextRequest) {
       if (dbError.code === '23P01') {
         logger.logRequest(HttpStatus.CONFLICT);
         return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.').toResponse();
+      }
+
+      // P2002: Unique constraint violation (duplicate transaction attempt)
+      if (dbError.code === 'P2002') {
+        logger.logRequest(HttpStatus.CONFLICT);
+        return ApiError.conflict('This session has already been booked. Please refresh and try again.').toResponse();
       }
 
       // P2034: Transaction failed due to serialization conflict
