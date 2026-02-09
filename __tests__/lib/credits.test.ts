@@ -200,6 +200,140 @@ describe('Credits System', () => {
   });
 });
 
+describe('Credits System - Race Conditions & Additional', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('debitCredits - race condition (P2002)', () => {
+    it('should return found transaction on P2002 unique constraint error', async () => {
+      const mockFound = {
+        id: 'tx-found',
+        studentId: 'student-123',
+        type: 'USAGE',
+        amount: -1,
+        sessionId: 'session-race',
+      };
+
+      jest.spyOn(prisma.creditTransaction, 'findFirst')
+        .mockResolvedValueOnce(null) // idempotency check
+        .mockResolvedValueOnce(mockFound as any); // after P2002
+
+      jest.spyOn(prisma.creditTransaction, 'create').mockRejectedValue(
+        Object.assign(new Error('Unique constraint'), { code: 'P2002' })
+      );
+
+      const result = await debitCredits('student-123', 1, 'session-race', 'test');
+      expect(result.transaction).toEqual(mockFound);
+      expect(result.created).toBe(false);
+    });
+
+    it('should rethrow non-P2002 errors', async () => {
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(null);
+      jest.spyOn(prisma.creditTransaction, 'create').mockRejectedValue(new Error('DB down'));
+
+      await expect(debitCredits('student-123', 1, 'session-err', 'test')).rejects.toThrow('DB down');
+    });
+
+    it('should rethrow P2002 if no transaction found after race', async () => {
+      jest.spyOn(prisma.creditTransaction, 'findFirst')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+
+      jest.spyOn(prisma.creditTransaction, 'create').mockRejectedValue(
+        Object.assign(new Error('Unique constraint'), { code: 'P2002' })
+      );
+
+      await expect(debitCredits('student-123', 1, 'session-x', 'test')).rejects.toThrow();
+    });
+  });
+
+  describe('refundCredits - race condition (P2002)', () => {
+    it('should return found transaction on P2002 unique constraint error', async () => {
+      const mockFound = {
+        id: 'tx-refund-found',
+        studentId: 'student-123',
+        type: 'REFUND',
+        amount: 1,
+        sessionId: 'session-refund-race',
+      };
+
+      jest.spyOn(prisma.creditTransaction, 'findFirst')
+        .mockResolvedValueOnce(null) // idempotency check
+        .mockResolvedValueOnce(mockFound as any); // after P2002
+
+      jest.spyOn(prisma.creditTransaction, 'create').mockRejectedValue(
+        Object.assign(new Error('Unique constraint'), { code: 'P2002' })
+      );
+
+      const result = await refundCredits('student-123', 1, 'session-refund-race', 'test');
+      expect(result.transaction).toEqual(mockFound);
+      expect(result.created).toBe(false);
+    });
+
+    it('should rethrow non-P2002 errors', async () => {
+      jest.spyOn(prisma.creditTransaction, 'findFirst').mockResolvedValue(null);
+      jest.spyOn(prisma.creditTransaction, 'create').mockRejectedValue(new Error('Connection lost'));
+
+      await expect(refundCredits('student-123', 1, 'session-err', 'test')).rejects.toThrow('Connection lost');
+    });
+  });
+
+  describe('allocateMonthlyCredits', () => {
+    it('should create a MONTHLY_ALLOCATION transaction with expiry', async () => {
+      const { allocateMonthlyCredits } = require('@/lib/credits');
+      const mockTx = { id: 'tx-monthly', type: 'MONTHLY_ALLOCATION', amount: 10 };
+      jest.spyOn(prisma.creditTransaction, 'create').mockResolvedValue(mockTx as any);
+
+      const result = await allocateMonthlyCredits('student-123', 10);
+      expect(result).toEqual(mockTx);
+      expect(prisma.creditTransaction.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          studentId: 'student-123',
+          type: 'MONTHLY_ALLOCATION',
+          amount: 10,
+          description: 'Allocation mensuelle de 10 crédits',
+          expiresAt: expect.any(Date),
+        }),
+      });
+    });
+  });
+
+  describe('expireOldCredits', () => {
+    it('should create EXPIRATION transactions for expired credits', async () => {
+      const { expireOldCredits } = require('@/lib/credits');
+      const mockExpired = [
+        { id: 'tx-1', studentId: 'student-1', amount: 5 },
+        { id: 'tx-2', studentId: 'student-2', amount: 3 },
+      ];
+      (prisma.creditTransaction.findMany as jest.Mock).mockResolvedValue(mockExpired);
+      (prisma.creditTransaction.create as jest.Mock).mockClear();
+      const createMock = (prisma.creditTransaction.create as jest.Mock).mockResolvedValue({});
+
+      await expireOldCredits();
+
+      expect(createMock).toHaveBeenCalledTimes(2);
+      expect(createMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          studentId: 'student-1',
+          type: 'EXPIRATION',
+          amount: -5,
+        }),
+      });
+    });
+
+    it('should do nothing when no expired credits exist', async () => {
+      const { expireOldCredits } = require('@/lib/credits');
+      (prisma.creditTransaction.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.creditTransaction.create as jest.Mock).mockClear();
+
+      await expireOldCredits();
+
+      expect(prisma.creditTransaction.create).toHaveBeenCalledTimes(0);
+    });
+  });
+});
+
 describe('Booking Cancellation Logic', () => {
   describe('canCancelBooking', () => {
     it('should return true if cancellation is 25 hours before an individual course', () => {
@@ -260,6 +394,36 @@ describe('Booking Cancellation Logic', () => {
       
       const result = canCancelBooking('GROUP', 'HYBRID', sessionDate, now);
       expect(result).toBe(true); // HYBRID modality requires only 24h
+    });
+
+    it('should return true if cancellation is 49 hours before a masterclass', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-03T11:00:00Z'); // 49 hours later
+      
+      const result = canCancelBooking('MASTERCLASS', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(true); // MASTERCLASS requires 48h
+    });
+
+    it('should return false if cancellation is 47 hours before a masterclass', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-03T09:00:00Z'); // 47 hours later
+      
+      const result = canCancelBooking('MASTERCLASS', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(false);
+    });
+
+    it('should return false for unknown session type', () => {
+      const { canCancelBooking } = require('@/lib/credits');
+      
+      const now = new Date('2024-01-01T10:00:00Z');
+      const sessionDate = new Date('2024-01-10T10:00:00Z'); // far future
+      
+      const result = canCancelBooking('UNKNOWN_TYPE', 'IN_PERSON', sessionDate, now);
+      expect(result).toBe(false); // default branch returns false
     });
   });
 });
