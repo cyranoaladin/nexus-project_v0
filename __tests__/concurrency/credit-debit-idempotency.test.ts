@@ -22,7 +22,6 @@ import { testPrisma, setupTestDatabase, createTestSessionBooking, createTestPare
 const prisma = testPrisma;
 
 describe('Credit Transaction Idempotency - Concurrency', () => {
-  let sessionId: string;
   let studentRecordId: string;  // Student table record, not User
 
   beforeAll(async () => {
@@ -32,9 +31,6 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     const { parentProfile } = await createTestParent({ email: 'credit.idempotency@test.com' });
     const { student } = await createTestStudent(parentProfile.id, { user: { email: 'student.credit@test.com' } });
     studentRecordId = student.id;
-
-    const session = await createTestSessionBooking();
-    sessionId = session.id;
   });
 
   afterAll(async () => {
@@ -43,18 +39,20 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
   });
 
   afterEach(async () => {
-    // Clean up credit transactions after each test
+    // Clean up credit transactions and session bookings after each test
     await prisma.creditTransaction.deleteMany({});
+    await prisma.sessionBooking.deleteMany({});
   });
 
   describe('USAGE Transaction Idempotency (INV-CRE-1)', () => {
     it('should prevent duplicate USAGE transactions for same session', async () => {
+      const session = await createTestSessionBooking();
       const usageData = {
         studentId: studentRecordId,
         type: 'USAGE',
         amount: -1,
         description: 'Session booking debit',
-        sessionId
+        sessionId: session.id
       };
 
       // First USAGE should succeed
@@ -68,12 +66,13 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     });
 
     it('should handle concurrent USAGE transaction attempts', async () => {
+      const session = await createTestSessionBooking();
       const usageData = {
         studentId: studentRecordId,
         type: 'USAGE',
         amount: -1,
         description: 'Concurrent booking debit',
-        sessionId
+        sessionId: session.id
       };
 
       // Simulate 3 concurrent debit attempts
@@ -92,12 +91,13 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
 
       // Verify only one USAGE transaction exists
       const usageTransactions = await prisma.creditTransaction.findMany({
-        where: { sessionId, type: 'USAGE' }
+        where: { sessionId: session.id, type: 'USAGE' }
       });
       expect(usageTransactions).toHaveLength(1);
     });
 
     it('should allow USAGE for different sessions', async () => {
+      const session1 = await createTestSessionBooking();
       const session2 = await createTestSessionBooking();
 
       const usage1 = await prisma.creditTransaction.create({
@@ -106,7 +106,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
           type: 'USAGE',
           amount: -1,
           description: 'Session 1 debit',
-          sessionId
+          sessionId: session1.id
         }
       });
 
@@ -151,12 +151,13 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
 
   describe('REFUND Transaction Idempotency (INV-CRE-2)', () => {
     it('should prevent duplicate REFUND transactions for same session', async () => {
+      const session = await createTestSessionBooking();
       const refundData = {
         studentId: studentRecordId,
         type: 'REFUND',
         amount: 1,
         description: 'Session cancellation refund',
-        sessionId
+        sessionId: session.id
       };
 
       // First REFUND should succeed
@@ -170,12 +171,13 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     });
 
     it('should handle concurrent REFUND transaction attempts', async () => {
+      const session = await createTestSessionBooking();
       const refundData = {
         studentId: studentRecordId,
         type: 'REFUND',
         amount: 1,
         description: 'Concurrent refund',
-        sessionId
+        sessionId: session.id
       };
 
       // Simulate 3 concurrent refund attempts
@@ -194,7 +196,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
 
       // Verify only one REFUND transaction exists
       const refundTransactions = await prisma.creditTransaction.findMany({
-        where: { sessionId, type: 'REFUND' }
+        where: { sessionId: session.id, type: 'REFUND' }
       });
       expect(refundTransactions).toHaveLength(1);
     });
@@ -202,6 +204,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
 
   describe('USAGE + REFUND Combination (INV-CRE-3)', () => {
     it('should allow both USAGE and REFUND for same session', async () => {
+      const session = await createTestSessionBooking();
       // Create USAGE transaction
       const usage = await prisma.creditTransaction.create({
         data: {
@@ -209,7 +212,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
           type: 'USAGE',
           amount: -1,
           description: 'Session booking debit',
-          sessionId
+          sessionId: session.id
         }
       });
 
@@ -220,7 +223,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
           type: 'REFUND',
           amount: 1,
           description: 'Session cancellation refund',
-          sessionId
+          sessionId: session.id
         }
       });
 
@@ -230,12 +233,13 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
 
       // Verify both exist
       const transactions = await prisma.creditTransaction.findMany({
-        where: { sessionId }
+        where: { sessionId: session.id }
       });
       expect(transactions).toHaveLength(2);
     });
 
     it('should enforce idempotency even with USAGE and REFUND mix', async () => {
+      const session = await createTestSessionBooking();
       // Create USAGE
       await prisma.creditTransaction.create({
         data: {
@@ -243,7 +247,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
           type: 'USAGE',
           amount: -1,
           description: 'Session debit',
-          sessionId
+          sessionId: session.id
         }
       });
 
@@ -254,7 +258,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
           type: 'REFUND',
           amount: 1,
           description: 'Session refund',
-          sessionId
+          sessionId: session.id
         }
       });
 
@@ -266,7 +270,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
             type: 'USAGE',
             amount: -1,
             description: 'Duplicate debit',
-            sessionId
+            sessionId: session.id
           }
         })
       ).rejects.toThrow();
@@ -279,7 +283,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
             type: 'REFUND',
             amount: 1,
             description: 'Duplicate refund',
-            sessionId
+            sessionId: session.id
           }
         })
       ).rejects.toThrow();
