@@ -104,13 +104,13 @@ describe('OffresPage', () => {
 
   describe('Sections principales', () => {
     it('affiche la section offres principales', () => {
-      expect(screen.getByText('Votre solution clé-en-main')).toBeInTheDocument();
-      expect(screen.getByText('Tout inclus : experts agrégés et certifiés + IA 24/7 + suivi premium.')).toBeInTheDocument();
+      expect(screen.getByText('3 formules, un seul objectif : la réussite')).toBeInTheDocument();
     });
 
-    it('affiche le Programme Excellence', () => {
-      expect(screen.getByText('Programme Excellence')).toBeInTheDocument();
-      expect(screen.getByText(/Pour les élèves scolarisés/)).toBeInTheDocument();
+    it('affiche les 3 formules réelles', () => {
+      expect(screen.getByText('Accès Plateforme')).toBeInTheDocument();
+      expect(screen.getByText('Hybride')).toBeInTheDocument();
+      expect(screen.getByText('Immersion')).toBeInTheDocument();
     });
 
     it('affiche la section packs spécialisés', () => {
@@ -199,8 +199,8 @@ describe('OffresPage', () => {
       expect(priceElements.length).toBeGreaterThan(0);
     });
 
-    it('affiche le badge "Plus Populaire"', () => {
-      expect(screen.getByText(/PLUS POPULAIRE/i)).toBeInTheDocument();
+    it('affiche le badge "Recommandée"', () => {
+      expect(screen.getByText(/RECOMMANDÉE/i)).toBeInTheDocument();
     });
   });
 
