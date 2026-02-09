@@ -42,8 +42,6 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    console.log('[Parent Dashboard API] Session:', JSON.stringify(session, null, 2));
-
     if (!session || !session.user) {
       console.log('[Parent Dashboard API] No session or user');
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -186,9 +184,8 @@ export async function GET() {
 
   } catch (error) {
     console.error('[Parent Dashboard API] Error fetching parent dashboard data:', error);
-    console.error('[Parent Dashboard API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Erreur serveur', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Erreur serveur' },
       { status: 500 }
     );
   }

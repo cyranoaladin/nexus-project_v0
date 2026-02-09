@@ -69,7 +69,7 @@ export function ComparisonTableSection() {
           viewport={{ once: true }}
           className="max-w-6xl mx-auto"
         >
-          <div className="card-enhanced overflow-hidden">
+          <div className="card-dark overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>

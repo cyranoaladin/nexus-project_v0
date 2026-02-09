@@ -118,7 +118,7 @@ const TestimonialsSectionGSAP = () => {
             <div className="absolute top-12 left-0 w-full px-6 md:px-12 z-10">
                 <div className="max-w-7xl mx-auto flex items-end justify-between">
                     <div>
-                        <span className="font-mono text-xs text-nexus-cyan uppercase tracking-widest mb-2 block">
+                        <span className="font-mono text-xs text-brand-accent uppercase tracking-widest mb-2 block">
                             Ils nous font confiance
                         </span>
                         <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
@@ -168,7 +168,7 @@ const TestimonialsSectionGSAP = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-white text-sm">{item.name}</h4>
-                                    <span className="text-xs text-nexus-cyan font-mono">{item.role}</span>
+                                    <span className="text-xs text-brand-accent font-mono">{item.role}</span>
                                 </div>
                             </div>
 
@@ -185,11 +185,11 @@ const TestimonialsSectionGSAP = () => {
 
                 {/* Call to Action Card */}
                 <div className="w-[85vw] md:w-[25vw] shrink-0 h-full flex items-center justify-center">
-                    <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-nexus-cyan/50 hover:bg-nexus-cyan/5 transition-all duration-500 w-full text-center block">
+                    <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 w-full text-center block">
                         <span className="block font-display text-3xl font-bold text-white mb-4">
                             Rejoignez l'Excellence
                         </span>
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-nexus-cyan text-nexus-dark group-hover:scale-110 transition-transform">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-accent text-surface-dark group-hover:scale-110 transition-transform">
                             <ArrowRight className="w-8 h-8" />
                         </div>
                     </Link>

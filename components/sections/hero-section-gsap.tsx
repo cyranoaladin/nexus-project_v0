@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useLayoutEffect, useRef } from 'react';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Sparkles, Cpu, Blocks, GraduationCap } from 'lucide-react';
@@ -93,9 +94,9 @@ const HeroSectionGSAP = () => {
     };
 
     const authorityBadges = [
-        { icon: Cpu, label: 'IA Agentique', color: 'blue' },
-        { icon: Blocks, label: 'Web3', color: 'purple' },
+        { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
         { icon: GraduationCap, label: 'Agrégés', color: 'emerald' },
+        { icon: Blocks, label: '98% Réussite', color: 'purple' },
     ];
 
     return (
@@ -110,10 +111,12 @@ const HeroSectionGSAP = () => {
                 ref={visualRef}
                 className="absolute inset-0 z-0"
             >
-                <img
+                <Image
                     src="/images/hero_precision.jpg"
-                    alt="Precision Tech Education"
-                    className="w-full h-full object-cover opacity-70"
+                    alt="Nexus Réussite - Pédagogie augmentée pour lycéens du système français en Tunisie"
+                    fill
+                    className="object-cover opacity-70"
+                    priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-surface-darker via-surface-darker/90 to-surface-darker/60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-surface-darker via-transparent to-surface-darker/70" />
@@ -141,24 +144,24 @@ const HeroSectionGSAP = () => {
                             bg-white/5 border border-white/10 w-fit mb-6">
                             <Sparkles className="w-4 h-4 text-brand-primary" aria-hidden="true" />
                             <span className="font-mono text-xs uppercase tracking-[0.16em] text-neutral-400">
-                                Pont entre l'Académique et la Rupture Technologique
+                                Pédagogie augmentée pour lycéens du système français
                             </span>
                         </div>
 
                         {/* Headline */}
                         <h1 className="animate-item font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05]">
-                            L'Intelligence Artificielle et le{' '}
+                            La{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary">
-                                Web3
+                                réussite au Bac
                             </span>{' '}
-                            au service de l'Excellence Pédagogique.
+                            commence ici.
                         </h1>
 
                         {/* Value Proposition */}
                         <p className="animate-item text-neutral-400 mt-6 text-lg leading-relaxed max-w-xl">
-                            Nexus Réussite déploie des solutions d'ingénierie IA (RAG, Agents autonomes)
-                            et une expertise académique de haut niveau pour les entreprises,
-                            les établissements et les élèves.
+                            Coachs agrégés, IA pédagogique 24/7 et suivi personnalisé :
+                            Nexus Réussite combine expertise humaine et technologie pour
+                            transformer le potentiel de votre enfant en résultats.
                         </p>
 
                         {/* CTAs */}
@@ -168,7 +171,7 @@ const HeroSectionGSAP = () => {
                                 size="lg"
                                 className="group bg-gradient-to-r from-brand-primary to-brand-accent hover:shadow-xl hover:shadow-brand-primary/30"
                             >
-                                <span>Découvrir nos Solutions</span>
+                                <span>Bilan gratuit</span>
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                             </Button>
                             <Button
@@ -177,7 +180,7 @@ const HeroSectionGSAP = () => {
                                 size="lg"
                                 className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
                             >
-                                <span>Accéder à la Plateforme</span>
+                                <span>Voir nos offres</span>
                             </Button>
                         </div>
                     </div>
