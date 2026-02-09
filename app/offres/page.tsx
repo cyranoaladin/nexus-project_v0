@@ -497,7 +497,7 @@ export default function OffresPage() {
                     <p className="mt-4 text-xs text-neutral-400">⚠️ {pack.note}</p>
                   )}
 
-                  <Link href="/bilan-gratuit?programme=pack-specialise" className="mt-4 w-full rounded-full border border-brand-accent/40 px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-accent/10 transition text-center block">
+                  <Link href={`/bilan-gratuit?programme=${encodeURIComponent(pack.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))}`} className="mt-4 w-full rounded-full border border-brand-accent/40 px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-accent/10 transition text-center block">
                     {pack.cta}
                   </Link>
                 </div>
