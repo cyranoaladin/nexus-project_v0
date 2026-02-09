@@ -20,6 +20,7 @@ jest.mock('next/navigation', () => ({
     replace: jest.fn(),
     prefetch: jest.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 // Mock de framer-motion — filter all motion-specific props
