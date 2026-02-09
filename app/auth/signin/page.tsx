@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 // import { Badge } from "@/components/ui/badge"
@@ -37,7 +37,16 @@ export default function SignInPage() {
       if (result?.error) {
         setError("Email ou mot de passe incorrect");
       } else {
-        router.push("/dashboard");
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+        const roleRoutes: Record<string, string> = {
+          ADMIN: '/dashboard/admin',
+          ASSISTANTE: '/dashboard/assistante',
+          COACH: '/dashboard/coach',
+          PARENT: '/dashboard/parent',
+          ELEVE: '/dashboard/eleve',
+        };
+        router.push(roleRoutes[role ?? ''] ?? '/dashboard/parent');
       }
     } catch {
       setError("Une erreur est survenue lors de la connexion");
@@ -47,7 +56,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-surface-darker">
       <CorporateNavbar />
 
       <main className="py-20">
@@ -58,13 +67,13 @@ export default function SignInPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-primary/10 rounded-full mb-6">
-              <LogIn className="w-8 h-8 text-brand-primary" aria-hidden="true" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
+              <LogIn className="w-8 h-8 text-brand-accent" aria-hidden="true" />
             </div>
-            <h1 className="font-display text-3xl font-bold text-neutral-900 mb-4">
-              Bon Retour sur Nexus Réussite
+            <h1 className="font-display text-3xl font-bold text-white mb-4">
+              Accédez à Votre Espace
             </h1>
-            <p className="text-neutral-600">
+            <p className="text-neutral-300">
               Connectez-vous pour accéder à votre espace personnalisé et continuer
               votre parcours vers l'excellence.
             </p>
@@ -75,19 +84,19 @@ export default function SignInPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="border border-neutral-200 shadow-lg bg-white">
+            <Card className="border border-white/10 shadow-lg bg-surface-card">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl font-bold text-neutral-900">
+                <CardTitle className="text-2xl font-bold text-white">
                   Connexion à Votre Espace
                 </CardTitle>
-                <p className="text-neutral-600 text-sm mt-2">
+                <p className="text-neutral-400 text-sm mt-2">
                   Saisissez vos identifiants pour accéder à votre tableau de bord
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <Label htmlFor="email" className="text-neutral-900 font-medium">
+                    <Label htmlFor="email" className="text-neutral-200 font-medium">
                       Adresse Email
                     </Label>
                     <Input
@@ -103,12 +112,12 @@ export default function SignInPage() {
 
                   <div>
                     <div className="flex justify-between items-center">
-                      <Label htmlFor="password" className="text-neutral-900 font-medium">
+                      <Label htmlFor="password" className="text-neutral-200 font-medium">
                         Mot de Passe
                       </Label>
                       <Link
                         href="/auth/mot-de-passe-oublie"
-                        className="text-sm text-brand-primary hover:underline"
+                        className="text-sm text-brand-accent hover:underline"
                       >
                         Mot de passe oublié ?
                       </Link>
@@ -126,7 +135,7 @@ export default function SignInPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors"
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                       >
                         {showPassword ? (
@@ -168,9 +177,9 @@ export default function SignInPage() {
                   </Button>
                 </form>
 
-                <div className="mt-8 pt-6 border-t border-neutral-200">
+                <div className="mt-8 pt-6 border-t border-white/10">
                   <div className="text-center space-y-4">
-                    <p className="text-sm text-neutral-600">
+                    <p className="text-sm text-neutral-400">
                       Pas encore de compte ?
                     </p>
                     <Button asChild variant="outline" className="w-full">
@@ -184,7 +193,7 @@ export default function SignInPage() {
                 <div className="mt-6 text-center">
                   <p className="text-xs text-neutral-500">
                     En vous connectant, vous acceptez nos{" "}
-                    <Link href="/conditions" className="text-brand-primary hover:underline">
+                    <Link href="/conditions" className="text-brand-accent hover:underline">
                       conditions d'utilisation
                     </Link>
                   </p>

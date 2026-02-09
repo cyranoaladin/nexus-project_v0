@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast, Toaster } from "sonner";
 
 // Simplified enum for testing
 const Subject = {
@@ -140,17 +141,17 @@ export default function BilanGratuitPage() {
   const onSubmit = async () => {
     // Validate all fields
     if (!validateStep(1) || !validateStep(2)) {
-      alert('Veuillez corriger les erreurs avant de soumettre.');
+      toast.error('Veuillez corriger les erreurs avant de soumettre.');
       return;
     }
 
     if (selectedSubjects.length === 0) {
-      alert('Veuillez sélectionner au moins une matière.');
+      toast.error('Veuillez sélectionner au moins une matière.');
       return;
     }
 
     if (!formData.acceptTerms) {
-      alert('Veuillez accepter les conditions générales d\'utilisation.');
+      toast.error('Veuillez accepter les conditions générales d\'utilisation.');
       return;
     }
 
@@ -162,8 +163,6 @@ export default function BilanGratuitPage() {
         subjects: selectedSubjects
       };
 
-      console.log('Submitting form data:', submitData);
-
       const response = await fetch('/api/bilan-gratuit', {
         method: 'POST',
         headers: {
@@ -173,18 +172,18 @@ export default function BilanGratuitPage() {
       });
 
       const result = await response.json();
-      console.log('Response:', result);
 
       if (response.ok) {
         router.push('/bilan-gratuit/confirmation');
       } else {
         const errorMessage = result.error || result.details || 'Une erreur est survenue';
-        console.error('Form submission error:', errorMessage);
-        alert(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      alert('Une erreur est survenue lors de l\'inscription');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erreur:', error);
+      }
+      toast.error('Une erreur est survenue lors de l\'inscription');
     } finally {
       setIsSubmitting(false);
     }
@@ -192,6 +191,7 @@ export default function BilanGratuitPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker">
+      <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
 
       <main className="py-8 md:py-12">
