@@ -260,6 +260,19 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock next/image to avoid "Invalid base URL" in jsdom
+jest.mock('next/image', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: React.forwardRef((props, ref) => {
+      const { fill, priority, quality, placeholder, blurDataURL, loader, ...rest } = props;
+      // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+      return React.createElement('img', { ...rest, ref });
+    }),
+  };
+});
+
 // Mock GSAP
 jest.mock('gsap', () => ({
   gsap: {
