@@ -100,6 +100,9 @@ describe('POST /api/sessions/book', () => {
     jest.clearAllMocks();
     (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
     ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
+    
+    // Reset prisma.$transaction to prevent mock bleed between tests
+    (prisma.$transaction as jest.Mock).mockReset();
   });
 
   // ========================================
