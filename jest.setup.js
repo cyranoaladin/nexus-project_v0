@@ -230,6 +230,7 @@ window.location = {
   assign: jest.fn(),
   reload: jest.fn(),
   replace: jest.fn(),
+  toString: () => 'http://localhost:3000/',
 };
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
@@ -296,27 +297,34 @@ jest.mock('gsap/ScrollTrigger', () => ({
   },
 }));
 
-// Mock Framer Motion
+// Mock Framer Motion — strip ALL motion-specific props to prevent React DOM warnings
 jest.mock('framer-motion', () => {
   const React = require('react');
+  const motionProps = new Set([
+    'initial', 'animate', 'exit', 'transition', 'variants',
+    'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+    'viewport', 'onViewportEnter', 'onViewportLeave',
+    'drag', 'dragConstraints', 'dragElastic', 'dragMomentum',
+    'dragTransition', 'dragPropagation', 'dragSnapToOrigin',
+    'layout', 'layoutId', 'layoutDependency', 'layoutScroll',
+    'onAnimationStart', 'onAnimationComplete', 'onDragStart', 'onDragEnd', 'onDrag',
+    'custom', 'inherit', 'onLayoutAnimationStart', 'onLayoutAnimationComplete',
+  ]);
   return {
     motion: new Proxy({}, {
       get: (target, prop) => {
-        return React.forwardRef((props, ref) => {
-          const {
-            children,
-            initial,
-            animate,
-            exit,
-            transition,
-            whileHover,
-            whileTap,
-            whileInView,
-            viewport,
-            ...rest
-          } = props;
-          return React.createElement(prop, { ...rest, ref }, children);
+        const MotionComponent = React.forwardRef((props, ref) => {
+          const filteredProps = {};
+          const { children, ...rest } = props;
+          Object.keys(rest).forEach((key) => {
+            if (!motionProps.has(key)) {
+              filteredProps[key] = rest[key];
+            }
+          });
+          return React.createElement(prop, { ...filteredProps, ref }, children);
         });
+        MotionComponent.displayName = `motion.${String(prop)}`;
+        return MotionComponent;
       }
     }),
     AnimatePresence: ({ children }) => children,
@@ -327,6 +335,9 @@ jest.mock('framer-motion', () => {
       set: jest.fn(),
     })),
     useInView: jest.fn(() => true),
+    useMotionValue: jest.fn((initial) => ({ get: () => initial, set: jest.fn(), onChange: jest.fn() })),
+    useTransform: jest.fn((value) => ({ get: () => 0, set: jest.fn(), onChange: jest.fn() })),
+    useSpring: jest.fn((value) => ({ get: () => 0, set: jest.fn(), onChange: jest.fn() })),
   };
 });
 
