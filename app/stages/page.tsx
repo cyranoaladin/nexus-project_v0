@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, ShieldCheck, Star, TrendingUp } from "lucide-
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { BackToTop } from "@/components/ui/back-to-top";
+import { toast, Toaster } from "sonner";
 
 const ACADEMIES = [
   // TERMINALE
@@ -312,7 +313,7 @@ export default function AcademiesHiverPage() {
   }, []);
 
   useEffect(() => {
-    const deadline = new Date("2026-02-10T23:59:59");
+    const deadline = new Date("2026-03-01T23:59:59");
     const interval = setInterval(() => {
       const diff = deadline.getTime() - Date.now();
       const days = Math.max(Math.floor(diff / (1000 * 60 * 60 * 24)), 0);
@@ -331,7 +332,7 @@ export default function AcademiesHiverPage() {
     e.preventDefault();
     setErrorMsg("");
     if (!formData.parent.trim() || !formData.phone.trim() || !formData.classe.trim()) {
-      alert("Merci de compléter tous les champs avant de réserver.");
+      toast.error("Merci de compléter tous les champs avant de réserver.");
       return;
     }
     setIsSubmitting(true);
@@ -417,6 +418,7 @@ export default function AcademiesHiverPage() {
 
   return (
     <div className="min-h-screen bg-surface-darker text-slate-200 font-sans">
+      <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
 
       <style jsx global>{`
