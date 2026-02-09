@@ -635,7 +635,7 @@ describe('POST /api/sessions/book', () => {
         parent: { id: 'parent-123', firstName: 'John', lastName: 'Doe' }
       };
 
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: Function) => {
         const mockTx = {
           coachProfile: {
             findFirst: jest.fn().mockResolvedValue({
@@ -660,11 +660,9 @@ describe('POST /api/sessions/book', () => {
             })
           },
           student: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'student-record-456',
-              userId: 'cm4stud456def789ghi012jklmn',
-              parentId: 'parent-profile-123'
-            })
+            findFirst: jest.fn()
+              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-123' })
+              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn' })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -674,13 +672,14 @@ describe('POST /api/sessions/book', () => {
             })
           },
           sessionBooking: {
-            findFirst: jest.fn().mockResolvedValue(null),  // No conflicts
+            findFirst: jest.fn().mockResolvedValue(null),  // No conflicts (coach + student)
             create: jest.fn().mockResolvedValue(mockBooking)
           },
           creditTransaction: {
             findMany: jest.fn().mockResolvedValue([
               { amount: 10, expiresAt: null }  // Sufficient credits
             ]),
+            findFirst: jest.fn().mockResolvedValue(null), // No existing USAGE
             create: jest.fn().mockResolvedValue({
               id: 'tx-123',
               studentId: 'student-record-456',
@@ -726,7 +725,7 @@ describe('POST /api/sessions/book', () => {
         parent: null
       };
 
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: Function) => {
         const mockTx = {
           coachProfile: {
             findFirst: jest.fn().mockResolvedValue({
@@ -745,10 +744,9 @@ describe('POST /api/sessions/book', () => {
             findMany: jest.fn().mockResolvedValue([])
           },
           student: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'student-record-123',
-              userId: 'cm4student123def456ghi789jk'
-            })
+            findFirst: jest.fn()
+              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk' })
+              .mockResolvedValueOnce({ id: 'student-record-123', userId: 'cm4student123def456ghi789jk' })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -765,6 +763,7 @@ describe('POST /api/sessions/book', () => {
             findMany: jest.fn().mockResolvedValue([
               { amount: 10, expiresAt: null }
             ]),
+            findFirst: jest.fn().mockResolvedValue(null), // No existing USAGE
             create: jest.fn().mockResolvedValue({
               id: 'tx-456',
               studentId: 'student-record-123',
@@ -808,7 +807,7 @@ describe('POST /api/sessions/book', () => {
         type: 'USAGE'
       });
 
-      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback: Function) => {
         const mockTx = {
           coachProfile: {
             findFirst: jest.fn().mockResolvedValue({
@@ -833,11 +832,9 @@ describe('POST /api/sessions/book', () => {
             })
           },
           student: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'student-record-789',
-              userId: 'cm4stud456def789ghi012jklmn',
-              parentId: 'parent-profile-789'
-            })
+            findFirst: jest.fn()
+              .mockResolvedValueOnce({ id: 'student-record-789', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-789' })
+              .mockResolvedValueOnce({ id: 'student-record-789', userId: 'cm4stud456def789ghi012jklmn' })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -860,6 +857,7 @@ describe('POST /api/sessions/book', () => {
             findMany: jest.fn().mockResolvedValue([
               { amount: 10, expiresAt: null }
             ]),
+            findFirst: jest.fn().mockResolvedValue(null), // No existing USAGE
             create: mockCreditCreate
           },
           sessionNotification: {

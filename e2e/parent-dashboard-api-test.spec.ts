@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 
 test('Parent Dashboard - API Test', async ({ page, context }) => {
     console.log('Logging in...');
-    await page.goto('/auth/signin');
-    await page.fill('#email', 'parent@example.com');
-    await page.fill('#password', 'admin123');
-    await page.click('button[type="submit"]');
+    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.getByLabel(/email/i).fill('parent.dashboard@test.com');
+    await page.getByPlaceholder('Votre mot de passe').fill('password123');
+    await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
 
     console.log('Current URL:', page.url());
