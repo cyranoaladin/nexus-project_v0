@@ -41,34 +41,84 @@ export async function checkCreditBalance(studentId: string, requiredCredits: num
   return totalCredits >= requiredCredits;
 }
 
-// Débit des crédits pour une session
+// Débit des crédits pour une session (idempotent)
 export async function debitCredits(studentId: string, amount: number, sessionId: string, description: string) {
   const { prisma } = await import('./prisma');
 
-  return await prisma.creditTransaction.create({
-    data: {
-      studentId,
-      type: 'USAGE',
-      amount: -amount,
-      description,
-      sessionId
+  // Check for existing USAGE transaction (idempotency)
+  const existing = await prisma.creditTransaction.findFirst({
+    where: {
+      sessionId,
+      type: 'USAGE'
     }
   });
+
+  if (existing) {
+    return { transaction: existing, created: false };
+  }
+
+  try {
+    const transaction = await prisma.creditTransaction.create({
+      data: {
+        studentId,
+        type: 'USAGE',
+        amount: -amount,
+        description,
+        sessionId
+      }
+    });
+    return { transaction, created: true };
+  } catch (err: unknown) {
+    // Handle race condition: another request created it
+    const error = err as { code?: string };
+    if (error?.code === 'P2002') {
+      const found = await prisma.creditTransaction.findFirst({
+        where: { sessionId, type: 'USAGE' }
+      });
+      if (found) return { transaction: found, created: false };
+    }
+    throw err;
+  }
 }
 
-// Remboursement de crédits (annulation)
+// Remboursement de crédits (annulation, idempotent)
 export async function refundCredits(studentId: string, amount: number, sessionId: string, description: string) {
   const { prisma } = await import('./prisma');
 
-  return await prisma.creditTransaction.create({
-    data: {
-      studentId,
-      type: 'REFUND',
-      amount,
-      description,
-      sessionId
+  // Check for existing REFUND transaction (idempotency)
+  const existing = await prisma.creditTransaction.findFirst({
+    where: {
+      sessionId,
+      type: 'REFUND'
     }
   });
+
+  if (existing) {
+    return { transaction: existing, created: false };
+  }
+
+  try {
+    const transaction = await prisma.creditTransaction.create({
+      data: {
+        studentId,
+        type: 'REFUND',
+        amount,
+        description,
+        sessionId
+      }
+    });
+    return { transaction, created: true };
+  } catch (err: unknown) {
+    // Handle race condition: another request created it
+    const error = err as { code?: string };
+    if (error?.code === 'P2002') {
+      const found = await prisma.creditTransaction.findFirst({
+        where: { sessionId, type: 'REFUND' }
+      });
+      if (found) return { transaction: found, created: false };
+    }
+    throw err;
+  }
 }
 
 // Remboursement basé sur une SessionBooking (idempotent et sûr en concurrence)
