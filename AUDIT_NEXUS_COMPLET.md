@@ -540,4 +540,98 @@ R : Votre dashboard parent vous donne une vue en temps réel : sessions effectu�
 
 ---
 
-*Fin de l'audit. Les correctifs P0 sont implémentés ci-dessous.*
+## CHANGELOG — CORRECTIFS IMPLÉMENTÉS
+
+### Commit 1 : `fix(P0): critical UX/auth/security fixes`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/auth/signin/page.tsx` | Redirect post-login vers `/dashboard/{role}` au lieu de `/dashboard` (404). Import `getSession` pour récupérer le rôle. Dark theme (`bg-surface-darker`, `bg-surface-card`) au lieu de `bg-neutral-50` blanc. Textes et labels adaptés au dark mode. |
+| `app/bilan-gratuit/page.tsx` | Remplacement de tous les `alert()` natifs par `toast.error()` (Sonner). Suppression de `console.log('Submitting form data:', submitData)` qui fuitait des données en prod. |
+| `app/api/bilan-gratuit/route.ts` | `console.log('Received request body:')` conditionné à `NODE_ENV === 'development'`. Suppression du log `Validated data`. |
+| `middleware.ts` | Refonte RBAC : `/dashboard` redirige vers `/dashboard/{role}` selon le token. Accès non autorisé redirige vers le dashboard du rôle (pas vers `/dashboard` inexistant). ADMIN peut accéder à tous les dashboards. |
+| `app/plateforme/` | Dossier vide supprimé (causait 404 malgré redirect dans next.config). |
+
+### Commit 2 : `fix(P1): conversion/UX improvements`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/stages/page.tsx` | Deadline countdown mise à jour (2026-02-10 → 2026-03-01). `alert()` → `toast.error()` dans le formulaire de réservation. Ajout `<Toaster>`. |
+| `app/offres/page.tsx` | Noms d'experts corrigés : Oratora → Athéna, Prospect → Orion (conformes aux profils équipe). Liens garanties `href="#"` → `href="/conditions#garanties"`. |
+| `app/bilan-gratuit/page.tsx` | Lecture du query param `?programme=` depuis l'URL. Affichage d'un badge "Programme sélectionné : Hybride (450 TND/mois)". Wrapping avec `<Suspense>` pour `useSearchParams`. |
+| `__tests__/lib/bilan-gratuit-form.test.tsx` | Ajout mock `useSearchParams` dans `next/navigation`. |
+
+### Commit 3 : `fix(P2): dashboard dark theme + offres pack CTA`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/dashboard/page.tsx` | Dark theme (`bg-surface-darker`) au lieu de `bg-gray-50`. |
+| `app/offres/page.tsx` | CTA packs différenciés : chaque pack génère un slug unique (`pack-grand-oral`, `pack-parcoursup`, etc.) au lieu de `pack-specialise` générique. |
+
+### Commit 4 : `feat: unified analytics tracking system`
+
+| Fichier | Changement |
+|---------|-----------|
+| `lib/analytics.ts` | **Nouveau fichier.** Système de tracking typé avec 20+ types d'événements. Support GA4 (gtag), Plausible, console dev. Fonctions `track.*` pour chaque événement. |
+| `app/auth/signin/page.tsx` | Tracking `signin_attempt`, `signin_success` (avec rôle), `signin_error`. |
+| `app/bilan-gratuit/page.tsx` | Tracking `bilan_start` (avec programme/source), `bilan_step`, `bilan_success`, `bilan_error`. |
+
+### Commit 5 : `feat(a11y): focus-visible rings + skip-to-content`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/globals.css` | `:focus-visible` global (outline 2px brand-accent). Styles `.skip-to-content` (caché par défaut, visible au focus Tab). |
+| `app/layout.tsx` | Lien "Aller au contenu principal" ajouté comme premier élément du body. |
+
+### Commit 6 : `test: analytics unit tests`
+
+| Fichier | Changement |
+|---------|-----------|
+| `__tests__/lib/analytics.test.ts` | **Nouveau fichier.** 25 tests couvrant : sendEvent (console, gtag, plausible), toutes les fonctions `track.*`, edge cases (non-function providers, params undefined). |
+
+### Commit 7 : `feat: wire analytics into offres + stages`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/offres/page.tsx` | Tracking `offer_view` au mount, `quiz_complete` avec réponses et recommandation. |
+| `app/stages/page.tsx` | Tracking `stage_reserve` avec ID académie et prix. |
+
+### Commit 8 : `fix(seo): noscript fallback + main-content id`
+
+| Fichier | Changement |
+|---------|-----------|
+| `app/page.tsx` | Bloc `<noscript>` avec h1, description, offres et CTAs pour crawlers sans JS. `id="main-content"` sur `<main>` pour skip-to-content. |
+
+---
+
+### Résumé Quantitatif
+
+| Métrique | Avant | Après |
+|----------|-------|-------|
+| **Test suites** | 60 | 61 (+1) |
+| **Tests unitaires** | 1325 | 1350 (+25) |
+| **Fichiers modifiés** | — | 15 |
+| **Fichiers créés** | — | 3 (`lib/analytics.ts`, `__tests__/lib/analytics.test.ts`, `AUDIT_NEXUS_COMPLET.md`) |
+| **Fichiers supprimés** | — | 1 (`app/plateforme/`) |
+| **Analytics events trackés** | 0 | 20+ types |
+| **Accessibilité** | Pas de focus-visible, pas de skip-to-content | WCAG 2.1 AA focus rings + skip link |
+| **Dead ends corrigés** | 4+ (`href="#"`, `/dashboard` 404, `/plateforme` 404) | 0 |
+
+### Items Restants (Non Implémentés — P2/P3)
+
+| # | Item | Priorité | Raison |
+|---|------|----------|--------|
+| 1 | CSP : retirer `unsafe-inline`/`unsafe-eval` | P1 | Nécessite audit des scripts inline (GSAP, style jsx) |
+| 2 | Prix offres : aligner code ↔ spec (Grand Oral 300→750, Parcoursup 450→900) | P1 | Nécessite validation business |
+| 3 | `.env.example` manquant | P2 | Créer avec toutes les variables requises |
+| 4 | JSON-LD structured data | P2 | Ajouter schema.org EducationalOrganization |
+| 5 | Homepage : migrer vers Server Components | P2 | Refonte structurelle (GSAP dépend du client) |
+| 6 | Paiements Konnect : tester en sandbox réel | P2 | Nécessite clés API sandbox |
+| 7 | Rappels session : implémenter envoi email réel | P2 | Nécessite config SMTP prod |
+| 8 | Images : retirer `unoptimized: true` | P2 | Tester avec next/image optimization |
+| 9 | Prisma : ajouter index sur `email`, `userId`, `parentId` | P2 | Migration DB requise |
+| 10 | Blog : implémenter si décidé | P3 | Dé-priorisé volontairement |
+
+---
+
+*Fin de l'audit et des correctifs. Document généré le 9 février 2026.*
