@@ -28,6 +28,7 @@ storage/
 test-results/
 playwright-report/
 e2e/.auth/*.json
+-test-loader/
 
 # Performance test artifacts
 /tests/performance/results.json
