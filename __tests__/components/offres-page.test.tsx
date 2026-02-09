@@ -12,16 +12,34 @@ jest.mock('next/link', () => {
   };
 });
 
-// Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
-  },
-  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
-  useTransform: () => ({ get: () => 1 }),
-}));
+// Mock framer-motion — filter motion-specific props to avoid React DOM warnings
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const motionProps = new Set([
+    'initial', 'animate', 'exit', 'transition', 'variants',
+    'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+    'viewport', 'onViewportEnter', 'onViewportLeave',
+    'drag', 'dragConstraints', 'dragElastic', 'dragMomentum',
+    'layout', 'layoutId', 'onAnimationStart', 'onAnimationComplete',
+    'custom', 'inherit',
+  ]);
+  const filterProps = (props: any) => {
+    const filtered: any = {};
+    Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
+    return filtered;
+  };
+  return {
+    motion: {
+      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
+      section: React.forwardRef(({ children, ...props }: any, ref: any) => <section {...filterProps(props)} ref={ref}>{children}</section>),
+      button: React.forwardRef(({ children, ...props }: any, ref: any) => <button {...filterProps(props)} ref={ref}>{children}</button>),
+    },
+    useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+    useTransform: () => ({ get: () => 1 }),
+    useReducedMotion: () => false,
+    AnimatePresence: ({ children }: any) => children,
+  };
+});
 
 jest.mock('@/components/ui/floating-nav', () => ({
   FloatingNav: () => <div data-testid="floating-nav">FloatingNav</div>,
