@@ -13,6 +13,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
+import { track } from "@/lib/analytics";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -28,6 +29,7 @@ export default function SignInPage() {
     setError("");
 
     try {
+      track.signinAttempt();
       const result = await signIn("credentials", {
         email,
         password,
@@ -35,10 +37,12 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
+        track.signinError('invalid_credentials');
         setError("Email ou mot de passe incorrect");
       } else {
         const session = await getSession();
         const role = (session?.user as { role?: string })?.role;
+        track.signinSuccess(role ?? 'unknown');
         const roleRoutes: Record<string, string> = {
           ADMIN: '/dashboard/admin',
           ASSISTANTE: '/dashboard/assistante',
@@ -49,6 +53,7 @@ export default function SignInPage() {
         router.push(roleRoutes[role ?? ''] ?? '/dashboard/parent');
       }
     } catch {
+      track.signinError('network_error');
       setError("Une erreur est survenue lors de la connexion");
     } finally {
       setIsLoading(false);
