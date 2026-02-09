@@ -14,8 +14,9 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { toast, Toaster } from "sonner";
+import { track } from "@/lib/analytics";
 
 // Simplified enum for testing
 const Subject = {
@@ -74,6 +75,11 @@ function BilanGratuitForm() {
   };
   const programmeLabel = programme ? programmeLabels[programme] || programme : null;
 
+  // Track bilan funnel start on mount
+  useEffect(() => {
+    track.bilanStart(programme ?? undefined, document.referrer || undefined);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -123,7 +129,9 @@ function BilanGratuitForm() {
 
   const nextStep = () => {
     if (currentStep < totalSteps && validateStep(currentStep)) {
-      setCurrentStep(currentStep + 1);
+      const next = currentStep + 1;
+      track.bilanStep(next, next === 2 ? 'informations_eleve' : 'unknown');
+      setCurrentStep(next);
     }
   };
 
@@ -184,9 +192,11 @@ function BilanGratuitForm() {
       const result = await response.json();
 
       if (response.ok) {
+        track.bilanSuccess(result.parentId);
         router.push('/bilan-gratuit/confirmation');
       } else {
         const errorMessage = result.error || result.details || 'Une erreur est survenue';
+        track.bilanError(errorMessage);
         toast.error(errorMessage);
       }
     } catch (error) {
