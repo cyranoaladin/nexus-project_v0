@@ -28,7 +28,7 @@ const packs = [
       "Simulations d'oraux blancs",
       "Feedback personnalisé",
     ],
-    expert: { name: "Oratora", role: "Coach en éloquence" },
+    expert: { name: "Athéna", role: "Stratège du Bac et de l'Éloquence" },
     cta: "Ajouter à mon programme",
   },
   {
@@ -43,7 +43,7 @@ const packs = [
       "Préparation aux entretiens",
       "Simulation de jury",
     ],
-    expert: { name: "Prospect", role: "Conseiller orientation" },
+    expert: { name: "Orion", role: "Conseiller d'Orientation" },
     cta: "Ajouter à mon programme",
   },
   {
@@ -688,7 +688,7 @@ export default function OffresPage() {
                     </div>
                     <h3 className="text-lg font-semibold text-white">{item.title}</h3>
                     <p className="mt-2 text-sm text-neutral-300">{item.text}</p>
-                    <a href="#" className="mt-3 inline-flex text-xs text-brand-accent hover:text-white">
+                    <a href="/conditions#garanties" className="mt-3 inline-flex text-xs text-brand-accent hover:text-white">
                       Voir les conditions détaillées
                     </a>
                   </div>

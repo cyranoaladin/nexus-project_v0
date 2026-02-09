@@ -13,8 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, User } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 import { toast, Toaster } from "sonner";
 
 // Simplified enum for testing
@@ -63,7 +63,17 @@ const MODALITY_OPTIONS = [
   { value: "hybride", label: "Cours en ligne et présentiel" }
 ];
 
-export default function BilanGratuitPage() {
+function BilanGratuitForm() {
+  const searchParams = useSearchParams();
+  const programme = searchParams.get('programme');
+  const programmeLabels: Record<string, string> = {
+    plateforme: 'Accès Plateforme (150 TND/mois)',
+    hybride: 'Hybride (450 TND/mois)',
+    immersion: 'Immersion (750 TND/mois)',
+    'pack-specialise': 'Pack Spécialisé',
+  };
+  const programmeLabel = programme ? programmeLabels[programme] || programme : null;
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -216,6 +226,11 @@ export default function BilanGratuitPage() {
               <CheckCircle className="w-4 h-4 mr-2" aria-hidden="true" />
               Bilan Stratégique Gratuit
             </Badge>
+            {programmeLabel && (
+              <Badge variant="outline" className="mb-2 border-brand-accent/40 text-brand-accent">
+                Programme sélectionné : {programmeLabel}
+              </Badge>
+            )}
             <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
               Créez Votre Compte Parent et Élève
             </h1>
@@ -564,5 +579,13 @@ export default function BilanGratuitPage() {
 
       <CorporateFooter />
     </div>
+  );
+}
+
+export default function BilanGratuitPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-surface-darker" />}>
+      <BilanGratuitForm />
+    </Suspense>
   );
 }
