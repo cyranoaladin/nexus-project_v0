@@ -70,9 +70,9 @@ export default function MentionsLegalesPage() {
                                 L'infrastructure technique est assurée par des prestataires répondant aux standards de sécurité internationaux (ISO 27001).
                             </p>
                             <ul className="mt-2 list-disc pl-5 text-slate-600">
-                                <li><strong>Hébergement Web :</strong> Vercel Inc. (USA)</li>
-                                <li><strong>Base de Données & Auth :</strong> Supabase (PostgreSQL)</li>
-                                <li><strong>Paiements :</strong> Konnect (Tunisie) & Stripe (International)</li>
+                                <li><strong>Hébergement Web :</strong> VPS Ubuntu (Docker, Nginx reverse proxy)</li>
+                                <li><strong>Base de Données & Auth :</strong> PostgreSQL + NextAuth (JWT)</li>
+                                <li><strong>Paiements :</strong> Konnect (Tunisie, TND) & Wise (International, EUR/USD)</li>
                             </ul>
                         </section>
 

@@ -45,7 +45,7 @@ const EMAIL_TEMPLATES = {
     subject: '🎓 Bienvenue chez Nexus Réussite !',
     html: (user: EmailUser) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #2563EB 0%, #2EE9F6 100%); color: white; padding: 30px; text-align: center;">
           <h1>Bienvenue ${user.firstName} !</h1>
           <p>Votre parcours vers la réussite commence maintenant</p>
         </div>
@@ -65,7 +65,7 @@ const EMAIL_TEMPLATES = {
 
           <p>
             <a href="${process.env.NEXTAUTH_URL}/dashboard"
-               style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+               style="background: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               Accéder à mon espace
             </a>
           </p>
@@ -263,7 +263,7 @@ export async function sendSessionReportNotification(
     
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #2563EB 0%, #2EE9F6 100%); color: white; padding: 30px; text-align: center;">
           <h1>📝 Nouveau compte-rendu de session</h1>
         </div>
         <div style="padding: 30px;">
@@ -304,7 +304,7 @@ export async function sendSessionReportNotification(
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL}/dashboard/parent"
-               style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 16px;">
+               style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 16px;">
               Consulter le compte-rendu complet
             </a>
           </div>

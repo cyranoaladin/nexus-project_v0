@@ -36,7 +36,7 @@ export async function sendWelcomeParentEmail(
     subject: '🎉 Bienvenue chez Nexus Réussite !',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #4F46E5, #F97316); padding: 30px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #2563EB, #2EE9F6); padding: 30px; text-align: center;">
           <h1 style="color: white; margin: 0;">Bienvenue chez Nexus Réussite !</h1>
         </div>
 
@@ -67,15 +67,15 @@ export async function sendWelcomeParentEmail(
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL}"
-               style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+               style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
               Accéder à mon Espace
             </a>
           </div>
 
           <p>Une question ? Contactez-nous :</p>
           <ul>
-            <li>📞 +216 XX XXX XXX</li>
-            <li>📧 contact@nexus-reussite.tn</li>
+            <li>📞 +216 99 19 28 29</li>
+            <li>📧 contact@nexusreussite.academy</li>
           </ul>
 
           <p>À très bientôt,<br><strong>L'équipe Nexus Réussite</strong></p>
@@ -113,7 +113,7 @@ export async function sendCreditExpirationReminder(
     subject: '⏰ Rappel : Vos crédits expirent bientôt',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #F97316; padding: 20px; text-align: center;">
+        <div style="background: #F59E0B; padding: 20px; text-align: center;">
           <h1 style="color: white; margin: 0;">⏰ Rappel Important</h1>
         </div>
 
@@ -133,7 +133,7 @@ export async function sendCreditExpirationReminder(
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL}/dashboard"
-               style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+               style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
               Réserver une Session
             </a>
           </div>

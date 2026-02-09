@@ -268,7 +268,7 @@ body {
   }
 
   body {
-    @apply bg-deep-midnight text-slate-200 font-sans antialiased;
+    @apply bg-surface-darker text-slate-200 font-sans antialiased;
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
   }
