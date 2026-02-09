@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Award,
@@ -14,6 +14,7 @@ import {
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { BackToTop } from "@/components/ui/back-to-top";
+import { track } from "@/lib/analytics";
 
 const packs = [
   {
@@ -158,6 +159,11 @@ export default function OffresPage() {
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
+  // Track offer page view on mount
+  useEffect(() => {
+    track.offerView(document.referrer || undefined);
+  }, []);
+
   const currentMonthly = useMemo(() => {
     if (currentSolution === "prof") return 60 * hours;
     if (currentSolution === "groupe") return 40 * hours;
@@ -201,6 +207,12 @@ export default function OffresPage() {
       setTimeout(() => {
         setQuizStep(quizSteps.length);
         setSelectedOption(null);
+        // Track quiz completion with all answers and recommendation
+        const finalAnswers = [...quizAnswers];
+        finalAnswers[quizStep] = value;
+        const key = finalAnswers.join('-');
+        const rec = recommendationMap[key] || 'Programme Excellence';
+        track.quizComplete(finalAnswers, rec);
       }, 350);
     }
   };
