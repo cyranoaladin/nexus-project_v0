@@ -301,7 +301,7 @@ export function BusinessModelSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="card-enhanced"
+                className="card-dark"
               >
                 <div className="flex items-center mb-6">
                   <Calendar className="w-8 h-8 text-blue-600 mr-4" />
@@ -318,7 +318,7 @@ export function BusinessModelSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 viewport={{ once: true }}
-                className="card-enhanced"
+                className="card-dark"
               >
                 <div className="flex items-center mb-6">
                   <Zap className="w-8 h-8 text-red-500 mr-4" />
@@ -339,7 +339,7 @@ export function BusinessModelSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
           viewport={{ once: true }}
-          className="card-enhanced bg-gradient-to-r from-blue-50 to-indigo-50 p-8 mb-16"
+          className="card-dark bg-gradient-to-r from-blue-50 to-indigo-50 p-8 mb-16"
         >
           <h3 className="font-heading font-bold text-2xl text-gray-900 mb-6 text-center">
             💡 Règles du Système de Crédits
@@ -473,7 +473,7 @@ export function BusinessModelSection() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <div className="card-enhanced p-12">
+          <div className="card-dark p-12">
             <div className="content-centered mb-12">
               <h3 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                 Les Packs Spécifiques (Paiement Unique)

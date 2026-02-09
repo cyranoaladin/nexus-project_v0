@@ -21,7 +21,7 @@ import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 export default function AccompagnementScolairePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#050608] via-[#0a0b0f] to-[#050608]">
+    <div className="min-h-screen bg-gradient-to-b from-surface-darker via-surface-dark to-surface-darker">
       <CorporateNavbar />
 
       {/* Hero Section */}

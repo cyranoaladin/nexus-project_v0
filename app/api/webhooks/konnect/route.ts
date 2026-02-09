@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { createHmac, timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,9 +11,55 @@ type PaymentMetadata = {
   itemType?: string;
 };
 
+function verifyWebhookSignature(rawBody: string, signatureHeader: string, secret: string): boolean {
+  const expectedSignature = createHmac('sha256', secret)
+    .update(rawBody, 'utf8')
+    .digest('hex');
+  try {
+    const sigBuffer = Buffer.from(signatureHeader, 'hex');
+    const expectedBuffer = Buffer.from(expectedSignature, 'hex');
+    if (sigBuffer.length !== expectedBuffer.length) {
+      return false;
+    }
+    return timingSafeEqual(sigBuffer, expectedBuffer);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Read raw body for signature verification
+    const rawBody = await request.text();
+
+    // Webhook signature verification
+    const webhookSecret = process.env.KONNECT_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const signature =
+        request.headers.get('x-konnect-signature') ||
+        request.headers.get('x-webhook-signature') ||
+        request.headers.get('signature');
+
+      if (!signature) {
+        console.error('Webhook signature missing from request headers');
+        return NextResponse.json(
+          { error: 'Signature manquante' },
+          { status: 401 }
+        );
+      }
+
+      if (!verifyWebhookSignature(rawBody, signature, webhookSecret)) {
+        console.error('Webhook signature verification failed');
+        return NextResponse.json(
+          { error: 'Signature invalide' },
+          { status: 401 }
+        );
+      }
+    } else {
+      console.warn('KONNECT_WEBHOOK_SECRET is not set — skipping signature verification. Configure it for production use.');
+    }
+
+    const body = JSON.parse(rawBody);
 
     // Validation basique du webhook Konnect
     const { payment_id, status, amount: _amount, currency: _currency } = body;

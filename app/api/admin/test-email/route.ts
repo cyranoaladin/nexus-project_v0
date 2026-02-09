@@ -91,9 +91,6 @@ export async function GET(request: NextRequest) {
     const configStatus = envVars.map(varName => ({
       variable: varName,
       configured: !!process.env[varName],
-      value: varName === 'SMTP_PASSWORD' ?
-        (process.env[varName] ? '***configured***' : 'not set') :
-        process.env[varName] || 'not set'
     }));
 
     return NextResponse.json({
