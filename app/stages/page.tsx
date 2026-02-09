@@ -446,102 +446,112 @@ export default function AcademiesHiverPage() {
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden py-24 bg-gradient-to-b from-blue-900 via-nexus-blue to-blue-800 text-white">
-          {/* Subtle pattern or shapes for French "Marianne" feel or just geometric */}
-          <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-white/10 blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-nexus-red/20 blur-[120px] pointer-events-none" />
+        <section className="relative overflow-hidden pt-28 pb-20 bg-gradient-to-br from-[#0a1628] via-[#0f2247] to-[#1a365d] text-white">
+          {/* Background decorative elements */}
+          <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-blue-500/8 blur-[150px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-brand-secondary/10 blur-[150px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-600/5 blur-[200px] pointer-events-none" />
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
 
           <div className="container relative z-10 mx-auto px-4 md:px-6">
-            <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
+            <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">
-                  <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-5 py-2.5 text-xs font-bold text-red-200 uppercase tracking-widest backdrop-blur-sm">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-lg shadow-red-500/50"></span>
                   Inscriptions ouvertes jusqu'au 10/02
                 </div>
-                <h1 className="mt-8 text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                <h1 className="mt-8 text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1]">
                   STAGES FÉVRIER <br />
-                  <span className="text-white">CONSOLIDATION & MÉTHODE</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400">CONSOLIDATION & MÉTHODE</span>
                 </h1>
 
-                <p className="mt-6 text-lg text-blue-100 leading-relaxed max-w-2xl">
-                  Ces stages s'adressent aux élèves de <strong className="text-white">Première et Terminale</strong>.
+                <p className="mt-6 text-lg text-blue-200/90 leading-relaxed max-w-2xl">
+                  Ces stages s'adressent aux élèves de <strong className="text-white font-semibold">Première et Terminale</strong>.
                   Les contenus sont adaptés au niveau de chacun, tout en conservant une méthode et une exigence communes.
                 </p>
 
-                <div className="mt-8 space-y-4">
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-xl">🎯</span>
+                <div className="mt-8 grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.07] border border-white/10 backdrop-blur-sm hover:bg-white/[0.12] transition-all duration-300 group/card">
+                    <div className="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🎯</span>
+                    </div>
                     <div>
-                      <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Terminale</div>
-                      <div className="text-blue-200 text-sm leading-relaxed">
+                      <div className="text-sm font-bold text-amber-300 uppercase tracking-wider mb-1">Terminale</div>
+                      <div className="text-blue-200/80 text-sm leading-relaxed">
                         Consolider avant <strong className="text-white">Parcoursup</strong>, les conseils de classe et les évaluations finales.
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-xl">🏗️</span>
+                  <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.07] border border-white/10 backdrop-blur-sm hover:bg-white/[0.12] transition-all duration-300 group/card">
+                    <div className="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🏗️</span>
+                    </div>
                     <div>
-                      <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Première</div>
-                      <div className="text-blue-200 text-sm leading-relaxed">
+                      <div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-1">Première</div>
+                      <div className="text-blue-200/80 text-sm leading-relaxed">
                         Préparer l'<strong className="text-white">Épreuve de Spécialité</strong> et construire un socle solide pour la Terminale.
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                  <a href="#academies" className="rounded-full bg-nexus-red px-8 py-4 text-sm font-bold text-white hover:bg-red-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                  <a href="#academies" className="group/cta inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-red-500 px-8 py-4 text-sm font-bold text-white hover:from-red-500 hover:to-red-400 transition-all shadow-lg shadow-red-600/30 hover:shadow-red-500/40 transform hover:-translate-y-1">
                     Découvrir les académies
+                    <ArrowRight className="w-4 h-4 group-hover/cta:translate-x-1 transition-transform" />
                   </a>
-                  <a href="#reservation" className="rounded-full bg-white text-nexus-blue px-8 py-4 text-sm font-bold hover:bg-blue-50 transition shadow-lg hover:shadow-xl">
+                  <a href="#reservation" className="inline-flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white px-8 py-4 text-sm font-bold hover:bg-white/20 transition-all backdrop-blur-sm shadow-lg">
                     Réserver un bilan
                   </a>
                 </div>
 
-                <div className="mt-10 grid gap-4 sm:grid-cols-3 border-t border-white/20 pt-8">
+                <div className="mt-12 grid gap-6 sm:grid-cols-3 border-t border-white/15 pt-10">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-white">{stats.satisfaction}%</div>
-                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">de satisfaction</div>
+                    <div className="text-4xl font-black text-white tracking-tight">{stats.satisfaction}%</div>
+                    <div className="text-xs text-blue-300 uppercase tracking-widest font-bold mt-2">de satisfaction</div>
                   </div>
-                  <div className="text-center border-l border-white/20">
-                    <div className="text-3xl font-bold text-white">+{stats.progress}</div>
-                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">progression moyenne</div>
+                  <div className="text-center sm:border-l border-white/15">
+                    <div className="text-4xl font-black text-white tracking-tight">+{stats.progress}</div>
+                    <div className="text-xs text-blue-300 uppercase tracking-widest font-bold mt-2">progression moyenne</div>
                   </div>
-                  <div className="text-center border-l border-white/20">
-                    <div className="text-3xl font-bold text-white">{stats.mentions}+</div>
-                    <div className="text-xs text-blue-100 uppercase tracking-wide font-semibold mt-1">élèves accompagnés</div>
+                  <div className="text-center sm:border-l border-white/15">
+                    <div className="text-4xl font-black text-white tracking-tight">{stats.mentions}+</div>
+                    <div className="text-xs text-blue-300 uppercase tracking-widest font-bold mt-2">élèves accompagnés</div>
                   </div>
                 </div>
               </div>
 
               <div className="relative hidden lg:block">
-                <div className="relative rounded-3xl border border-white/20 bg-white/10 p-8 backdrop-blur-md shadow-2xl">
-                  <div className="absolute -top-6 -right-6 bg-white text-nexus-blue rounded-full p-4 shadow-xl">
-                    <TrendingUp className="h-8 w-8" />
+                {/* Testimonial Card */}
+                <div className="relative rounded-3xl border border-white/15 bg-white/[0.07] p-8 backdrop-blur-xl shadow-2xl">
+                  <div className="absolute -top-5 -right-5 bg-gradient-to-br from-blue-400 to-cyan-400 text-white rounded-2xl p-3.5 shadow-xl shadow-blue-500/30">
+                    <TrendingUp className="h-7 w-7" />
                   </div>
-                  <div className="text-lg text-white italic font-medium">“8 jours qui ont changé mon orientation. J'ai eu mon premier 18/20 en Maths juste après le stage.”</div>
+                  <div className="text-lg text-blue-200 italic font-medium leading-relaxed">“8 jours qui ont changé mon orientation. J'ai eu mon premier 18/20 en Maths juste après le stage.”</div>
                   <div className="mt-4 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-bold">S</div>
+                    <div className="h-11 w-11 rounded-full bg-gradient-to-br from-blue-400 to-cyan-300 text-white flex items-center justify-center font-bold text-sm shadow-lg">S</div>
                     <div>
                       <div className="text-sm font-bold text-white">Sarah M.</div>
-                      <div className="text-xs text-blue-100">Terminale • Lycée Français</div>
+                      <div className="text-xs text-blue-300 font-medium">Terminale • Lycée Français</div>
                     </div>
                   </div>
-                  <div className="mt-4 font-semibold text-white">NSI</div>
+                  <div className="mt-6 pt-5 border-t border-white/10"><div className="font-bold text-white text-sm uppercase tracking-wider mb-3">NSI</div>
                   <ul className="mt-2 space-y-2">
                     {MATERIALS.nsi.map((item) => (
-                      <li key={item}>• {item}</li>
+                      <li key={item} className="text-sm text-blue-200/80 flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span>{item}</li>
                     ))}
                   </ul>
+                  </div>
 
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-6 pt-5 border-t border-white/10 space-y-3">
                     {[
                       "Groupes de niveau (6-8 élèves)",
                       "Professeurs agrégés & jurys du Bac",
                       "Suivi personnalisé post-stage",
                     ].map((item) => (
                       <div key={item} className="flex items-center gap-3 text-sm text-white font-medium">
-                        <div className="rounded-full bg-green-400/20 p-1">
-                          <CheckCircle2 className="h-4 w-4 text-green-300" />
+                        <div className="rounded-full bg-emerald-500/20 border border-emerald-500/30 p-1">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                         </div>
                         {item}
                       </div>
@@ -785,7 +795,7 @@ export default function AcademiesHiverPage() {
                     <div className="relative z-10 flex flex-col h-full items-start">
                       <div className="text-4xl mb-6 bg-white/5 p-4 rounded-2xl border border-white/5 shadow-inner">{item.icon}</div>
 
-                      <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">{item.subtitle}</div>
+                      <div className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-2">{item.subtitle}</div>
                       <h4 className="text-2xl font-black text-white mb-4">{item.title}</h4>
                       <p className="text-slate-400 text-sm font-medium leading-relaxed mb-8 border-l-2 border-white/10 pl-4">{item.text}</p>
 
@@ -794,7 +804,10 @@ export default function AcademiesHiverPage() {
                           <span>Recommandation</span>
                           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </div>
-                        <div className={`w-full py-4 text-center rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition-colors text-white`}>
+                        <div
+                          onClick={() => focusAcademyCard(item.academyId)}
+                          className={`w-full py-4 text-center rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition-colors text-white`}
+                        >
                           {item.solution}
                         </div>
                       </div>
@@ -822,7 +835,7 @@ export default function AcademiesHiverPage() {
                     key={lvl}
                     onClick={() => setLevel(lvl)}
                     className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${level === lvl
-                      ? "bg-white text-nexus-blue shadow-sm"
+                      ? "bg-white text-brand-primary shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                       }`}
                   >
@@ -842,8 +855,8 @@ export default function AcademiesHiverPage() {
                     key={item.key}
                     onClick={() => setFilter(item.key)}
                     className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition ${filter === item.key
-                      ? "border-nexus-blue bg-blue-50 text-nexus-blue"
-                      : "border-slate-200 text-slate-600 hover:border-nexus-blue"
+                      ? "border-brand-primary bg-blue-50 text-brand-primary"
+                      : "border-slate-200 text-slate-600 hover:border-brand-primary"
                       }`}
                   >
                     {item.label}
@@ -857,7 +870,7 @@ export default function AcademiesHiverPage() {
                 <div
                   key={academy.id}
                   id={academy.id}
-                  className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-3 ${highlightedId === academy.id ? "ring-4 ring-offset-4 ring-nexus-blue" : ""
+                  className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-3 ${highlightedId === academy.id ? "ring-4 ring-offset-4 ring-brand-primary" : ""
                     } ${academy.tone === 'premium'
                       ? 'bg-slate-900 text-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10'
                       : 'bg-white text-slate-900 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-slate-100 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)]'
@@ -866,7 +879,7 @@ export default function AcademiesHiverPage() {
                   {/* Premium Ambient Glow */}
                   {academy.tone === 'premium' && (
                     <>
-                      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-nexus-red/20 blur-[100px] rounded-full group-hover:bg-nexus-red/30 transition-colors duration-500" />
+                      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-brand-secondary/20 blur-[100px] rounded-full group-hover:bg-brand-secondary/30 transition-colors duration-500" />
                       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-600/20 blur-[100px] rounded-full group-hover:bg-blue-600/30 transition-colors duration-500" />
                       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     </>
@@ -877,7 +890,7 @@ export default function AcademiesHiverPage() {
                       <div className="flex items-center justify-between w-full">
                         <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full border ${academy.tone === "premium"
                           ? "bg-white/10 border-white/10 text-white backdrop-blur-md shadow-inner"
-                          : "bg-blue-50 border-blue-100 text-nexus-blue"
+                          : "bg-blue-50 border-blue-100 text-brand-primary"
                           }`}>
                           {academy.badge}
                         </span>
@@ -933,10 +946,10 @@ export default function AcademiesHiverPage() {
                       {academy.features.slice(0, 4).map((feature) => (
                         <li key={feature} className="flex items-start gap-4 text-sm font-medium">
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${academy.tone === 'premium'
-                            ? 'bg-gradient-to-br from-nexus-red to-orange-500 shadow-lg shadow-red-900/50'
-                            : 'bg-blue-100 text-nexus-blue'
+                            ? 'bg-gradient-to-br from-brand-secondary to-orange-500 shadow-lg shadow-red-900/50'
+                            : 'bg-blue-100 text-brand-primary'
                             }`}>
-                            <CheckCircle2 className={`w-3.5 h-3.5 ${academy.tone === 'premium' ? 'text-white' : 'text-nexus-blue'}`} />
+                            <CheckCircle2 className={`w-3.5 h-3.5 ${academy.tone === 'premium' ? 'text-white' : 'text-brand-primary'}`} />
                           </div>
                           <span className={academy.tone === 'premium' ? 'text-slate-200' : 'text-slate-700'}>{feature}</span>
                         </li>
@@ -955,7 +968,7 @@ export default function AcademiesHiverPage() {
                           }`}
                       >
                         {academy.tone === 'premium' && (
-                          <div className="absolute inset-0 w-full h-full bg-nexus-red translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out" />
+                          <div className="absolute inset-0 w-full h-full bg-brand-secondary translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out" />
                         )}
                         <span className="relative flex items-center justify-center gap-2">
                           {academy.cta} <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
@@ -967,7 +980,7 @@ export default function AcademiesHiverPage() {
 
                       <button
                         onClick={() => document.getElementById("programmes")?.scrollIntoView({ behavior: "smooth" })}
-                        className={`text-xs font-bold uppercase tracking-widest transition-colors text-center py-2 ${academy.tone === 'premium' ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-nexus-blue'
+                        className={`text-xs font-bold uppercase tracking-widest transition-colors text-center py-2 ${academy.tone === 'premium' ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-brand-primary'
                           }`}
                       >
                         Voir le programme
@@ -1008,7 +1021,7 @@ export default function AcademiesHiverPage() {
                             onClick={() => setHelper(prev => ({ ...prev, budget: b.key }))}
                             className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all ${helper.budget === b.key
                               ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-                              : 'text-slate-500 hover:text-white hover:bg-white/5'
+                              : 'text-slate-300 hover:text-white hover:bg-white/5'
                               }`}
                           >
                             {b.label}
@@ -1026,8 +1039,8 @@ export default function AcademiesHiverPage() {
                             key={s.key}
                             onClick={() => setHelper(prev => ({ ...prev, subject: s.key }))}
                             className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all ${helper.subject === s.key
-                              ? 'bg-nexus-red text-white shadow-lg shadow-red-500/25'
-                              : 'text-slate-500 hover:text-white hover:bg-white/5'
+                              ? 'bg-brand-secondary text-white shadow-lg shadow-red-500/25'
+                              : 'text-slate-300 hover:text-white hover:bg-white/5'
                               }`}
                           >
                             {s.label}
@@ -1046,6 +1059,8 @@ export default function AcademiesHiverPage() {
                         min="5" max="18"
                         value={simAvg}
                         onChange={(e) => setSimAvg(Number(e.target.value))}
+                        aria-label="Moyenne scolaire"
+                        title="Ajuster votre moyenne"
                         className="w-full accent-blue-500 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer border border-white/5"
                       />
                     </div>
@@ -1078,7 +1093,7 @@ export default function AcademiesHiverPage() {
             <div className="grid gap-10 md:grid-cols-3 max-w-7xl mx-auto items-center">
               {/* Classique */}
               <div className="rounded-[2.5rem] p-10 border border-slate-100 bg-slate-50/50 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition duration-700">
-                <h3 className="text-2xl font-bold text-slate-500">Cours Particulier</h3>
+                <h3 className="text-2xl font-bold text-slate-400">Cours Particulier</h3>
                 <div className="mt-4 text-4xl font-extrabold text-slate-300 tracking-tighter">1200<span className="text-lg ml-1">TND</span></div>
                 <div className="mt-2 text-xs font-bold text-slate-400 uppercase tracking-widest">Le classique inefficace</div>
                 <ul className="mt-8 space-y-4 text-sm font-medium text-slate-400">
@@ -1092,32 +1107,40 @@ export default function AcademiesHiverPage() {
               <div className="relative rounded-[3rem] p-10 border-2 border-slate-100 bg-white shadow-2xl z-10">
                 <h3 className="text-2xl font-bold text-slate-900">Stage Essentiel</h3>
                 <div className="mt-4 text-5xl font-black text-slate-900 tracking-tighter">590<span className="text-lg ml-1 text-slate-500">TND</span></div>
-                <div className="mt-2 text-xs font-bold text-nexus-blue uppercase tracking-widest">L'efficacité pure</div>
+                <div className="mt-2 text-xs font-bold text-brand-primary uppercase tracking-widest">L'efficacité pure</div>
                 <div className="mt-8 space-y-4 text-sm font-bold text-slate-700">
-                  <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> 24h intensives</li>
-                  <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> Profs de Lycée</li>
-                  <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> Objectif +4 points</li>
+                  <ul className="space-y-4">
+                    <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-brand-primary" /> 24h intensives</li>
+                    <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-brand-primary" /> Profs de Lycée</li>
+                    <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-brand-primary" /> Objectif +4 points</li>
+                  </ul>
                 </div>
               </div>
 
               {/* Nexus Premium */}
               <div className="relative rounded-[3rem] p-10 bg-slate-900 text-white shadow-2xl scale-110 border border-white/10 overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-nexus-red/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="absolute top-0 right-0 bg-nexus-red text-white text-[10px] font-black uppercase px-6 py-2 rounded-bl-2xl">Recommandé</div>
+                <div className="absolute top-0 right-0 bg-brand-secondary text-white text-[10px] font-black uppercase px-6 py-2 rounded-bl-2xl">Recommandé</div>
 
                 <h3 className="text-2xl font-bold text-white relative z-10">Stage Premium</h3>
                 <div className="mt-4 text-5xl font-black text-white tracking-tighter relative z-10">990<span className="text-lg ml-1 text-slate-500">TND</span></div>
                 <div className="mt-2 text-xs font-bold text-red-400 uppercase tracking-widest relative z-10">L'Excellence absolue</div>
 
                 <ul className="mt-10 space-y-5 text-sm font-bold text-slate-200 relative z-10">
-                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-nexus-red fill-current" /> Pour la Mention Très Bien</li>
-                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-nexus-red fill-current" /> Prépa Concours / Post-Bac</li>
-                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-nexus-red fill-current" /> Professeurs Agrégés</li>
-                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-nexus-red fill-current" /> Groupe Élite (6 max)</li>
+                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Pour la Mention Très Bien</li>
+                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Prépa Concours / Post-Bac</li>
+                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Professeurs Agrégés</li>
+                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Groupe Élite (6 max)</li>
                 </ul>
 
-                <button className="mt-10 w-full bg-white text-slate-900 font-bold py-4 rounded-xl hover:bg-slate-200 transition-colors">
+                <button
+                  onClick={() => {
+                    setSelectedAcademy(ACADEMIES.find(a => a.tone === 'premium') || ACADEMIES[1]);
+                    document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="mt-10 w-full bg-white text-slate-900 font-bold py-4 rounded-xl hover:bg-slate-200 transition-colors relative z-10"
+                >
                   S'inscrire en Premium
                 </button>
               </div>
@@ -1157,9 +1180,9 @@ export default function AcademiesHiverPage() {
                         return (
                           <div key={i} className="relative">
                             {/* Dot */}
-                            <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-[3px] border-white ${i === 0 ? 'bg-nexus-blue' : 'bg-slate-300 group-hover:bg-nexus-blue transition-colors duration-500 delay-100'} shadow-sm`} />
+                            <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-[3px] border-white ${i === 0 ? 'bg-brand-primary' : 'bg-slate-300 group-hover:bg-brand-primary transition-colors duration-500 delay-100'} shadow-sm`} />
 
-                            <div className={`text-xs font-extrabold uppercase tracking-widest mb-2 ${i === 0 ? 'text-nexus-blue' : 'text-slate-400 group-hover:text-nexus-blue transition-colors delay-100'}`}>
+                            <div className={`text-xs font-extrabold uppercase tracking-widest mb-2 ${i === 0 ? 'text-brand-primary' : 'text-slate-400 group-hover:text-brand-primary transition-colors delay-100'}`}>
                               {weekTitle}
                             </div>
                             <div className="text-sm font-medium text-slate-600 leading-relaxed">
@@ -1180,7 +1203,7 @@ export default function AcademiesHiverPage() {
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Volume total</span>
                         <span className="text-xs text-slate-500 font-medium">{prog.total.includes("(") ? prog.total.split("(")[1].replace(")", "") : ""}</span>
                       </div>
-                      <span className="text-lg font-black text-slate-900 bg-slate-100 px-4 py-2 rounded-xl group-hover:bg-nexus-blue group-hover:text-white transition-colors duration-300 shadow-sm">
+                      <span className="text-lg font-black text-slate-900 bg-slate-100 px-4 py-2 rounded-xl group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300 shadow-sm">
                         {prog.total.split("(")[0].trim()}
                       </span>
                     </div>
@@ -1345,11 +1368,11 @@ export default function AcademiesHiverPage() {
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center justify-center gap-1 p-3 bg-blue-50/50 rounded-full mb-8">
                 {[1, 2, 3, 4, 5].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-nexus-blue fill-current" />
+                  <Star key={i} className="w-5 h-5 text-brand-primary fill-current" />
                 ))}
               </div>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-12 tracking-tight">
-                Validé par les <span className="text-nexus-blue">Meilleurs</span>
+                Validé par les <span className="text-brand-primary">Meilleurs</span>
               </h2>
               {TESTIMONIALS.map((t, i) => (
                 <div key={i} className="relative bg-slate-50 p-10 md:p-14 rounded-[3rem] border border-slate-100 shadow-xl mx-auto transform hover:scale-[1.02] transition-transform duration-500">
@@ -1363,7 +1386,7 @@ export default function AcademiesHiverPage() {
                       </div>
                       <div className="text-left">
                         <div className="font-bold text-slate-900 text-lg">{t.author}</div>
-                        <div className="text-sm font-semibold text-nexus-blue uppercase tracking-wide">{t.role}</div>
+                        <div className="text-sm font-semibold text-brand-primary uppercase tracking-wide">{t.role}</div>
                       </div>
                     </div>
                     <div className="hidden md:block w-px h-10 bg-slate-200" />
@@ -1483,13 +1506,13 @@ export default function AcademiesHiverPage() {
                   </div>
 
                   <div className="space-y-5">
-                    <div className="flex items-center gap-4 text-sm font-semibold text-blue-100">
+                    <div className="flex items-center gap-4 text-sm font-semibold text-blue-200">
                       <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30"><ShieldCheck className="w-5 h-5 text-blue-300" /></div>
                       Garantie Satisfait ou Remboursé
                     </div>
-                    <div className="flex items-center gap-4 text-sm font-semibold text-blue-100">
+                    <div className="flex items-center gap-4 text-sm font-semibold text-blue-200">
                       <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30"><CheckCircle2 className="w-5 h-5 text-blue-300" /></div>
-                      Paiement sécurisé sur place ou en ligne
+                      Paiement sécurisé sur place <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">En ligne : bientôt disponible</span>
                     </div>
                   </div>
                 </div>
@@ -1502,7 +1525,7 @@ export default function AcademiesHiverPage() {
                       </div>
                       <h3 className="text-3xl font-bold text-slate-900 mb-2">Demande Reçue !</h3>
                       <p className="text-slate-500 text-lg leading-relaxed max-w-xs mx-auto">Un conseiller pédagogique va vous contacter sous 24h.</p>
-                      <button onClick={() => setIsSuccess(false)} className="mt-8 text-sm font-bold text-nexus-blue hover:text-blue-700 transition-colors">Nouvelle demande</button>
+                      <button onClick={() => setIsSuccess(false)} className="mt-8 text-sm font-bold text-brand-primary hover:text-blue-700 transition-colors">Nouvelle demande</button>
                     </div>
                   ) : (
                     <div className="h-full flex flex-col">
@@ -1513,13 +1536,26 @@ export default function AcademiesHiverPage() {
 
                       <form onSubmit={handleSubmit} className="space-y-5 flex-grow">
                         <div>
-                          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Académie sélectionnée</label>
-                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-nexus-blue font-bold flex justify-between items-center shadow-sm">
-                            <span className="flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full bg-nexus-blue animate-pulse" />
-                              {selectedAcademy.title}
-                            </span>
-                            <span className="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-100 shadow-sm text-sm">{selectedAcademy.early} TND</span>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Académie sélectionnée</label>
+                          <select
+                            value={selectedAcademy.id}
+                            onChange={(e) => {
+                              const academy = ACADEMIES.find(a => a.id === e.target.value);
+                              if (academy) setSelectedAcademy(academy);
+                            }}
+                            aria-label="Choisir une académie"
+                            title="Choisir une académie"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-800 appearance-none cursor-pointer bg-no-repeat bg-[length:1.5em_1.5em] bg-[position:right_1rem_center] bg-[url('data:image/svg+xml,%3csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20fill%3D%27none%27%20viewBox%3D%270%200%2020%2020%27%3E%3cpath%20stroke%3D%27%236b7280%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-width%3D%271.5%27%20d%3D%27M6%208l4%204%204-4%27%2F%3E%3c%2Fsvg%3E')] pr-10"
+                          >
+                            {ACADEMIES.map((academy) => (
+                              <option key={academy.id} value={academy.id}>
+                                {academy.title} — {academy.early} TND ({academy.tier})
+                              </option>
+                            ))}
+                          </select>
+                          <div className="mt-2 flex items-center justify-between px-1">
+                            <span className="text-xs text-slate-400">{selectedAcademy.audience}</span>
+                            <span className="text-sm font-bold text-slate-900">{selectedAcademy.early} TND</span>
                           </div>
                         </div>
 
@@ -1529,21 +1565,21 @@ export default function AcademiesHiverPage() {
                             placeholder="Nom du Parent"
                             value={formData.parent}
                             onChange={e => setFormData({ ...formData, parent: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-nexus-blue focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-400"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
                           />
                           <input
                             required
                             placeholder="Numéro de Téléphone"
                             value={formData.phone}
                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-nexus-blue focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-400"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
                           />
                           <input
                             required
                             placeholder="Classe (ex: 1ère - Lycée PMF)"
                             value={formData.classe}
                             onChange={e => setFormData({ ...formData, classe: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-nexus-blue focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-400"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
                           />
                         </div>
 
