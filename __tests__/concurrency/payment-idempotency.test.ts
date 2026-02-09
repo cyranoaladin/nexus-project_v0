@@ -42,6 +42,7 @@ describe('Payment Idempotency - Concurrency', () => {
 
   describe('Direct Database Constraint', () => {
     it('should prevent duplicate payments with same externalId and method', async () => {
+      const externalId = `konnect_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const paymentData = {
         userId,
         type: 'SUBSCRIPTION' as const,
@@ -50,13 +51,13 @@ describe('Payment Idempotency - Concurrency', () => {
         description: 'Monthly subscription',
         status: 'COMPLETED' as const,
         method: 'konnect',
-        externalId: 'konnect_tx_12345'
+        externalId
       };
 
       // First payment should succeed
       const first = await prisma.payment.create({ data: paymentData });
       expect(first).toBeDefined();
-      expect(first.externalId).toBe('konnect_tx_12345');
+      expect(first.externalId).toBe(externalId);
 
       // Second payment with same externalId and method should fail
       await expect(
@@ -65,7 +66,7 @@ describe('Payment Idempotency - Concurrency', () => {
     });
 
     it('should allow concurrent webhook calls with upsert pattern', async () => {
-      const externalId = 'konnect_tx_concurrent_67890';
+      const externalId = `konnect_tx_concurrent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const method = 'konnect';
 
       // Simulate 3 concurrent webhook calls for same transaction
@@ -119,7 +120,7 @@ describe('Payment Idempotency - Concurrency', () => {
     });
 
     it('should allow same externalId with different payment method', async () => {
-      const externalId = 'external_12345';
+      const externalId = `external_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Create payment with konnect
       const konnect = await prisma.payment.create({
@@ -184,7 +185,7 @@ describe('Payment Idempotency - Concurrency', () => {
 
   describe('Upsert Pattern Behavior', () => {
     it('should return existing payment on second call', async () => {
-      const externalId = 'konnect_tx_upsert_test';
+      const externalId = `konnect_tx_upsert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const method = 'konnect';
 
       // First call creates payment
@@ -222,7 +223,7 @@ describe('Payment Idempotency - Concurrency', () => {
     });
 
     it('should handle race condition in upsert gracefully', async () => {
-      const externalId = 'konnect_tx_race_test';
+      const externalId = `konnect_tx_race_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const method = 'konnect';
 
       // Simulate race: both threads check "not exists", then both try to create

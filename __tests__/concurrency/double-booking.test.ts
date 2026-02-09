@@ -51,12 +51,13 @@ describe('Double Booking Prevention - Concurrency', () => {
 
   describe('Exact Duplicate Prevention', () => {
     it('should prevent exact duplicate bookings made concurrently', async () => {
+      const uniqueDate = new Date(2026, 2, 15 + Math.floor(Math.random() * 100));
       const bookingData = {
         coachId,
         studentId,
         subject: 'MATHEMATIQUES' as const,
         title: 'Math Session',
-        scheduledDate: new Date('2026-03-15'),
+        scheduledDate: uniqueDate,
         startTime: '14:00',
         endTime: '15:00',
         duration: 60,
@@ -81,7 +82,7 @@ describe('Double Booking Prevention - Concurrency', () => {
 
       // Verify only one booking exists in database
       const bookings = await prisma.sessionBooking.findMany({
-        where: { coachId, scheduledDate: new Date('2026-03-15') }
+        where: { coachId, scheduledDate: uniqueDate }
       });
       expect(bookings).toHaveLength(1);
     });
@@ -89,6 +90,7 @@ describe('Double Booking Prevention - Concurrency', () => {
 
   describe('Overlapping Time Slots Prevention', () => {
     it('should prevent overlapping bookings for same coach/date', async () => {
+      const uniqueDate = new Date(2026, 2, 16 + Math.floor(Math.random() * 100));
       // First booking: 14:00-15:00
       const firstBooking = await prisma.sessionBooking.create({
         data: {
@@ -96,7 +98,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'MATHEMATIQUES',
           title: 'First Session',
-          scheduledDate: new Date('2026-03-16'),
+          scheduledDate: uniqueDate,
           startTime: '14:00',
           endTime: '15:00',
           duration: 60,
@@ -116,7 +118,7 @@ describe('Double Booking Prevention - Concurrency', () => {
             studentId,
             subject: 'MATHEMATIQUES',
             title: 'Overlapping Session',
-            scheduledDate: new Date('2026-03-16'),
+            scheduledDate: uniqueDate,
             startTime: '14:30',
             endTime: '15:30',
             duration: 60,
@@ -130,13 +132,14 @@ describe('Double Booking Prevention - Concurrency', () => {
 
       // Verify only first booking exists
       const bookings = await prisma.sessionBooking.findMany({
-        where: { coachId, scheduledDate: new Date('2026-03-16') }
+        where: { coachId, scheduledDate: uniqueDate }
       });
       expect(bookings).toHaveLength(1);
       expect(bookings[0].startTime).toBe('14:00');
     });
 
     it('should prevent booking that completely contains existing session', async () => {
+      const uniqueDate = new Date(2026, 2, 17 + Math.floor(Math.random() * 100));
       // First booking: 14:00-15:00
       await prisma.sessionBooking.create({
         data: {
@@ -144,7 +147,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'MATHEMATIQUES',
           title: 'Contained Session',
-          scheduledDate: new Date('2026-03-17'),
+          scheduledDate: uniqueDate,
           startTime: '14:00',
           endTime: '15:00',
           duration: 60,
@@ -163,7 +166,7 @@ describe('Double Booking Prevention - Concurrency', () => {
             studentId,
             subject: 'MATHEMATIQUES',
             title: 'Containing Session',
-            scheduledDate: new Date('2026-03-17'),
+            scheduledDate: uniqueDate,
             startTime: '13:00',
             endTime: '16:00',
             duration: 180,
@@ -177,6 +180,7 @@ describe('Double Booking Prevention - Concurrency', () => {
     });
 
     it('should allow non-overlapping sessions on same date', async () => {
+      const uniqueDate = new Date(2026, 2, 18 + Math.floor(Math.random() * 100));
       // First booking: 14:00-15:00
       const first = await prisma.sessionBooking.create({
         data: {
@@ -184,7 +188,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'MATHEMATIQUES',
           title: 'Morning Session',
-          scheduledDate: new Date('2026-03-18'),
+          scheduledDate: uniqueDate,
           startTime: '14:00',
           endTime: '15:00',
           duration: 60,
@@ -202,7 +206,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'PHYSIQUE_CHIMIE',
           title: 'Afternoon Session',
-          scheduledDate: new Date('2026-03-18'),
+          scheduledDate: uniqueDate,
           startTime: '16:00',
           endTime: '17:00',
           duration: 60,
@@ -219,6 +223,7 @@ describe('Double Booking Prevention - Concurrency', () => {
     });
 
     it('should allow overlapping bookings for cancelled sessions', async () => {
+      const uniqueDate = new Date(2026, 2, 19 + Math.floor(Math.random() * 100));
       // First booking: CANCELLED status
       await prisma.sessionBooking.create({
         data: {
@@ -226,7 +231,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'MATHEMATIQUES',
           title: 'Cancelled Session',
-          scheduledDate: new Date('2026-03-19'),
+          scheduledDate: uniqueDate,
           startTime: '14:00',
           endTime: '15:00',
           duration: 60,
@@ -244,7 +249,7 @@ describe('Double Booking Prevention - Concurrency', () => {
           studentId,
           subject: 'MATHEMATIQUES',
           title: 'New Session',
-          scheduledDate: new Date('2026-03-19'),
+          scheduledDate: uniqueDate,
           startTime: '14:00',
           endTime: '15:00',
           duration: 60,
@@ -261,11 +266,12 @@ describe('Double Booking Prevention - Concurrency', () => {
 
   describe('Concurrent Overlapping Requests', () => {
     it('should handle concurrent overlapping booking attempts', async () => {
+      const uniqueDate = new Date(2026, 2, 20 + Math.floor(Math.random() * 100));
       const baseData = {
         coachId,
         studentId,
         subject: 'MATHEMATIQUES' as const,
-        scheduledDate: new Date('2026-03-20'),
+        scheduledDate: uniqueDate,
         type: 'INDIVIDUAL' as const,
         modality: 'ONLINE' as const,
         creditsUsed: 1,
@@ -291,7 +297,7 @@ describe('Double Booking Prevention - Concurrency', () => {
 
       // Verify database state
       const bookings = await prisma.sessionBooking.findMany({
-        where: { coachId, scheduledDate: new Date('2026-03-20') }
+        where: { coachId, scheduledDate: uniqueDate }
       });
       expect(bookings.length).toBeLessThanOrEqual(1);
     });
