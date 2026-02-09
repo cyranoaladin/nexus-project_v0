@@ -72,6 +72,8 @@ describe('Auth Guards', () => {
     });
 
     it('should return 401 when session is invalid (missing id or role)', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
       const invalidSession = {
         user: {
           email: 'test@example.com'
@@ -88,6 +90,9 @@ describe('Auth Guards', () => {
         expect(data.error).toBe('Unauthorized');
         expect(data.message).toBe('Invalid session');
       }
+      
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid session structure', { userId: undefined });
+      consoleErrorSpy.mockRestore();
     });
   });
 

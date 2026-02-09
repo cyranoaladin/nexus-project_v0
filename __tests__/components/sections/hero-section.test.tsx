@@ -35,18 +35,9 @@ jest.mock('framer-motion', () => {
   };
 });
 
-// Mock de window.location
-const mockLocation = {
-  href: '',
-};
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true,
-});
-
 describe('HeroSection', () => {
   beforeEach(() => {
-    mockLocation.href = '';
+    window.location.href = '';
   });
 
   it('renders the main headline correctly', () => {
@@ -78,7 +69,7 @@ describe('HeroSection', () => {
     const primaryButton = screen.getByText(/Commencer mon Bilan Stratégique Gratuit/i);
     fireEvent.click(primaryButton);
 
-    expect(mockLocation.href).toBe('/bilan-gratuit');
+    expect(window.location.href).toBe('/bilan-gratuit');
   });
 
   it('secondary CTA button links to offers page', () => {
