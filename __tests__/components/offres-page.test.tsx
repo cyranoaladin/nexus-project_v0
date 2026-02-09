@@ -1,6 +1,10 @@
 import OffresPage from '@/app/offres/page';
 import { render, screen } from '@testing-library/react';
 
+// Mock environment variables before any imports
+process.env.NEXT_PUBLIC_BASE_URL = 'http://localhost:3000';
+process.env.NEXTAUTH_URL = 'http://localhost:3000';
+
 // Mock Next.js Link component
 jest.mock('next/link', () => {
   return function MockLink({ children, href, ...props }: any) {
@@ -44,6 +48,27 @@ jest.mock('@/components/ui/diagnostic-form', () => ({
 }));
 
 describe('OffresPage', () => {
+  beforeAll(() => {
+    // Mock window.location to prevent "Invalid base URL" errors
+    if (!Object.getOwnPropertyDescriptor(window, 'location')) {
+      Object.defineProperty(window, 'location', {
+        value: {
+          href: 'http://localhost:3000',
+          origin: 'http://localhost:3000',
+          protocol: 'http:',
+          host: 'localhost:3000',
+          hostname: 'localhost',
+          port: '3000',
+          pathname: '/offres',
+          search: '',
+          hash: '',
+        },
+        writable: true,
+        configurable: true,
+      });
+    }
+  });
+
   beforeEach(() => {
     render(<OffresPage />);
   });
