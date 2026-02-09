@@ -16,15 +16,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    if (!isTestEnv) {
+    if (process.env.NODE_ENV === 'development') {
       console.log('Received request body:', body);
     }
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
-    if (!isTestEnv) {
-      console.log('Validated data:', validatedData);
-    }
 
     // Vérifier si l'email parent existe déjà
     let existingUser = null;
