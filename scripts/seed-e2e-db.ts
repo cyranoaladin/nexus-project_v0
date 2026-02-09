@@ -23,6 +23,7 @@ async function main() {
   console.log('🧹 Clearing existing data...');
 
   await prisma.sessionBooking.deleteMany();
+  await prisma.student.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('✅ Database cleared\n');
@@ -42,24 +43,24 @@ async function main() {
       email: 'admin@test.com',
       password: hashedPassword,
       role: UserRole.ADMIN,
-      firstName: 'Test',
-      lastName: 'Admin',
+      firstName: 'Admin',
+      lastName: 'Nexus',
     },
   });
   console.log(`  ✓ Admin: ${admin.email}`);
 
   const parent = await prisma.user.create({
     data: {
-      email: 'parent@test.com',
+      email: 'parent.dashboard@test.com',
       password: hashedPassword,
       role: UserRole.PARENT,
-      firstName: 'Test',
-      lastName: 'Parent',
+      firstName: 'Marie',
+      lastName: 'Dupont',
       parentProfile: {
         create: {
-          address: '123 Test St',
-          city: 'Test City',
-          country: 'Test Country'
+          address: '12 Rue de la République',
+          city: 'Tunis',
+          country: 'Tunisie'
         }
       }
     },
@@ -69,15 +70,15 @@ async function main() {
 
   const student = await prisma.user.create({
     data: {
-      email: 'student@test.com',
+      email: 'yasmine.dupont@test.com',
       password: hashedPassword,
       role: UserRole.ELEVE,
-      firstName: 'Test',
-      lastName: 'Student',
+      firstName: 'Yasmine',
+      lastName: 'Dupont',
       studentProfile: {
         create: {
           grade: 'Terminale',
-          school: 'Lycée Test'
+          school: 'Lycée Pilote Ariana'
         }
       }
     },
@@ -89,8 +90,8 @@ async function main() {
     data: {
       userId: student.id,
       parentId: parent.parentProfile!.id,
-      credits: 10,
-      totalSessions: 5
+      credits: 8,
+      totalSessions: 24
     }
   });
 
@@ -98,34 +99,72 @@ async function main() {
 
   const coach = await prisma.user.create({
     data: {
-      email: 'coach@test.com',
+      email: 'helios@test.com',
       password: hashedPassword,
       role: UserRole.COACH,
-      firstName: 'Test',
-      lastName: 'Coach',
+      firstName: 'Alexandre',
+      lastName: 'Martin',
+      coachProfile: {
+        create: {
+          title: 'Agrégé',
+          pseudonym: 'Hélios',
+          tag: '🎓 Agrégé',
+          description: 'Expert en mathématiques et physique',
+          philosophy: "L'apprentissage par la compréhension profonde",
+          subjects: '["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI"]'
+        }
+      }
     },
+    include: { coachProfile: true }
   });
   console.log(`  ✓ Coach: ${coach.email}\n`);
 
   // Additional test users for RBAC matrix
   const student2 = await prisma.user.create({
     data: {
-      email: 'student2@test.com',
+      email: 'karim.dupont@test.com',
       password: hashedPassword,
       role: UserRole.ELEVE,
-      firstName: 'Test',
-      lastName: 'Student 2',
+      firstName: 'Karim',
+      lastName: 'Dupont',
+      studentProfile: {
+        create: {
+          grade: 'Première',
+          school: 'Lycée Pilote Ariana'
+        }
+      }
     },
+  });
+
+  // Create Student Entity for student2 linked to same Parent
+  await prisma.student.create({
+    data: {
+      userId: student2.id,
+      parentId: parent.parentProfile!.id,
+      credits: 5,
+      totalSessions: 16
+    }
   });
 
   const coach2 = await prisma.user.create({
     data: {
-      email: 'coach2@test.com',
+      email: 'zenon@test.com',
       password: hashedPassword,
       role: UserRole.COACH,
-      firstName: 'Test',
-      lastName: 'Coach 2',
+      firstName: 'Sophie',
+      lastName: 'Bernard',
+      coachProfile: {
+        create: {
+          title: 'Certifiée',
+          pseudonym: 'Zénon',
+          tag: '🎯 Stratège',
+          description: 'Spécialiste français et philosophie',
+          philosophy: 'La réflexion critique avant tout',
+          subjects: '["FRANCAIS", "PHILOSOPHIE", "HISTOIRE_GEO"]'
+        }
+      }
     },
+    include: { coachProfile: true }
   });
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
@@ -197,9 +236,11 @@ async function main() {
 
   console.log('🔑 Test Credentials:');
   console.log(`  Admin:   admin@test.com / password123`);
-  console.log(`  Parent:  parent@test.com / password123`);
-  console.log(`  Student: student@test.com / password123`);
-  console.log(`  Coach:   coach@test.com / password123\n`);
+  console.log(`  Parent:  parent.dashboard@test.com / password123`);
+  console.log(`  Student: yasmine.dupont@test.com / password123`);
+  console.log(`  Student2: karim.dupont@test.com / password123`);
+  console.log(`  Coach:   helios@test.com / password123`);
+  console.log(`  Coach2:  zenon@test.com / password123\n`);
 
   console.log('🧪 Ready for E2E tests!');
 }
