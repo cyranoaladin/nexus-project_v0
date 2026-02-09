@@ -9,14 +9,29 @@ jest.mock('next/link', () => {
   };
 });
 
-// Mock de framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: { children: React.ReactNode }) => (
-      <div {...props}>{children}</div>
-    ),
-  },
-}));
+// Mock de framer-motion — filter motion-specific props
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const motionProps = new Set([
+    'initial', 'animate', 'exit', 'transition', 'variants',
+    'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+    'viewport', 'onViewportEnter', 'onViewportLeave',
+    'drag', 'dragConstraints', 'layout', 'layoutId',
+    'onAnimationStart', 'onAnimationComplete', 'custom', 'inherit',
+  ]);
+  const filterProps = (props: any) => {
+    const filtered: any = {};
+    Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
+    return filtered;
+  };
+  return {
+    motion: {
+      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
+    },
+    useReducedMotion: () => false,
+    AnimatePresence: ({ children }: any) => children,
+  };
+});
 
 describe('CTASection', () => {
   it('renders the main CTA message', () => {

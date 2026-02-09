@@ -16,26 +16,24 @@ jest.mock('next/image', () => {
   };
 });
 
-// Mock de framer-motion
+// Mock de framer-motion — filter all motion-specific props
 jest.mock('framer-motion', () => {
   const React = require('react');
+  const motionProps = new Set([
+    'initial', 'animate', 'exit', 'transition', 'variants',
+    'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+    'viewport', 'onViewportEnter', 'onViewportLeave',
+    'drag', 'dragConstraints', 'layout', 'layoutId',
+    'onAnimationStart', 'onAnimationComplete', 'custom', 'inherit',
+  ]);
   return {
     motion: new Proxy({}, {
       get: (target, prop) => {
         return React.forwardRef((props: any, ref: any) => {
-          const { 
-            children, 
-            initial, 
-            animate, 
-            exit, 
-            transition, 
-            whileHover, 
-            whileTap, 
-            whileInView,
-            viewport,
-            ...rest 
-          } = props;
-          return React.createElement(prop, { ...rest, ref }, children);
+          const { children, ...rest } = props;
+          const filtered: any = {};
+          Object.keys(rest).forEach((k) => { if (!motionProps.has(k)) filtered[k] = rest[k]; });
+          return React.createElement(prop, { ...filtered, ref }, children);
         });
       }
     }),
