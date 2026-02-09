@@ -57,8 +57,20 @@ export default function HomePage() {
       {/* Navigation */}
       <CorporateNavbar />
 
+      {/* SEO fallback for crawlers that don't execute JS */}
+      <noscript>
+        <div className="sr-only">
+          <h1>Nexus Réussite — Plateforme de Pilotage Éducatif</h1>
+          <p>Coachs agrégés + IA pédagogique ARIA 24/7 + Dashboard parent en temps réel. Le seul programme qui s'engage sur les résultats de votre enfant au Baccalauréat.</p>
+          <p>Formules d'accompagnement : Accès Plateforme (150 TND/mois), Hybride (450 TND/mois), Immersion (750 TND/mois). Stages intensifs vacances. Garantie Mention ou mois offerts.</p>
+          <a href="/bilan-gratuit">Commencer mon Bilan Stratégique Gratuit</a>
+          <a href="/offres">Voir les offres</a>
+          <a href="/stages">Voir les stages</a>
+        </div>
+      </noscript>
+
       {/* Main Content */}
-      <main className="relative z-10 w-full overflow-hidden">
+      <main id="main-content" className="relative z-10 w-full overflow-hidden">
         {/* The Narrative Flow */}
         <HeroSectionGSAP />
         <TrinityServicesGSAP />
