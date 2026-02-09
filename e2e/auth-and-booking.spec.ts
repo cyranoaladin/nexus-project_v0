@@ -10,7 +10,7 @@
  * Requirements:
  * - E2E database must be seeded (npm run test:e2e:setup)
  * - App running on http://localhost:3000
- * - Test users: parent@test.com, yasmine.dupont@test.com, coach@test.com, admin@test.com
+ * - Test users: parent.dashboard@test.com, yasmine.dupont@test.com, helios@test.com, admin@test.com
  * - Password: password123
  */
 
