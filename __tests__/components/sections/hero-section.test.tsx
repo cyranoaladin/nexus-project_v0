@@ -18,17 +18,27 @@ jest.mock('next/image', () => ({
   },
 }));
 
-// Mock de framer-motion
+// Mock de framer-motion — filter motion-specific props
 jest.mock('framer-motion', () => {
   const React = require('react');
+  const motionProps = new Set([
+    'initial', 'animate', 'exit', 'transition', 'variants',
+    'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+    'viewport', 'onViewportEnter', 'onViewportLeave',
+    'drag', 'dragConstraints', 'layout', 'layoutId',
+    'onAnimationStart', 'onAnimationComplete', 'custom', 'inherit',
+  ]);
+  const filterProps = (props: any) => {
+    const filtered: any = {};
+    Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
+    return filtered;
+  };
   return {
     motion: {
-      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-      h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
-      p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
-      button: React.forwardRef(({ children, whileHover, whileTap, transition, ...props }: any, ref: any) => (
-        <button {...props} ref={ref}>{children}</button>
-      )),
+      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
+      h1: React.forwardRef(({ children, ...props }: any, ref: any) => <h1 {...filterProps(props)} ref={ref}>{children}</h1>),
+      p: React.forwardRef(({ children, ...props }: any, ref: any) => <p {...filterProps(props)} ref={ref}>{children}</p>),
+      button: React.forwardRef(({ children, ...props }: any, ref: any) => <button {...filterProps(props)} ref={ref}>{children}</button>),
     },
     useReducedMotion: () => false,
     AnimatePresence: ({ children }: any) => children,
