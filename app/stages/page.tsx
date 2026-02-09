@@ -6,6 +6,7 @@ import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { BackToTop } from "@/components/ui/back-to-top";
 import { toast, Toaster } from "sonner";
+import { track } from "@/lib/analytics";
 
 const ACADEMIES = [
   // TERMINALE
@@ -353,6 +354,7 @@ export default function AcademiesHiverPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || "Erreur lors de l'envoi.");
       }
+      track.stageReserve(selectedAcademy.id, selectedAcademy.early);
       setIsSuccess(true);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Erreur lors de l'envoi.");
