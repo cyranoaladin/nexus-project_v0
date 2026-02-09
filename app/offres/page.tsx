@@ -151,7 +151,6 @@ const quizSteps = [
 ];
 
 export default function OffresPage() {
-  const [billingAnnual, setBillingAnnual] = useState(false);
   const [currentSolution, setCurrentSolution] = useState("rien");
   const [hours, setHours] = useState(10);
   const [goal, setGoal] = useState("mention");
@@ -159,31 +158,25 @@ export default function OffresPage() {
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-  const pricing = useMemo(() => {
-    const monthly = 299;
-    const annual = 2990;
-    return billingAnnual ? { price: annual, label: "TND/an" } : { price: monthly, label: "TND/mois" };
-  }, [billingAnnual]);
-
   const currentMonthly = useMemo(() => {
     if (currentSolution === "prof") return 60 * hours;
     if (currentSolution === "groupe") return 40 * hours;
     return 0;
   }, [currentSolution, hours]);
 
-  const nexusMonthly = 299;
+  const nexusMonthly = 450;
   const savings = Math.max(currentMonthly - nexusMonthly, 0);
   const savingsPercent = currentMonthly ? Math.round((savings / currentMonthly) * 100) : 0;
 
   const recommendationMap: Record<string, string> = {
-    "scolarise-bac-methodo": "Programme Excellence",
-    "scolarise-bac-comprehension": "Programme Excellence + Pack Méthodologie",
-    "scolarise-mention-methodo": "Programme Excellence + Pack Grand Oral",
-    "scolarise-mention-comprehension": "Programme Excellence + Soutien Intensif",
-    "candidat-bac-methodo": "Pack Bac Garanti",
-    "candidat-bac-comprehension": "Pack Bac Garanti + Académie Intensive",
-    "candidat-mention-methodo": "Pack Bac Garanti + Pack Grand Oral",
-    "candidat-mention-comprehension": "Pack Bac Garanti + Coaching Premium",
+    "scolarise-bac-methodo": "Formule Hybride (450 TND/mois)",
+    "scolarise-bac-comprehension": "Formule Hybride + Pack Grand Oral",
+    "scolarise-mention-methodo": "Formule Immersion (750 TND/mois)",
+    "scolarise-mention-comprehension": "Formule Immersion + Pack Grand Oral",
+    "candidat-bac-methodo": "Formule Immersion (750 TND/mois)",
+    "candidat-bac-comprehension": "Formule Immersion + Académie Intensive",
+    "candidat-mention-methodo": "Formule Immersion + Pack Grand Oral",
+    "candidat-mention-comprehension": "Formule Immersion + Pack Parcoursup",
   };
 
   const quizKey = useMemo(() => {
@@ -297,110 +290,44 @@ export default function OffresPage() {
           </div>
         </section>
 
-        {/* OFFRES PRINCIPALES */}
+        {/* OFFRES PRINCIPALES — 3 Formules Mensuelles */}
         <section id="offres-principales" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
-                Votre solution clé-en-main
+                3 formules, un seul objectif : la réussite
               </h2>
               <p className="mt-3 text-neutral-300">
-                Tout inclus : experts agrégés et certifiés + IA 24/7 + suivi premium.
+                Abonnement mensuel. 1 crédit = 1 heure de cours particulier en ligne.
               </p>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-4 text-sm text-neutral-300">
-              <span>Paiement Mensuel</span>
-              <button
-                type="button"
-                onClick={() => setBillingAnnual(!billingAnnual)}
-                className="relative h-6 w-12 rounded-full border border-brand-accent/40 bg-black/30"
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-brand-accent transition ${
-                    billingAnnual ? "right-0.5" : "left-0.5"
-                  }`}
-                />
-              </button>
-              <span>
-                Paiement Annuel <strong className="text-brand-accent">(-2 mois offerts)</strong>
-              </span>
-            </div>
-
-            <div className="mt-10 grid gap-8 lg:grid-cols-2">
-              <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-8 shadow-2xl shadow-brand-accent/10">
-                <div className="inline-flex items-center rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
-                  🎯 PLUS POPULAIRE
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">Programme Excellence</h3>
-                    <p className="mt-2 text-sm text-neutral-300">
-                      Pour les élèves scolarisés (2nde à Terminale)
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">
-                      {pricing.price} <span className="text-base text-neutral-300">{pricing.label}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-3 text-sm text-neutral-200">
-                  {[
-                    "8h/mois avec experts agrégés et certifiés",
-                    "IA ARIA Premium 24/7 toutes matières",
-                    "Dashboard parent temps réel",
-                    "Garantie mention ou 3 mois offerts",
-                    "Coaching Parcoursup inclus",
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
-                  Valeur réelle : <span className="line-through">450 TND/mois</span>
-                  <div className="text-brand-accent font-semibold">Vous économisez 151 TND/mois</div>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=excellence" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center">
-                    Choisir l&apos;Excellence →
-                  </Link>
-                  <a href="#details-excellence" className="text-sm text-brand-accent hover:text-white">
-                    Voir tous les détails
-                  </a>
-                </div>
-              </div>
-
+            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+              {/* ACCÈS PLATEFORME */}
               <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
                 <div className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-neutral-200">
-                  🛡️ TOUT-INCLUS
+                  📱 ACCÈS DIGITAL
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">Pack Bac Garanti</h3>
-                    <p className="mt-2 text-sm text-neutral-300">
-                      Pour réussir le Bac en candidat libre sans stress
-                    </p>
+                <div className="mt-4">
+                  <h3 className="text-2xl font-bold text-white">Accès Plateforme</h3>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    Suivi et IA, sans cours particuliers
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <div className="text-3xl font-bold text-white">
+                    150 <span className="text-base text-neutral-300">TND/mois</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">
-                      1 990 <span className="text-base text-neutral-300">TND/an</span>
-                    </div>
-                  </div>
+                  <div className="text-xs text-neutral-400 mt-1">0 crédit inclus</div>
                 </div>
 
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
                   {[
-                    "100h annuelles programme complet",
-                    "Inscription Aix-Marseille gérée",
-                    "IA ARIA Premium illimitée",
-                    "4 examens blancs corrigés",
-                    "Garantie 100% Bac ou remboursé",
+                    "Accès plateforme 24/7",
+                    "Suivi de progression",
+                    "IA ARIA (1 matière)",
+                    "Dashboard parent",
+                    "Ressources pédagogiques",
                   ].map((item) => (
                     <div key={item} className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
@@ -409,20 +336,102 @@ export default function OffresPage() {
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-neutral-300">
-                  Valeur réelle : <span className="line-through">3 200 TND/an</span>
-                  <div className="text-brand-accent font-semibold">Vous économisez 1 210 TND</div>
+                <div className="mt-6 flex flex-col gap-3">
+                  <Link href="/bilan-gratuit?programme=plateforme" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
+                    Commencer →
+                  </Link>
+                </div>
+              </div>
+
+              {/* HYBRIDE — Recommandée */}
+              <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-8 shadow-2xl shadow-brand-accent/10 relative">
+                <div className="inline-flex items-center rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
+                  ⭐ RECOMMANDÉE
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-2xl font-bold text-white">Hybride</h3>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    Plateforme + coach référent dédié
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <div className="text-3xl font-bold text-white">
+                    450 <span className="text-base text-neutral-300">TND/mois</span>
+                  </div>
+                  <div className="text-xs text-brand-accent mt-1">4 crédits inclus (4h de cours)</div>
+                </div>
+
+                <div className="mt-6 space-y-3 text-sm text-neutral-200">
+                  {[
+                    "Tout Accès Plateforme inclus",
+                    "4h/mois avec coach agrégé/certifié",
+                    "Coach référent dédié",
+                    "IA ARIA (1 matière)",
+                    "Suivi personnalisé",
+                    "Visioconférence intégrée",
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=bac-garanti" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
-                    Sécuriser mon Bac →
+                  <Link href="/bilan-gratuit?programme=hybride" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent-dark transition text-center">
+                    Choisir Hybride →
                   </Link>
-                  <a href="#details-bac" className="text-sm text-brand-accent hover:text-white">
-                    Voir tous les détails
-                  </a>
                 </div>
               </div>
+
+              {/* IMMERSION */}
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+                <div className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-neutral-200">
+                  🚀 PREMIUM
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-2xl font-bold text-white">Immersion</h3>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    Accompagnement intensif et prioritaire
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <div className="text-3xl font-bold text-white">
+                    750 <span className="text-base text-neutral-300">TND/mois</span>
+                  </div>
+                  <div className="text-xs text-brand-accent mt-1">8 crédits inclus (8h de cours)</div>
+                </div>
+
+                <div className="mt-6 space-y-3 text-sm text-neutral-200">
+                  {[
+                    "Tout Hybride inclus",
+                    "8h/mois avec experts agrégés",
+                    "Support prioritaire",
+                    "Bilan trimestriel",
+                    "IA ARIA (1 matière)",
+                    "Sessions présentiel possibles",
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-brand-accent mt-1" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <Link href="/bilan-gratuit?programme=immersion" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
+                    Choisir Immersion →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Add-on ARIA */}
+            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
+              <p className="text-sm text-neutral-300">
+                <strong className="text-brand-accent">ARIA+</strong> : ajoutez des matières à votre IA pédagogique.
+                +1 matière : <strong>50 TND/mois</strong> · Pack toutes matières : <strong>120 TND/mois</strong>
+              </p>
             </div>
           </div>
         </section>
@@ -527,7 +536,7 @@ export default function OffresPage() {
             </div>
 
             <p className="mt-4 text-xs text-neutral-400 text-center">
-              *Calcul basé sur Programme Excellence : 299 TND/mois pour 8h = 37 TND/h. Inclus IA 24/7, dashboard, garantie.
+              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach agrégé + IA ARIA + dashboard + suivi).
             </p>
           </div>
         </section>
@@ -772,7 +781,7 @@ export default function OffresPage() {
                     <h3 className="text-xl font-semibold text-white">Notre recommandation :</h3>
                     <p className="mt-2 text-neutral-300">{quizRecommendation}</p>
                     <div className="mt-4 text-2xl font-bold text-brand-accent">
-                      299 TND/mois
+                      À partir de 450 TND/mois
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                       <Link href="/bilan-gratuit?programme=recommande" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center">
@@ -819,6 +828,55 @@ export default function OffresPage() {
               <div className="mt-6 text-sm text-brand-accent">
                 ⚠️ Places limitées pour Septembre · Prochain créneau disponible : Demain 10h
               </div>
+            </div>
+          </div>
+        </section>
+        {/* FAQ */}
+        <section id="faq" className="py-20 bg-black/20">
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+              Questions fréquentes des parents
+            </h2>
+
+            <div className="mt-10 grid gap-4 max-w-3xl mx-auto">
+              {[
+                {
+                  q: "Qu'est-ce qu'un crédit et comment fonctionne-t-il ?",
+                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach agrégé. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
+                },
+                {
+                  q: "Qui sont les coachs Nexus Réussite ?",
+                  a: "Tous nos coachs sont agrégés ou certifiés. Ils sont sélectionnés pour leur expertise et leur capacité à accompagner des lycéens du système français. Chaque coach a un pseudonyme mythique et un profil spécialisé."
+                },
+                {
+                  q: "Comment fonctionne l'IA ARIA ?",
+                  a: "ARIA est une assistante pédagogique basée sur GPT-4, disponible 24/7. Elle aide votre enfant pour les révisions, les exercices, et la préparation aux examens. Elle est incluse dans tous les abonnements (1 matière). Matières supplémentaires en add-on."
+                },
+                {
+                  q: "Puis-je suivre la progression de mon enfant ?",
+                  a: "Oui. Votre dashboard parent vous donne une vue en temps réel : sessions réalisées, crédits restants, rapports des coachs, et progression globale. Vous recevez aussi des notifications par email."
+                },
+                {
+                  q: "Quelles sont les conditions d'annulation ?",
+                  a: "Annulation gratuite si plus de 24h avant un cours particulier, ou plus de 48h avant un atelier de groupe. Le crédit est automatiquement restitué. L'abonnement est résiliable à tout moment."
+                },
+                {
+                  q: "Comment se passent les cours en ligne ?",
+                  a: "Les cours se déroulent en visioconférence intégrée (Jitsi Meet) directement dans la plateforme. Pas besoin de télécharger de logiciel. Le lien est disponible 15 minutes avant la session."
+                },
+                {
+                  q: "Quels modes de paiement acceptez-vous ?",
+                  a: "Paiement en ligne par carte bancaire via Konnect (TND). Virement international via Wise (EUR/USD). Paiement sur place au centre est également possible."
+                },
+              ].map((item) => (
+                <details key={item.q} className="group rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <summary className="flex cursor-pointer items-center justify-between text-white font-semibold">
+                    {item.q}
+                    <ChevronRight className="h-5 w-5 text-brand-accent transition-transform group-open:rotate-90" />
+                  </summary>
+                  <p className="mt-3 text-sm text-neutral-300 leading-relaxed">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>

@@ -93,7 +93,7 @@ const ContactSectionGSAP = () => {
 
                 {/* Header */}
                 <div className="text-center mb-16 animate-item">
-                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-nexus-cyan mb-4 block">
+                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-accent mb-4 block">
                         Démarrer la transformation
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
@@ -114,7 +114,7 @@ const ContactSectionGSAP = () => {
                                 key={key}
                                 onClick={() => setProfileType(key)}
                                 className={`flex items-center gap-3 px-6 py-4 rounded-xl border transition-all duration-300 ${isActive
-                                    ? 'bg-nexus-cyan/10 border-nexus-cyan text-nexus-cyan shadow-[0_0_20px_rgba(46,233,246,0.1)]'
+                                    ? 'bg-brand-accent/10 border-brand-accent text-brand-accent shadow-[0_0_20px_rgba(46,233,246,0.1)]'
                                     : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/20'
                                     }`}
                             >

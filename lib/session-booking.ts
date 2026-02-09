@@ -269,9 +269,20 @@ export class SessionBookingService {
       });
 
       // Deduct credits from student
-      await tx.student.update({
+      const student = await tx.student.update({
         where: { userId: data.studentId },
         data: { credits: { decrement: data.creditsUsed } }
+      });
+
+      // Create CreditTransaction for audit trail (keeps balance in sync with transaction log)
+      await tx.creditTransaction.create({
+        data: {
+          studentId: student.id,
+          type: 'USAGE',
+          amount: -data.creditsUsed,
+          description: `Session ${data.subject} - ${data.title}`,
+          sessionId: session.id,
+        }
       });
 
       // Create notifications
