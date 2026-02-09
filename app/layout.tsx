@@ -54,6 +54,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased bg-neutral-950 text-white font-sans selection:bg-brand-primary/30 selection:text-white`}>
+        <a href="#main-content" className="skip-to-content">
+          Aller au contenu principal
+        </a>
         <Providers>
           {children}
         </Providers>
