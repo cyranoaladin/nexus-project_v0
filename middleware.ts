@@ -90,34 +90,45 @@ export default withAuth(
       }
 
       // Vérification des rôles spécifiques
-      if (pathname.startsWith('/dashboard/eleve') && token.role !== 'ELEVE') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
+      // Role-based access control: redirect to the correct dashboard for the user's role
+      const roleRouteMap: Record<string, string> = {
+        ELEVE: '/dashboard/eleve',
+        PARENT: '/dashboard/parent',
+        COACH: '/dashboard/coach',
+        ASSISTANTE: '/dashboard/assistante',
+        ADMIN: '/dashboard/admin',
+      }
+
+      const rolePrefixMap: Record<string, string[]> = {
+        ELEVE: ['/dashboard/eleve', '/dashboard/student'],
+        PARENT: ['/dashboard/parent'],
+        COACH: ['/dashboard/coach'],
+        ASSISTANTE: ['/dashboard/assistante'],
+        ADMIN: ['/dashboard/admin'],
+      }
+
+      // If user is on /dashboard exactly, redirect to their role's dashboard
+      if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        const userRole = token.role as string
+        const targetRoute = roleRouteMap[userRole] || '/auth/signin'
+        const redirectResponse = NextResponse.redirect(new URL(targetRoute, req.url))
         return applySecurityHeaders(redirectResponse)
       }
 
-      if (pathname.startsWith('/dashboard/student') && token.role !== 'ELEVE') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
-        return applySecurityHeaders(redirectResponse)
-      }
+      // Check if user is accessing a dashboard they don't have permission for
+      const userRole = token.role as string
+      const allowedPrefixes = rolePrefixMap[userRole] || []
+      const isAccessingOtherDashboard = Object.values(rolePrefixMap)
+        .flat()
+        .some(prefix => pathname.startsWith(prefix))
 
-      if (pathname.startsWith('/dashboard/parent') && token.role !== 'PARENT') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
-        return applySecurityHeaders(redirectResponse)
-      }
-
-      if (pathname.startsWith('/dashboard/coach') && token.role !== 'COACH') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
-        return applySecurityHeaders(redirectResponse)
-      }
-
-      if (pathname.startsWith('/dashboard/assistante') && token.role !== 'ASSISTANTE') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
-        return applySecurityHeaders(redirectResponse)
-      }
-
-      if (pathname.startsWith('/dashboard/admin') && token.role !== 'ADMIN') {
-        const redirectResponse = NextResponse.redirect(new URL('/dashboard', req.url))
-        return applySecurityHeaders(redirectResponse)
+      if (isAccessingOtherDashboard && !allowedPrefixes.some(prefix => pathname.startsWith(prefix))) {
+        // ADMIN can access all dashboards
+        if (userRole !== 'ADMIN') {
+          const targetRoute = roleRouteMap[userRole] || '/auth/signin'
+          const redirectResponse = NextResponse.redirect(new URL(targetRoute, req.url))
+          return applySecurityHeaders(redirectResponse)
+        }
       }
     }
 
