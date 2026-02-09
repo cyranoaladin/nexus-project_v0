@@ -51,8 +51,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    name: 'Nexus Réussite',
+    alternateName: 'Nexus Digital Campus',
+    url: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
+    description: 'Plateforme de pilotage éducatif combinant coachs agrégés, IA pédagogique ARIA et dashboard parent en temps réel pour la réussite au Baccalauréat.',
+    areaServed: { '@type': 'Country', name: 'Tunisia' },
+    availableLanguage: ['fr'],
+    sameAs: [],
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'TND',
+      lowPrice: '150',
+      highPrice: '990',
+      offerCount: '3',
+    },
+  };
+
   return (
     <html lang="fr">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased bg-neutral-950 text-white font-sans selection:bg-brand-primary/30 selection:text-white`}>
         <a href="#main-content" className="skip-to-content">
           Aller au contenu principal
