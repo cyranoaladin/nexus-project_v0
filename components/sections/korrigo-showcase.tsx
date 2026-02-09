@@ -8,7 +8,7 @@ export default function KorrigoShowcase() {
   return (
     <section
       id="korrigo"
-      className="relative w-full text-white bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-deep-midnight via-slate-900 to-deep-midnight"
+      className="relative w-full text-white bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-surface-darker via-slate-900 to-surface-darker"
     >
       <div className="container mx-auto px-4 py-20 md:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-2">
