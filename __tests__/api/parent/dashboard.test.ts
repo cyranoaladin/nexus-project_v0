@@ -151,7 +151,8 @@ describe('GET /api/parent/dashboard', () => {
             user: {
               firstName: 'Student',
               lastName: 'One',
-              email: 'student@test.com'
+              email: 'student@test.com',
+              studentSessions: []
             },
             grade: 'Terminale',
             school: 'Test School',
@@ -168,7 +169,6 @@ describe('GET /api/parent/dashboard', () => {
                 }
               }
             ],
-            sessions: []
           }
         ]
       };
@@ -242,12 +242,12 @@ describe('GET /api/parent/dashboard', () => {
               id: 'student-user-123',
               email: 'student1@test.com',
               firstName: 'Student',
-              lastName: 'One'
+              lastName: 'One',
+              studentSessions: []
             },
             creditTransactions: [],
             badges: [],
-            subscriptions: [],
-            sessions: []
+            subscriptions: []
           },
           {
             id: 'student-456',
@@ -258,12 +258,12 @@ describe('GET /api/parent/dashboard', () => {
               id: 'student-user-456',
               email: 'student2@test.com',
               firstName: 'Student',
-              lastName: 'Two'
+              lastName: 'Two',
+              studentSessions: []
             },
             creditTransactions: [],
             badges: [],
-            subscriptions: [],
-            sessions: []
+            subscriptions: []
           }
         ]
       };
@@ -318,12 +318,12 @@ describe('GET /api/parent/dashboard', () => {
               id: 'student-user-123',
               email: 'student@test.com',
               firstName: 'Student',
-              lastName: 'One'
+              lastName: 'One',
+              studentSessions: []
             },
             creditTransactions: [],
             badges: [],
-            subscriptions: [],
-            sessions: []
+            subscriptions: []
           }
         ]
       };
@@ -377,7 +377,8 @@ describe('GET /api/parent/dashboard', () => {
               id: 'student-user-1',
               email: 'student1@test.com',
               firstName: 'Alice',
-              lastName: 'Smith'
+              lastName: 'Smith',
+              studentSessions: []
             },
             credits: 50,
             creditTransactions: [
@@ -390,8 +391,7 @@ describe('GET /api/parent/dashboard', () => {
                 badge: { id: 'b1', name: 'Badge1', description: 'Desc1', category: 'ASSIDUITE', icon: '🏆' }
               }
             ],
-            subscriptions: [],
-            sessions: []
+            subscriptions: []
           },
           {
             id: 'student-2',
@@ -402,7 +402,8 @@ describe('GET /api/parent/dashboard', () => {
               id: 'student-user-2',
               email: 'student2@test.com',
               firstName: 'Bob',
-              lastName: 'Jones'
+              lastName: 'Jones',
+              studentSessions: []
             },
             credits: 100,
             creditTransactions: [
@@ -420,8 +421,7 @@ describe('GET /api/parent/dashboard', () => {
                 badge: { id: 'b3', name: 'Badge3', description: 'Desc3', category: 'CURIOSITE', icon: '🤔' }
               }
             ],
-            subscriptions: [],
-            sessions: []
+            subscriptions: []
           }
         ]
       };
@@ -436,17 +436,11 @@ describe('GET /api/parent/dashboard', () => {
       expect(response.status).toBe(200);
       expect(data.children).toHaveLength(2);
 
-      // Check first child
-      expect(data.children[0].name).toBe('Alice Smith');
+      // Check first child (route returns firstName/lastName, not name)
+      expect(data.children[0].firstName).toBe('Alice');
+      expect(data.children[0].lastName).toBe('Smith');
       expect(data.children[0].badges).toHaveLength(1);
-      expect(data.children[0].credits).toBe(50); // Note: Route calculates credits based on CreditTransaction? 
-      // Wait, route.ts (line 110) says "credits: child.credits". 
-      // The child object in mock needs "credits" property if the route expects it!
-      // Looking at route.ts type definition: 'credits: number'.
-      // MY MOCK DOES NOT HAVE CREDITS!
-      // This will set credits to undefined. 'expect(...).toBe(50)' will fail.
-
-      // I need to add credits to the mock.
+      expect(data.children[0].credits).toBe(50);
     });
   });
 });

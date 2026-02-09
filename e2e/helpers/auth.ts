@@ -10,30 +10,30 @@ export async function loginAsUser(
 ) {
     const credentials = {
         parent: {
-            email: 'parent@example.com',
-            password: 'admin123',
+            email: 'parent.dashboard@test.com',
+            password: 'password123',
         },
         student: {
-            email: 'student@example.com',
-            password: 'admin123',
+            email: 'yasmine.dupont@test.com',
+            password: 'password123',
         },
         coach: {
-            email: 'coach@example.com',
-            password: 'admin123',
+            email: 'helios@test.com',
+            password: 'password123',
         },
     };
 
     const { email, password } = credentials[userType];
 
     // Navigate to signin page
-    await page.goto('/auth/signin');
+    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
 
     // Fill in credentials
-    await page.fill('#email', email);
-    await page.fill('#password', password);
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByPlaceholder('Votre mot de passe').fill(password);
 
     // Submit form
-    await page.click('button[type="submit"]');
+    await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
 
     // Wait for redirect to dashboard
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
