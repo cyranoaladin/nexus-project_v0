@@ -23,6 +23,7 @@ describe('Payment Validation Transaction Rollback', () => {
   let userId: string;
   let studentRecordId: string;
   let paymentId: string;
+  let runId: string;
 
   beforeAll(async () => {
     await setupTestDatabase();
@@ -33,23 +34,17 @@ describe('Payment Validation Transaction Rollback', () => {
     await prisma.$disconnect();
   });
 
-  afterEach(async () => {
-    // Clean up after each test (in reverse order of foreign key dependencies)
-    await prisma.creditTransaction.deleteMany({});
-    await prisma.subscription.deleteMany({});
-    await prisma.payment.deleteMany({});
-    await prisma.student.deleteMany({});
-    await prisma.studentProfile.deleteMany({});
-    await prisma.parentProfile.deleteMany({});
-    await prisma.user.deleteMany({});
-  });
-
   beforeEach(async () => {
+    runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     // Create fresh test data for each test
-    const { parentUser, parentProfile } = await createTestParent({ email: 'rollback.test@example.com' });
+    const { parentUser, parentProfile } = await createTestParent({
+      email: `rollback.parent.${runId}@example.com`,
+    });
     userId = parentUser.id;
 
-    const { student } = await createTestStudent(parentProfile.id, { user: { email: 'rollback.student@test.com' } });
+    const { student } = await createTestStudent(parentProfile.id, {
+      user: { email: `rollback.student.${runId}@test.com` },
+    });
     studentRecordId = student.id;
 
     // Create a pending payment
@@ -62,7 +57,7 @@ describe('Payment Validation Transaction Rollback', () => {
         description: 'Test subscription payment',
         status: 'PENDING',
         method: 'konnect',
-        externalId: 'test_rollback_payment',
+        externalId: `test_rollback_payment_${runId}`,
         metadata: {
           studentId: studentRecordId,
           itemKey: 'PREMIUM',
