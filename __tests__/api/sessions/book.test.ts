@@ -345,10 +345,11 @@ describe('POST /api/sessions/book', () => {
     });
 
     it('should return 400 for weekend booking (Saturday)', async () => {
-      // Find next Saturday
-      const nextSaturday = new Date();
-      nextSaturday.setDate(nextSaturday.getDate() + ((6 - nextSaturday.getDay() + 7) % 7));
-      const dateStr = nextSaturday.toISOString().split('T')[0];
+      // Find a future Saturday using UTC-consistent arithmetic
+      // (avoids local vs UTC day-of-week mismatch near midnight)
+      const future = new Date(Date.now() + 14 * 86400000);
+      future.setUTCDate(future.getUTCDate() + ((6 - future.getUTCDay() + 7) % 7));
+      const dateStr = future.toISOString().split('T')[0];
 
       const invalidData = {
         ...validBookingData,
