@@ -192,15 +192,25 @@ export const createTestSessionBooking = async (overrides: Partial<any> = {}) => 
   const coachId = overrides.coachId || coach?.userId;
   const studentId = overrides.studentId || studentData?.studentUser.id;
 
+  // Generate a unique future date to avoid exclusion constraint collisions
+  const uniqueOffset = Math.floor(Math.random() * 365) + 1;
+  const uniqueDate = new Date();
+  uniqueDate.setDate(uniqueDate.getDate() + uniqueOffset);
+  uniqueDate.setHours(0, 0, 0, 0);
+  // Generate a unique start hour (8-18) to further reduce collision risk
+  const startHour = 8 + Math.floor(Math.random() * 11);
+  const startTime = `${String(startHour).padStart(2, '0')}:00`;
+  const endTime = `${String(startHour + 1).padStart(2, '0')}:00`;
+
   return await testPrisma.sessionBooking.create({
     data: {
       coachId: coachId!,
       studentId: studentId!,
       subject: 'MATHEMATIQUES',
       title: 'Test session',
-      scheduledDate: new Date('2026-03-15'),
-      startTime: '14:00',
-      endTime: '15:00',
+      scheduledDate: uniqueDate,
+      startTime,
+      endTime,
       duration: 60,
       creditsUsed: 1,
       status: 'SCHEDULED',
