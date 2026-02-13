@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <div className="dashboard-soft">{children}</div>;
 }

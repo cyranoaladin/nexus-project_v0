@@ -81,6 +81,13 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     console.error('Erreur changement abonnement:', error);
 
     return NextResponse.json(

@@ -42,7 +42,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               onClick={() => setFilter('all')}
               className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
                 filter === 'all'
-                  ? 'bg-blue-600 text-white shadow-lg'
+                  ? 'btn-stage-sm'
                   : 'bg-white text-slate-600 border border-slate-300 hover:border-blue-400'
               }`}
             >
@@ -52,7 +52,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               onClick={() => setFilter('premiere')}
               className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'premiere'
-                  ? 'bg-slate-600 text-white shadow-lg'
+                  ? 'bg-slate-600 text-white shadow-lg rounded-full px-6 py-2'
                   : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
               }`}
             >
@@ -62,7 +62,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               onClick={() => setFilter('terminale')}
               className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'terminale'
-                  ? 'bg-slate-600 text-white shadow-lg'
+                  ? 'bg-slate-600 text-white shadow-lg rounded-full px-6 py-2'
                   : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
               }`}
             >
@@ -83,18 +83,14 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               >
                 {/* Ribbon for Pallier 2 */}
                 {academy.tier === 'pallier2' && (
-                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                  <div className="absolute -top-3 -right-3 pill-stage-strong shadow-lg">
                     ⭐ EXCELLENCE
                   </div>
                 )}
 
                 {/* Badge principal (Objectif) */}
                 <div className="mb-3">
-                  <span className={`inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-md ${
-                    academy.tier === 'pallier1'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white'
-                      : 'bg-gradient-to-r from-purple-600 to-purple-800 text-white'
-                  }`}>
+                  <span className="pill-stage-strong shadow-md">
                     {academy.badge}
                   </span>
                 </div>
@@ -146,7 +142,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
 
                 {/* Niveau badge */}
                 <div className="mb-4">
-                  <span className="inline-block bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold border border-slate-300">
+                  <span className="pill-stage-strong">
                     📖 Niveau: <span className="capitalize">{academy.level}</span>
                   </span>
                 </div>
@@ -189,18 +185,14 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                   <a
                     href="#reservation"
                     onClick={() => handleSelectAcademy(academy.id)}
-                    className={`block w-full text-center rounded-full px-6 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg ${
-                      academy.tier === 'pallier1'
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white'
-                    }`}
+                    className={`block w-full ${academy.tier === 'pallier1' ? 'btn-stage-sm' : 'btn-stage-gradient'}`}
                     aria-label="Réserver une consultation gratuite"
                   >
                     📅 Réserver une consultation
                   </a>
                   <a
                     href="#faq"
-                    className="block w-full text-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 text-xs font-semibold transition-all border border-slate-300"
+                    className="block w-full text-center rounded-full bg-white/10 border border-white/20 text-white px-6 py-2 text-xs font-semibold transition-all hover:bg-white/15"
                     aria-label="Voir les questions fréquentes"
                   >
                     ❓ Questions fréquentes

@@ -104,19 +104,19 @@ function WisePaymentContent() {
 
   if (!orderDetails) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent mx-auto mb-4"></div>
+          <p className="text-neutral-300">Chargement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
             <Button variant="ghost" asChild className="mr-4">
@@ -126,17 +126,34 @@ function WisePaymentContent() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-gray-900">Virement International Wise</h1>
-              <p className="text-sm text-gray-500">Effectuez votre virement et confirmez</p>
+              <h1 className="font-semibold text-white">Virement International Wise</h1>
+              <p className="text-sm text-neutral-400">Effectuez votre virement et confirmez</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <nav aria-label="Fil d'Ariane" className="mb-4 text-sm text-neutral-400">
+          <ol className="flex items-center gap-2">
+            <li>
+              <Link href="/dashboard/parent/abonnements" className="hover:text-white transition">
+                Abonnements
+              </Link>
+            </li>
+            <li>/</li>
+            <li>
+              <Link href="/dashboard/parent/paiement" className="hover:text-white transition">
+                Paiement
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-neutral-200">Wise</li>
+          </ol>
+        </nav>
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Coordonnées Wise */}
-          <Card>
+          <Card className="bg-white/5 border border-white/10">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Globe className="w-5 h-5 mr-2 text-brand-primary" />
@@ -145,13 +162,13 @@ function WisePaymentContent() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Montant à virer */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <div className="text-center">
-                  <div className="text-sm text-blue-800 mb-1">Montant exact à virer</div>
-                  <div className="text-3xl font-bold text-brand-primary">
+                  <div className="text-sm text-neutral-300 mb-1">Montant exact à virer</div>
+                  <div className="text-3xl font-bold text-brand-accent">
                     {orderDetails.amount} TND
                   </div>
-                  <div className="text-sm text-blue-700 mt-1">
+                  <div className="text-sm text-neutral-400 mt-1">
                     {orderDetails.description}
                   </div>
                 </div>
@@ -160,12 +177,12 @@ function WisePaymentContent() {
               {/* Coordonnées bancaires */}
               <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Bénéficiaire</Label>
+                  <Label className="text-sm font-medium text-neutral-200">Bénéficiaire</Label>
                   <div className="flex items-center space-x-2 mt-1">
                     <Input
                       value="Nexus Réussite SARL"
                       readOnly
-                      className="bg-gray-50"
+                      className="bg-white/5 border-white/10 text-neutral-100"
                     />
                     <Button
                       variant="outline"
@@ -178,12 +195,12 @@ function WisePaymentContent() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">IBAN</Label>
+                  <Label className="text-sm font-medium text-neutral-200">IBAN</Label>
                   <div className="flex items-center space-x-2 mt-1">
                     <Input
                       value="GB29 NWBK 6016 1331 9268 19"
                       readOnly
-                      className="bg-gray-50 font-mono"
+                      className="bg-white/5 border-white/10 text-neutral-100 font-mono"
                     />
                     <Button
                       variant="outline"
@@ -196,12 +213,12 @@ function WisePaymentContent() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Code SWIFT/BIC</Label>
+                  <Label className="text-sm font-medium text-neutral-200">Code SWIFT/BIC</Label>
                   <div className="flex items-center space-x-2 mt-1">
                     <Input
                       value="NWBKGB2L"
                       readOnly
-                      className="bg-gray-50 font-mono"
+                      className="bg-white/5 border-white/10 text-neutral-100 font-mono"
                     />
                     <Button
                       variant="outline"
@@ -214,12 +231,12 @@ function WisePaymentContent() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Référence de virement</Label>
+                  <Label className="text-sm font-medium text-neutral-200">Référence de virement</Label>
                   <div className="flex items-center space-x-2 mt-1">
                     <Input
                       value={`NEXUS-${orderId.slice(-8).toUpperCase()}`}
                       readOnly
-                      className="bg-gray-50 font-mono"
+                      className="bg-white/5 border-white/10 text-neutral-100 font-mono"
                     />
                     <Button
                       variant="outline"
@@ -233,10 +250,10 @@ function WisePaymentContent() {
               </div>
 
               {/* Instructions importantes */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <div className="flex items-start space-x-2">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <div className="text-sm text-yellow-800">
+                  <AlertCircle className="w-5 h-5 text-amber-300 mt-0.5" />
+                  <div className="text-sm text-neutral-300">
                     <div className="font-semibold mb-1">Instructions importantes :</div>
                     <ul className="space-y-1 text-xs">
                       <li>• Utilisez exactement la référence fournie</li>
@@ -251,10 +268,10 @@ function WisePaymentContent() {
           </Card>
 
           {/* Confirmation de virement */}
-          <Card>
+          <Card className="bg-white/5 border border-white/10">
             <CardHeader>
               <CardTitle>Confirmer votre Virement</CardTitle>
-              <p className="text-gray-600 text-sm">
+              <p className="text-neutral-300 text-sm">
                 Une fois le virement effectué, remplissez ce formulaire
               </p>
             </CardHeader>
@@ -298,18 +315,18 @@ function WisePaymentContent() {
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
                     onChange={handleFileUpload}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/10 file:text-neutral-100 hover:file:bg-white/20"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-400 mt-1">
                     PDF, JPG ou PNG - Max 5MB
                   </p>
                 </div>
               </div>
 
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
                 <div className="flex items-start space-x-2">
-                  <Check className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div className="text-sm text-green-800">
+                  <Check className="w-5 h-5 text-emerald-300 mt-0.5" />
+                  <div className="text-sm text-neutral-300">
                     <div className="font-semibold mb-1">Validation rapide</div>
                     <div>
                       Notre équipe validera votre virement sous 24-48h ouvrées.
@@ -338,7 +355,7 @@ function WisePaymentContent() {
                 )}
               </Button>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-neutral-400 text-center">
                 En confirmant, vous certifiez avoir effectué le virement avec les informations fournies
               </p>
             </CardContent>

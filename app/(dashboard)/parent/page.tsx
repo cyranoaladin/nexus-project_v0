@@ -73,42 +73,65 @@ export default function ParentDashboard() {
 
     if (status === "loading" || loading) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+            <div className="flex h-screen items-center justify-center bg-surface-darker">
+                <Loader2 className="h-8 w-8 animate-spin text-brand-accent" />
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center p-4">
-                <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                <h2 className="text-lg font-semibold text-gray-900">Une erreur est survenue</h2>
-                <p className="text-gray-500 mb-4">{error}</p>
-                <Button onClick={() => window.location.reload()}>Réessayer</Button>
+            <div className="flex h-screen flex-col items-center justify-center p-4 bg-surface-darker text-center">
+                <AlertCircle className="h-12 w-12 text-rose-300 mb-4" />
+                <h2 className="text-lg font-semibold text-white">Une erreur est survenue</h2>
+                <p className="text-neutral-400 mb-4">{error}</p>
+                <Button className="btn-primary" onClick={() => window.location.reload()}>Réessayer</Button>
             </div>
         );
     }
 
+    const totalCredits = data?.children?.reduce((sum, child) => sum + child.credits, 0) ?? 0;
+    const totalChildren = data?.children?.length ?? 0;
+    const totalPayments = data?.payments?.length ?? 0;
+
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6 space-y-8">
+        <div className="min-h-screen bg-surface-darker p-6 space-y-8 text-neutral-100">
 
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Espace Parent</h1>
-                    <p className="text-muted-foreground mt-1">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-neutral-200">
+                        Dashboard Parent
+                    </div>
+                    <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">Espace Parent</h1>
+                    <p className="text-neutral-300 mt-1">
                         Suivez la progression de vos enfants et gérez vos paiements.
                     </p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                    <Button>Ajouter un nouvel enfant</Button>
+                    <Button className="btn-primary">Ajouter un nouvel enfant</Button>
+                </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="rounded-2xl border border-white/10 bg-surface-card p-5 shadow-premium">
+                    <div className="text-sm text-neutral-400">Enfants suivis</div>
+                    <div className="mt-2 text-2xl font-bold text-white">{totalChildren}</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-surface-card p-5 shadow-premium">
+                    <div className="text-sm text-neutral-400">Crédits disponibles</div>
+                    <div className="mt-2 text-2xl font-bold text-brand-accent">{totalCredits}</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-surface-card p-5 shadow-premium">
+                    <div className="text-sm text-neutral-400">Transactions récentes</div>
+                    <div className="mt-2 text-2xl font-bold text-white">{totalPayments}</div>
                 </div>
             </div>
 
             {/* Children List */}
             <section>
-                <h2 className="text-xl font-semibold mb-4 text-gray-800">Mes Enfants</h2>
+                <h2 className="text-xl font-semibold mb-4 text-white">Mes Enfants</h2>
                 <ChildrenList childrenData={data?.children || []} />
             </section>
 
@@ -119,17 +142,17 @@ export default function ParentDashboard() {
                 </div>
                 <div>
                     {/* Placeholder for future widgets like "Next Report" or "Alerts" */}
-                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white h-full flex flex-col justify-center items-center text-center">
+                    <div className="bg-gradient-to-br from-blue-500/80 via-indigo-500/70 to-purple-600/80 rounded-2xl p-6 text-white h-full flex flex-col justify-center items-center text-center border border-white/10 shadow-premium">
                         <h3 className="text-xl font-bold mb-2">Prochain Bilan</h3>
-                        <p className="text-indigo-100 mb-4">Le prochain bilan trimestriel sera disponible le 15 Mars.</p>
-                        <Button variant="secondary" size="sm">En savoir plus</Button>
+                        <p className="text-indigo-100/90 mb-4">Le prochain bilan trimestriel sera disponible le 15 Mars.</p>
+                        <Button className="btn-outline" size="sm">En savoir plus</Button>
                     </div>
                 </div>
             </section>
 
             {/* Transactions */}
             <section>
-                <h2 className="text-xl font-semibold mb-4 text-gray-800">Historique Financier</h2>
+                <h2 className="text-xl font-semibold mb-4 text-white">Historique Financier</h2>
                 <TransactionHistory transactions={data?.payments || []} />
             </section>
         </div>

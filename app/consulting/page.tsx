@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { LineChart, Server, Brain, Blocks, Code2 } from 'lucide-react';
@@ -19,10 +20,10 @@ export default function ConsultingPage() {
                             <LineChart size={16} strokeWidth={1.5} />
                             <span>Nexus Consulting</span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-display">
+                        <h1 className="marketing-hero-title mb-6 tracking-tight">
                             Expertise 360° : L'Alliance de la Pédagogie et de la Technologie.
                         </h1>
-                        <p className="text-xl text-slate-300 leading-relaxed">
+                        <p className="marketing-hero-copy">
                             De l'audit de votre infrastructure réseau à l'intégration de l'IA en classe. Nous accompagnons la transformation numérique de votre établissement.
                         </p>
                     </div>
@@ -33,8 +34,8 @@ export default function ConsultingPage() {
             <section className="py-24 bg-surface-darker">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center mb-16 max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-white mb-4 font-display">Nos 4 Piliers d'Intervention</h2>
-                        <p className="text-slate-300">
+                        <h2 className="marketing-section-title text-center mb-4">Nos 4 Piliers d'Intervention</h2>
+                        <p className="marketing-section-copy text-center">
                             Une approche complète pour moderniser votre établissement et sécuriser vos parcours pédagogiques.
                         </p>
                     </div>
@@ -73,13 +74,30 @@ export default function ConsultingPage() {
             </section>
 
             {/* CTA final */}
-            <section className="py-20 border-t border-white/10 bg-surface-darker">
+            <section className="py-16 border-t border-white/10 bg-surface-darker">
                 <div className="container mx-auto px-4 md:px-6">
-                    <div className="text-center">
-                        <h2 className="text-3xl font-bold text-white mb-6 font-display">Un projet spécifique ?</h2>
-                        <a href="/contact" className="inline-flex h-12 items-center justify-center rounded-full border border-brand-accent px-8 text-sm font-semibold text-white transition-all hover:bg-brand-accent hover:text-slate-950">
-                            Contacter la Direction Technique
-                        </a>
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div>
+                                <p className="marketing-eyebrow">
+                                    Prochaine étape
+                                </p>
+                                <h2 className="marketing-cta-title">
+                                    Un projet spécifique ?
+                                </h2>
+                                <p className="marketing-cta-copy">
+                                    Échangeons sur vos besoins techniques et pédagogiques.
+                                </p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Link href="/contact" className="btn-primary">
+                                    Contacter la Direction Technique
+                                </Link>
+                                <Link href="/contact" className="btn-outline">
+                                    Demander un devis
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

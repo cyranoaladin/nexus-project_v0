@@ -22,7 +22,7 @@ export function UrgencyBanner({ closingDate }: UrgencyBannerProps) {
         <a
           href="#reservation"
           onClick={handleCTAClick}
-          className="rounded-full bg-white text-red-600 px-6 py-2 text-sm font-bold hover:bg-gray-100 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
+          className="btn-outline-strong whitespace-nowrap"
           aria-label="Réserver une consultation gratuite"
         >
           Réserver une consultation gratuite

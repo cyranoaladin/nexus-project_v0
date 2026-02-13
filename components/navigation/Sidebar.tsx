@@ -20,7 +20,7 @@ export async function Sidebar() {
       <div className="flex flex-col h-full">
         <div className="flex items-center h-16 px-6 border-b border-neutral-800">
           <h1 className="text-xl font-bold text-brand-primary">
-            YKS Platform
+            Nexus Réussite
           </h1>
         </div>
 

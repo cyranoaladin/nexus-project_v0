@@ -1,0 +1,22 @@
+node_modules
+.next
+coverage
+playwright-report
+test-results
+.git
+.github
+.logs
+.pytest_cache
+.venv
+.test-temp
+
+# Keep production env only for build-time parity.
+.env.local
+.env.e2e
+.env.e2e.local
+.env.e2e.example
+.env.test
+.env.ci.example
+
+*.log
+*.pid

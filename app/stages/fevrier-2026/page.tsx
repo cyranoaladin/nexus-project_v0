@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { UrgencyBanner } from '@/components/stages/UrgencyBanner';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { StagesHero } from '@/components/stages/StagesHero';
 import { Timeline } from '@/components/stages/Timeline';
 import { SituationsCards } from '@/components/stages/SituationsCards';
@@ -37,16 +39,16 @@ import {
 
 export default function StagesFevrier2026Page() {
   return (
-    <div className="min-h-screen bg-white scroll-smooth">
+    <div className="min-h-screen bg-surface-darker text-neutral-100 scroll-smooth stages-dark">
       {/* Tracking */}
       <ScrollDepthTracker />
 
       {/* A — Top Banner (urgence) */}
       <UrgencyBanner closingDate="10/02" />
 
-      {/* Header */}
+      <CorporateNavbar />
 
-      <main>
+      <main className="pt-24">
         {/* B — HERO (above the fold) */}
         <StagesHero stats={stats} />
 
@@ -96,7 +98,7 @@ export default function StagesFevrier2026Page() {
         <FinalCTA closingDate={deadlines.registrationCloseDate} academies={academies} />
       </main>
 
-      {/* Footer */}
+      <CorporateFooter />
 
       {/* Sticky mobile CTA */}
       <StickyMobileCTA />

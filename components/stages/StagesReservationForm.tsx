@@ -149,7 +149,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             onChange={(e) => handleInputChange('academyId', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.academyId ? 'border-red-500' : 'border-slate-300'
-            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all`}
+            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
           >
             <option value="">-- Sélectionnez une académie --</option>
             {academies.map((academy) => (
@@ -182,7 +182,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             onChange={(e) => handleInputChange('parent', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.parent ? 'border-red-500' : 'border-slate-300'
-            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all`}
+            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="Ex: Mohamed Ben Ali"
           />
           {errors.parent && (
@@ -201,7 +201,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             onChange={(e) => handleInputChange('phone', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.phone ? 'border-red-500' : 'border-slate-300'
-            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all`}
+            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="+216 99 19 28 29"
           />
           {errors.phone && (
@@ -220,7 +220,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             onChange={(e) => handleInputChange('email', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.email ? 'border-red-500' : 'border-slate-300'
-            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all`}
+            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="votre@email.com"
           />
           {errors.email && (
@@ -239,7 +239,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             onChange={(e) => handleInputChange('classe', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.classe ? 'border-red-500' : 'border-slate-300'
-            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all`}
+            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="Ex: Terminale / Première"
           />
           {errors.classe && (
@@ -359,7 +359,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="w-full btn-stage disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">

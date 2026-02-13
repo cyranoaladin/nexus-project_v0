@@ -71,7 +71,7 @@ export function FAQAccordion({ faq }: FAQAccordionProps) {
             <a
               href="#reservation"
               onClick={handleCTAClick}
-              className="inline-block rounded-full bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 text-base font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              className="btn-stage"
               aria-label="Réserver une consultation gratuite"
             >
               Réserver une consultation gratuite

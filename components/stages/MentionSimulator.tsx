@@ -109,7 +109,7 @@ export function MentionSimulator() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur rounded-2xl p-6 border-2 border-blue-400/50">
                     <div className="text-center mb-4">
-                      <div className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-3">
+                      <div className="pill-stage-strong mb-3">
                         Pallier 1 : Essentiel
                       </div>
                       <div className="text-xs text-blue-200 mb-4">Progression moyenne : +2,5 points</div>
@@ -140,7 +140,7 @@ export function MentionSimulator() {
                     <div className="text-center">
                       <a
                         href="#academies"
-                        className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-bold text-sm transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                        className="btn-stage-sm"
                       >
                         Voir Pallier 1
                       </a>
@@ -149,7 +149,7 @@ export function MentionSimulator() {
 
                   <div className="bg-gradient-to-br from-purple-600/30 to-pink-600/30 backdrop-blur rounded-2xl p-6 border-2 border-purple-400/50">
                     <div className="text-center mb-4">
-                      <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-3">
+                      <div className="pill-stage-strong mb-3">
                         Pallier 2 : Excellence
                       </div>
                       <div className="text-xs text-purple-200 mb-4">Progression moyenne : +4,5 points</div>
@@ -180,7 +180,7 @@ export function MentionSimulator() {
                     <div className="text-center">
                       <a
                         href="#academies"
-                        className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-full font-bold text-sm transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                        className="btn-stage-gradient"
                       >
                         Voir Pallier 2
                       </a>
@@ -212,7 +212,7 @@ export function MentionSimulator() {
             </p>
             <a
               href="#reservation"
-              className="inline-block bg-white/10 hover:bg-white/20 backdrop-blur text-white border-2 border-white/30 px-6 py-3 rounded-full font-bold text-sm transition-all"
+              className="btn-stage-outline"
             >
               Réserver une consultation gratuite
             </a>

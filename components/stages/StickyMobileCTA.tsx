@@ -27,7 +27,7 @@ export function StickyMobileCTA() {
       <a
         href="#reservation"
         onClick={handleClick}
-        className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-4 px-6 font-black text-lg shadow-2xl hover:from-blue-700 hover:to-purple-700 transition-all"
+        className="btn-stage-gradient w-full text-center"
         aria-label="Réserver un bilan gratuit"
       >
         📅 Bilan Gratuit

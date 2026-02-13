@@ -167,6 +167,9 @@ jest.mock('./lib/prisma', () => ({
       findMany: jest.fn(),
       groupBy: jest.fn(),
     },
+    studentBadge: {
+      findMany: jest.fn(),
+    },
     $transaction: jest.fn(),
   },
 }));

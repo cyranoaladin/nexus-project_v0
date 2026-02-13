@@ -65,7 +65,7 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                   </div>
 
                   <div className="mb-6 flex-1">
-                    <div className="text-xs uppercase tracking-wider text-green-600 font-semibold mb-2">
+                    <div className="text-xs uppercase tracking-wider text-green-700 font-semibold mb-2">
                       ✅ Notre réponse
                     </div>
                     <p className="text-sm text-slate-700">{situation.solution}</p>
@@ -74,7 +74,7 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                   <a
                     href={situation.ctaLink}
                     onClick={() => handleCTA(situation.id)}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg hover:scale-105 w-full"
+                    className="btn-stage-sm w-full"
                   >
                     {situation.ctaText}
                   </a>

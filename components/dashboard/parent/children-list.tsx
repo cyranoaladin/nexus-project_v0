@@ -23,8 +23,8 @@ interface ChildData {
 export function ChildrenList({ childrenData }: { childrenData: ChildData[] }) {
     if (!childrenData || childrenData.length === 0) {
         return (
-            <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
+            <Card className="bg-surface-card border border-white/10">
+                <CardContent className="pt-6 text-center text-neutral-400">
                     Aucun enfant associé à ce compte.
                 </CardContent>
             </Card>
@@ -34,54 +34,54 @@ export function ChildrenList({ childrenData }: { childrenData: ChildData[] }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {childrenData.map((child) => (
-                <Card key={child.id} className="overflow-hidden border-2 hover:border-brand-primary/50 transition-colors">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-8">
+                <Card key={child.id} className="overflow-hidden border border-white/10 bg-surface-card shadow-premium hover:border-brand-accent/40 transition-colors">
+                    <CardHeader className="bg-gradient-to-br from-white/5 via-white/10 to-transparent pb-8">
                         <div className="flex items-center space-x-4">
-                            <Avatar className="h-16 w-16 border-2 border-white shadow-sm">
-                                <AvatarFallback className="bg-brand-primary text-white text-xl">
+                            <Avatar className="h-16 w-16 border border-white/10 shadow-premium">
+                                <AvatarFallback className="bg-brand-accent text-surface-dark text-xl font-bold">
                                     {child.name.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <CardTitle>{child.name}</CardTitle>
-                                <CardDescription className="flex items-center mt-1">
-                                    <School className="w-3 h-3 mr-1" />
+                                <CardTitle className="text-white">{child.name}</CardTitle>
+                                <CardDescription className="flex items-center mt-1 text-neutral-300">
+                                    <School className="w-3 h-3 mr-1 text-brand-accent" />
                                     {child.grade || "Niveau non défini"}
                                 </CardDescription>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="-mt-4">
-                        <div className="bg-white rounded-lg p-4 shadow-sm border mb-4">
+                        <div className="bg-surface-elevated/60 rounded-lg p-4 border border-white/10 mb-4">
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Crédits restants</span>
-                                <span className="font-bold text-brand-primary">{child.credits}</span>
+                                <span className="text-neutral-400">Crédits restants</span>
+                                <span className="font-bold text-brand-accent">{child.credits}</span>
                             </div>
                             {child.school && (
                                 <div className="flex justify-between items-center text-sm mt-2">
-                                    <span className="text-gray-500">École</span>
-                                    <span className="font-medium">{child.school}</span>
+                                    <span className="text-neutral-400">École</span>
+                                    <span className="font-medium text-neutral-100">{child.school}</span>
                                 </div>
                             )}
                         </div>
 
                         <div className="space-y-3">
-                            <h4 className="text-sm font-semibold flex items-center">
-                                <Trophy className="w-4 h-4 mr-2 text-yellow-500" />
+                            <h4 className="text-sm font-semibold flex items-center text-neutral-100">
+                                <Trophy className="w-4 h-4 mr-2 text-amber-300" />
                                 Badges obtenus
                             </h4>
-                            <ScrollArea className="h-[120px] w-full rounded-md border p-2 bg-gray-50">
+                            <ScrollArea className="h-[120px] w-full rounded-md border border-white/10 p-2 bg-surface-darker/60">
                                 {child.badges.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {child.badges.map((badge) => (
-                                            <div key={badge.id} className="flex items-center bg-white border px-2 py-1 rounded-full text-xs shadow-sm" title={badge.category}>
+                                            <div key={badge.id} className="flex items-center bg-white/5 border border-white/10 px-2 py-1 rounded-full text-xs text-neutral-200" title={badge.category}>
                                                 <span className="mr-1">{badge.icon || "🏅"}</span>
                                                 {badge.name}
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-gray-400 text-center py-4">
+                                    <p className="text-xs text-neutral-400 text-center py-4">
                                         Pas encore de badges. Encouragez {child.name.split(' ')[0]} !
                                     </p>
                                 )}

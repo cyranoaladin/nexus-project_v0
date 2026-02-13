@@ -45,5 +45,44 @@ describe('upsertPaymentByExternalId', () => {
     expect(res.created).toBe(false);
     expect(res.payment.id).toBe('p3');
   });
-});
 
+  it('uses default currency and metadata when creating', async () => {
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'p4', externalId: 'ext4', method: 'wise' });
+
+    await upsertPaymentByExternalId({
+      externalId: 'ext4',
+      method: 'wise',
+      type: 'SUBSCRIPTION',
+      userId: 'u2',
+      amount: 42,
+      description: 'subscription',
+      metadata: { plan: 'HYBRIDE' },
+    });
+
+    expect(prisma.payment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          currency: 'TND',
+          metadata: { plan: 'HYBRIDE' },
+        }),
+      })
+    );
+  });
+
+  it('rethrows non-unique errors', async () => {
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.payment.create as jest.Mock).mockRejectedValueOnce(new Error('db down'));
+
+    await expect(
+      upsertPaymentByExternalId({
+        externalId: 'ext5',
+        method: 'konnect',
+        type: 'CREDIT_PACK',
+        userId: 'u3',
+        amount: 10,
+        description: 'desc',
+      })
+    ).rejects.toThrow('db down');
+  });
+});

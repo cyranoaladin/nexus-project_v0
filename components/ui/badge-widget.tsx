@@ -58,10 +58,15 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
   const loadBadges = useCallback(async () => {
     try {
       const response = await fetch(`/api/students/${studentId}/badges`);
-      if (response.ok) {
-        const data = await response.json();
-        setBadges(data.badges || []);
+      if (!response.ok) {
+        throw new Error(`Badge API error: ${response.status}`);
       }
+      const data = await response.json();
+      const normalizedBadges = (data.badges || []).map((badge: UserBadge) => ({
+        ...badge,
+        unlockedAt: badge.unlockedAt ? new Date(badge.unlockedAt) : new Date(),
+      }));
+      setBadges(normalizedBadges);
     } catch (error) {
       console.error('Erreur lors du chargement des badges:', error);
       // Données de démonstration en cas d'erreur

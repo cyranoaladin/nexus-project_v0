@@ -7,7 +7,15 @@ test('Parent Dashboard - Access and Data Isolation (Debug)', async ({ page }) =>
     await loginAsUser(page, 'parent');
 
     console.log('Navigating to Parent Dashboard...');
-    await page.goto('/dashboard/parent', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' }).catch(() => {
+      // Allow redirects/interrupted navigation
+    });
+    if (page.url().includes('/auth/signin')) {
+      await page.getByLabel('Adresse Email').fill('parent.dashboard@test.com');
+      await page.getByRole('textbox', { name: 'Mot de Passe' }).fill('password123');
+      await page.getByRole('button', { name: /Accéder à Mon Espace/i }).click();
+      await page.waitForURL(/\/dashboard\/parent/, { timeout: 15000 });
+    }
 
     // Take screenshot for debugging
     await page.screenshot({ path: 'test-results/parent-dashboard-debug.png', fullPage: true });

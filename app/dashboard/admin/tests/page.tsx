@@ -106,7 +106,7 @@ export default function AdminTestsPage() {
             <AlertDescription className="mt-1">
               {result.success ? result.message : result.error}
               {result.data !== undefined && result.data !== null && (
-                <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-20">
+                <pre className="mt-2 text-xs bg-white/5 border border-white/10 p-2 rounded overflow-auto max-h-20">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>
               )}
@@ -118,7 +118,8 @@ export default function AdminTestsPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
+      <div className="container mx-auto p-6 space-y-8">
       {!isAuthorized && (
         <div className="container mx-auto p-6">
           <Alert>
@@ -132,17 +133,17 @@ export default function AdminTestsPage() {
       {isAuthorized && (
         <>
           <div className="flex items-center gap-3">
-            <Settings className="h-8 w-8 text-brand-primary" />
+            <Settings className="h-8 w-8 text-brand-accent" />
             <div>
-              <h1 className="text-3xl font-bold">Tests Système</h1>
-              <p className="text-gray-600">Vérification et test des configurations critiques</p>
+              <h1 className="text-3xl font-bold text-white">Tests Système</h1>
+              <p className="text-neutral-400">Vérification et test des configurations critiques</p>
             </div>
           </div>
 
           {/* Configuration Email */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Mail className="h-5 w-5" />
                 Configuration Email (SMTP)
               </CardTitle>
@@ -150,13 +151,13 @@ export default function AdminTestsPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {emailConfig.map((config) => (
-                  <div key={config.variable} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="font-medium">{config.variable}</span>
+                  <div key={config.variable} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <span className="font-medium text-neutral-200">{config.variable}</span>
                     <div className="flex items-center gap-2">
                       <Badge variant={config.configured ? 'default' : 'destructive'}>
                         {config.configured ? 'Configuré' : 'Manquant'}
                       </Badge>
-                      <span className="text-sm text-gray-600 max-w-32 truncate">
+                      <span className="text-sm text-neutral-300 max-w-32 truncate">
                         {config.value}
                       </span>
                     </div>
@@ -179,7 +180,7 @@ export default function AdminTestsPage() {
                     placeholder="email@test.com"
                     value={testEmail}
                     onChange={(e) => setTestEmail(e.target.value)}
-                    className="flex-1"
+                    className="flex-1 bg-surface-elevated border-white/10 text-neutral-100"
                   />
                   <Button
                     onClick={() => runTest('emailSend', '/api/admin/test-email', {
@@ -188,6 +189,7 @@ export default function AdminTestsPage() {
                     })}
                     disabled={loading || !testEmail}
                     variant="outline"
+                    className="border-white/10 text-neutral-200 hover:text-white"
                   >
                     Envoyer Test
                   </Button>
@@ -202,9 +204,9 @@ export default function AdminTestsPage() {
           </Card>
 
           {/* Configuration Paiements */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <CreditCard className="h-5 w-5" />
                 Configuration Paiements
               </CardTitle>
@@ -213,10 +215,10 @@ export default function AdminTestsPage() {
               {paymentConfig && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Konnect (Tunisie)</h4>
+                    <h4 className="font-semibold text-sm text-neutral-200">Konnect (Tunisie)</h4>
                     {Object.entries(paymentConfig.konnect).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{key}</span>
+                      <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
+                        <span className="text-sm text-neutral-300">{key}</span>
                         <Badge variant={configured ? 'default' : 'destructive'}>
                           {configured ? 'OK' : 'Manquant'}
                         </Badge>
@@ -225,10 +227,10 @@ export default function AdminTestsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Wise (International)</h4>
+                    <h4 className="font-semibold text-sm text-neutral-200">Wise (International)</h4>
                     {Object.entries(paymentConfig.wise).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{key}</span>
+                      <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
+                        <span className="text-sm text-neutral-300">{key}</span>
                         <Badge variant={configured ? 'default' : 'destructive'}>
                           {configured ? 'OK' : 'Manquant'}
                         </Badge>
@@ -256,7 +258,7 @@ export default function AdminTestsPage() {
                     value={testAmount}
                     onChange={(e) => setTestAmount(e.target.value)}
                     min="100"
-                    className="flex-1"
+                    className="flex-1 bg-surface-elevated border-white/10 text-neutral-100"
                   />
                   <Button
                     onClick={() => runTest('konnectPayment', '/api/admin/test-payments', {
@@ -265,6 +267,7 @@ export default function AdminTestsPage() {
                     })}
                     disabled={loading || !testAmount}
                     variant="outline"
+                    className="border-white/10 text-neutral-200 hover:text-white"
                   >
                     Créer Paiement Test
                   </Button>
@@ -279,32 +282,32 @@ export default function AdminTestsPage() {
           </Card>
 
           {/* Résumé des Tests */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
-              <CardTitle>Résumé des Tests</CardTitle>
+              <CardTitle className="text-white">Résumé des Tests</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                  <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <p className="font-semibold text-green-800">Tests Réussis</p>
-                  <p className="text-2xl font-bold text-green-600">
+                <div className="text-center p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <CheckCircle className="h-8 w-8 text-emerald-300 mx-auto mb-2" />
+                  <p className="font-semibold text-emerald-200">Tests Réussis</p>
+                  <p className="text-2xl font-bold text-emerald-300">
                     {Object.values(results).filter(r => r.success).length}
                   </p>
                 </div>
 
-                <div className="text-center p-4 bg-red-50 rounded-lg border-2 border-red-200">
-                  <XCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                  <p className="font-semibold text-red-800">Tests Échoués</p>
-                  <p className="text-2xl font-bold text-red-600">
+                <div className="text-center p-4 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                  <XCircle className="h-8 w-8 text-rose-300 mx-auto mb-2" />
+                  <p className="font-semibold text-rose-200">Tests Échoués</p>
+                  <p className="text-2xl font-bold text-rose-300">
                     {Object.values(results).filter(r => !r.success).length}
                   </p>
                 </div>
 
-                <div className="text-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                  <Settings className="h-8 w-8 text-brand-primary mx-auto mb-2" />
-                  <p className="font-semibold text-blue-800">Total Tests</p>
-                  <p className="text-2xl font-bold text-brand-primary">
+                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                  <Settings className="h-8 w-8 text-brand-accent mx-auto mb-2" />
+                  <p className="font-semibold text-neutral-200">Total Tests</p>
+                  <p className="text-2xl font-bold text-brand-accent">
                     {Object.keys(results).length}
                   </p>
                 </div>
@@ -315,7 +318,7 @@ export default function AdminTestsPage() {
                   <Button
                     onClick={() => setResults({})}
                     variant="outline"
-                    className="w-full"
+                    className="w-full border-white/10 text-neutral-200 hover:text-white"
                   >
                     Effacer les Résultats
                   </Button>
@@ -325,6 +328,7 @@ export default function AdminTestsPage() {
           </Card>
         </>
       )}
+      </div>
     </div>
   );
 }

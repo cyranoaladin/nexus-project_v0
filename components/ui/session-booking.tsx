@@ -385,7 +385,10 @@ export default function SessionBooking({
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center">
+            <div
+              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center"
+              data-testid="booking-error"
+            >
               <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
               <span className="text-red-700 text-sm">{error}</span>
             </div>
@@ -404,7 +407,7 @@ export default function SessionBooking({
                 <div>
                   <Label htmlFor="subject" className="text-sm md:text-base">Matière *</Label>
                   <Select value={subject} onValueChange={setSubject}>
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-1" data-testid="booking-subject-trigger">
                       <SelectValue placeholder="Sélectionnez une matière" />
                     </SelectTrigger>
                     <SelectContent>
@@ -427,7 +430,7 @@ export default function SessionBooking({
                       </div>
                     ) : coaches.length > 0 ? (
                       <Select value={selectedCoach} onValueChange={setSelectedCoach}>
-                        <SelectTrigger className="mt-1">
+                        <SelectTrigger className="mt-1" data-testid="booking-coach-trigger">
                           <SelectValue placeholder="Sélectionnez un coach" />
                         </SelectTrigger>
                         <SelectContent>
@@ -451,6 +454,7 @@ export default function SessionBooking({
                     onClick={() => setStep(2)}
                     disabled={!subject || !selectedCoach}
                     className="px-6 md:px-8"
+                    data-testid="booking-step1-next"
                   >
                     Suivant
                   </Button>
@@ -497,6 +501,7 @@ export default function SessionBooking({
                       return (
                         <Card
                           key={index}
+                          data-testid={`booking-slot-${index}`}
                           className={`cursor-pointer transition-all duration-200 ${
                             selectedSlot === slot
                               ? 'border-blue-500 bg-blue-50'
@@ -554,6 +559,7 @@ export default function SessionBooking({
                     onClick={() => setStep(3)}
                     disabled={!selectedSlot}
                     className="px-6 md:px-8"
+                    data-testid="booking-step2-next"
                   >
                     Suivant
                   </Button>
@@ -628,6 +634,7 @@ export default function SessionBooking({
                     placeholder="Ex: Révision des équations du second degré"
                     className={`mt-1 ${titleError ? 'border-red-300' : ''}`}
                     maxLength={100}
+                    data-testid="booking-title"
                   />
                   {titleError && (
                     <p className="text-xs text-red-600 mt-1">{titleError}</p>
@@ -647,6 +654,7 @@ export default function SessionBooking({
                     className={`mt-1 ${descriptionError ? 'border-red-300' : ''}`}
                     rows={3}
                     maxLength={500}
+                    data-testid="booking-description"
                   />
                   {descriptionError && (
                     <p className="text-xs text-red-600 mt-1">{descriptionError}</p>
@@ -680,6 +688,7 @@ export default function SessionBooking({
                     onClick={handleBookSession}
                     disabled={loading || !title.trim() || !!titleError || !!descriptionError}
                     className="px-6 md:px-8"
+                    data-testid="booking-confirm"
                   >
                     {loading ? (
                       <>
@@ -710,7 +719,7 @@ export default function SessionBooking({
                   Votre session a été programmée. Vous recevrez une confirmation par email.
                 </p>
                 <div className="space-y-3">
-                  <Button onClick={resetBooking} variant="outline">
+                  <Button onClick={resetBooking} variant="outline" data-testid="booking-reset">
                     Réserver une autre session
                   </Button>
                 </div>

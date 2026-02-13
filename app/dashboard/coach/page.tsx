@@ -116,10 +116,10 @@ export default function DashboardCoach() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" aria-label="Chargement" />
-          <p className="text-neutral-600">Chargement de votre espace coach...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" aria-label="Chargement" />
+          <p className="text-neutral-400">Chargement de votre espace coach...</p>
         </div>
       </div>
     );
@@ -127,14 +127,14 @@ export default function DashboardCoach() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-error" aria-label="Erreur" />
-          <p className="text-error mb-4">Erreur lors du chargement</p>
-          <p className="text-neutral-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-label="Erreur" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button
             onClick={() => window.location.reload()}
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -144,29 +144,29 @@ export default function DashboardCoach() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <BookOpen className="w-8 h-8 text-brand-primary" aria-hidden="true" />
+                <BookOpen className="w-8 h-8 text-brand-accent" aria-hidden="true" />
                 <div>
-                  <h1 className="font-semibold text-neutral-900">
+                  <h1 className="font-semibold text-white">
                     {dashboardData?.coach.pseudonym || session?.user.firstName}
                   </h1>
-                  <p className="text-sm text-neutral-500">Espace Coach</p>
+                  <p className="text-sm text-neutral-400">Espace Coach</p>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'availability')} className="ml-8">
-                <TabsList>
-                  <TabsTrigger value="dashboard">
+                <TabsList className="bg-white/5 border border-white/10">
+                  <TabsTrigger value="dashboard" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">
                     Tableau de Bord
                   </TabsTrigger>
-                  <TabsTrigger value="availability">
+                  <TabsTrigger value="availability" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">
                     Mes Disponibilités
                   </TabsTrigger>
                 </TabsList>
@@ -175,7 +175,7 @@ export default function DashboardCoach() {
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-neutral-600 hover:text-neutral-900"
+              className="text-neutral-300 hover:text-white"
               aria-label="Se déconnecter"
             >
               <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
@@ -191,15 +191,15 @@ export default function DashboardCoach() {
           <>
             {/* Welcome Section */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-neutral-900 mb-2">
-                Bonjour {dashboardData?.coach.pseudonym} ! 👨‍🏫
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Bonjour {dashboardData?.coach.pseudonym} !
               </h2>
-              <p className="text-neutral-600">
+              <p className="text-neutral-300">
                 Voici votre tableau de bord pour gérer vos sessions et suivre vos élèves.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {dashboardData?.coach.specialties?.map((specialty: string, index: number) => (
-                  <Badge key={index} variant="outline">
+                  <Badge key={index} variant="outline" className="border-white/10 text-neutral-300">
                     {specialty}
                   </Badge>
                 ))}
@@ -210,79 +210,79 @@ export default function DashboardCoach() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Dialog open={isWeekDialogOpen} onOpenChange={setIsWeekDialogOpen}>
             <DialogTrigger asChild>
-              <Card className="cursor-pointer">
+              <Card className="cursor-pointer bg-surface-card border border-white/10 shadow-premium">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Sessions Cette Semaine</CardTitle>
-                  <Calendar className="h-4 w-4 text-brand-primary" aria-hidden="true" />
+                  <CardTitle className="text-sm font-medium text-neutral-200">Sessions Cette Semaine</CardTitle>
+                  <Calendar className="h-4 w-4 text-brand-accent" aria-hidden="true" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-brand-primary">
+                  <div className="text-2xl font-bold text-brand-accent">
                     {dashboardData?.weekStats?.totalSessions || 0}
                   </div>
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-xs text-neutral-400 mt-1">
                     {dashboardData?.weekStats?.completedSessions || 0} terminées, {dashboardData?.weekStats?.upcomingSessions || 0} à venir
                   </p>
                 </CardContent>
               </Card>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-3xl bg-surface-card border border-white/10 text-neutral-100">
               <DialogHeader>
-                <DialogTitle>Sessions de la semaine</DialogTitle>
+                <DialogTitle className="text-white">Sessions de la semaine</DialogTitle>
               </DialogHeader>
               {dashboardData?.weekSessions && dashboardData.weekSessions.length > 0 ? (
                 <div className="space-y-3 max-h-[70vh] overflow-y-auto">
                   {dashboardData.weekSessions.map((s) => (
-                    <div key={s.id} className="p-4 border rounded-lg flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div key={s.id} className="p-4 border border-white/10 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between bg-white/5">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <h4 className="font-medium text-neutral-900">{s.title || s.subject}</h4>
-                          <Badge variant="outline" className="text-xs">{s.type}</Badge>
+                          <h4 className="font-medium text-white">{s.title || s.subject}</h4>
+                          <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">{s.type}</Badge>
                           <Badge variant="default" className="text-xs">{s.modality}</Badge>
                         </div>
-                        <p className="text-sm text-neutral-600 mt-1">Avec {s.studentName}</p>
-                        <p className="text-sm text-brand-primary font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
+                        <p className="text-sm text-neutral-300 mt-1">Avec {s.studentName}</p>
+                        <p className="text-sm text-brand-accent font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
                         {s.description && (
-                          <p className="text-xs text-neutral-500 mt-1">{s.description}</p>
+                          <p className="text-xs text-neutral-400 mt-1">{s.description}</p>
                         )}
                       </div>
                       <div className="mt-3 md:mt-0 flex items-center gap-2">
                         <Badge className="text-xs">{s.status.toLowerCase()}</Badge>
-                        <Badge variant="outline" className="text-xs">{s.creditsUsed} crédit(s)</Badge>
+                        <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">{s.creditsUsed} crédit(s)</Badge>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-neutral-500 text-sm">Aucune session planifiée cette semaine.</div>
+                <div className="text-neutral-400 text-sm">Aucune session planifiée cette semaine.</div>
               )}
             </DialogContent>
           </Dialog>
 
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Aujourd'hui</CardTitle>
-              <Clock className="h-4 w-4 text-green-600" aria-hidden="true" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Aujourd'hui</CardTitle>
+              <Clock className="h-4 w-4 text-emerald-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-neutral-900">
+              <div className="text-2xl font-bold text-white">
                 {dashboardData?.todaySessions?.length || 0}
               </div>
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 Sessions programmées
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Mes Élèves</CardTitle>
-              <Users className="h-4 w-4 text-purple-600" aria-hidden="true" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Mes Élèves</CardTitle>
+              <Users className="h-4 w-4 text-purple-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-neutral-900">
+              <div className="text-2xl font-bold text-white">
                 {dashboardData?.uniqueStudentsCount || 0}
               </div>
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 Élèves suivis ce mois
               </p>
             </CardContent>
@@ -292,10 +292,10 @@ export default function DashboardCoach() {
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Planning du Jour */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-brand-primary" aria-hidden="true" />
+                <Calendar className="w-5 h-5 mr-2 text-brand-accent" aria-hidden="true" />
                 Planning d'Aujourd'hui
               </CardTitle>
             </CardHeader>
@@ -305,23 +305,23 @@ export default function DashboardCoach() {
                   {dashboardData.todaySessions.map((session) => (
                     <div
                       key={session.id}
-                      className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"
+                      className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
                     >
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-medium text-neutral-900">{session.studentName}</h4>
-                          <Badge variant="outline" className="text-xs">
+                          <h4 className="font-medium text-white">{session.studentName}</h4>
+                          <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">
                             {session.type}
                           </Badge>
                           {session.status === 'COMPLETED' && (
-                            <Badge variant="default" className="text-xs bg-green-100 text-green-800">
+                            <Badge variant="default" className="text-xs bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Rapport soumis
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-neutral-600">{session.subject}</p>
-                        <p className="text-sm font-medium text-brand-primary">{session.time}</p>
+                        <p className="text-sm text-neutral-300">{session.subject}</p>
+                        <p className="text-sm font-medium text-brand-accent">{session.time}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         {(session.status === 'CONFIRMED' || session.status === 'IN_PROGRESS') && (
@@ -342,11 +342,11 @@ export default function DashboardCoach() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Calendar className="w-16 h-16 text-neutral-300 mx-auto mb-4" aria-hidden="true" />
-                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                  <Calendar className="w-16 h-16 text-neutral-500 mx-auto mb-4" aria-hidden="true" />
+                  <h3 className="text-lg font-medium text-white mb-2">
                     Aucune session aujourd'hui
                   </h3>
-                  <p className="text-neutral-500">
+                  <p className="text-neutral-400">
                     Profitez de cette journée pour préparer vos prochains cours.
                   </p>
                 </div>
@@ -355,10 +355,10 @@ export default function DashboardCoach() {
           </Card>
 
           {/* Mes Élèves */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2 text-green-600" aria-hidden="true" />
+                <Users className="w-5 h-5 mr-2 text-emerald-300" aria-hidden="true" />
                 Mes Élèves
               </CardTitle>
             </CardHeader>
@@ -368,46 +368,34 @@ export default function DashboardCoach() {
                   {dashboardData.students.map((student, index) => (
                     <div
                       key={student.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border ${
-                        student.isNew
-                          ? 'bg-purple-50 border-purple-200'
-                          : index % 2 === 0
-                            ? 'bg-green-50 border-green-200'
-                            : 'bg-blue-50 border-blue-200'
-                      }`}
+                      className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/5"
                     >
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-medium text-neutral-900">{student.name}</h4>
-                          <Badge variant="outline" className="text-xs">
+                          <h4 className="font-medium text-white">{student.name}</h4>
+                          <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">
                             {student.grade}
                           </Badge>
                           {student.isNew && (
-                            <Badge variant="default" className="text-xs bg-purple-100 text-purple-800">
+                            <Badge variant="default" className="text-xs bg-purple-500/15 text-purple-200 border border-purple-500/20">
                               Nouveau
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-neutral-600">
+                        <p className="text-sm text-neutral-300">
                           {student.subject} • Dernière session: {new Date(student.lastSession).toLocaleDateString('fr-FR')}
                         </p>
                         <div className="flex items-center space-x-4 mt-2">
-                          <span className={`text-xs font-medium ${
-                            student.isNew
-                              ? 'text-purple-600'
-                              : index % 2 === 0
-                                ? 'text-green-600'
-                                : 'text-brand-primary'
-                          }`}>
+                          <span className="text-xs font-medium text-neutral-200">
                             {student.isNew ? 'Nouveau élève' : 'Progression: 75%'}
                           </span>
-                          <span className="text-xs text-neutral-500">
+                          <span className="text-xs text-neutral-400">
                             {student.creditBalance.toFixed(1)} crédits restants
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="border-white/10 text-neutral-200 hover:text-white">
                           {student.isNew ? 'Planifier 1ère Session' : 'Voir Profil'}
                         </Button>
                       </div>
@@ -416,11 +404,11 @@ export default function DashboardCoach() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Users className="w-16 h-16 text-neutral-300 mx-auto mb-4" aria-hidden="true" />
-                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                  <Users className="w-16 h-16 text-neutral-500 mx-auto mb-4" aria-hidden="true" />
+                  <h3 className="text-lg font-medium text-white mb-2">
                     Aucun élève pour le moment
                   </h3>
-                  <p className="text-neutral-500">
+                  <p className="text-neutral-400">
                     Vos élèves apparaîtront ici une fois qu'ils auront réservé des sessions.
                   </p>
                 </div>
@@ -430,26 +418,26 @@ export default function DashboardCoach() {
         </div>
 
             {/* Actions Rapides */}
-            <Card className="mt-8">
+            <Card className="mt-8 bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
-                <CardTitle>Actions Rapides</CardTitle>
+                <CardTitle className="text-white">Actions Rapides</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button
                     variant="outline"
-                    className="h-auto p-4 flex flex-col items-center space-y-2"
+                    className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
                     onClick={() => setActiveTab('availability')}
                   >
-                    <Calendar className="w-6 h-6 text-brand-primary" aria-hidden="true" />
+                    <Calendar className="w-6 h-6 text-brand-accent" aria-hidden="true" />
                     <span>Gérer mon Planning</span>
                   </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                    <MessageCircle className="w-6 h-6 text-purple-600" aria-hidden="true" />
+                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                    <MessageCircle className="w-6 h-6 text-purple-300" aria-hidden="true" />
                     <span>Messages Élèves</span>
                   </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                    <BookOpen className="w-6 h-6 text-green-600" aria-hidden="true" />
+                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                    <BookOpen className="w-6 h-6 text-emerald-300" aria-hidden="true" />
                     <span>Rédiger un Rapport</span>
                   </Button>
                 </div>

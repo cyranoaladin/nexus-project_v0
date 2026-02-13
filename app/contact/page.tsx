@@ -18,16 +18,30 @@ export default function ContactPage() {
 
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <Badge variant="outline" className="mb-4 border-brand-accent/40 text-brand-accent">
+            <Badge variant="outline" className="marketing-badge mb-4 border-brand-accent/40 text-brand-accent normal-case">
               Réponse garantie 7j/7
             </Badge>
-            <h1 className="font-display text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+            <h1 className="marketing-hero-title">
               Votre première question mérite une réponse d'expert.
             </h1>
-            <p className="mt-4 text-base text-slate-300 md:text-lg">
+            <p className="marketing-hero-copy">
               Établissements, familles ou professionnels : nos équipes vous
               répondent sous 2h ouvrables.
             </p>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href="/bilan-gratuit"
+                className="btn-primary"
+              >
+                Démarrer un bilan gratuit
+              </a>
+              <a
+                href="/offres"
+                className="btn-outline"
+              >
+                Voir les offres
+              </a>
+            </div>
           </div>
 
           <section className="mt-12">
@@ -36,10 +50,10 @@ export default function ContactPage() {
 
           <section className="mt-16">
             <div className="text-center">
-              <h2 className="font-display text-2xl font-bold text-white md:text-3xl">
+              <h2 className="marketing-section-title text-center">
                 Contact direct
               </h2>
-              <p className="mt-2 text-slate-300">
+              <p className="marketing-section-copy text-center">
                 Besoin d’une réponse immédiate ? Choisissez votre canal.
               </p>
             </div>

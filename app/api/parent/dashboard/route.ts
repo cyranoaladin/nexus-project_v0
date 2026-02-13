@@ -127,6 +127,7 @@ export async function GET() {
 
       return {
         id: child.id,
+        userId: child.user.id,
         firstName: child.user.firstName || '',
         lastName: child.user.lastName || '',
         // name: ... (Frontend uses firstName/lastName in interface usually?)

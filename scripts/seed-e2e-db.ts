@@ -21,10 +21,18 @@ async function main() {
   // CLEANUP
   // =============================================================================
   console.log('🧹 Clearing existing data...');
+  const tables = await prisma.$queryRaw<
+    Array<{ tablename: string }>
+  >`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
 
-  await prisma.sessionBooking.deleteMany();
-  await prisma.student.deleteMany();
-  await prisma.user.deleteMany();
+  const tableNames = tables
+    .map((t) => t.tablename)
+    .filter((name) => name !== '_prisma_migrations');
+
+  if (tableNames.length > 0) {
+    const quoted = tableNames.map((name) => `"${name}"`).join(', ');
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${quoted} RESTART IDENTITY CASCADE;`);
+  }
 
   console.log('✅ Database cleared\n');
 
@@ -95,6 +103,21 @@ async function main() {
     }
   });
 
+  const primaryStudent = await prisma.student.findUnique({
+    where: { userId: student.id }
+  });
+
+  if (primaryStudent) {
+    await prisma.creditTransaction.create({
+      data: {
+        studentId: primaryStudent.id,
+        type: 'MANUAL_ADJUST',
+        amount: 8,
+        description: 'E2E seed credits'
+      }
+    });
+  }
+
   console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
 
   const coach = await prisma.user.create({
@@ -145,6 +168,21 @@ async function main() {
       totalSessions: 16
     }
   });
+
+  const secondaryStudent = await prisma.student.findUnique({
+    where: { userId: student2.id }
+  });
+
+  if (secondaryStudent) {
+    await prisma.creditTransaction.create({
+      data: {
+        studentId: secondaryStudent.id,
+        type: 'MANUAL_ADJUST',
+        amount: 5,
+        description: 'E2E seed credits'
+      }
+    });
+  }
 
   const coach2 = await prisma.user.create({
     data: {

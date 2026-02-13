@@ -164,10 +164,10 @@ export default function AbonnementsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des abonnements...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-300">Chargement des abonnements...</p>
         </div>
       </div>
     );
@@ -175,14 +175,14 @@ export default function AbonnementsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button
             onClick={() => fetchSubscriptions()}
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -193,9 +193,9 @@ export default function AbonnementsPage() {
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center h-auto sm:h-16 py-3 sm:py-0">
             <Button
@@ -209,8 +209,8 @@ export default function AbonnementsPage() {
               </Link>
             </Button>
             <div className="w-full sm:w-auto">
-              <h1 className="font-semibold text-gray-900 text-lg sm:text-xl">Gestion des Abonnements</h1>
-              <p className="text-sm text-gray-500">Modifiez les formules et add-ons</p>
+              <h1 className="font-semibold text-white text-lg sm:text-xl">Gestion des Abonnements</h1>
+              <p className="text-sm text-neutral-400">Modifiez les formules et add-ons</p>
             </div>
           </div>
         </div>
@@ -221,8 +221,8 @@ export default function AbonnementsPage() {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center">
-              <Users className="w-5 h-5 text-gray-500 flex-shrink-0" />
-              <span className="text-sm font-medium text-gray-700 ml-2">Enfant :</span>
+              <Users className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+              <span className="text-sm font-medium text-neutral-200 ml-2">Enfant :</span>
             </div>
             <Select value={selectedChild} onValueChange={setSelectedChild}>
               <SelectTrigger className="w-full sm:w-48">
@@ -242,32 +242,32 @@ export default function AbonnementsPage() {
         {currentChild && (
           <>
             {/* Abonnement Actuel */}
-            <Card className="mb-6 sm:mb-8 bg-blue-50 border-blue-200">
+            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
+                  <CreditCard className="w-5 h-5 mr-2 text-brand-accent" />
                   <span>Abonnement Actuel - {currentChild.firstName}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-blue-600">
+                    <h3 className="text-lg sm:text-xl font-bold text-brand-accent">
                       {currentChild.currentSubscription !== 'AUCUN'
                         ? currentChild.currentSubscription
                         : 'Aucun abonnement actif'}
                     </h3>
                     <div className="flex items-center gap-2 mt-1 sm:mt-0">
-                      <p className="text-gray-600">
+                      <p className="text-neutral-300">
                         {currentChild.subscriptionStatus === 'ACTIVE' ? 'Actif' : 'Inactif'}
                       </p>
                       <span className="hidden sm:inline">•</span>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-neutral-400">
                         Solde : {currentChild.creditBalance} crédits
                       </p>
                     </div>
                     {currentChild.subscriptionExpiry && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-neutral-400 mt-1">
                         Expire le : {new Date(currentChild.subscriptionExpiry).toLocaleDateString('fr-FR')}
                       </p>
                     )}
@@ -280,10 +280,10 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Changer d'Abonnement */}
-            <Card className="mb-6 sm:mb-8">
+            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle>Changer d'Abonnement</CardTitle>
-                <p className="text-gray-600">Modifiez votre formule mensuelle</p>
+                <p className="text-neutral-300">Modifiez votre formule mensuelle</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -291,8 +291,8 @@ export default function AbonnementsPage() {
                     <Card
                       key={key}
                       className={`relative ${key === currentChild.currentSubscription
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-300'
+                        ? 'border-brand-accent/60 bg-white/10'
+                        : 'border-white/10 hover:border-brand-accent/50 bg-white/5'
                         }`}
                     >
                       {'popular' in plan && plan.popular && (
@@ -304,18 +304,18 @@ export default function AbonnementsPage() {
 
                       <CardHeader className="text-center pb-4">
                         <CardTitle className="text-base sm:text-lg">{plan.name}</CardTitle>
-                        <div className="text-xl sm:text-2xl font-bold text-blue-600">
+                        <div className="text-xl sm:text-2xl font-bold text-brand-accent">
                           {plan.price} TND
                         </div>
-                        <p className="text-sm text-gray-600">/mois</p>
+                        <p className="text-sm text-neutral-400">/mois</p>
                       </CardHeader>
 
                       <CardContent>
                         <ul className="space-y-1 sm:space-y-2 mb-4">
                           {plan.features.map((feature, index) => (
                             <li key={index} className="flex items-start space-x-2">
-                              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-gray-600">{feature}</span>
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-300 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-neutral-300">{feature}</span>
                             </li>
                           ))}
                         </ul>
@@ -344,29 +344,29 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Add-ons ARIA */}
-            <Card className="mb-6 sm:mb-8">
+            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Brain className="w-5 h-5 mr-2 text-purple-600" />
+                  <Brain className="w-5 h-5 mr-2 text-violet-300" />
                   Add-ons ARIA
                 </CardTitle>
-                <p className="text-gray-600">Étendez les capacités de votre assistant IA</p>
+                <p className="text-neutral-300">Étendez les capacités de votre assistant IA</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {Object.entries(ARIA_ADDONS).map(([key, addon]) => (
-                    <Card key={key} className="border-gray-200">
+                    <Card key={key} className="border-white/10 bg-white/5">
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-4">
                           <div>
                             <h4 className="font-semibold text-base sm:text-lg">{addon.name}</h4>
-                            <p className="text-gray-600 text-xs sm:text-sm">{addon.description}</p>
+                            <p className="text-neutral-300 text-xs sm:text-sm">{addon.description}</p>
                           </div>
                           <div className="text-right">
-                            <span className="text-lg sm:text-xl font-bold text-purple-600">
+                            <span className="text-lg sm:text-xl font-bold text-violet-300">
                               +{addon.price} TND
                             </span>
-                            <span className="text-gray-600 text-xs sm:text-sm block">/mois</span>
+                            <span className="text-neutral-400 text-xs sm:text-sm block">/mois</span>
                           </div>
                         </div>
                         <Button
@@ -384,32 +384,32 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Packs Spécifiques */}
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle>Packs Spécifiques</CardTitle>
-                <p className="text-gray-600">Accompagnements ciblés (paiement unique)</p>
+                <p className="text-neutral-300">Accompagnements ciblés (paiement unique)</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {Object.entries(SPECIAL_PACKS).map(([key, pack]) => (
-                    <Card key={key} className="border-gray-200">
+                    <Card key={key} className="border-white/10 bg-white/5">
                       <CardHeader className="pb-3 sm:pb-4">
                         <CardTitle className="text-base sm:text-lg">{pack.name}</CardTitle>
-                        <div className="text-xl sm:text-2xl font-bold text-green-600">
+                        <div className="text-xl sm:text-2xl font-bold text-emerald-300">
                           {pack.price} TND
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-600">{pack.description}</p>
+                        <p className="text-xs sm:text-sm text-neutral-300">{pack.description}</p>
                       </CardHeader>
                       <CardContent className="pt-0">
                         <ul className="space-y-1 mb-3 sm:mb-4">
                           {pack.features.slice(0, 3).map((feature, index) => (
                             <li key={index} className="flex items-start space-x-1 sm:space-x-2">
-                              <Check className="w-3 h-3 text-green-500 mt-0.5 sm:mt-1 flex-shrink-0" />
-                              <span className="text-xs text-gray-600">{feature}</span>
+                              <Check className="w-3 h-3 text-emerald-300 mt-0.5 sm:mt-1 flex-shrink-0" />
+                              <span className="text-xs text-neutral-300">{feature}</span>
                             </li>
                           ))}
                           {pack.features.length > 3 && (
-                            <li className="text-xs text-gray-500">
+                            <li className="text-xs text-neutral-400">
                               +{pack.features.length - 3} autres avantages
                             </li>
                           )}
@@ -432,34 +432,34 @@ export default function AbonnementsPage() {
 
         {/* Subscription Request Dialog */}
         <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
             <DialogHeader>
               <DialogTitle>Demande d'Abonnement</DialogTitle>
             </DialogHeader>
             {selectedPlan && (
               <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-blue-900">{selectedPlan.name}</h3>
-                  <p className="text-blue-700">{selectedPlan.price} TND/mois</p>
-                  <p className="text-sm text-blue-600 mt-2">
+                <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                  <h3 className="font-semibold text-white">{selectedPlan.name}</h3>
+                  <p className="text-neutral-300">{selectedPlan.price} TND/mois</p>
+                  <p className="text-sm text-neutral-400 mt-2">
                     {selectedPlan.credits} crédits inclus par mois
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="font-medium">Fonctionnalités incluses :</h4>
+                  <h4 className="font-medium text-neutral-200">Fonctionnalités incluses :</h4>
                   <ul className="space-y-1">
                     {selectedPlan.features.map((feature: string, index: number) => (
                       <li key={index} className="flex items-center space-x-2">
-                        <Check className="w-3 h-3 text-green-500" />
+                        <Check className="w-3 h-3 text-emerald-300" />
                         <span className="text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <p className="text-sm text-yellow-800">
+                <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                  <p className="text-sm text-neutral-300">
                     <strong>Note :</strong> Votre demande sera envoyée à l'assistant pour approbation.
                     Vous recevrez une notification une fois approuvée.
                   </p>

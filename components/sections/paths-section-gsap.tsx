@@ -3,7 +3,8 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { User, GraduationCap, Briefcase, ArrowRight, School } from 'lucide-react';
+import { User, GraduationCap, ArrowRight, School, Target } from 'lucide-react';
+import Link from 'next/link';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,46 +65,42 @@ const PathsSectionGSAP = () => {
 
     const paths = [
         {
-            id: 'eleve',
+            id: 'lycee',
             icon: School,
-            title: "Élève (Lycée/Prépas)",
-            subtitle: "L'Excellence comme Standard",
-            description: "Un accompagnement sur-mesure pour viser les meilleures filières. Méthodologie, rigueur et dépassement de soi.",
-            features: ["Cours particuliers Expert", "Stages intensifs (Vacances)", "Préparation Bac & Concours"],
+            title: "Lycée français",
+            subtitle: "Objectif mention",
+            description: "Un cadre clair pour progresser en continu et sécuriser le Bac.",
+            features: ["Cours particuliers ciblés", "Plan de révision", "Suivi parent"],
             gradient: "from-blue-500/20 to-cyan-500/20",
             border: "hover:border-blue-400/50",
-            cta: "Booster mes notes"
+            cta: "Voir les formules",
+            href: "/offres"
         },
         {
-            id: 'etudiant',
+            id: 'candidat',
             icon: GraduationCap,
-            title: "Étudiant Supérieur",
-            subtitle: "Validez, Majorz, Performer",
-            description: "Soutien universitaire de haut niveau pour les licences, masters et écoles d'ingénieurs. Ne laissez aucune lacune s'installer.",
-            features: ["Aide aux projets & PFE", "Renforcement modules clés", "Préparation examens semestriels"],
+            title: "Candidat libre",
+            subtitle: "Cadre & discipline",
+            description: "Un accompagnement structuré pour rattraper, consolider et performer.",
+            features: ["Diagnostic initial", "Coaching méthodo", "Sessions intensives"],
             gradient: "from-purple-500/20 to-pink-500/20",
             border: "hover:border-purple-400/50",
-            cta: "Réussir mon année"
+            cta: "Démarrer un bilan",
+            href: "/bilan-gratuit"
         },
         {
-            id: 'pro',
-            icon: Briefcase,
-            title: "Professionnel",
-            subtitle: "L'IA comme Levier de Carrière",
-            description: "Formations certifiantes en Intelligence Artificielle et mise à niveau technique pour rester compétitif sur le marché.",
-            features: ["Formation IA Generative", "Upskilling Technique", "Coaching Carrière Tech"],
+            id: 'orientation',
+            icon: Target,
+            title: "Parcoursup & orientation",
+            subtitle: "Décisions sûres",
+            description: "Clarifiez le projet et maximisez les chances d’admission.",
+            features: ["Stratégie de dossier", "Coaching Grand Oral", "Suivi personnalisé"],
             gradient: "from-emerald-500/20 to-green-500/20",
             border: "hover:border-emerald-400/50",
-            cta: "Évoluer maintenant"
+            cta: "Parler à un expert",
+            href: "/contact"
         }
     ];
-
-    const scrollToSection = (id: string) => {
-        const element = document.querySelector(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
 
     return (
         <section ref={sectionRef} id="paths" className="py-24 bg-neutral-950 relative overflow-hidden">
@@ -170,15 +167,15 @@ const PathsSectionGSAP = () => {
                                 </ul>
 
                                 {/* CTA */}
-                                <button
-                                    onClick={() => scrollToSection('#contact')}
-                                    className="relative w-full py-4 rounded-xl font-semibold text-sm
+                        <Link
+                            href={path.href}
+                            className="relative w-full py-4 rounded-xl font-semibold text-sm
                            bg-white/5 border border-white/10 text-white
                            hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2"
-                                >
-                                    <span>{path.cta}</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
+                        >
+                            <span>{path.cta}</span>
+                            <ArrowRight className="w-4 h-4" />
+                        </Link>
 
                             </div>
                         </div>

@@ -26,10 +26,10 @@ export default function HowItWorksSection() {
     <section id="methodologie" className="bg-surface-darker py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
+          <h2 className="marketing-section-title">
             Notre Approche Intégrée
           </h2>
-          <p className="mt-3 text-slate-300">
+          <p className="marketing-section-copy">
             Un parcours clair, sans rupture, qui relie stratégie, outils et
             accompagnement.
           </p>

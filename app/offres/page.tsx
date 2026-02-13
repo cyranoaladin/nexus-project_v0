@@ -158,6 +158,7 @@ export default function OffresPage() {
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null);
 
   // Track offer page view on mount
   useEffect(() => {
@@ -234,40 +235,60 @@ export default function OffresPage() {
           <div className="absolute -top-10 right-10 h-72 w-72 rounded-full bg-brand-accent/10 blur-[140px]" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white font-display">
+              <h1 className="marketing-hero-title">
                 Investissez dans la seule garantie de réussite au Bac.
               </h1>
-              <p className="mt-4 text-lg text-neutral-300">
+              <p className="marketing-hero-copy">
                 Un prix unique, tout inclus. Expertise humaine + IA 24/7 + Garantie Mention.
               </p>
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  href="/bilan-gratuit"
+                  className="btn-primary"
+                >
+                  Démarrer un bilan gratuit
+                </Link>
+                <a
+                  href="#offres-principales"
+                  className="btn-outline-strong"
+                >
+                  Voir les formules
+                </a>
+                <Link
+                  href="/contact"
+                  className="btn-outline"
+                >
+                  Parler à un expert
+                </Link>
+              </div>
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               {[
                 {
-                  title: "Élève scolarisé",
-                  text: "En Lycée français, je veux optimiser mes résultats",
+                  title: "Lycée français",
+                  text: "Suivi régulier + méthode pour viser la mention",
                   anchor: "#offres-principales",
                   badge: "Plus choisi",
                 },
                 {
                   title: "Candidat libre",
-                  text: "Je prépare le Bac seul, je veux un cadre complet",
+                  text: "Cadre structuré pour rattraper et performer",
                   anchor: "#offres-principales",
                 },
                 {
                   title: "Parent indécis",
-                  text: "Je veux comparer toutes les options",
-                  anchor: "#comparaison",
+                  text: "Commencez par un bilan gratuit",
+                  anchor: "#bilan-start",
                 },
-              ].map((item, index) => (
+              ].map((item) => (
                 <a
                   key={item.title}
                   href={item.anchor}
                   className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-brand-accent/40 hover:bg-white/10"
                 >
                   {item.badge && (
-                    <span className="inline-flex items-center rounded-full border border-brand-accent/40 bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
+                    <span className="marketing-badge border border-brand-accent/40 bg-brand-accent/10 text-brand-accent normal-case">
                       {item.badge}
                     </span>
                   )}
@@ -291,13 +312,96 @@ export default function OffresPage() {
                 Packs à la carte
               </a>
               <span>•</span>
-              <a href="#comparaison" className="hover:text-white">
-                Comparaison détaillée
-              </a>
-              <span>•</span>
               <a href="#garanties" className="hover:text-white">
                 Nos garanties
               </a>
+              <span>•</span>
+              <a href="#faq" className="hover:text-white">
+                FAQ
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* CHOISIR EN 3 ÉTAPES */}
+        <section id="bilan-start" className="py-12">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
+              <h3 className="text-xl font-semibold text-white">Recommandation rapide</h3>
+              <p className="mt-2 text-sm text-neutral-300">
+                Sélectionnez votre profil pour voir la formule la plus adaptée.
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRecommendedPlan("hybride")}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
+                    recommendedPlan === "hybride"
+                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                  }`}
+                >
+                  Lycée français
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecommendedPlan("immersion")}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
+                    recommendedPlan === "immersion"
+                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                  }`}
+                >
+                  Candidat libre
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecommendedPlan("plateforme")}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
+                    recommendedPlan === "plateforme"
+                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                  }`}
+                >
+                  Découverte
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecommendedPlan(null)}
+                  className="rounded-full border border-white/10 px-5 py-2 text-xs font-semibold text-neutral-400 hover:text-white transition"
+                >
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  title: "1. Bilan gratuit",
+                  text: "Évaluez le niveau et l’objectif de votre enfant.",
+                },
+                {
+                  title: "2. Formule adaptée",
+                  text: "Plateforme, Hybride ou Immersion selon le besoin.",
+                },
+                {
+                  title: "3. Résultats suivis",
+                  text: "Coachs + IA ARIA + reporting parent.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm text-neutral-300">{item.text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link
+                href="/bilan-gratuit"
+                className="btn-primary"
+              >
+                Démarrer un bilan gratuit
+              </Link>
             </div>
           </div>
         </section>
@@ -306,7 +410,7 @@ export default function OffresPage() {
         <section id="offres-principales" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
+              <h2 className="marketing-section-title">
                 3 formules, un seul objectif : la réussite
               </h2>
               <p className="mt-3 text-neutral-300">
@@ -316,10 +420,15 @@ export default function OffresPage() {
 
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
               {/* ACCÈS PLATEFORME */}
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-                <div className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-neutral-200">
+                <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "plateforme" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
+                <div className="marketing-badge bg-white/10 text-neutral-200 normal-case">
                   📱 ACCÈS DIGITAL
                 </div>
+                {recommendedPlan === "plateforme" && (
+                  <div className="mt-3 text-xs font-semibold text-brand-accent">
+                    Recommandée pour vous
+                  </div>
+                )}
                 <div className="mt-4">
                   <h3 className="text-2xl font-bold text-white">Accès Plateforme</h3>
                   <p className="mt-2 text-sm text-neutral-300">
@@ -349,17 +458,22 @@ export default function OffresPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=plateforme" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
-                    Commencer →
+                  <Link href="/bilan-gratuit?programme=plateforme" className="btn-outline-strong w-full">
+                    Démarrer un bilan gratuit →
                   </Link>
                 </div>
               </div>
 
               {/* HYBRIDE — Recommandée */}
-              <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-8 shadow-2xl shadow-brand-accent/10 relative">
-                <div className="inline-flex items-center rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-accent">
+              <div className={`rounded-3xl border bg-white/5 p-8 shadow-2xl relative ${recommendedPlan === "hybride" ? "border-brand-accent/60 shadow-brand-accent/20" : "border-brand-accent/40 shadow-brand-accent/10"} hover:border-brand-accent/60 transition-colors`}>
+                <div className="marketing-badge bg-brand-accent/10 text-brand-accent normal-case">
                   ⭐ RECOMMANDÉE
                 </div>
+                {recommendedPlan === "hybride" && (
+                  <div className="mt-3 text-xs font-semibold text-brand-accent">
+                    Recommandée pour vous
+                  </div>
+                )}
                 <div className="mt-4">
                   <h3 className="text-2xl font-bold text-white">Hybride</h3>
                   <p className="mt-2 text-sm text-neutral-300">
@@ -390,17 +504,22 @@ export default function OffresPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=hybride" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent-dark transition text-center">
-                    Choisir Hybride →
+                  <Link href="/bilan-gratuit?programme=hybride" className="btn-primary w-full">
+                    Démarrer un bilan gratuit →
                   </Link>
                 </div>
               </div>
 
               {/* IMMERSION */}
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-                <div className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-neutral-200">
+              <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "immersion" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
+                <div className="marketing-badge bg-white/10 text-neutral-200 normal-case">
                   🚀 PREMIUM
                 </div>
+                {recommendedPlan === "immersion" && (
+                  <div className="mt-3 text-xs font-semibold text-brand-accent">
+                    Recommandée pour vous
+                  </div>
+                )}
                 <div className="mt-4">
                   <h3 className="text-2xl font-bold text-white">Immersion</h3>
                   <p className="mt-2 text-sm text-neutral-300">
@@ -431,8 +550,8 @@ export default function OffresPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href="/bilan-gratuit?programme=immersion" className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition text-center">
-                    Choisir Immersion →
+                  <Link href="/bilan-gratuit?programme=immersion" className="btn-outline-strong w-full">
+                    Démarrer un bilan gratuit →
                   </Link>
                 </div>
               </div>
@@ -452,12 +571,20 @@ export default function OffresPage() {
         <section id="packs-specialises" className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
+              <h2 className="marketing-section-title">
                 Packs à la carte pour besoins spécifiques
               </h2>
               <p className="mt-3 text-neutral-300">
                 Complétez votre programme principal ou choisissez une solution ciblée.
               </p>
+              <div className="mt-5">
+                <Link
+                  href="/bilan-gratuit"
+                  className="inline-flex rounded-full border border-brand-accent px-6 py-2 text-xs font-semibold text-brand-accent hover:bg-brand-accent/10 transition"
+                >
+                  Pas sûr ? Faites un bilan gratuit
+                </Link>
+              </div>
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -466,7 +593,7 @@ export default function OffresPage() {
                   key={pack.title}
                   className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-brand-accent/40 transition"
                 >
-                  <div className="text-xs text-brand-accent font-semibold">{pack.badge}</div>
+                  <div className="marketing-badge text-brand-accent normal-case">{pack.badge}</div>
                   <h3 className="mt-3 text-xl font-semibold text-white">{pack.title}</h3>
                   <div className="mt-2 text-2xl font-bold text-white">
                     {pack.price} <span className="text-sm text-neutral-300">TND</span>
@@ -521,8 +648,8 @@ export default function OffresPage() {
         {/* COMPARAISON */}
         <section id="comparaison" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
-              Pourquoi Nexus Réussite vaut 2× plus... et coûte 40% moins cher
+            <h2 className="marketing-section-title text-center">
+              La comparaison la plus claire du marché
             </h2>
 
             <div className="mt-8 overflow-x-auto rounded-3xl border border-white/10 bg-white/5">
@@ -556,7 +683,7 @@ export default function OffresPage() {
         {/* ROI CALCULATOR */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Calculez votre économie réelle
             </h2>
 
@@ -654,8 +781,8 @@ export default function OffresPage() {
                   </div>
                 </div>
 
-                <Link href="/bilan-gratuit" className="mt-6 w-full rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center block">
-                  Démarrer avec Nexus
+                <Link href="/bilan-gratuit" className="mt-6 w-full btn-primary">
+                  Démarrer un bilan gratuit
                 </Link>
               </div>
             </div>
@@ -665,7 +792,7 @@ export default function OffresPage() {
         {/* GARANTIES */}
         <section id="garanties" className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Votre réussite, notre engagement contractuel
             </h2>
 
@@ -750,7 +877,7 @@ export default function OffresPage() {
         {/* FUNNEL */}
         <section className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Trouvez la solution parfaite en 2 minutes
             </h2>
 
@@ -796,12 +923,12 @@ export default function OffresPage() {
                       À partir de 450 TND/mois
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                      <Link href="/bilan-gratuit?programme=recommande" className="rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black hover:bg-brand-accent transition text-center">
-                        Choisir cette solution
+                      <Link href="/bilan-gratuit?programme=recommande" className="btn-primary">
+                        Démarrer un bilan gratuit
                       </Link>
                       <button
                         onClick={resetQuiz}
-                        className="rounded-full border border-brand-accent px-6 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
+                        className="btn-outline-strong"
                       >
                         Recommencer le quiz
                       </button>
@@ -817,28 +944,25 @@ export default function OffresPage() {
         <section className="py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="rounded-3xl border border-brand-accent/30 bg-white/5 p-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
+              <p className="marketing-eyebrow">
+                Prochaine étape
+              </p>
+              <h2 className="marketing-cta-title">
                 Prêt à transformer l'avenir de votre enfant ?
               </h2>
-              <p className="mt-3 text-neutral-300">
+              <p className="marketing-cta-copy">
                 Rejoignez les 500+ familles qui nous font confiance pour l'excellence éducative.
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="/bilan-gratuit"
-                  className="rounded-full bg-brand-accent px-8 py-3 text-sm font-bold text-black hover:bg-brand-accent transition"
-                >
-                  Commencer mon bilan gratuit
-                </a>
-                <a
-                  href="/contact"
-                  className="rounded-full border border-brand-accent px-8 py-3 text-sm font-bold text-white hover:bg-brand-accent/10 transition"
-                >
+                <Link href="/bilan-gratuit" className="btn-primary">
+                  Démarrer un bilan gratuit
+                </Link>
+                <Link href="/contact" className="btn-outline">
                   Parler à un expert
-                </a>
+                </Link>
               </div>
               <div className="mt-6 text-sm text-brand-accent">
-                ⚠️ Places limitées pour Septembre · Prochain créneau disponible : Demain 10h
+                ⚠️ Places limitées chaque mois · Priorité donnée après bilan
               </div>
             </div>
           </div>
@@ -846,7 +970,7 @@ export default function OffresPage() {
         {/* FAQ */}
         <section id="faq" className="py-20 bg-black/20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Questions fréquentes des parents
             </h2>
 

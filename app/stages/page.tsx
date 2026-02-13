@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { ArrowRight, CheckCircle2, ShieldCheck, Star, TrendingUp } from "lucide-react";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
@@ -419,7 +420,7 @@ export default function AcademiesHiverPage() {
 
 
   return (
-    <div className="min-h-screen bg-surface-darker text-slate-200 font-sans">
+    <div className="min-h-screen bg-surface-darker text-neutral-100 font-sans stages-dark">
       <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
 
@@ -465,12 +466,12 @@ export default function AcademiesHiverPage() {
                   <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-lg shadow-red-500/50"></span>
                   Inscriptions ouvertes jusqu'au 10/02
                 </div>
-                <h1 className="mt-8 text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1]">
+                <h1 className="marketing-hero-title mt-8 lg:text-7xl font-black tracking-tight leading-[1.1]">
                   STAGES FÉVRIER <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400">CONSOLIDATION & MÉTHODE</span>
                 </h1>
 
-                <p className="mt-6 text-lg text-blue-200/90 leading-relaxed max-w-2xl">
+                <p className="marketing-hero-copy mt-6 text-blue-200/90 max-w-2xl">
                   Ces stages s'adressent aux élèves de <strong className="text-white font-semibold">Première et Terminale</strong>.
                   Les contenus sont adaptés au niveau de chacun, tout en conservant une méthode et une exigence communes.
                 </p>
@@ -500,11 +501,11 @@ export default function AcademiesHiverPage() {
                   </div>
                 </div>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                  <a href="#academies" className="group/cta inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-red-500 px-8 py-4 text-sm font-bold text-white hover:from-red-500 hover:to-red-400 transition-all shadow-lg shadow-red-600/30 hover:shadow-red-500/40 transform hover:-translate-y-1">
+                  <a href="#academies" className="group/cta btn-secondary-lg shadow-lg shadow-red-600/30 hover:shadow-red-500/40 transform hover:-translate-y-1">
                     Découvrir les académies
                     <ArrowRight className="w-4 h-4 group-hover/cta:translate-x-1 transition-transform" />
                   </a>
-                  <a href="#reservation" className="inline-flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white px-8 py-4 text-sm font-bold hover:bg-white/20 transition-all backdrop-blur-sm shadow-lg">
+                  <a href="#reservation" className="btn-outline shadow-lg">
                     Réserver un bilan
                   </a>
                 </div>
@@ -577,7 +578,7 @@ export default function AcademiesHiverPage() {
 
             {/* Header */}
             <div className="text-center max-w-5xl mx-auto mb-20">
-              <span className="text-blue-400 font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block animate-pulse">Calendrier Stratégique</span>
+              <span className="text-cyan-200 font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block animate-pulse">Calendrier Stratégique</span>
               <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-12">
                 Février : Un <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400">Moment Clé de Consolidation</span>
               </h2>
@@ -840,7 +841,7 @@ export default function AcademiesHiverPage() {
                     onClick={() => setLevel(lvl)}
                     className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${level === lvl
                       ? "bg-white text-brand-primary shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                      : "text-slate-600 hover:text-slate-800"
                       }`}
                   >
                     {lvl === "terminale" ? "Terminale" : lvl === "premiere" ? "Première" : "Tout voir"}
@@ -934,15 +935,15 @@ export default function AcademiesHiverPage() {
                         <span className={`text-5xl font-black tracking-tighter ${academy.tone === 'premium' ? 'text-white' : 'text-slate-900'}`}>
                           {academy.early}
                         </span>
-                        <span className={`text-xl font-bold ${academy.tone === 'premium' ? 'text-slate-400' : 'text-slate-500'}`}>TND</span>
+                        <span className={`text-xl font-bold ${academy.tone === 'premium' ? 'text-slate-200' : 'text-slate-600'}`}>TND</span>
                       </div>
-                      <div className={`text-xs font-medium mt-2 flex items-center gap-2 ${academy.tone === 'premium' ? 'text-slate-400' : 'text-slate-400'}`}>
+                      <div className={`text-xs font-medium mt-2 flex items-center gap-2 ${academy.tone === 'premium' ? 'text-slate-200' : 'text-slate-500'}`}>
                         <span className="line-through decoration-red-500 decoration-2">Prix standard : {academy.price} TND</span>
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500 text-white">ÉCONOMISEZ 15%</span>
                       </div>
                     </div>
 
-                    <p className={`text-sm leading-relaxed mb-10 min-h-[48px] font-medium ${academy.tone === 'premium' ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <p className={`text-sm leading-relaxed mb-10 min-h-[48px] font-medium ${academy.tone === 'premium' ? 'text-slate-100' : 'text-slate-600'}`}>
                       {academy.description}
                     </p>
 
@@ -984,7 +985,7 @@ export default function AcademiesHiverPage() {
 
                       <button
                         onClick={() => document.getElementById("programmes")?.scrollIntoView({ behavior: "smooth" })}
-                        className={`text-xs font-bold uppercase tracking-widest transition-colors text-center py-2 ${academy.tone === 'premium' ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-brand-primary'
+                        className={`text-xs font-bold uppercase tracking-widest transition-colors text-center py-2 ${academy.tone === 'premium' ? 'text-slate-300 hover:text-white' : 'text-slate-400 hover:text-brand-primary'
                           }`}
                       >
                         Voir le programme
@@ -1004,7 +1005,7 @@ export default function AcademiesHiverPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-blue-900/10 to-slate-900 pointer-events-none" />
 
           <div className="container relative mx-auto px-4 text-center z-10">
-            <span className="text-blue-400 font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block animate-pulse">Intelligence Artificielle</span>
+            <span className="text-cyan-200 font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block animate-pulse">Intelligence Artificielle</span>
             <h3 className="text-4xl md:text-6xl font-black text-white mb-16 tracking-tight">Trouvez votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Trajectoire</span></h3>
 
             <div className="max-w-5xl mx-auto rounded-[2rem] p-1 bg-gradient-to-b from-white/10 to-white/0 shadow-2xl backdrop-blur-2xl">
@@ -1092,15 +1093,15 @@ export default function AcademiesHiverPage() {
         <section className="py-24 bg-white relative">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 text-center mb-20 tracking-tight">
-              Nexus vs <span className="text-slate-300 decoration-4 underline decoration-slate-200 decoration-wavy">Le Passé</span>
+              Nexus vs <span className="text-slate-500 decoration-4 underline decoration-slate-400 decoration-wavy">Le Passé</span>
             </h2>
             <div className="grid gap-10 md:grid-cols-3 max-w-7xl mx-auto items-center">
               {/* Classique */}
-              <div className="rounded-[2.5rem] p-10 border border-slate-100 bg-slate-50/50 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition duration-700">
-                <h3 className="text-2xl font-bold text-slate-400">Cours Particulier</h3>
-                <div className="mt-4 text-4xl font-extrabold text-slate-300 tracking-tighter">1200<span className="text-lg ml-1">TND</span></div>
-                <div className="mt-2 text-xs font-bold text-slate-400 uppercase tracking-widest">Le classique inefficace</div>
-                <ul className="mt-8 space-y-4 text-sm font-medium text-slate-400">
+              <div className="rounded-[2.5rem] p-10 border border-slate-100 bg-slate-50/50 grayscale hover:grayscale-0 hover:opacity-100 transition duration-700">
+                <h3 className="text-2xl font-bold text-slate-700">Cours Particulier</h3>
+                <div className="mt-4 text-4xl font-extrabold text-slate-700 tracking-tighter">1200<span className="text-lg ml-1">TND</span></div>
+                <div className="mt-2 text-xs font-bold text-slate-600 uppercase tracking-widest">Le classique inefficace</div>
+                <ul className="mt-8 space-y-4 text-sm font-medium text-slate-700">
                   <li className="flex gap-4 items-center"><span className="w-1.5 h-1.5 bg-red-300 rounded-full" />1h par semaine (trop lent)</li>
                   <li className="flex gap-4 items-center"><span className="w-1.5 h-1.5 bg-red-300 rounded-full" />Pas d'émulation</li>
                   <li className="flex gap-4 items-center"><span className="w-1.5 h-1.5 bg-red-300 rounded-full" />Enseignant étudiant</li>
@@ -1125,10 +1126,10 @@ export default function AcademiesHiverPage() {
               <div className="relative rounded-[3rem] p-10 bg-slate-900 text-white shadow-2xl scale-110 border border-white/10 overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="absolute top-0 right-0 bg-brand-secondary text-white text-[10px] font-black uppercase px-6 py-2 rounded-bl-2xl">Recommandé</div>
+                <div className="absolute top-0 right-0 bg-red-700 text-white text-[10px] font-black uppercase px-6 py-2 rounded-bl-2xl">Recommandé</div>
 
                 <h3 className="text-2xl font-bold text-white relative z-10">Stage Premium</h3>
-                <div className="mt-4 text-5xl font-black text-white tracking-tighter relative z-10">990<span className="text-lg ml-1 text-slate-500">TND</span></div>
+                <div className="mt-4 text-5xl font-black text-white tracking-tighter relative z-10">990<span className="text-lg ml-1 text-slate-100">TND</span></div>
                 <div className="mt-2 text-xs font-bold text-red-400 uppercase tracking-widest relative z-10">L'Excellence absolue</div>
 
                 <ul className="mt-10 space-y-5 text-sm font-bold text-slate-200 relative z-10">
@@ -1477,6 +1478,7 @@ export default function AcademiesHiverPage() {
 
         {/* RESERVATION FORM */}
         <section id="reservation" className="py-24 bg-white relative">
+          <div id="inscription" className="absolute -top-24" />
           <div className="container mx-auto px-4 md:px-6 max-w-6xl relative z-10">
             <div className="rounded-[2.5rem] bg-slate-900 overflow-hidden shadow-2xl relative">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black" />
@@ -1535,12 +1537,12 @@ export default function AcademiesHiverPage() {
                     <div className="h-full flex flex-col">
                       <div className="mb-8">
                         <h3 className="text-2xl font-bold text-slate-900">Formulaire d'inscription</h3>
-                        <p className="text-sm font-medium text-slate-400 mt-1">Pré-inscription sans engagement</p>
+                        <p className="text-sm font-medium text-slate-600 mt-1">Pré-inscription sans engagement</p>
                       </div>
 
                       <form onSubmit={handleSubmit} className="space-y-5 flex-grow">
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Académie sélectionnée</label>
+                          <label className="block text-xs font-bold !text-slate-700 uppercase tracking-wider mb-2">Académie sélectionnée</label>
                           <select
                             value={selectedAcademy.id}
                             onChange={(e) => {
@@ -1569,21 +1571,21 @@ export default function AcademiesHiverPage() {
                             placeholder="Nom du Parent"
                             value={formData.parent}
                             onChange={e => setFormData({ ...formData, parent: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-500"
                           />
                           <input
                             required
                             placeholder="Numéro de Téléphone"
                             value={formData.phone}
                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-500"
                           />
                           <input
                             required
                             placeholder="Classe (ex: 1ère - Lycée PMF)"
                             value={formData.classe}
                             onChange={e => setFormData({ ...formData, classe: e.target.value })}
-                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium placeholder:text-slate-500"
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-500"
                           />
                         </div>
 
@@ -1600,6 +1602,30 @@ export default function AcademiesHiverPage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16">
+          <div className="container mx-auto px-6">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10 text-center">
+              <p className="marketing-eyebrow">
+                Prochaine étape
+              </p>
+              <h2 className="marketing-cta-title">
+                Réservez votre place en 2 minutes
+              </h2>
+              <p className="marketing-cta-copy max-w-2xl mx-auto">
+                Un conseiller vous rappelle pour valider l'académie et personnaliser le programme.
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#inscription" className="btn-primary">
+                  Démarrer ma demande
+                </a>
+                <Link href="/bilan-gratuit" className="btn-outline">
+                  Commencer par un bilan
+                </Link>
               </div>
             </div>
           </div>

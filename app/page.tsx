@@ -23,6 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function HomePage() {
   useEffect(() => {
+    ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
     // Wait for all ScrollTriggers to be created
     const timeout = setTimeout(() => {
       ScrollTrigger.refresh();

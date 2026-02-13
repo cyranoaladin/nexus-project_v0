@@ -31,7 +31,7 @@ function createTestWorkflow(name: string, workflow: Workflow) {
   fs.writeFileSync(path.join(WORKFLOWS_DIR, `${name}.yaml`), content, 'utf-8');
 }
 
-describe.skip('WorkflowEngine', () => {
+describe('WorkflowEngine', () => {
   let engine: WorkflowEngine;
   let config: WorkflowEngineConfig;
 
@@ -501,7 +501,7 @@ describe.skip('WorkflowEngine', () => {
       expect(execution.steps[0].status).toBe('skipped');
     });
 
-    it.skip('should handle step timeout', async () => {
+    it('should handle step timeout', async () => {
       const workflow: Workflow = {
         name: 'timeout-workflow',
         version: '1.0.0',
@@ -514,7 +514,7 @@ describe.skip('WorkflowEngine', () => {
             id: 'step1',
             name: 'Long Running Step',
             type: 'shell',
-            command: 'sleep 10',
+            command: 'node -e "setTimeout(()=>{},10000)"',
             timeout: 1,
           },
         ],
@@ -530,7 +530,7 @@ describe.skip('WorkflowEngine', () => {
   });
 
   describe('resumeWorkflow', () => {
-    it.skip('should resume failed workflow from last successful step', async () => {
+    it('should resume failed workflow from last successful step', async () => {
       const workflow: Workflow = {
         name: 'resume-workflow',
         version: '1.0.0',
@@ -549,7 +549,7 @@ describe.skip('WorkflowEngine', () => {
             id: 'step2',
             name: 'Failing Step',
             type: 'shell',
-            command: 'exit 1',
+            command: 'node -e "process.exit(1)"',
           },
           {
             id: 'step3',
@@ -586,7 +586,8 @@ describe.skip('WorkflowEngine', () => {
         'utf-8'
       );
 
-      const resumed = await engine.resumeWorkflow(executionId!);
+      const freshEngine = new WorkflowEngine(config);
+      const resumed = await freshEngine.resumeWorkflow(executionId!);
       expect(resumed.status).toBe('success');
     });
   });
@@ -605,7 +606,7 @@ describe.skip('WorkflowEngine', () => {
             id: 'step1',
             name: 'Create Resource',
             type: 'shell',
-            command: 'touch /tmp/test-resource',
+            command: 'node -e "require(\'fs\').writeFileSync(\'/tmp/test-resource\', \'test\')"',
           },
         ],
         error_handling: {
@@ -615,7 +616,7 @@ describe.skip('WorkflowEngine', () => {
               id: 'cleanup1',
               name: 'Delete Resource',
               type: 'shell',
-              command: 'rm -f /tmp/test-resource',
+              command: 'node -e "require(\'fs\').unlinkSync(\'/tmp/test-resource\')"',
             },
           ],
         },

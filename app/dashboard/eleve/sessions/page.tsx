@@ -129,10 +129,10 @@ export default function SessionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-300">Chargement...</p>
         </div>
       </div>
     );
@@ -140,14 +140,14 @@ export default function SessionsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => window.location.reload()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -157,9 +157,9 @@ export default function SessionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
             <Button variant="ghost" asChild className="mr-4">
@@ -169,8 +169,8 @@ export default function SessionsPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-gray-900">Réserver une Session</h1>
-              <p className="text-sm text-gray-500">Choisissez votre cours ou atelier</p>
+              <h1 className="font-semibold text-white">Réserver une Session</h1>
+              <p className="text-sm text-neutral-400">Choisissez votre cours ou atelier</p>
             </div>
           </div>
         </div>
@@ -180,10 +180,10 @@ export default function SessionsPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Formulaire de réservation */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                  <Calendar className="w-5 h-5 mr-2 text-brand-accent" />
                   Nouvelle Réservation
                 </CardTitle>
               </CardHeader>
@@ -254,7 +254,7 @@ export default function SessionsPage() {
                           {errors.scheduledAt.message as string}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-neutral-400 mt-1">
                         La session doit être programmée au minimum 2 heures à l'avance
                       </p>
                     </div>
@@ -330,32 +330,32 @@ export default function SessionsPage() {
           {/* Sidebar - Informations */}
           <div className="space-y-6">
             {/* Solde de crédits */}
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
-                  <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
+                  <CreditCard className="w-5 h-5 mr-2 text-brand-accent" />
                   Mon Solde
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                  <div className="text-3xl font-bold text-brand-accent mb-2">
                     {availableCredits} crédits
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-neutral-300 mb-4">
                     Disponibles pour vos sessions
                   </p>
                   {selectedCost && (
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <p className="text-sm text-blue-800">
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                      <p className="text-sm text-neutral-200">
                         <strong>Coût de cette session :</strong><br />
                         {selectedCost.toFixed(1)} crédit{selectedCost > 1 ? 's' : ''}
                       </p>
-                      <p className="text-xs text-blue-600 mt-1">
+                      <p className="text-xs text-neutral-400 mt-1">
                         {selectedDuration} minutes = {selectedDuration / 60} session{selectedDuration / 60 > 1 ? 's' : ''}
                       </p>
                       {selectedCost > availableCredits && (
-                        <p className="text-red-600 text-xs mt-2 font-medium">
+                        <p className="text-rose-200 text-xs mt-2 font-medium">
                           ⚠️ Solde insuffisant
                         </p>
                       )}
@@ -366,42 +366,42 @@ export default function SessionsPage() {
             </Card>
 
             {/* Coachs disponibles */}
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
-                  <User className="w-5 h-5 mr-2 text-green-600" />
+                  <User className="w-5 h-5 mr-2 text-emerald-300" />
                   Coachs Disponibles
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-600 font-semibold text-sm">H</span>
+                  <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-emerald-200 font-semibold text-sm">H</span>
                     </div>
                     <div>
                       <p className="font-medium text-sm">Axiom</p>
-                      <p className="text-xs text-gray-600">Mathématiques</p>
+                      <p className="text-xs text-neutral-400">Mathématiques</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold text-sm">T</span>
+                  <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="w-8 h-8 bg-sky-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-sky-200 font-semibold text-sm">T</span>
                     </div>
                     <div>
                       <p className="font-medium text-sm">Recursiv</p>
-                      <p className="text-xs text-gray-600">NSI</p>
+                      <p className="text-xs text-neutral-400">NSI</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="text-purple-600 font-semibold text-sm">A</span>
+                  <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="w-8 h-8 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-violet-200 font-semibold text-sm">A</span>
                     </div>
                     <div>
                       <p className="font-medium text-sm">Scriptor</p>
-                      <p className="text-xs text-gray-600">Français</p>
+                      <p className="text-xs text-neutral-400">Français</p>
                     </div>
                   </div>
                 </div>
@@ -409,18 +409,18 @@ export default function SessionsPage() {
             </Card>
 
             {/* Politique d'annulation */}
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="text-lg">Politique d'Annulation</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-neutral-300">
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-blue-600" />
+                    <Clock className="w-4 h-4 text-brand-accent" />
                     <span>Cours : annulation gratuite &gt; 24h</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-purple-600" />
+                    <Clock className="w-4 h-4 text-violet-300" />
                     <span>Ateliers : annulation gratuite &gt; 48h</span>
                   </div>
                 </div>

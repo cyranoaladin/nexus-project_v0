@@ -67,9 +67,9 @@ function KonnectDemoContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
             <Button variant="ghost" asChild className="mr-4">
@@ -79,49 +79,66 @@ function KonnectDemoContent() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-gray-900">Paiement Konnect</h1>
-              <p className="text-sm text-gray-500">Simulation de paiement</p>
+              <h1 className="font-semibold text-white">Paiement Konnect</h1>
+              <p className="text-sm text-neutral-400">Simulation de paiement</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="border-2 border-blue-200">
-          <CardHeader className="text-center bg-blue-50">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <CreditCard className="w-8 h-8 text-blue-600" />
+        <nav aria-label="Fil d'Ariane" className="mb-4 text-sm text-neutral-400">
+          <ol className="flex items-center gap-2">
+            <li>
+              <Link href="/dashboard/parent/abonnements" className="hover:text-white transition">
+                Abonnements
+              </Link>
+            </li>
+            <li>/</li>
+            <li>
+              <Link href="/dashboard/parent/paiement" className="hover:text-white transition">
+                Paiement
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-neutral-200">Konnect</li>
+          </ol>
+        </nav>
+        <Card className="border border-white/10 bg-white/5">
+          <CardHeader className="text-center bg-white/5 border-b border-white/10">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-full mb-4">
+              <CreditCard className="w-8 h-8 text-brand-accent" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
+            <CardTitle className="text-2xl font-bold text-white">
               Simulation Paiement Konnect
             </CardTitle>
-            <p className="text-gray-600 mt-2">
+            <p className="text-neutral-300 mt-2">
               Interface de démonstration pour tester le flux de paiement
             </p>
           </CardHeader>
 
           <CardContent className="p-8 space-y-6">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h3 className="font-semibold text-yellow-800 mb-2">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h3 className="font-semibold text-amber-200 mb-2">
                 🚧 Mode Démonstration
               </h3>
-              <p className="text-yellow-700 text-sm">
+              <p className="text-neutral-300 text-sm">
                 Ceci est une simulation du processus de paiement Konnect.
                 En production, vous seriez redirigé vers la vraie interface Konnect.
               </p>
             </div>
 
             <div className="text-center space-y-4">
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 className="font-semibold text-lg text-gray-900 mb-2">
+              <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+                <h4 className="font-semibold text-lg text-white mb-2">
                   Montant à payer
                 </h4>
-                <div className="text-3xl font-bold text-blue-600">450 TND</div>
-                <p className="text-gray-600 text-sm mt-1">Abonnement HYBRIDE</p>
+                <div className="text-3xl font-bold text-brand-accent">450 TND</div>
+                <p className="text-neutral-300 text-sm mt-1">Abonnement HYBRIDE</p>
               </div>
 
               <div className="space-y-3">
-                <p className="text-gray-700 font-medium">
+                <p className="text-neutral-200 font-medium">
                   Choisissez le résultat de votre paiement :
                 </p>
 
@@ -129,7 +146,7 @@ function KonnectDemoContent() {
                   <Button
                     onClick={handlePaymentSuccess}
                     disabled={isProcessing}
-                    className="h-16 bg-green-600 hover:bg-green-700 text-white"
+                    className="h-16 bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
                     <CheckCircle className="w-6 h-6 mr-2" />
                     <div className="text-left">
@@ -142,7 +159,7 @@ function KonnectDemoContent() {
                     onClick={handlePaymentFailure}
                     disabled={isProcessing}
                     variant="outline"
-                    className="h-16 border-red-300 text-red-600 hover:bg-red-50"
+                    className="h-16 border-rose-400/40 text-rose-200 hover:bg-rose-500/10"
                   >
                     <X className="w-6 h-6 mr-2" />
                     <div className="text-left">
@@ -154,8 +171,8 @@ function KonnectDemoContent() {
               </div>
 
               {isProcessing && (
-                <div className="flex items-center justify-center space-x-2 text-blue-600">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <div className="flex items-center justify-center space-x-2 text-brand-accent">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-accent"></div>
                   <span>Traitement du paiement...</span>
                 </div>
               )}

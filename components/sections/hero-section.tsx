@@ -97,7 +97,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="inline-flex items-center mb-6 md:mb-8"
         >
-          <Badge className="badge-popular text-sm md:text-base px-3 md:px-4 py-2">
+          <Badge className="badge-popular marketing-badge normal-case">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2" />
             Pédagogie Augmentée par l'IA
           </Badge>
@@ -110,7 +110,7 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
 
-          <h1 className="font-heading text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl">
+          <h1 className="marketing-hero-title font-heading lg:text-8xl mb-8 leading-tight drop-shadow-2xl">
             <span className="block text-white">La <span className="text-blue-300">Pédagogie Augmentée</span></span>
             <span className="block text-white">pour Réussir son Bac.</span>
             <span className="block text-white font-medium text-4xl md:text-5xl lg:text-6xl">Sans Stress.</span>
@@ -141,7 +141,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
 
-          className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
+          className="marketing-hero-copy mb-12 max-w-4xl mx-auto text-white/90 drop-shadow-lg"
 
         >
           Nous fusionnons l'expertise de <span className="text-blue-300 font-semibold">professeurs d'élite de l'enseignement français</span> avec la puissance de notre <span className="text-blue-300 font-semibold">plateforme intelligente ARIA</span>. L'objectif : transformer le potentiel de votre enfant en une <span className="text-blue-300 font-semibold">mention au Bac</span> et un <span className="text-blue-300 font-semibold">avenir choisi sur Parcoursup</span>.

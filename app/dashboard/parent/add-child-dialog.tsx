@@ -69,29 +69,29 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-2">
+        <Button variant="outline" size="sm" className="flex items-center gap-2 border-white/10 text-neutral-200 hover:text-white">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Ajouter un Enfant</span>
           <span className="sm:hidden">Ajouter</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <User className="w-5 h-5" />
             Ajouter un Enfant
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-neutral-400 mt-2">
             L'email sera automatiquement généré au format : prénom.nom@nexus-student.local
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-400">
             L'enfant utilisera le même mot de passe que vous pour se connecter.
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="firstName">Prénom *</Label>
+              <Label htmlFor="firstName" className="text-neutral-200">Prénom *</Label>
               <Input
                 id="firstName"
                 value={formData.firstName}
@@ -101,7 +101,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
               />
             </div>
             <div>
-              <Label htmlFor="lastName">Nom *</Label>
+              <Label htmlFor="lastName" className="text-neutral-200">Nom *</Label>
               <Input
                 id="lastName"
                 value={formData.lastName}
@@ -116,12 +116,12 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="grade">Niveau *</Label>
+              <Label htmlFor="grade" className="text-neutral-200">Niveau *</Label>
               <Select value={formData.grade} onValueChange={(value) => setFormData({ ...formData, grade: value })}>
-                <SelectTrigger>
+                <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
                   <SelectValue placeholder="Sélectionner le niveau" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                   {GRADES.map((grade) => (
                     <SelectItem key={grade} value={grade}>
                       {grade}
@@ -131,7 +131,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
               </Select>
             </div>
             <div>
-              <Label htmlFor="school">Établissement</Label>
+              <Label htmlFor="school" className="text-neutral-200">Établissement</Label>
               <Input
                 id="school"
                 value={formData.school}
@@ -144,7 +144,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button 
               type="submit" 
-              className="flex-1"
+              className="flex-1 btn-primary"
               disabled={loading}
             >
               {loading ? (
@@ -163,7 +163,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1"
+              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

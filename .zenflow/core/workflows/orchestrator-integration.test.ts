@@ -65,16 +65,16 @@ describe('Orchestrator Integration Tests', () => {
   });
 
   describe('End-to-End Workflow Execution', () => {
-    it.skip('should execute complete flow: event -> rule -> workflow', async () => {
+    it('should execute complete flow: event -> rule -> workflow', async () => {
       const workflow: Workflow = {
         name: 'test-sync-workflow',
         version: '1.0.0',
         description: 'Test sync workflow',
         author: 'test',
-        inputs: {
-          branch: { type: 'string', required: true },
-          worktree: { type: 'string', required: true },
-        },
+        inputs: [
+          { name: 'branch', type: 'string', required: true },
+          { name: 'worktree', type: 'string', required: true },
+        ],
         steps: [
           {
             id: 'step-1',
@@ -84,7 +84,7 @@ describe('Orchestrator Integration Tests', () => {
           },
         ],
         error_handling: {
-          on_failure: 'abort',
+          strategy: 'abort',
         },
       };
 
@@ -123,7 +123,7 @@ describe('Orchestrator Integration Tests', () => {
         guards: {
           max_retries: 3,
           timeout: 300,
-          on_error: 'abort',
+          on_error: 'continue',
         },
       };
 
@@ -159,26 +159,26 @@ describe('Orchestrator Integration Tests', () => {
       orchestrator.stopProcessing();
     });
 
-    it.skip('should enforce concurrency control for sync operations', async () => {
+    it('should enforce concurrency control for sync operations', async () => {
       const workflow: Workflow = {
         name: 'slow-sync-workflow',
         version: '1.0.0',
         description: 'Slow sync workflow',
         author: 'test',
-        inputs: {
-          branch: { type: 'string', required: true },
-        },
+        inputs: [
+          { name: 'branch', type: 'string', required: true },
+        ],
         steps: [
           {
             id: 'step-1',
             name: 'Slow operation',
             type: 'shell',
-            command: 'sleep 0.5',
+            command: 'node -e "setTimeout(()=>{},500)"',
             timeout: 10,
           },
         ],
         error_handling: {
-          on_failure: 'abort',
+          strategy: 'abort',
         },
       };
 
@@ -206,7 +206,7 @@ describe('Orchestrator Integration Tests', () => {
         guards: {
           max_retries: 3,
           timeout: 300,
-          on_error: 'abort',
+          on_error: 'continue',
         },
       };
 
@@ -270,15 +270,15 @@ describe('Orchestrator Integration Tests', () => {
       orchestrator.stopProcessing();
     });
 
-    it.skip('should handle multiple events for different branches', async () => {
+    it('should handle multiple events for different branches', async () => {
       const workflow: Workflow = {
         name: 'multi-branch-workflow',
         version: '1.0.0',
         description: 'Multi branch workflow',
         author: 'test',
-        inputs: {
-          branch: { type: 'string', required: true },
-        },
+        inputs: [
+          { name: 'branch', type: 'string', required: true },
+        ],
         steps: [
           {
             id: 'step-1',
@@ -288,7 +288,7 @@ describe('Orchestrator Integration Tests', () => {
           },
         ],
         error_handling: {
-          on_failure: 'abort',
+          strategy: 'abort',
         },
       };
 
@@ -316,7 +316,7 @@ describe('Orchestrator Integration Tests', () => {
         guards: {
           max_retries: 3,
           timeout: 300,
-          on_error: 'abort',
+          on_error: 'continue',
         },
       };
 
@@ -358,17 +358,17 @@ describe('Orchestrator Integration Tests', () => {
         version: '1.0.0',
         description: 'Failing workflow',
         author: 'test',
-        inputs: {},
+        inputs: [],
         steps: [
           {
             id: 'step-1',
             name: 'Failing step',
             type: 'shell',
-            command: 'exit 1',
+            command: 'node -e "process.exit(1)"',
           },
         ],
         error_handling: {
-          on_failure: 'abort',
+          strategy: 'abort',
         },
       };
 
@@ -425,13 +425,13 @@ describe('Orchestrator Integration Tests', () => {
       orchestrator.stopProcessing();
     });
 
-    it.skip('should provide execution history', async () => {
+    it('should provide execution history', async () => {
       const workflow: Workflow = {
         name: 'history-workflow',
         version: '1.0.0',
         description: 'History workflow',
         author: 'test',
-        inputs: {},
+        inputs: [],
         steps: [
           {
             id: 'step-1',
@@ -441,7 +441,7 @@ describe('Orchestrator Integration Tests', () => {
           },
         ],
         error_handling: {
-          on_failure: 'abort',
+          strategy: 'abort',
         },
       };
 
@@ -466,7 +466,7 @@ describe('Orchestrator Integration Tests', () => {
         guards: {
           max_retries: 3,
           timeout: 300,
-          on_error: 'abort',
+          on_error: 'continue',
         },
       };
 

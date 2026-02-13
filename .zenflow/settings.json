@@ -11,9 +11,9 @@
     "colors": {
       "brand": {
         "primary": "#2563EB",
-        "secondary": "#EF4444",
-        "accent": "#2EE9F6",
-        "accent-dark": "#1BCED4"
+        "secondary": "#F25C5C",
+        "accent": "#4FD1E9",
+        "accent-dark": "#38BFD6"
       },
       "semantic": {
         "success": "#10B981",

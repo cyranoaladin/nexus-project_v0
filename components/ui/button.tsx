@@ -67,6 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         aria-busy={loading}
+        tabIndex={isDisabled ? -1 : 0}
         whileHover={prefersReducedMotion || isDisabled ? undefined : { scale: 1.02 }}
         whileTap={prefersReducedMotion || isDisabled ? undefined : { scale: 0.98 }}
         transition={{ duration: 0.2 }}
