@@ -73,10 +73,9 @@ export const bookFullSessionSchema = z.object({
   studentId: idSchema,
   subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
   scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate >= today;
+    // Compare YYYY-MM-DD strings to avoid UTC vs local timezone mismatch
+    const todayStr = new Date().toISOString().split('T')[0];
+    return date >= todayStr;
   }, 'Cannot book sessions in the past'),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
