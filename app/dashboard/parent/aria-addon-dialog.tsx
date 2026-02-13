@@ -96,34 +96,34 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
           <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Ajouter ARIA+
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <Brain className="w-5 h-5" />
             Ajouter un Service ARIA+
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-neutral-400 mt-2">
             Demande d'ajout de service ARIA+ pour {studentName}
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="addonType">Service ARIA+ *</Label>
+            <Label htmlFor="addonType" className="text-neutral-200">Service ARIA+ *</Label>
             <Select value={formData.addonType} onValueChange={(value) => setFormData({ ...formData, addonType: value })}>
-              <SelectTrigger>
+              <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
                 <SelectValue placeholder="Sélectionner un service" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                 {ARIA_ADDONS.map((addon) => (
                   <SelectItem key={addon.name} value={addon.name}>
                     <div className="flex flex-col">
                       <span className="font-medium">{addon.description}</span>
-                      <span className="text-xs text-gray-500">{addon.price} TND/mois</span>
+                      <span className="text-xs text-neutral-400">{addon.price} TND/mois</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -132,7 +132,7 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
           </div>
           
           <div>
-            <Label htmlFor="reason">Raison de l'ajout (optionnel)</Label>
+            <Label htmlFor="reason" className="text-neutral-200">Raison de l'ajout (optionnel)</Label>
             <Textarea
               id="reason"
               value={formData.reason}
@@ -142,20 +142,20 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
             />
           </div>
 
-          <div className="bg-purple-50 p-3 rounded-lg">
+          <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <Brain className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-purple-800">
+              <Brain className="w-4 h-4 text-purple-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-purple-200">
                 <p className="font-medium mb-1">Service ARIA+ :</p>
                 <p>Assistant IA intelligent disponible 24h/24 pour aider votre enfant dans ses études.</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-50 p-3 rounded-lg">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
+              <AlertCircle className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-200">
                 <p className="font-medium mb-1">Information importante :</p>
                 <p>Votre demande sera envoyée à l'assistant pour approbation. Le service sera activé après validation.</p>
               </div>
@@ -165,7 +165,7 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button 
               type="submit" 
-              className="flex-1"
+              className="flex-1 btn-primary"
               disabled={loading}
             >
               {loading ? (
@@ -184,7 +184,7 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1"
+              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

@@ -96,6 +96,8 @@ const config = {
         'strong': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.05)',
         'card': '0 24px 70px rgba(0, 0, 0, 0.45)',
         'cyan-glow': '0 0 30px rgba(46, 233, 246, 0.3)',
+        'premium': '0 20px 60px rgba(0, 0, 0, 0.35)',
+        'premium-strong': '0 30px 80px rgba(0, 0, 0, 0.5)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

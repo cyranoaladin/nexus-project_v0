@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   Award,
   Bot,
@@ -51,10 +52,10 @@ export default function FamillePage() {
               <p className="inline-flex items-center rounded-full border border-brand-accent/40 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-brand-accent">
                 Accompagnement Scolaire
               </p>
-              <h1 className="mt-6 text-4xl md:text-6xl font-bold text-white font-display">
+              <h1 className="marketing-hero-title mt-6">
                 La mention au Bac, enfin à portée de main. (Sans sacrifier vos week-ends).
               </h1>
-              <p className="mt-6 text-lg text-slate-300">
+              <p className="marketing-hero-copy mt-6">
                 Expertise humaine d&apos;excellence × Intelligence Artificielle 24/7.
                 Nous garantissons la réussite au Bac ET l&apos;admission dans la
                 formation supérieure de choix.
@@ -94,7 +95,7 @@ export default function FamillePage() {
         {/* PROBLÈME */}
         <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Le soutien scolaire a évolué. Votre exigence aussi.
             </h2>
             <div className="mt-10 grid gap-6 lg:grid-cols-2">
@@ -121,7 +122,7 @@ export default function FamillePage() {
         {/* OFFRES */}
         <section id="offres" className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Des parcours adaptés à chaque ambition.
             </h2>
 
@@ -191,7 +192,7 @@ export default function FamillePage() {
         {/* GARANTIE */}
         <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display text-center">
+            <h2 className="marketing-section-title text-center">
               Notre Pacte de Confiance.
             </h2>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -221,7 +222,7 @@ export default function FamillePage() {
         <section className="bg-surface-darker py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
+              <h2 className="marketing-section-title">
                 Preuve sociale avancée
               </h2>
               <p className="mt-3 text-slate-300">
@@ -249,7 +250,7 @@ export default function FamillePage() {
             <div className="mt-6 text-center">
               <a
                 href="/equipe"
-                className="inline-flex items-center justify-center rounded-full border border-brand-accent px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-accent/10"
+                className="btn-outline-strong"
               >
                 Découvrir nos profs Agrégés
               </a>
@@ -277,16 +278,31 @@ export default function FamillePage() {
         </section>
 
         {/* CTA FINAL */}
-        <section className="bg-surface-darker py-20">
+        <section className="py-16">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-brand-accent/40 bg-white/5 p-10 text-center backdrop-blur-md">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-display">
-                Prêt à transformer son avenir ?
-              </h2>
-              <button className="mt-6 inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3 font-bold text-black hover:bg-brand-accent transition">
-                Obtenir mon diagnostic personnalisé gratuit
-              </button>
-              <div className="mt-6 flex items-center justify-center gap-3 text-slate-300">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                  <p className="marketing-eyebrow">
+                    Prochaine étape
+                  </p>
+                  <h2 className="marketing-cta-title">
+                    Obtenir un diagnostic personnalisé
+                  </h2>
+                  <p className="marketing-cta-copy">
+                    Un bilan gratuit pour poser un plan clair, sans engagement.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link href="/bilan-gratuit" className="btn-primary">
+                    Démarrer un bilan gratuit
+                  </Link>
+                  <Link href="/contact" className="btn-outline">
+                    Parler à un expert
+                  </Link>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-3 text-neutral-300">
                 <Bot className="h-5 w-5 text-brand-accent" />
                 <span>
                   Je peux analyser gratuitement ses derniers bulletins. Cliquez

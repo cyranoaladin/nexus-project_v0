@@ -38,14 +38,14 @@ export default function AccompagnementScolairePage() {
 
           {/* Hero Content */}
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+            <div className="marketing-badge bg-cyan-500/10 border border-cyan-500/20 mb-6">
               <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span className="text-cyan-400 text-sm font-medium">
+              <span className="text-cyan-400 text-sm font-medium normal-case">
                 Service Principal
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-display font-bold mb-6">
+            <h1 className="marketing-hero-title mb-6">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
                 Accompagnement{" "}
               </span>
@@ -54,7 +54,7 @@ export default function AccompagnementScolairePage() {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+            <p className="marketing-hero-copy mb-8">
               Des programmes sur-mesure avec des experts agrégés pour
               transformer l'angoisse du Bac en excellence académique
             </p>
@@ -90,7 +90,7 @@ export default function AccompagnementScolairePage() {
             {/* Quick CTA */}
             <Link
               href="#programmes"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"
+              className="btn-primary-lg"
             >
               Découvrir nos programmes
               <ChevronRight className="w-5 h-5" />
@@ -103,10 +103,10 @@ export default function AccompagnementScolairePage() {
       <section id="programmes" className="relative py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            <h2 className="marketing-section-title text-center mb-4">
               Nos Programmes d'Accompagnement
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="marketing-section-copy text-center">
               Choisissez la formule adaptée à votre profil et vos objectifs
             </p>
           </div>
@@ -328,10 +328,10 @@ export default function AccompagnementScolairePage() {
       <section className="relative py-20 px-6 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            <h2 className="marketing-section-title text-center mb-4">
               Nos Garanties
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="marketing-section-copy text-center">
               Votre réussite est notre seule métrique
             </p>
           </div>
@@ -384,10 +384,10 @@ export default function AccompagnementScolairePage() {
       <section className="relative py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            <h2 className="marketing-section-title text-center mb-4">
               Comment ça marche ?
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="marketing-section-copy text-center">
               Un parcours simple en 3 étapes
             </p>
           </div>
@@ -444,7 +444,7 @@ export default function AccompagnementScolairePage() {
           <div className="text-center mt-12">
             <Link
               href="/bilan-gratuit"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"
+              className="btn-primary-lg"
             >
               Commencer mon bilan gratuit
               <ChevronRight className="w-5 h-5" />
@@ -457,10 +457,10 @@ export default function AccompagnementScolairePage() {
       <section className="relative py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            <h2 className="marketing-section-title text-center mb-4">
               Pourquoi Nexus Réussite ?
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="marketing-section-copy text-center">
               Ce qui nous distingue des autres
             </p>
           </div>
@@ -503,35 +503,31 @@ export default function AccompagnementScolairePage() {
       </section>
 
       {/* CTA Final */}
-      <section className="relative py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-3xl p-12">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
-              Prêt à transformer l'angoisse du Bac en excellence ?
-            </h2>
-            <p className="text-xl text-gray-300 mb-8">
-              Rejoignez les 500+ familles qui ont fait confiance à Nexus
-              Réussite
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/bilan-gratuit"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform"
-              >
-                Commencer maintenant
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 border border-white/20 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/5 transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Parler à un conseiller
-              </Link>
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <p className="marketing-eyebrow">
+                  Prochaine étape
+                </p>
+                <h2 className="marketing-cta-title">
+                  Démarrer un plan sur-mesure
+                </h2>
+                <p className="marketing-cta-copy">
+                  Bilan gratuit + recommandation personnalisée par nos experts.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <Link href="/bilan-gratuit" className="btn-primary">
+                  Démarrer un bilan gratuit
+                </Link>
+                <Link href="/contact" className="btn-outline">
+                  Parler à un expert
+                </Link>
+              </div>
             </div>
-
-            <p className="text-sm text-gray-400 mt-6">
+            <p className="mt-6 text-xs text-neutral-400">
               Satisfait ou remboursé sous 30 jours • Sans engagement
             </p>
           </div>

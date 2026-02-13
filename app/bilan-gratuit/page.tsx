@@ -223,7 +223,7 @@ function BilanGratuitForm() {
               { label: "Services", href: "/accompagnement-scolaire" },
               { label: "Bilan Gratuit" }
             ]}
-            className="mb-6"
+            className="mb-6 breadcrumb-on-dark"
           />
 
           {/* En-tête */}
@@ -232,7 +232,7 @@ function BilanGratuitForm() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8 md:mb-12"
           >
-            <Badge variant="outline" className="mb-4">
+            <Badge variant="outline" className="mb-4 border-white/20 bg-white/5 text-neutral-100">
               <CheckCircle className="w-4 h-4 mr-2" aria-hidden="true" />
               Bilan Stratégique Gratuit
             </Badge>

@@ -3,8 +3,8 @@ const nextConfig = {
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 
-  // Fix workspace root warning - disabled for Docker builds
-  // outputFileTracingRoot: '/home/alaeddine/Bureau/nexus-project_v0',
+  // Fix workspace root warning from multiple lockfiles
+  outputFileTracingRoot: process.cwd(),
 
   // Ne pas bloquer le build sur les erreurs ESLint (on traitera via `npm run lint` séparé)
   eslint: {
@@ -12,7 +12,14 @@ const nextConfig = {
   },
 
   // [SOLUTION] Moved from experimental to top-level in Next.js 15
-  serverExternalPackages: ['@prisma/client'],
+  // Keep native deps + logging stack external to avoid worker.js/worker thread warnings.
+  serverExternalPackages: [
+    '@prisma/client',
+    'pino',
+    'pino-pretty',
+    'thread-stream',
+    'pino-abstract-transport',
+  ],
 
 
 

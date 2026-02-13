@@ -1,0 +1,5 @@
+services:
+  nexus-app:
+    environment:
+      NEXTAUTH_URL: https://localhost:9443
+      NEXT_PUBLIC_APP_URL: https://localhost:9443

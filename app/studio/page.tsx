@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { Database, Search, Bot, Cpu, ShieldCheck } from 'lucide-react';
@@ -15,10 +16,10 @@ export default function StudioPage() {
                 <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-neutral-800/10 blur-3xl" />
                 <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="max-w-3xl">
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight font-display">
+                        <h1 className="marketing-hero-title mb-6 tracking-tight">
                             Nexus Studio : Architectes d'Intelligence Artificielle.
                         </h1>
-                        <p className="text-xl text-slate-300 leading-relaxed">
+                        <p className="marketing-hero-copy">
                             Ne vous contentez pas d'utiliser l'IA. Construisez vos propres Agents Autonomes et systèmes RAG.
                         </p>
                     </div>
@@ -57,6 +58,34 @@ export default function StudioPage() {
                             <p className="text-slate-400 text-sm leading-relaxed">
                                 Analyse de performance et conformité de vos modèles LLM.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div>
+                                <p className="marketing-eyebrow">
+                                    Prochaine étape
+                                </p>
+                                <h3 className="marketing-cta-title">
+                                    Décrivez votre cas d'usage IA
+                                </h3>
+                                <p className="marketing-cta-copy">
+                                    Un diagnostic rapide et un plan d'action pour vos agents et RAG.
+                                </p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Link href="/contact?subject=Studio%20IA" className="btn-primary">
+                                    Planifier un diagnostic
+                                </Link>
+                                <Link href="/contact" className="btn-outline">
+                                    Parler à un expert
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

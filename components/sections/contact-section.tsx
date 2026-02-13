@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Building2, Users, Briefcase, Phone, Mail, MapPin } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 type TabKey = "schools" | "families" | "pros";
 
@@ -19,6 +20,55 @@ const CTA_LABELS: Record<TabKey, string> = {
 
 export default function ContactSection() {
   const [active, setActive] = useState<TabKey>("schools");
+  const [interest, setInterest] = useState("");
+  const [urgency, setUrgency] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    setInterest("");
+    setUrgency("");
+  }, [active]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setStatus("loading");
+    track.contactSubmit(active, interest || undefined, urgency || undefined, document.referrer || undefined);
+    track.ctaClick("contact_form", CTA_LABELS[active]);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile: active,
+          interest,
+          urgency,
+          name,
+          email,
+          phone,
+          message,
+          source: document.referrer || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+
+      setStatus("success");
+      setShowSuccess(true);
+      setMessage("");
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+    }
+  };
 
   return (
     <section id="contact" className="bg-surface-darker py-24">
@@ -120,7 +170,7 @@ export default function ContactSection() {
               )}
             </div>
 
-            <form className="mt-8 grid gap-5">
+            <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="text-xs uppercase tracking-widest text-slate-400">
@@ -128,7 +178,10 @@ export default function ContactSection() {
                   </label>
                   <input
                     type="text"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    required
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                     placeholder="Votre nom"
                   />
                 </div>
@@ -138,10 +191,25 @@ export default function ContactSection() {
                   </label>
                   <input
                     type="email"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    required
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                     placeholder="email@exemple.com"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="text-xs uppercase tracking-widest text-slate-400">
+                  Téléphone
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                  placeholder="+216 ..."
+                />
               </div>
 
               {active === "schools" && (
@@ -152,7 +220,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       placeholder="Lycée / École"
                     />
                   </div>
@@ -162,9 +230,40 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       placeholder="Direction, DSI, Responsable..."
                     />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Taille de l&apos;établissement
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={urgency}
+                      onChange={(event) => setUrgency(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="moins-300">Moins de 300 élèves</option>
+                      <option value="300-800">300 à 800 élèves</option>
+                      <option value="plus-800">Plus de 800 élèves</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Priorité
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={interest}
+                      onChange={(event) => setInterest(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="demo">Démo plateforme</option>
+                      <option value="audit">Audit & diagnostic</option>
+                      <option value="ia">IA & automatisation</option>
+                      <option value="formation">Formation des équipes</option>
+                    </select>
                   </div>
                 </div>
               )}
@@ -177,7 +276,7 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       placeholder="Terminale, Première..."
                     />
                   </div>
@@ -187,9 +286,40 @@ export default function ContactSection() {
                     </label>
                     <input
                       type="text"
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       placeholder="Nom du lycée"
                     />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Objectif principal
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={interest}
+                      onChange={(event) => setInterest(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="bac">Réussir le Bac</option>
+                      <option value="mention">Viser une mention</option>
+                      <option value="parcoursup">Parcoursup & orientation</option>
+                      <option value="remise-a-niveau">Remise à niveau</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Délai de démarrage
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={urgency}
+                      onChange={(event) => setUrgency(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="urgent">Cette semaine</option>
+                      <option value="2-4sem">Dans 2 à 4 semaines</option>
+                      <option value="plus">Plus tard</option>
+                    </select>
                   </div>
                 </div>
               )}
@@ -206,15 +336,48 @@ export default function ContactSection() {
               )}
 
               {active === "pros" && (
-                <div>
-                  <label className="text-xs uppercase tracking-widest text-slate-400">
-                    Niveau technique actuel
-                  </label>
-                  <input
-                    type="text"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
-                    placeholder="Débutant, Intermédiaire, Avancé"
-                  />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Niveau technique actuel
+                    </label>
+                    <input
+                      type="text"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      placeholder="Débutant, Intermédiaire, Avancé"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Objectif
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={interest}
+                      onChange={(event) => setInterest(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="ia">IA & automatisation</option>
+                      <option value="web3">Web3 & blockchain</option>
+                      <option value="reconversion">Reconversion</option>
+                      <option value="upskill">Upskilling équipe</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                      Délai de démarrage
+                    </label>
+                    <select
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      value={urgency}
+                      onChange={(event) => setUrgency(event.target.value)}
+                    >
+                      <option value="">Sélectionner</option>
+                      <option value="urgent">Ce mois‑ci</option>
+                      <option value="next">Le mois prochain</option>
+                      <option value="later">Plus tard</option>
+                    </select>
+                  </div>
                 </div>
               )}
 
@@ -226,7 +389,7 @@ export default function ContactSection() {
                     ? "Je cherche"
                     : "Programme"}
                 </label>
-                <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-brand-accent focus:outline-none">
+                <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none">
                   {active === "schools" && (
                     <>
                       <option>Nexus Digital Campus (LMS & pilotage)</option>
@@ -266,7 +429,7 @@ export default function ContactSection() {
                   )}
                 </select>
                 <p className="mt-2 text-xs text-slate-400">
-                  Offre 360° : conseil, IA, formation et accompagnement sur-mesure.
+                  Réponse sous 2h ouvrables. Vos informations restent confidentielles.
                 </p>
               </div>
 
@@ -275,7 +438,9 @@ export default function ContactSection() {
                   Message (optionnel)
                 </label>
                 <textarea
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-brand-accent focus:outline-none"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                   rows={4}
                   placeholder="Décrivez brièvement votre besoin"
                 />
@@ -283,14 +448,55 @@ export default function ContactSection() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-brand-accent px-8 text-sm font-bold text-black transition hover:bg-brand-accent-dark"
+                className="mt-2 btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={status === "loading"}
               >
-                {CTA_LABELS[active]}
+                {status === "loading" ? "Envoi..." : CTA_LABELS[active]}
               </button>
+              {status === "success" && (
+                <div className="text-sm text-emerald-300">
+                  Merci, votre demande a bien été envoyée.
+                </div>
+              )}
+              {status === "error" && (
+                <div className="text-sm text-red-300">
+                  Une erreur est survenue. Merci de réessayer ou d’appeler directement.
+                </div>
+              )}
+              <p className="text-xs text-slate-400">
+                En soumettant ce formulaire, vous acceptez d’être recontacté par un conseiller.
+              </p>
             </form>
           </div>
         </div>
       </div>
+      {showSuccess && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-surface-card p-8 text-center shadow-2xl">
+            <h3 className="text-2xl font-bold text-white font-display">
+              Merci, votre demande est envoyée
+            </h3>
+            <p className="mt-3 text-sm text-slate-300">
+              Un conseiller vous recontacte sous 2h ouvrables. Vous pouvez déjà préparer votre bilan.
+            </p>
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+              <a
+                href="/bilan-gratuit"
+                className="btn-primary"
+              >
+                Démarrer un bilan gratuit
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowSuccess(false)}
+                className="btn-outline"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

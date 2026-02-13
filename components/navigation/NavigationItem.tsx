@@ -29,7 +29,10 @@ export interface NavigationItemProps extends VariantProps<typeof navigationItemV
 
 export function NavigationItem({ item, className }: NavigationItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const shouldMatchPrefix = (item.match ?? 'prefix') === 'prefix';
+  const isActive = shouldMatchPrefix
+    ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+    : pathname === item.href;
   const Icon = item.icon;
 
   return (

@@ -69,7 +69,7 @@ export function HoursSchedule({ schedule }: HoursScheduleProps) {
             <a
               href="#academies"
               onClick={handleCTAClick}
-              className="inline-block rounded-full bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 text-base font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              className="btn-stage"
               aria-label="Découvrir les académies"
             >
               Découvrir les académies

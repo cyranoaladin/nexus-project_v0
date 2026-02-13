@@ -119,9 +119,9 @@ export default function SubscriptionRequestsPage() {
 
   const getRequestTypeIcon = (type: string) => {
     switch (type) {
-      case 'PLAN_CHANGE': return <CreditCard className="w-5 h-5 text-blue-600" />;
-      case 'ARIA_ADDON': return <Brain className="w-5 h-5 text-purple-600" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-600" />;
+      case 'PLAN_CHANGE': return <CreditCard className="w-5 h-5 text-brand-accent" />;
+      case 'ARIA_ADDON': return <Brain className="w-5 h-5 text-purple-300" />;
+      default: return <AlertCircle className="w-5 h-5 text-neutral-400" />;
     }
   };
 
@@ -144,10 +144,10 @@ export default function SubscriptionRequestsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des demandes...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des demandes...</p>
         </div>
       </div>
     );
@@ -155,14 +155,14 @@ export default function SubscriptionRequestsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => fetchRequests()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -172,25 +172,25 @@ export default function SubscriptionRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <CreditCard className="w-8 h-8 text-blue-600" />
+                <CreditCard className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Demandes d'Abonnement
                   </h1>
-                  <p className="text-sm text-gray-500">Gestion des demandes de modification</p>
+                  <p className="text-sm text-neutral-400">Gestion des demandes de modification</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" className="text-neutral-300 hover:text-white">
                   Retour au Dashboard
                 </Button>
               </Link>
@@ -203,10 +203,10 @@ export default function SubscriptionRequestsPage() {
         {/* Filters */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
               <SelectItem value="PENDING">En attente</SelectItem>
               <SelectItem value="APPROVED">Approuvées</SelectItem>
               <SelectItem value="REJECTED">Rejetées</SelectItem>
@@ -218,7 +218,7 @@ export default function SubscriptionRequestsPage() {
         <div className="space-y-4">
           {requests.length > 0 ? (
             requests.map((request) => (
-              <Card key={request.id}>
+              <Card key={request.id} className="bg-surface-card border border-white/10 shadow-premium">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
@@ -227,10 +227,10 @@ export default function SubscriptionRequestsPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-medium text-gray-900">
+                          <h3 className="font-medium text-white">
                             {getRequestTypeText(request.requestType)}
                           </h3>
-                          <Badge variant={getStatusBadgeVariant(request.status) as "default" | "destructive" | "outline" | "popular" | "success" | "warning" | null | undefined}>
+                          <Badge variant={getStatusBadgeVariant(request.status) as "default" | "destructive" | "outline" | "popular" | "success" | "warning" | null | undefined} className="border-white/10">
                             {request.status === 'PENDING' ? 'En attente' : 
                              request.status === 'APPROVED' ? 'Approuvée' : 'Rejetée'}
                           </Badge>
@@ -238,42 +238,42 @@ export default function SubscriptionRequestsPage() {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="text-gray-600">
-                              <span className="font-medium">Élève:</span> {request.student.user.firstName} {request.student.user.lastName}
+                            <p className="text-neutral-300">
+                              <span className="font-medium text-neutral-200">Élève:</span> {request.student.user.firstName} {request.student.user.lastName}
                             </p>
-                            <p className="text-gray-600">
-                              <span className="font-medium">Parent:</span> {request.student.parent.user.firstName} {request.student.parent.user.lastName}
+                            <p className="text-neutral-300">
+                              <span className="font-medium text-neutral-200">Parent:</span> {request.student.parent.user.firstName} {request.student.parent.user.lastName}
                             </p>
-                            <p className="text-gray-600">
-                              <span className="font-medium">Email:</span> {request.student.parent.user.email}
+                            <p className="text-neutral-300">
+                              <span className="font-medium text-neutral-200">Email:</span> {request.student.parent.user.email}
                             </p>
                           </div>
                           <div>
                             {request.planName && (
-                              <p className="text-gray-600">
-                                <span className="font-medium">Plan:</span> {request.planName}
+                              <p className="text-neutral-300">
+                                <span className="font-medium text-neutral-200">Plan:</span> {request.planName}
                               </p>
                             )}
-                            <p className="text-gray-600">
-                              <span className="font-medium">Prix:</span> {request.monthlyPrice} TND/mois
+                            <p className="text-neutral-300">
+                              <span className="font-medium text-neutral-200">Prix:</span> {request.monthlyPrice} TND/mois
                             </p>
-                            <p className="text-gray-600">
-                              <span className="font-medium">Demandé le:</span> {new Date(request.createdAt).toLocaleDateString('fr-FR')}
+                            <p className="text-neutral-300">
+                              <span className="font-medium text-neutral-200">Demandé le:</span> {new Date(request.createdAt).toLocaleDateString('fr-FR')}
                             </p>
                           </div>
                         </div>
                         
                         {request.reason && (
-                          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-700">
-                              <span className="font-medium">Raison:</span> {request.reason}
+                          <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+                            <p className="text-sm text-neutral-300">
+                              <span className="font-medium text-neutral-200">Raison:</span> {request.reason}
                             </p>
                           </div>
                         )}
                         
                         {request.rejectionReason && (
-                          <div className="mt-3 p-3 bg-red-50 rounded-lg">
-                            <p className="text-sm text-red-700">
+                          <div className="mt-3 p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg">
+                            <p className="text-sm text-rose-200">
                               <span className="font-medium">Raison du rejet:</span> {request.rejectionReason}
                             </p>
                           </div>
@@ -286,7 +286,7 @@ export default function SubscriptionRequestsPage() {
                         <Button
                           size="sm"
                           onClick={() => setSelectedRequest(request)}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-emerald-500/80 hover:bg-emerald-500 text-white"
                         >
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Approuver
@@ -294,7 +294,7 @@ export default function SubscriptionRequestsPage() {
                         <Button
                           size="sm"
                           variant="secondary"
-                          className="bg-red-600 hover:bg-red-700 text-white"
+                          className="bg-rose-500/80 hover:bg-rose-500 text-white"
                           onClick={() => setSelectedRequest(request)}
                         >
                           <XCircle className="w-4 h-4 mr-1" />
@@ -308,11 +308,11 @@ export default function SubscriptionRequestsPage() {
             ))
           ) : (
             <div className="text-center py-12">
-              <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Clock className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">
                 Aucune demande {statusFilter === 'PENDING' ? 'en attente' : statusFilter === 'APPROVED' ? 'approuvée' : 'rejetée'}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-neutral-400">
                 {statusFilter === 'PENDING' ? 'Toutes les demandes ont été traitées.' : 'Aucune demande trouvée.'}
               </p>
             </div>
@@ -321,9 +321,9 @@ export default function SubscriptionRequestsPage() {
 
         {/* Action Dialog */}
         <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
-          <DialogContent>
+          <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-white">
                 {selectedRequest?.status === 'PENDING' ? 'Traiter la demande' : 'Détails de la demande'}
               </DialogTitle>
             </DialogHeader>
@@ -331,8 +331,8 @@ export default function SubscriptionRequestsPage() {
             {selectedRequest && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2">Détails de la demande</h4>
-                  <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                  <h4 className="font-medium mb-2 text-neutral-200">Détails de la demande</h4>
+                  <div className="bg-white/5 border border-white/10 p-3 rounded-lg text-sm text-neutral-300">
                     <p><strong>Type:</strong> {getRequestTypeText(selectedRequest.requestType)}</p>
                     <p><strong>Élève:</strong> {selectedRequest.student.user.firstName} {selectedRequest.student.user.lastName}</p>
                     <p><strong>Parent:</strong> {selectedRequest.student.parent.user.firstName} {selectedRequest.student.parent.user.lastName}</p>
@@ -345,7 +345,7 @@ export default function SubscriptionRequestsPage() {
                 {selectedRequest.status === 'PENDING' && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-200 mb-2">
                         Raison du rejet (optionnel)
                       </label>
                       <Textarea
@@ -360,7 +360,7 @@ export default function SubscriptionRequestsPage() {
                       <Button
                         onClick={() => handleAction(selectedRequest.id, 'APPROVED')}
                         disabled={processing}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-emerald-500/80 hover:bg-emerald-500 text-white"
                       >
                         {processing ? (
                           <>
@@ -376,7 +376,7 @@ export default function SubscriptionRequestsPage() {
                       </Button>
                       <Button
                         variant="secondary"
-                        className="bg-red-600 hover:bg-red-700 text-white"
+                        className="bg-rose-500/80 hover:bg-rose-500 text-white"
                         onClick={() => handleAction(selectedRequest.id, 'REJECTED')}
                         disabled={processing}
                       >
@@ -394,6 +394,7 @@ export default function SubscriptionRequestsPage() {
                       </Button>
                       <Button
                         variant="outline"
+                        className="border-white/10 text-neutral-200 hover:text-white"
                         onClick={() => setSelectedRequest(null)}
                         disabled={processing}
                       >

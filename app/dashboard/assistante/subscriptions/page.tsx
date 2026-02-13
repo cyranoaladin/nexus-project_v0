@@ -128,10 +128,10 @@ export default function SubscriptionsManagement() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des demandes...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des demandes...</p>
         </div>
       </div>
     );
@@ -139,14 +139,14 @@ export default function SubscriptionsManagement() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => fetchSubscriptions()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -156,26 +156,26 @@ export default function SubscriptionsManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
-                <Settings className="w-8 h-8 text-blue-600" />
+                <Settings className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Gestion des Abonnements
                   </h1>
-                  <p className="text-sm text-gray-500">Approbation des demandes</p>
+                  <p className="text-sm text-neutral-400">Approbation des demandes</p>
                 </div>
               </Link>
             </div>
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-neutral-300 hover:text-white"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -189,15 +189,15 @@ export default function SubscriptionsManagement() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 Demandes d'Abonnements
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-400">
                 Gérez les demandes d'abonnements des parents
               </p>
             </div>
             <div className="flex space-x-2">
-              <Badge variant="outline" className="text-sm">
+              <Badge variant="outline" className="text-sm border-white/10 text-neutral-300">
                 {pendingSubscriptions.length} en attente
               </Badge>
             </div>
@@ -207,12 +207,12 @@ export default function SubscriptionsManagement() {
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 w-4 h-4" />
             <Input
               placeholder="Rechercher une demande..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
             />
           </div>
         </div>
@@ -221,21 +221,21 @@ export default function SubscriptionsManagement() {
         <div className="space-y-4">
           {filteredPendingSubscriptions.length > 0 ? (
             filteredPendingSubscriptions.map((request) => (
-              <Card key={request.id} className="border-orange-200 bg-orange-50">
+              <Card key={request.id} className="border-amber-500/20 bg-amber-500/10">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-lg text-white">
                         {request.planName} - {request.student.firstName} {request.student.lastName}
                       </CardTitle>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-neutral-300">
                         Demandé par {request.parent.firstName} {request.parent.lastName}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-neutral-400">
                         {new Date(request.createdAt).toLocaleDateString('fr-FR')} à {new Date(request.createdAt).toLocaleTimeString('fr-FR')}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-orange-700 border-orange-300">
+                    <Badge variant="outline" className="text-amber-200 border-amber-500/30">
                       En attente
                     </Badge>
                   </div>
@@ -243,19 +243,19 @@ export default function SubscriptionsManagement() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Élève</p>
-                      <p className="text-sm text-gray-600">{request.student.firstName} {request.student.lastName}</p>
-                      <p className="text-xs text-gray-500">{request.student.grade} - {request.student.school}</p>
+                      <p className="text-sm font-medium text-neutral-200">Élève</p>
+                      <p className="text-sm text-neutral-300">{request.student.firstName} {request.student.lastName}</p>
+                      <p className="text-xs text-neutral-400">{request.student.grade} - {request.student.school}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Abonnement</p>
-                      <p className="text-sm text-gray-600">{request.planName}</p>
-                      <p className="text-xs text-gray-500">{request.monthlyPrice} TND/mois</p>
+                      <p className="text-sm font-medium text-neutral-200">Abonnement</p>
+                      <p className="text-sm text-neutral-300">{request.planName}</p>
+                      <p className="text-xs text-neutral-400">{request.monthlyPrice} TND/mois</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Crédits</p>
-                      <p className="text-sm text-gray-600">{request.creditsPerMonth} crédits/mois</p>
-                      <p className="text-xs text-gray-500">Type: {request.planType}</p>
+                      <p className="text-sm font-medium text-neutral-200">Crédits</p>
+                      <p className="text-sm text-neutral-300">{request.creditsPerMonth} crédits/mois</p>
+                      <p className="text-xs text-neutral-400">Type: {request.planType}</p>
                     </div>
                   </div>
                   
@@ -265,40 +265,41 @@ export default function SubscriptionsManagement() {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="border-white/10 text-neutral-200 hover:text-white"
                           onClick={() => setSelectedRequest(request)}
                         >
                           Voir Détails
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
                         <DialogHeader>
-                          <DialogTitle>Détails de la Demande</DialogTitle>
+                          <DialogTitle className="text-white">Détails de la Demande</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label className="text-sm font-medium">Élève</Label>
-                              <p className="text-sm">{request.student.firstName} {request.student.lastName}</p>
-                              <p className="text-xs text-gray-500">{request.student.grade}</p>
+                              <Label className="text-sm font-medium text-neutral-200">Élève</Label>
+                              <p className="text-sm text-neutral-300">{request.student.firstName} {request.student.lastName}</p>
+                              <p className="text-xs text-neutral-400">{request.student.grade}</p>
                             </div>
                             <div>
-                              <Label className="text-sm font-medium">Parent</Label>
-                              <p className="text-sm">{request.parent.firstName} {request.parent.lastName}</p>
-                              <p className="text-xs text-gray-500">{request.parent.email}</p>
+                              <Label className="text-sm font-medium text-neutral-200">Parent</Label>
+                              <p className="text-sm text-neutral-300">{request.parent.firstName} {request.parent.lastName}</p>
+                              <p className="text-xs text-neutral-400">{request.parent.email}</p>
                             </div>
                           </div>
                           
                           <div>
-                            <Label className="text-sm font-medium">Abonnement</Label>
-                            <p className="text-sm font-medium">{request.planName}</p>
-                            <p className="text-sm">{request.monthlyPrice} TND/mois</p>
-                            <p className="text-xs text-gray-500">{request.creditsPerMonth} crédits inclus</p>
+                            <Label className="text-sm font-medium text-neutral-200">Abonnement</Label>
+                            <p className="text-sm font-medium text-neutral-100">{request.planName}</p>
+                            <p className="text-sm text-neutral-300">{request.monthlyPrice} TND/mois</p>
+                            <p className="text-xs text-neutral-400">{request.creditsPerMonth} crédits inclus</p>
                           </div>
 
                           <div className="flex space-x-2">
                             <Button 
                               onClick={() => handleSubscriptionAction(request.id, 'approve')}
-                              className="flex-1"
+                              className="flex-1 btn-primary"
                               disabled={isProcessing}
                             >
                               {isProcessing ? (
@@ -317,20 +318,20 @@ export default function SubscriptionsManagement() {
                               <DialogTrigger asChild>
                                 <Button 
                                   variant="outline" 
-                                  className="flex-1"
+                                  className="flex-1 border-white/10 text-neutral-200 hover:text-white"
                                   disabled={isProcessing}
                                 >
                                   <X className="w-4 h-4 mr-2" />
                                   Rejeter
                                 </Button>
                               </DialogTrigger>
-                              <DialogContent>
+                              <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
                                 <DialogHeader>
-                                  <DialogTitle>Rejeter la Demande</DialogTitle>
+                                  <DialogTitle className="text-white">Rejeter la Demande</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div>
-                                    <Label htmlFor="rejectionReason">Raison du rejet</Label>
+                                    <Label htmlFor="rejectionReason" className="text-neutral-200">Raison du rejet</Label>
                                     <Textarea
                                       id="rejectionReason"
                                       value={rejectionReason}
@@ -343,7 +344,7 @@ export default function SubscriptionsManagement() {
                                     <Button 
                                       onClick={() => handleSubscriptionAction(request.id, 'reject')}
                                       variant="secondary"
-                                      className="flex-1"
+                                      className="flex-1 btn-secondary"
                                       disabled={isProcessing}
                                     >
                                       {isProcessing ? (
@@ -355,7 +356,7 @@ export default function SubscriptionsManagement() {
                                         'Rejeter'
                                       )}
                                     </Button>
-                                    <Button variant="outline" className="flex-1">
+                                    <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
                                       Annuler
                                     </Button>
                                   </div>
@@ -372,11 +373,11 @@ export default function SubscriptionsManagement() {
             ))
           ) : (
             <div className="text-center py-12">
-              <Check className="w-16 h-16 text-green-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Check className="w-16 h-16 text-emerald-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">
                 Aucune demande en attente
               </h3>
-              <p className="text-gray-500">
+              <p className="text-neutral-400">
                 {searchTerm ? 'Aucune demande ne correspond à votre recherche.' : 'Toutes les demandes ont été traitées.'}
               </p>
             </div>

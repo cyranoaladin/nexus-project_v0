@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { School, Users, Briefcase, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
+import { School, Users, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -97,44 +97,44 @@ const OfferSection = () => {
     }, []);
 
     const tabs = [
-        { icon: School, label: 'Établissements' },
-        { icon: Users, label: 'Parents & Élèves' },
-        { icon: Briefcase, label: 'Formation Pro' }
+        { icon: School, label: 'Plateforme' },
+        { icon: Users, label: 'Hybride' },
+        { icon: GraduationCap, label: 'Immersion' }
     ];
 
     const tabContent = [
         {
-            title: "L'École Augmentée",
-            subtitle: "Studio & Infra",
+            title: "Accès Plateforme",
+            subtitle: "IA + Suivi",
             items: [
-                { icon: GraduationCap, text: "Nexus Digital Campus (LMS & pilotage)" },
-                { icon: FileCheck, text: "Korrigo Engine (correction & analytics)" },
-                { icon: Bot, text: "Agent Vie Scolaire (automatisation)" },
-                { icon: Shield, text: "Certification sécurisée (Smart Credentials)" }
+                { icon: Bot, text: "IA ARIA 24/7 (1 matière)" },
+                { icon: FileCheck, text: "Suivi de progression" },
+                { icon: Shield, text: "Dashboard parent" },
+                { icon: GraduationCap, text: "Ressources & méthodes Bac" }
             ],
-            cta: "Planifier une démo"
+            cta: "Voir les formules"
         },
         {
-            title: "Accompagnement Elite",
-            subtitle: "ARIA & Coaching",
+            title: "Hybride",
+            subtitle: "Plateforme + Coach",
             items: [
-                { icon: Bot, text: "Tuteur IA ARIA disponible 24/7" },
-                { icon: GraduationCap, text: "Cursus 'Elite Track' (Code / Web3)" },
-                { icon: Check, text: "Coaching orientation personnalisé" },
-                { icon: Shield, text: "Suivi parental sécurisé" }
+                { icon: Check, text: "4h/mois avec coach agrégé" },
+                { icon: Bot, text: "IA ARIA 24/7" },
+                { icon: Shield, text: "Suivi parental" },
+                { icon: GraduationCap, text: "Plan de révision personnalisé" }
             ],
-            cta: "Découvrir l'accompagnement"
+            cta: "Voir les formules"
         },
         {
-            title: "Formation Tech & Pro",
-            subtitle: "IA & Web3",
+            title: "Immersion",
+            subtitle: "Intensif & Prioritaire",
             items: [
-                { icon: Bot, text: "Bootcamp IA Générative" },
-                { icon: Shield, text: "Certification Web3 & Blockchain" },
-                { icon: GraduationCap, text: "Formation Staff (IA & outils)" },
-                { icon: Check, text: "Accompagnement reconversion" }
+                { icon: Check, text: "8h/mois avec experts agrégés" },
+                { icon: Bot, text: "IA ARIA 24/7" },
+                { icon: Shield, text: "Support prioritaire" },
+                { icon: GraduationCap, text: "Bilan trimestriel" }
             ],
-            cta: "Explorer les formations"
+            cta: "Voir les formules"
         }
     ];
 
@@ -156,6 +156,8 @@ const OfferSection = () => {
                         src="/images/classroom.jpg"
                         alt="Salle de classe"
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-surface-card/60 via-transparent to-surface-card/80" />
 
@@ -163,10 +165,10 @@ const OfferSection = () => {
                     <div className="absolute bottom-6 left-6 right-6">
                         <span className="label-mono text-brand-accent block mb-1">Nexus Réussite</span>
                         <h3 className="font-display text-2xl font-bold text-white mt-2">
-                            Des livrables concrets
+                            Un plan clair, des résultats
                         </h3>
                         <p className="text-neutral-400 text-sm mt-1">
-                            Pensés pour la direction, l'IT et les équipes pédagogiques.
+                            Conçu pour sécuriser le Bac et viser la mention.
                         </p>
                     </div>
                 </div>
@@ -216,7 +218,7 @@ const OfferSection = () => {
                         </ul>
 
                         <Button asChild className="flex items-center justify-center gap-2 mt-8 w-full">
-                            <Link href="/contact">
+                            <Link href="/offres">
                                 <span>{tabContent[activeTab].cta}</span>
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
@@ -232,24 +234,24 @@ const OfferSection = () => {
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <GraduationCap className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
-                            <span className="block text-white text-xs font-medium">Nexus Stratégie</span>
-                            <span className="block text-neutral-400 text-[10px]">Pilotage avec vision</span>
+                            <span className="block text-white text-xs font-medium">Bilan stratégique</span>
+                            <span className="block text-neutral-400 text-[10px]">Point de départ clair</span>
                         </div>
                     </div>
 
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <Bot className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
-                            <span className="block text-white text-xs font-medium">Nexus Studio</span>
-                            <span className="block text-neutral-400 text-[10px]">L'IA qui travaille pour vous</span>
+                            <span className="block text-white text-xs font-medium">IA ARIA 24/7</span>
+                            <span className="block text-neutral-400 text-[10px]">Pratique illimitée</span>
                         </div>
                     </div>
 
                     <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <FileCheck className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
-                            <span className="block text-white text-xs font-medium">Nexus Academy</span>
-                            <span className="block text-neutral-400 text-[10px]">Élevez les compétences</span>
+                            <span className="block text-white text-xs font-medium">Suivi parent</span>
+                            <span className="block text-neutral-400 text-[10px]">Résultats visibles</span>
                         </div>
                     </div>
                 </div>

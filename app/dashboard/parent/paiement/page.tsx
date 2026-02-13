@@ -139,25 +139,36 @@ function PaiementContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <main className="max-w-4xl mx-auto px-4 py-8">
+        <nav aria-label="Fil d'Ariane" className="mb-4 text-sm text-neutral-400">
+          <ol className="flex items-center gap-2">
+            <li>
+              <Link href="/dashboard/parent/abonnements" className="hover:text-white transition">
+                Abonnements
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-neutral-200">Paiement</li>
+          </ol>
+        </nav>
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
             href="/dashboard/parent/abonnements"
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-neutral-300 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
             Retour
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white">
             Finaliser votre commande
           </h1>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Résumé de commande */}
-          <Card>
+          <Card className="bg-white/5 border border-white/10">
             <CardHeader>
               <CardTitle>Résumé de la commande</CardTitle>
             </CardHeader>
@@ -165,9 +176,9 @@ function PaiementContent() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-semibold">{orderDetails.name}</h3>
-                  <p className="text-sm text-gray-600">{orderDetails.description}</p>
+                  <p className="text-sm text-neutral-300">{orderDetails.description}</p>
                   {orderDetails.recurring && (
-                    <Badge variant="outline" className="mt-2">
+                    <Badge variant="outline" className="mt-2 border-white/10 bg-white/5 text-neutral-200">
                       Abonnement mensuel
                     </Badge>
                   )}
@@ -175,7 +186,7 @@ function PaiementContent() {
                 <span className="font-semibold">{orderDetails.price} TND</span>
               </div>
 
-              <div className="border-t pt-4">
+              <div className="border-t border-white/10 pt-4">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Total à payer</span>
                   <span className="text-xl font-bold">
@@ -187,39 +198,39 @@ function PaiementContent() {
           </Card>
 
           {/* Méthodes de paiement */}
-          <Card>
+          <Card className="bg-white/5 border border-white/10">
             <CardHeader>
               <CardTitle>Méthode de Paiement</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                 {/* Konnect (Tunisie) */}
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <div className="flex items-start space-x-3 p-4 border border-white/10 rounded-lg bg-white/5">
                   <RadioGroupItem value="konnect" id="konnect" className="mt-1" />
                   <div className="flex-1">
                     <Label htmlFor="konnect" className="flex items-center gap-2 font-medium cursor-pointer">
                       <MapPin className="w-4 h-4" />
                       Konnect (Tunisie)
                     </Label>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-neutral-300 mt-1">
                       Paiement sécurisé par carte bancaire tunisienne
                     </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-600">Instantané</span>
+                      <Check className="w-4 h-4 text-emerald-300" />
+                      <span className="text-sm text-emerald-200">Instantané</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Wise (International) */}
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <div className="flex items-start space-x-3 p-4 border border-white/10 rounded-lg bg-white/5">
                   <RadioGroupItem value="wise" id="wise" className="mt-1" />
                   <div className="flex-1">
                     <Label htmlFor="wise" className="flex items-center gap-2 font-medium cursor-pointer">
                       <Globe className="w-4 h-4" />
                       Wise (International)
                     </Label>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-neutral-300 mt-1">
                       Virement bancaire international sécurisé
                     </p>
                     <div className="flex items-center gap-2 mt-2">
@@ -249,7 +260,7 @@ function PaiementContent() {
                 )}
               </Button>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-neutral-400 text-center">
                 En cliquant sur "Procéder au Paiement", vous acceptez nos{' '}
                 <Link href="/conditions" className="text-brand-primary hover:underline">
                   conditions générales de vente
@@ -275,48 +286,48 @@ function PaiementContent() {
 
           {/* Section Notre engagement Qualité centrée */}
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl font-bold text-white mb-6">
               Notre engagement Qualité
             </h2>
 
-            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+            <div className="bg-white/5 rounded-xl shadow-premium p-8 border border-white/10">
               <div className="grid md:grid-cols-3 gap-6 text-center">
                 <div className="space-y-3">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <Check className="w-8 h-8 text-brand-primary" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Paiement Sécurisé</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-white">Paiement Sécurisé</h3>
+                  <p className="text-sm text-neutral-300">
                     Toutes vos transactions sont protégées par un cryptage SSL de niveau bancaire
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <Globe className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Support 24/7</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-white">Support 24/7</h3>
+                  <p className="text-sm text-neutral-300">
                     Notre équipe est disponible à tout moment pour vous accompagner
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <CreditCard className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 className="font-semibold text-gray-900">Satisfaction Garantie</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-white">Satisfaction Garantie</h3>
+                  <p className="text-sm text-neutral-300">
                     Remboursement intégral si vous n'êtes pas satisfait sous 14 jours
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <p className="text-center text-gray-700 font-medium">
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <p className="text-center text-neutral-200 font-medium">
                   🏆 Plus de <span className="text-brand-primary font-bold">10,000 familles</span> nous font confiance
                 </p>
-                <p className="text-center text-sm text-gray-500 mt-2">
+                <p className="text-center text-sm text-neutral-400 mt-2">
                   Rejoignez notre communauté d'excellence éducative
                 </p>
               </div>
@@ -330,26 +341,26 @@ function PaiementContent() {
 
 function PaiementPageLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+          <div className="h-8 bg-white/10 rounded w-1/3 mb-6"></div>
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="bg-white/5 p-6 rounded-lg border border-white/10">
+                <div className="h-6 bg-white/10 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-white/10 rounded w-full"></div>
+                  <div className="h-4 bg-white/10 rounded w-3/4"></div>
                 </div>
               </div>
             </div>
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="bg-white/5 p-6 rounded-lg border border-white/10">
+                <div className="h-6 bg-white/10 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-4 bg-white/10 rounded w-full"></div>
+                  <div className="h-4 bg-white/10 rounded w-2/3"></div>
                 </div>
               </div>
             </div>

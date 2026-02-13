@@ -156,7 +156,7 @@ export function TierSelector() {
 
               <button
                 onClick={handleCalculate}
-                className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                className="w-full btn-stage-gradient"
               >
                 Obtenir ma recommandation 🎯
               </button>
@@ -185,7 +185,7 @@ export function TierSelector() {
                   <ul className="space-y-2">
                     {recommendation.reasons.map((reason, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-green-600 mt-0.5">✓</span>
+                        <span className="text-green-700 mt-0.5">✓</span>
                         <span>{reason}</span>
                       </li>
                     ))}
@@ -194,11 +194,7 @@ export function TierSelector() {
 
                 <a
                   href={recommendation.ctaLink}
-                  className={`block text-center py-3 px-6 rounded-full font-bold transition-all shadow-md hover:shadow-lg hover:scale-105 ${
-                    isPallier1
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white'
-                  }`}
+                  className={`${isPallier1 ? 'btn-stage-sm' : 'btn-stage-gradient'} w-full`}
                 >
                   {recommendation.ctaText}
                 </a>

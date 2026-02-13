@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Terminal, Sigma, Blocks, Award } from 'lucide-react';
@@ -14,10 +15,10 @@ export default function AcademyPage() {
                 <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-brand-accent/5 blur-3xl" />
                 <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-neutral-800/10 blur-3xl" />
                 <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
-                    <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight font-display">
+                    <h1 className="marketing-hero-title mb-6 tracking-tight">
                         Nexus Academy : Formez les élites de demain.
                     </h1>
-                    <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+                    <p className="marketing-hero-copy max-w-3xl mx-auto">
                         Des Mathématiques fondamentales au Web3 Solana. Des cursus d'excellence pour élèves et enseignants.
                     </p>
                 </div>
@@ -62,16 +63,44 @@ export default function AcademyPage() {
                         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-brand-accent mb-6">
                             <Award className="h-6 w-6" strokeWidth={1.5} />
                         </div>
-                        <h2 className="text-3xl font-bold text-white mb-4 font-display">Certifiez vos compétences.</h2>
+                        <h2 className="marketing-section-title mb-4">Certifiez vos compétences.</h2>
                         <p className="text-slate-300 mb-8">
                             Chaque module validé chez Nexus Academy délivre un certificat numérique infalsifiable, sécurisé et vérifiable instantanément par les recruteurs.
                         </p>
                         <a
                             href="/contact?subject=Catalogue%20Academy"
-                            className="inline-flex h-12 items-center justify-center rounded-full border border-brand-accent px-8 text-sm font-semibold text-white transition-all hover:bg-brand-accent hover:text-slate-950"
+                            className="btn-outline-strong"
                         >
                             Découvrir le catalogue
                         </a>
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div>
+                                <p className="marketing-eyebrow">
+                                    Prochaine étape
+                                </p>
+                                <h3 className="marketing-cta-title">
+                                    Recevez le catalogue complet
+                                </h3>
+                                <p className="marketing-cta-copy">
+                                    Programmes, prérequis et calendrier. Réponse rapide par notre équipe.
+                                </p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Link href="/contact?subject=Catalogue%20Academy" className="btn-primary">
+                                    Demander le catalogue
+                                </Link>
+                                <Link href="/contact" className="btn-outline">
+                                    Parler à un expert
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

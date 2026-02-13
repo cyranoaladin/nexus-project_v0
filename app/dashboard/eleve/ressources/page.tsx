@@ -93,10 +93,10 @@ export default function RessourcesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600">⏳</div>
-          <p className="text-gray-600">Chargement des ressources...</p>
+          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent">⏳</div>
+          <p className="text-neutral-300">Chargement des ressources...</p>
         </div>
       </div>
     )
@@ -104,14 +104,14 @@ export default function RessourcesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => window.location.reload()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -121,9 +121,9 @@ export default function RessourcesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
             <Button variant="ghost" asChild className="mr-4">
@@ -133,8 +133,8 @@ export default function RessourcesPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-gray-900">Mes Ressources</h1>
-              <p className="text-sm text-gray-500">Fiches, exercices et contenus pédagogiques</p>
+              <h1 className="font-semibold text-white">Mes Ressources</h1>
+              <p className="text-sm text-neutral-400">Fiches, exercices et contenus pédagogiques</p>
             </div>
           </div>
         </div>
@@ -142,10 +142,10 @@ export default function RessourcesPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtres et recherche */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-white/5 border border-white/10">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Filter className="w-5 h-5 mr-2 text-blue-600" />
+              <Filter className="w-5 h-5 mr-2 text-brand-accent" />
               Recherche et Filtres
             </CardTitle>
           </CardHeader>
@@ -153,7 +153,7 @@ export default function RessourcesPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                   <Input
                     placeholder="Rechercher une ressource..."
                     value={searchTerm}
@@ -196,13 +196,13 @@ export default function RessourcesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredResources.length === 0 ? (
             <div className="col-span-full">
-              <Card>
+              <Card className="bg-white/5 border border-white/10">
                 <CardContent className="text-center py-12">
-                  <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <BookOpen className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-white mb-2">
                     Aucune ressource trouvée
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-neutral-400">
                     Essayez de modifier vos critères de recherche.
                   </p>
                 </CardContent>
@@ -210,18 +210,18 @@ export default function RessourcesPage() {
             </div>
           ) : (
             filteredResources.map((resource) => (
-              <Card key={resource.id} className="hover:shadow-md transition-shadow">
+              <Card key={resource.id} className="bg-white/5 border border-white/10 hover:border-brand-accent/50 hover:shadow-premium transition">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <Badge variant="outline" className="mb-2">
+                    <Badge variant="outline" className="mb-2 border-white/10 bg-white/5 text-neutral-200">
                       {resource.subject}
                     </Badge>
                     <div className="flex space-x-1">
-                      <Badge variant="default">
+                      <Badge variant="default" className="bg-white/10 text-white border border-white/10">
                         {resource.type}
                       </Badge>
                       {resource.isDownloaded && (
-                        <Badge variant="default" className="bg-green-100 text-green-800">
+                        <Badge variant="default" className="bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
                           Téléchargé
                         </Badge>
                       )}
@@ -233,11 +233,11 @@ export default function RessourcesPage() {
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-neutral-300 text-sm">
                     {resource.description}
                   </p>
                   
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-neutral-400">
                     <div className="flex items-center space-x-1">
                       <Clock className="w-3 h-3" />
                       <span>{new Date(resource.lastUpdated).toLocaleDateString('fr-FR')}</span>
@@ -246,7 +246,7 @@ export default function RessourcesPage() {
                   </div>
 
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button variant="outline" size="sm" className="flex-1 border-white/10 bg-white/5 text-neutral-200">
                       <Eye className="w-4 h-4 mr-1" />
                       Voir
                     </Button>

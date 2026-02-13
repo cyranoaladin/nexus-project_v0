@@ -1,14 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
+import { loginAsUser } from './helpers/auth';
 
 async function loginAsStudent(page: Page) {
-  await page.goto('/auth/signin', { waitUntil: 'networkidle' });
-  await page.getByLabel(/email/i).fill('yasmine.dupont@test.com');
-  await page.getByPlaceholder('Votre mot de passe').fill('password123');
-  await Promise.all([
-    page.waitForURL(/\/dashboard\/(eleve|student)/, { timeout: 10000 }),
-    page.getByRole('button', { name: /accéder|sign in|connexion/i }).click(),
-  ]);
-  await page.waitForLoadState('networkidle');
+  await loginAsUser(page, 'student');
 }
 
 test.describe('Student ARIA Interaction', () => {

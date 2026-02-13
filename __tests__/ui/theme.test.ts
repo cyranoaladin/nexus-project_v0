@@ -13,6 +13,11 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
     : { r: 0, g: 0, b: 0 };
 }
 
+function hexToRgbString(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  return `${r} ${g} ${b}`;
+}
+
 function getRelativeLuminance(rgb: { r: number; g: number; b: number }): number {
   const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((val) => {
     const normalized = val / 255;
@@ -158,10 +163,10 @@ describe('Theme Configuration', () => {
     });
 
     it('should inject brand color variables in RGB format', () => {
-      expect(cssContent).toContain('--color-brand-primary: 37 99 235');
-      expect(cssContent).toContain('--color-brand-secondary: 239 68 68');
-      expect(cssContent).toContain('--color-brand-accent: 46 233 246');
-      expect(cssContent).toContain('--color-brand-accent-dark: 27 206 212');
+      expect(cssContent).toContain(`--color-brand-primary: ${hexToRgbString(designTokens.colors.brand.primary)}`);
+      expect(cssContent).toContain(`--color-brand-secondary: ${hexToRgbString(designTokens.colors.brand.secondary)}`);
+      expect(cssContent).toContain(`--color-brand-accent: ${hexToRgbString(designTokens.colors.brand.accent)}`);
+      expect(cssContent).toContain(`--color-brand-accent-dark: ${hexToRgbString(designTokens.colors.brand['accent-dark'])}`);
     });
 
     it('should inject semantic color variables in RGB format', () => {
@@ -192,16 +197,8 @@ describe('Theme Configuration', () => {
     });
 
     it('should inject surface color variables in RGB format', () => {
-      const surfaceColors = {
-        'dark': '11 12 16',
-        'darker': '5 6 8',
-        'card': '17 19 24',
-        'elevated': '26 29 35',
-        'hover': '31 35 41'
-      };
-
-      Object.entries(surfaceColors).forEach(([key, rgb]) => {
-        expect(cssContent).toContain(`--color-surface-${key}: ${rgb}`);
+      Object.entries(designTokens.colors.surface).forEach(([key, hex]) => {
+        expect(cssContent).toContain(`--color-surface-${key}: ${hexToRgbString(hex)}`);
       });
     });
 
@@ -468,9 +465,10 @@ describe('Theme Configuration', () => {
 
   describe('getColor Helper', () => {
     it('should return color value for valid path', () => {
-      expect(getColor('brand.primary')).toBe('#2563EB');
-      expect(getColor('brand.secondary')).toBe('#EF4444');
-      expect(getColor('brand.accent')).toBe('#2EE9F6');
+      expect(getColor('brand.primary')).toBe(designTokens.colors.brand.primary);
+      expect(getColor('brand.secondary')).toBe(designTokens.colors.brand.secondary);
+      expect(getColor('brand.accent')).toBe(designTokens.colors.brand.accent);
+      expect(getColor('brand.accent-dark')).toBe(designTokens.colors.brand['accent-dark']);
     });
 
     it('should return color value for nested path', () => {
@@ -487,8 +485,8 @@ describe('Theme Configuration', () => {
     });
 
     it('should return color value for surface colors', () => {
-      expect(getColor('surface.dark')).toBe('#0B0C10');
-      expect(getColor('surface.card')).toBe('#111318');
+      expect(getColor('surface.dark')).toBe(designTokens.colors.surface.dark);
+      expect(getColor('surface.card')).toBe(designTokens.colors.surface.card);
     });
 
     it('should return fallback color for invalid path', () => {
