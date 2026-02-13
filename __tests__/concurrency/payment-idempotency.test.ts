@@ -22,11 +22,12 @@ const prisma = testPrisma;
 
 describe('Payment Idempotency - Concurrency', () => {
   let userId: string;
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   beforeAll(async () => {
     await setupTestDatabase();
 
-    const { parentUser } = await createTestParent({ email: 'payment.idempotency@test.com' });
+    const { parentUser } = await createTestParent({ email: `payment.idempotency.${runId}@test.com` });
     userId = parentUser.id;
   });
 

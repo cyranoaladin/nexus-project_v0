@@ -5,6 +5,14 @@ import * as path from 'path';
 // Load test environment variables FIRST (override any existing vars)
 dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: true });
 
+// Keep both variables aligned to avoid implicit Prisma connections using DATABASE_URL
+if (!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL) {
+  process.env.TEST_DATABASE_URL = process.env.DATABASE_URL;
+}
+if (process.env.TEST_DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+}
+
 // Create a test database instance AFTER loading env vars
 export const testPrisma = new PrismaClient({
   datasources: {

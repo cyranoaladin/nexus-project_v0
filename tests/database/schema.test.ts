@@ -10,7 +10,16 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { PrismaClient, UserRole } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const dbUrl =
+    process.env.TEST_DATABASE_URL ||
+    process.env.DATABASE_URL ||
+    'postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public';
+
+const prisma = new PrismaClient({
+    datasources: {
+        db: { url: dbUrl },
+    },
+});
 
 describe('Database Schema Integrity', () => {
     beforeAll(async () => {
