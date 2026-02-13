@@ -30,8 +30,12 @@ test.describe('Premium Home Journey', () => {
     });
 
     test('Navigation Menu opens and closes', async ({ page }) => {
-        // Find menu button (may be hamburger icon)
-        const menuButton = page.getByRole('button', { name: /Menu|☰|Navigation/i }).first();
+        // The hamburger menu is only visible on mobile (md:hidden)
+        await page.setViewportSize({ width: 375, height: 812 });
+        await page.goto('/', { waitUntil: 'networkidle' });
+
+        // Find menu button — aria-label is "Ouvrir le menu" and contains text "Menu"
+        const menuButton = page.getByRole('button', { name: /Menu|Ouvrir le menu|☰|Navigation/i }).first();
         await expect(menuButton).toBeVisible({ timeout: 10000 });
 
         // Open menu

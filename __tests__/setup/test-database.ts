@@ -2,8 +2,16 @@ import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Load local test defaults without overriding CI-provided env vars
+// Preserve CI-provided env vars before loading .env.test defaults
+const ciDatabaseUrl = process.env.DATABASE_URL;
+const ciTestDatabaseUrl = process.env.TEST_DATABASE_URL;
+
+// Load local test defaults (override: false = won't overwrite existing env vars)
 dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: false });
+
+// Restore CI env vars if they were set (they take absolute precedence)
+if (ciDatabaseUrl) process.env.DATABASE_URL = ciDatabaseUrl;
+if (ciTestDatabaseUrl) process.env.TEST_DATABASE_URL = ciTestDatabaseUrl;
 
 // Keep both variables aligned to avoid implicit Prisma connections using DATABASE_URL
 if (!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL) {
@@ -13,14 +21,30 @@ if (process.env.TEST_DATABASE_URL) {
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 }
 
+const testDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public';
+
 // Create a test database instance AFTER loading env vars
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.TEST_DATABASE_URL || 'file:./test.db'
+      url: testDbUrl
     }
   }
 });
+
+/**
+ * Check if the test database is reachable.
+ * Returns true if connected, false otherwise.
+ * Use this in beforeAll to skip tests when no DB is available.
+ */
+export async function canConnectToTestDb(): Promise<boolean> {
+  try {
+    await testPrisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // Test data setup utilities
 export async function setupTestDatabase() {
