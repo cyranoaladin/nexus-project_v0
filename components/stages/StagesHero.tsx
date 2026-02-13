@@ -63,7 +63,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
             <a
               href="#reservation"
               onClick={handlePrimaryCTA}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-base font-bold transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+              className="btn-stage"
               aria-label="Réserver une consultation gratuite"
             >
               📅 Réserver une consultation gratuite
@@ -71,7 +71,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
             <a
               href="#academies"
               onClick={handleSecondaryCTA}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur text-white border border-white/30 px-8 py-4 text-base font-bold transition-all"
+              className="btn-stage-outline"
               aria-label="Découvrir les académies"
             >
               Découvrir les académies
@@ -96,15 +96,15 @@ export function StagesHero({ stats }: StagesHeroProps) {
 
           {/* Badges */}
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
+            <div className="pill-stage">
               <span className="text-green-400">✓</span>
               <span>6 élèves max par groupe</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
+            <div className="pill-stage">
               <span className="text-green-400">✓</span>
               <span>Enseignants experts (agrégés / certifiés)</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20">
+            <div className="pill-stage">
               <span className="text-green-400">✓</span>
               <span>Cadre structuré + bilans</span>
             </div>

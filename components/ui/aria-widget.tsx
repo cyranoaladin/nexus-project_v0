@@ -159,7 +159,9 @@ export function AriaWidget({ isOpen, onClose, initialPrompt = "Quel est mon prof
                 <Input
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
-                  placeholder="Tapez votre message..."
+                  placeholder="Posez votre message..."
+                  aria-label="Votre message"
+                  data-testid="aria-input"
                   className="flex-1"
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   disabled={isLoading}

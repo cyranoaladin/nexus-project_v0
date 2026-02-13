@@ -10,6 +10,7 @@
 import { NextRequest } from 'next/server';
 import { AuthSession } from '@/lib/guards';
 import pino from 'pino';
+import pinoPretty from 'pino-pretty';
 
 export enum LogLevel {
   DEBUG = 'debug',
@@ -34,22 +35,26 @@ interface LogContext {
 /**
  * Initialize Pino logger with environment-specific configuration
  */
-const pinoLogger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  formatters: {
-    level: (label) => ({ level: label }),
-  },
-  ...(process.env.NODE_ENV !== 'production' && {
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'SYS:standard',
-        ignore: 'pid,hostname',
-      },
+const isProd = process.env.NODE_ENV === 'production';
+const disableWorker = process.env.PINO_NO_WORKER === '1';
+const prettyStream = !isProd && !disableWorker
+  ? pinoPretty({
+      colorize: true,
+      translateTime: 'SYS:standard',
+      ignore: 'pid,hostname',
+    })
+  : undefined;
+const destination = disableWorker ? pino.destination({ sync: true }) : undefined;
+
+const pinoLogger = pino(
+  {
+    level: isProd ? 'info' : 'debug',
+    formatters: {
+      level: (label) => ({ level: label }),
     },
-  }),
-});
+  },
+  prettyStream ?? destination
+);
 
 /**
  * Default logger instance for use outside request context

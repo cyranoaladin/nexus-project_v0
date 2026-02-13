@@ -2,6 +2,7 @@
 
 import React, { useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Sparkles, Cpu, Blocks, GraduationCap } from 'lucide-react';
@@ -86,18 +87,26 @@ const HeroSectionGSAP = () => {
         return () => ctx.revert();
     }, []);
 
-    const scrollToSection = (id: string) => {
-        const element = document.querySelector(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
     const authorityBadges = [
         { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
         { icon: GraduationCap, label: 'Agrégés', color: 'emerald' },
         { icon: Blocks, label: '98% Réussite', color: 'purple' },
     ];
+
+    const badgePositions = [
+        { x: 140, y: 0 },
+        { x: -70, y: 121.244 },
+        { x: -70, y: -121.244 },
+    ];
+
+    const formatOffset = (value: number) => {
+        const sign = value >= 0 ? '+' : '-';
+        const abs = Math.abs(value);
+        const normalized = Number.isInteger(abs)
+            ? abs.toString()
+            : abs.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+        return `calc(50% ${sign} ${normalized}px)`;
+    };
 
     return (
         <section
@@ -141,7 +150,7 @@ const HeroSectionGSAP = () => {
                     <div ref={contentRef} className="flex flex-col justify-center">
                         {/* Premium Badge */}
                         <div className="animate-item inline-flex items-center gap-2 px-4 py-2 rounded-full
-                            bg-white/5 border border-white/10 w-fit mb-6">
+                            bg-white/5 border border-white/10 w-fit mb-6 backdrop-blur-sm">
                             <Sparkles className="w-4 h-4 text-brand-primary" aria-hidden="true" />
                             <span className="font-mono text-xs uppercase tracking-[0.16em] text-neutral-400">
                                 Pédagogie augmentée pour lycéens du système français
@@ -158,29 +167,33 @@ const HeroSectionGSAP = () => {
                         </h1>
 
                         {/* Value Proposition */}
-                        <p className="animate-item text-neutral-400 mt-6 text-lg leading-relaxed max-w-xl">
-                            Coachs agrégés, IA pédagogique 24/7 et suivi personnalisé :
-                            Nexus Réussite combine expertise humaine et technologie pour
-                            transformer le potentiel de votre enfant en résultats.
+                        <p className="animate-item text-neutral-300/90 mt-6 text-lg leading-relaxed max-w-xl">
+                            Coachs agrégés, IA ARIA 24/7 et suivi parent clair :
+                            Nexus Réussite transforme le potentiel de votre enfant
+                            en résultats visibles.
                         </p>
 
                         {/* CTAs */}
                         <div className="animate-item flex flex-wrap items-center gap-4 mt-8">
                             <Button
-                                onClick={() => scrollToSection('#trinity')}
+                                asChild
                                 size="lg"
-                                className="group bg-gradient-to-r from-brand-primary to-brand-accent hover:shadow-xl hover:shadow-brand-primary/30"
+                                className="group bg-gradient-to-r from-brand-primary to-brand-accent hover:shadow-xl hover:shadow-brand-accent/30"
                             >
-                                <span>Bilan gratuit</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                                <Link href="/bilan-gratuit">
+                                    <span>Bilan gratuit</span>
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                                </Link>
                             </Button>
                             <Button
-                                onClick={() => scrollToSection('#contact')}
+                                asChild
                                 variant="outline"
                                 size="lg"
-                                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-brand-accent/30"
                             >
-                                <span>Voir nos offres</span>
+                                <Link href="/offres">
+                                    <span>Voir nos offres</span>
+                                </Link>
                             </Button>
                         </div>
                     </div>
@@ -203,19 +216,15 @@ const HeroSectionGSAP = () => {
 
                             {/* Orbiting Badges */}
                             {authorityBadges.map((badge, index) => {
-                                const angles = [0, 120, 240];
-                                const angle = (angles[index] * Math.PI) / 180;
-                                const radius = 140;
-                                const x = Math.cos(angle) * radius;
-                                const y = Math.sin(angle) * radius;
+                                const position = badgePositions[index] ?? { x: 0, y: 0 };
 
                                 return (
                                     <div
                                         key={index}
                                         className="badge-item absolute w-24 h-24 -ml-12 -mt-12"
                                         style={{
-                                            left: `calc(50% + ${x}px)`,
-                                            top: `calc(50% + ${y}px)`,
+                                            left: formatOffset(position.x),
+                                            top: formatOffset(position.y),
                                         }}
                                     >
                                         <div className={`w-full h-full rounded-2xl bg-white/5 border border-white/10 

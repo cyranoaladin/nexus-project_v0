@@ -16,15 +16,15 @@ export default function ConfirmationPage() {
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
             {/* Icône de succès */}
             <motion.div
-              initial={{ scale: 0 }}
+              initial={{ scale: 1 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              transition={{ duration: 0 }}
               className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-8"
             >
               <CheckCircle className="w-10 h-10 text-green-600" aria-hidden="true" />
@@ -32,18 +32,18 @@ export default function ConfirmationPage() {
 
             {/* Titre principal */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ duration: 0 }}
               className="font-display text-3xl md:text-4xl font-bold text-neutral-900 mb-4"
             >
               Félicitations ! Votre Bilan est Créé
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ duration: 0 }}
               className="text-xl text-neutral-600 mb-12 max-w-2xl mx-auto"
             >
               Votre demande de bilan stratégique gratuit a été enregistrée avec succès.
@@ -52,9 +52,9 @@ export default function ConfirmationPage() {
 
             {/* Étapes suivantes */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ duration: 0 }}
               className="grid md:grid-cols-3 gap-6 mb-12"
             >
               <Card className="text-center">
@@ -96,18 +96,18 @@ export default function ConfirmationPage() {
 
             {/* Informations importantes */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-blue-50 rounded-xl p-6 mb-8"
+              transition={{ duration: 0 }}
+              className="bg-blue-100 rounded-xl p-6 mb-8"
             >
               <div className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-brand-primary mt-1" aria-hidden="true" />
                 <div className="text-left">
-                  <h3 className="font-semibold text-blue-900 mb-2">
+                  <h3 className="font-semibold text-slate-900 mb-2">
                     Vérifiez votre boîte email
                   </h3>
-                  <p className="text-blue-800 text-sm">
+                  <p className="text-slate-800 text-sm">
                     Un email de confirmation a été envoyé avec vos identifiants de connexion.
                     Si vous ne le trouvez pas, pensez à vérifier vos spams.
                   </p>
@@ -117,12 +117,12 @@ export default function ConfirmationPage() {
 
             {/* Actions */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ duration: 0 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="bg-blue-700 border-blue-700 text-white hover:bg-blue-800">
                 <Link href="/">
                   Retour à l'Accueil
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
@@ -138,18 +138,18 @@ export default function ConfirmationPage() {
 
             {/* Contact d'urgence */}
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
+              transition={{ duration: 0 }}
               className="mt-12 pt-8 border-t border-neutral-200"
             >
-              <p className="text-neutral-600 text-sm">
+              <p className="text-neutral-700 text-sm">
                 Une question urgente ? Contactez-nous directement au{' '}
-                <a href="tel:+21699192829" className="text-brand-primary font-medium hover:underline">
+                <a href="tel:+21699192829" className="text-blue-700 font-medium hover:underline">
                   +216 99 19 28 29
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-brand-primary font-medium hover:underline">
+                <a href="mailto:contact@nexusreussite.academy" className="text-blue-700 font-medium hover:underline">
                   contact@nexusreussite.academy
                 </a>
               </p>

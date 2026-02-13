@@ -119,10 +119,10 @@ export default function CreditsManagement() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" />
-          <p className="text-gray-600">Chargement des élèves...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des élèves...</p>
         </div>
       </div>
     );
@@ -130,14 +130,14 @@ export default function CreditsManagement() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => window.location.reload()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -147,26 +147,26 @@ export default function CreditsManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
-                <Settings className="w-8 h-8 text-brand-primary" />
+                <Settings className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Gestion des Crédits
                   </h1>
-                  <p className="text-sm text-gray-500">Administration des crédits élèves</p>
+                  <p className="text-sm text-neutral-400">Administration des crédits élèves</p>
                 </div>
               </Link>
             </div>
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-neutral-300 hover:text-white"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion
@@ -180,10 +180,10 @@ export default function CreditsManagement() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 Gestion des Crédits
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-400">
                 Gérez les crédits de tous les élèves
               </p>
             </div>
@@ -193,12 +193,12 @@ export default function CreditsManagement() {
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 w-4 h-4" />
             <Input
               placeholder="Rechercher un élève..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
             />
           </div>
         </div>
@@ -206,13 +206,13 @@ export default function CreditsManagement() {
         {/* Students Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredStudents.map((student) => (
-            <Card key={student.id} className="hover:shadow-md transition-shadow">
+            <Card key={student.id} className="bg-surface-card border border-white/10 shadow-premium hover:shadow-premium-strong transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg">{student.firstName} {student.lastName}</CardTitle>
-                    <p className="text-sm text-gray-600">{student.email}</p>
-                    <p className="text-xs text-gray-500">{student.grade} - {student.school}</p>
+                    <CardTitle className="text-lg text-white">{student.firstName} {student.lastName}</CardTitle>
+                    <p className="text-sm text-neutral-300">{student.email}</p>
+                    <p className="text-xs text-neutral-400">{student.grade} - {student.school}</p>
                   </div>
                   <Badge 
                     variant={student.creditBalance >= 0 ? "default" : "destructive"}
@@ -225,8 +225,8 @@ export default function CreditsManagement() {
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Solde actuel:</span>
-                    <span className={`font-medium ${student.creditBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className="text-sm text-neutral-400">Solde actuel:</span>
+                    <span className={`font-medium ${student.creditBalance >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
                       {student.creditBalance} crédits
                     </span>
                   </div>
@@ -236,20 +236,20 @@ export default function CreditsManagement() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full"
+                        className="w-full border-white/10 text-neutral-200 hover:text-white"
                         onClick={() => setSelectedStudent(student)}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Ajouter des crédits
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
                       <DialogHeader>
-                        <DialogTitle>Ajouter des crédits pour {student.firstName} {student.lastName}</DialogTitle>
+                        <DialogTitle className="text-white">Ajouter des crédits pour {student.firstName} {student.lastName}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="amount">Montant</Label>
+                          <Label htmlFor="amount" className="text-neutral-200">Montant</Label>
                           <Input
                             id="amount"
                             type="number"
@@ -261,15 +261,15 @@ export default function CreditsManagement() {
                         </div>
                         
                         <div>
-                          <Label htmlFor="type">Type</Label>
+                          <Label htmlFor="type" className="text-neutral-200">Type</Label>
                           <Select 
                             value={addCreditsForm.type} 
                             onValueChange={(value) => setAddCreditsForm({...addCreditsForm, type: value})}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                               <SelectItem value="CREDIT_ADD">Achat de crédits</SelectItem>
                               <SelectItem value="CREDIT_REMOVE">Retrait de crédits</SelectItem>
                               <SelectItem value="CREDIT_EXPIRY">Expiration de crédits</SelectItem>
@@ -278,7 +278,7 @@ export default function CreditsManagement() {
                         </div>
                         
                         <div>
-                          <Label htmlFor="description">Description</Label>
+                          <Label htmlFor="description" className="text-neutral-200">Description</Label>
                           <Input
                             id="description"
                             value={addCreditsForm.description}
@@ -289,10 +289,10 @@ export default function CreditsManagement() {
                         </div>
                         
                         <div className="flex space-x-2">
-                          <Button onClick={handleAddCredits} className="flex-1">
+                          <Button onClick={handleAddCredits} className="flex-1 btn-primary">
                             Confirmer
                           </Button>
-                          <Button variant="outline" className="flex-1">
+                          <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
                             Annuler
                           </Button>
                         </div>
@@ -307,11 +307,11 @@ export default function CreditsManagement() {
 
         {filteredStudents.length === 0 && (
           <div className="text-center py-12">
-            <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-white mb-2">
               Aucun élève trouvé
             </h3>
-            <p className="text-gray-500">
+            <p className="text-neutral-400">
               {searchTerm ? 'Aucun élève ne correspond à votre recherche.' : 'Aucun élève n\'a encore été créé.'}
             </p>
           </div>

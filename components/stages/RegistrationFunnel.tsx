@@ -90,9 +90,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                     }`}
                     onClick={() => handleSelectAcademy(academy)}
                   >
-                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 ${
-                      isPallier1 ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                    }`}>
+                    <div className={`${isPallier1 ? 'pill-stage-strong' : 'pill-stage-strong'}`}>
                       {isPallier1 ? 'Pallier 1' : 'Pallier 2'}
                     </div>
 
@@ -103,19 +101,15 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                     <div className="mb-4">
                       <div className="text-sm text-slate-500 line-through mb-1">{academy.price} DT</div>
                       <div className="text-2xl font-black text-blue-600">{academy.earlyBirdPrice} DT</div>
-                      <div className="text-xs text-green-600 font-semibold">Tarif anticipé</div>
+                      <div className="text-xs text-green-700 font-semibold">Tarif anticipé</div>
                     </div>
 
-                    <div className="text-xs text-orange-600 font-semibold mb-4">
+                    <div className="text-xs text-orange-700 font-semibold mb-4">
                       ⚠️ {academy.seatsLeft} places restantes
                     </div>
 
                     <button
-                      className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg ${
-                        isPallier1
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                          : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white'
-                      }`}
+                      className={`w-full ${isPallier1 ? 'btn-stage-sm' : 'btn-stage-gradient'}`}
                     >
                       Sélectionner
                     </button>
@@ -143,11 +137,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                     <div className="flex-1">
                       <h4 className="text-xl font-bold text-slate-900 mb-1">{selectedAcademy.title}</h4>
                       <p className="text-sm text-slate-600 mb-3">{selectedAcademy.objective}</p>
-                      <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                        selectedAcademy.tier === 'pallier1'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-purple-100 text-purple-700'
-                      }`}>
+                      <div className="pill-stage-strong">
                         {selectedAcademy.durationHours}h — {selectedAcademy.tier === 'pallier1' ? 'Pallier 1' : 'Pallier 2'}
                       </div>
                     </div>
@@ -163,8 +153,8 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                       <span className="text-2xl font-black text-blue-600">{selectedAcademy.earlyBirdPrice} DT</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-600 font-semibold">Économie</span>
-                      <span className="text-green-600 font-bold">-{selectedAcademy.price - selectedAcademy.earlyBirdPrice} DT</span>
+                      <span className="text-green-700 font-semibold">Économie</span>
+                      <span className="text-green-700 font-bold">-{selectedAcademy.price - selectedAcademy.earlyBirdPrice} DT</span>
                     </div>
                   </div>
                 </div>
@@ -174,7 +164,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   <ul className="space-y-2">
                     {includedItems.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-green-600 font-bold mt-0.5">✓</span>
+                        <span className="text-green-700 font-bold mt-0.5">✓</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -195,7 +185,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
 
                 <button
                   onClick={handleConfirmRegistration}
-                  className="w-full py-5 px-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-black text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105 mb-4"
+                  className="w-full btn-stage-gradient mb-4"
                 >
                   Réserver ma consultation gratuite 📅
                 </button>

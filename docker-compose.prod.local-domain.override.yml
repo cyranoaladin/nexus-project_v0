@@ -1,0 +1,20 @@
+services:
+  nexus-app:
+    environment:
+      NEXTAUTH_URL: https://nexus.local:${LOCAL_HTTPS_PORT:-18443}
+      NEXT_PUBLIC_APP_URL: https://nexus.local:${LOCAL_HTTPS_PORT:-18443}
+
+  nginx:
+    ports:
+      - "${LOCAL_HTTP_PORT:-18080}:80"
+      - "${LOCAL_HTTPS_PORT:-18443}:443"
+    volumes:
+      - ./nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - logs_data:/var/log/nginx
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fk -H 'Host: nexus.local' https://127.0.0.1/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

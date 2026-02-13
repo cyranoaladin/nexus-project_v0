@@ -41,7 +41,7 @@ export function GuaranteeSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
                   viewport={{ once: true }}
-                  className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6"
+                  className="marketing-section-title-light lg:text-5xl mb-6"
                 >
                   Notre Engagement est Votre Réussite
                 </motion.h2>
@@ -52,7 +52,7 @@ export function GuaranteeSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
                   viewport={{ once: true }}
-                  className="text-xl text-gray-700 mb-8 leading-relaxed"
+                  className="marketing-section-copy-light text-xl mb-8 leading-relaxed"
                 >
                   Nous sommes tellement convaincus de l'excellence de notre écosystème que nous lions notre succès au vôtre.
                 </motion.p>

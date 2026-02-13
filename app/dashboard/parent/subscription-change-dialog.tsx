@@ -98,41 +98,41 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+        <Button variant="outline" size="sm" className="text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Modifier
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <CreditCard className="w-5 h-5" />
             Changer de Formule
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-neutral-400 mt-2">
             Demande de changement de formule pour {studentName}
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Formule Actuelle</Label>
-            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+            <Label className="text-neutral-200">Formule Actuelle</Label>
+            <p className="text-sm text-neutral-300 bg-white/5 border border-white/10 p-2 rounded-lg">
               {currentPlan}
             </p>
           </div>
           
           <div>
-            <Label htmlFor="newPlan">Nouvelle Formule *</Label>
+            <Label htmlFor="newPlan" className="text-neutral-200">Nouvelle Formule *</Label>
             <Select value={formData.newPlan} onValueChange={(value) => setFormData({ ...formData, newPlan: value })}>
-              <SelectTrigger>
+              <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
                 <SelectValue placeholder="Sélectionner une formule" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                 {SUBSCRIPTION_PLANS.map((plan) => (
                   <SelectItem key={plan.name} value={plan.name}>
                     <div className="flex flex-col">
                       <span className="font-medium">{plan.name} - {plan.price} TND/mois</span>
-                      <span className="text-xs text-gray-500">{plan.description}</span>
+                      <span className="text-xs text-neutral-400">{plan.description}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -141,7 +141,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
           </div>
           
           <div>
-            <Label htmlFor="reason">Raison du changement (optionnel)</Label>
+            <Label htmlFor="reason" className="text-neutral-200">Raison du changement (optionnel)</Label>
             <Textarea
               id="reason"
               value={formData.reason}
@@ -151,10 +151,10 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
             />
           </div>
 
-          <div className="bg-blue-50 p-3 rounded-lg">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-brand-primary mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
+              <AlertCircle className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-200">
                 <p className="font-medium mb-1">Information importante :</p>
                 <p>Votre demande sera envoyée à l'assistant pour approbation. Le changement sera effectif après validation.</p>
               </div>
@@ -164,7 +164,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button 
               type="submit" 
-              className="flex-1"
+              className="flex-1 btn-primary"
               disabled={loading}
             >
               {loading ? (
@@ -183,7 +183,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1"
+              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

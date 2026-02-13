@@ -75,10 +75,10 @@ function SessionVideoCallContent() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de la session...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent mx-auto mb-4"></div>
+          <p className="text-neutral-300">Chargement de la session...</p>
         </div>
       </div>
     );
@@ -86,13 +86,13 @@ function SessionVideoCallContent() {
 
   if (error || !sessionData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4 bg-surface-card border border-white/10">
           <CardHeader>
-            <CardTitle className="text-red-600">Erreur</CardTitle>
+            <CardTitle className="text-red-300">Erreur</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
+            <p className="text-neutral-300 mb-4">
               {error || "Session introuvable"}
             </p>
             <Button asChild>
@@ -110,9 +110,9 @@ function SessionVideoCallContent() {
   const roomName = `session-${sessionId}-${Date.now()}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -123,22 +123,22 @@ function SessionVideoCallContent() {
                 </Link>
               </Button>
               <div>
-                <h1 className="font-semibold text-gray-900">
+                <h1 className="font-semibold text-white">
                   Session de Visioconférence
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-neutral-400">
                   {sessionData.subject}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="flex items-center gap-1">
+              <Badge variant="outline" className="flex items-center gap-1 border-white/10 text-neutral-200">
                 <Clock className="w-3 h-3" />
                 {sessionData.duration} min
               </Badge>
               <Badge
                 variant={sessionData.status === 'IN_PROGRESS' ? 'default' : 'outline'}
-                className={sessionData.status === 'IN_PROGRESS' ? 'bg-green-500' : ''}
+                className={sessionData.status === 'IN_PROGRESS' ? 'bg-emerald-500 text-white' : 'border-white/10 text-neutral-200'}
               >
                 {sessionData.status === 'IN_PROGRESS' && 'En cours'}
                 {sessionData.status === 'SCHEDULED' && 'Planifiée'}
@@ -154,28 +154,28 @@ function SessionVideoCallContent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Session Info */}
         <div className="mb-6">
-          <Card>
+          <Card className="bg-surface-card border border-white/10">
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-blue-600" />
+                  <User className="w-5 h-5 text-brand-accent" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Coach</p>
-                    <p className="text-sm text-gray-500">{sessionData.coachName}</p>
+                    <p className="text-sm font-medium text-neutral-100">Coach</p>
+                    <p className="text-sm text-neutral-400">{sessionData.coachName}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-green-600" />
+                  <User className="w-5 h-5 text-emerald-300" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Élève</p>
-                    <p className="text-sm text-gray-500">{sessionData.studentName}</p>
+                    <p className="text-sm font-medium text-neutral-100">Élève</p>
+                    <p className="text-sm text-neutral-400">{sessionData.studentName}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
+                  <BookOpen className="w-5 h-5 text-purple-300" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Matière</p>
-                    <p className="text-sm text-gray-500">{sessionData.subject}</p>
+                    <p className="text-sm font-medium text-neutral-100">Matière</p>
+                    <p className="text-sm text-neutral-400">{sessionData.subject}</p>
                   </div>
                 </div>
               </div>
@@ -194,15 +194,15 @@ function SessionVideoCallContent() {
         />
 
         {/* Instructions */}
-        <Card className="mt-6">
+        <Card className="mt-6 bg-surface-card border border-white/10">
           <CardHeader>
-            <CardTitle className="text-lg">Instructions</CardTitle>
+            <CardTitle className="text-lg text-white">Instructions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Pour une meilleure qualité :</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <h4 className="font-medium text-neutral-100 mb-2">Pour une meilleure qualité :</h4>
+                <ul className="text-sm text-neutral-300 space-y-1">
                   <li>• Utilisez une connexion internet stable</li>
                   <li>• Assurez-vous d'avoir un bon éclairage</li>
                   <li>• Portez des écouteurs pour éviter l'écho</li>
@@ -210,8 +210,8 @@ function SessionVideoCallContent() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Contrôles disponibles :</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <h4 className="font-medium text-neutral-100 mb-2">Contrôles disponibles :</h4>
+                <ul className="text-sm text-neutral-300 space-y-1">
                   <li>• Activer/désactiver le microphone</li>
                   <li>• Activer/désactiver la caméra</li>
                   <li>• Utiliser le chat textuel</li>

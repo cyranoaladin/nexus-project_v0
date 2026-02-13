@@ -5,66 +5,85 @@
  */
 
 import { describe, it, expect, beforeAll } from '@jest/globals';
+import fs from 'fs';
+import path from 'path';
 
-describe.skip('Design System - Theme Variables', () => {
-    let rootStyles: CSSStyleDeclaration;
+describe('Design System - Theme Variables', () => {
+    let cssVariables: Map<string, string>;
+
+    const getVar = (name: string): string => {
+        return (cssVariables.get(name) || '').trim();
+    };
 
     beforeAll(() => {
-        // Create a test element to access computed styles
-        const testElement = document.createElement('div');
-        document.body.appendChild(testElement);
-        rootStyles = getComputedStyle(document.documentElement);
+        // Parse :root CSS variables directly to avoid JSDOM CSS parsing limitations
+        const cssPath = path.join(process.cwd(), 'app', 'globals.css');
+        const css = fs.readFileSync(cssPath, 'utf-8');
+        cssVariables = new Map();
+
+        const rootMatch = css.match(/:root\s*{([\s\S]*?)}/);
+        const rootBlock = rootMatch ? rootMatch[1] : '';
+        const variableRegex = /--[a-zA-Z0-9-_]+\s*:\s*[^;]+;/g;
+        const matches = rootBlock.match(variableRegex) || [];
+
+        for (const match of matches) {
+            const separatorIndex = match.indexOf(':');
+            if (separatorIndex === -1) continue;
+            const name = match.slice(0, separatorIndex).trim();
+            const value = match.slice(separatorIndex + 1).replace(/;$/, '').trim();
+            cssVariables.set(name, value);
+        }
     });
 
     describe('Brand Colors', () => {
         it('should have brand-primary color defined', () => {
-            const primary = rootStyles.getPropertyValue('--color-brand-primary');
+            const primary = getVar('--color-brand-primary');
             expect(primary).toBeTruthy();
-            expect(primary.trim()).toBe('37 99 235'); // #2563EB in RGB
+            expect(primary).toBe('37 99 235'); // #2563EB in RGB
         });
 
         it('should have brand-secondary color defined', () => {
-            const secondary = rootStyles.getPropertyValue('--color-brand-secondary');
+            const secondary = getVar('--color-brand-secondary');
             expect(secondary).toBeTruthy();
-            expect(secondary.trim()).toBe('239 68 68'); // #EF4444 in RGB
+            expect(secondary).toBe('242 92 92'); // #F25C5C in RGB
         });
 
         it('should have brand-accent color defined', () => {
-            const accent = rootStyles.getPropertyValue('--color-brand-accent');
+            const accent = getVar('--color-brand-accent');
             expect(accent).toBeTruthy();
-            expect(accent.trim()).toBe('46 233 246'); // #2EE9F6 in RGB
+            expect(accent).toBe('79 209 233'); // #4FD1E9 in RGB
         });
 
         it('should have brand-accent-dark color defined', () => {
-            const accentDark = rootStyles.getPropertyValue('--color-brand-accent-dark');
+            const accentDark = getVar('--color-brand-accent-dark');
             expect(accentDark).toBeTruthy();
-            expect(accentDark.trim()).toBe('27 206 212'); // #1BCED4 in RGB
+            expect(accentDark).toBe('56 191 214'); // #38BFD6 in RGB
         });
     });
 
     describe('Semantic Colors', () => {
         it('should have success color defined', () => {
-            const success = rootStyles.getPropertyValue('--color-semantic-success');
+            const success = getVar('--color-semantic-success');
             expect(success).toBeTruthy();
-            expect(success.trim()).toBe('16 185 129'); // #10B981 in RGB
+            expect(success).toBe('16 185 129'); // #10B981 in RGB
         });
 
         it('should have warning color defined', () => {
-            const warning = rootStyles.getPropertyValue('--color-semantic-warning');
+            const warning = getVar('--color-semantic-warning');
             expect(warning).toBeTruthy();
-            expect(warning.trim()).toBe('245 158 11'); // #F59E0B in RGB
+            expect(warning).toBe('245 158 11'); // #F59E0B in RGB
         });
 
         it('should have error color defined', () => {
-            const error = rootStyles.getPropertyValue('--color-semantic-error');
+            const error = getVar('--color-semantic-error');
             expect(error).toBeTruthy();
-            expect(error.trim()).toBe('239 68 68'); // #EF4444 in RGB
+            expect(error).toBe('239 68 68'); // #EF4444 in RGB
         });
 
         it('should have info color defined', () => {
-            const info = rootStyles.getPropertyValue('--color-semantic-info');
+            const info = getVar('--color-semantic-info');
             expect(info).toBeTruthy();
-            expect(info.trim()).toBe('59 130 246'); // #3B82F6 in RGB
+            expect(info).toBe('59 130 246'); // #3B82F6 in RGB
         });
     });
 
@@ -85,48 +104,48 @@ describe.skip('Design System - Theme Variables', () => {
 
         neutralColors.forEach(({ name, rgb }) => {
             it(`should have neutral-${name} color defined`, () => {
-                const color = rootStyles.getPropertyValue(`--color-neutral-${name}`);
+                const color = getVar(`--color-neutral-${name}`);
                 expect(color).toBeTruthy();
-                expect(color.trim()).toBe(rgb);
+                expect(color).toBe(rgb);
             });
         });
     });
 
     describe('Surface Colors', () => {
         it('should have surface-dark color defined', () => {
-            const surfaceDark = rootStyles.getPropertyValue('--color-surface-dark');
+            const surfaceDark = getVar('--color-surface-dark');
             expect(surfaceDark).toBeTruthy();
-            expect(surfaceDark.trim()).toBe('11 12 16'); // #0B0C10 in RGB
+            expect(surfaceDark).toBe('11 16 24'); // #0B1018 in RGB
         });
 
         it('should have surface-card color defined', () => {
-            const surfaceCard = rootStyles.getPropertyValue('--color-surface-card');
+            const surfaceCard = getVar('--color-surface-card');
             expect(surfaceCard).toBeTruthy();
-            expect(surfaceCard.trim()).toBe('17 19 24'); // #111318 in RGB
+            expect(surfaceCard).toBe('17 24 38'); // #111826 in RGB
         });
 
         it('should have surface-elevated color defined', () => {
-            const surfaceElevated = rootStyles.getPropertyValue('--color-surface-elevated');
+            const surfaceElevated = getVar('--color-surface-elevated');
             expect(surfaceElevated).toBeTruthy();
-            expect(surfaceElevated.trim()).toBe('26 29 35'); // #1A1D23 in RGB
+            expect(surfaceElevated).toBe('21 29 43'); // #151D2B in RGB
         });
     });
 
     describe('Typography', () => {
         it('should have font-inter defined', () => {
-            const fontInter = rootStyles.getPropertyValue('--font-inter');
+            const fontInter = getVar('--font-inter');
             expect(fontInter).toBeTruthy();
             expect(fontInter).toContain('Inter');
         });
 
         it('should have font-poppins defined', () => {
-            const fontPoppins = rootStyles.getPropertyValue('--font-poppins');
+            const fontPoppins = getVar('--font-poppins');
             expect(fontPoppins).toBeTruthy();
             expect(fontPoppins).toContain('Poppins');
         });
 
         it('should have font-eb-garamond defined', () => {
-            const fontGaramond = rootStyles.getPropertyValue('--font-eb-garamond');
+            const fontGaramond = getVar('--font-eb-garamond');
             expect(fontGaramond).toBeTruthy();
             expect(fontGaramond).toContain('EB Garamond');
         });
@@ -144,30 +163,30 @@ describe.skip('Design System - Theme Variables', () => {
 
         spacingValues.forEach(({ name, value }) => {
             it(`should have spacing-${name} defined as ${value}`, () => {
-                const spacing = rootStyles.getPropertyValue(`--spacing-${name}`);
+                const spacing = getVar(`--spacing-${name}`);
                 expect(spacing).toBeTruthy();
-                expect(spacing.trim()).toBe(value);
+                expect(spacing).toBe(value);
             });
         });
     });
 
     describe('Border Radius', () => {
         it('should have radius-micro defined', () => {
-            const radiusMicro = rootStyles.getPropertyValue('--radius-micro');
+            const radiusMicro = getVar('--radius-micro');
             expect(radiusMicro).toBeTruthy();
-            expect(radiusMicro.trim()).toBe('10px');
+            expect(radiusMicro).toBe('10px');
         });
 
         it('should have radius-card defined', () => {
-            const radiusCard = rootStyles.getPropertyValue('--radius-card');
+            const radiusCard = getVar('--radius-card');
             expect(radiusCard).toBeTruthy();
-            expect(radiusCard.trim()).toBe('18px');
+            expect(radiusCard).toBe('18px');
         });
 
         it('should have radius-full defined', () => {
-            const radiusFull = rootStyles.getPropertyValue('--radius-full');
+            const radiusFull = getVar('--radius-full');
             expect(radiusFull).toBeTruthy();
-            expect(radiusFull.trim()).toBe('9999px');
+            expect(radiusFull).toBe('9999px');
         });
     });
 });

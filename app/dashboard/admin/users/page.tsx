@@ -245,10 +245,10 @@ export default function UsersManagementPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des utilisateurs...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des utilisateurs...</p>
         </div>
       </div>
     );
@@ -256,14 +256,14 @@ export default function UsersManagementPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => fetchUsers()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -273,32 +273,32 @@ export default function UsersManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Gestion des Utilisateurs
                   </h1>
-                  <p className="text-sm text-gray-500">Administration complète</p>
+                  <p className="text-sm text-neutral-400">Administration complète</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" className="text-neutral-300 hover:text-white">
                   Retour au Dashboard
                 </Button>
               </Link>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-neutral-300 hover:text-white"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Déconnexion
@@ -313,10 +313,10 @@ export default function UsersManagementPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 Gestion des Utilisateurs
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-400">
                 Gérez tous les utilisateurs de la plateforme
               </p>
             </div>
@@ -456,19 +456,19 @@ export default function UsersManagementPage() {
         {/* Filters */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 w-4 h-4" />
             <Input
               placeholder="Rechercher un utilisateur..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
               <SelectItem value="ALL">Tous les rôles</SelectItem>
               <SelectItem value="ADMIN">Administrateurs</SelectItem>
               <SelectItem value="ASSISTANTE">Assistantes</SelectItem>
@@ -480,29 +480,29 @@ export default function UsersManagementPage() {
         </div>
 
         {/* Users Table */}
-        <Card>
+        <Card className="bg-surface-card border border-white/10 shadow-premium">
           <CardHeader>
-            <CardTitle>Utilisateurs ({users.length})</CardTitle>
+            <CardTitle className="text-white">Utilisateurs ({users.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Utilisateur</th>
-                    <th className="text-left py-3 px-4">Rôle</th>
-                    <th className="text-left py-3 px-4">Statut</th>
-                    <th className="text-left py-3 px-4">Date d'inscription</th>
-                    <th className="text-left py-3 px-4">Actions</th>
+                  <tr className="border-b border-white/10 text-neutral-300">
+                    <th className="text-left py-3 px-4 font-medium">Utilisateur</th>
+                    <th className="text-left py-3 px-4 font-medium">Rôle</th>
+                    <th className="text-left py-3 px-4 font-medium">Statut</th>
+                    <th className="text-left py-3 px-4 font-medium">Date d'inscription</th>
+                    <th className="text-left py-3 px-4 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((user) => (
-                    <tr key={user.id} className="border-b hover:bg-gray-50">
+                    <tr key={user.id} className="border-b border-white/10 hover:bg-white/5">
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-medium">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
+                          <p className="font-medium text-white">{user.firstName} {user.lastName}</p>
+                          <p className="text-sm text-neutral-400">{user.email}</p>
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -515,7 +515,7 @@ export default function UsersManagementPage() {
                           {user.isActive ? "Actif" : "Inactif"}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-500">
+                      <td className="py-3 px-4 text-sm text-neutral-400">
                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                       </td>
                       <td className="py-3 px-4">
@@ -554,7 +554,7 @@ export default function UsersManagementPage() {
                   >
                     Précédent
                   </Button>
-                  <span className="flex items-center px-3 py-2 text-sm">
+                  <span className="flex items-center px-3 py-2 text-sm text-neutral-300">
                     Page {currentPage} sur {totalPages}
                   </span>
                   <Button

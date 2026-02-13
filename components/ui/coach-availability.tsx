@@ -279,7 +279,7 @@ export default function CoachAvailability({
               className={`px-3 md:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 activeTab === 'weekly'
                   ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-700 hover:text-gray-950'
               }`}
             >
               Planning Hebdomadaire
@@ -289,7 +289,7 @@ export default function CoachAvailability({
               className={`px-3 md:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 activeTab === 'specific'
                   ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-700 hover:text-gray-950'
               }`}
             >
               Date Spécifique
@@ -447,7 +447,7 @@ export default function CoachAvailability({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base md:text-lg">Disponibilité pour une date spécifique</CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-700">
                     Définissez des créneaux pour une date particulière (remplace le planning hebdomadaire pour cette date)
                   </p>
                 </CardHeader>

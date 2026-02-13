@@ -31,9 +31,9 @@ export function ScoreChart({ childrenData }: { childrenData: ChildWithScores[] }
 
     if (activeChildren.length === 0) {
         return (
-            <Card>
-                <CardHeader><CardTitle>Évolution des Résultats</CardTitle></CardHeader>
-                <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
+            <Card className="bg-surface-card border border-white/10">
+                <CardHeader><CardTitle className="text-white">Évolution des Résultats</CardTitle></CardHeader>
+                <CardContent className="h-[300px] flex items-center justify-center text-neutral-400">
                     Pas assez de données pour afficher le graphique.
                 </CardContent>
             </Card>
@@ -49,11 +49,11 @@ export function ScoreChart({ childrenData }: { childrenData: ChildWithScores[] }
     }));
 
     return (
-        <Card>
+        <Card className="bg-surface-card border border-white/10">
             <CardHeader>
-                <CardTitle className="flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-brand-primary" />
-                    Progression de {activeChildren[0].name}
+                <CardTitle className="flex items-center text-white">
+                    <TrendingUp className="w-5 h-5 mr-2 text-brand-accent" />
+                    Progression de <span className="ml-1 text-brand-accent">{activeChildren[0].name}</span>
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -68,22 +68,22 @@ export function ScoreChart({ childrenData }: { childrenData: ChildWithScores[] }
                                 bottom: 5,
                             }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="date" />
-                            <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
+                            <XAxis dataKey="date" tick={{ fill: '#9AA4B2' }} axisLine={{ stroke: 'rgba(255,255,255,0.12)' }} />
+                            <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fill: '#9AA4B2' }} axisLine={{ stroke: 'rgba(255,255,255,0.12)' }} />
                             <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                labelStyle={{ fontWeight: 'bold', color: '#374151' }}
+                                contentStyle={{ borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(18, 24, 38, 0.96)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.6)' }}
+                                labelStyle={{ fontWeight: 'bold', color: '#E2E8F0' }}
                             />
-                            <Legend />
+                            <Legend wrapperStyle={{ color: '#AAB3C2' }} />
                             <Line
                                 type="monotone"
                                 dataKey="rating"
                                 name="Performance (1-5)"
-                                stroke="#4F46E5"
+                                stroke="rgb(var(--color-brand-accent))"
                                 strokeWidth={3}
-                                activeDot={{ r: 8 }}
-                                dot={{ r: 4 }}
+                                activeDot={{ r: 7, fill: 'rgb(var(--color-brand-accent))' }}
+                                dot={{ r: 3, fill: 'rgb(var(--color-brand-accent))' }}
                             />
                         </LineChart>
                     </ResponsiveContainer>

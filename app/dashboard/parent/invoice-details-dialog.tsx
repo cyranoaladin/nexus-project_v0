@@ -22,7 +22,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
 
   if (!subscriptionDetails) {
     return (
-      <Button variant="outline" size="sm" className="text-xs sm:text-sm" disabled>
+      <Button variant="outline" size="sm" className="text-xs sm:text-sm border-white/10 text-neutral-400" disabled>
         Voir Détails
       </Button>
     );
@@ -48,25 +48,25 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+        <Button variant="outline" size="sm" className="text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
           Voir Détails
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <Receipt className="w-5 h-5" />
             Détails de Facturation
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-neutral-400 mt-2">
             Informations de facturation pour {studentName}
           </p>
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-gray-900">Formule Actuelle</h3>
+              <h3 className="font-medium text-white">Formule Actuelle</h3>
               <Badge
                 variant={
                   subscriptionDetails.status === 'ACTIVE'
@@ -84,37 +84,37 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             <p className="text-lg font-bold text-brand-primary">
               {subscriptionDetails.planName}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-neutral-400">
               {subscriptionDetails.monthlyPrice} TND/mois
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-              <Calendar className="w-5 h-5 text-brand-primary" />
+            <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <Calendar className="w-5 h-5 text-brand-accent" />
               <div>
-                <p className="text-sm font-medium text-gray-900">Date de début</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm font-medium text-white">Date de début</p>
+                <p className="text-sm text-neutral-400">
                   {formatDate(subscriptionDetails.startDate)}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-              <CreditCard className="w-5 h-5 text-green-600" />
+            <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <CreditCard className="w-5 h-5 text-emerald-300" />
               <div>
-                <p className="text-sm font-medium text-gray-900">Prochaine facturation</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm font-medium text-white">Prochaine facturation</p>
+                <p className="text-sm text-neutral-400">
                   {formatDate(subscriptionDetails.endDate)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-yellow-50 p-3 rounded-lg">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
             <div className="flex items-start space-x-2">
-              <Receipt className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-yellow-800">
+              <Receipt className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-200">
                 <p className="font-medium mb-1">Information :</p>
                 <p>La facturation est automatique à la date indiquée. Vous recevrez un email de confirmation.</p>
               </div>
@@ -125,6 +125,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             <Button 
               variant="outline" 
               onClick={() => setOpen(false)}
+              className="border-white/10 text-neutral-200 hover:text-white"
             >
               Fermer
             </Button>

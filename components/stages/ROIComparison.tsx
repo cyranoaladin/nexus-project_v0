@@ -208,11 +208,7 @@ export function ROIComparison() {
                 <a
                   href={option.ctaLink}
                   onClick={() => handleCTA(option.id)}
-                  className={`block text-center py-3 px-6 rounded-full font-bold transition-all shadow-md hover:shadow-lg hover:scale-105 ${
-                    option.recommended
-                      ? 'bg-white text-blue-900 hover:bg-blue-50'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
+                  className={`${option.recommended ? 'btn-stage-outline' : 'btn-stage-sm'} w-full`}
                 >
                   {option.ctaText}
                 </a>
