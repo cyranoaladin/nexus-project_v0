@@ -2,8 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Load test environment variables FIRST (override any existing vars)
-dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: true });
+// Load local test defaults without overriding CI-provided env vars
+dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: false });
 
 // Keep both variables aligned to avoid implicit Prisma connections using DATABASE_URL
 if (!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL) {
