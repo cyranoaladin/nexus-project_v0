@@ -105,13 +105,13 @@ export default function MesSessions() {
   const getStatusBadge = (status: Session['status']) => {
     switch (status) {
       case 'SCHEDULED':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700">Programmée</Badge>;
+        return <Badge variant="outline" className="border-amber-400/40 bg-amber-500/10 text-amber-200">Programmée</Badge>;
       case 'IN_PROGRESS':
-        return <Badge className="bg-green-500">En cours</Badge>;
+        return <Badge className="border border-emerald-500/40 bg-emerald-500/20 text-emerald-200">En cours</Badge>;
       case 'COMPLETED':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-600">Terminée</Badge>;
+        return <Badge variant="outline" className="border-white/10 bg-white/5 text-neutral-300">Terminée</Badge>;
       case 'CANCELLED':
-        return <Badge variant="outline" className="bg-red-50 text-red-600">Annulée</Badge>;
+        return <Badge variant="outline" className="border-rose-500/40 bg-rose-500/10 text-rose-200">Annulée</Badge>;
       default:
         return <Badge variant="outline">Inconnue</Badge>;
     }
@@ -136,10 +136,10 @@ export default function MesSessions() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de vos sessions...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent mx-auto mb-4"></div>
+          <p className="text-neutral-300">Chargement de vos sessions...</p>
         </div>
       </div>
     );
@@ -150,10 +150,10 @@ export default function MesSessions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600">⏳</div>
-          <p className="text-gray-600">Chargement de vos sessions...</p>
+          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent">⏳</div>
+          <p className="text-neutral-300">Chargement de vos sessions...</p>
         </div>
       </div>
     );
@@ -161,14 +161,14 @@ export default function MesSessions() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-red-600">⚠️</div>
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => window.location.reload()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -178,9 +178,9 @@ export default function MesSessions() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -191,8 +191,8 @@ export default function MesSessions() {
                 </Link>
               </Button>
               <div>
-                <h1 className="font-semibold text-gray-900">Mes Sessions</h1>
-                <p className="text-sm text-gray-500">Gérez vos cours de soutien</p>
+                <h1 className="font-semibold text-white">Mes Sessions</h1>
+                <p className="text-sm text-neutral-400">Gérez vos cours de soutien</p>
               </div>
             </div>
             <Button asChild>
@@ -208,13 +208,13 @@ export default function MesSessions() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Sessions à venir */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Sessions programmées</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Sessions programmées</h2>
 
           {upcomingSessions.length === 0 ? (
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardContent className="text-center py-8">
-                <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 mb-4">Aucune session programmée</p>
+                <Calendar className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                <p className="text-neutral-300 mb-4">Aucune session programmée</p>
                 <Button asChild>
                   <Link href="/dashboard/eleve/sessions">
                     Réserver une session
@@ -225,11 +225,11 @@ export default function MesSessions() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingSessions.map((sessionItem) => (
-                <Card key={sessionItem.id} className="hover:shadow-md transition-shadow">
+                <Card key={sessionItem.id} className="bg-white/5 border border-white/10 hover:border-brand-accent/50 hover:shadow-premium transition">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-blue-600" />
+                        <BookOpen className="w-5 h-5 text-brand-accent" />
                         {sessionItem.subject}
                       </CardTitle>
                       {getStatusBadge(sessionItem.status)}
@@ -237,17 +237,17 @@ export default function MesSessions() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <User className="w-4 h-4 mr-2" />
                         {sessionItem.coachName}
                       </div>
 
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <Calendar className="w-4 h-4 mr-2" />
                         {formatDate(sessionItem.scheduledAt)}
                       </div>
 
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <Clock className="w-4 h-4 mr-2" />
                         {sessionItem.duration} minutes
                       </div>
@@ -263,7 +263,7 @@ export default function MesSessions() {
                       ) : (
                         <Button
                           variant="outline"
-                          className="w-full mt-4"
+                          className="w-full mt-4 border-white/10 bg-white/5 text-neutral-200"
                           disabled
                         >
                           <Clock className="w-4 h-4 mr-2" />
@@ -280,29 +280,29 @@ export default function MesSessions() {
 
         {/* Historique des sessions */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Historique</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Historique</h2>
 
           {completedSessions.length === 0 ? (
-            <Card>
+            <Card className="bg-white/5 border border-white/10">
               <CardContent className="text-center py-8">
-                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucune session terminée</p>
+                <BookOpen className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                <p className="text-neutral-300">Aucune session terminée</p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {completedSessions.map((sessionItem) => (
-                <Card key={sessionItem.id}>
+                <Card key={sessionItem.id} className="bg-white/5 border border-white/10">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="flex-shrink-0">
-                          <BookOpen className="w-8 h-8 text-gray-400" />
+                          <BookOpen className="w-8 h-8 text-neutral-400" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900">{sessionItem.subject}</h3>
-                          <p className="text-sm text-gray-500">avec {sessionItem.coachName}</p>
-                          <p className="text-sm text-gray-500">{formatDate(sessionItem.scheduledAt)} • {sessionItem.duration} min</p>
+                          <h3 className="font-medium text-white">{sessionItem.subject}</h3>
+                          <p className="text-sm text-neutral-400">avec {sessionItem.coachName}</p>
+                          <p className="text-sm text-neutral-400">{formatDate(sessionItem.scheduledAt)} • {sessionItem.duration} min</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

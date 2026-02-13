@@ -129,6 +129,14 @@ describe('Tabs', () => {
       const tabs = container.querySelectorAll('[role="tab"]');
       expect(tabs.length).toBe(3);
     });
+
+    it('supports keyboard focus on tab triggers', async () => {
+      const user = userEvent.setup();
+      renderBasicTabs();
+
+      await user.tab();
+      expect(screen.getByText('Tab 1')).toHaveFocus();
+    });
   });
 
   describe('Disabled State', () => {

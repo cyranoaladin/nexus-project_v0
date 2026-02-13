@@ -8,7 +8,7 @@ jest.mock('next/link', () => {
   };
 });
 
-describe.skip('DiagnosticForm', () => {
+describe('DiagnosticForm', () => {
   beforeEach(() => {
     render(<DiagnosticForm />);
   });
@@ -110,7 +110,8 @@ describe.skip('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Première/i)).toBeInTheDocument();
-        expect(screen.getByText(/Académie du Français/i)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026/i)).toBeInTheDocument();
+        expect(screen.getByText(/Maths ou NSI Première/i)).toBeInTheDocument();
       });
     });
 
@@ -124,7 +125,8 @@ describe.skip('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale/i)).toBeInTheDocument();
-        expect(screen.getByText(/Académie de Février/i)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026/i)).toBeInTheDocument();
+        expect(screen.getByText(/Excellence Terminale/i)).toBeInTheDocument();
       });
     });
 
@@ -138,7 +140,8 @@ describe.skip('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale/i)).toBeInTheDocument();
-        expect(screen.getByText(/Académie Python/i)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026/i)).toBeInTheDocument();
+        expect(screen.getByText(/Prépa Bac Terminale/i)).toBeInTheDocument();
       });
     });
 
@@ -152,6 +155,8 @@ describe.skip('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Individuel/i)).toBeInTheDocument();
+        expect(screen.getByText(/Stage Février 2026/i)).toBeInTheDocument();
+        expect(screen.getByText(/Candidats Libres/i)).toBeInTheDocument();
       });
     });
   });
@@ -184,7 +189,7 @@ describe.skip('DiagnosticForm', () => {
       const academieButton = screen.getByText('Voir cette académie');
 
       expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#odyssee');
-      expect(academieButton.closest('a')).toHaveAttribute('href', '/offres#academies');
+      expect(academieButton.closest('a')).toHaveAttribute('href', '/stages/fevrier-2026#academies');
     });
   });
 

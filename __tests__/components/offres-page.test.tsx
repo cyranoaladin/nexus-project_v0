@@ -110,7 +110,7 @@ describe('OffresPage', () => {
     });
 
     it('affiche les boutons de navigation rapide', () => {
-      const eleveSco = screen.getAllByText('Élève scolarisé');
+      const eleveSco = screen.getAllByText('Lycée français');
       const candidatLibre = screen.getAllByText('Candidat libre');
       const parentIndecis = screen.getAllByText('Parent indécis');
 

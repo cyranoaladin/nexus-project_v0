@@ -24,6 +24,7 @@ type NexusEvent =
   | { name: 'signin_success'; params: { role: string } }
   | { name: 'signin_error'; params: { error_type: string } }
   | { name: 'offer_view'; params: { source?: string } }
+  | { name: 'contact_submit'; params: { profile: string; interest?: string; urgency?: string; source?: string } }
   | { name: 'quiz_complete'; params: { answers: string[]; recommendation: string } }
   | { name: 'stage_view'; params: { stage_id: string; stage_title: string } }
   | { name: 'stage_reserve'; params: { stage_id: string; price: number } }
@@ -105,6 +106,9 @@ export const track = {
   /** Track offer/stage views */
   offerView: (source?: string) =>
     sendEvent({ name: 'offer_view', params: { source } }),
+
+  contactSubmit: (profile: string, interest?: string, urgency?: string, source?: string) =>
+    sendEvent({ name: 'contact_submit', params: { profile, interest, urgency, source } }),
 
   quizComplete: (answers: string[], recommendation: string) =>
     sendEvent({ name: 'quiz_complete', params: { answers, recommendation } }),

@@ -12,7 +12,7 @@ import { PrismaClient, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-describe.skip('Database Schema Integrity', () => {
+describe('Database Schema Integrity', () => {
     beforeAll(async () => {
         await prisma.$connect();
     });
@@ -98,8 +98,47 @@ describe.skip('Database Schema Integrity', () => {
             await prisma.user.delete({ where: { id: studentUser.id } }).catch(() => {});
         });
 
-        it.skip('should cascade delete sessions when student is deleted', async () => {
-            // Skipped: Session model structure has changed
+        it('should cascade delete sessions when student is deleted', async () => {
+            const studentUser = await prisma.user.create({
+                data: {
+                    email: `student-${Date.now()}@example.com`,
+                    role: UserRole.ELEVE,
+                    password: 'test123',
+                },
+            });
+
+            const coachUser = await prisma.user.create({
+                data: {
+                    email: `coach-${Date.now()}@example.com`,
+                    role: UserRole.COACH,
+                    password: 'test123',
+                },
+            });
+
+            const session = await prisma.sessionBooking.create({
+                data: {
+                    studentId: studentUser.id,
+                    coachId: coachUser.id,
+                    subject: 'MATHEMATIQUES',
+                    title: 'Test Session',
+                    scheduledDate: new Date(),
+                    startTime: '10:00',
+                    endTime: '11:00',
+                    duration: 60,
+                    status: 'SCHEDULED',
+                    creditsUsed: 1,
+                },
+            });
+
+            await prisma.user.delete({ where: { id: studentUser.id } });
+
+            const deletedSession = await prisma.sessionBooking.findUnique({
+                where: { id: session.id },
+            });
+
+            expect(deletedSession).toBeNull();
+
+            await prisma.user.delete({ where: { id: coachUser.id } }).catch(() => {});
         });
     });
 
@@ -149,8 +188,23 @@ describe.skip('Database Schema Integrity', () => {
             ).rejects.toThrow();
         });
 
-        it.skip('should prevent orphaned session records', async () => {
-            // Skipped: Session model structure has changed
+        it('should prevent orphaned session records', async () => {
+            await expect(
+                prisma.sessionBooking.create({
+                    data: {
+                        studentId: 'non-existent-student-id',
+                        coachId: 'non-existent-coach-id',
+                        subject: 'MATHEMATIQUES',
+                        title: 'Invalid Session',
+                        scheduledDate: new Date(),
+                        startTime: '10:00',
+                        endTime: '11:00',
+                        duration: 60,
+                        status: 'SCHEDULED',
+                        creditsUsed: 1,
+                    },
+                })
+            ).rejects.toThrow();
         });
     });
 

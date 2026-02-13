@@ -154,10 +154,10 @@ export default function SubscriptionsManagementPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des abonnements...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des abonnements...</p>
         </div>
       </div>
     );
@@ -165,14 +165,14 @@ export default function SubscriptionsManagementPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => fetchSubscriptions()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -182,32 +182,32 @@ export default function SubscriptionsManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <CreditCard className="w-8 h-8 text-green-600" />
+                <CreditCard className="w-8 h-8 text-emerald-300" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Gestion des Abonnements
                   </h1>
-                  <p className="text-sm text-gray-500">Administration des abonnements actifs</p>
+                  <p className="text-sm text-neutral-400">Administration des abonnements actifs</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" className="text-neutral-300 hover:text-white">
                   Retour au Dashboard
                 </Button>
               </Link>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-neutral-300 hover:text-white"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Déconnexion
@@ -222,10 +222,10 @@ export default function SubscriptionsManagementPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 Abonnements Actifs
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-400">
                 Gérez tous les abonnements de la plateforme
               </p>
             </div>
@@ -240,19 +240,19 @@ export default function SubscriptionsManagementPage() {
         {/* Filters */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 w-4 h-4" />
             <Input
               placeholder="Rechercher un abonnement..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
               <SelectItem value="ALL">Tous les statuts</SelectItem>
               <SelectItem value="ACTIVE">Actifs</SelectItem>
               <SelectItem value="INACTIVE">Inactifs</SelectItem>
@@ -262,38 +262,38 @@ export default function SubscriptionsManagementPage() {
         </div>
 
         {/* Subscriptions Table */}
-        <Card>
+        <Card className="bg-surface-card border border-white/10 shadow-premium">
           <CardHeader>
-            <CardTitle>Abonnements ({subscriptions.length})</CardTitle>
+            <CardTitle className="text-white">Abonnements ({subscriptions.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Élève</th>
-                    <th className="text-left py-3 px-4">Parent</th>
-                    <th className="text-left py-3 px-4">Plan</th>
-                    <th className="text-left py-3 px-4">Prix</th>
-                    <th className="text-left py-3 px-4">Statut</th>
-                    <th className="text-left py-3 px-4">Date de fin</th>
-                    <th className="text-left py-3 px-4">Actions</th>
+                  <tr className="border-b border-white/10 text-neutral-300">
+                    <th className="text-left py-3 px-4 font-medium">Élève</th>
+                    <th className="text-left py-3 px-4 font-medium">Parent</th>
+                    <th className="text-left py-3 px-4 font-medium">Plan</th>
+                    <th className="text-left py-3 px-4 font-medium">Prix</th>
+                    <th className="text-left py-3 px-4 font-medium">Statut</th>
+                    <th className="text-left py-3 px-4 font-medium">Date de fin</th>
+                    <th className="text-left py-3 px-4 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {subscriptions.map((subscription) => (
-                    <tr key={subscription.id} className="border-b hover:bg-gray-50">
+                    <tr key={subscription.id} className="border-b border-white/10 hover:bg-white/5">
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-medium">{subscription.student.firstName} {subscription.student.lastName}</p>
-                          <p className="text-sm text-gray-500">{subscription.student.email}</p>
-                          <p className="text-xs text-gray-400">{subscription.student.grade} - {subscription.student.school}</p>
+                          <p className="font-medium text-white">{subscription.student.firstName} {subscription.student.lastName}</p>
+                          <p className="text-sm text-neutral-400">{subscription.student.email}</p>
+                          <p className="text-xs text-neutral-500">{subscription.student.grade} - {subscription.student.school}</p>
                         </div>
                       </td>
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-medium">{subscription.parent.firstName} {subscription.parent.lastName}</p>
-                          <p className="text-sm text-gray-500">{subscription.parent.email}</p>
+                          <p className="font-medium text-white">{subscription.parent.firstName} {subscription.parent.lastName}</p>
+                          <p className="text-sm text-neutral-400">{subscription.parent.email}</p>
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -302,14 +302,14 @@ export default function SubscriptionsManagementPage() {
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <p className="font-medium">{subscription.monthlyPrice} TND/mois</p>
+                        <p className="font-medium text-white">{subscription.monthlyPrice} TND/mois</p>
                       </td>
                       <td className="py-3 px-4">
                         <Badge variant={getStatusBadgeVariant(subscription.status) as "default" | "outline" | "popular" | "success" | "warning" | "destructive" | null | undefined}>
                           {getStatusText(subscription.status)}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-500">
+                      <td className="py-3 px-4 text-sm text-neutral-400">
                         {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString('fr-FR') : 'N/A'}
                       </td>
                       <td className="py-3 px-4">
@@ -344,7 +344,7 @@ export default function SubscriptionsManagementPage() {
                   >
                     Précédent
                   </Button>
-                  <span className="flex items-center px-3 py-2 text-sm">
+                  <span className="flex items-center px-3 py-2 text-sm text-neutral-300">
                     Page {currentPage} sur {totalPages}
                   </span>
                   <Button
@@ -371,14 +371,14 @@ export default function SubscriptionsManagementPage() {
               <form onSubmit={handleUpdateSubscription} className="space-y-4">
                 <div>
                   <Label>Élève</Label>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-neutral-400">
                     {selectedSubscription.student.firstName} {selectedSubscription.student.lastName}
                   </p>
                 </div>
                 
                 <div>
                   <Label>Plan</Label>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-neutral-400">
                     {selectedSubscription.planName} - {selectedSubscription.monthlyPrice} TND/mois
                   </p>
                 </div>
@@ -386,10 +386,10 @@ export default function SubscriptionsManagementPage() {
                 <div>
                   <Label htmlFor="status">Statut</Label>
                   <Select name="status" defaultValue={selectedSubscription.status}>
-                    <SelectTrigger>
+                    <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                       <SelectItem value="ACTIVE">Actif</SelectItem>
                       <SelectItem value="INACTIVE">Inactif</SelectItem>
                       <SelectItem value="REJECTED">Rejeté</SelectItem>

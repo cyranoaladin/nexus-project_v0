@@ -3,7 +3,7 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Brain, Network, Users, CheckCircle2 } from 'lucide-react';
+import { Brain, LayoutDashboard, Users, CheckCircle2 } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,34 +58,34 @@ const TrinityServicesGSAP = () => {
 
     const services = [
         {
+            id: "coachs",
+            icon: Users,
+            title: "Coachs agrégés",
+            description: "Des professeurs experts pour structurer, corriger et faire progresser.",
+            features: ["Cours particuliers ciblés", "Méthodologie Bac", "Feedback actionnable"],
+            color: "text-emerald-400",
+            bg: "bg-emerald-400/10",
+            border: "border-emerald-400/20"
+        },
+        {
             id: "ia",
             icon: Brain,
-            title: "Ingénierie IA & RAG",
-            description: "Déploiement d'agents autonomes et de systèmes RAG pour une connaissance instantanée et précise.",
-            features: ["Chatbots Éducatifs", "Analyse de Données", "Automatisation"],
+            title: "IA ARIA 24/7",
+            description: "Un tuteur IA pour pratiquer, réviser et comprendre à tout moment.",
+            features: ["Explications instantanées", "Exercices guidés", "Révisions intelligentes"],
             color: "text-blue-400",
             bg: "bg-blue-400/10",
             border: "border-blue-400/20"
         },
         {
-            id: "web3",
-            icon: Network,
-            title: "Certification Web3",
-            description: "Ancrage des diplômes et compétences sur la Blockchain pour une vérifiabilité totale et incalsifiable.",
-            features: ["NFTs de Compétence", "Smart Contracts", "Identité Numérique"],
+            id: "suivi",
+            icon: LayoutDashboard,
+            title: "Suivi parent",
+            description: "Un tableau de bord clair pour piloter la progression et les résultats.",
+            features: ["Rapports réguliers", "Objectifs visibles", "Alertes de progression"],
             color: "text-purple-400",
             bg: "bg-purple-400/10",
             border: "border-purple-400/20"
-        },
-        {
-            id: "human",
-            icon: Users,
-            title: "Excellence Humaine",
-            description: "Le toucher irremplaçable de nos Professeurs Agrégés et Experts pour guider, motiver et inspirer.",
-            features: ["Mentorat Elite", "Coaching Mental", "Orientation Stratégique"],
-            color: "text-emerald-400",
-            bg: "bg-emerald-400/10",
-            border: "border-emerald-400/20"
         }
     ];
 
@@ -94,7 +94,8 @@ const TrinityServicesGSAP = () => {
 
             {/* Background Gradients */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.05),transparent_50%)]" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(47,107,255,0.08),transparent_55%)]" />
+                <div className="absolute -top-10 right-[-10%] h-72 w-72 rounded-full bg-brand-accent/10 blur-[120px]" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col justify-center">
@@ -102,12 +103,12 @@ const TrinityServicesGSAP = () => {
                 {/* Section Header */}
                 <div className="text-center mb-16">
                     <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-accent mb-4 block">
-                        La Trinité Nexus
+                        L’essentiel pour réussir
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white max-w-3xl mx-auto leading-tight">
-                        Une synergie unique entre <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400">
-                            Technologie et Pédagogie
+                        3 leviers, un seul objectif : <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400">
+                            la mention au Bac
                         </span>
                     </h2>
                 </div>
@@ -117,7 +118,7 @@ const TrinityServicesGSAP = () => {
                     {services.map((service) => (
                         <div
                             key={service.id}
-                            className={`trinity-card relative p-8 rounded-3xl bg-white/[0.02] border ${service.border} backdrop-blur-sm group hover:bg-white/[0.04] transition-colors duration-500`}
+                            className={`trinity-card relative p-8 rounded-3xl bg-white/[0.03] border ${service.border} backdrop-blur-sm group hover:bg-white/[0.06] transition-colors duration-500 hover:shadow-premium`}
                         >
                             {/* Icon */}
                             <div className={`w-14 h-14 rounded-2xl ${service.bg} flex items-center justify-center mb-6`}>
@@ -148,7 +149,7 @@ const TrinityServicesGSAP = () => {
                 {/* Bottom Connect */}
                 <div className="mt-16 text-center">
                     <p className="text-neutral-500 text-sm font-mono mb-4">
-                        COMBINÉS POUR VOTRE RÉUSSITE
+                        UN PARCOURS CLAIR ET MESURABLE
                     </p>
                     <div className="h-px w-24 bg-gradient-to-r from-transparent via-neutral-700 to-transparent mx-auto" />
                 </div>

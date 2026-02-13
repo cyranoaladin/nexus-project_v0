@@ -163,7 +163,12 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur validation paiement:', error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: error.errors },
+        { status: 400 }
+      );
+    }
 
     // Handle Prisma transaction errors
     if (error && typeof error === 'object' && 'code' in error) {
@@ -185,6 +190,8 @@ export async function POST(request: NextRequest) {
         );
       }
     }
+
+    console.error('Erreur validation paiement:', error);
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

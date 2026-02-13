@@ -65,24 +65,24 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Acheter des Crédits
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <CreditCard className="w-5 h-5" />
             Acheter des Crédits
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-neutral-400 mt-2">
             Demande d'achat de crédits pour {studentName}
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="creditAmount">Nombre de crédits *</Label>
+            <Label htmlFor="creditAmount" className="text-neutral-200">Nombre de crédits *</Label>
             <Input
               id="creditAmount"
               type="number"
@@ -95,7 +95,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
           </div>
           
           <div>
-            <Label htmlFor="reason">Raison de l'achat (optionnel)</Label>
+            <Label htmlFor="reason" className="text-neutral-200">Raison de l'achat (optionnel)</Label>
             <Textarea
               id="reason"
               value={formData.reason}
@@ -105,10 +105,10 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
             />
           </div>
 
-          <div className="bg-blue-50 p-3 rounded-lg">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
+              <AlertCircle className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-200">
                 <p className="font-medium mb-1">Information importante :</p>
                 <p>Votre demande sera envoyée à l'assistant pour approbation. Les crédits seront ajoutés à votre compte une fois approuvés.</p>
               </div>
@@ -118,7 +118,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button 
               type="submit" 
-              className="flex-1"
+              className="flex-1 btn-primary"
               disabled={loading}
             >
               {loading ? (
@@ -137,7 +137,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1"
+              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

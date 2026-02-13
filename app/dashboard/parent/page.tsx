@@ -26,6 +26,7 @@ interface ParentDashboardData {
   };
   children: Array<{
     id: string;
+    userId: string;
     firstName: string;
     lastName: string;
     grade: string;
@@ -109,10 +110,10 @@ export default function DashboardParent() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" aria-label="Chargement" />
-          <p className="text-neutral-600">Chargement de votre espace...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" aria-label="Chargement" />
+          <p className="text-neutral-400">Chargement de votre espace...</p>
         </div>
       </div>
     )
@@ -120,14 +121,14 @@ export default function DashboardParent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-error" aria-label="Erreur" />
-          <p className="text-error mb-4">Erreur lors du chargement</p>
-          <p className="text-neutral-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-label="Erreur" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button
             onClick={() => window.location.reload()}
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -139,29 +140,29 @@ export default function DashboardParent() {
   const currentChild = dashboardData?.children.find((child) => child.id === selectedChild)
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 sm:py-0 sm:h-16 gap-3 sm:gap-0">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-brand-primary flex-shrink-0" aria-hidden="true" />
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-brand-accent flex-shrink-0" aria-hidden="true" />
                 <div>
-                  <h1 className="font-semibold text-neutral-900 text-sm sm:text-base">
+                  <h1 className="font-semibold text-white text-sm sm:text-base">
                     {session?.user.firstName} {session?.user.lastName}
                   </h1>
-                  <p className="text-xs sm:text-sm text-neutral-500">Espace Parent</p>
+                  <p className="text-xs sm:text-sm text-neutral-400">Espace Parent</p>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
               <Tabs value={activeTab} onValueChange={(value: string) => setActiveTab(value as 'dashboard' | 'booking')} className="ml-4">
-                <TabsList>
-                  <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
+                <TabsList className="bg-white/5 border border-white/10">
+                  <TabsTrigger value="dashboard" className="text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
                     Tableau de Bord
                   </TabsTrigger>
-                  <TabsTrigger value="booking" className="text-xs sm:text-sm">
+                  <TabsTrigger value="booking" className="text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
                     Réserver Session
                   </TabsTrigger>
                 </TabsList>
@@ -170,7 +171,7 @@ export default function DashboardParent() {
             <Button
               variant="ghost"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-neutral-600 hover:text-neutral-900 text-xs sm:text-sm"
+              className="text-neutral-300 hover:text-white text-xs sm:text-sm"
               aria-label="Se déconnecter"
             >
               <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" aria-hidden="true" />
@@ -189,10 +190,10 @@ export default function DashboardParent() {
             <div className="mb-6 sm:mb-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    Tableau de Bord Parental 👨‍👩‍👧‍👦
+                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                    Tableau de Bord Parental
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-600">
+                  <p className="text-sm sm:text-base text-neutral-300">
                     Suivez les progrès et gérez l'accompagnement de vos enfants.
                   </p>
                 </div>
@@ -200,15 +201,15 @@ export default function DashboardParent() {
                 {/* Sélecteur Multi-Enfants */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-gray-700">Enfant :</span>
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400 flex-shrink-0" />
+                    <span className="text-sm font-medium text-neutral-300">Enfant :</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Select value={selectedChild} onValueChange={setSelectedChild}>
-                      <SelectTrigger className="w-full sm:w-48">
+                      <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
                         <SelectValue placeholder="Sélectionner un enfant" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                         {dashboardData?.children.map((child) => (
                           <SelectItem key={child.id} value={child.id}>
                             {child.firstName} {child.lastName} - {child.grade}
@@ -223,14 +224,14 @@ export default function DashboardParent() {
             </div>
 
             {/* Informations Enfant Sélectionné */}
-            <Card className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <Card className="mb-6 sm:mb-8 bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <CardTitle className="flex items-center flex-wrap gap-2">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-brand-accent" />
                   <span className="text-lg sm:text-xl">
                     {currentChild?.firstName} {currentChild?.lastName}
                   </span>
-                  <Badge variant="outline" className="text-xs sm:text-sm">
+                  <Badge variant="outline" className="text-xs sm:text-sm border-white/10 text-neutral-300">
                     {currentChild?.grade}
                   </Badge>
                 </CardTitle>
@@ -238,31 +239,31 @@ export default function DashboardParent() {
               <CardContent>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-brand-primary">
+                    <div className="text-xl sm:text-2xl font-bold text-brand-accent">
                       {currentChild?.credits}
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600">Crédits disponibles</p>
+                    <p className="text-xs sm:text-sm text-neutral-400">Crédits disponibles</p>
                   </div>
                   <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-green-600">
+                    <div className="text-xl sm:text-2xl font-bold text-emerald-300">
                       {currentChild?.subscription}
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600">Formule actuelle</p>
+                    <p className="text-xs sm:text-sm text-neutral-400">Formule actuelle</p>
                   </div>
                   <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                    <div className="text-xl sm:text-2xl font-bold text-purple-300">
                       {currentChild?.progress}%
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600">Progression</p>
+                    <p className="text-xs sm:text-sm text-neutral-400">Progression</p>
                   </div>
                   <div className="text-center space-y-1">
-                    <div className="text-xs sm:text-sm font-medium text-gray-900">
+                    <div className="text-xs sm:text-sm font-medium text-neutral-100">
                       {currentChild?.nextSession ?
                         `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` :
                         'Aucune session'
                       }
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600">Prochaine session</p>
+                    <p className="text-xs sm:text-sm text-neutral-400">Prochaine session</p>
                   </div>
                 </div>
               </CardContent>
@@ -271,10 +272,10 @@ export default function DashboardParent() {
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
               {/* Agenda de l'Enfant */}
-              <Card>
+              <Card className="bg-surface-card border border-white/10 shadow-premium">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-brand-primary" />
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-brand-accent" />
                     <span className="text-base sm:text-lg">Agenda de {currentChild?.firstName}</span>
                   </CardTitle>
                 </CardHeader>
@@ -282,23 +283,23 @@ export default function DashboardParent() {
                   <div className="space-y-3 sm:space-y-4">
                     {currentChild?.sessions && currentChild?.sessions.length > 0 ? (
                       currentChild?.sessions.map((session) => (
-                        <div key={session.id} data-testid="session-card" className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-2">
+                        <div key={session.id} data-testid="session-card" className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg gap-2">
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 text-sm sm:text-base">{session.subject}</p>
-                            <p className="text-xs sm:text-sm text-gray-600">
+                            <p className="font-medium text-white text-sm sm:text-base">{session.subject}</p>
+                            <p className="text-xs sm:text-sm text-neutral-300">
                               {new Date(session.scheduledAt).toLocaleDateString('fr-FR')} à {new Date(session.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                             </p>
-                            <p className="text-xs text-gray-500">Coach: {session.coachName}</p>
+                            <p className="text-xs text-neutral-400">Coach: {session.coachName}</p>
                           </div>
-                          <Badge variant={session.type === 'COURS_ONLINE' ? 'default' : 'outline'} className="text-xs">
+                          <Badge variant={session.type === 'COURS_ONLINE' ? 'default' : 'outline'} className="text-xs border-white/10">
                             {session.type === 'COURS_ONLINE' ? 'En ligne' : 'Présentiel'}
                           </Badge>
                         </div>
                       ))
                     ) : (
                       <div className="text-center py-6 sm:py-8">
-                        <p className="text-gray-500 text-sm sm:text-base">Aucune session programmée</p>
-                        <Button variant="outline" className="mt-2 text-xs sm:text-sm">
+                        <p className="text-neutral-400 text-sm sm:text-base">Aucune session programmée</p>
+                        <Button variant="outline" className="mt-2 text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
                           Réserver une Session
                         </Button>
                       </div>
@@ -308,10 +309,10 @@ export default function DashboardParent() {
               </Card>
 
               {/* Progression */}
-              <Card>
+              <Card className="bg-surface-card border border-white/10 shadow-premium">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-emerald-300" />
                     <span className="text-base sm:text-lg">Progression par Matière</span>
                   </CardTitle>
                 </CardHeader>
@@ -321,10 +322,10 @@ export default function DashboardParent() {
                       Object.entries(currentChild?.subjectProgress).map(([subject, progress]) => (
                         <div key={subject}>
                           <div className="flex justify-between text-xs sm:text-sm mb-1">
-                            <span>{subject}</span>
-                            <span>{progress}%</span>
+                            <span className="text-neutral-300">{subject}</span>
+                            <span className="text-neutral-300">{progress}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-white/10 rounded-full h-2">
                             <div
                               className="h-2 rounded-full transition-all duration-300"
                               style={{
@@ -337,8 +338,8 @@ export default function DashboardParent() {
                       ))
                     ) : (
                       <div className="text-center py-4">
-                        <p className="text-sm text-gray-500">Aucune progression disponible</p>
-                        <p className="text-xs text-gray-400 mt-1">Les données apparaîtront après les premières sessions</p>
+                        <p className="text-sm text-neutral-400">Aucune progression disponible</p>
+                        <p className="text-xs text-neutral-500 mt-1">Les données apparaîtront après les premières sessions</p>
                       </div>
                     )}
                   </div>
@@ -347,22 +348,22 @@ export default function DashboardParent() {
             </div>
 
             {/* Section Abonnement et Facturation */}
-            <Card className="mb-6 sm:mb-8">
+            <Card className="mb-6 sm:mb-8 bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-emerald-300" />
                   <span className="text-base sm:text-lg">Abonnement et Facturation</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Abonnement Actuel */}
-                  <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Formule Actuelle</h3>
-                    <div className="text-xl sm:text-2xl font-bold text-brand-primary mb-1">
+                  <div className="text-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
+                    <h3 className="font-semibold text-white mb-2 text-sm sm:text-base">Formule Actuelle</h3>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-accent mb-1">
                       {currentChild?.subscriptionDetails?.planName || currentChild?.subscription}
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                    <p className="text-xs sm:text-sm text-neutral-400 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND/mois
                     </p>
                     <SubscriptionChangeDialog
@@ -374,15 +375,15 @@ export default function DashboardParent() {
                   </div>
 
                   {/* Prochaine Facturation */}
-                  <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Prochaine Facturation</h3>
-                    <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
+                  <div className="text-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
+                    <h3 className="font-semibold text-white mb-2 text-sm sm:text-base">Prochaine Facturation</h3>
+                    <div className="text-xl sm:text-2xl font-bold text-emerald-300 mb-1">
                       {currentChild?.subscriptionDetails?.endDate ?
                         new Date(currentChild?.subscriptionDetails.endDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) :
                         'N/A'
                       }
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                    <p className="text-xs sm:text-sm text-neutral-400 mb-3">
                       {currentChild?.subscriptionDetails?.monthlyPrice || 0} TND
                     </p>
                     <InvoiceDetailsDialog
@@ -392,8 +393,8 @@ export default function DashboardParent() {
                   </div>
 
                   {/* Actions */}
-                  <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Actions</h3>
+                  <div className="text-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
+                    <h3 className="font-semibold text-white mb-2 text-sm sm:text-base">Actions</h3>
                     <div className="space-y-2">
                       <CreditPurchaseDialog
                         studentId={currentChild?.id ?? ''}
@@ -410,8 +411,8 @@ export default function DashboardParent() {
                 </div>
 
                 {/* Note importante */}
-                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-xs sm:text-sm text-yellow-800">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <p className="text-xs sm:text-sm text-amber-200">
                     <strong>Note :</strong> Les demandes d'achat de crédits sont envoyées à l'assistant pour approbation.
                   </p>
                 </div>
@@ -422,7 +423,7 @@ export default function DashboardParent() {
 
         {activeTab === 'booking' && currentChild && (
           <SessionBooking
-            studentId={currentChild?.id}
+            studentId={currentChild?.userId}
             parentId={session?.user?.id}
             userCredits={currentChild?.credits}
             onBookingComplete={(sessionId) => {

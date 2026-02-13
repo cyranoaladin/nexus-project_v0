@@ -117,7 +117,7 @@ function LogoutButton() {
       <Button
         type="submit"
         variant="ghost"
-        className="text-neutral-600 hover:text-neutral-900"
+        className="text-neutral-300 hover:text-white"
         aria-label="Se déconnecter"
       >
         <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
@@ -137,19 +137,19 @@ export default async function StudentDashboardPage() {
   const data = await getDashboardData();
   
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <User className="w-8 h-8 text-brand-primary" aria-hidden="true" />
+                <User className="w-8 h-8 text-brand-accent" aria-hidden="true" />
                 <div>
-                  <h1 className="font-semibold text-neutral-900">
+                  <h1 className="font-semibold text-white">
                     {data.student.firstName} {data.student.lastName}
                   </h1>
-                  <p className="text-sm text-neutral-500">Espace Étudiant</p>
+                  <p className="text-sm text-neutral-400">Espace Étudiant</p>
                 </div>
               </div>
             </div>
@@ -162,10 +162,10 @@ export default async function StudentDashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">
-            Bonjour {data.student.firstName} ! 👋
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+            Bonjour {data.student.firstName} !
           </h2>
-          <p className="text-sm sm:text-base text-neutral-600">
+          <p className="text-sm sm:text-base text-neutral-300">
             Bienvenue dans votre nouvel espace Nexus Réussite.
           </p>
         </div>
@@ -173,16 +173,16 @@ export default async function StudentDashboardPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Solde de Crédits */}
-          <Card role="region" aria-label="Solde de crédits">
+          <Card role="region" aria-label="Solde de crédits" className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Solde de Crédits</CardTitle>
-              <CreditCard className="h-4 w-4 text-brand-primary" aria-hidden="true" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Solde de Crédits</CardTitle>
+              <CreditCard className="h-4 w-4 text-brand-accent" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold text-brand-primary" aria-label={`${data.credits.balance} crédits disponibles`}>
+              <div className="text-xl sm:text-2xl font-bold text-brand-accent" aria-label={`${data.credits.balance} crédits disponibles`}>
                 {data.credits.balance} crédits
               </div>
-              <p className="text-xs text-neutral-600 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 Disponibles pour vos sessions
               </p>
               
@@ -190,7 +190,7 @@ export default async function StudentDashboardPage() {
               {data.credits.transactions.length > 0 && (
                 <Accordion type="single" collapsible className="mt-4">
                   <AccordionItem value="transactions" className="border-none">
-                    <AccordionTrigger className="py-2 text-xs text-brand-primary hover:no-underline">
+                    <AccordionTrigger className="py-2 text-xs text-brand-accent hover:no-underline">
                       Voir l&apos;historique
                     </AccordionTrigger>
                     <AccordionContent>
@@ -198,19 +198,19 @@ export default async function StudentDashboardPage() {
                         {data.credits.transactions.map((transaction) => (
                           <div
                             key={transaction.id}
-                            className="flex items-center justify-between p-2 bg-neutral-50 rounded-md text-xs"
+                            className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded-md text-xs"
                           >
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               {transaction.amount > 0 ? (
-                                <TrendingUp className="h-3 w-3 text-green-600 flex-shrink-0" aria-hidden="true" />
+                                <TrendingUp className="h-3 w-3 text-emerald-300 flex-shrink-0" aria-hidden="true" />
                               ) : (
-                                <TrendingDown className="h-3 w-3 text-red-600 flex-shrink-0" aria-hidden="true" />
+                                <TrendingDown className="h-3 w-3 text-rose-300 flex-shrink-0" aria-hidden="true" />
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-neutral-900 truncate">
+                                <p className="font-medium text-neutral-100 truncate">
                                   {transaction.description}
                                 </p>
-                                <p className="text-neutral-500">
+                                <p className="text-neutral-400">
                                   {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
                                     day: '2-digit',
                                     month: 'short',
@@ -222,8 +222,8 @@ export default async function StudentDashboardPage() {
                             <span
                               className={`font-semibold whitespace-nowrap ml-2 ${
                                 transaction.amount > 0
-                                  ? 'text-green-600'
-                                  : 'text-red-600'
+                                  ? 'text-emerald-300'
+                                  : 'text-rose-300'
                               }`}
                             >
                               {transaction.amount > 0 ? '+' : ''}{transaction.amount}
@@ -239,24 +239,24 @@ export default async function StudentDashboardPage() {
           </Card>
 
           {/* Prochaine Session */}
-          <Card role="region" aria-label="Prochaine session">
+          <Card role="region" aria-label="Prochaine session" className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Prochaine Session</CardTitle>
-              <Calendar className="h-4 w-4 text-success" aria-hidden="true" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Prochaine Session</CardTitle>
+              <Calendar className="h-4 w-4 text-emerald-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
               {data.nextSession ? (
                 <>
-                  <div className="text-xl font-bold text-neutral-900">
+                  <div className="text-xl font-bold text-white">
                     {new Date(data.nextSession.scheduledAt).toLocaleDateString('fr-FR', { 
                       day: '2-digit', 
                       month: 'short' 
                     })}
                   </div>
-                  <p className="text-xs text-neutral-600 mt-1">
+                  <p className="text-xs text-neutral-300 mt-1">
                     {data.nextSession.subject} • {data.nextSession.duration}min
                   </p>
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-xs text-neutral-400 mt-1">
                     Avec {data.nextSession.coach.pseudonym}
                   </p>
                 </>
@@ -265,7 +265,7 @@ export default async function StudentDashboardPage() {
                   <div className="text-xl font-bold text-neutral-400">
                     Aucune
                   </div>
-                  <p className="text-xs text-neutral-600 mt-1">
+                  <p className="text-xs text-neutral-400 mt-1">
                     Programmez votre prochaine session
                   </p>
                 </>
@@ -274,16 +274,16 @@ export default async function StudentDashboardPage() {
           </Card>
 
           {/* Badge Progress */}
-          <Card role="region" aria-label="Progression et badges">
+          <Card role="region" aria-label="Progression et badges" className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Progression</CardTitle>
-              <Award className="h-4 w-4 text-purple-600" aria-hidden="true" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Progression</CardTitle>
+              <Award className="h-4 w-4 text-purple-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold text-purple-600">
+              <div className="text-xl font-bold text-purple-200">
                 {data.badges.length} {data.badges.length > 1 ? 'badges' : 'badge'}
               </div>
-              <p className="text-xs text-neutral-600 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {data.badges.length > 0 ? 'Obtenus au total' : 'Commencez à gagner des badges'}
               </p>
             </CardContent>
@@ -310,16 +310,16 @@ export default async function StudentDashboardPage() {
             />
 
             {/* Recent Sessions */}
-            <Card role="region" aria-label="Sessions récentes">
+            <Card role="region" aria-label="Sessions récentes" className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-brand-primary" aria-hidden="true" />
+                    <Calendar className="w-5 h-5 mr-2 text-brand-accent" aria-hidden="true" />
                     Sessions Récentes
                   </div>
                   <Link 
                     href="/dashboard/eleve/mes-sessions"
-                    className="text-xs text-brand-primary hover:text-brand-primary/80 font-medium flex items-center"
+                    className="text-xs text-brand-accent hover:text-brand-accent/80 font-medium flex items-center"
                     aria-label="Voir toutes les sessions"
                   >
                     Voir tout
@@ -334,17 +334,17 @@ export default async function StudentDashboardPage() {
                       <Link
                         key={session.id}
                         href="/dashboard/eleve/mes-sessions"
-                        className="block p-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+                        className="block p-3 bg-white/5 rounded-lg border border-white/10 hover:border-brand-accent/50 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-surface-darker"
                         aria-label={`Session ${session.title} - ${session.subject}`}
                       >
                         <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
                           <div className="flex-1 min-w-0 w-full sm:w-auto">
-                            <h4 className="font-medium text-neutral-900 text-sm truncate">
+                            <h4 className="font-medium text-white text-sm truncate">
                               {session.title}
                             </h4>
-                            <p className="text-xs text-neutral-600 mt-0.5">{session.subject}</p>
+                            <p className="text-xs text-neutral-300 mt-0.5">{session.subject}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <p className="text-xs text-neutral-500">
+                              <p className="text-xs text-neutral-400">
                                 {new Date(session.scheduledAt).toLocaleDateString('fr-FR', {
                                   day: '2-digit',
                                   month: 'short',
@@ -352,7 +352,7 @@ export default async function StudentDashboardPage() {
                                 })}
                               </p>
                               {session.coach && (
-                                <p className="text-xs text-neutral-500">
+                                <p className="text-xs text-neutral-400">
                                   • {session.coach.pseudonym}
                                 </p>
                               )}
@@ -360,14 +360,14 @@ export default async function StudentDashboardPage() {
                           </div>
                           <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ml-2 flex-shrink-0 ${
                             session.status === 'COMPLETED' 
-                              ? 'bg-green-100 text-green-800' 
+                              ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20' 
                               : session.status === 'SCHEDULED'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-blue-500/15 text-blue-200 border border-blue-500/20'
                               : session.status === 'CANCELLED'
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-rose-500/15 text-rose-200 border border-rose-500/20'
                               : session.status === 'IN_PROGRESS'
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-yellow-100 text-yellow-800'
+                              ? 'bg-purple-500/15 text-purple-200 border border-purple-500/20'
+                              : 'bg-amber-500/15 text-amber-200 border border-amber-500/20'
                           }`}>
                             {session.status === 'COMPLETED' ? 'Terminée' :
                              session.status === 'SCHEDULED' ? 'Programmée' :
@@ -381,12 +381,12 @@ export default async function StudentDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" aria-hidden="true" />
-                    <p className="text-sm text-neutral-500 mb-3">
+                    <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-3" aria-hidden="true" />
+                    <p className="text-sm text-neutral-400 mb-3">
                       Aucune session récente
                     </p>
                     <Link href="/dashboard/eleve/sessions">
-                      <Button variant="outline" size="sm" aria-label="Réserver une session">
+                      <Button className="btn-outline" size="sm" aria-label="Réserver une session">
                         Réserver une session
                       </Button>
                     </Link>

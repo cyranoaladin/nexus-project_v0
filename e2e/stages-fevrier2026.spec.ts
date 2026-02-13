@@ -19,7 +19,7 @@ test.describe('Stages Février 2026 Page', () => {
   });
 
   test('urgency banner is visible', async ({ page }) => {
-    const banner = page.getByText(/STAGES FÉVRIER 2026/i);
+    const banner = page.getByText(/STAGES FÉVRIER 2026 •/i);
     await expect(banner).toBeVisible();
   });
 
@@ -27,6 +27,14 @@ test.describe('Stages Février 2026 Page', () => {
     const cta = page.getByRole('link', { name: /réserver une consultation gratuite/i }).first();
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href');
+  });
+
+  test('hero CTA anchors are present', async ({ page }) => {
+    const discover = page.getByRole('link', { name: /découvrir les académies/i }).first();
+    await expect(discover).toHaveAttribute('href', '#academies');
+
+    const reserve = page.getByRole('link', { name: /réserver/i }).first();
+    await expect(reserve).toHaveAttribute('href', /#(academies|reservation)/);
   });
 
   test('clicking CTA scrolls or navigates', async ({ page }) => {

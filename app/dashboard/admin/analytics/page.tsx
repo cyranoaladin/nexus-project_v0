@@ -115,10 +115,10 @@ export default function AnalyticsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Chargement des analytics...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement des analytics...</p>
         </div>
       </div>
     );
@@ -126,14 +126,14 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">Erreur lors du chargement</p>
-          <p className="text-gray-600 text-sm">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" />
+          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
+          <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
             onClick={() => fetchAnalytics()} 
-            className="mt-4"
+            className="btn-primary mt-4"
           >
             Réessayer
           </Button>
@@ -143,32 +143,32 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <BarChart3 className="w-8 h-8 text-blue-600" />
+                <BarChart3 className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-gray-900">
+                  <h1 className="font-semibold text-white">
                     Analytics & Rapports
                   </h1>
-                  <p className="text-sm text-gray-500">Analyses détaillées du système</p>
+                  <p className="text-sm text-neutral-400">Analyses détaillées du système</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" className="text-neutral-300 hover:text-white">
                   Retour au Dashboard
                 </Button>
               </Link>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-neutral-300 hover:text-white"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Déconnexion
@@ -183,19 +183,19 @@ export default function AnalyticsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 Analytics & Rapports
               </h2>
-              <p className="text-gray-600">
+              <p className="text-neutral-400">
                 Analyses détaillées des performances et activités
               </p>
             </div>
             <div className="flex space-x-4">
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-32 border-white/10 bg-surface-elevated text-neutral-100">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                   <SelectItem value="month">Mois</SelectItem>
                   <SelectItem value="quarter">Trimestre</SelectItem>
                   <SelectItem value="year">Année</SelectItem>
@@ -207,61 +207,61 @@ export default function AnalyticsPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenus</CardTitle>
-              <CreditCard className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Revenus</CardTitle>
+              <CreditCard className="h-4 w-4 text-emerald-300" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-300">
                 {analyticsData?.summary.totalRevenue?.toLocaleString() || 0} TND
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {getPeriodText(period)}
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Nouveaux Utilisateurs</CardTitle>
-              <Users className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Nouveaux Utilisateurs</CardTitle>
+              <Users className="h-4 w-4 text-brand-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-brand-accent">
                 {analyticsData?.summary.totalUsers || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {getPeriodText(period)}
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sessions</CardTitle>
-              <TrendingUp className="h-4 w-4 text-purple-600" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Sessions</CardTitle>
+              <TrendingUp className="h-4 w-4 text-purple-300" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-purple-200">
                 {analyticsData?.summary.totalSessions || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {getPeriodText(period)}
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Abonnements</CardTitle>
-              <CreditCard className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium text-neutral-200">Abonnements</CardTitle>
+              <CreditCard className="h-4 w-4 text-amber-300" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-amber-300">
                 {analyticsData?.summary.totalSubscriptions || 0}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {getPeriodText(period)}
               </p>
             </CardContent>
@@ -271,10 +271,10 @@ export default function AnalyticsPage() {
         {/* Analytics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Revenue Analytics */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2 text-green-600" />
+                <CreditCard className="w-5 h-5 mr-2 text-emerald-300" />
                 Revenus {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -282,20 +282,20 @@ export default function AnalyticsPage() {
               <div className="space-y-4">
                 {analyticsData?.revenueData && analyticsData.revenueData.length > 0 ? (
                   analyticsData.revenueData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg">
                       <div>
-                        <p className="font-medium">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
-                        <p className="text-sm text-gray-500">{item.count} transactions</p>
+                        <p className="font-medium text-neutral-100">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm text-neutral-400">{item.count} transactions</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-green-600">{item.amount.toLocaleString()} TND</p>
+                        <p className="font-bold text-emerald-300">{item.amount.toLocaleString()} TND</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucune donnée de revenus</p>
+                    <CreditCard className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                    <p className="text-neutral-400">Aucune donnée de revenus</p>
                   </div>
                 )}
               </div>
@@ -303,10 +303,10 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* User Growth Analytics */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2 text-blue-600" />
+                <Users className="w-5 h-5 mr-2 text-brand-accent" />
                 Croissance Utilisateurs {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -314,20 +314,20 @@ export default function AnalyticsPage() {
               <div className="space-y-4">
                 {analyticsData?.userGrowthData && analyticsData.userGrowthData.length > 0 ? (
                   analyticsData.userGrowthData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg">
                       <div>
-                        <p className="font-medium">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
-                        <p className="text-sm text-gray-500">{item.role}</p>
+                        <p className="font-medium text-neutral-100">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm text-neutral-400">{item.role}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-blue-600">+{item.count}</p>
+                        <p className="font-bold text-brand-accent">+{item.count}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucune donnée de croissance</p>
+                    <Users className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                    <p className="text-neutral-400">Aucune donnée de croissance</p>
                   </div>
                 )}
               </div>
@@ -335,10 +335,10 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* Session Analytics */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-purple-600" />
+                <TrendingUp className="w-5 h-5 mr-2 text-purple-300" />
                 Sessions {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -346,9 +346,9 @@ export default function AnalyticsPage() {
               <div className="space-y-4">
                 {analyticsData?.sessionData && analyticsData.sessionData.length > 0 ? (
                   analyticsData.sessionData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg">
                       <div>
-                        <p className="font-medium">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
+                        <p className="font-medium text-neutral-100">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
                         <Badge
                           variant={
                             item.status === 'COMPLETED'
@@ -364,14 +364,14 @@ export default function AnalyticsPage() {
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-purple-600">{item.count}</p>
+                        <p className="font-bold text-purple-200">{item.count}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucune donnée de sessions</p>
+                    <TrendingUp className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                    <p className="text-neutral-400">Aucune donnée de sessions</p>
                   </div>
                 )}
               </div>
@@ -379,10 +379,10 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* Credit Transactions */}
-          <Card>
+          <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2 text-orange-600" />
+                <CreditCard className="w-5 h-5 mr-2 text-amber-300" />
                 Transactions Crédits {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -390,21 +390,21 @@ export default function AnalyticsPage() {
               <div className="space-y-4">
                 {analyticsData?.creditData && analyticsData.creditData.length > 0 ? (
                   analyticsData.creditData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg">
                       <div>
-                        <p className="font-medium">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
-                        <p className="text-sm text-gray-500">{item.type}</p>
+                        <p className="font-medium text-neutral-100">{new Date(item.date).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm text-neutral-400">{item.type}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-orange-600">{item.amount}</p>
-                        <p className="text-xs text-gray-500">{item.count} transactions</p>
+                        <p className="font-bold text-amber-300">{item.amount}</p>
+                        <p className="text-xs text-neutral-400">{item.count} transactions</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucune donnée de crédits</p>
+                    <CreditCard className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                    <p className="text-neutral-400">Aucune donnée de crédits</p>
                   </div>
                 )}
               </div>
@@ -413,10 +413,10 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Recent Activities */}
-        <Card className="mt-8">
+        <Card className="mt-8 bg-surface-card border border-white/10 shadow-premium">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
+            <CardTitle className="flex items-center text-white">
+              <BarChart3 className="w-5 h-5 mr-2 text-brand-accent" />
               Activités Récentes du Système
             </CardTitle>
           </CardHeader>
@@ -424,18 +424,18 @@ export default function AnalyticsPage() {
             <div className="space-y-4">
               {analyticsData?.recentActivities && analyticsData.recentActivities.length > 0 ? (
                 analyticsData.recentActivities.slice(0, 10).map((activity, index) => (
-                  <div key={activity.id || index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div key={activity.id || index} className="flex items-start space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
                     <div className="flex-shrink-0">
-                      {activity.type === 'session' && <TrendingUp className="w-5 h-5 text-blue-600" />}
+                      {activity.type === 'session' && <TrendingUp className="w-5 h-5 text-brand-accent" />}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-white">
                         {activity.title}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-neutral-400">
                         {activity.description}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-neutral-500">
                         {activity.action} - {new Date(activity.time).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
@@ -456,8 +456,8 @@ export default function AnalyticsPage() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Aucune activité récente</p>
+                  <BarChart3 className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                  <p className="text-neutral-400">Aucune activité récente</p>
                 </div>
               )}
             </div>

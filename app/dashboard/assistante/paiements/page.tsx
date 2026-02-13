@@ -107,30 +107,30 @@ export default function PaiementsAssistantePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent mx-auto mb-4"></div>
+          <p className="text-neutral-400">Chargement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
-            <Button variant="ghost" asChild className="mr-4">
+            <Button variant="ghost" asChild className="mr-4 text-neutral-300 hover:text-white">
               <Link href="/dashboard/assistante">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour au Dashboard
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-gray-900">Validation des Paiements</h1>
-              <p className="text-sm text-gray-500">Virements Wise en attente</p>
+              <h1 className="font-semibold text-white">Validation des Paiements</h1>
+              <p className="text-sm text-neutral-400">Virements Wise en attente</p>
             </div>
           </div>
         </div>
@@ -138,22 +138,22 @@ export default function PaiementsAssistantePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtres */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-surface-card border border-white/10 shadow-premium">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Filter className="w-5 h-5 mr-2 text-blue-600" />
+            <CardTitle className="flex items-center text-white">
+              <Filter className="w-5 h-5 mr-2 text-brand-accent" />
               Filtres
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <Label>Statut :</Label>
+                <Label className="text-neutral-200">Statut :</Label>
                 <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-48 border-white/10 bg-surface-elevated text-neutral-100">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
                     <SelectItem value="all">Tous</SelectItem>
                     <SelectItem value="pending">En attente</SelectItem>
                     <SelectItem value="wise">Wise uniquement</SelectItem>
@@ -161,7 +161,7 @@ export default function PaiementsAssistantePage() {
                 </Select>
               </div>
               
-              <Badge variant="outline">
+              <Badge variant="outline" className="border-white/10 text-neutral-300">
                 {pendingPayments.length} paiement(s) en attente
               </Badge>
             </div>
@@ -172,48 +172,48 @@ export default function PaiementsAssistantePage() {
         <div className="space-y-6">
           {pendingPayments.length > 0 ? (
             pendingPayments.map((payment) => (
-              <Card key={payment.id} className="border-orange-200 bg-orange-50">
+              <Card key={payment.id} className="border-amber-500/20 bg-amber-500/10">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-lg text-white">
                         {payment.user.firstName} {payment.user.lastName}
                       </CardTitle>
-                      <p className="text-gray-600 text-sm">{payment.user.email}</p>
-                      <Badge variant="outline" className="mt-2">
+                      <p className="text-neutral-300 text-sm">{payment.user.email}</p>
+                      <Badge variant="outline" className="mt-2 border-white/10 text-neutral-300">
                         <Clock className="w-3 h-3 mr-1" />
                         {new Date(payment.createdAt).toLocaleString('fr-FR')}
                       </Badge>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-orange-600">
+                      <div className="text-2xl font-bold text-amber-200">
                         {payment.amount} TND
                       </div>
-                      <p className="text-gray-600 text-sm">{payment.description}</p>
+                      <p className="text-neutral-300 text-sm">{payment.description}</p>
                     </div>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
                   {/* Détails du virement */}
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-3">Détails du Virement</h4>
+                  <div className="bg-surface-card rounded-lg p-4 border border-white/10">
+                    <h4 className="font-semibold text-white mb-3">Détails du Virement</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <Label className="text-gray-600">Référence</Label>
-                        <div className="font-mono font-medium">
+                        <Label className="text-neutral-400">Référence</Label>
+                        <div className="font-mono font-medium text-neutral-200">
                           {payment.metadata.transferReference}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-gray-600">Date</Label>
-                        <div className="font-medium">
+                        <Label className="text-neutral-400">Date</Label>
+                        <div className="font-medium text-neutral-200">
                           {new Date(payment.metadata.transferDate).toLocaleDateString('fr-FR')}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-gray-600">Montant déclaré</Label>
-                        <div className="font-medium">
+                        <Label className="text-neutral-400">Montant déclaré</Label>
+                        <div className="font-medium text-neutral-200">
                           {payment.metadata.transferAmount} TND
                         </div>
                       </div>
@@ -224,7 +224,7 @@ export default function PaiementsAssistantePage() {
                   <div className="flex items-center space-x-4">
                     <Button
                       onClick={() => handleValidatePayment(payment.id, 'approve')}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-emerald-500/80 hover:bg-emerald-500 text-white"
                     >
                       <Check className="w-4 h-4 mr-2" />
                       Valider le Paiement
@@ -236,7 +236,7 @@ export default function PaiementsAssistantePage() {
                         handleValidatePayment(payment.id, 'reject', note || undefined)
                       }}
                       variant="outline"
-                      className="border-red-300 text-red-600 hover:bg-red-50"
+                      className="border-rose-500/30 text-rose-200 hover:bg-rose-500/10"
                     >
                       <X className="w-4 h-4 mr-2" />
                       Rejeter
@@ -246,13 +246,13 @@ export default function PaiementsAssistantePage() {
               </Card>
             ))
           ) : (
-            <Card>
+            <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardContent className="text-center py-12">
-                <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">
                   Aucun paiement en attente
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-neutral-400">
                   Tous les paiements ont été traités.
                 </p>
               </CardContent>

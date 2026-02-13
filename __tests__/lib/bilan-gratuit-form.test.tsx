@@ -21,6 +21,7 @@ jest.mock('next/navigation', () => ({
     prefetch: jest.fn(),
   }),
   useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/bilan-gratuit',
 }));
 
 // Mock de framer-motion — filter all motion-specific props
@@ -107,7 +108,7 @@ describe('BilanGratuitPage - Tests de validation par étapes', () => {
   });
 
   // SKIP: Form state not preserved on back navigation (edge case, not critical)
-  test.skip('devrait permettre de revenir à l\'étape 1 depuis l\'étape 2', async () => {
+  test('devrait permettre de revenir à l\'étape 1 depuis l\'étape 2', async () => {
     const user = userEvent.setup();
     render(<BilanGratuitPage />);
 
