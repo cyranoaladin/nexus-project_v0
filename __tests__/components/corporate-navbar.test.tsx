@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 
 const usePathnameMock = jest.fn();
@@ -12,25 +12,29 @@ describe('CorporateNavbar', () => {
     usePathnameMock.mockReturnValue('/offres');
   });
 
-  it('opens the overlay menu and shows grouped sections', () => {
+  it('opens the overlay menu and shows grouped sections', async () => {
     render(<CorporateNavbar />);
 
     const openButton = screen.getByRole('button', { name: /ouvrir le menu/i });
     fireEvent.click(openButton);
 
-    expect(screen.getByText('Essentiel')).toBeInTheDocument();
-    expect(screen.getByText('Programmes')).toBeInTheDocument();
-    expect(screen.getByText('À propos')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByText('Essentiel').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Programmes').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('À propos').length).toBeGreaterThan(0);
+    });
   });
 
-  it('renders the next-step CTA in the overlay', () => {
+  it('renders the next-step CTA in the overlay', async () => {
     render(<CorporateNavbar />);
 
     const openButton = screen.getByRole('button', { name: /ouvrir le menu/i });
     fireEvent.click(openButton);
 
-    expect(screen.getByText('Prochaine étape')).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: /bilan gratuit/i }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('link', { name: /parler à un expert/i }).length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(screen.getByText('Prochaine étape')).toBeInTheDocument();
+      expect(screen.getAllByRole('link', { name: /bilan gratuit/i }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('link', { name: /parler à un expert/i }).length).toBeGreaterThan(0);
+    });
   });
 });
