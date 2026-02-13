@@ -232,19 +232,19 @@ export default function CoachManagement() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-primary" />
-          <p className="text-gray-600">Chargement...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
@@ -255,21 +255,21 @@ export default function CoachManagement() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Gestion des Coachs</h1>
-                <p className="text-sm text-gray-600">Créer et gérer les coachs de la plateforme</p>
+                <h1 className="text-2xl font-bold text-white">Gestion des Coachs</h1>
+                <p className="text-sm text-neutral-400">Créer et gérer les coachs de la plateforme</p>
               </div>
             </div>
             
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="btn-primary">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Ajouter un Coach
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-card border border-white/10 text-neutral-100">
                 <DialogHeader>
-                  <DialogTitle>Ajouter un nouveau coach</DialogTitle>
+                  <DialogTitle className="text-white">Ajouter un nouveau coach</DialogTitle>
                 </DialogHeader>
                 <CoachForm 
                   formData={formData}
@@ -287,25 +287,25 @@ export default function CoachManagement() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-lg">
             <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-              <span className="text-red-800">{error}</span>
+              <AlertCircle className="w-5 h-5 text-rose-300 mr-2" />
+              <span className="text-rose-200">{error}</span>
             </div>
           </div>
         )}
 
         <div className="grid gap-6">
           {coaches.map((coach) => (
-            <Card key={coach.id}>
+            <Card key={coach.id} className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="flex items-center space-x-2">
+                    <CardTitle className="flex items-center space-x-2 text-white">
                       <span>{coach.pseudonym}</span>
-                      <Badge variant="default">{coach.tag}</Badge>
+                      <Badge className="bg-white/10 text-neutral-200 border border-white/10">{coach.tag}</Badge>
                     </CardTitle>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-400">
                       {coach.firstName} {coach.lastName} • {coach.email}
                     </p>
                   </div>
@@ -313,6 +313,7 @@ export default function CoachManagement() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40"
                       onClick={() => openEditDialog(coach)}
                     >
                       <Edit className="w-4 h-4" />
@@ -320,6 +321,7 @@ export default function CoachManagement() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="border-white/10 text-neutral-200 hover:text-white hover:border-rose-400/40"
                       onClick={() => handleDeleteCoach(coach.id)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -330,15 +332,15 @@ export default function CoachManagement() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-sm text-gray-600">{coach.description}</p>
+                    <h4 className="font-medium text-white mb-2">Description</h4>
+                    <p className="text-sm text-neutral-300">{coach.description}</p>
                   </div>
                   
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Matières</h4>
+                    <h4 className="font-medium text-white mb-2">Matières</h4>
                     <div className="flex flex-wrap gap-2">
                       {coach.coachSubjects.map((subject) => (
-                        <Badge key={subject} variant="outline">
+                        <Badge key={subject} variant="outline" className="border-white/10 text-neutral-300">
                           {SUBJECTS.find(s => s.value === subject)?.label || subject}
                         </Badge>
                       ))}
@@ -347,12 +349,12 @@ export default function CoachManagement() {
 
                   <div className="flex space-x-4">
                     <div className="flex items-center space-x-2">
-                      <CheckCircle className={`w-4 h-4 ${coach.availableOnline ? 'text-green-600' : 'text-gray-400'}`} />
-                      <span className="text-sm">En ligne</span>
+                      <CheckCircle className={`w-4 h-4 ${coach.availableOnline ? 'text-emerald-300' : 'text-neutral-500'}`} />
+                      <span className="text-sm text-neutral-300">En ligne</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CheckCircle className={`w-4 h-4 ${coach.availableInPerson ? 'text-green-600' : 'text-gray-400'}`} />
-                      <span className="text-sm">En présentiel</span>
+                      <CheckCircle className={`w-4 h-4 ${coach.availableInPerson ? 'text-emerald-300' : 'text-neutral-500'}`} />
+                      <span className="text-sm text-neutral-300">En présentiel</span>
                     </div>
                   </div>
                 </div>
@@ -361,12 +363,12 @@ export default function CoachManagement() {
           ))}
 
           {coaches.length === 0 && !loading && (
-            <Card>
+            <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardContent className="text-center py-12">
-                <UserPlus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun coach</h3>
-                <p className="text-gray-600 mb-4">Commencez par ajouter votre premier coach</p>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
+                <UserPlus className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">Aucun coach</h3>
+                <p className="text-neutral-400 mb-4">Commencez par ajouter votre premier coach</p>
+                <Button className="btn-primary" onClick={() => setIsAddDialogOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter un coach
                 </Button>
@@ -378,9 +380,9 @@ export default function CoachManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-card border border-white/10 text-neutral-100">
           <DialogHeader>
-            <DialogTitle>Modifier le coach</DialogTitle>
+            <DialogTitle className="text-white">Modifier le coach</DialogTitle>
           </DialogHeader>
           <CoachForm 
             formData={formData}
@@ -416,7 +418,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="firstName">Prénom</Label>
+          <Label htmlFor="firstName" className="text-neutral-200">Prénom</Label>
           <Input
             id="firstName"
             value={formData.firstName}
@@ -425,7 +427,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           />
         </div>
         <div>
-          <Label htmlFor="lastName">Nom</Label>
+          <Label htmlFor="lastName" className="text-neutral-200">Nom</Label>
           <Input
             id="lastName"
             value={formData.lastName}
@@ -437,7 +439,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="text-neutral-200">Email</Label>
           <Input
             id="email"
             type="email"
@@ -447,7 +449,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           />
         </div>
         <div>
-          <Label htmlFor="password">Mot de passe</Label>
+          <Label htmlFor="password" className="text-neutral-200">Mot de passe</Label>
           <Input
             id="password"
             type="password"
@@ -460,7 +462,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="pseudonym">Pseudonyme</Label>
+          <Label htmlFor="pseudonym" className="text-neutral-200">Pseudonyme</Label>
           <Input
             id="pseudonym"
             value={formData.pseudonym}
@@ -469,7 +471,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
           />
         </div>
         <div>
-          <Label htmlFor="tag">Tag</Label>
+          <Label htmlFor="tag" className="text-neutral-200">Tag</Label>
           <Input
             id="tag"
             value={formData.tag}
@@ -480,7 +482,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description" className="text-neutral-200">Description</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -491,7 +493,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div>
-        <Label htmlFor="philosophy">Philosophie d'enseignement</Label>
+        <Label htmlFor="philosophy" className="text-neutral-200">Philosophie d'enseignement</Label>
         <Textarea
           id="philosophy"
           value={formData.philosophy}
@@ -502,7 +504,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div>
-        <Label htmlFor="expertise">Expertise</Label>
+        <Label htmlFor="expertise" className="text-neutral-200">Expertise</Label>
         <Textarea
           id="expertise"
           value={formData.expertise}
@@ -513,15 +515,15 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div>
-        <Label>Matières enseignées</Label>
+        <Label className="text-neutral-200">Matières enseignées</Label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
           {subjects.map((subject) => (
-            <label key={subject.value} className="flex items-center space-x-2">
+            <label key={subject.value} className="flex items-center space-x-2 text-neutral-300">
               <input
                 type="checkbox"
                 checked={formData.subjects.includes(subject.value)}
                 onChange={(e) => handleSubjectChange(subject.value, e.target.checked)}
-                className="rounded"
+                className="rounded border-white/10 bg-white/5"
               />
               <span className="text-sm">{subject.label}</span>
             </label>
@@ -530,31 +532,31 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
       </div>
 
       <div className="flex space-x-4">
-        <label className="flex items-center space-x-2">
+        <label className="flex items-center space-x-2 text-neutral-300">
           <input
             type="checkbox"
             checked={formData.availableOnline}
             onChange={(e) => setFormData({ ...formData, availableOnline: e.target.checked })}
-            className="rounded"
+            className="rounded border-white/10 bg-white/5"
           />
           <span>Disponible en ligne</span>
         </label>
-        <label className="flex items-center space-x-2">
+        <label className="flex items-center space-x-2 text-neutral-300">
           <input
             type="checkbox"
             checked={formData.availableInPerson}
             onChange={(e) => setFormData({ ...formData, availableInPerson: e.target.checked })}
-            className="rounded"
+            className="rounded border-white/10 bg-white/5"
           />
           <span>Disponible en présentiel</span>
         </label>
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={() => setFormData(INITIAL_FORM_DATA)}>
+        <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" onClick={() => setFormData(INITIAL_FORM_DATA)}>
           Annuler
         </Button>
-        <Button onClick={onSubmit} disabled={submitting}>
+        <Button className="btn-primary" onClick={onSubmit} disabled={submitting}>
           {submitting ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />

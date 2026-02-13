@@ -1,0 +1,35 @@
+{
+  "cookies": [
+    {
+      "name": "next-auth.csrf-token",
+      "value": "8886ae42db9289284edba3d10c978518ee47c642b00029b9d9c0d1ec18c296b2%7Cd243eb01120498cbf1a9d073e219b67b1042ad41613c2b7dd5c15c79079dec88",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "next-auth.callback-url",
+      "value": "http%3A%2F%2Flocalhost%3A3000%2Fdashboard%2Feleve",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "next-auth.session-token",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..dqKMO1pzMt3r3vIp.VGkVIKfW_-ghG0XYYvnF0XpSoFzUOrl7U8NwEMuVp6dV7-trwe8ILPwQuvuQteZ_AY2cevbFYj-zq8z8u-HnToi0fNOXjRmOzu1ThPCwvE6KGu7n_4yABX1OYiE2bOcipCbrRQngGzs5MahrgNX-kRV7cMCMCEsl_-zJC1xdJgeJmD0Njwt-vUEgZMuXobupuwhAdiX_C0q2phpHu2ssEemzUmN7c0NfjSg4P1pNP2MXZlvIdAy7O4UOwfKIK6WczgL5VN3lCUKb71J6fA.aPHZNMddRKIqbb_cfX9xkw",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

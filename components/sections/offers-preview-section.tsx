@@ -94,14 +94,14 @@ export function OffersPreviewSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="mb-4 bg-orange-50 text-orange-600 border-orange-200">
+          <Badge variant="outline" className="marketing-badge mb-4 bg-orange-50 text-orange-600 border-orange-200 normal-case">
             <ArrowRight className="w-4 h-4 mr-2" />
             Nos Solutions
           </Badge>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="marketing-section-title-light mb-6">
             Des Parcours Adaptés à Chaque Ambition
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="marketing-section-copy-light max-w-3xl mx-auto">
             Découvrez nos quatre univers de solutions conçus pour répondre précisément à vos besoins,
             que vous soyez élève autonome ou famille en quête d'excellence.
           </p>

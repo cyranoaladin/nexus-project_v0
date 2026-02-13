@@ -50,7 +50,7 @@ export function Timeline({ items }: TimelineProps) {
             <a
               href="#reservation"
               onClick={handleCTAClick}
-              className="inline-block rounded-full bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 text-sm font-bold transition-all shadow-md hover:shadow-lg"
+              className="btn-stage-sm"
               aria-label="Réserver une consultation gratuite"
             >
               Réserver une consultation gratuite

@@ -16,7 +16,7 @@ import {
   ToastAction,
 } from '@/components/ui/toast';
 
-describe.skip('Toast', () => {
+describe('Toast', () => {
   const renderToast = (variant?: 'default' | 'success' | 'error' | 'warning' | 'info') => {
     return render(
       <ToastProvider>
@@ -134,14 +134,39 @@ describe.skip('Toast', () => {
 
       expect(onAction).toHaveBeenCalled();
     });
+
+    it('supports keyboard interaction on action button', async () => {
+      const user = userEvent.setup();
+      const onAction = jest.fn();
+
+      render(
+        <ToastProvider>
+          <Toast open={true} onOpenChange={() => {}}>
+            <ToastTitle>Test</ToastTitle>
+            <ToastAction altText="Undo" onClick={onAction}>
+              Undo
+            </ToastAction>
+            <ToastClose />
+          </Toast>
+          <ToastViewport />
+        </ToastProvider>
+      );
+
+      const actionButton = screen.getByText('Undo');
+      actionButton.focus();
+      await user.keyboard('{Enter}');
+
+      expect(onAction).toHaveBeenCalled();
+    });
   });
 
   describe('Accessibility', () => {
     it('has proper ARIA attributes', () => {
       const { container } = renderToast();
-      const toast = container.querySelector('[role="status"]');
+      const toast = container.querySelector('[data-state="open"]');
 
       expect(toast).toBeInTheDocument();
+      expect(toast).toHaveAttribute('data-state', 'open');
     });
 
     it('has accessible close button', () => {

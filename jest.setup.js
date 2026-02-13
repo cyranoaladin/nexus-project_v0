@@ -69,6 +69,20 @@ jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
 }));
 
+// Mock next/navigation for components relying on app router hooks
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/',
+}));
+
 // Mock Radix Select used in tests to behave like native select
 jest.mock('@/components/ui/select', () => {
   const React = require('react');
@@ -111,12 +125,18 @@ jest.mock('@/components/ui/select', () => {
     return <div role="listbox">{children}</div>;
   };
 
-  const SelectItem = ({ value, children }) => {
+  const SelectItem = ({ value, children, disabled }) => {
     const context = React.useContext(SelectContext);
     return (
       <button
         role="option"
-        onClick={() => context.onValueChange(value)}
+        aria-disabled={disabled ? 'true' : undefined}
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) {
+            context.onValueChange(value);
+          }
+        }}
       >
         {children}
       </button>
@@ -200,7 +220,13 @@ jest.mock('@/components/ui/tabs', () => {
 jest.mock('@radix-ui/react-presence', () => {
   const React = require('react');
   return {
-    Presence: ({ children, present }) => present !== false ? <>{children}</> : null,
+    Presence: ({ children, present }) => {
+      if (present === false) return null;
+      if (typeof children === 'function') {
+        return children({ present: true });
+      }
+      return <>{children}</>;
+    },
   };
 });
 
@@ -291,6 +317,7 @@ jest.mock('gsap', () => ({
 
 jest.mock('gsap/ScrollTrigger', () => ({
   ScrollTrigger: {
+    config: jest.fn(),
     create: jest.fn(),
     refresh: jest.fn(),
     getAll: jest.fn().mockReturnValue([]),

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -11,8 +11,10 @@ gsap.registerPlugin(ScrollTrigger);
 const TestimonialsSectionGSAP = () => {
     const sectionRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [isCompact, setIsCompact] = useState(false);
 
     useLayoutEffect(() => {
+        if (isCompact) return;
         const section = sectionRef.current;
         const scrollContainer = scrollContainerRef.current;
 
@@ -50,55 +52,64 @@ const TestimonialsSectionGSAP = () => {
         }, section);
 
         return () => ctx.revert();
+    }, [isCompact]);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 1024px)');
+        setIsCompact(mediaQuery.matches);
+
+        const handler = (event: MediaQueryListEvent) => setIsCompact(event.matches);
+        mediaQuery.addEventListener('change', handler);
+        return () => mediaQuery.removeEventListener('change', handler);
     }, []);
 
     const testimonials = [
         {
             id: 1,
-            name: "Jean-Pierre L.",
-            role: "Directeur d'Établissement",
-            content: "L'intégration des agents autonomes pour la vie scolaire a libéré 30% du temps de notre administration. Enfin une solution qui comprend le terrain.",
-            tags: ["Transformation", "IA Agentique"],
+            name: "Mme Ben Ammar",
+            role: "Parent d'élève, Terminale",
+            content: "Le plan était clair dès la première semaine. On voit les progrès et les points à travailler.",
+            tags: ["Suivi", "Clarté"],
             rating: 5,
             gradient: "from-blue-500/10 to-cyan-500/10",
             border: "border-blue-500/20"
         },
         {
             id: 2,
-            name: "Sarah M.",
-            role: "Élève Prépa HEC",
-            content: "Grâce au coaching d'excellence et à l'accès 24/7 au tuteur ARIA, j'ai gagné 4 points en maths en un semestre. La méthode est d'une rigueur absolue.",
-            tags: ["Performance", "Coaching"],
+            name: "Yasmine B.",
+            role: "Élève, Première",
+            content: "ARIA m’aide à réviser quand je bloque, et le coach vérifie tout en cours.",
+            tags: ["IA", "Coaching"],
             rating: 5,
             gradient: "from-purple-500/10 to-pink-500/10",
             border: "border-purple-500/20"
         },
         {
             id: 3,
-            name: "Amine K.",
-            role: "Étudiant Ingénieur",
-            content: "La certification de mes projets sur la Blockchain via Nexus a fait la différence lors de mes entretiens. C'est le futur du CV.",
-            tags: ["Web3", "Carrière"],
+            name: "M. Hassen",
+            role: "Parent d'élève",
+            content: "Les rapports sont simples à lire. On sait où on va et pourquoi.",
+            tags: ["Confiance", "Reporting"],
             rating: 5,
             gradient: "from-emerald-500/10 to-green-500/10",
             border: "border-emerald-500/20"
         },
         {
             id: 4,
-            name: "Mme Ben Ali",
-            role: "Parent d'élève",
-            content: "Le suivi est transparent et rassurant. On sent une véritable équipe d'experts derrière chaque décision pédagogique.",
-            tags: ["Confiance", "Suivi"],
+            name: "Inès R.",
+            role: "Élève, Terminale",
+            content: "J’ai repris confiance en maths. Les exercices sont ciblés et je progresse vite.",
+            tags: ["Confiance", "Résultats"],
             rating: 5,
             gradient: "from-orange-500/10 to-yellow-500/10",
             border: "border-orange-500/20"
         },
         {
             id: 5,
-            name: "Dr. Fakhfakh",
-            role: "Professeur Universitaire",
-            content: "Utiliser Korrigo pour l'harmonisation des corrections est une révolution. Plus d'équité, moins de charge mentale.",
-            tags: ["Innovation", "Pedagogie"],
+            name: "M. Ben Ali",
+            role: "Parent d'élève",
+            content: "Le suivi parent fait la différence. On ne découvre plus les problèmes trop tard.",
+            tags: ["Prévention", "Suivi"],
             rating: 5,
             gradient: "from-blue-500/10 to-indigo-500/10",
             border: "border-blue-500/20"
@@ -106,7 +117,11 @@ const TestimonialsSectionGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="testimonials" className="relative bg-surface-darker h-screen overflow-hidden flex flex-col justify-center">
+        <section
+            ref={sectionRef}
+            id="testimonials"
+            className={`relative bg-surface-darker overflow-hidden flex flex-col justify-center ${isCompact ? 'py-16' : 'h-screen'}`}
+        >
 
             {/* Dynamic Background */}
             <div className="bg-parallax absolute inset-0 opacity-30 pointer-events-none">
@@ -122,7 +137,7 @@ const TestimonialsSectionGSAP = () => {
                             Ils nous font confiance
                         </span>
                         <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
-                            L'Impact Nexus
+                            Résultats concrets
                         </h2>
                     </div>
                     <div className="hidden md:flex items-center gap-2 text-gray-400 text-sm">
@@ -132,13 +147,16 @@ const TestimonialsSectionGSAP = () => {
             </div>
 
             {/* Horizontal Scroll Container */}
-            <div ref={scrollContainerRef} className="flex items-center pl-[6vw] pr-[20vw] gap-8 w-fit">
+            <div
+                ref={scrollContainerRef}
+                className={`flex items-center gap-8 w-fit ${isCompact ? 'px-6 overflow-x-auto snap-x snap-mandatory' : 'pl-[6vw] pr-[20vw]'}`}
+            >
 
                 {/* Intro Card */}
-                <div className="w-[30vw] md:w-[20vw] shrink-0">
+                <div className={`shrink-0 ${isCompact ? 'w-[70vw] snap-center' : 'w-[30vw] md:w-[20vw]'}`}>
                     <Quote className="w-16 h-16 text-nexus-gray/20 mb-6" />
                     <p className="text-xl text-gray-400 font-light leading-relaxed">
-                        La réussite ne se déclare pas, elle se prouve par les résultats de ceux que nous accompagnons.
+                        Des parents rassurés, des élèves confiants, et des résultats visibles.
                     </p>
                 </div>
 
@@ -146,7 +164,7 @@ const TestimonialsSectionGSAP = () => {
                 {testimonials.map((item) => (
                     <div
                         key={item.id}
-                        className={`w-[85vw] md:w-[35vw] shrink-0 p-8 rounded-3xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-md relative group hover:scale-[1.02] transition-transform duration-500`}
+                        className={`shrink-0 p-8 rounded-3xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-md relative group hover:scale-[1.02] transition-transform duration-500 hover:shadow-premium ${isCompact ? 'w-[80vw] snap-center' : 'w-[85vw] md:w-[35vw]'}`}
                     >
                         {/* Stars */}
                         <div className="flex gap-1 mb-6">
@@ -184,10 +202,10 @@ const TestimonialsSectionGSAP = () => {
                 ))}
 
                 {/* Call to Action Card */}
-                <div className="w-[85vw] md:w-[25vw] shrink-0 h-full flex items-center justify-center">
+                <div className={`shrink-0 h-full flex items-center justify-center ${isCompact ? 'w-[80vw] snap-center' : 'w-[85vw] md:w-[25vw]'}`}>
                     <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 w-full text-center block">
                         <span className="block font-display text-3xl font-bold text-white mb-4">
-                            Rejoignez l'Excellence
+                            Démarrer un bilan gratuit
                         </span>
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-accent text-surface-dark group-hover:scale-110 transition-transform">
                             <ArrowRight className="w-8 h-8" />

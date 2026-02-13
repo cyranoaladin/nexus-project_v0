@@ -31,6 +31,11 @@ ENV NODE_ENV=production
 # Build de l'application Next.js
 RUN npm run build
 
+# Stage 2.5: Migrator (includes full Prisma CLI dependency graph)
+FROM deps AS migrator
+WORKDIR /app
+COPY prisma ./prisma
+
 # Stage 3: Runner
 FROM node:20-alpine AS runner
 WORKDIR /app

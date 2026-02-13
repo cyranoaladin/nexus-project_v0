@@ -23,10 +23,10 @@ export const designTokens = {
   colors: {
     // Brand Colors - Nexus Identity
     brand: {
-      primary: '#2563EB',    // Nexus Blue - primary actions, links
-      secondary: '#EF4444',  // Nexus Red - secondary actions, alerts
-      accent: '#2EE9F6',     // Nexus Cyan - highlights, accents
-      'accent-dark': '#1BCED4', // Darker cyan for hover states
+      primary: '#2563EB',    // Refined Blue - primary actions, links
+      secondary: '#F25C5C',  // Softer Red - secondary actions, alerts
+      accent: '#4FD1E9',     // Soft Cyan - highlights, accents
+      'accent-dark': '#38BFD6', // Darker cyan for hover states
     },
 
     // Semantic Colors - Functional meaning
@@ -54,11 +54,11 @@ export const designTokens = {
 
     // Surface Colors - Backgrounds and cards
     surface: {
-      dark: '#0B0C10',       // Main dark background (consolidates hardcoded values)
-      darker: '#050608',     // Even darker variant
-      card: '#111318',       // Card background
-      elevated: '#1A1D23',   // Elevated card background
-      hover: '#1F2329',      // Hover state background
+      dark: '#0B1018',       // Main dark background
+      darker: '#070B12',     // Even darker variant
+      card: '#111826',       // Card background
+      elevated: '#151D2B',   // Elevated card background
+      hover: '#1B2333',      // Hover state background
     },
 
     // Midnight Blue Scale (Legacy - for backward compatibility)

@@ -16,6 +16,7 @@ const CorporateFooter = () => {
     const links = [
         { label: 'Accueil', href: '/', isPage: true },
         { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
+        { label: 'Offres', href: '/offres', isPage: true },
         { label: 'Stages', href: '/stages', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
@@ -40,7 +41,7 @@ const CorporateFooter = () => {
                                 className="h-8 w-auto brightness-0 invert"
                             />
                         </div>
-                        <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                        <p className="text-neutral-300 text-sm leading-relaxed mb-6">
                             L'excellence pédagogique augmentée par l'Intelligence Artificielle. <br />Pour ceux qui visent l'exceptionnel.
                         </p>
                     </div>
@@ -54,7 +55,7 @@ const CorporateFooter = () => {
                                     {item.isPage ? (
                                         <Link
                                             href={item.href}
-                                            className="inline-flex items-center gap-2 text-gray-400 text-sm
+                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm
                                  hover:text-cyan-400 hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
@@ -63,7 +64,7 @@ const CorporateFooter = () => {
                                     ) : (
                                         <button
                                             onClick={() => scrollToSection(item.href)}
-                                            className="inline-flex items-center gap-2 text-gray-400 text-sm
+                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm
                                  hover:text-cyan-400 hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
@@ -83,18 +84,18 @@ const CorporateFooter = () => {
                                 <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
                                 <div>
                                     <span className="block text-white text-sm font-medium">Siège Social</span>
-                                    <span className="block text-gray-400 text-xs mt-1">
+                                    <span className="block text-neutral-300 text-xs mt-1">
                                         Centre Urbain Nord, Immeuble VENUS<br />Appt C13, 1082 – Tunis
                                     </span>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                                <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
                                     <Mail className="w-4 h-4 text-cyan-400" />
                                     <span className="text-sm">contact@nexusreussite.academy</span>
                                 </div>
-                                <div className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                                <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
                                     <Phone className="w-4 h-4 text-cyan-400" />
                                     <span className="text-sm">+216 99 19 28 29</span>
                                 </div>
@@ -105,17 +106,17 @@ const CorporateFooter = () => {
 
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-gray-500 text-xs">
+                    <p className="text-neutral-400 text-xs">
                         © 2026 Nexus Réussite. Tous droits réservés.
                     </p>
                     <div className="flex items-center gap-6">
-                        <Link href="/mentions-legales" className="text-gray-500 text-xs hover:text-white transition-colors">
+                        <Link href="/mentions-legales" className="text-neutral-400 text-xs hover:text-white transition-colors">
                             Mentions Légales
                         </Link>
-                        <Link href="/conditions" className="text-gray-500 text-xs hover:text-white transition-colors">
+                        <Link href="/conditions" className="text-neutral-400 text-xs hover:text-white transition-colors">
                             Conditions Générales
                         </Link>
-                        <Link href="/contact" className="text-gray-500 text-xs hover:text-white transition-colors">
+                        <Link href="/contact" className="text-neutral-400 text-xs hover:text-white transition-colors">
                             Contact
                         </Link>
                     </div>

@@ -13,7 +13,7 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 
-describe.skip('Tooltip', () => {
+describe('Tooltip', () => {
   const renderTooltip = (contentText = 'Tooltip content') => {
     return render(
       <TooltipProvider>
@@ -95,6 +95,25 @@ describe.skip('Tooltip', () => {
       const button = screen.getByRole('button');
       button.focus();
       expect(button).toHaveFocus();
+    });
+
+    it('supports keyboard focus on trigger', async () => {
+      const user = userEvent.setup();
+      render(
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button>Focusable</button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Content</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Focusable' })).toHaveFocus();
     });
 
     it('supports controlled open state', async () => {

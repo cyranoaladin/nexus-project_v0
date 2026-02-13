@@ -91,7 +91,7 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
             <a
               href="#reservation"
               onClick={handleCTAClick}
-              className="inline-block rounded-full bg-slate-900 hover:bg-slate-800 text-white px-10 py-4 text-base font-bold transition-all shadow-lg hover:shadow-xl"
+              className="btn-stage"
               aria-label="Réserver une consultation gratuite"
             >
               Réserver une consultation gratuite

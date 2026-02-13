@@ -89,7 +89,10 @@ export default function SignInPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="border border-white/10 shadow-lg bg-surface-card">
+            <Card
+              className="border border-white/10 shadow-lg bg-surface-card"
+              style={{ backgroundColor: "rgb(var(--color-surface-card))" }}
+            >
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl font-bold text-white">
                   Connexion à Votre Espace
@@ -111,7 +114,11 @@ export default function SignInPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="votre.email@exemple.com"
                       required
-                      className="mt-2 h-12"
+                      className="mt-2 h-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                      style={{
+                        backgroundColor: "rgb(var(--color-surface-elevated))",
+                        color: "rgb(var(--color-neutral-100))",
+                      }}
                     />
                   </div>
 
@@ -122,7 +129,7 @@ export default function SignInPage() {
                       </Label>
                       <Link
                         href="/auth/mot-de-passe-oublie"
-                        className="text-sm text-brand-accent hover:underline"
+                        className="text-sm text-brand-accent-dark hover:underline"
                       >
                         Mot de passe oublié ?
                       </Link>
@@ -135,12 +142,16 @@ export default function SignInPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Votre mot de passe"
                         required
-                        className="h-12 pr-12"
+                        className="h-12 pr-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                        style={{
+                          backgroundColor: "rgb(var(--color-surface-elevated))",
+                          color: "rgb(var(--color-neutral-100))",
+                        }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300 hover:text-neutral-100 transition-colors"
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                       >
                         {showPassword ? (
@@ -184,10 +195,10 @@ export default function SignInPage() {
 
                 <div className="mt-8 pt-6 border-t border-white/10">
                   <div className="text-center space-y-4">
-                    <p className="text-sm text-neutral-400">
+                    <p className="text-sm text-neutral-300">
                       Pas encore de compte ?
                     </p>
-                    <Button asChild variant="outline" className="w-full">
+                    <Button asChild variant="outline" className="w-full border-white/20 text-neutral-100 hover:bg-white/10">
                       <Link href="/bilan-gratuit">
                         Créer mon Compte Gratuit
                       </Link>
@@ -196,7 +207,7 @@ export default function SignInPage() {
                 </div>
 
                 <div className="mt-6 text-center">
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-neutral-400">
                     En vous connectant, vous acceptez nos{" "}
                     <Link href="/conditions" className="text-brand-accent hover:underline">
                       conditions d'utilisation

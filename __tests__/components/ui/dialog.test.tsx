@@ -191,6 +191,17 @@ describe('Dialog', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
+    it('allows focusing elements within dialog', () => {
+      render(<TestDialog open={true} onOpenChange={jest.fn()} />);
+
+      const dialog = screen.getByRole('dialog');
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+
+      cancelButton.focus();
+      expect(cancelButton).toHaveFocus();
+      expect(dialog.contains(document.activeElement)).toBe(true);
+    });
+
     it('associates title with dialog via aria-labelledby', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 

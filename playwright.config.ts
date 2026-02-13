@@ -21,24 +21,59 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
-    { 
-      name: 'chromium', 
-      use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup']
-    },
-    { 
-      name: 'firefox', 
-      use: { ...devices['Desktop Firefox'] },
-      dependencies: ['setup']
-    },
-    { 
-      name: 'webkit', 
-      use: { ...devices['Desktop Safari'] },
-      dependencies: ['setup']
-    },
-  ],
+  projects: (() => {
+    const skipChromium = process.env.SKIP_CHROMIUM === '1';
+    const setupProject = skipChromium
+      ? {
+          name: 'setup',
+          testMatch: /.*\.setup\.ts/,
+          use: { ...devices['Desktop Firefox'] },
+        }
+      : {
+          name: 'setup',
+          testMatch: /.*\.setup\.ts/,
+          use: {
+            ...devices['Desktop Chrome'],
+            launchOptions: {
+              args: ['--no-sandbox', '--disable-setuid-sandbox'],
+              chromiumSandbox: false,
+            },
+          },
+        };
+
+    if (skipChromium) {
+      return [
+        setupProject,
+        { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+        { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
+      ];
+    }
+
+    return [
+      setupProject,
+      {
+        name: 'chromium',
+        use: {
+          ...devices['Desktop Chrome'],
+          launchOptions: {
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            chromiumSandbox: false,
+          },
+        },
+        dependencies: ['setup'],
+      },
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+        dependencies: ['setup'],
+      },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+        dependencies: ['setup'],
+      },
+    ];
+  })(),
   // webServer disabled - run dev server manually before running tests
   // webServer: {
   //   command: 'npm run dev',
