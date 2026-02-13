@@ -24,18 +24,21 @@ describe('Double Booking Prevention - Concurrency', () => {
   let coachId: string;
   let studentId: string;
   let parentId: string;
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   beforeAll(async () => {
     await setupTestDatabase();
 
     // Create test users
-    const { parentProfile } = await createTestParent({ email: 'parent.booking@test.com' });
+    const { parentProfile } = await createTestParent({ email: `parent.booking.${runId}@test.com` });
     parentId = parentProfile.id;
 
-    const { coachUser } = await createTestCoach({ user: { email: 'coach.booking@test.com' } });
+    const { coachUser } = await createTestCoach({ user: { email: `coach.booking.${runId}@test.com` } });
     coachId = coachUser.id;
 
-    const { studentUser } = await createTestStudent(parentProfile.id, { user: { email: 'student.booking@test.com' } });
+    const { studentUser } = await createTestStudent(parentProfile.id, {
+      user: { email: `student.booking.${runId}@test.com` },
+    });
     studentId = studentUser.id;
   });
 
