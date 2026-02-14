@@ -213,6 +213,31 @@ const student = await prisma.user.create({
     },
     include: { coachProfile: true }
   });
+
+  // CRITICAL: Create Zenon coach for E2E booking flow tests
+  const zenon = await prisma.user.upsert({
+    where: { email: 'zenon@test.com' },
+    update: {},
+    create: {
+      email: 'zenon@test.com',
+      password: hashedPassword,
+      role: UserRole.COACH,
+      firstName: 'Zenon',
+      lastName: 'Expert',
+      coachProfile: {
+        create: {
+          title: 'Agrégé',
+          pseudonym: 'Zénon',
+          tag: '🧠 Expert NSI/Maths',
+          description: 'Expert NSI et Mathématiques pour tests E2E',
+          philosophy: 'Excellence par la pratique',
+          subjects: '["NSI", "MATHEMATIQUES"]'
+        }
+      }
+    },
+    include: { coachProfile: true }
+  });
+  console.log(`  ✓ Zenon Coach: ${zenon.email} (for E2E booking tests)`);
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
   // =============================================================================
@@ -296,6 +321,7 @@ const student = await prisma.user.create({
     student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
     coach: { email: coachEmail, password: 'password123' }, // helios@test.com
     coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
+    zenon: { email: 'zenon@test.com', password: 'password123' }, // For E2E booking flow
   };
   const fs = require('fs');
   fs.writeFileSync('e2e/.credentials.json', JSON.stringify(credentials, null, 2));
