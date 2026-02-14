@@ -193,12 +193,19 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: npx prisma generate
 
-      - name: Run database migrations
+      - name: Reset database before migrations
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: |
-          npx prisma migrate deploy
-          npx prisma db push --accept-data-loss --skip-generate
+          npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
+          DROP SCHEMA IF EXISTS public CASCADE;
+          CREATE SCHEMA public;
+          SQL
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+        run: npx prisma migrate deploy
 
       - name: Verify database connection
         env:
