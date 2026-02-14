@@ -48,6 +48,13 @@ async function main() {
 
 const timestamp = Date.now();
 
+// Create users with specific emails for E2E tests that expect these exact values
+const studentEmail = 'yasmine.dupont@test.com';
+const coachEmail = 'helios@test.com';
+
+// First, try to delete existing users with these emails (in case of re-run)
+await prisma.user.deleteMany({ where: { email: { in: [studentEmail, coachEmail, 'parent.dashboard@test.com', 'admin@test.com'] } } }).catch(() => {});
+
 const admin = await prisma.user.create({
   data: {
     email: `admin.${timestamp}@test.com`,
@@ -80,7 +87,7 @@ const admin = await prisma.user.create({
 
 const student = await prisma.user.create({
   data: {
-    email: `student.${timestamp}@test.com`,
+    email: studentEmail, // yasmine.dupont@test.com for E2E tests
       password: hashedPassword,
       role: UserRole.ELEVE,
       firstName: 'Yasmine',
@@ -124,7 +131,7 @@ const student = await prisma.user.create({
 
   const coach = await prisma.user.create({
     data: {
-      email: `coach.${timestamp}@test.com`,
+      email: coachEmail, // helios@test.com for E2E tests
       password: hashedPassword,
       role: UserRole.COACH,
       firstName: 'Alexandre',
@@ -132,7 +139,7 @@ const student = await prisma.user.create({
       coachProfile: {
         create: {
           title: 'Agrégé',
-          pseudonym: `Hélios_${timestamp}`,
+          pseudonym: 'Hélios', // Exact pseudonym expected by E2E tests
           tag: '🎓 Agrégé',
           description: 'Expert en mathématiques et physique',
           philosophy: "L'apprentissage par la compréhension profonde",
@@ -276,19 +283,18 @@ const student = await prisma.user.create({
 
   console.log('🔑 Test Credentials:');
   console.log(`  Admin:   admin.${timestamp}@test.com / password123`);
-  console.log(`  Parent:  parent.${timestamp}@test.com / password123`);
-  console.log(`  Student: student.${timestamp}@test.com / password123`);
+  console.log(`  Student: yasmine.dupont@test.com / password123`);
   console.log(`  Student2: student2.${timestamp}@test.com / password123`);
-  console.log(`  Coach:   coach.${timestamp}@test.com / password123`);
+  console.log(`  Coach:   helios@test.com / password123`);
   console.log(`  Coach2:  coach2.${timestamp}@test.com / password123\n`);
 
   // Write credentials to file for E2E tests
   const credentials = {
     admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
     parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
-    student: { email: `student.${timestamp}@test.com`, password: 'password123' },
+    student: { email: studentEmail, password: 'password123' }, // yasmine.dupont@test.com
     student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
-    coach: { email: `coach.${timestamp}@test.com`, password: 'password123' },
+    coach: { email: coachEmail, password: 'password123' }, // helios@test.com
     coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
   };
   const fs = require('fs');
