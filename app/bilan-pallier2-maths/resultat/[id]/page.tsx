@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   BarChart3,
+  BookOpen,
   Brain,
   CheckCircle2,
   Clock,
@@ -86,7 +87,7 @@ interface ParsedBilans {
   generatedAt?: string;
 }
 
-/* ─── Constants ─────────────────────────────────────────────────────────────── */
+/* ─── Design tokens ─────────────────────────────────────────────────────────── */
 
 const DOMAIN_LABELS: Record<string, string> = {
   algebra: "Algèbre",
@@ -96,38 +97,52 @@ const DOMAIN_LABELS: Record<string, string> = {
   python: "Python / Algo",
 };
 
-const PRIORITY_CFG: Record<string, { label: string; color: string; bg: string }> = {
-  high: { label: "Haute", color: "text-red-400", bg: "bg-red-500/20 border-red-500/30" },
-  medium: { label: "Moyenne", color: "text-yellow-400", bg: "bg-yellow-500/20 border-yellow-500/30" },
-  low: { label: "Basse", color: "text-green-400", bg: "bg-green-500/20 border-green-500/30" },
+const DOMAIN_ICONS: Record<string, string> = {
+  algebra: "x²",
+  analysis: "∫",
+  geometry: "△",
+  probabilities: "P",
+  python: "</>",
+};
+
+const PRIORITY_CFG: Record<string, { label: string; text: string; bg: string; border: string }> = {
+  high:   { label: "Haute",   text: "text-semantic-error",   bg: "bg-semantic-error/15", border: "border-semantic-error/30" },
+  medium: { label: "Moyenne", text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30" },
+  low:    { label: "Basse",   text: "text-semantic-success", bg: "bg-semantic-success/15", border: "border-semantic-success/30" },
 };
 
 const RATING_LABELS: Record<string, string> = {
-  speedNoCalc: "Rapidité",
-  calcReliability: "Fiabilité calculs",
-  redaction: "Rédaction",
+  speedNoCalc: "Rapidité sans calculatrice",
+  calcReliability: "Fiabilité des calculs",
+  redaction: "Qualité de rédaction",
   justifications: "Justifications",
-  stress: "Stress",
+  stress: "Niveau de stress",
 };
 
 const VERBATIM_LABELS: Record<string, string> = {
   algebraUnderstanding: "Compréhension algèbre",
-  canDemonstrateProductRule: "Démo (u·v')",
+  canDemonstrateProductRule: "Démonstration (u·v')",
   probabilityQuestion: "Probabilités",
-  hardestAnalysisChapter: "Difficulté analyse",
-  geometryMixedExercise: "Exercice mixte géo",
-  mustImprove: "Doit améliorer",
+  hardestAnalysisChapter: "Difficulté en analyse",
+  geometryMixedExercise: "Exercice mixte géométrie",
+  mustImprove: "Ce que je dois améliorer",
   invisibleDifficulties: "Difficultés invisibles",
   message: "Message libre",
 };
 
-function sColor(score: number, invert = false): string {
-  if (invert) return score <= 40 ? "text-green-400" : score <= 60 ? "text-yellow-400" : "text-red-400";
-  return score >= 70 ? "text-green-400" : score >= 50 ? "text-yellow-400" : "text-red-400";
+/**
+ * Returns a Tailwind text color class based on score thresholds.
+ */
+function scoreTextColor(score: number, invert = false): string {
+  if (invert) return score <= 40 ? "text-semantic-success" : score <= 60 ? "text-semantic-warning" : "text-semantic-error";
+  return score >= 70 ? "text-semantic-success" : score >= 50 ? "text-semantic-warning" : "text-semantic-error";
 }
 
-function barBg(score: number): string {
-  return score >= 70 ? "bg-green-500" : score >= 50 ? "bg-yellow-500" : "bg-red-500";
+/**
+ * Returns a Tailwind bg color class for progress bars.
+ */
+function barBgColor(score: number): string {
+  return score >= 70 ? "bg-semantic-success" : score >= 50 ? "bg-semantic-warning" : "bg-semantic-error";
 }
 
 /* ─── Main Page ─────────────────────────────────────────────────────────────── */
@@ -156,27 +171,27 @@ export default function BilanResultatPage() {
     if (id) load();
   }, [id]);
 
+  /* Loading */
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+    <div className="min-h-screen bg-surface-darker flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-400 mx-auto mb-4" />
-        <p className="text-slate-300 text-lg">Chargement du bilan…</p>
+        <Loader2 className="w-10 h-10 animate-spin text-brand-accent mx-auto mb-4" />
+        <p className="text-neutral-200 text-lg">Chargement du bilan…</p>
       </div>
     </div>
   );
 
+  /* Error */
   if (error || !diagnostic) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-      <Card className="bg-slate-800/60 border-red-500/40 max-w-md backdrop-blur-sm">
-        <CardContent className="p-8 text-center">
-          <AlertCircle className="w-14 h-14 text-red-400 mx-auto mb-4" />
-          <h2 className="text-white text-xl font-bold mb-2">Erreur</h2>
-          <p className="text-slate-200">{error || "Diagnostic introuvable."}</p>
-          <Link href="/bilan-pallier2-maths" className="inline-flex items-center gap-2 mt-6 text-blue-400 hover:text-blue-300 text-sm transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Retour au formulaire
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-surface-darker flex items-center justify-center p-4">
+      <div className="bg-surface-card border border-white/10 rounded-[18px] max-w-md p-8 text-center">
+        <AlertCircle className="w-14 h-14 text-semantic-error mx-auto mb-4" />
+        <h2 className="text-white text-xl font-bold mb-2">Erreur</h2>
+        <p className="text-neutral-200">{error || "Diagnostic introuvable."}</p>
+        <Link href="/bilan-pallier2-maths" className="inline-flex items-center gap-2 mt-6 text-brand-accent hover:text-brand-accent-dark text-sm transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Retour au formulaire
+        </Link>
+      </div>
     </div>
   );
 
@@ -185,23 +200,25 @@ export default function BilanResultatPage() {
   const isPending = diagnostic.status === "SCORED" || diagnostic.status === "PENDING";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-surface-darker">
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
 
-        <Link href="/bilan-pallier2-maths" className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-6 transition-colors">
+        {/* Back */}
+        <Link href="/bilan-pallier2-maths" className="inline-flex items-center gap-2 text-neutral-400 hover:text-brand-accent text-sm mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Retour au formulaire
         </Link>
 
         {/* Header */}
         <div className="text-center mb-10">
-          <Badge variant="outline" className="mb-4 border-blue-400/40 bg-blue-500/10 text-blue-300 px-4 py-1 text-xs tracking-wider uppercase">
-            Bilan Diagnostic Pré-Stage
-          </Badge>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] border border-brand-accent/30 bg-brand-accent/10 text-brand-accent mb-4">
+            <BookOpen className="w-3.5 h-3.5" /> Bilan Diagnostic Pré-Stage
+          </span>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-display">
             {diagnostic.studentFirstName} {diagnostic.studentLastName}
           </h1>
-          <p className="text-slate-400 text-sm">
-            {diagnostic.establishment && <span>{diagnostic.establishment} · </span>}
+          <p className="text-neutral-300 text-sm">
+            {diagnostic.establishment && <span className="text-neutral-200">{diagnostic.establishment}</span>}
+            {diagnostic.establishment && " · "}
             Soumis le{" "}
             {new Date(diagnostic.createdAt).toLocaleDateString("fr-FR", {
               day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -209,144 +226,171 @@ export default function BilanResultatPage() {
           </p>
         </div>
 
-        {/* Scoring Cards */}
+        {/* ── Scoring Cards ── */}
         {scoring && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <ScoreCard icon={<Target className="w-4 h-4" />} label="Préparation" value={scoring.readinessScore} max={100} />
-            <ScoreCard icon={<Shield className="w-4 h-4" />} label="Risque" value={scoring.riskIndex} max={100} invert />
-            <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-              <CardContent className="p-5 text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Zap className="w-4 h-4 text-slate-400" />
-                  <p className="text-slate-400 text-xs uppercase tracking-wide">Décision</p>
-                </div>
-                <Badge variant="outline" className={`text-sm mt-1 ${
-                  scoring.recommendation === "Pallier2_confirmed" ? "bg-green-500/20 text-green-300 border-green-500/40" :
-                  scoring.recommendation === "Pallier2_conditional" ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" :
-                  "bg-red-500/20 text-red-300 border-red-500/40"
-                }`}>
-                  {scoring.recommendation === "Pallier2_confirmed" ? "Pallier 2 confirmé" :
-                   scoring.recommendation === "Pallier2_conditional" ? "Pallier 2 conditionnel" : "Pallier 1 recommandé"}
-                </Badge>
-                <p className="text-slate-400 text-xs mt-2">{scoring.recommendationMessage}</p>
-              </CardContent>
-            </Card>
+            <div className="bg-surface-card border border-white/[0.08] rounded-[18px] p-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Target className="w-4 h-4 text-brand-accent" />
+                <p className="text-neutral-400 text-xs uppercase tracking-wider font-mono">Préparation</p>
+              </div>
+              <p className={`text-4xl font-bold font-display ${scoreTextColor(scoring.readinessScore)}`}>
+                {scoring.readinessScore}<span className="text-lg text-neutral-500">/100</span>
+              </p>
+            </div>
+            <div className="bg-surface-card border border-white/[0.08] rounded-[18px] p-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Shield className="w-4 h-4 text-brand-accent" />
+                <p className="text-neutral-400 text-xs uppercase tracking-wider font-mono">Risque</p>
+              </div>
+              <p className={`text-4xl font-bold font-display ${scoreTextColor(scoring.riskIndex, true)}`}>
+                {scoring.riskIndex}<span className="text-lg text-neutral-500">/100</span>
+              </p>
+            </div>
+            <div className="bg-surface-card border border-white/[0.08] rounded-[18px] p-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-brand-accent" />
+                <p className="text-neutral-400 text-xs uppercase tracking-wider font-mono">Décision</p>
+              </div>
+              <Badge
+                variant="outline"
+                className={`text-sm mt-1 ${
+                  scoring.recommendation === "Pallier2_confirmed"
+                    ? "bg-semantic-success/15 text-semantic-success border-semantic-success/30"
+                    : scoring.recommendation === "Pallier2_conditional"
+                      ? "bg-semantic-warning/15 text-semantic-warning border-semantic-warning/30"
+                      : "bg-semantic-error/15 text-semantic-error border-semantic-error/30"
+                }`}
+              >
+                {scoring.recommendation === "Pallier2_confirmed" ? "Pallier 2 confirmé" :
+                 scoring.recommendation === "Pallier2_conditional" ? "Pallier 2 conditionnel" : "Pallier 1 recommandé"}
+              </Badge>
+              <p className="text-neutral-300 text-xs mt-2">{scoring.recommendationMessage}</p>
+            </div>
           </div>
         )}
 
-        {/* Alerts */}
+        {/* ── Alerts ── */}
         {scoring && scoring.alerts.length > 0 && (
           <div className="mb-8 space-y-2">
             {scoring.alerts.map((a, i) => (
-              <div key={i} className={`flex items-start gap-3 p-3.5 rounded-lg border ${
-                a.type === "danger" ? "bg-red-500/10 border-red-500/30" :
-                a.type === "warning" ? "bg-yellow-500/10 border-yellow-500/30" :
-                "bg-blue-500/10 border-blue-500/30"
+              <div key={i} className={`flex items-start gap-3 p-4 rounded-[14px] border ${
+                a.type === "danger"  ? "bg-semantic-error/10 border-semantic-error/25" :
+                a.type === "warning" ? "bg-semantic-warning/10 border-semantic-warning/25" :
+                "bg-semantic-info/10 border-semantic-info/25"
               }`}>
-                {a.type === "danger" ? <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-red-400" /> :
-                 a.type === "warning" ? <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-yellow-400" /> :
-                 <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0 text-blue-400" />}
-                <p className="text-white text-sm">{a.message}</p>
+                {a.type === "danger"  ? <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-semantic-error" /> :
+                 a.type === "warning" ? <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-semantic-warning" /> :
+                 <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0 text-semantic-info" />}
+                <p className="text-neutral-100 text-sm">{a.message}</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* Domain Progress */}
+        {/* ── Domain Progress ── */}
         {scoring && scoring.domainScores.length > 0 && (
-          <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm mb-8">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-lg flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-400" /> Cartographie par domaine
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-5">
-                {scoring.domainScores.map((d) => (
+          <div className="bg-surface-card border border-white/[0.08] rounded-[18px] mb-8 overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-brand-accent" />
+              <h3 className="text-white text-lg font-bold">Cartographie par domaine</h3>
+            </div>
+            <div className="p-6 space-y-6">
+              {scoring.domainScores.map((d) => {
+                const pCfg = PRIORITY_CFG[d.priority] || PRIORITY_CFG.medium;
+                return (
                   <div key={d.domain}>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">{DOMAIN_LABELS[d.domain] || d.domain}</span>
-                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${PRIORITY_CFG[d.priority]?.bg || ""}`}>
-                          <span className={PRIORITY_CFG[d.priority]?.color || "text-slate-400"}>{PRIORITY_CFG[d.priority]?.label || d.priority}</span>
-                        </Badge>
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-[10px] bg-surface-elevated border border-white/[0.08] flex items-center justify-center text-brand-accent text-xs font-mono font-bold">
+                          {DOMAIN_ICONS[d.domain] || "?"}
+                        </span>
+                        <span className="text-white text-sm font-semibold">{DOMAIN_LABELS[d.domain] || d.domain}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${pCfg.bg} ${pCfg.border} ${pCfg.text} font-medium uppercase tracking-wider`}>
+                          {pCfg.label}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-500 text-xs">{d.evaluatedCount}/{d.totalCount}</span>
-                        <span className={`text-sm font-bold ${sColor(d.score)}`}>{d.score}%</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-neutral-400 text-xs font-mono">{d.evaluatedCount}/{d.totalCount}</span>
+                        <span className={`text-sm font-bold font-mono ${scoreTextColor(d.score)}`}>{d.score}%</span>
                       </div>
                     </div>
-                    <div className="w-full bg-slate-700/60 rounded-full h-2.5">
-                      <div className={`h-2.5 rounded-full transition-all duration-500 ${barBg(d.score)}`} style={{ width: `${Math.max(d.score, 3)}%` }} />
+                    <div className="w-full bg-surface-elevated rounded-full h-2.5">
+                      <div className={`h-2.5 rounded-full transition-all duration-700 ${barBgColor(d.score)}`} style={{ width: `${Math.max(d.score, 3)}%` }} />
                     </div>
                     {(d.gaps.length > 0 || d.dominantErrors.length > 0) && (
-                      <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {d.gaps.map((g) => <span key={g} className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/20">lacune: {g}</span>)}
-                        {d.dominantErrors.map((e) => <span key={e} className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-300 border border-orange-500/20">{e}</span>)}
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {d.gaps.map((g) => (
+                          <span key={g} className="text-[10px] px-2 py-0.5 rounded-full bg-semantic-error/10 text-semantic-error border border-semantic-error/20 font-medium">
+                            lacune : {g}
+                          </span>
+                        ))}
+                        {d.dominantErrors.map((e) => (
+                          <span key={e} className="text-[10px] px-2 py-0.5 rounded-full bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20 font-medium">
+                            {e}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                );
+              })}
+            </div>
+          </div>
         )}
 
-        {/* Bilans Tabs */}
+        {/* ── Bilans Tabs ── */}
         {isAnalyzed && bilans ? (
           <Tabs defaultValue="eleve" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-800/60 border border-slate-700/50 mb-6 p-1 h-auto">
-              <TabsTrigger value="eleve" className="flex items-center gap-2 py-2.5 text-slate-400 data-[state=active]:bg-blue-600/20 data-[state=active]:text-white rounded-md transition-all">
-                <GraduationCap className="w-4 h-4" /><span className="text-sm font-medium">Élève</span>
+            <TabsList className="grid w-full grid-cols-3 bg-surface-card border border-white/[0.08] rounded-[14px] mb-6 p-1.5 h-auto">
+              <TabsTrigger value="eleve" className="flex items-center gap-2 py-3 rounded-[10px] text-neutral-400 data-[state=active]:bg-brand-accent/15 data-[state=active]:text-brand-accent transition-all">
+                <GraduationCap className="w-4 h-4" /><span className="text-sm font-semibold">Élève</span>
               </TabsTrigger>
-              <TabsTrigger value="parents" className="flex items-center gap-2 py-2.5 text-slate-400 data-[state=active]:bg-blue-600/20 data-[state=active]:text-white rounded-md transition-all">
-                <Users className="w-4 h-4" /><span className="text-sm font-medium">Parents</span>
+              <TabsTrigger value="parents" className="flex items-center gap-2 py-3 rounded-[10px] text-neutral-400 data-[state=active]:bg-brand-accent/15 data-[state=active]:text-brand-accent transition-all">
+                <Users className="w-4 h-4" /><span className="text-sm font-semibold">Parents</span>
               </TabsTrigger>
-              <TabsTrigger value="nexus" className="flex items-center gap-2 py-2.5 text-slate-400 data-[state=active]:bg-blue-600/20 data-[state=active]:text-white rounded-md transition-all">
-                <Building2 className="w-4 h-4" /><span className="text-sm font-medium">Nexus</span>
+              <TabsTrigger value="nexus" className="flex items-center gap-2 py-3 rounded-[10px] text-neutral-400 data-[state=active]:bg-brand-accent/15 data-[state=active]:text-brand-accent transition-all">
+                <Building2 className="w-4 h-4" /><span className="text-sm font-semibold">Nexus</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="eleve">
-              <BilanCard icon={<GraduationCap className="w-5 h-5 text-blue-400" />} title="Mon Diagnostic Maths" html={markdownToHtml(bilans.eleve)} />
+              <BilanCard icon={<GraduationCap className="w-5 h-5 text-brand-accent" />} title="Mon Diagnostic Maths" html={markdownToHtml(bilans.eleve)} />
             </TabsContent>
             <TabsContent value="parents">
-              <BilanCard icon={<Users className="w-5 h-5 text-blue-400" />} title="Rapport de Positionnement" html={markdownToHtml(bilans.parents)} />
+              <BilanCard icon={<Users className="w-5 h-5 text-brand-accent" />} title="Rapport de Positionnement" html={markdownToHtml(bilans.parents)} />
             </TabsContent>
             <TabsContent value="nexus">
               <NexusTab diagnostic={diagnostic} scoring={scoring ?? null} />
             </TabsContent>
           </Tabs>
         ) : isPending ? (
-          <Card className="bg-slate-800/60 border-yellow-500/30 backdrop-blur-sm">
-            <CardContent className="p-8 text-center">
-              <Clock className="w-14 h-14 text-yellow-400 mx-auto mb-4 animate-pulse" />
-              <h2 className="text-white text-xl font-bold mb-2">Bilan en cours de génération</h2>
-              <p className="text-slate-300 mb-4">Le bilan détaillé est en cours de génération par notre IA.</p>
-              <p className="text-slate-500 text-sm">Rafraîchissez cette page dans quelques instants.</p>
-              {scoring && (
-                <div className="mt-6 p-4 bg-slate-700/40 rounded-lg inline-block">
-                  <p className="text-slate-200 text-sm">
-                    <CheckCircle2 className="w-4 h-4 inline mr-1 text-green-400" />
-                    Score : <strong className="text-white">{scoring.readinessScore}/100</strong> — {scoring.recommendationMessage}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <div className="bg-surface-card border border-semantic-warning/25 rounded-[18px] p-8 text-center">
+            <Clock className="w-14 h-14 text-semantic-warning mx-auto mb-4 animate-pulse" />
+            <h2 className="text-white text-xl font-bold mb-2">Bilan en cours de génération</h2>
+            <p className="text-neutral-200 mb-4">Le bilan détaillé est en cours de génération par notre IA.</p>
+            <p className="text-neutral-400 text-sm">Rafraîchissez cette page dans quelques instants.</p>
+            {scoring && (
+              <div className="mt-6 p-4 bg-surface-elevated rounded-[14px] inline-block border border-white/[0.08]">
+                <p className="text-neutral-100 text-sm">
+                  <CheckCircle2 className="w-4 h-4 inline mr-1.5 text-semantic-success" />
+                  Score : <strong className="text-white">{scoring.readinessScore}/100</strong> — {scoring.recommendationMessage}
+                </p>
+              </div>
+            )}
+          </div>
         ) : (
-          <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-            <CardContent className="p-8 text-center">
-              <AlertCircle className="w-14 h-14 text-slate-500 mx-auto mb-4" />
-              <h2 className="text-white text-xl font-bold mb-2">Bilan non disponible</h2>
-              <p className="text-slate-300">Statut : <Badge variant="outline" className="ml-1 text-slate-300">{diagnostic.status}</Badge></p>
-            </CardContent>
-          </Card>
+          <div className="bg-surface-card border border-white/[0.08] rounded-[18px] p-8 text-center">
+            <AlertCircle className="w-14 h-14 text-neutral-500 mx-auto mb-4" />
+            <h2 className="text-white text-xl font-bold mb-2">Bilan non disponible</h2>
+            <p className="text-neutral-200">Statut : <Badge variant="outline" className="ml-1 text-neutral-200">{diagnostic.status}</Badge></p>
+          </div>
         )}
 
+        {/* Footer */}
         {bilans?.generatedAt && (
-          <p className="text-center text-slate-600 text-xs mt-8">
-            Bilan généré le {new Date(bilans.generatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+          <p className="text-center text-neutral-500 text-xs mt-8 font-mono">
+            Généré le {new Date(bilans.generatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
           </p>
         )}
       </div>
@@ -356,39 +400,27 @@ export default function BilanResultatPage() {
 
 /* ─── Sub-components ────────────────────────────────────────────────────────── */
 
-function ScoreCard({ icon, label, value, max, invert }: { icon: React.ReactNode; label: string; value: number; max: number; invert?: boolean }) {
-  return (
-    <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-      <CardContent className="p-5 text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="text-slate-400">{icon}</span>
-          <p className="text-slate-400 text-xs uppercase tracking-wide">{label}</p>
-        </div>
-        <p className={`text-4xl font-bold ${sColor(value, invert)}`}>
-          {value}<span className="text-lg text-slate-500">/{max}</span>
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
 function BilanCard({ icon, title, html }: { icon: React.ReactNode; title: string; html: string }) {
   return (
-    <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-      <CardHeader className="border-b border-slate-700/50">
-        <CardTitle className="text-white flex items-center gap-2">{icon}{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6">
+    <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+      <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+        {icon}
+        <h3 className="text-white text-lg font-bold">{title}</h3>
+      </div>
+      <div className="p-6">
         <div className="bilan-content" dangerouslySetInnerHTML={{ __html: html }} />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
-function InfoCell({ label, value }: { label: string; value: string }) {
+function InfoCell({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
-    <div className="p-3 bg-slate-700/40 rounded-lg">
-      <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">{label}</p>
+    <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+      <div className="flex items-center gap-1.5 mb-1.5">
+        {icon && <span className="text-brand-accent">{icon}</span>}
+        <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono">{label}</p>
+      </div>
       <p className="text-white text-sm font-medium truncate">{value}</p>
     </div>
   );
@@ -396,23 +428,23 @@ function InfoCell({ label, value }: { label: string; value: string }) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-start gap-4">
-      <span className="text-slate-400 text-sm shrink-0">{label}</span>
-      <span className="text-white text-sm text-right">{value}</span>
+    <div className="flex justify-between items-start gap-4 py-2 border-b border-white/[0.04] last:border-0">
+      <span className="text-neutral-300 text-sm shrink-0">{label}</span>
+      <span className="text-white text-sm text-right font-medium">{value}</span>
     </div>
   );
 }
 
 function VerbatimBlock({ label, text, accent }: { label: string; text: string; accent?: boolean }) {
   return (
-    <div className={`p-4 rounded-lg border ${accent ? "bg-blue-500/5 border-blue-500/20" : "bg-slate-700/30 border-slate-700/40"}`}>
-      <p className={`text-xs uppercase tracking-wider mb-2 font-medium ${accent ? "text-blue-400" : "text-slate-500"}`}>{label}</p>
-      <p className="text-slate-200 text-sm italic leading-relaxed">&ldquo;{text}&rdquo;</p>
+    <div className={`p-4 rounded-[14px] border ${accent ? "bg-brand-accent/5 border-brand-accent/15" : "bg-surface-elevated border-white/[0.06]"}`}>
+      <p className={`text-[10px] uppercase tracking-[0.14em] mb-2 font-mono font-semibold ${accent ? "text-brand-accent" : "text-neutral-400"}`}>{label}</p>
+      <p className="text-neutral-100 text-sm italic leading-relaxed">&laquo; {text} &raquo;</p>
     </div>
   );
 }
 
-/* ─── Nexus Tab — Rich structured fiche pédagogique ─────────────────────────── */
+/* ─── Nexus Tab ─────────────────────────────────────────────────────────────── */
 
 function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scoring: ScoringData | null }) {
   const examPrep = diagnostic.data?.examPrep;
@@ -424,191 +456,197 @@ function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scori
 
   return (
     <div className="space-y-6">
+
       {/* Identity */}
-      <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-        <CardHeader className="border-b border-slate-700/50 pb-4">
-          <CardTitle className="text-white flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-400" />
-            Fiche Pédagogique — {diagnostic.studentFirstName} {diagnostic.studentLastName}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-5">
+      <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-brand-accent" />
+          <h3 className="text-white text-lg font-bold">Fiche Pédagogique — {diagnostic.studentFirstName} {diagnostic.studentLastName}</h3>
+        </div>
+        <div className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <InfoCell label="Établissement" value={diagnostic.establishment || "—"} />
-            <InfoCell label="Moyenne Maths" value={diagnostic.mathAverage || "—"} />
-            <InfoCell label="Classement" value={diagnostic.classRanking || performance?.classRanking || "—"} />
-            <InfoCell label="Email" value={diagnostic.studentEmail} />
+            <InfoCell icon={<Building2 className="w-3 h-3" />} label="Établissement" value={diagnostic.establishment || "—"} />
+            <InfoCell icon={<BarChart3 className="w-3 h-3" />} label="Moyenne Maths" value={diagnostic.mathAverage || "—"} />
+            <InfoCell icon={<TrendingUp className="w-3 h-3" />} label="Classement" value={diagnostic.classRanking || performance?.classRanking || "—"} />
+            <InfoCell icon={<Users className="w-3 h-3" />} label="Email" value={diagnostic.studentEmail} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Scores */}
       {scoring && (
-        <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-          <CardHeader className="border-b border-slate-700/50 pb-4">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <BarChart3 className="w-5 h-5 text-blue-400" /> Scores
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-5">
+        <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-brand-accent" />
+            <h3 className="text-white text-base font-bold">Scores</h3>
+          </div>
+          <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-slate-700/40 rounded-lg">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">ReadinessScore</p>
-                <p className={`text-xl font-bold ${sColor(scoring.readinessScore)}`}>{scoring.readinessScore}/100</p>
+              <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">ReadinessScore</p>
+                <p className={`text-xl font-bold font-display ${scoreTextColor(scoring.readinessScore)}`}>{scoring.readinessScore}/100</p>
               </div>
-              <div className="p-3 bg-slate-700/40 rounded-lg">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">RiskIndex</p>
-                <p className={`text-xl font-bold ${sColor(scoring.riskIndex, true)}`}>{scoring.riskIndex}/100</p>
+              <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">RiskIndex</p>
+                <p className={`text-xl font-bold font-display ${scoreTextColor(scoring.riskIndex, true)}`}>{scoring.riskIndex}/100</p>
               </div>
-              <div className="p-3 bg-slate-700/40 rounded-lg">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Recommandation</p>
-                <Badge variant="outline" className={`text-xs ${
-                  scoring.recommendation === "Pallier2_confirmed" ? "text-green-300 border-green-500/40" :
-                  scoring.recommendation === "Pallier2_conditional" ? "text-yellow-300 border-yellow-500/40" :
-                  "text-red-300 border-red-500/40"
+              <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Recommandation</p>
+                <Badge variant="outline" className={`text-xs mt-1 ${
+                  scoring.recommendation === "Pallier2_confirmed" ? "text-semantic-success border-semantic-success/30" :
+                  scoring.recommendation === "Pallier2_conditional" ? "text-semantic-warning border-semantic-warning/30" :
+                  "text-semantic-error border-semantic-error/30"
                 }`}>{scoring.recommendation.replace(/_/g, " ")}</Badge>
               </div>
-              <div className="p-3 bg-slate-700/40 rounded-lg">
-                <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Qualité données</p>
+              <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Qualité données</p>
                 <p className="text-white text-sm font-medium">{scoring.dataQuality.activeDomains}/5 domaines · {scoring.dataQuality.evaluatedCompetencies} comp.</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Domain Table */}
       {scoring && scoring.domainScores.length > 0 && (
-        <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm overflow-hidden">
-          <CardHeader className="border-b border-slate-700/50 pb-4">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <TrendingUp className="w-5 h-5 text-blue-400" /> Cartographie par domaine
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700/50 bg-slate-800/80">
-                    <th className="text-left text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Domaine</th>
-                    <th className="text-center text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Score</th>
-                    <th className="text-center text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Évalués</th>
-                    <th className="text-left text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Lacunes</th>
-                    <th className="text-left text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Erreurs</th>
-                    <th className="text-center text-slate-400 font-medium px-4 py-3 text-xs uppercase tracking-wider">Priorité</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {scoring.domainScores.map((d) => (
-                    <tr key={d.domain} className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
-                      <td className="px-4 py-3 text-white font-medium">{DOMAIN_LABELS[d.domain] || d.domain}</td>
-                      <td className="px-4 py-3 text-center"><span className={`font-bold ${sColor(d.score)}`}>{d.score}%</span></td>
-                      <td className="px-4 py-3 text-center text-slate-300">{d.evaluatedCount}/{d.totalCount}</td>
-                      <td className="px-4 py-3">
-                        {d.gaps.length > 0 ? <div className="flex flex-wrap gap-1">{d.gaps.map((g) => <span key={g} className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/20">{g}</span>)}</div> : <span className="text-slate-600 text-xs">—</span>}
+        <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-brand-accent" />
+            <h3 className="text-white text-base font-bold">Cartographie par domaine</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.08] bg-surface-elevated">
+                  <th className="text-left text-neutral-400 font-medium px-5 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Domaine</th>
+                  <th className="text-center text-neutral-400 font-medium px-4 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Score</th>
+                  <th className="text-center text-neutral-400 font-medium px-4 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Évalués</th>
+                  <th className="text-left text-neutral-400 font-medium px-4 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Lacunes</th>
+                  <th className="text-left text-neutral-400 font-medium px-4 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Erreurs</th>
+                  <th className="text-center text-neutral-400 font-medium px-4 py-3 text-[10px] uppercase tracking-[0.14em] font-mono">Priorité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scoring.domainScores.map((d) => {
+                  const pCfg = PRIORITY_CFG[d.priority] || PRIORITY_CFG.medium;
+                  return (
+                    <tr key={d.domain} className="border-b border-white/[0.04] hover:bg-surface-hover transition-colors">
+                      <td className="px-5 py-3.5 text-white font-semibold">{DOMAIN_LABELS[d.domain] || d.domain}</td>
+                      <td className="px-4 py-3.5 text-center"><span className={`font-bold font-mono ${scoreTextColor(d.score)}`}>{d.score}%</span></td>
+                      <td className="px-4 py-3.5 text-center text-neutral-200 font-mono">{d.evaluatedCount}/{d.totalCount}</td>
+                      <td className="px-4 py-3.5">
+                        {d.gaps.length > 0 ? <div className="flex flex-wrap gap-1">{d.gaps.map((g) => <span key={g} className="text-[10px] px-2 py-0.5 rounded-full bg-semantic-error/10 text-semantic-error border border-semantic-error/20">{g}</span>)}</div> : <span className="text-neutral-500 text-xs">—</span>}
                       </td>
-                      <td className="px-4 py-3">
-                        {d.dominantErrors.length > 0 ? <div className="flex flex-wrap gap-1">{d.dominantErrors.map((e) => <span key={e} className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-300 border border-orange-500/20">{e}</span>)}</div> : <span className="text-slate-600 text-xs">—</span>}
+                      <td className="px-4 py-3.5">
+                        {d.dominantErrors.length > 0 ? <div className="flex flex-wrap gap-1">{d.dominantErrors.map((e) => <span key={e} className="text-[10px] px-2 py-0.5 rounded-full bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20">{e}</span>)}</div> : <span className="text-neutral-500 text-xs">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        <Badge variant="outline" className={`text-[10px] ${PRIORITY_CFG[d.priority]?.bg || ""}`}>
-                          <span className={PRIORITY_CFG[d.priority]?.color || "text-slate-400"}>{PRIORITY_CFG[d.priority]?.label || d.priority}</span>
-                        </Badge>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium uppercase tracking-wider ${pCfg.bg} ${pCfg.border} ${pCfg.text}`}>{pCfg.label}</span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
       {/* Épreuve Anticipée */}
       {examPrep && (
-        <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-          <CardHeader className="border-b border-slate-700/50 pb-4">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <FileText className="w-5 h-5 text-blue-400" /> Épreuve Anticipée
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-5">
+        <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+            <FileText className="w-5 h-5 text-brand-accent" />
+            <h3 className="text-white text-base font-bold">Épreuve Anticipée</h3>
+          </div>
+          <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {examPrep.miniTest && (
-                <div className="p-3 bg-slate-700/40 rounded-lg">
-                  <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Mini-test</p>
-                  <p className={`text-lg font-bold ${sColor((examPrep.miniTest.score / 6) * 100)}`}>{examPrep.miniTest.score}/6</p>
-                  <p className="text-slate-500 text-[10px]">{examPrep.miniTest.timeUsedMinutes}min · {examPrep.miniTest.completedInTime ? "terminé" : "non terminé"}</p>
+                <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                  <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Mini-test</p>
+                  <p className={`text-lg font-bold font-display ${scoreTextColor((examPrep.miniTest.score / 6) * 100)}`}>{examPrep.miniTest.score}/6</p>
+                  <p className="text-neutral-400 text-[10px] font-mono">{examPrep.miniTest.timeUsedMinutes}min · {examPrep.miniTest.completedInTime ? "✓ terminé" : "✗ non terminé"}</p>
                 </div>
               )}
               {examPrep.selfRatings && Object.entries(examPrep.selfRatings).map(([key, val]) => (
-                <div key={key} className="p-3 bg-slate-700/40 rounded-lg">
-                  <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">{RATING_LABELS[key] || key}</p>
+                <div key={key} className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                  <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-2">{RATING_LABELS[key] || key}</p>
                   <div className="flex items-center gap-1.5">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className={`w-5 h-5 rounded-sm text-[10px] flex items-center justify-center font-bold ${
+                      <div key={n} className={`w-6 h-6 rounded-[6px] text-[10px] flex items-center justify-center font-bold transition-colors ${
                         n <= val
-                          ? key === "stress" ? "bg-red-500/30 text-red-300" : val >= 3 ? "bg-green-500/30 text-green-300" : "bg-yellow-500/30 text-yellow-300"
-                          : "bg-slate-700 text-slate-600"
+                          ? key === "stress"
+                            ? "bg-semantic-error/25 text-semantic-error border border-semantic-error/30"
+                            : val >= 3
+                              ? "bg-semantic-success/25 text-semantic-success border border-semantic-success/30"
+                              : "bg-semantic-warning/25 text-semantic-warning border border-semantic-warning/30"
+                          : "bg-surface-dark text-neutral-600 border border-white/[0.06]"
                       }`}>{n}</div>
                     ))}
-                    <span className={`text-sm font-bold ml-1 ${key === "stress" ? sColor(100 - (val / 4) * 100) : sColor((val / 4) * 100)}`}>{val}/4</span>
+                    <span className={`text-sm font-bold font-mono ml-1 ${key === "stress" ? scoreTextColor(100 - (val / 4) * 100) : scoreTextColor((val / 4) * 100)}`}>{val}/4</span>
                   </div>
                 </div>
               ))}
               {examPrep.signals && (
                 <>
-                  <div className="p-3 bg-slate-700/40 rounded-lg">
-                    <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Ressenti</p>
+                  <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                    <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Ressenti</p>
                     <p className="text-white text-sm font-medium capitalize">{String(examPrep.signals.feeling || "—")}</p>
                   </div>
-                  <div className="p-3 bg-slate-700/40 rounded-lg">
-                    <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1">Erreur dominante</p>
+                  <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
+                    <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Erreur dominante</p>
                     <p className="text-white text-sm font-medium capitalize">{String(examPrep.signals.dominantErrorType || "—")}</p>
                   </div>
                 </>
               )}
             </div>
             {examPrep.mainRisk && (
-              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-red-300 text-sm"><AlertTriangle className="w-4 h-4 inline mr-1.5" /><strong>Risque principal :</strong> {examPrep.mainRisk}</p>
+              <div className="mt-4 p-4 bg-semantic-error/8 border border-semantic-error/20 rounded-[14px]">
+                <p className="text-semantic-error text-sm font-medium">
+                  <AlertTriangle className="w-4 h-4 inline mr-2" />
+                  <strong>Risque principal :</strong> <span className="text-neutral-100 font-normal">{examPrep.mainRisk}</span>
+                </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Méthodologie + Ambition */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {methodology && (
-          <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-            <CardHeader className="border-b border-slate-700/50 pb-4">
-              <CardTitle className="text-white flex items-center gap-2 text-base"><Brain className="w-5 h-5 text-blue-400" /> Profil Cognitif</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5 space-y-3">
-              <InfoRow label="Style" value={methodology.learningStyle || "—"} />
+          <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+              <Brain className="w-5 h-5 text-brand-accent" />
+              <h3 className="text-white text-base font-bold">Profil Cognitif</h3>
+            </div>
+            <div className="p-6 space-y-1">
+              <InfoRow label="Style d'apprentissage" value={methodology.learningStyle || "—"} />
               <InfoRow label="Réflexe blocage" value={methodology.problemReflex || "—"} />
-              <InfoRow label="Travail hebdo" value={methodology.weeklyWork || "—"} />
+              <InfoRow label="Travail hebdomadaire" value={methodology.weeklyWork || "—"} />
               <InfoRow label="Concentration max" value={methodology.maxConcentration || "—"} />
               {methodology.errorTypes && (
-                <div>
-                  <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-1.5">Erreurs fréquentes</p>
+                <div className="pt-3">
+                  <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-2">Erreurs fréquentes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {String(methodology.errorTypes).split(",").map((e) => (
-                      <span key={e.trim()} className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/20">{e.trim()}</span>
+                      <span key={e.trim()} className="text-[10px] px-2.5 py-1 rounded-full bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20 font-medium">
+                        {e.trim()}
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
         {ambition && (
-          <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-            <CardHeader className="border-b border-slate-700/50 pb-4">
-              <CardTitle className="text-white flex items-center gap-2 text-base"><Target className="w-5 h-5 text-blue-400" /> Ambition</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5 space-y-3">
+          <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+              <Target className="w-5 h-5 text-brand-accent" />
+              <h3 className="text-white text-base font-bold">Ambition</h3>
+            </div>
+            <div className="p-6 space-y-1">
               <InfoRow label="Mention visée" value={ambition.targetMention || "—"} />
               <InfoRow label="Post-bac" value={ambition.postBac || "—"} />
               <InfoRow label="Rythme intensif" value={ambition.pallier2Pace || "—"} />
@@ -616,55 +654,53 @@ function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scori
                 <InfoRow label="Moyenne générale" value={performance.generalAverage || "—"} />
                 <InfoRow label="Dernier DS" value={performance.lastTestScore || "—"} />
               </>}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Verbatims */}
       {(openQuestions || freeText) && (
-        <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-          <CardHeader className="border-b border-slate-700/50 pb-4">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <MessageSquareQuote className="w-5 h-5 text-blue-400" /> Verbatims de l&apos;élève
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-5 space-y-4">
+        <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+            <MessageSquareQuote className="w-5 h-5 text-brand-accent" />
+            <h3 className="text-white text-base font-bold">Verbatims de l&apos;élève</h3>
+          </div>
+          <div className="p-6 space-y-4">
             {openQuestions && Object.entries(openQuestions).filter(([, v]) => v).map(([k, v]) => (
               <VerbatimBlock key={k} label={VERBATIM_LABELS[k] || k} text={v} />
             ))}
             {freeText && Object.entries(freeText).filter(([, v]) => v).map(([k, v]) => (
               <VerbatimBlock key={k} label={VERBATIM_LABELS[k] || k} text={v} accent />
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Alerts */}
       {scoring && scoring.alerts.length > 0 && (
-        <Card className="bg-slate-800/60 border-slate-700/50 backdrop-blur-sm">
-          <CardHeader className="border-b border-slate-700/50 pb-4">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <AlertTriangle className="w-5 h-5 text-yellow-400" /> Alertes ({scoring.alerts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-5 space-y-2">
+        <div className="bg-surface-card border border-white/[0.08] rounded-[18px] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/[0.08] flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-semantic-warning" />
+            <h3 className="text-white text-base font-bold">Alertes ({scoring.alerts.length})</h3>
+          </div>
+          <div className="p-6 space-y-2">
             {scoring.alerts.map((a, i) => (
-              <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border ${
-                a.type === "danger" ? "bg-red-500/10 border-red-500/30" :
-                a.type === "warning" ? "bg-yellow-500/10 border-yellow-500/30" :
-                "bg-blue-500/10 border-blue-500/30"
+              <div key={i} className={`flex items-start gap-3 p-4 rounded-[14px] border ${
+                a.type === "danger"  ? "bg-semantic-error/8 border-semantic-error/20" :
+                a.type === "warning" ? "bg-semantic-warning/8 border-semantic-warning/20" :
+                "bg-semantic-info/8 border-semantic-info/20"
               }`}>
-                {a.type === "danger" ? <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-400" /> :
-                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-yellow-400" />}
+                {a.type === "danger" ? <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-semantic-error" /> :
+                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-semantic-warning" />}
                 <div>
-                  <span className={`text-[10px] uppercase tracking-wider font-medium ${a.type === "danger" ? "text-red-400" : "text-yellow-400"}`}>{a.code}</span>
-                  <p className="text-white text-sm">{a.message}</p>
+                  <span className={`text-[10px] uppercase tracking-[0.14em] font-mono font-semibold ${a.type === "danger" ? "text-semantic-error" : "text-semantic-warning"}`}>{a.code}</span>
+                  <p className="text-neutral-100 text-sm mt-0.5">{a.message}</p>
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -673,39 +709,42 @@ function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scori
 /* ─── Markdown → HTML ───────────────────────────────────────────────────────── */
 
 function markdownToHtml(md: string): string {
-  if (!md) return '<p class="text-slate-300">Contenu non disponible.</p>';
+  if (!md) return '<p class="text-neutral-200">Contenu non disponible.</p>';
 
   let html = md
     // Tables
     .replace(/^\|(.+)\|$/gm, (match) => {
       const cells = match.split("|").filter(Boolean).map((c) => c.trim());
       if (cells.every((c) => /^[-:]+$/.test(c))) return "___TABLE_SEP___";
-      return `<tr>${cells.map((c) => `<td class="px-3 py-2 border-b border-slate-700/40 text-slate-200 text-sm">${c}</td>`).join("")}</tr>`;
+      return `<tr>${cells.map((c) => `<td class="px-4 py-2.5 border-b border-white/[0.06] text-neutral-100 text-sm">${c}</td>`).join("")}</tr>`;
     })
     .replace(/((<tr>.*<\/tr>\n?)+)/g, (block) => {
       const rows = block.split("\n").filter((r) => r.startsWith("<tr>"));
       if (rows.length === 0) return block;
-      const headerRow = rows[0].replace(/<td /g, '<th ').replace(/<\/td>/g, "</th>").replace(/text-slate-200/g, "text-slate-400 font-medium");
+      const headerRow = rows[0]
+        .replace(/<td /g, '<th ')
+        .replace(/<\/td>/g, "</th>")
+        .replace(/text-neutral-100/g, "text-neutral-300 font-semibold");
       const bodyRows = rows.slice(1).filter((r) => !r.includes("___TABLE_SEP___"));
-      return `<div class="overflow-x-auto my-4 rounded-lg border border-slate-700/40"><table class="w-full text-sm"><thead class="bg-slate-800/80">${headerRow}</thead><tbody>${bodyRows.join("")}</tbody></table></div>`;
+      return `<div class="overflow-x-auto my-5 rounded-[14px] border border-white/[0.08]"><table class="w-full text-sm"><thead class="bg-surface-elevated">${headerRow}</thead><tbody>${bodyRows.join("")}</tbody></table></div>`;
     })
     .replace(/___TABLE_SEP___/g, "");
 
   html = html
     .replace(/^#### (.+)$/gm, '<h4 class="text-base font-semibold text-white mt-5 mb-2">$1</h4>')
-    .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-white mt-6 mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-blue-500 rounded-full inline-block"></span>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-white mt-8 mb-3 pb-2 border-b border-slate-700/40">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-white mt-6 mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-brand-accent rounded-full inline-block"></span>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-white mt-8 mb-3 pb-2 border-b border-white/[0.08]">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-white mt-8 mb-4">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em class="text-slate-300">$1</em>')
-    .replace(/^\d+\.\s+(.+)$/gm, '<li class="text-slate-200 ml-6 list-decimal leading-relaxed">$1</li>')
-    .replace(/^\*\s+(.+)$/gm, '<li class="text-slate-200 ml-6 list-disc leading-relaxed">$1</li>')
-    .replace(/^- (.+)$/gm, '<li class="text-slate-200 ml-6 list-disc leading-relaxed">$1</li>')
-    .replace(/((<li class="text-slate-200 ml-6 list-disc[^"]*">.*<\/li>\n?)+)/g, '<ul class="space-y-1.5 my-3">$1</ul>')
-    .replace(/((<li class="text-slate-200 ml-6 list-decimal[^"]*">.*<\/li>\n?)+)/g, '<ol class="space-y-1.5 my-3">$1</ol>')
-    .replace(/\n\n/g, '</p><p class="text-slate-200 leading-relaxed my-2">')
+    .replace(/\*(.+?)\*/g, '<em class="text-neutral-200">$1</em>')
+    .replace(/^\d+\.\s+(.+)$/gm, '<li class="text-neutral-100 ml-6 list-decimal leading-relaxed">$1</li>')
+    .replace(/^\*\s+(.+)$/gm, '<li class="text-neutral-100 ml-6 list-disc leading-relaxed">$1</li>')
+    .replace(/^- (.+)$/gm, '<li class="text-neutral-100 ml-6 list-disc leading-relaxed">$1</li>')
+    .replace(/((<li class="text-neutral-100 ml-6 list-disc[^"]*">.*<\/li>\n?)+)/g, '<ul class="space-y-1.5 my-3">$1</ul>')
+    .replace(/((<li class="text-neutral-100 ml-6 list-decimal[^"]*">.*<\/li>\n?)+)/g, '<ol class="space-y-1.5 my-3">$1</ol>')
+    .replace(/\n\n/g, '</p><p class="text-neutral-200 leading-relaxed my-2">')
     .replace(/^(?!<[hultod])/gm, "")
-    .replace(/<p class="text-slate-200 leading-relaxed my-2"><\/p>/g, "");
+    .replace(/<p class="text-neutral-200 leading-relaxed my-2"><\/p>/g, "");
 
   return html;
 }

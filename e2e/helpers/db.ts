@@ -12,10 +12,10 @@ function loadCredentials() {
   if (fs.existsSync(credentialsPath)) {
     return JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
   }
-  // Fallback to default test credentials
+  // Fallback to default test credentials (specific E2E test emails)
   return {
-    student: { email: 'student@test.com' },
-    coach: { email: 'coach@test.com' },
+    student: { email: 'yasmine.dupont@test.com' },
+    coach: { email: 'helios@test.com' },
   };
 }
 
