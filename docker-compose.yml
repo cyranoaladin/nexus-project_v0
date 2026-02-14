@@ -31,10 +31,19 @@ services:
     # Cette ligne est la clé : on lui dit de lire le fichier .env
     env_file:
       - .env
+    environment:
+      # LLM local (Ollama + Qwen) — accessible via infra_rag_net
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: qwen2.5:32b
+      OLLAMA_TIMEOUT: "180000"
+      # RAG Ingestor API — accessible via infra_rag_net
+      RAG_INGESTOR_URL: http://ingestor:8001
+      RAG_SEARCH_TIMEOUT: "10000"
     ports:
       - "3001:3000"
     networks:
       - nexus-network
+      - infra_rag_net
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
       interval: 30s
@@ -48,3 +57,5 @@ volumes:
 networks:
   nexus-network:
     driver: bridge
+  infra_rag_net:
+    external: true

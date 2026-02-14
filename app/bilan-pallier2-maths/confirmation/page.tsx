@@ -62,7 +62,7 @@ function ConfirmationContent() {
                       Prochaines étapes
                     </h3>
                     <p className="text-slate-300 text-sm">
-                      Notre équipe va analyser votre profil et générer 3 rapports personnalisés sous 24-48h :
+                      Notre IA va analyser votre profil et générer 3 rapports personnalisés sous quelques minutes :
                       un pour l&apos;élève, un pour les parents, et une fiche pédagogique pour votre coach.
                     </p>
                   </div>
@@ -110,16 +110,24 @@ function ConfirmationContent() {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
+            {diagnosticId && (
+              <Link href={`/bilan-pallier2-maths/resultat/${diagnosticId}`}>
+                <Button className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700">
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  Consulter mon bilan
+                </Button>
+              </Link>
+            )}
             <Link href="/offres?programme=hybride">
               <Button className="w-full sm:w-auto px-8 py-3 bg-brand-accent hover:bg-brand-accent/90">
                 <ArrowRight className="w-5 h-5 mr-2" />
-                Finaliser l'inscription
+                Finaliser l&apos;inscription
               </Button>
             </Link>
             
             <Link href="/">
               <Button variant="outline" className="w-full sm:w-auto px-8 py-3">
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Button>
             </Link>
           </motion.div>
