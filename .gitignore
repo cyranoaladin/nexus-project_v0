@@ -63,3 +63,9 @@ prisma/**/*.db
 prisma/**/*.db-*
 prisma/.next/
 prisma/**/node_modules/
+
+# Database backups
+*.sql
+*.sql.gz
+backup_*.sql
+backup_*.sql.gz
