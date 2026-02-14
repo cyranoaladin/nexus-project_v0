@@ -29,6 +29,11 @@
             "date": 1770967970607,
             "name": "/home/alaeddine/Bureau/nexus-project_v0/.zenflow/logs/zenflow-2026-02-13.log",
             "hash": "e970143a935b0820fa3a448ca86a744aa27e093f301b7f228ccb40e297980eeb"
+        },
+        {
+            "date": 1771026117372,
+            "name": "/home/alaeddine/Bureau/nexus-project_v0/.zenflow/logs/zenflow-2026-02-14.log",
+            "hash": "55569a1d154ffeb136be87298914aa668820aaf1e27681d260e05d2d22d8d867"
         }
     ],
     "hashType": "sha256"

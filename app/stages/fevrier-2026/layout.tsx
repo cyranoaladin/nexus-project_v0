@@ -3,7 +3,7 @@ import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI) | Nexus Réussite',
-  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 6 élèves max. Enseignants agrégés. Centre Urbain Nord, Tunis.',
+  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 6 élèves max. Enseignants agrégés et certifiés. Centre Urbain Nord, Tunis.',
   keywords: [
     'stage février 2026',
     'stage maths terminale',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI)',
-    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 6 élèves max, enseignants agrégés.',
+    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 6 élèves max, enseignants agrégés et certifiés.',
     type: 'website',
     locale: 'fr_TN',
     url: 'https://nexusreussite.tn/stages/fevrier-2026',

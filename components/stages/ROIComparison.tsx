@@ -73,7 +73,7 @@ export function ROIComparison() {
         'Cadre exigeant et structuré',
         'Épreuves blanches + bilans',
         'Émulation de groupe',
-        'Enseignants experts (agrégés)'
+        'Enseignants experts (agrégés et certifiés)'
       ],
       cons: [
         'Engagement d\'une semaine',

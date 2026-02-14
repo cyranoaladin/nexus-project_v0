@@ -57,7 +57,7 @@ export default function RootLayout({
     name: 'Nexus Réussite',
     alternateName: 'Nexus Digital Campus',
     url: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
-    description: 'Plateforme de pilotage éducatif combinant coachs agrégés, IA pédagogique ARIA et dashboard parent en temps réel pour la réussite au Baccalauréat.',
+    description: 'Plateforme de pilotage éducatif combinant coachs agrégés et certifiés, IA pédagogique ARIA et dashboard parent en temps réel pour la réussite au Baccalauréat.',
     areaServed: { '@type': 'Country', name: 'Tunisia' },
     availableLanguage: ['fr'],
     sameAs: [],
