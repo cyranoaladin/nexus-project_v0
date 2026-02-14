@@ -311,6 +311,10 @@ async function main() {
     // Step 1: Submit assessment
     assessmentId = await submitAssessment(aliceProfile, aliceAnswers);
 
+    if (!assessmentId) {
+      throw new Error('Assessment ID is null or undefined after submission');
+    }
+
     // Step 2: Poll status until completion
     await pollAssessmentStatus(assessmentId);
 
