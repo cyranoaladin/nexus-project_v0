@@ -1,4 +1,6 @@
 import { Page } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 type UserType = 'parent' | 'student' | 'coach' | 'admin';
 
@@ -9,12 +11,29 @@ interface LoginOptions {
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-const CREDENTIALS: Record<UserType, { email: string; password: string }> = {
-    parent: { email: 'parent.dashboard@test.com', password: 'password123' },
-    student: { email: 'yasmine.dupont@test.com', password: 'password123' },
-    coach: { email: 'helios@test.com', password: 'password123' },
-    admin: { email: 'admin@test.com', password: 'password123' },
-};
+// Load credentials from file if it exists, otherwise use environment
+function loadCredentials(): Record<UserType, { email: string; password: string }> {
+    const credentialsPath = path.resolve(process.cwd(), 'e2e/.credentials.json');
+    if (fs.existsSync(credentialsPath)) {
+        const creds = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+        return {
+            parent: { email: creds.parent.email, password: creds.parent.password },
+            student: { email: creds.student.email, password: creds.student.password },
+            coach: { email: creds.coach.email, password: creds.coach.password },
+            admin: { email: creds.admin.email, password: creds.admin.password },
+        };
+    }
+    // Fallback to environment variables or defaults
+    const timestamp = process.env.E2E_TIMESTAMP || Date.now().toString();
+    return {
+        parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
+        student: { email: `student.${timestamp}@test.com`, password: 'password123' },
+        coach: { email: `coach.${timestamp}@test.com`, password: 'password123' },
+        admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
+    };
+}
+
+const CREDENTIALS = loadCredentials();
 
 const ROLE_PATHS: Record<UserType, string> = {
     parent: '/dashboard/parent',
