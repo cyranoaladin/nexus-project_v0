@@ -771,3 +771,42 @@ enum EngagementLevel {
   MEDIUM
   HIGH
 }
+
+// Diagnostic Model for Pallier 2 Maths
+model Diagnostic {
+  id String @id @default(cuid())
+
+  // Type de diagnostic
+  type String // "PALLIER2_MATHS", "PALLIER2_PHYSIQUE", etc.
+
+  // Informations élève
+  studentFirstName String
+  studentLastName  String
+  studentEmail     String
+  studentPhone     String?
+
+  // Contexte scolaire
+  establishment   String?
+  teacherName     String?
+  mathAverage     String?
+  specialtyAverage String?
+  bacBlancResult  String?
+  classRanking    String?
+
+  // Données du diagnostic (JSON)
+  data Json?
+
+  // Statut
+  status String @default("PENDING") // PENDING, ANALYZED, ACTION_PLAN_SENT
+
+  // Résultat de l'analyse IA
+  analysisResult String? // Résumé de l'analyse
+  actionPlan     String? // Plan d'action personnalisé
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, status])
+  @@index([studentEmail])
+  @@map("diagnostics")
+}
