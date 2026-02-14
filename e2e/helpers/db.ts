@@ -72,11 +72,18 @@ export async function ensureCoachAvailabilityByEmail(email: string) {
   const client = getPrisma();
   const user = await client.user.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, role: true },
   });
 
   if (!user) {
-    throw new Error(`Coach not found for email ${email}`);
+    // Debug: List all coaches in database
+    const allCoaches = await client.user.findMany({
+      where: { role: 'COACH' },
+      select: { email: true, firstName: true, lastName: true },
+    });
+    console.error(`[E2E DB Helper] Coach not found for email: ${email}`);
+    console.error(`[E2E DB Helper] Available coaches in database:`, allCoaches);
+    throw new Error(`Coach not found for email ${email}. Available coaches: ${allCoaches.map(c => c.email).join(', ')}`);
   }
 
   const today = new Date();
