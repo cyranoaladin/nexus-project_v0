@@ -11,10 +11,8 @@
  * Usage: npx tsx scripts/verify-workflow.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { ALL_STAGE_QUESTIONS } from '../lib/data/stage-qcm-structure';
-
-const prisma = new PrismaClient();
 
 // ─── Test Configuration ──────────────────────────────────────────────────────
 
