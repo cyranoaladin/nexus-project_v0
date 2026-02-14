@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Toaster, toast } from 'sonner';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
 
@@ -101,12 +102,25 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           email: '',
           paymentMethod: ''
         });
+        toast.success(
+          result.isUpdate
+            ? 'Réservation mise à jour avec succès !'
+            : 'Réservation enregistrée ! Nous vous contactons dans les 24h.'
+        );
+      } else if (response.status === 409) {
+        toast.info('Vous êtes déjà inscrit(e) pour cette académie. Votre réservation a été mise à jour.');
+        setSubmitSuccess(true);
+      } else if (response.status === 400 && result.field) {
+        setErrors(prev => ({ ...prev, [result.field]: result.message }));
+        toast.error(result.message || 'Veuillez corriger les erreurs du formulaire.');
       } else {
-        alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement.');
+        toast.error(result.error || 'Une erreur est survenue. Veuillez réessayer.');
       }
     } catch (error) {
-      console.error('Erreur soumission:', error);
-      alert('Impossible de soumettre le formulaire. Veuillez vérifier votre connexion.');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erreur soumission:', error);
+      }
+      toast.error('Impossible de soumettre le formulaire. Veuillez vérifier votre connexion.');
     } finally {
       setIsSubmitting(false);
     }
@@ -115,13 +129,22 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
   if (submitSuccess) {
     return (
       <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
+        <Toaster position="top-right" richColors />
         <div className="text-5xl mb-4">✅</div>
         <h3 className="text-2xl font-black text-green-900 mb-3">
           Demande envoyée avec succès !
         </h3>
-        <p className="text-green-800 mb-6">
+        <p className="text-green-800 mb-4">
           Nous vous contactons dans les <strong>24h</strong> pour finaliser votre réservation.
         </p>
+        <div className="bg-white/80 rounded-xl p-4 mb-6 text-left max-w-sm mx-auto">
+          <h4 className="font-bold text-green-900 text-sm mb-2">📋 Prochaines étapes :</h4>
+          <ol className="text-sm text-green-800 space-y-1 list-decimal list-inside">
+            <li>Un conseiller vous appelle sous 24h</li>
+            <li>Confirmation de votre place</li>
+            <li>Réception du dossier de stage</li>
+          </ol>
+        </div>
         <button
           onClick={() => setSubmitSuccess(false)}
           className="text-green-700 font-semibold underline hover:no-underline"
@@ -134,6 +157,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-white/20">
+      <Toaster position="top-right" richColors />
       <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 text-center">
         📋 Formulaire de Réservation Rapide
       </h3>

@@ -1,74 +1,245 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from "next/server";
+import { prisma } from '@/lib/prisma';
+import { stageReservationSchema } from '@/lib/validations';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+/**
+ * Sanitize user input for Telegram MarkdownV1.
+ */
+function sanitizeTelegram(str: string): string {
+  return str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+
+/**
+ * Send Telegram notification (non-blocking side-effect).
+ * Never throws — logs errors silently.
+ */
+async function notifyTelegram(data: {
+  parent: string;
+  phone: string;
+  classe: string;
+  academyTitle: string;
+  price: number;
+  email: string;
+  isUpdate: boolean;
+}): Promise<boolean> {
   try {
-    const body = await request.json();
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) return false;
 
-    // 1. Validation de sécurité (Backend)
-    if (!body.parent || !body.phone || !body.academyId) {
-      return NextResponse.json(
-        { success: false, message: "Champs manquants" },
-        { status: 400 }
-      );
-    }
-
-    // 2. Validate environment variables
-    const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    const telegramChatId = process.env.TELEGRAM_CHAT_ID;
-
-    if (!telegramToken || !telegramChatId) {
-      console.error("Telegram credentials not configured in environment variables");
-      // Still return success to user - reservation is "registered" even without notification
-      return NextResponse.json({
-        success: true,
-        message: "Réservation enregistrée",
-      });
-    }
-
-    // 3. Sanitize user input for Telegram Markdown
-    const sanitize = (str: string) => str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-
-    // 4. Mise en forme du message d'alerte
+    const tag = data.isUpdate ? '🔄 MISE À JOUR RÉSERVATION' : '🚨 NOUVEAU LEAD CHAUD (Site Web)';
     const message = `
-🚨 *NOUVEAU LEAD CHAUD (Site Web)* 🚨
+${tag} 🚨
 ➖➖➖➖➖➖➖➖➖➖➖
-👤 *Parent :* ${sanitize(String(body.parent))}
-📞 *Tél :* ${sanitize(String(body.phone))}
-🎓 *Classe :* ${sanitize(String(body.classe || 'Non précisé'))}
-🏫 *Intérêt :* ${sanitize(String(body.academyTitle || 'Non précisé'))}
-💰 *Montant :* ${sanitize(String(body.price || 'N/A'))} TND
+👤 *Parent :* ${sanitizeTelegram(data.parent)}
+📞 *Tél :* ${sanitizeTelegram(data.phone)}
+📧 *Email :* ${sanitizeTelegram(data.email)}
+🎓 *Classe :* ${sanitizeTelegram(data.classe)}
+🏫 *Intérêt :* ${sanitizeTelegram(data.academyTitle)}
+💰 *Montant :* ${sanitizeTelegram(String(data.price))} TND
 ➖➖➖➖➖➖➖➖➖➖➖
 _Ce prospect attend votre appel !_
 `;
 
-    // 5. Envoi automatique vers Telegram
-    const telegramResponse = await fetch(
-      `https://api.telegram.org/bot${telegramToken}/sendMessage`,
+    const response = await fetch(
+      `https://api.telegram.org/bot${token}/sendMessage`,
       {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: telegramChatId,
-          text: message,
-          parse_mode: "Markdown",
-        }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
       }
     );
 
-    if (!telegramResponse.ok) {
-      console.error("Erreur Telegram:", await telegramResponse.text());
+    if (!response.ok) {
+      console.error('[reservation] Telegram error:', response.status);
+      return false;
     }
+    return true;
+  } catch (err) {
+    console.error('[reservation] Telegram failed:', err instanceof Error ? err.message : 'unknown');
+    return false;
+  }
+}
+
+/**
+ * POST /api/reservation
+ *
+ * Pipeline: Zod validate → Upsert DB (anti-duplicate on email+academyId) → Telegram notification
+ * Returns: 201 Created | 200 Updated | 400 Bad Request | 500 Internal Error
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // 1. Strict Zod validation
+    const parseResult = stageReservationSchema.safeParse(body);
+    if (!parseResult.success) {
+      const firstError = parseResult.error.errors[0];
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Données invalides',
+          field: firstError?.path?.join('.') || 'unknown',
+          message: firstError?.message || 'Validation échouée',
+        },
+        { status: 400 }
+      );
+    }
+
+    const data = parseResult.data;
+
+    // 2. PII-safe log (no names, no emails, no phones)
+    console.log(`[reservation] Processing: academy=${data.academyId} classe=${data.classe} price=${data.price}`);
+
+    // 3. Upsert: create or update (anti-duplicate on email+academyId)
+    let isUpdate = false;
+    const existing = await prisma.stageReservation.findUnique({
+      where: {
+        email_academyId: {
+          email: data.email,
+          academyId: data.academyId,
+        },
+      },
+      select: { id: true, status: true },
+    });
+
+    if (existing) {
+      isUpdate = true;
+      // Update existing reservation (allow re-submission to update phone/payment)
+      await prisma.stageReservation.update({
+        where: { id: existing.id },
+        data: {
+          parentName: data.parent,
+          studentName: data.studentName || null,
+          phone: data.phone,
+          classe: data.classe,
+          academyTitle: data.academyTitle,
+          price: data.price,
+          paymentMethod: data.paymentMethod || null,
+          updatedAt: new Date(),
+        },
+      });
+      console.log(`[reservation] Updated existing: id=${existing.id}`);
+    } else {
+      const reservation = await prisma.stageReservation.create({
+        data: {
+          parentName: data.parent,
+          studentName: data.studentName || null,
+          email: data.email,
+          phone: data.phone,
+          classe: data.classe,
+          academyId: data.academyId,
+          academyTitle: data.academyTitle,
+          price: data.price,
+          paymentMethod: data.paymentMethod || null,
+          status: 'PENDING',
+        },
+      });
+      console.log(`[reservation] Created: id=${reservation.id}`);
+    }
+
+    // 4. Telegram notification (non-blocking side-effect)
+    const telegramSent = await notifyTelegram({
+      parent: data.parent,
+      phone: data.phone,
+      classe: data.classe,
+      academyTitle: data.academyTitle,
+      price: data.price,
+      email: data.email,
+      isUpdate,
+    });
+
+    // 5. Update telegram tracking
+    if (telegramSent && !isUpdate) {
+      try {
+        await prisma.stageReservation.updateMany({
+          where: { email: data.email, academyId: data.academyId },
+          data: { telegramSent: true },
+        });
+      } catch {
+        // Non-critical — don't fail the request
+      }
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: isUpdate
+          ? 'Votre réservation a été mise à jour avec succès.'
+          : 'Réservation enregistrée avec succès ! Nous vous contactons dans les 24h.',
+        isUpdate,
+      },
+      { status: isUpdate ? 200 : 201 }
+    );
+  } catch (error) {
+    // Handle Prisma unique constraint violation (race condition fallback)
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Vous êtes déjà inscrit(e) pour cette académie.',
+          code: 'DUPLICATE',
+        },
+        { status: 409 }
+      );
+    }
+
+    console.error('[reservation] Error:', error instanceof Error ? error.message : 'unknown');
+    return NextResponse.json(
+      { success: false, error: 'Erreur interne du serveur' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * GET /api/reservation
+ *
+ * Staff-only: list all reservations (for admin dashboard).
+ * TODO: Add RBAC guard (requireAnyRole(['ADMIN']))
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const academyId = searchParams.get('academyId');
+
+    const where: Record<string, string> = {};
+    if (status) where.status = status;
+    if (academyId) where.academyId = academyId;
+
+    const reservations = await prisma.stageReservation.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        parentName: true,
+        studentName: true,
+        email: true,
+        phone: true,
+        classe: true,
+        academyId: true,
+        academyTitle: true,
+        price: true,
+        paymentMethod: true,
+        status: true,
+        scoringResult: true,
+        telegramSent: true,
+        createdAt: true,
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      message: "Réservation enregistrée",
+      count: reservations.length,
+      reservations,
     });
   } catch (error) {
-    console.error("Erreur API reservation:", error instanceof Error ? error.message : 'Unknown error');
+    console.error('[reservation] GET error:', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json(
-      { success: false, message: "Erreur serveur interne" },
+      { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }

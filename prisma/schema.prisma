@@ -833,3 +833,34 @@ model Diagnostic {
   @@index([definitionKey, status])
   @@map("diagnostics")
 }
+
+// Stage Reservation — Persists stage registration leads
+model StageReservation {
+  id            String   @id @default(cuid())
+  parentName    String
+  studentName   String?  // Optional: if form distinguishes parent/student
+  email         String
+  phone         String
+  classe        String
+  academyId     String
+  academyTitle  String
+  price         Float
+  paymentMethod String?  // "card" | "transfer" | null
+
+  // Pipeline status
+  status String @default("PENDING") // PENDING, CONFIRMED, CANCELLED, PAID
+
+  // Scoring (filled after QCM diagnostic)
+  scoringResult Json? // { globalScore, confidenceIndex, radarData, strengths, weaknesses }
+
+  // Telegram notification tracking
+  telegramSent Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, academyId]) // Anti-duplicate: one reservation per email per academy
+  @@index([status])
+  @@index([academyId])
+  @@map("stage_reservations")
+}
