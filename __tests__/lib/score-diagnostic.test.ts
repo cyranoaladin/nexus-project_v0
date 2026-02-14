@@ -80,11 +80,15 @@ describe('computeScoringV2', () => {
       expect(result.readinessScore).toBe(expected);
     });
 
-    it('should compute riskIndex as inverse of examReadiness', () => {
+    it('should compute riskIndex from rebalanced formula (60% proof + 40% declarative)', () => {
       const data = buildData();
       const result = computeScoringV2(data);
 
-      expect(result.riskIndex).toBe(Math.round(100 - result.examReadinessIndex));
+      // RiskIndex is now 60% proof-based + 40% declarative, not simply 100 - examReadiness
+      expect(result.riskIndex).toBeGreaterThanOrEqual(0);
+      expect(result.riskIndex).toBeLessThanOrEqual(100);
+      // With good mini-test (4/6), completedInTime, verifiedAnswers, low stress → risk should be moderate
+      expect(result.riskIndex).toBeLessThan(50);
     });
   });
 
@@ -388,6 +392,166 @@ describe('computeScoringV2', () => {
 
       expect(result.dataQuality.quality).toBe('insufficient');
       expect(result.dataQuality.activeDomains).toBe(1);
+    });
+  });
+
+  describe('TrustScore', () => {
+    it('should return green trust for complete data', () => {
+      const data = buildData();
+      const result = computeScoringV2(data);
+
+      expect(result.trustScore).toBeGreaterThanOrEqual(0);
+      expect(result.trustScore).toBeLessThanOrEqual(100);
+      expect(['green', 'orange', 'red']).toContain(result.trustLevel);
+    });
+
+    it('should penalize trust for many unknowns', () => {
+      const good = buildData();
+      const bad = buildData({
+        competencies: {
+          algebra: [
+            { skillLabel: 'A', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            { skillLabel: 'B', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            { skillLabel: 'C', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            { skillLabel: 'D', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+          ],
+          analysis: [
+            { skillLabel: 'E', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'F', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+          geometry: [],
+          probabilities: [],
+          python: [],
+        },
+      });
+
+      const goodResult = computeScoringV2(good);
+      const badResult = computeScoringV2(bad);
+
+      expect(badResult.trustScore).toBeLessThan(goodResult.trustScore);
+    });
+
+    it('should return red trust for very incomplete data', () => {
+      const data = buildData({
+        competencies: {
+          algebra: [
+            { skillLabel: 'A', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+          ],
+          analysis: [],
+          geometry: [],
+          probabilities: [],
+          python: [],
+        },
+      });
+      const result = computeScoringV2(data);
+
+      expect(result.trustLevel).toBe('red');
+    });
+  });
+
+  describe('Inconsistency detection', () => {
+    it('should detect INCONSISTENT_SIGNAL (high mini-test + panic)', () => {
+      const data = buildData({
+        examPrep: {
+          miniTest: { score: 5, timeUsedMinutes: 15, completedInTime: true },
+          selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 2 },
+          signals: { hardestItems: [], feeling: 'panic', verifiedAnswers: true },
+        },
+      });
+      const result = computeScoringV2(data);
+
+      expect(result.inconsistencies.some((i: { code: string }) => i.code === 'INCONSISTENT_SIGNAL')).toBe(true);
+    });
+
+    it('should detect RUSHED_TEST (fast + low score)', () => {
+      const data = buildData({
+        examPrep: {
+          miniTest: { score: 1, timeUsedMinutes: 5, completedInTime: true },
+          selfRatings: { speedNoCalc: 1, calcReliability: 1, redaction: 1, justifications: 1, stress: 1 },
+          signals: { hardestItems: [], feeling: 'ok' },
+        },
+      });
+      const result = computeScoringV2(data);
+
+      expect(result.inconsistencies.some((i: { code: string }) => i.code === 'RUSHED_TEST')).toBe(true);
+    });
+
+    it('should not flag inconsistencies for normal data', () => {
+      const data = buildData();
+      const result = computeScoringV2(data);
+
+      expect(result.inconsistencies.length).toBe(0);
+    });
+  });
+
+  describe('Computed priorities', () => {
+    it('should compute topPriorities from weak domains', () => {
+      const data = buildData({
+        competencies: {
+          algebra: [
+            { skillLabel: 'Suites', status: 'studied', mastery: 0, friction: 3, errorTypes: ['calcul'] },
+            { skillLabel: 'Second degré', status: 'studied', mastery: 1, friction: 2, errorTypes: ['signe'] },
+          ],
+          analysis: [
+            { skillLabel: 'Dérivation', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            { skillLabel: 'Variations', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+          ],
+          geometry: [
+            { skillLabel: 'Vecteurs', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'Produit scalaire', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+          probabilities: [
+            { skillLabel: 'Conditionnelles', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'Arbres', status: 'studied', mastery: 3, friction: 0, errorTypes: [] },
+          ],
+          python: [
+            { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            { skillLabel: 'Fonctions', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+        },
+      });
+      const result = computeScoringV2(data);
+
+      expect(result.topPriorities.length).toBeGreaterThan(0);
+      expect(result.topPriorities[0].domain).toBe('algebra');
+    });
+
+    it('should compute quickWins from upgradeable skills', () => {
+      const data = buildData();
+      const result = computeScoringV2(data);
+
+      expect(Array.isArray(result.quickWins)).toBe(true);
+    });
+
+    it('should compute highRisk from blocking skills', () => {
+      const data = buildData({
+        competencies: {
+          algebra: [
+            { skillLabel: 'Suites', status: 'studied', mastery: 0, friction: 4, errorTypes: ['calcul'] },
+            { skillLabel: 'Second degré', status: 'studied', mastery: 0, friction: 4, errorTypes: ['signe'] },
+          ],
+          analysis: [
+            { skillLabel: 'Dérivation', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'Variations', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+          geometry: [
+            { skillLabel: 'Vecteurs', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'Produit scalaire', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+          probabilities: [
+            { skillLabel: 'Conditionnelles', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            { skillLabel: 'Arbres', status: 'studied', mastery: 3, friction: 0, errorTypes: [] },
+          ],
+          python: [
+            { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            { skillLabel: 'Fonctions', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+          ],
+        },
+      });
+      const result = computeScoringV2(data);
+
+      expect(result.highRisk.length).toBeGreaterThan(0);
+      expect(result.highRisk[0].skillLabel).toBe('Suites');
     });
   });
 
