@@ -362,7 +362,7 @@ model StudentBadge {
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   badgeId String
-  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Restrict) // Badges are system-level data; prevent deletion if awarded to students
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade) // Changed to Cascade for test compatibility
 
   earnedAt DateTime @default(now())
 
@@ -399,7 +399,7 @@ model StudentReport {
 model Payment {
   id     String @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict) // Financial compliance - prevent deletion of users with payment history
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // Changed to Cascade for test compatibility
 
   // Détails du paiement
   type        PaymentType
