@@ -241,6 +241,67 @@ const student = await prisma.user.create({
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
   // =============================================================================
+  // CREATE COACH AVAILABILITIES (CRITICAL for E2E booking tests)
+  // =============================================================================
+  console.log('📅 Creating coach availabilities...');
+
+  const farPast = new Date('2000-01-01T00:00:00Z');
+  const allCoachUsers = [coach, coach2, zenon];
+
+  for (const coachUser of allCoachUsers) {
+    // Create recurring weekday availability (Mon-Fri, 10:00-11:00)
+    const weekdaySlots = [1, 2, 3, 4, 5].map((day) => ({
+      coachId: coachUser.id,
+      dayOfWeek: day,
+      startTime: '10:00',
+      endTime: '11:00',
+      specificDate: null,
+      isAvailable: true,
+      isRecurring: true,
+      validFrom: farPast,
+      validUntil: null,
+    }));
+
+    await prisma.coachAvailability.createMany({
+      data: weekdaySlots,
+      skipDuplicates: true,
+    });
+
+    // Create specific-date slots for the next 30 days (weekdays only)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cursor = new Date(today);
+
+    for (let i = 0; i < 30; i++) {
+      cursor.setDate(cursor.getDate() + 1);
+      const day = cursor.getDay();
+      if (day === 0 || day === 6) continue; // Skip weekends
+
+      const slotDate = new Date(cursor);
+      slotDate.setHours(12, 0, 0, 0);
+
+      await prisma.coachAvailability.create({
+        data: {
+          coachId: coachUser.id,
+          dayOfWeek: slotDate.getDay(),
+          startTime: '10:00',
+          endTime: '11:00',
+          specificDate: slotDate,
+          isAvailable: true,
+          isRecurring: false,
+          validFrom: slotDate,
+          validUntil: null,
+        },
+      }).catch(() => {
+        // Skip duplicates silently
+      });
+    }
+
+    console.log(`  ✓ Availability created for ${coachUser.email}`);
+  }
+  console.log('');
+
+  // =============================================================================
   // CREATE SESSION BOOKINGS
   // =============================================================================
   console.log('📅 Creating test session bookings...');
