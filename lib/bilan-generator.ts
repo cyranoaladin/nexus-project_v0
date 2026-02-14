@@ -180,15 +180,74 @@ function buildRAGQueries(data: BilanDiagnosticMathsData, scoring: ScoringResult)
 }
 
 /**
+ * Audience-specific prompt fragments (shorter = faster generation).
+ */
+const AUDIENCE_PROMPTS: Record<string, string> = {
+  eleve: `Tu es un expert pédagogique bienveillant. Génère un bilan pour l'ÉLÈVE en Markdown.
+Ton : bienveillant, direct, motivant. Tutoiement.
+Contenu : score de préparation, top 3 forces, top 5 priorités avec conseils concrets, profil d'apprentissage.
+Format : sections courtes, bullet points, pas de jargon. ~400 mots.
+Retourne UNIQUEMENT le texte Markdown du bilan, rien d'autre.`,
+
+  parents: `Tu es un expert pédagogique professionnel. Génère un rapport pour les PARENTS en Markdown.
+Ton : professionnel, rassurant, transparent. Vouvoiement.
+Contenu : synthèse globale, points forts, points d'attention, recommandation pallier avec justification, bénéfices du stage.
+Ne pas exposer les scores bruts — utiliser des termes qualitatifs.
+Format : sections structurées, langage accessible. ~500 mots.
+Retourne UNIQUEMENT le texte Markdown du rapport, rien d'autre.`,
+
+  nexus: `Tu es un expert pédagogique technique. Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
+Ton : technique, factuel.
+Contenu : scores bruts, cartographie par domaine, profil cognitif, signaux d'alerte, plan de stage suggéré, verbatims.
+Format : tableaux markdown, données structurées. ~600 mots.
+Retourne UNIQUEMENT le texte Markdown de la fiche, rien d'autre.`,
+};
+
+/**
+ * Generate a single audience bilan via Ollama.
+ */
+async function generateSingleBilan(
+  audience: string,
+  diagnosticContext: string,
+  ragContext: string
+): Promise<string> {
+  const systemPrompt = AUDIENCE_PROMPTS[audience];
+  if (!systemPrompt) throw new Error(`Unknown audience: ${audience}`);
+
+  const raw = await ollamaChat({
+    model: process.env.OLLAMA_MODEL || 'qwen2.5:32b',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: `Voici les données du diagnostic pré-stage :\n\n${diagnosticContext}${ragContext}`,
+      },
+    ],
+    temperature: 0.5,
+    numPredict: 2048,
+    format: '',
+    timeout: 120000,
+  });
+
+  if (!raw || raw.trim().length < 50) {
+    throw new Error(`Empty or too short LLM response for ${audience}`);
+  }
+
+  return raw.trim();
+}
+
+/**
  * Generate the 3 audience-specific bilans using Ollama (Qwen 2.5:32b) + RAG.
- * Pipeline: RAG search → build context → Ollama chat → parse JSON → 3 bilans.
- * Falls back to template-based generation if LLM is unavailable.
+ * Strategy: 3 parallel smaller calls (one per audience) instead of one monolithic call.
+ * Each call has its own focused prompt and shorter timeout.
+ * Falls back to template for any failed section.
  */
 export async function generateBilans(
   data: BilanDiagnosticMathsData,
   scoring: ScoringResult
 ): Promise<GeneratedBilans> {
   const diagnosticContext = prepareLLMContext(data, scoring);
+  const fallback = generateFallbackBilans(data, scoring);
 
   // 1. RAG: retrieve relevant pedagogical content
   let ragContext = '';
@@ -199,7 +258,6 @@ export async function generateBilans(
       const hits = await ragSearch({ query, k: 2 });
       allHits.push(...hits);
     }
-    // Deduplicate by ID
     const uniqueHits = Array.from(
       new Map(allHits.map((h) => [h.id, h])).values()
     ).slice(0, 6);
@@ -208,38 +266,32 @@ export async function generateBilans(
     console.warn('RAG search failed, proceeding without pedagogical context:', error);
   }
 
-  // 2. LLM: generate bilans via Ollama/Qwen
-  try {
-    const raw = await ollamaChat({
-      model: process.env.OLLAMA_MODEL || 'qwen2.5:32b',
-      messages: [
-        { role: 'system', content: BILAN_SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: `Voici les données du diagnostic pré-stage. Génère les 3 bilans en JSON (clés: "eleve", "parents", "nexus"):\n\n${diagnosticContext}${ragContext}`,
-        },
-      ],
-      temperature: 0.5,
-      numPredict: 4096,
-      format: 'json',
-      timeout: 180000,
-    });
+  // 2. LLM: generate 3 bilans in parallel (one per audience)
+  const [eleveResult, parentsResult, nexusResult] = await Promise.allSettled([
+    generateSingleBilan('eleve', diagnosticContext, ragContext),
+    generateSingleBilan('parents', diagnosticContext, ragContext),
+    generateSingleBilan('nexus', diagnosticContext, ragContext),
+  ]);
 
-    if (!raw) {
-      throw new Error('Empty LLM response from Ollama');
-    }
+  const eleve = eleveResult.status === 'fulfilled' ? eleveResult.value : fallback.eleve;
+  const parents = parentsResult.status === 'fulfilled' ? parentsResult.value : fallback.parents;
+  const nexus = nexusResult.status === 'fulfilled' ? nexusResult.value : fallback.nexus;
 
-    const parsed = JSON.parse(raw) as GeneratedBilans;
-
-    if (!parsed.eleve || !parsed.parents || !parsed.nexus) {
-      throw new Error('Missing bilan sections in LLM response');
-    }
-
-    return parsed;
-  } catch (error) {
-    console.error('Erreur génération bilan LLM (Ollama/Qwen):', error);
-    return generateFallbackBilans(data, scoring);
+  if (eleveResult.status === 'rejected') {
+    console.error('LLM élève failed:', eleveResult.reason);
   }
+  if (parentsResult.status === 'rejected') {
+    console.error('LLM parents failed:', parentsResult.reason);
+  }
+  if (nexusResult.status === 'rejected') {
+    console.error('LLM nexus failed:', nexusResult.reason);
+  }
+
+  const llmSuccessCount = [eleveResult, parentsResult, nexusResult]
+    .filter((r) => r.status === 'fulfilled').length;
+  console.log(`Bilan generation: ${llmSuccessCount}/3 sections generated by LLM`);
+
+  return { eleve, parents, nexus };
 }
 
 /**
