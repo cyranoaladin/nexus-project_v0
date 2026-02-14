@@ -29,6 +29,10 @@ const customJestConfig = {
   ],
   // Increase timeout for integration tests (database operations can be slow)
   testTimeout: 30000,
+  // Force serial execution to prevent parallel test conflicts
+  maxWorkers: 1,
+  // Disable test concurrency within a file
+  maxConcurrency: 1,
 };
 
 module.exports = createJestConfig(customJestConfig);
