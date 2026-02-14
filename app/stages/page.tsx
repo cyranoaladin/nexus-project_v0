@@ -551,7 +551,7 @@ export default function AcademiesHiverPage() {
                   <div className="mt-6 pt-5 border-t border-white/10 space-y-3">
                     {[
                       "Groupes de niveau (6-8 élèves)",
-                      "Professeurs agrégés & jurys du Bac",
+                      "Professeurs agrégés et certifiés & jurys du Bac",
                       "Suivi personnalisé post-stage",
                     ].map((item) => (
                       <div key={item} className="flex items-center gap-3 text-sm text-white font-medium">
@@ -980,7 +980,7 @@ export default function AcademiesHiverPage() {
                         </span>
                       </button>
                       <p className="text-center text-[10px] text-slate-400 italic">
-                        Pédagogie différenciée garantie par nos professeurs agrégés.
+                        Pédagogie différenciée garantie par nos professeurs agrégés et certifiés.
                       </p>
 
                       <button
