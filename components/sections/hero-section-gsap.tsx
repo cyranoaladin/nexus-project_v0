@@ -168,7 +168,7 @@ const HeroSectionGSAP = () => {
 
                         {/* Value Proposition */}
                         <p className="animate-item text-neutral-300/90 mt-6 text-lg leading-relaxed max-w-xl">
-                            Coachs agrégés, IA ARIA 24/7 et suivi parent clair :
+                            Coachs agrégés et certifiés, IA ARIA 24/7 et suivi parent clair :
                             Nexus Réussite transforme le potentiel de votre enfant
                             en résultats visibles.
                         </p>

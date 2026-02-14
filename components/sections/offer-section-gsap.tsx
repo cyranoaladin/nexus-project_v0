@@ -118,7 +118,7 @@ const OfferSection = () => {
             title: "Hybride",
             subtitle: "Plateforme + Coach",
             items: [
-                { icon: Check, text: "4h/mois avec coach agrégé" },
+                { icon: Check, text: "4h/mois avec coach agrégé et certifié" },
                 { icon: Bot, text: "IA ARIA 24/7" },
                 { icon: Shield, text: "Suivi parental" },
                 { icon: GraduationCap, text: "Plan de révision personnalisé" }
@@ -129,7 +129,7 @@ const OfferSection = () => {
             title: "Immersion",
             subtitle: "Intensif & Prioritaire",
             items: [
-                { icon: Check, text: "8h/mois avec experts agrégés" },
+                { icon: Check, text: "8h/mois avec experts agrégés et certifiés" },
                 { icon: Bot, text: "IA ARIA 24/7" },
                 { icon: Shield, text: "Support prioritaire" },
                 { icon: GraduationCap, text: "Bilan trimestriel" }

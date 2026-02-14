@@ -102,7 +102,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
             </div>
             <div className="pill-stage">
               <span className="text-green-400">✓</span>
-              <span>Enseignants experts (agrégés / certifiés)</span>
+              <span>Enseignants experts (agrégés et certifiés)</span>
             </div>
             <div className="pill-stage">
               <span className="text-green-400">✓</span>

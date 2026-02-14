@@ -490,7 +490,7 @@ export default function OffresPage() {
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
                   {[
                     "Tout Accès Plateforme inclus",
-                    "4h/mois avec coach agrégé/certifié",
+                    "4h/mois avec coach agrégé et certifié",
                     "Coach référent dédié",
                     "IA ARIA (1 matière)",
                     "Suivi personnalisé",
@@ -536,7 +536,7 @@ export default function OffresPage() {
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
                   {[
                     "Tout Hybride inclus",
-                    "8h/mois avec experts agrégés",
+                    "8h/mois avec experts agrégés et certifiés",
                     "Support prioritaire",
                     "Bilan trimestriel",
                     "IA ARIA (1 matière)",
@@ -675,7 +675,7 @@ export default function OffresPage() {
             </div>
 
             <p className="mt-4 text-xs text-neutral-400 text-center">
-              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach agrégé + IA ARIA + dashboard + suivi).
+              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach agrégé et certifié + IA ARIA + dashboard + suivi).
             </p>
           </div>
         </section>
@@ -978,11 +978,11 @@ export default function OffresPage() {
               {[
                 {
                   q: "Qu'est-ce qu'un crédit et comment fonctionne-t-il ?",
-                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach agrégé. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
+                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach agrégé et certifié. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
                 },
                 {
                   q: "Qui sont les coachs Nexus Réussite ?",
-                  a: "Tous nos coachs sont agrégés ou certifiés. Ils sont sélectionnés pour leur expertise et leur capacité à accompagner des lycéens du système français. Chaque coach a un pseudonyme mythique et un profil spécialisé."
+                  a: "Tous nos coachs sont agrégés et certifiés. Ils sont sélectionnés pour leur expertise et leur capacité à accompagner des lycéens du système français. Chaque coach a un pseudonyme mythique et un profil spécialisé."
                 },
                 {
                   q: "Comment fonctionne l'IA ARIA ?",
