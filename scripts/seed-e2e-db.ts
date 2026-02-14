@@ -282,6 +282,19 @@ const student = await prisma.user.create({
   console.log(`  Coach:   coach.${timestamp}@test.com / password123`);
   console.log(`  Coach2:  coach2.${timestamp}@test.com / password123\n`);
 
+  // Write credentials to file for E2E tests
+  const credentials = {
+    admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
+    parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
+    student: { email: `student.${timestamp}@test.com`, password: 'password123' },
+    student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
+    coach: { email: `coach.${timestamp}@test.com`, password: 'password123' },
+    coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
+  };
+  const fs = require('fs');
+  fs.writeFileSync('e2e/.credentials.json', JSON.stringify(credentials, null, 2));
+  console.log('✅ Credentials written to e2e/.credentials.json');
+
   console.log('🧪 Ready for E2E tests!');
 }
 
