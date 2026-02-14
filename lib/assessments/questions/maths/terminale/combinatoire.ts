@@ -13,7 +13,7 @@
 import { Subject } from '../../../core/types';
 import type { QuestionModule } from '../../types';
 
-const module: QuestionModule = {
+const questionModule: QuestionModule = {
   id: 'combinatoire',
   title: 'Combinatoire et Dénombrement',
   subject: Subject.MATHS,
@@ -118,4 +118,4 @@ const module: QuestionModule = {
   ],
 };
 
-export default module;
+export default questionModule;

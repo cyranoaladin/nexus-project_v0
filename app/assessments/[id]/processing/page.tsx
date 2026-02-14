@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,10 +29,9 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
   const [status, setStatus] = useState<AssessmentStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pollingCount, setPollingCount] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
     const pollStatus = async () => {
       try {
         const response = await fetch(`/api/assessments/${params.id}/status`);
@@ -51,7 +50,7 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
 
         // Redirect when completed
         if (data.status === 'COMPLETED') {
-          clearInterval(intervalId);
+          if (intervalRef.current) clearInterval(intervalRef.current);
           setTimeout(() => {
             router.push(`/assessments/${params.id}/result`);
           }, 1000);
@@ -59,13 +58,13 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
 
         // Stop polling on failure
         if (data.status === 'FAILED') {
-          clearInterval(intervalId);
+          if (intervalRef.current) clearInterval(intervalRef.current);
           setError('Une erreur est survenue lors du traitement de votre évaluation.');
         }
       } catch (err) {
         console.error('Polling error:', err);
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
-        clearInterval(intervalId);
+        if (intervalRef.current) clearInterval(intervalRef.current);
       }
     };
 
@@ -73,12 +72,12 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
     pollStatus();
 
     // Poll every 2 seconds
-    intervalId = setInterval(pollStatus, 2000);
+    intervalRef.current = setInterval(pollStatus, 2000);
 
     // Cleanup
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
   }, [params.id, router]);

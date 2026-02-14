@@ -51,7 +51,7 @@ export class BilanGenerator {
         throw new Error(`Assessment ${assessmentId} has no scoring result`);
       }
 
-      const scoringResult = assessment.scoringResult as ScoringResult;
+      const scoringResult = assessment.scoringResult as unknown as ScoringResult;
 
       console.log(`[BilanGenerator] Assessment loaded: ${assessment.subject} ${assessment.grade}`);
 

@@ -6,7 +6,7 @@
 import { Subject } from '../../../core/types';
 import type { QuestionModule } from '../../types';
 
-const module: QuestionModule = {
+const questionModule: QuestionModule = {
   id: 'architecture',
   title: 'Architectures & Réseaux',
   subject: Subject.NSI,
@@ -15,4 +15,4 @@ const module: QuestionModule = {
   questions: [], // TODO: Migrer depuis stage-qcm-structure.ts
 };
 
-export default module;
+export default questionModule;

@@ -14,6 +14,12 @@
 import { prisma } from '../lib/prisma';
 import { ALL_STAGE_QUESTIONS } from '../lib/data/stage-qcm-structure';
 
+// Verify prisma is properly imported
+if (!prisma) {
+  console.error('❌ FATAL: Prisma client not properly imported');
+  process.exit(1);
+}
+
 // ─── Test Configuration ──────────────────────────────────────────────────────
 
 const TEST_EMAIL = 'test.auto.workflow@nexus-test.com';
