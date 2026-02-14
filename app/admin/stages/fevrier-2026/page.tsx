@@ -640,13 +640,14 @@ export default function AdminStagesFevrier2026Page() {
                       Statut <SortIcon field="status" />
                     </span>
                   </th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Score / Confiance</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center">
+                    <td colSpan={10} className="px-4 py-12 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
                         <p className="text-sm text-slate-500">Chargement des inscriptions...</p>
@@ -655,7 +656,7 @@ export default function AdminStagesFevrier2026Page() {
                   </tr>
                 ) : filteredReservations.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center">
+                    <td colSpan={10} className="px-4 py-12 text-center">
                       <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                       <p className="text-sm text-slate-500">
                         {reservations.length === 0
@@ -692,6 +693,20 @@ export default function AdminStagesFevrier2026Page() {
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={r.status} />
+                      </td>
+                      <td className="px-4 py-3">
+                        {r.scoringResult ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-bold text-slate-900">
+                              {Math.round((r.scoringResult as { globalScore?: number }).globalScore || 0)}/100
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {Math.round((r.scoringResult as { confidenceIndex?: number }).confidenceIndex || 0)}% conf.
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">Non passé</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
