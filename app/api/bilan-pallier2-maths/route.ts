@@ -3,10 +3,21 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { bilanDiagnosticMathsSchema } from '@/lib/validations';
 import { computeScoring } from '@/lib/bilan-scoring';
+import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
 import { generateBilans } from '@/lib/bilan-generator';
+import { buildQualityFlags } from '@/lib/diagnostics/llm-contract';
+import { getDefinition, resolveDefinitionKey } from '@/lib/diagnostics/definitions';
+import { DiagnosticStatus } from '@/lib/diagnostics/types';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 
+/**
+ * POST /api/bilan-pallier2-maths
+ *
+ * Pipeline: Validate → Score → Save (SCORED) → Generate LLM (async) → Update (ANALYZED/FAILED)
+ * Returns immediately after scoring with publicShareId for public bilan access.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -18,10 +29,15 @@ export async function POST(request: NextRequest) {
     // 1. Validate input against v1.3 schema
     const validatedData = bilanDiagnosticMathsSchema.parse(body);
 
-    // 2. Compute scoring (ReadinessScore, RiskIndex, Decision, Alerts)
-    const scoring = computeScoring(validatedData);
+    // 2. Resolve definition
+    const defKey = 'maths-premiere-p2';
+    const definition = getDefinition(defKey);
 
-    // 3. Build the full diagnostic data payload
+    // 3. Compute scoring V1 (backward compat) + V2 (new indices)
+    const scoringV1 = computeScoring(validatedData);
+    const scoringV2 = computeScoringV2(validatedData, definition.scoringPolicy);
+
+    // 4. Build the full diagnostic data payload
     const diagnosticData: Prisma.JsonObject = {
       version: validatedData.version || 'v1.3',
       submittedAt: validatedData.submittedAt || new Date().toISOString(),
@@ -35,13 +51,19 @@ export async function POST(request: NextRequest) {
       methodology: validatedData.methodology as unknown as Prisma.JsonObject,
       ambition: validatedData.ambition as unknown as Prisma.JsonObject,
       freeText: validatedData.freeText as unknown as Prisma.JsonObject,
-      scoring: scoring as unknown as Prisma.JsonObject,
+      scoring: scoringV1 as unknown as Prisma.JsonObject,
+      scoringV2: scoringV2 as unknown as Prisma.JsonObject,
     };
 
-    // 4. Persist to database (initial save with SCORED status)
+    // 5. Persist to database (initial save with SCORED status + metadata)
+    const modelUsed = process.env.OLLAMA_MODEL || 'llama3.2:latest';
     const diagnostic = await prisma.diagnostic.create({
       data: {
         type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
+        definitionKey: defKey,
+        definitionVersion: definition.version,
+        promptVersion: definition.prompts.version,
+        modelUsed,
         studentFirstName: validatedData.identity.firstName,
         studentLastName: validatedData.identity.lastName,
         studentEmail: validatedData.identity.email,
@@ -53,57 +75,102 @@ export async function POST(request: NextRequest) {
         bacBlancResult: validatedData.performance.lastTestScore,
         classRanking: validatedData.performance.classRanking,
         data: diagnosticData,
-        status: 'SCORED',
+        status: DiagnosticStatus.SCORED,
       },
     });
 
-    // 5. Generate bilans synchronously (Ollama/Qwen ~30-120s)
-    //    Next.js standalone doesn't keep async promises after response,
-    //    so we must await the generation before responding.
-    let bilanStatus: 'ANALYZED' | 'SCORE_ONLY' = 'SCORE_ONLY';
+    // 6. Generate bilans (synchronous — Next.js standalone doesn't keep async promises)
+    //    We await the generation, but respond with scoring immediately if it fails.
+    let bilanStatus: string = DiagnosticStatus.SCORED;
     try {
-      const bilans = await generateBilans(validatedData, scoring);
+      await prisma.diagnostic.update({
+        where: { id: diagnostic.id },
+        data: { status: DiagnosticStatus.GENERATING },
+      });
+
+      const bilans = await generateBilans(validatedData, scoringV1);
+
+      // Build quality flags for structured analysis
+      const qualityFlags = buildQualityFlags({
+        ragAvailable: false, // Will be updated when RAG is populated
+        ragHitCount: 0,
+        llmSuccessCount: [bilans.eleve, bilans.parents, bilans.nexus].filter(Boolean).length,
+        dataQuality: scoringV2.dataQuality.quality,
+        coverageIndex: scoringV2.coverageIndex,
+      });
 
       await prisma.diagnostic.update({
         where: { id: diagnostic.id },
         data: {
-          status: 'ANALYZED',
+          status: DiagnosticStatus.ANALYZED,
           analysisResult: JSON.stringify({
             eleve: bilans.eleve,
             parents: bilans.parents,
             nexus: bilans.nexus,
             generatedAt: new Date().toISOString(),
           }),
+          studentMarkdown: bilans.eleve,
+          parentsMarkdown: bilans.parents,
+          nexusMarkdown: bilans.nexus,
+          analysisJson: {
+            forces: scoringV2.domainScores.filter((d) => d.priority === 'low' || d.priority === 'medium').map((d) => ({
+              domain: d.domain, label: d.domain, detail: `Score: ${d.score}%`, evidence: `${d.evaluatedCount}/${d.totalCount} évalués`,
+            })),
+            faiblesses: scoringV2.domainScores.filter((d) => d.priority === 'critical' || d.priority === 'high').map((d) => ({
+              domain: d.domain, label: d.domain, detail: `Score: ${d.score}%`, evidence: d.gaps.join(', ') || 'aucun gap identifié',
+            })),
+            plan: [],
+            ressources: [],
+            qualityFlags,
+            citations: [],
+          } satisfies Prisma.JsonObject as unknown as Prisma.JsonObject,
           actionPlan: bilans.nexus,
+          ragUsed: false,
+          ragCollections: [],
         },
       });
-      bilanStatus = 'ANALYZED';
+      bilanStatus = DiagnosticStatus.ANALYZED;
     } catch (bilanError) {
+      const errorMessage = bilanError instanceof Error ? bilanError.message : 'Unknown error';
+      const errorCode = errorMessage.includes('timeout') ? 'OLLAMA_TIMEOUT'
+        : errorMessage.includes('Empty') ? 'OLLAMA_EMPTY_RESPONSE'
+        : 'UNKNOWN_ERROR';
+
       console.error(`Erreur génération bilan pour ${diagnostic.id}:`, bilanError);
       await prisma.diagnostic.update({
         where: { id: diagnostic.id },
         data: {
-          status: 'SCORE_ONLY',
+          status: DiagnosticStatus.FAILED,
+          errorCode,
+          errorDetails: errorMessage.substring(0, 500),
           analysisResult: JSON.stringify({
             error: 'Génération LLM échouée — bilan template disponible via fallback',
             generatedAt: new Date().toISOString(),
           }),
         },
       });
+      bilanStatus = DiagnosticStatus.FAILED;
     }
 
     return NextResponse.json({
       success: true,
-      message: bilanStatus === 'ANALYZED'
+      message: bilanStatus === DiagnosticStatus.ANALYZED
         ? 'Diagnostic enregistré et bilan généré avec succès.'
-        : 'Diagnostic enregistré avec scoring. Le bilan détaillé sera disponible prochainement.',
+        : bilanStatus === DiagnosticStatus.FAILED
+          ? 'Diagnostic enregistré avec scoring. La génération du bilan a échoué — un template de secours est disponible.'
+          : 'Diagnostic enregistré avec scoring. Le bilan détaillé sera disponible prochainement.',
       id: diagnostic.id,
+      publicShareId: diagnostic.publicShareId,
       status: bilanStatus,
       scoring: {
-        readinessScore: scoring.readinessScore,
-        riskIndex: scoring.riskIndex,
-        recommendation: scoring.recommendation,
-        recommendationMessage: scoring.recommendationMessage,
+        readinessScore: scoringV2.readinessScore,
+        riskIndex: scoringV2.riskIndex,
+        masteryIndex: scoringV2.masteryIndex,
+        coverageIndex: scoringV2.coverageIndex,
+        examReadinessIndex: scoringV2.examReadinessIndex,
+        recommendation: scoringV2.recommendation,
+        recommendationMessage: scoringV2.recommendationMessage,
+        justification: scoringV2.justification,
       },
     });
   } catch (error) {
@@ -125,12 +192,56 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/**
+ * GET /api/bilan-pallier2-maths
+ *
+ * Access modes:
+ *   ?share=<publicShareId>  → Public access (student/parent bilan only, no Nexus tab)
+ *   ?id=<diagnosticId>      → Staff-only access (full diagnostic with Nexus data)
+ *   (no params)             → Staff-only list of all diagnostics (dashboard)
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const shareId = searchParams.get('share');
     const id = searchParams.get('id');
 
-    // Single diagnostic by ID
+    // --- Public access via publicShareId (student/parent) ---
+    if (shareId) {
+      const diagnostic = await prisma.diagnostic.findUnique({
+        where: { publicShareId: shareId },
+        select: {
+          id: true,
+          publicShareId: true,
+          type: true,
+          studentFirstName: true,
+          studentLastName: true,
+          status: true,
+          mathAverage: true,
+          establishment: true,
+          data: true,
+          studentMarkdown: true,
+          parentsMarkdown: true,
+          // NOTE: nexusMarkdown intentionally excluded from public access
+          analysisResult: true,
+          createdAt: true,
+        },
+      });
+
+      if (!diagnostic) {
+        return NextResponse.json({ error: 'Bilan non trouvé' }, { status: 404 });
+      }
+
+      return NextResponse.json({ diagnostic });
+    }
+
+    // --- Staff-only access below: require ADMIN, ASSISTANTE, or COACH role ---
+    const authResult = await requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH'] as unknown as Parameters<typeof requireAnyRole>[0]);
+    if (isErrorResponse(authResult)) {
+      return authResult;
+    }
+
+    // Single diagnostic by internal ID (staff access — includes Nexus data)
     if (id) {
       const diagnostic = await prisma.diagnostic.findUnique({
         where: { id },
@@ -143,7 +254,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ diagnostic });
     }
 
-    // List all diagnostics
+    // List all diagnostics (dashboard — staff only)
     const diagnostics = await prisma.diagnostic.findMany({
       where: {
         type: { in: ['PALLIER2_MATHS', 'DIAGNOSTIC_PRE_STAGE_MATHS'] },
@@ -152,7 +263,9 @@ export async function GET(request: NextRequest) {
       take: 100,
       select: {
         id: true,
+        publicShareId: true,
         type: true,
+        definitionKey: true,
         studentFirstName: true,
         studentLastName: true,
         studentEmail: true,
@@ -160,6 +273,10 @@ export async function GET(request: NextRequest) {
         mathAverage: true,
         establishment: true,
         classRanking: true,
+        modelUsed: true,
+        ragUsed: true,
+        errorCode: true,
+        retryCount: true,
         data: true,
         createdAt: true,
       },
