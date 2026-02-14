@@ -198,6 +198,16 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: npx prisma migrate deploy
 
+      - name: Reset database schema for clean test run
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+        run: |
+          npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
+          DROP SCHEMA IF EXISTS public CASCADE;
+          CREATE SCHEMA public;
+          SQL
+          npx prisma migrate deploy
+
       - name: Verify database connection
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
@@ -267,15 +277,16 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run E2E database migrations
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
-        run: npx prisma migrate deploy
-
       - name: Seed E2E test data
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
-        run: npx tsx scripts/seed-e2e-db.ts
+        run: |
+          npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
+          DROP SCHEMA IF EXISTS public CASCADE;
+          CREATE SCHEMA public;
+          SQL
+          npx prisma migrate deploy
+          npx tsx scripts/seed-e2e-db.ts
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
