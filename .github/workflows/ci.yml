@@ -38,6 +38,9 @@ env:
   # CI optimizations
   CI: true
   FORCE_COLOR: 1
+  # Telegram credentials (optional - for notifications)
+  TELEGRAM_API_KEY: ${{ secrets.TELEGRAM_API_KEY || '' }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '' }}
 
 jobs:
   # ===========================================================================
