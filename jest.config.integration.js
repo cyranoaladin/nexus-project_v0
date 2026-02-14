@@ -18,6 +18,7 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.integration.js'],
+  globalSetup: '<rootDir>/jest.global-setup.js',
   transformIgnorePatterns: [
     'node_modules/(?!(@auth/prisma-adapter|next-auth|uuid)/)',
   ],
