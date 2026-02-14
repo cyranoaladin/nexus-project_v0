@@ -307,7 +307,7 @@ export default function BilanPallier2MathsPage() {
   const totalSteps = 7;
 
   const [formData, setFormData] = useState<FormData>({
-    version: "v1.2",
+    version: "v1.3",
     submittedAt: new Date().toISOString(),
     identity: { firstName: "", lastName: "", birthDate: "", email: "", phone: "", city: "" },
     schoolContext: { establishment: "", mathTrack: "", mathTeacher: "", classSize: "" },
@@ -414,11 +414,11 @@ export default function BilanPallier2MathsPage() {
       <CorporateNavbar />
       <main className="py-8 md:py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Diagnostic Maths Excellence" }]} className="mb-6 breadcrumb-on-dark" />
+          <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Bilan Diagnostic Pré-Stage" }]} className="mb-6 breadcrumb-on-dark" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-            <Badge variant="outline" className="mb-4 border-brand-accent/40 bg-brand-accent/10 text-brand-accent"><Target className="w-4 h-4 mr-2" />PALLIER 2 — EXCELLENCE v1.2</Badge>
-            <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-3">Diagnostic d'Excellence</h1>
-            <p className="text-slate-300">Positionnement personnalisé pour l'épreuve anticipée 2026</p>
+            <Badge variant="outline" className="mb-4 border-brand-accent/40 bg-brand-accent/10 text-brand-accent"><Target className="w-4 h-4 mr-2" />BILAN DIAGNOSTIC PRÉ-STAGE</Badge>
+            <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-3">Bilan Diagnostic Pré-Stage</h1>
+            <p className="text-slate-300">Votre positionnement personnalisé en mathématiques — Préparation épreuve anticipée 2026</p>
           </motion.div>
           <div className="mb-6">
             <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{totalSteps}</span><span className="text-slate-400">{Math.round((currentStep/totalSteps)*100)}%</span></div>
