@@ -6,7 +6,7 @@
 import { Subject } from '../../../core/types';
 import type { QuestionModule } from '../../types';
 
-const module: QuestionModule = {
+const questionModule: QuestionModule = {
   id: 'python',
   title: 'Python - Bases',
   subject: Subject.NSI,
@@ -15,4 +15,4 @@ const module: QuestionModule = {
   questions: [], // TODO: Créer questions
 };
 
-export default module;
+export default questionModule;
