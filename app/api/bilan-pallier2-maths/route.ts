@@ -158,6 +158,9 @@ export async function GET(request: NextRequest) {
         studentEmail: true,
         status: true,
         mathAverage: true,
+        establishment: true,
+        classRanking: true,
+        data: true,
         createdAt: true,
       },
     });
