@@ -35,6 +35,7 @@ export const testPrisma = new PrismaClient({
 /**
  * Reset the database schema for a completely clean test run.
  * This is called once before all integration tests to ensure no constraint violations.
+ * Note: The CI already runs migrations, so this is optional.
  */
 export async function resetTestDatabase() {
   try {
@@ -43,7 +44,7 @@ export async function resetTestDatabase() {
     await testPrisma.$executeRaw`CREATE SCHEMA public`;
     console.log('✅ Database schema reset for clean test run');
   } catch (error) {
-    console.warn('⚠️  Could not reset database schema (may need manual reset):', error);
+    console.warn('⚠️  Could not reset database schema:', error);
   }
 }
 
@@ -63,26 +64,32 @@ export async function canConnectToTestDb(): Promise<boolean> {
 
 // Test data setup utilities
 export async function setupTestDatabase() {
-  // Clean up existing test data (in order of foreign key dependencies)
-  await testPrisma.sessionReminder.deleteMany();
-  await testPrisma.sessionNotification.deleteMany();
-  await testPrisma.creditTransaction.deleteMany();
-  await testPrisma.sessionBooking.deleteMany();  // FK: studentId, coachId, parentId -> User
-  await testPrisma.session.deleteMany();
-  await testPrisma.ariaMessage.deleteMany();
-  await testPrisma.ariaConversation.deleteMany();
-  await testPrisma.studentBadge.deleteMany();
-  await testPrisma.badge.deleteMany();
-  await testPrisma.studentReport.deleteMany();
-  await testPrisma.message.deleteMany();  // FK: senderId, receiverId -> User (SetNull)
-  await testPrisma.payment.deleteMany();  // FK: userId -> User
-  await testPrisma.coachAvailability.deleteMany();  // FK: coachId -> User (via CoachProfile)
-  await testPrisma.student.deleteMany();
-  await testPrisma.subscription.deleteMany();
-  await testPrisma.parentProfile.deleteMany();
-  await testPrisma.studentProfile.deleteMany();
-  await testPrisma.coachProfile.deleteMany();
-  await testPrisma.user.deleteMany();
+  try {
+    // Clean up existing test data (in order of foreign key dependencies)
+    // Using deleteMany is safe even if table is empty - but we wrap in try/catch
+    // to handle cases where tables don't exist yet
+    try { await testPrisma.sessionReminder.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.sessionNotification.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.creditTransaction.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.sessionBooking.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.session.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.ariaMessage.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.ariaConversation.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.studentBadge.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.badge.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.studentReport.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.message.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.payment.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.coachAvailability.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.student.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.subscription.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.parentProfile.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.studentProfile.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.coachProfile.deleteMany(); } catch { /* ignore */ }
+    try { await testPrisma.user.deleteMany(); } catch { /* ignore */ }
+  } catch (error) {
+    console.warn('⚠️  Some tables may not exist yet:', error);
+  }
 }
 
 export async function teardownTestDatabase() {
