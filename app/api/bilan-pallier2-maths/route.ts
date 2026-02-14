@@ -9,8 +9,10 @@ import { buildQualityFlags } from '@/lib/diagnostics/llm-contract';
 import { getDefinition, resolveDefinitionKey } from '@/lib/diagnostics/definitions';
 import { DiagnosticStatus } from '@/lib/diagnostics/types';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { safeSubmissionLog, safeDiagnosticLog } from '@/lib/diagnostics/safe-log';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
+import { createHash } from 'crypto';
 
 /**
  * POST /api/bilan-pallier2-maths
@@ -22,12 +24,35 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Received diagnostic pré-stage:', JSON.stringify(body).substring(0, 500) + '...');
-    }
+    // PII-safe logging (never log personal data)
+    console.log(safeDiagnosticLog('RECEIVED', 'pending', { summary: safeSubmissionLog(body) as unknown as string }));
 
     // 1. Validate input against v1.3 schema
     const validatedData = bilanDiagnosticMathsSchema.parse(body);
+
+    // 1b. Idempotency check: prevent duplicate submissions (same email + type within 5 min)
+    const idempotencyKey = createHash('sha256')
+      .update(`${validatedData.identity.email}|DIAGNOSTIC_PRE_STAGE_MATHS|${Math.floor(Date.now() / 300000)}`)
+      .digest('hex');
+    const existingDuplicate = await prisma.diagnostic.findFirst({
+      where: {
+        studentEmail: validatedData.identity.email,
+        type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
+        createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
+      },
+      select: { id: true, publicShareId: true, status: true },
+    });
+    if (existingDuplicate) {
+      console.log(safeDiagnosticLog('DUPLICATE_BLOCKED', existingDuplicate.id, { idempotencyKey }));
+      return NextResponse.json({
+        success: true,
+        message: 'Diagnostic déjà soumis récemment.',
+        id: existingDuplicate.id,
+        publicShareId: existingDuplicate.publicShareId,
+        status: existingDuplicate.status,
+        duplicate: true,
+      });
+    }
 
     // 2. Resolve definition
     const defKey = 'maths-premiere-p2';
@@ -136,7 +161,7 @@ export async function POST(request: NextRequest) {
         : errorMessage.includes('Empty') ? 'OLLAMA_EMPTY_RESPONSE'
         : 'UNKNOWN_ERROR';
 
-      console.error(`Erreur génération bilan pour ${diagnostic.id}:`, bilanError);
+      console.error(safeDiagnosticLog('LLM_FAILED', diagnostic.id, { errorCode, attempt: 1 }));
       await prisma.diagnostic.update({
         where: { id: diagnostic.id },
         data: {
@@ -175,7 +200,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('Erreur enregistrement diagnostic pré-stage:', error);
+      console.error(safeDiagnosticLog('POST_ERROR', 'unknown', {
+        type: error instanceof Error ? error.name : 'unknown',
+        msg: error instanceof Error ? error.message.substring(0, 100) : 'unknown',
+      }));
     }
 
     if (error instanceof Error && error.name === 'ZodError') {
@@ -254,7 +282,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ diagnostic });
     }
 
-    // List all diagnostics (dashboard — staff only)
+    // List all diagnostics (dashboard — staff only, data-minimized)
     const diagnostics = await prisma.diagnostic.findMany({
       where: {
         type: { in: ['PALLIER2_MATHS', 'DIAGNOSTIC_PRE_STAGE_MATHS'] },
@@ -277,14 +305,28 @@ export async function GET(request: NextRequest) {
         ragUsed: true,
         errorCode: true,
         retryCount: true,
+        // NOTE: full 'data' excluded from list for data minimization
+        // Only scoring summary is extracted below
         data: true,
         createdAt: true,
       },
     });
 
-    return NextResponse.json({ diagnostics });
+    // Data minimization: strip full data payload, keep only scoring summary
+    const minimized = diagnostics.map((d: typeof diagnostics[number]) => {
+      const rawData = d.data as Record<string, unknown> | null;
+      const scoring = rawData?.scoringV2 || rawData?.scoring;
+      return {
+        ...d,
+        data: scoring ? { scoring } : null,
+      };
+    });
+
+    return NextResponse.json({ diagnostics: minimized });
   } catch (error) {
-    console.error('Erreur récupération diagnostics:', error);
+    console.error(safeDiagnosticLog('GET_ERROR', 'unknown', {
+      msg: error instanceof Error ? error.message.substring(0, 100) : 'unknown',
+    }));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

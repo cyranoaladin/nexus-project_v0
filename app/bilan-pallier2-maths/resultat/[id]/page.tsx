@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +20,15 @@ import {
   Loader2,
   MessageSquareQuote,
   Shield,
+  ShieldCheck,
+  Star,
   Target,
   TrendingUp,
   Users,
   Building2,
   Zap,
+  Flame,
+  Lightbulb,
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
@@ -41,6 +45,14 @@ interface DomainScore {
   priority: string;
 }
 
+interface PriorityItem {
+  skillLabel: string;
+  domain: string;
+  reason: string;
+  impact: string;
+  exerciseType?: string;
+}
+
 interface ScoringData {
   readinessScore: number;
   riskIndex: number;
@@ -54,6 +66,12 @@ interface ScoringData {
   domainScores: DomainScore[];
   alerts: Array<{ type: string; code: string; message: string; impact?: string }>;
   dataQuality: { activeDomains: number; evaluatedCompetencies: number; lowConfidence: boolean; quality?: string };
+  trustScore?: number;
+  trustLevel?: 'green' | 'orange' | 'red';
+  topPriorities?: PriorityItem[];
+  quickWins?: PriorityItem[];
+  highRisk?: PriorityItem[];
+  inconsistencies?: Array<{ code: string; message: string; fields: string[]; severity: string }>;
 }
 
 interface DiagnosticResult {
@@ -167,36 +185,53 @@ export default function BilanResultatPage() {
   const [bilans, setBilans] = useState<ParsedBilans | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchDiagnostic = useCallback(async () => {
+    try {
+      let res = await fetch(`/api/bilan-pallier2-maths?share=${id}`);
+      if (!res.ok) {
+        res = await fetch(`/api/bilan-pallier2-maths?id=${id}`);
+      }
+      if (!res.ok) { setError(res.status === 404 ? "Diagnostic non trouvé." : res.status === 401 ? "Accès non autorisé." : "Erreur de chargement."); return; }
+      const json = await res.json();
+      const diag = json.diagnostic;
+      setDiagnostic(diag);
+
+      if (diag.studentMarkdown || diag.parentsMarkdown || diag.nexusMarkdown) {
+        setBilans({
+          eleve: diag.studentMarkdown || '',
+          parents: diag.parentsMarkdown || '',
+          nexus: diag.nexusMarkdown || '',
+        });
+      } else if (diag.analysisResult) {
+        try { setBilans(JSON.parse(diag.analysisResult)); } catch { /* ignore */ }
+      }
+
+      // Stop polling if terminal status
+      if (['ANALYZED', 'FAILED', 'SCORE_ONLY'].includes(diag.status) && pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    } catch { setError("Impossible de contacter le serveur."); }
+    finally { setLoading(false); }
+  }, [id]);
 
   useEffect(() => {
-    async function load() {
-      try {
-        // Try public access via publicShareId first, then fall back to internal ID (staff)
-        let res = await fetch(`/api/bilan-pallier2-maths?share=${id}`);
-        if (!res.ok) {
-          // Fallback: try as internal ID (requires staff auth)
-          res = await fetch(`/api/bilan-pallier2-maths?id=${id}`);
-        }
-        if (!res.ok) { setError(res.status === 404 ? "Diagnostic non trouvé." : res.status === 401 ? "Accès non autorisé." : "Erreur de chargement."); return; }
-        const json = await res.json();
-        const diag = json.diagnostic;
-        setDiagnostic(diag);
+    if (id) fetchDiagnostic();
+  }, [id, fetchDiagnostic]);
 
-        // Use structured markdown fields (V2) if available, else parse legacy analysisResult
-        if (diag.studentMarkdown || diag.parentsMarkdown || diag.nexusMarkdown) {
-          setBilans({
-            eleve: diag.studentMarkdown || '',
-            parents: diag.parentsMarkdown || '',
-            nexus: diag.nexusMarkdown || '',
-          });
-        } else if (diag.analysisResult) {
-          try { setBilans(JSON.parse(diag.analysisResult)); } catch { /* ignore */ }
-        }
-      } catch { setError("Impossible de contacter le serveur."); }
-      finally { setLoading(false); }
+  // Auto-poll every 10s for pending statuses
+  useEffect(() => {
+    if (!diagnostic) return;
+    const isPendingStatus = ['RECEIVED', 'VALIDATED', 'SCORED', 'GENERATING', 'PENDING'].includes(diagnostic.status);
+    if (isPendingStatus && !pollingRef.current) {
+      pollingRef.current = setInterval(() => { fetchDiagnostic(); }, 10000);
     }
-    if (id) load();
-  }, [id]);
+    return () => {
+      if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+    };
+  }, [diagnostic?.status, fetchDiagnostic]);
 
   /* Loading */
   if (loading) return (
@@ -295,6 +330,129 @@ export default function BilanResultatPage() {
               </Badge>
               <p className="text-neutral-300 text-xs mt-2">{scoring.recommendationMessage}</p>
             </div>
+          </div>
+        )}
+
+        {/* ── TrustScore Badge ── */}
+        {scoring && scoring.trustScore !== undefined && (
+          <div className="mb-8">
+            <div className={`flex items-center gap-4 p-4 rounded-[14px] border ${
+              scoring.trustLevel === 'green' ? 'bg-semantic-success/10 border-semantic-success/25' :
+              scoring.trustLevel === 'orange' ? 'bg-semantic-warning/10 border-semantic-warning/25' :
+              'bg-semantic-error/10 border-semantic-error/25'
+            }`}>
+              <ShieldCheck className={`w-6 h-6 shrink-0 ${
+                scoring.trustLevel === 'green' ? 'text-semantic-success' :
+                scoring.trustLevel === 'orange' ? 'text-semantic-warning' :
+                'text-semantic-error'
+              }`} />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-sm font-semibold">Fiabilité du bilan</p>
+                  <span className={`text-xs font-bold font-mono ${
+                    scoring.trustLevel === 'green' ? 'text-semantic-success' :
+                    scoring.trustLevel === 'orange' ? 'text-semantic-warning' :
+                    'text-semantic-error'
+                  }`}>{scoring.trustScore}/100</span>
+                </div>
+                <p className="text-neutral-300 text-xs mt-0.5">
+                  {scoring.trustLevel === 'green' ? 'Conclusions solides — données complètes et cohérentes' :
+                   scoring.trustLevel === 'orange' ? 'Conclusions probables — certaines données manquantes ou incohérentes' :
+                   'Données insuffisantes — bilan partiel, à confirmer en séance'}
+                </p>
+              </div>
+              <div className="w-16 h-2 bg-surface-elevated rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${
+                  scoring.trustLevel === 'green' ? 'bg-semantic-success' :
+                  scoring.trustLevel === 'orange' ? 'bg-semantic-warning' :
+                  'bg-semantic-error'
+                }`} style={{ width: `${scoring.trustScore}%` }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── V2 Scoring Indices (if available) ── */}
+        {scoring && scoring.masteryIndex !== undefined && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            <div className="bg-surface-card border border-white/[0.08] rounded-[14px] p-4">
+              <p className="text-neutral-400 text-[10px] uppercase tracking-wider font-mono mb-1">Maîtrise</p>
+              <p className={`text-2xl font-bold font-display ${scoreTextColor(scoring.masteryIndex)}`}>
+                {scoring.masteryIndex}<span className="text-sm text-neutral-500">/100</span>
+              </p>
+            </div>
+            <div className="bg-surface-card border border-white/[0.08] rounded-[14px] p-4">
+              <p className="text-neutral-400 text-[10px] uppercase tracking-wider font-mono mb-1">Couverture programme</p>
+              <p className={`text-2xl font-bold font-display ${scoreTextColor(scoring.coverageIndex ?? 0)}`}>
+                {scoring.coverageIndex}<span className="text-sm text-neutral-500">/100</span>
+              </p>
+            </div>
+            <div className="bg-surface-card border border-white/[0.08] rounded-[14px] p-4">
+              <p className="text-neutral-400 text-[10px] uppercase tracking-wider font-mono mb-1">Préparation épreuve</p>
+              <p className={`text-2xl font-bold font-display ${scoreTextColor(scoring.examReadinessIndex ?? 0)}`}>
+                {scoring.examReadinessIndex}<span className="text-sm text-neutral-500">/100</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Computed Priorities ── */}
+        {scoring && ((scoring.topPriorities && scoring.topPriorities.length > 0) || (scoring.quickWins && scoring.quickWins.length > 0) || (scoring.highRisk && scoring.highRisk.length > 0)) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {/* High Risk */}
+            {scoring.highRisk && scoring.highRisk.length > 0 && (
+              <div className="bg-surface-card border border-semantic-error/20 rounded-[18px] overflow-hidden">
+                <div className="px-5 py-3 border-b border-semantic-error/15 flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-semantic-error" />
+                  <h4 className="text-semantic-error text-sm font-bold">Points bloquants</h4>
+                </div>
+                <div className="p-4 space-y-3">
+                  {scoring.highRisk.map((p, i) => (
+                    <div key={i} className="p-3 bg-semantic-error/5 rounded-[10px] border border-semantic-error/10">
+                      <p className="text-white text-sm font-semibold">{p.skillLabel}</p>
+                      <p className="text-neutral-300 text-xs mt-1">{p.reason}</p>
+                      {p.exerciseType && <p className="text-semantic-error text-[10px] mt-1 font-mono">→ {p.exerciseType}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Top Priorities */}
+            {scoring.topPriorities && scoring.topPriorities.length > 0 && (
+              <div className="bg-surface-card border border-semantic-warning/20 rounded-[18px] overflow-hidden">
+                <div className="px-5 py-3 border-b border-semantic-warning/15 flex items-center gap-2">
+                  <Target className="w-4 h-4 text-semantic-warning" />
+                  <h4 className="text-semantic-warning text-sm font-bold">Priorités</h4>
+                </div>
+                <div className="p-4 space-y-3">
+                  {scoring.topPriorities.map((p, i) => (
+                    <div key={i} className="p-3 bg-semantic-warning/5 rounded-[10px] border border-semantic-warning/10">
+                      <p className="text-white text-sm font-semibold">{p.skillLabel}</p>
+                      <p className="text-neutral-300 text-xs mt-1">{p.reason}</p>
+                      {p.exerciseType && <p className="text-semantic-warning text-[10px] mt-1 font-mono">→ {p.exerciseType}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Quick Wins */}
+            {scoring.quickWins && scoring.quickWins.length > 0 && (
+              <div className="bg-surface-card border border-semantic-success/20 rounded-[18px] overflow-hidden">
+                <div className="px-5 py-3 border-b border-semantic-success/15 flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-semantic-success" />
+                  <h4 className="text-semantic-success text-sm font-bold">Gains rapides</h4>
+                </div>
+                <div className="p-4 space-y-3">
+                  {scoring.quickWins.map((p, i) => (
+                    <div key={i} className="p-3 bg-semantic-success/5 rounded-[10px] border border-semantic-success/10">
+                      <p className="text-white text-sm font-semibold">{p.skillLabel}</p>
+                      <p className="text-neutral-300 text-xs mt-1">{p.reason}</p>
+                      {p.exerciseType && <p className="text-semantic-success text-[10px] mt-1 font-mono">→ {p.exerciseType}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -397,7 +555,11 @@ export default function BilanResultatPage() {
             <Clock className="w-14 h-14 text-semantic-warning mx-auto mb-4 animate-pulse" />
             <h2 className="text-white text-xl font-bold mb-2">Bilan en cours de génération</h2>
             <p className="text-neutral-200 mb-4">Le bilan détaillé est en cours de génération par notre IA.</p>
-            <p className="text-neutral-400 text-sm">Rafraîchissez cette page dans quelques instants.</p>
+            <p className="text-neutral-400 text-sm">Cette page se met à jour automatiquement toutes les 10 secondes.</p>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-semantic-warning" />
+              <span className="text-semantic-warning text-xs font-mono uppercase tracking-wider">{diagnostic.status}</span>
+            </div>
             {scoring && (
               <div className="mt-6 p-4 bg-surface-elevated rounded-[14px] inline-block border border-white/[0.08]">
                 <p className="text-neutral-100 text-sm">
