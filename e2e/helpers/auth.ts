@@ -23,13 +23,12 @@ function loadCredentials(): Record<UserType, { email: string; password: string }
             admin: { email: creds.admin.email, password: creds.admin.password },
         };
     }
-    // Fallback to environment variables or defaults
-    const timestamp = process.env.E2E_TIMESTAMP || Date.now().toString();
+    // Fallback to environment variables or defaults (including specific E2E test emails)
     return {
-        parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
-        student: { email: `student.${timestamp}@test.com`, password: 'password123' },
-        coach: { email: `coach.${timestamp}@test.com`, password: 'password123' },
-        admin: { email: `admin.${timestamp}@test.com`, password: 'password123' },
+        parent: { email: 'parent.dashboard@test.com', password: 'password123' },
+        student: { email: 'yasmine.dupont@test.com', password: 'password123' },
+        coach: { email: 'helios@test.com', password: 'password123' },
+        admin: { email: 'admin@test.com', password: 'password123' },
     };
 }
 
