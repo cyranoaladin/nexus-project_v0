@@ -35,6 +35,10 @@ type NexusEvent =
   | { name: 'payment_start'; params: { method: string; amount: number } }
   | { name: 'payment_success'; params: { method: string; amount: number } }
   | { name: 'payment_error'; params: { method: string; error_type: string } }
+  | { name: 'bilan_pallier2_start'; params: { source?: string } }
+  | { name: 'bilan_pallier2_step'; params: { step_number: number; step_name: string } }
+  | { name: 'bilan_pallier2_success'; params: { student_id?: string } }
+  | { name: 'bilan_pallier2_error'; params: { error_type: string } }
   | { name: 'scroll_depth'; params: { page: string; depth: number } };
 
 /**
@@ -92,6 +96,19 @@ export const track = {
 
   bilanError: (error_type: string) =>
     sendEvent({ name: 'bilan_error', params: { error_type } }),
+
+  /** Track bilan pallier 2 maths */
+  bilanPallier2Start: (source?: string) =>
+    sendEvent({ name: 'bilan_pallier2_start', params: { source } }),
+
+  bilanPallier2Step: (step_number: number, step_name: string) =>
+    sendEvent({ name: 'bilan_pallier2_step', params: { step_number, step_name } }),
+
+  bilanPallier2Success: (student_id?: string) =>
+    sendEvent({ name: 'bilan_pallier2_success', params: { student_id } }),
+
+  bilanPallier2Error: (error_type: string) =>
+    sendEvent({ name: 'bilan_pallier2_error', params: { error_type } }),
 
   /** Track authentication */
   signinAttempt: (method = 'credentials') =>
