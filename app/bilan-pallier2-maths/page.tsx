@@ -400,7 +400,7 @@ export default function BilanPallier2MathsPage() {
     try {
       const response = await fetch("/api/bilan-pallier2-maths", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
       const result = await response.json();
-      if (response.ok) { track.bilanPallier2Success(result.id); router.push(`/bilan-pallier2-maths/confirmation?id=${result.id}`); }
+      if (response.ok) { track.bilanPallier2Success(result.id); router.push(`/bilan-pallier2-maths/confirmation?id=${result.id}&share=${result.publicShareId || result.id}`); }
       else { track.bilanPallier2Error(result.error); toast.error(result.error); }
     } catch { toast.error("Erreur lors de la soumission"); } 
     finally { setIsSubmitting(false); }

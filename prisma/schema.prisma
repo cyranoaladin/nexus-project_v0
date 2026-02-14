@@ -772,12 +772,21 @@ enum EngagementLevel {
   HIGH
 }
 
-// Diagnostic Model for Pallier 2 Maths
+// Diagnostic Model — Generic engine (multi-level, multi-EDS)
 model Diagnostic {
-  id String @id @default(cuid())
+  id            String @id @default(cuid())
+  publicShareId String @unique @default(cuid()) // Secure public access token (non-guessable)
 
-  // Type de diagnostic
-  type String // "PALLIER2_MATHS", "PALLIER2_PHYSIQUE", etc.
+  // Type de diagnostic (legacy)
+  type String // "PALLIER2_MATHS", "DIAGNOSTIC_PRE_STAGE_MATHS", etc.
+
+  // Definition engine metadata
+  definitionKey     String?  // e.g. "maths-premiere-p2", "nsi-terminale-p2"
+  definitionVersion String?  // e.g. "v1.3"
+  promptVersion     String?  // e.g. "v1.0" — tracks prompt template version
+  modelUsed         String?  // e.g. "llama3.2:latest" — LLM model used for generation
+  ragUsed           Boolean  @default(false) // Whether RAG context was available
+  ragCollections    String[] // Collections used for RAG search
 
   // Informations élève
   studentFirstName String
@@ -786,27 +795,41 @@ model Diagnostic {
   studentPhone     String?
 
   // Contexte scolaire
-  establishment   String?
-  teacherName     String?
-  mathAverage     String?
+  establishment    String?
+  teacherName      String?
+  mathAverage      String?
   specialtyAverage String?
-  bacBlancResult  String?
-  classRanking    String?
+  bacBlancResult   String?
+  classRanking     String?
 
-  // Données du diagnostic (JSON)
+  // Données du diagnostic (JSON brut soumis)
   data Json?
 
-  // Statut
-  status String @default("PENDING") // PENDING, ANALYZED, ACTION_PLAN_SENT
+  // Statut explicite du pipeline
+  // RECEIVED → VALIDATED → SCORED → GENERATING → ANALYZED → FAILED
+  status String @default("RECEIVED")
 
-  // Résultat de l'analyse IA
-  analysisResult String? // Résumé de l'analyse
-  actionPlan     String? // Plan d'action personnalisé
+  // Résultat de l'analyse IA (legacy — kept for backward compat)
+  analysisResult String? // JSON string with {eleve, parents, nexus, generatedAt}
+  actionPlan     String? // Plan d'action personnalisé (legacy)
+
+  // Structured analysis (V2 — exploitable)
+  analysisJson     Json?    // Structured JSON: forces, faiblesses, plan, ressources, qualityFlags
+  studentMarkdown  String?  // Rendered bilan for student audience
+  parentsMarkdown  String?  // Rendered bilan for parents audience
+  nexusMarkdown    String?  // Rendered bilan for Nexus team audience
+
+  // Error tracking
+  errorCode    String?  // e.g. "OLLAMA_TIMEOUT", "RAG_UNAVAILABLE", "VALIDATION_ERROR"
+  errorDetails String?  // Detailed error message (not exposed publicly)
+  retryCount   Int      @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([type, status])
   @@index([studentEmail])
+  @@index([publicShareId])
+  @@index([definitionKey, status])
   @@map("diagnostics")
 }
