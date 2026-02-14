@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       scoring: scoring as unknown as Prisma.JsonObject,
     };
 
-    // 4. Persist to database
+    // 4. Persist to database (initial save with SCORED status)
     const diagnostic = await prisma.diagnostic.create({
       data: {
         type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
@@ -57,15 +57,48 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 5. Generate bilans asynchronously (don't block the response)
-    generateBilansAsync(diagnostic.id, validatedData, scoring).catch((err) => {
-      console.error(`Erreur génération bilans async pour ${diagnostic.id}:`, err);
-    });
+    // 5. Generate bilans synchronously (Ollama/Qwen ~30-120s)
+    //    Next.js standalone doesn't keep async promises after response,
+    //    so we must await the generation before responding.
+    let bilanStatus: 'ANALYZED' | 'SCORE_ONLY' = 'SCORE_ONLY';
+    try {
+      const bilans = await generateBilans(validatedData, scoring);
+
+      await prisma.diagnostic.update({
+        where: { id: diagnostic.id },
+        data: {
+          status: 'ANALYZED',
+          analysisResult: JSON.stringify({
+            eleve: bilans.eleve,
+            parents: bilans.parents,
+            nexus: bilans.nexus,
+            generatedAt: new Date().toISOString(),
+          }),
+          actionPlan: bilans.nexus,
+        },
+      });
+      bilanStatus = 'ANALYZED';
+    } catch (bilanError) {
+      console.error(`Erreur génération bilan pour ${diagnostic.id}:`, bilanError);
+      await prisma.diagnostic.update({
+        where: { id: diagnostic.id },
+        data: {
+          status: 'SCORE_ONLY',
+          analysisResult: JSON.stringify({
+            error: 'Génération LLM échouée — bilan template disponible via fallback',
+            generatedAt: new Date().toISOString(),
+          }),
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Diagnostic enregistré avec succès. Votre bilan sera généré sous quelques minutes.',
+      message: bilanStatus === 'ANALYZED'
+        ? 'Diagnostic enregistré et bilan généré avec succès.'
+        : 'Diagnostic enregistré avec scoring. Le bilan détaillé sera disponible prochainement.',
       id: diagnostic.id,
+      status: bilanStatus,
       scoring: {
         readinessScore: scoring.readinessScore,
         riskIndex: scoring.riskIndex,
@@ -89,45 +122,6 @@ export async function POST(request: NextRequest) {
       { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
-  }
-}
-
-/**
- * Async bilan generation: calls LLM and updates the diagnostic record.
- */
-async function generateBilansAsync(
-  diagnosticId: string,
-  data: Parameters<typeof generateBilans>[0],
-  scoring: Parameters<typeof generateBilans>[1]
-) {
-  try {
-    const bilans = await generateBilans(data, scoring);
-
-    await prisma.diagnostic.update({
-      where: { id: diagnosticId },
-      data: {
-        status: 'ANALYZED',
-        analysisResult: JSON.stringify({
-          eleve: bilans.eleve,
-          parents: bilans.parents,
-          nexus: bilans.nexus,
-          generatedAt: new Date().toISOString(),
-        }),
-        actionPlan: bilans.nexus,
-      },
-    });
-  } catch (error) {
-    console.error(`Erreur mise à jour bilan ${diagnosticId}:`, error);
-    await prisma.diagnostic.update({
-      where: { id: diagnosticId },
-      data: {
-        status: 'SCORE_ONLY',
-        analysisResult: JSON.stringify({
-          error: 'Génération LLM échouée — bilan template disponible',
-          generatedAt: new Date().toISOString(),
-        }),
-      },
-    });
   }
 }
 
