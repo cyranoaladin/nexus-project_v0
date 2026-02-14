@@ -10,6 +10,7 @@ import { getDefinition, resolveDefinitionKey } from '@/lib/diagnostics/definitio
 import { DiagnosticStatus } from '@/lib/diagnostics/types';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { safeSubmissionLog, safeDiagnosticLog } from '@/lib/diagnostics/safe-log';
+import { generateBilanToken, verifyBilanToken } from '@/lib/diagnostics/signed-token';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'crypto';
@@ -30,16 +31,19 @@ export async function POST(request: NextRequest) {
     // 1. Validate input against v1.3 schema
     const validatedData = bilanDiagnosticMathsSchema.parse(body);
 
-    // 1b. Idempotency check: prevent duplicate submissions (same email + type within 5 min)
-    const idempotencyKey = createHash('sha256')
+    // 1b. Idempotency: check explicit header first, then fallback to email+type dedup
+    const headerKey = request.headers.get('Idempotency-Key');
+    const idempotencyKey = headerKey || createHash('sha256')
       .update(`${validatedData.identity.email}|DIAGNOSTIC_PRE_STAGE_MATHS|${Math.floor(Date.now() / 300000)}`)
       .digest('hex');
     const existingDuplicate = await prisma.diagnostic.findFirst({
-      where: {
-        studentEmail: validatedData.identity.email,
-        type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
-        createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
-      },
+      where: headerKey
+        ? { type: 'DIAGNOSTIC_PRE_STAGE_MATHS', data: { path: ['idempotencyKey'], equals: headerKey } }
+        : {
+            studentEmail: validatedData.identity.email,
+            type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
+            createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
+          },
       select: { id: true, publicShareId: true, status: true },
     });
     if (existingDuplicate) {
@@ -133,7 +137,7 @@ export async function POST(request: NextRequest) {
             parents: bilans.parents,
             nexus: bilans.nexus,
             generatedAt: new Date().toISOString(),
-          }),
+          }) as string,
           studentMarkdown: bilans.eleve,
           parentsMarkdown: bilans.parents,
           nexusMarkdown: bilans.nexus,
@@ -177,6 +181,10 @@ export async function POST(request: NextRequest) {
       bilanStatus = DiagnosticStatus.FAILED;
     }
 
+    // Generate signed audience tokens for secure bilan links
+    const eleveToken = generateBilanToken(diagnostic.publicShareId, 'eleve', 30);
+    const parentsToken = generateBilanToken(diagnostic.publicShareId, 'parents', 30);
+
     return NextResponse.json({
       success: true,
       message: bilanStatus === DiagnosticStatus.ANALYZED
@@ -187,6 +195,10 @@ export async function POST(request: NextRequest) {
       id: diagnostic.id,
       publicShareId: diagnostic.publicShareId,
       status: bilanStatus,
+      tokens: {
+        eleve: eleveToken,
+        parents: parentsToken,
+      },
       scoring: {
         readinessScore: scoringV2.readinessScore,
         riskIndex: scoringV2.riskIndex,
@@ -224,6 +236,7 @@ export async function POST(request: NextRequest) {
  * GET /api/bilan-pallier2-maths
  *
  * Access modes:
+ *   ?t=<signedToken>        → Signed token access (audience-restricted, expiring)
  *   ?share=<publicShareId>  → Public access (student/parent bilan only, no Nexus tab)
  *   ?id=<diagnosticId>      → Staff-only access (full diagnostic with Nexus data)
  *   (no params)             → Staff-only list of all diagnostics (dashboard)
@@ -231,8 +244,49 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const token = searchParams.get('t');
     const shareId = searchParams.get('share');
     const id = searchParams.get('id');
+
+    // --- Signed token access (audience-restricted, expiring) ---
+    if (token) {
+      const payload = verifyBilanToken(token);
+      if (!payload) {
+        return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 401 });
+      }
+
+      const diagnostic = await prisma.diagnostic.findUnique({
+        where: { publicShareId: payload.shareId },
+        select: {
+          id: true,
+          publicShareId: true,
+          type: true,
+          studentFirstName: true,
+          studentLastName: true,
+          status: true,
+          mathAverage: true,
+          establishment: true,
+          data: true,
+          studentMarkdown: true,
+          parentsMarkdown: true,
+          analysisResult: true,
+          createdAt: true,
+        },
+      });
+
+      if (!diagnostic) {
+        return NextResponse.json({ error: 'Bilan non trouvé' }, { status: 404 });
+      }
+
+      // Audience restriction: only return the markdown for the signed audience
+      const audienceRestricted = {
+        ...diagnostic,
+        studentMarkdown: payload.audience === 'eleve' ? diagnostic.studentMarkdown : null,
+        parentsMarkdown: payload.audience === 'parents' ? diagnostic.parentsMarkdown : null,
+      };
+
+      return NextResponse.json({ diagnostic: audienceRestricted, audience: payload.audience });
+    }
 
     // --- Public access via publicShareId (student/parent) ---
     if (shareId) {
