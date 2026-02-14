@@ -40,6 +40,7 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
 
 # [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
 # pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
