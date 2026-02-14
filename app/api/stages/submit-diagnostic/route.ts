@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma';
 import { computeStageScore } from '@/lib/scoring-engine';
 import type { StudentAnswer, AnswerStatus } from '@/lib/scoring-engine';
 import { ALL_STAGE_QUESTIONS } from '@/lib/data/stage-qcm-structure';
+import { sendStageBilanReady } from '@/lib/email';
 
 // ─── Validation Schema ───────────────────────────────────────────────────────
 
@@ -146,7 +147,26 @@ export async function POST(request: NextRequest) {
       totalAttempted: scoringResult.totalAttempted,
     });
 
-    // 7. Return result
+    // 7. Email notification: Template B (bilan ready) — non-blocking
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+      const bilanUrl = `${baseUrl}/stages/fevrier-2026/bilan/${reservation.id}`;
+      
+      await sendStageBilanReady(
+        reservation.email,
+        reservation.parentName,
+        reservation.studentName,
+        reservation.academyTitle,
+        bilanUrl,
+        scoringResult.globalScore,
+        scoringResult.confidenceIndex
+      );
+    } catch (emailError) {
+      // Non-blocking: log but don't fail the request
+      console.error('[submit-diagnostic] Email failed:', emailError instanceof Error ? emailError.message : 'unknown');
+    }
+
+    // 8. Return result
     return NextResponse.json(
       {
         success: true,
