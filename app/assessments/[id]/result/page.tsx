@@ -28,16 +28,24 @@ interface AssessmentResult {
   createdAt: string;
 }
 
-export default function AssessmentResultPage({ params }: { params: { id: string } }) {
+export default function AssessmentResultPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+
+  // Unwrap params Promise
+  useEffect(() => {
+    params.then((p) => setAssessmentId(p.id));
+  }, [params]);
 
   useEffect(() => {
+    if (!assessmentId) return;
+
     const fetchResult = async () => {
       try {
-        const response = await fetch(`/api/assessments/${params.id}/result`);
+        const response = await fetch(`/api/assessments/${assessmentId}/result`);
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -58,7 +66,7 @@ export default function AssessmentResultPage({ params }: { params: { id: string 
     };
 
     fetchResult();
-  }, [params.id]);
+  }, [assessmentId]);
 
   // Loading state
   if (loading) {
