@@ -24,17 +24,25 @@ interface AssessmentStatusResponse {
   };
 }
 
-export default function AssessmentProcessingPage({ params }: { params: { id: string } }) {
+export default function AssessmentProcessingPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [status, setStatus] = useState<AssessmentStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pollingCount, setPollingCount] = useState(0);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Unwrap params Promise
   useEffect(() => {
+    params.then((p) => setAssessmentId(p.id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!assessmentId) return;
+
     const pollStatus = async () => {
       try {
-        const response = await fetch(`/api/assessments/${params.id}/status`);
+        const response = await fetch(`/api/assessments/${assessmentId}/status`);
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -52,7 +60,7 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
         if (data.status === 'COMPLETED') {
           if (intervalRef.current) clearInterval(intervalRef.current);
           setTimeout(() => {
-            router.push(`/assessments/${params.id}/result`);
+            router.push(`/assessments/${assessmentId}/result`);
           }, 1000);
         }
 
@@ -80,7 +88,7 @@ export default function AssessmentProcessingPage({ params }: { params: { id: str
         clearInterval(intervalRef.current);
       }
     };
-  }, [params.id, router]);
+  }, [assessmentId, router]);
 
   // Error state
   if (error) {
