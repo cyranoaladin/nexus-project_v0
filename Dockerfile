@@ -58,6 +58,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
 
+# On copie les scripts pour les tests E2E et maintenance
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/lib ./lib
+
 # On expose le port sur lequel le serveur Next.js écoute à l'intérieur du conteneur.
 EXPOSE 3000
 # La commande qui sera exécutée lorsque le conteneur démarrera.
