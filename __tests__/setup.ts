@@ -5,6 +5,7 @@
  * Ensures each test runs with a clean database state.
  */
 
+import { beforeEach, afterAll } from '@jest/globals';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
