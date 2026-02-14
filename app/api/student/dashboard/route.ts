@@ -20,9 +20,6 @@ export async function GET(request: NextRequest) {
     const studentId = session.user.id;
 
     // Fetch student data
-    console.log(`[Student Dashboard API] Session: ${JSON.stringify(session)}`);
-    console.log(`[Student Dashboard API] Fetching student data for user: ${studentId}`);
-
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       include: {
@@ -67,13 +64,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!student) {
-      console.log(`[Student Dashboard API] Student not found for userId: ${studentId}`);
+      console.error('[Student Dashboard API] Student not found');
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
       );
     }
-    console.log(`[Student Dashboard API] Student found: ${student.id}`);
 
     // Calculate available credits
     const creditBalance = student.creditTransactions.reduce((balance: number, transaction) => {

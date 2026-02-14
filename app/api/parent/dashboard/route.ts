@@ -43,16 +43,12 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
-      console.log('[Parent Dashboard API] No session or user');
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     if (session.user.role !== 'PARENT') {
-      console.log('[Parent Dashboard API] User is not a parent:', session.user.role);
       return NextResponse.json({ error: 'Accès réservé aux parents' }, { status: 403 });
     }
-
-    console.log('[Parent Dashboard API] Fetching parent profile for user:', session.user.id);
 
     // Fetch Parent Profile and Children with UPCOMING sessions
     const parentProfile = await prisma.parentProfile.findUnique({
@@ -92,10 +88,7 @@ export async function GET() {
       }
     });
 
-    console.log('[Parent Dashboard API] Parent profile:', parentProfile ? 'Found' : 'Not found');
-
     if (!parentProfile) {
-      console.log('[Parent Dashboard API] Parent profile not found for user:', session.user.id);
       return NextResponse.json({ error: 'Profil parent introuvable' }, { status: 404 });
     }
 
@@ -105,8 +98,6 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20
     });
-
-    console.log('[Parent Dashboard API] Found', payments.length, 'payments');
 
     // Transform data for frontend
     const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
@@ -161,8 +152,6 @@ export async function GET() {
         }))
       };
     }));
-
-    console.log('[Parent Dashboard API] Returning data for', childrenData.length, 'children');
 
     return NextResponse.json({
       // Parent info
