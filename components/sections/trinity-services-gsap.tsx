@@ -60,7 +60,7 @@ const TrinityServicesGSAP = () => {
         {
             id: "coachs",
             icon: Users,
-            title: "Coachs agrégés",
+            title: "Coachs agrégés et certifiés",
             description: "Des professeurs experts pour structurer, corriger et faire progresser.",
             features: ["Cours particuliers ciblés", "Méthodologie Bac", "Feedback actionnable"],
             color: "text-emerald-400",

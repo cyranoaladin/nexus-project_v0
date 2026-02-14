@@ -55,7 +55,7 @@ export default function AccompagnementScolairePage() {
             </h1>
 
             <p className="marketing-hero-copy mb-8">
-              Des programmes sur-mesure avec des experts agrégés pour
+              Des programmes sur-mesure avec des experts agrégés et certifiés pour
               transformer l'angoisse du Bac en excellence académique
             </p>
 
@@ -146,7 +146,7 @@ export default function AccompagnementScolairePage() {
                     <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1" />
                     <span className="text-gray-300">
                       <strong className="text-white">8h/mois</strong> avec
-                      experts agrégés ou certifiés
+                      experts agrégés et certifiés
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
@@ -473,7 +473,7 @@ export default function AccompagnementScolairePage() {
               </h3>
               <p className="text-gray-300">
                 Aucun étudiant, aucun amateur. Uniquement des enseignants
-                agrégés ou certifiés avec 10+ ans d'expérience.
+                des enseignants agrégés et certifiés avec 10+ ans d'expérience.
               </p>
             </div>
 
