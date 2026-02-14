@@ -33,6 +33,21 @@ export const testPrisma = new PrismaClient({
 });
 
 /**
+ * Reset the database schema for a completely clean test run.
+ * This is called once before all integration tests to ensure no constraint violations.
+ */
+export async function resetTestDatabase() {
+  try {
+    // Drop and recreate schema
+    await testPrisma.$executeRaw`DROP SCHEMA IF EXISTS public CASCADE`;
+    await testPrisma.$executeRaw`CREATE SCHEMA public`;
+    console.log('✅ Database schema reset for clean test run');
+  } catch (error) {
+    console.warn('⚠️  Could not reset database schema (may need manual reset):', error);
+  }
+}
+
+/**
  * Check if the test database is reachable.
  * Returns true if connected, false otherwise.
  * Use this in beforeAll to skip tests when no DB is available.
