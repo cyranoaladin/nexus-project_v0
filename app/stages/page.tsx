@@ -291,7 +291,7 @@ export default function AcademiesHiverPage() {
   const [stats, setStats] = useState({ satisfaction: 0, progress: 0, mentions: 0 });
 
   const [simAvg, setSimAvg] = useState(12);
-  const [formData, setFormData] = useState({ parent: "", phone: "", classe: "" });
+  const [formData, setFormData] = useState({ parent: "", phone: "", classe: "", email: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -333,7 +333,7 @@ export default function AcademiesHiverPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg("");
-    if (!formData.parent.trim() || !formData.phone.trim() || !formData.classe.trim()) {
+    if (!formData.parent.trim() || !formData.phone.trim() || !formData.classe.trim() || !formData.email.trim()) {
       toast.error("Merci de compléter tous les champs avant de réserver.");
       return;
     }
@@ -346,6 +346,7 @@ export default function AcademiesHiverPage() {
           parent: formData.parent,
           phone: formData.phone,
           classe: formData.classe,
+          email: formData.email,
           academyId: selectedAcademy.id,
           academyTitle: selectedAcademy.title,
           price: selectedAcademy.early,
@@ -1578,6 +1579,14 @@ export default function AcademiesHiverPage() {
                             placeholder="Numéro de Téléphone"
                             value={formData.phone}
                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-500"
+                          />
+                          <input
+                            required
+                            type="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={e => setFormData({ ...formData, email: e.target.value })}
                             className="w-full px-5 py-4 rounded-xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand-primary focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-500"
                           />
                           <input
