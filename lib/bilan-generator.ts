@@ -215,7 +215,7 @@ async function generateSingleBilan(
   if (!systemPrompt) throw new Error(`Unknown audience: ${audience}`);
 
   const raw = await ollamaChat({
-    model: process.env.OLLAMA_MODEL || 'qwen2.5:32b',
+    model: process.env.OLLAMA_MODEL || 'llama3.2:latest',
     messages: [
       { role: 'system', content: systemPrompt },
       {
