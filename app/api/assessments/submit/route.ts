@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { QuestionBank } from '@/lib/assessments/questions';
 import { ScoringFactory } from '@/lib/assessments/scoring';
+import { BilanGenerator } from '@/lib/assessments/generators';
 import { Subject, Grade } from '@/lib/assessments/core/types';
 import type { StudentAnswer } from '@/lib/assessments/core/types';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
@@ -127,11 +128,9 @@ export async function POST(request: NextRequest) {
     // ─── Step 5: Trigger Async Bilan Generation ─────────────────────────────
 
     // Fire and forget - don't block the response
-    generateBilanAsync(assessment.id, subject as Subject, grade as Grade, scoringResult).catch(
-      (error) => {
-        console.error(`[Assessment Submit] Bilan generation failed for ${assessment.id}:`, error);
-      }
-    );
+    BilanGenerator.generate(assessment.id).catch((error) => {
+      console.error(`[Assessment Submit] Bilan generation failed for ${assessment.id}:`, error);
+    });
 
     // ─── Step 6: Return Response ─────────────────────────────────────────────
 
@@ -157,67 +156,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Async bilan generation (fire and forget)
- * 
- * This will be replaced by a proper job queue (Inngest/BullMQ) later.
- * For now, it's a simple async function that updates the assessment status.
- */
-async function generateBilanAsync(
-  assessmentId: string,
-  subject: Subject,
-  grade: Grade,
-  scoringResult: any
-) {
-  try {
-    // Update status to GENERATING
-    await prisma.assessment.update({
-      where: { id: assessmentId },
-      data: {
-        status: 'GENERATING',
-        progress: 75,
-      },
-    });
-
-    console.log(`[Bilan Generation] Started for ${assessmentId}`);
-
-    // TODO: Integrate with PromptFactory and LLM
-    // For now, just simulate a delay and mark as completed
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Mock analysis result
-    const mockAnalysis = {
-      forces: ['Bonne maîtrise des concepts de base'],
-      faiblesses: ['Difficultés en analyse'],
-      plan: ['Revoir les limites et dérivées'],
-      ressources: ['Cours en ligne recommandés'],
-    };
-
-    // Update status to COMPLETED
-    await prisma.assessment.update({
-      where: { id: assessmentId },
-      data: {
-        status: 'COMPLETED',
-        progress: 100,
-        analysisJson: mockAnalysis as any,
-        studentMarkdown: '# Votre Bilan\n\nBravo pour avoir terminé l\'évaluation !',
-        parentsMarkdown: '# Bilan de votre enfant\n\nVoici les résultats...',
-        nexusMarkdown: '# Analyse Technique\n\nScore global: ' + scoringResult.globalScore,
-      },
-    });
-
-    console.log(`[Bilan Generation] Completed for ${assessmentId}`);
-  } catch (error) {
-    console.error(`[Bilan Generation] Failed for ${assessmentId}:`, error);
-
-    // Update status to FAILED
-    await prisma.assessment.update({
-      where: { id: assessmentId },
-      data: {
-        status: 'FAILED',
-        errorCode: 'GENERATION_ERROR',
-        errorDetails: error instanceof Error ? error.message : 'Unknown error',
-      },
-    });
-  }
-}
