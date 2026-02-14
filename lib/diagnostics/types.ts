@@ -114,6 +114,18 @@ export interface ScoringV2Result {
   alerts: ScoringAlertV2[];
   /** Data quality assessment */
   dataQuality: DataQualityV2;
+  /** TrustScore: how reliable is this bilan (0-100) */
+  trustScore: number;
+  /** Trust level for display: green/orange/red */
+  trustLevel: 'green' | 'orange' | 'red';
+  /** Computed pedagogical priorities */
+  topPriorities: PriorityItem[];
+  /** Quick wins: easy gains for automatisms */
+  quickWins: PriorityItem[];
+  /** High risk: blocking points requiring immediate attention */
+  highRisk: PriorityItem[];
+  /** Inconsistency flags detected in the data */
+  inconsistencies: InconsistencyFlag[];
 }
 
 export interface DomainScoreV2 {
@@ -147,6 +159,30 @@ export interface DataQualityV2 {
   lowConfidence: boolean;
   /** Overall quality: good | partial | insufficient */
   quality: 'good' | 'partial' | 'insufficient';
+  /** Coherence issues count */
+  coherenceIssues: number;
+  /** Mini-test filled */
+  miniTestFilled: boolean;
+  /** Critical fields missing count */
+  criticalFieldsMissing: number;
+}
+
+/** Computed priority item for bilan output */
+export interface PriorityItem {
+  skillId?: string;
+  skillLabel: string;
+  domain: string;
+  reason: string;
+  impact: string;
+  exerciseType?: string;
+}
+
+/** Inconsistency flag for data quality audit */
+export interface InconsistencyFlag {
+  code: string;
+  message: string;
+  fields: string[];
+  severity: 'warning' | 'error';
 }
 
 /**

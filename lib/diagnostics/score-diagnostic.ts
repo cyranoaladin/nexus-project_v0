@@ -18,6 +18,8 @@ import type {
   ScoringAlertV2,
   DataQualityV2,
   ScoringPolicy,
+  PriorityItem,
+  InconsistencyFlag,
 } from './types';
 
 /**
@@ -153,6 +155,9 @@ function calculateDomainScores(
       unknownCompetencies: totalUnknown,
       lowConfidence: activeDomains < 3,
       quality,
+      coherenceIssues: 0, // filled later by detectInconsistencies
+      miniTestFilled: true, // filled later
+      criticalFieldsMissing: 0, // filled later
     },
   };
 }
@@ -283,6 +288,199 @@ function detectAlerts(
 }
 
 /**
+ * Detect data inconsistencies for audit transparency.
+ */
+function detectInconsistencies(
+  data: BilanDiagnosticMathsData
+): InconsistencyFlag[] {
+  const flags: InconsistencyFlag[] = [];
+
+  // High mini-test + panic feeling
+  if (data.examPrep.miniTest.score >= 5 && data.examPrep.signals.feeling === 'panic') {
+    flags.push({
+      code: 'INCONSISTENT_SIGNAL',
+      message: 'Mini-test excellent (≥5/6) mais ressenti "panic" — incohérence à vérifier en séance',
+      fields: ['examPrep.miniTest.score', 'examPrep.signals.feeling'],
+      severity: 'warning',
+    });
+  }
+
+  // Fast completion + low score
+  if (data.examPrep.miniTest.completedInTime && data.examPrep.miniTest.score <= 2 && data.examPrep.miniTest.timeUsedMinutes <= 8) {
+    flags.push({
+      code: 'RUSHED_TEST',
+      message: 'Mini-test terminé très vite (≤8min) avec score faible (≤2/6) — possible réponses aléatoires',
+      fields: ['examPrep.miniTest.timeUsedMinutes', 'examPrep.miniTest.score'],
+      severity: 'warning',
+    });
+  }
+
+  // studied status but null mastery
+  const allComp = [
+    ...(data.competencies.algebra || []),
+    ...(data.competencies.analysis || []),
+    ...(data.competencies.geometry || []),
+    ...(data.competencies.probabilities || []),
+    ...(data.competencies.python || []),
+  ];
+  const studiedNullMastery = allComp.filter((c) => c.status === 'studied' && c.mastery === null);
+  if (studiedNullMastery.length >= 2) {
+    flags.push({
+      code: 'STUDIED_NO_MASTERY',
+      message: `${studiedNullMastery.length} compétences marquées "studied" sans mastery — données incomplètes`,
+      fields: studiedNullMastery.map((c) => c.skillLabel),
+      severity: 'error',
+    });
+  }
+
+  // High average declared but low mastery
+  const avg = parseFloat(data.performance.mathAverage || '');
+  if (!isNaN(avg) && avg >= 14) {
+    const activeDomains = ['algebra', 'analysis', 'geometry', 'probabilities', 'python'] as const;
+    let totalMastery = 0;
+    let totalEval = 0;
+    for (const d of activeDomains) {
+      const items = data.competencies[d] || [];
+      const evaluated = items.filter((c) => c.status !== 'not_studied' && c.status !== 'unknown' && c.mastery !== null);
+      totalMastery += evaluated.reduce((s, c) => s + (c.mastery ?? 0), 0);
+      totalEval += evaluated.length;
+    }
+    if (totalEval > 0 && (totalMastery / totalEval / 4) * 100 < 40) {
+      flags.push({
+        code: 'HIGH_AVERAGE_LOW_MASTERY',
+        message: `Moyenne déclarée élevée (${avg}) mais mastery globale faible (<40%) — possible surévaluation ou programme non couvert`,
+        fields: ['performance.mathAverage', 'competencies'],
+        severity: 'warning',
+      });
+    }
+  }
+
+  return flags;
+}
+
+/**
+ * Calculate TrustScore (0-100) — how reliable is this bilan.
+ */
+function calculateTrustScore(
+  dataQuality: DataQualityV2,
+  inconsistencies: InconsistencyFlag[],
+  examPrep: BilanDiagnosticMathsData['examPrep']
+): { trustScore: number; trustLevel: 'green' | 'orange' | 'red' } {
+  let score = 100;
+
+  // Penalize for low active domains (-15 per missing domain below 4)
+  score -= Math.max(0, 4 - dataQuality.activeDomains) * 15;
+
+  // Penalize for unknown competencies (-5 each, max -20)
+  score -= Math.min(20, dataQuality.unknownCompetencies * 5);
+
+  // Penalize for coherence issues (-10 each)
+  score -= inconsistencies.filter((f) => f.severity === 'error').length * 10;
+  score -= inconsistencies.filter((f) => f.severity === 'warning').length * 5;
+
+  // Penalize if mini-test not completed in time (-10)
+  if (!examPrep.miniTest.completedInTime) score -= 10;
+
+  // Penalize for low evaluated competencies (<8 out of typical 15)
+  if (dataQuality.evaluatedCompetencies < 8) score -= 15;
+
+  // Penalize for critical fields missing
+  score -= dataQuality.criticalFieldsMissing * 8;
+
+  score = Math.max(0, Math.min(100, score));
+
+  const trustLevel: 'green' | 'orange' | 'red' =
+    score >= 70 ? 'green' :
+    score >= 40 ? 'orange' : 'red';
+
+  return { trustScore: Math.round(score), trustLevel };
+}
+
+/**
+ * Compute pedagogical priorities from domain scores and competency data.
+ */
+function computePriorities(
+  data: BilanDiagnosticMathsData,
+  domainScores: DomainScoreV2[]
+): { topPriorities: PriorityItem[]; quickWins: PriorityItem[]; highRisk: PriorityItem[] } {
+  const topPriorities: PriorityItem[] = [];
+  const quickWins: PriorityItem[] = [];
+  const highRisk: PriorityItem[] = [];
+
+  // TopPriorities: weakest skills from highest-weight domains
+  for (const ds of domainScores.filter((d) => d.priority === 'critical' || d.priority === 'high')) {
+    const items = data.competencies[ds.domain as keyof typeof data.competencies] || [];
+    const weakSkills = items
+      .filter((c) => c.mastery !== null && c.mastery <= 1 && c.status === 'studied')
+      .slice(0, 2);
+    for (const skill of weakSkills) {
+      topPriorities.push({
+        skillLabel: skill.skillLabel,
+        domain: ds.domain,
+        reason: `Mastery ${skill.mastery}/4 dans un domaine prioritaire (${ds.domain}: ${ds.score}%)`,
+        impact: `Impact direct sur le score global — domaine poids ${ds.domain}`,
+        exerciseType: skill.errorTypes?.[0] ? `Exercices ciblés erreur "${skill.errorTypes[0]}"` : 'Exercices de base',
+      });
+    }
+  }
+
+  // QuickWins: skills with mastery 2-3 and low friction (easy to upgrade)
+  const allComp = [
+    ...(data.competencies.algebra || []).map((c) => ({ ...c, domain: 'algebra' })),
+    ...(data.competencies.analysis || []).map((c) => ({ ...c, domain: 'analysis' })),
+    ...(data.competencies.geometry || []).map((c) => ({ ...c, domain: 'geometry' })),
+    ...(data.competencies.probabilities || []).map((c) => ({ ...c, domain: 'probabilities' })),
+    ...(data.competencies.python || []).map((c) => ({ ...c, domain: 'python' })),
+  ];
+
+  const upgradeable = allComp
+    .filter((c) => c.mastery !== null && c.mastery >= 2 && c.mastery <= 3 && (c.friction === null || c.friction <= 1))
+    .slice(0, 3);
+  for (const skill of upgradeable) {
+    quickWins.push({
+      skillLabel: skill.skillLabel,
+      domain: skill.domain,
+      reason: `Mastery ${skill.mastery}/4 avec friction faible — gain rapide possible`,
+      impact: 'Consolidation rapide avec 2-3 exercices ciblés',
+      exerciseType: 'Exercices de consolidation',
+    });
+  }
+
+  // HighRisk: blocking points (mastery 0, high friction, recurring errors)
+  const blocking = allComp
+    .filter((c) => (c.mastery !== null && c.mastery === 0) || (c.friction !== null && c.friction >= 4))
+    .slice(0, 3);
+  for (const skill of blocking) {
+    highRisk.push({
+      skillLabel: skill.skillLabel,
+      domain: skill.domain,
+      reason: skill.mastery === 0
+        ? 'Mastery 0/4 — compétence non acquise'
+        : `Friction ${skill.friction}/4 — blocage sévère`,
+      impact: 'Point bloquant pour la progression — traitement prioritaire en séance',
+      exerciseType: 'Reprise fondamentaux + accompagnement individuel',
+    });
+  }
+
+  // Automatisms quick win if mini-test is mediocre but not terrible
+  if (data.examPrep.miniTest.score >= 3 && data.examPrep.miniTest.score <= 4) {
+    quickWins.push({
+      skillLabel: 'Automatismes (sans calculatrice)',
+      domain: 'examPrep',
+      reason: `Mini-test ${data.examPrep.miniTest.score}/6 — marge de progression rapide`,
+      impact: 'Gain direct sur la partie automatismes de l\'épreuve anticipée',
+      exerciseType: 'Entraînement quotidien 10min sans calculatrice',
+    });
+  }
+
+  return {
+    topPriorities: topPriorities.slice(0, 5),
+    quickWins: quickWins.slice(0, 4),
+    highRisk: highRisk.slice(0, 3),
+  };
+}
+
+/**
  * Build justification string for the recommendation decision.
  */
 function buildJustification(
@@ -338,15 +536,26 @@ export function computeScoringV2(
 
   const examReadinessIndex = calculateExamReadiness(data.examPrep);
 
+  // Rebalanced RiskIndex: 60% proof-based + 40% declarative
+  const proofRisk = 100 - (
+    0.50 * ((data.examPrep.miniTest.score / 6) * 100) +
+    0.25 * (data.examPrep.miniTest.completedInTime ? 100 : 40) +
+    0.25 * ((data.examPrep.signals.verifiedAnswers ? 100 : 50))
+  );
+  const declarativeRisk = 100 - (
+    0.50 * (((4 - data.examPrep.selfRatings.stress) / 4) * 100) +
+    0.50 * (data.examPrep.signals.feeling === 'panic' ? 0 : data.examPrep.signals.feeling === 'ok' ? 80 : 50)
+  );
+  const riskIndex = Math.round(Math.max(0, Math.min(100,
+    0.60 * proofRisk + 0.40 * declarativeRisk
+  )));
+
   // Derived ReadinessScore: weighted combination
   const readinessScore = Math.round(
     0.50 * masteryIndex +
     0.15 * coverageIndex +
     0.35 * examReadinessIndex
   );
-
-  // RiskIndex: inverse of exam readiness
-  const riskIndex = Math.round(100 - examReadinessIndex);
 
   // Decision based on thresholds
   let recommendation: ScoringV2Result['recommendation'];
@@ -363,7 +572,36 @@ export function computeScoringV2(
     recommendationMessage = 'Le Pallier 1 Fondamentaux est recommandé pour consolider les bases';
   }
 
+  // Detect inconsistencies
+  const inconsistencies = detectInconsistencies(data);
+
+  // Enrich dataQuality with coherence info
+  dataQuality.coherenceIssues = inconsistencies.length;
+  dataQuality.miniTestFilled = data.examPrep.miniTest.score > 0;
+  const criticalMissing = [
+    !data.performance.mathAverage,
+    !data.schoolContext.establishment,
+    dataQuality.evaluatedCompetencies < 5,
+  ].filter(Boolean).length;
+  dataQuality.criticalFieldsMissing = criticalMissing;
+
   const alerts = detectAlerts(data, dataQuality);
+
+  // Add inconsistency alerts
+  for (const inc of inconsistencies) {
+    alerts.push({
+      type: inc.severity === 'error' ? 'danger' : 'warning',
+      code: inc.code,
+      message: inc.message,
+      impact: `Champs concernés : ${inc.fields.join(', ')}`,
+    });
+  }
+
+  // TrustScore
+  const { trustScore, trustLevel } = calculateTrustScore(dataQuality, inconsistencies, data.examPrep);
+
+  // Computed priorities
+  const { topPriorities, quickWins, highRisk } = computePriorities(data, domainScores);
 
   const { justification, upgradeConditions } = buildJustification(
     masteryIndex, coverageIndex, examReadinessIndex,
@@ -383,5 +621,11 @@ export function computeScoringV2(
     domainScores,
     alerts,
     dataQuality,
+    trustScore,
+    trustLevel,
+    topPriorities,
+    quickWins,
+    highRisk,
+    inconsistencies,
   };
 }
