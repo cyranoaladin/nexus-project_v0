@@ -15,6 +15,7 @@ import { computeStageScore } from '@/lib/scoring-engine';
 import type { StudentAnswer, AnswerStatus } from '@/lib/scoring-engine';
 import { ALL_STAGE_QUESTIONS } from '@/lib/data/stage-qcm-structure';
 import { sendStageBilanReady } from '@/lib/email';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 // ─── Validation Schema ───────────────────────────────────────────────────────
 
@@ -64,7 +65,13 @@ function toStudentAnswers(submitted: SubmittedAnswer[]): StudentAnswer[] {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Parse & validate
+    // 1. Rate Limiting (5 requests per minute per IP - stricter for diagnostic submission)
+    const rateLimitResponse = await checkRateLimit(request, 'api');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
+    // 2. Parse & validate
     const body = await request.json();
     const parsed = submitDiagnosticSchema.safeParse(body);
 

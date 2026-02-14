@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
 import { sendStageDiagnosticInvitation } from '@/lib/email';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -67,14 +70,30 @@ _Ce prospect attend votre appel !_
 /**
  * POST /api/reservation
  *
- * Pipeline: Zod validate → Upsert DB (anti-duplicate on email+academyId) → Telegram notification
- * Returns: 201 Created | 200 Updated | 400 Bad Request | 500 Internal Error
+ * Pipeline: Rate limit → Honeypot → Zod validate → Upsert DB → Telegram → Email
+ * Returns: 201 Created | 200 Updated | 400 Bad Request | 429 Rate Limited | 500 Internal Error
  */
 export async function POST(request: NextRequest) {
   try {
+    // 1. Rate Limiting (10 requests per minute per IP)
+    const rateLimitResponse = await checkRateLimit(request, 'api');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     const body = await request.json();
 
-    // 1. Strict Zod validation
+    // 2. Honeypot check (bot trap field)
+    if (body.website || body.url || body.honeypot) {
+      console.warn('[reservation] Honeypot triggered:', { ip: request.headers.get('x-forwarded-for') });
+      // Return success to fool bots, but don't save
+      return NextResponse.json(
+        { success: true, message: 'Réservation enregistrée avec succès !' },
+        { status: 201 }
+      );
+    }
+
+    // 3. Strict Zod validation
     const parseResult = stageReservationSchema.safeParse(body);
     if (!parseResult.success) {
       const firstError = parseResult.error.errors[0];
@@ -218,10 +237,21 @@ export async function POST(request: NextRequest) {
  * GET /api/reservation
  *
  * Staff-only: list all reservations (for admin dashboard).
- * TODO: Add RBAC guard (requireAnyRole(['ADMIN']))
+ * RBAC: ADMIN or ASSISTANTE only
  */
 export async function GET(request: NextRequest) {
   try {
+    // RBAC Guard: Check session and role
+    const session = await getServerSession(authOptions);
+    const userRole = session?.user?.role;
+    
+    if (!session || (userRole !== 'ADMIN' && userRole !== 'ASSISTANTE')) {
+      return NextResponse.json(
+        { success: false, error: 'Accès non autorisé. Rôle ADMIN ou ASSISTANTE requis.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const academyId = searchParams.get('academyId');
