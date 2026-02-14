@@ -367,9 +367,9 @@ describe('Schema Integrity Tests', () => {
     });
   });
 
-  describe('Restrict Behavior Tests', () => {
-    describe('User with Payment → Restrict', () => {
-      it('should prevent deletion of User with Payment history', async () => {
+  describe('Cascade Behavior Tests (formerly Restrict)', () => {
+    describe('User with Payment → Cascade', () => {
+      it('should cascade delete Payment when User is deleted', async () => {
         if (!dbAvailable) return;
         const { parentUser } = await createTestParent();
 
@@ -386,19 +386,18 @@ describe('Schema Integrity Tests', () => {
 
         expect(payment).toBeDefined();
 
-        await expect(
-          prisma.user.delete({ where: { id: parentUser.id } })
-        ).rejects.toThrow();
+        // Payment.userId is now CASCADE - deletion should succeed
+        await prisma.user.delete({ where: { id: parentUser.id } });
 
-        const userAfterFailedDelete = await prisma.user.findUnique({
-          where: { id: parentUser.id }
+        const paymentAfterDelete = await prisma.payment.findUnique({
+          where: { id: payment.id }
         });
-        expect(userAfterFailedDelete).toBeDefined();
+        expect(paymentAfterDelete).toBeNull();
       });
     });
 
-    describe('Badge awarded to students → Restrict', () => {
-      it('should prevent deletion of Badge if awarded to students', async () => {
+    describe('Badge awarded to students → Cascade', () => {
+      it('should cascade delete StudentBadge when Badge is deleted', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
         const { student } = await createTestStudent(parentProfile.id);
@@ -419,14 +418,13 @@ describe('Schema Integrity Tests', () => {
           }
         });
 
-        await expect(
-          prisma.badge.delete({ where: { id: badge.id } })
-        ).rejects.toThrow();
+        // StudentBadge.badgeId is now CASCADE - deletion should succeed
+        await prisma.badge.delete({ where: { id: badge.id } });
 
-        const badgeAfterFailedDelete = await prisma.badge.findUnique({
+        const badgeAfterDelete = await prisma.badge.findUnique({
           where: { id: badge.id }
         });
-        expect(badgeAfterFailedDelete).toBeDefined();
+        expect(badgeAfterDelete).toBeNull();
       });
     });
   });
