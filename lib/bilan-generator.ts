@@ -1,22 +1,23 @@
-import OpenAI from 'openai';
+import { ollamaChat } from '@/lib/ollama-client';
+import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';
 import type { ScoringResult } from '@/lib/bilan-scoring';
 
 /**
- * Bilan Generator — Generates 3 audience-specific reports using OpenAI LLM.
- * - Élève: "Mon Diagnostic Maths"
- * - Parents: "Rapport de positionnement"
- * - Nexus: "Fiche pédagogique"
+ * Bilan Generator — Generates 3 audience-specific reports using:
+ * - Ollama + Qwen 2.5:32b (local LLM on server)
+ * - RAG Ingestor (ChromaDB + nomic-embed-text) for pedagogical context
+ *
+ * Pipeline: RAG search → build context → Ollama chat → parse JSON → 3 bilans
  */
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const BILAN_SYSTEM_PROMPT = `Tu es un expert pédagogique en mathématiques de niveau lycée (programme français, Première spécialité).
-Tu reçois les données structurées d'un bilan diagnostic pré-stage (JSON v1.3) ainsi que les scores calculés.
+Tu travailles pour Nexus Réussite, un centre de soutien scolaire en Tunisie.
+Tu reçois les données structurées d'un bilan diagnostic pré-stage (v1.3) ainsi que les scores calculés.
+Tu peux aussi recevoir du contexte pédagogique issu de la base de connaissances Nexus Réussite.
 
-Génère 3 versions du bilan en JSON avec les clés: "eleve", "parents", "nexus".
+Tu dois générer 3 versions du bilan en JSON avec les clés: "eleve", "parents", "nexus".
+Chaque valeur est une chaîne de texte en Markdown.
 
 ## VERSION ÉLÈVE ("Mon Diagnostic Maths")
 - Ton : bienveillant, direct, motivant. Tutoiement.
@@ -40,7 +41,8 @@ Règles :
 - Ne jamais inventer de données. Utiliser uniquement les données fournies.
 - Si une section manque de données, indiquer "Données insuffisantes".
 - Ne pas exposer les scores bruts (ReadinessScore, RiskIndex) dans la version parents — utiliser des termes qualitatifs.
-- Toujours retourner un JSON valide avec les 3 clés.`;
+- Si du contexte pédagogique est fourni, l'utiliser pour enrichir les conseils et recommandations.
+- Toujours retourner un JSON valide avec exactement les 3 clés "eleve", "parents", "nexus".`;
 
 export interface GeneratedBilans {
   eleve: string;
@@ -145,33 +147,86 @@ VERBATIMS:
 }
 
 /**
- * Generate the 3 audience-specific bilans using OpenAI.
- * Returns structured bilans or falls back to a template if LLM fails.
+ * Build RAG queries from the diagnostic data to retrieve relevant pedagogical content.
+ */
+function buildRAGQueries(data: BilanDiagnosticMathsData, scoring: ScoringResult): string[] {
+  const queries: string[] = [];
+
+  // Query for weak domains
+  const weakDomains = scoring.domainScores
+    .filter((d) => d.priority === 'high' && d.score > 0)
+    .slice(0, 3);
+
+  for (const domain of weakDomains) {
+    if (domain.gaps.length > 0) {
+      queries.push(`${domain.domain} ${domain.gaps.slice(0, 2).join(' ')} exercices méthode`);
+    } else {
+      queries.push(`${domain.domain} première spécialité maths méthode`);
+    }
+  }
+
+  // Query for dominant error types
+  const errorTypes = data.methodology.errorTypes || [];
+  if (errorTypes.length > 0) {
+    queries.push(`erreurs fréquentes ${errorTypes.slice(0, 2).join(' ')} méthode correction`);
+  }
+
+  // Query for exam preparation if risk is high
+  if (scoring.riskIndex > 60) {
+    queries.push('épreuve anticipée mathématiques préparation automatismes');
+  }
+
+  return queries.slice(0, 4);
+}
+
+/**
+ * Generate the 3 audience-specific bilans using Ollama (Qwen 2.5:32b) + RAG.
+ * Pipeline: RAG search → build context → Ollama chat → parse JSON → 3 bilans.
+ * Falls back to template-based generation if LLM is unavailable.
  */
 export async function generateBilans(
   data: BilanDiagnosticMathsData,
   scoring: ScoringResult
 ): Promise<GeneratedBilans> {
-  const context = prepareLLMContext(data, scoring);
+  const diagnosticContext = prepareLLMContext(data, scoring);
 
+  // 1. RAG: retrieve relevant pedagogical content
+  let ragContext = '';
   try {
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    const ragQueries = buildRAGQueries(data, scoring);
+    const allHits = [];
+    for (const query of ragQueries) {
+      const hits = await ragSearch({ query, k: 2 });
+      allHits.push(...hits);
+    }
+    // Deduplicate by ID
+    const uniqueHits = Array.from(
+      new Map(allHits.map((h) => [h.id, h])).values()
+    ).slice(0, 6);
+    ragContext = buildRAGContext(uniqueHits);
+  } catch (error) {
+    console.warn('RAG search failed, proceeding without pedagogical context:', error);
+  }
+
+  // 2. LLM: generate bilans via Ollama/Qwen
+  try {
+    const raw = await ollamaChat({
+      model: process.env.OLLAMA_MODEL || 'qwen2.5:32b',
       messages: [
         { role: 'system', content: BILAN_SYSTEM_PROMPT },
         {
           role: 'user',
-          content: `Voici les données du diagnostic pré-stage. Génère les 3 bilans en JSON:\n\n${context}`,
+          content: `Voici les données du diagnostic pré-stage. Génère les 3 bilans en JSON (clés: "eleve", "parents", "nexus"):\n\n${diagnosticContext}${ragContext}`,
         },
       ],
-      max_tokens: 4000,
       temperature: 0.5,
-      response_format: { type: 'json_object' },
+      numPredict: 4096,
+      format: 'json',
+      timeout: 180000,
     });
 
-    const raw = completion.choices[0]?.message?.content;
     if (!raw) {
-      throw new Error('Empty LLM response');
+      throw new Error('Empty LLM response from Ollama');
     }
 
     const parsed = JSON.parse(raw) as GeneratedBilans;
@@ -182,7 +237,7 @@ export async function generateBilans(
 
     return parsed;
   } catch (error) {
-    console.error('Erreur génération bilan LLM:', error);
+    console.error('Erreur génération bilan LLM (Ollama/Qwen):', error);
     return generateFallbackBilans(data, scoring);
   }
 }
