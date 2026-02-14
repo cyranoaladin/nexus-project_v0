@@ -12,22 +12,31 @@ import {
   ExternalLink,
   GraduationCap,
   Loader2,
+  RefreshCw,
   Search,
   Shield,
   Target,
   TrendingUp,
   Users,
+  XCircle,
+  Zap,
 } from "lucide-react";
 
 interface DiagnosticSummary {
   id: string;
+  publicShareId?: string;
   type: string;
+  definitionKey?: string;
   studentFirstName: string;
   studentLastName: string;
   studentEmail: string;
   status: string;
   mathAverage: string | null;
   establishment?: string;
+  modelUsed?: string;
+  ragUsed?: boolean;
+  errorCode?: string;
+  retryCount?: number;
   createdAt: string;
   data?: {
     scoring?: {
@@ -36,13 +45,28 @@ interface DiagnosticSummary {
       recommendation: string;
       recommendationMessage: string;
     };
+    scoringV2?: {
+      readinessScore: number;
+      riskIndex: number;
+      masteryIndex: number;
+      coverageIndex: number;
+      examReadinessIndex: number;
+      recommendation: string;
+      recommendationMessage: string;
+      justification: string;
+    };
   };
 }
 
 const STATUS_CFG: Record<string, { label: string; text: string; bg: string; border: string; icon: React.ReactNode }> = {
-  ANALYZED: { label: "Analysé", text: "text-semantic-success", bg: "bg-semantic-success/15", border: "border-semantic-success/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  SCORED:   { label: "Scoré",   text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30", icon: <Clock className="w-3.5 h-3.5" /> },
-  PENDING:  { label: "En attente", text: "text-neutral-300", bg: "bg-neutral-500/15", border: "border-neutral-500/30", icon: <Clock className="w-3.5 h-3.5" /> },
+  ANALYZED:   { label: "Analysé",    text: "text-semantic-success", bg: "bg-semantic-success/15", border: "border-semantic-success/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  GENERATING: { label: "Génération…", text: "text-brand-accent",     bg: "bg-brand-accent/15",     border: "border-brand-accent/30",     icon: <Zap className="w-3.5 h-3.5 animate-pulse" /> },
+  SCORED:     { label: "Scoré",      text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30", icon: <Clock className="w-3.5 h-3.5" /> },
+  VALIDATED:  { label: "Validé",     text: "text-neutral-200",      bg: "bg-neutral-500/15",      border: "border-neutral-500/30",      icon: <Clock className="w-3.5 h-3.5" /> },
+  RECEIVED:   { label: "Reçu",       text: "text-neutral-300",      bg: "bg-neutral-500/15",      border: "border-neutral-500/30",      icon: <Clock className="w-3.5 h-3.5" /> },
+  FAILED:     { label: "Échoué",     text: "text-semantic-error",   bg: "bg-semantic-error/15",   border: "border-semantic-error/30",   icon: <XCircle className="w-3.5 h-3.5" /> },
+  SCORE_ONLY: { label: "Score seul", text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30", icon: <AlertTriangle className="w-3.5 h-3.5" /> },
+  PENDING:    { label: "En attente", text: "text-neutral-300",      bg: "bg-neutral-500/15",      border: "border-neutral-500/30",      icon: <Clock className="w-3.5 h-3.5" /> },
 };
 
 const RECO_CFG: Record<string, { label: string; text: string; bg: string; border: string }> = {
@@ -79,22 +103,50 @@ export default function DiagnosticsDashboardPage() {
     load();
   }, []);
 
+  const [retrying, setRetrying] = useState<string | null>(null);
+
+  /** Prefer scoringV2, fallback to scoring V1 */
+  const getScoring = (d: DiagnosticSummary) => d.data?.scoringV2 || d.data?.scoring;
+
   const filtered = diagnostics.filter((d) => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || `${d.studentFirstName} ${d.studentLastName} ${d.studentEmail} ${d.establishment || ""}`.toLowerCase().includes(q);
-    const matchesFilter = filterReco === "all" || d.data?.scoring?.recommendation === filterReco;
+    const sc = getScoring(d);
+    const matchesFilter = filterReco === "all" || sc?.recommendation === filterReco;
     return matchesSearch && matchesFilter;
   });
 
   const stats = {
     total: diagnostics.length,
     analyzed: diagnostics.filter((d) => d.status === "ANALYZED").length,
-    p2Confirmed: diagnostics.filter((d) => d.data?.scoring?.recommendation === "Pallier2_confirmed").length,
-    p2Conditional: diagnostics.filter((d) => d.data?.scoring?.recommendation === "Pallier2_conditional").length,
-    p1Recommended: diagnostics.filter((d) => d.data?.scoring?.recommendation === "Pallier1_recommended").length,
+    failed: diagnostics.filter((d) => d.status === "FAILED" || d.status === "SCORE_ONLY").length,
+    p2Confirmed: diagnostics.filter((d) => getScoring(d)?.recommendation === "Pallier2_confirmed").length,
+    p2Conditional: diagnostics.filter((d) => getScoring(d)?.recommendation === "Pallier2_conditional").length,
+    p1Recommended: diagnostics.filter((d) => getScoring(d)?.recommendation === "Pallier1_recommended").length,
     avgReadiness: diagnostics.length > 0
-      ? Math.round(diagnostics.reduce((sum, d) => sum + (d.data?.scoring?.readinessScore || 0), 0) / diagnostics.length)
+      ? Math.round(diagnostics.reduce((sum, d) => sum + (getScoring(d)?.readinessScore || 0), 0) / diagnostics.length)
       : 0,
+  };
+
+  /** Retry failed generation */
+  const handleRetry = async (diagnosticId: string) => {
+    setRetrying(diagnosticId);
+    try {
+      const res = await fetch("/api/bilan-pallier2-maths/retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ diagnosticId }),
+      });
+      if (res.ok) {
+        // Reload diagnostics
+        const listRes = await fetch("/api/bilan-pallier2-maths");
+        if (listRes.ok) {
+          const json = await listRes.json();
+          setDiagnostics(json.diagnostics || []);
+        }
+      }
+    } catch { /* ignore */ }
+    finally { setRetrying(null); }
   };
 
   if (loading) return (
@@ -140,9 +192,9 @@ export default function DiagnosticsDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           <StatCard icon={<Users className="w-4 h-4 text-brand-accent" />} label="Total élèves" value={stats.total} />
           <StatCard icon={<CheckCircle2 className="w-4 h-4 text-semantic-success" />} label="Analysés" value={stats.analyzed} color="text-semantic-success" />
+          <StatCard icon={<XCircle className="w-4 h-4 text-semantic-error" />} label="Échoués" value={stats.failed} color="text-semantic-error" />
           <StatCard icon={<TrendingUp className="w-4 h-4 text-semantic-success" />} label="P2 Confirmé" value={stats.p2Confirmed} color="text-semantic-success" />
           <StatCard icon={<AlertTriangle className="w-4 h-4 text-semantic-warning" />} label="P2 Conditionnel" value={stats.p2Conditional} color="text-semantic-warning" />
-          <StatCard icon={<Shield className="w-4 h-4 text-semantic-error" />} label="P1 Recommandé" value={stats.p1Recommended} color="text-semantic-error" />
           <StatCard icon={<BarChart3 className="w-4 h-4 text-brand-accent" />} label="Moy. Readiness" value={stats.avgReadiness} suffix="/100" />
         </div>
 
@@ -209,9 +261,10 @@ export default function DiagnosticsDashboardPage() {
                 </thead>
                 <tbody>
                   {filtered.map((d) => {
-                    const sc = d.data?.scoring;
+                    const sc = getScoring(d);
                     const statusCfg = STATUS_CFG[d.status] || STATUS_CFG.PENDING;
                     const recoCfg = sc ? RECO_CFG[sc.recommendation] : null;
+                    const canRetry = d.status === "FAILED" || d.status === "SCORE_ONLY";
                     return (
                       <tr key={d.id} className="border-b border-white/[0.04] hover:bg-surface-hover transition-colors group">
                         <td className="px-5 py-4">
@@ -219,6 +272,7 @@ export default function DiagnosticsDashboardPage() {
                             <p className="text-white font-semibold text-sm">{d.studentFirstName} {d.studentLastName}</p>
                             <p className="text-neutral-400 text-xs font-mono">{d.studentEmail}</p>
                             {d.establishment && <p className="text-neutral-500 text-[10px] mt-0.5">{d.establishment}</p>}
+                            {d.errorCode && <p className="text-semantic-error text-[10px] mt-0.5 font-mono">{d.errorCode}{d.retryCount ? ` (×${d.retryCount})` : ""}</p>}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-center">
@@ -242,12 +296,24 @@ export default function DiagnosticsDashboardPage() {
                           {new Date(d.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <Link
-                            href={`/bilan-pallier2-maths/resultat/${d.id}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-brand-accent/10 border border-brand-accent/20 text-brand-accent hover:bg-brand-accent/20 text-xs font-semibold transition-all opacity-70 group-hover:opacity-100"
-                          >
-                            Voir <ExternalLink className="w-3 h-3" />
-                          </Link>
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <Link
+                              href={`/bilan-pallier2-maths/resultat/${d.id}`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-brand-accent/10 border border-brand-accent/20 text-brand-accent hover:bg-brand-accent/20 text-xs font-semibold transition-all opacity-70 group-hover:opacity-100"
+                            >
+                              Voir <ExternalLink className="w-3 h-3" />
+                            </Link>
+                            {canRetry && (
+                              <button
+                                onClick={() => handleRetry(d.id)}
+                                disabled={retrying === d.id}
+                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-[8px] bg-semantic-warning/10 border border-semantic-warning/20 text-semantic-warning hover:bg-semantic-warning/20 text-xs font-semibold transition-all disabled:opacity-50"
+                                title="Relancer la génération LLM"
+                              >
+                                <RefreshCw className={`w-3 h-3 ${retrying === d.id ? "animate-spin" : ""}`} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

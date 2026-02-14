@@ -14,6 +14,8 @@ import { Suspense } from "react";
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const diagnosticId = searchParams.get('id');
+  const publicShareId = searchParams.get('share');
+  const bilanLinkId = publicShareId || diagnosticId;
 
   return (
     <div className="min-h-screen bg-surface-darker">
@@ -110,8 +112,8 @@ function ConfirmationContent() {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            {diagnosticId && (
-              <Link href={`/bilan-pallier2-maths/resultat/${diagnosticId}`}>
+            {bilanLinkId && (
+              <Link href={`/bilan-pallier2-maths/resultat/${bilanLinkId}`}>
                 <Button className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Consulter mon bilan
