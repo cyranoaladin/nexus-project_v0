@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const { subject, grade, studentData, answers, duration, metadata } = validationResult.data;
 
     // Get user agent and IP for tracking
-    const headersList = headers();
+    const headersList = await headers();
     const userAgent = headersList.get('user-agent') || undefined;
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || undefined;
 
