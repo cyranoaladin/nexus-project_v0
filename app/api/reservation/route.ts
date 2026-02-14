@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
+import { sendStageDiagnosticInvitation } from '@/lib/email';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -160,6 +161,25 @@ export async function POST(request: NextRequest) {
         });
       } catch {
         // Non-critical — don't fail the request
+      }
+    }
+
+    // 6. Email notification: Template A (diagnostic invitation) — non-blocking
+    if (!isUpdate) {
+      try {
+        const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+        const diagnosticUrl = `${baseUrl}/stages/fevrier-2026/diagnostic?email=${encodeURIComponent(data.email)}`;
+        
+        await sendStageDiagnosticInvitation(
+          data.email,
+          data.parent,
+          data.studentName || null,
+          data.academyTitle,
+          diagnosticUrl
+        );
+      } catch (emailError) {
+        // Non-blocking: log but don't fail the request
+        console.error('[reservation] Email failed:', emailError instanceof Error ? emailError.message : 'unknown');
       }
     }
 
