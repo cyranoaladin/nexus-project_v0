@@ -29,6 +29,10 @@ jest.mock('@/lib/middleware/logger', () => ({
   createLogger: jest.fn(),
 }));
 
+jest.mock('@/lib/aria-streaming', () => ({
+  streamAriaResponse: jest.fn(),
+}));
+
 const loggerMock = {
   logSecurityEvent: jest.fn(),
   logRequest: jest.fn(),
