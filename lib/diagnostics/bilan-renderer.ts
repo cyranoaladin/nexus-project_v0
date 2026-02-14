@@ -10,7 +10,7 @@
  *   - nexus: technique, factuel, tableaux, ~600 mots
  */
 
-import type { ScoringV2Result, PriorityItem } from './types';
+import type { ScoringV2Result } from './types';
 
 /** Minimal diagnostic identity for rendering */
 export interface RenderContext {
