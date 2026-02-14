@@ -34,6 +34,8 @@ interface DomainScore {
   score: number;
   evaluatedCount: number;
   totalCount: number;
+  notStudiedCount?: number;
+  unknownCount?: number;
   gaps: string[];
   dominantErrors: string[];
   priority: string;
@@ -42,19 +44,25 @@ interface DomainScore {
 interface ScoringData {
   readinessScore: number;
   riskIndex: number;
+  masteryIndex?: number;
+  coverageIndex?: number;
+  examReadinessIndex?: number;
   recommendation: string;
   recommendationMessage: string;
+  justification?: string;
+  upgradeConditions?: string[];
   domainScores: DomainScore[];
-  alerts: Array<{ type: string; code: string; message: string }>;
-  dataQuality: { activeDomains: number; evaluatedCompetencies: number; lowConfidence: boolean };
+  alerts: Array<{ type: string; code: string; message: string; impact?: string }>;
+  dataQuality: { activeDomains: number; evaluatedCompetencies: number; lowConfidence: boolean; quality?: string };
 }
 
 interface DiagnosticResult {
   id: string;
+  publicShareId?: string;
   type: string;
   studentFirstName: string;
   studentLastName: string;
-  studentEmail: string;
+  studentEmail?: string;
   studentPhone?: string;
   establishment?: string;
   mathAverage: string | null;
@@ -63,6 +71,7 @@ interface DiagnosticResult {
   data: {
     version: string;
     scoring?: ScoringData;
+    scoringV2?: ScoringData;
     examPrep?: {
       miniTest?: { score: number; timeUsedMinutes: number; completedInTime: boolean };
       selfRatings?: Record<string, number>;
@@ -76,6 +85,9 @@ interface DiagnosticResult {
     freeText?: Record<string, string>;
   };
   analysisResult: string | null;
+  studentMarkdown?: string | null;
+  parentsMarkdown?: string | null;
+  nexusMarkdown?: string | null;
   actionPlan: string | null;
   createdAt: string;
 }
@@ -106,9 +118,10 @@ const DOMAIN_ICONS: Record<string, string> = {
 };
 
 const PRIORITY_CFG: Record<string, { label: string; text: string; bg: string; border: string }> = {
-  high:   { label: "Haute",   text: "text-semantic-error",   bg: "bg-semantic-error/15", border: "border-semantic-error/30" },
-  medium: { label: "Moyenne", text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30" },
-  low:    { label: "Basse",   text: "text-semantic-success", bg: "bg-semantic-success/15", border: "border-semantic-success/30" },
+  critical: { label: "Critique", text: "text-semantic-error",   bg: "bg-semantic-error/20", border: "border-semantic-error/40" },
+  high:     { label: "Haute",    text: "text-semantic-error",   bg: "bg-semantic-error/15", border: "border-semantic-error/30" },
+  medium:   { label: "Moyenne",  text: "text-semantic-warning", bg: "bg-semantic-warning/15", border: "border-semantic-warning/30" },
+  low:      { label: "Basse",    text: "text-semantic-success", bg: "bg-semantic-success/15", border: "border-semantic-success/30" },
 };
 
 const RATING_LABELS: Record<string, string> = {
@@ -158,12 +171,26 @@ export default function BilanResultatPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/bilan-pallier2-maths?id=${id}`);
-        if (!res.ok) { setError(res.status === 404 ? "Diagnostic non trouvé." : "Erreur de chargement."); return; }
+        // Try public access via publicShareId first, then fall back to internal ID (staff)
+        let res = await fetch(`/api/bilan-pallier2-maths?share=${id}`);
+        if (!res.ok) {
+          // Fallback: try as internal ID (requires staff auth)
+          res = await fetch(`/api/bilan-pallier2-maths?id=${id}`);
+        }
+        if (!res.ok) { setError(res.status === 404 ? "Diagnostic non trouvé." : res.status === 401 ? "Accès non autorisé." : "Erreur de chargement."); return; }
         const json = await res.json();
-        setDiagnostic(json.diagnostic);
-        if (json.diagnostic.analysisResult) {
-          try { setBilans(JSON.parse(json.diagnostic.analysisResult)); } catch { /* ignore */ }
+        const diag = json.diagnostic;
+        setDiagnostic(diag);
+
+        // Use structured markdown fields (V2) if available, else parse legacy analysisResult
+        if (diag.studentMarkdown || diag.parentsMarkdown || diag.nexusMarkdown) {
+          setBilans({
+            eleve: diag.studentMarkdown || '',
+            parents: diag.parentsMarkdown || '',
+            nexus: diag.nexusMarkdown || '',
+          });
+        } else if (diag.analysisResult) {
+          try { setBilans(JSON.parse(diag.analysisResult)); } catch { /* ignore */ }
         }
       } catch { setError("Impossible de contacter le serveur."); }
       finally { setLoading(false); }
@@ -195,9 +222,10 @@ export default function BilanResultatPage() {
     </div>
   );
 
-  const scoring = diagnostic.data?.scoring;
+  const scoring = diagnostic.data?.scoringV2 || diagnostic.data?.scoring;
   const isAnalyzed = diagnostic.status === "ANALYZED" && bilans;
-  const isPending = diagnostic.status === "SCORED" || diagnostic.status === "PENDING";
+  const isPending = ["RECEIVED", "VALIDATED", "SCORED", "GENERATING", "PENDING"].includes(diagnostic.status);
+  const isFailed = diagnostic.status === "FAILED" || diagnostic.status === "SCORE_ONLY";
 
   return (
     <div className="min-h-screen bg-surface-darker">
@@ -468,7 +496,7 @@ function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scori
             <InfoCell icon={<Building2 className="w-3 h-3" />} label="Établissement" value={diagnostic.establishment || "—"} />
             <InfoCell icon={<BarChart3 className="w-3 h-3" />} label="Moyenne Maths" value={diagnostic.mathAverage || "—"} />
             <InfoCell icon={<TrendingUp className="w-3 h-3" />} label="Classement" value={diagnostic.classRanking || performance?.classRanking || "—"} />
-            <InfoCell icon={<Users className="w-3 h-3" />} label="Email" value={diagnostic.studentEmail} />
+            <InfoCell icon={<Users className="w-3 h-3" />} label="Email" value={diagnostic.studentEmail || "—"} />
           </div>
         </div>
       </div>
