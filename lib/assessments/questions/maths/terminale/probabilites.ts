@@ -6,7 +6,7 @@
 import { Subject } from '../../../core/types';
 import type { QuestionModule } from '../../types';
 
-const module: QuestionModule = {
+const questionModule: QuestionModule = {
   id: 'probabilites',
   title: 'Probabilités - Succession d\'épreuves',
   subject: Subject.MATHS,
@@ -15,4 +15,4 @@ const module: QuestionModule = {
   questions: [], // TODO: Migrer depuis stage-qcm-structure.ts
 };
 
-export default module;
+export default questionModule;
