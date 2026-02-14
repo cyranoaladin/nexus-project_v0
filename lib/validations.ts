@@ -47,6 +47,35 @@ export const bilanGratuitSchema = z.object({
 
 export type BilanGratuitData = z.infer<typeof bilanGratuitSchema>;
 
+// Validation pour la réservation de stage (Février 2026)
+export const stageReservationSchema = z.object({
+  parent: z.string()
+    .min(3, 'Le nom du parent doit contenir au moins 3 caractères')
+    .max(100, 'Nom trop long'),
+  studentName: z.string().max(100).optional(),
+  email: z.string()
+    .email('Email invalide')
+    .max(255, 'Email trop long'),
+  phone: z.string()
+    .min(8, 'Numéro de téléphone invalide')
+    .max(20, 'Numéro trop long')
+    .regex(/^\+?[0-9\s\-]{8,20}$/, 'Format de téléphone invalide (ex: +216 99 19 28 29)'),
+  classe: z.string()
+    .min(1, 'Classe requise')
+    .max(50, 'Classe invalide'),
+  academyId: z.string()
+    .min(1, 'Académie requise'),
+  academyTitle: z.string()
+    .min(1, 'Titre de l\'académie requis')
+    .max(200),
+  price: z.number()
+    .min(0, 'Prix invalide')
+    .max(5000, 'Prix invalide'),
+  paymentMethod: z.enum(['card', 'transfer']).optional(),
+});
+
+export type StageReservationData = z.infer<typeof stageReservationSchema>;
+
 // Validation pour la connexion
 export const signinSchema = z.object({
   email: z.string().email('Email invalide'),
