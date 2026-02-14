@@ -196,7 +196,9 @@ jobs:
       - name: Run database migrations
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
-        run: npx prisma migrate deploy
+        run: |
+          npx prisma migrate deploy
+          npx prisma db push --skip-generate
 
       - name: Verify database connection
         env:
