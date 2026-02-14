@@ -1,8 +1,8 @@
 /**
  * Global setup for Jest integration tests
  * 
- * This runs once before all integration tests to ensure a completely clean database.
- * It resets the schema to avoid constraint violations from previous test runs.
+ * This runs once before all integration tests to ensure the database is ready.
+ * The CI already runs migrations, so we just verify the connection here.
  */
 
 module.exports = async function globalSetup() {
@@ -12,12 +12,15 @@ module.exports = async function globalSetup() {
     
     try {
       // Dynamically import to avoid issues with Jest environment
-      const { testPrisma, resetTestDatabase } = require('./__tests__/setup/test-database');
+      const { testPrisma, canConnectToTestDb } = require('./__tests__/setup/test-database');
       
-      // Reset database schema
-      await resetTestDatabase();
+      // Verify database connection
+      const isConnected = await canConnectToTestDb();
+      if (!isConnected) {
+        throw new Error('Cannot connect to test database');
+      }
       
-      console.log('✅ Global setup complete - database is clean');
+      console.log('✅ Global setup complete - database is ready');
     } catch (error) {
       console.warn('⚠️  Global setup warning:', error);
       // Don't fail the entire run, tests will handle connection errors
