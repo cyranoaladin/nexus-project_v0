@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { randomUUID } from 'crypto';
 
 // Preserve CI-provided env vars before loading .env.test defaults
 const ciDatabaseUrl = process.env.DATABASE_URL;
@@ -65,9 +66,36 @@ export async function canConnectToTestDb(): Promise<boolean> {
 // Test data setup utilities
 export async function setupTestDatabase() {
   try {
-    // Clean up existing test data (in order of foreign key dependencies)
-    // Using deleteMany is safe even if table is empty - but we wrap in try/catch
-    // to handle cases where tables don't exist yet
+    // Get all table names dynamically
+    const tables = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
+      SELECT tablename FROM pg_tables 
+      WHERE schemaname = 'public' 
+      AND tablename != '_prisma_migrations'
+    `;
+
+    if (tables.length === 0) return;
+
+    // Disable triggers for clean TRUNCATE
+    await testPrisma.$executeRawUnsafe('SET session_replication_role = replica;');
+
+    try {
+      // TRUNCATE all tables with RESTART IDENTITY CASCADE
+      for (const { tablename } of tables) {
+        try {
+          await testPrisma.$executeRawUnsafe(
+            `TRUNCATE TABLE "${tablename}" RESTART IDENTITY CASCADE;`
+          );
+        } catch {
+          // Table might not exist or have special constraints
+        }
+      }
+    } finally {
+      // Re-enable triggers
+      await testPrisma.$executeRawUnsafe('SET session_replication_role = DEFAULT;');
+    }
+  } catch (error) {
+    console.warn('⚠️  Could not truncate tables, falling back to deleteMany:', error);
+    // Fallback to deleteMany if TRUNCATE fails
     try { await testPrisma.sessionReminder.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.sessionNotification.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.creditTransaction.deleteMany(); } catch { /* ignore */ }
@@ -87,8 +115,6 @@ export async function setupTestDatabase() {
     try { await testPrisma.studentProfile.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.coachProfile.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.user.deleteMany(); } catch { /* ignore */ }
-  } catch (error) {
-    console.warn('⚠️  Some tables may not exist yet:', error);
   }
 }
 
@@ -99,8 +125,8 @@ export async function teardownTestDatabase() {
 
 // Test data factories
 export const createTestParent = async (overrides: any = {}) => {
-  // Generate unique email if not provided in overrides
-  const uniqueEmail = overrides.email || `test.parent.${Date.now()}.${Math.random().toString(36).substr(2, 9)}@nexus-test.com`;
+  // Generate unique email using UUID for absolute uniqueness
+  const uniqueEmail = overrides.email || `test.parent.${randomUUID()}@nexus-test.com`;
 
   const parentUser = await testPrisma.user.create({
     data: {
@@ -129,7 +155,7 @@ export const createTestParent = async (overrides: any = {}) => {
 export const createTestStudent = async (parentId: string, overrides: any = {}) => {
   const studentUser = await testPrisma.user.create({
     data: {
-      email: `test.student.${Date.now()}.${Math.random().toString(36).substr(2, 9)}@nexus-test.com`,
+      email: `test.student.${randomUUID()}@nexus-test.com`,
       role: 'ELEVE',
       firstName: 'Marie',
       lastName: 'Dupont',
@@ -159,9 +185,10 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
 };
 
 export const createTestCoach = async (overrides: any = {}) => {
+  const uuid = randomUUID();
   const coachUser = await testPrisma.user.create({
     data: {
-      email: `test.coach.${Date.now()}.${Math.random().toString(36).substr(2, 9)}@nexus-test.com`,
+      email: `test.coach.${uuid}@nexus-test.com`,
       role: 'COACH',
       firstName: 'Pierre',
       lastName: 'Martin',
@@ -172,7 +199,7 @@ export const createTestCoach = async (overrides: any = {}) => {
   const coachProfile = await testPrisma.coachProfile.create({
     data: {
       userId: coachUser.id,
-      pseudonym: `Prof_Pierre_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      pseudonym: `Prof_${uuid.substring(0, 12)}`,
       subjects: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE']),
       availableOnline: true,
       ...overrides.profile
