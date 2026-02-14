@@ -46,9 +46,11 @@ async function main() {
   // =============================================================================
   console.log('👥 Creating test users...');
 
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@test.com',
+const timestamp = Date.now();
+
+const admin = await prisma.user.create({
+  data: {
+    email: `admin.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.ADMIN,
       firstName: 'Admin',
@@ -59,7 +61,7 @@ async function main() {
 
   const parent = await prisma.user.create({
     data: {
-      email: 'parent.dashboard@test.com',
+      email: `parent.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.PARENT,
       firstName: 'Marie',
@@ -76,9 +78,9 @@ async function main() {
   });
   console.log(`  ✓ Parent: ${parent.email}`);
 
-  const student = await prisma.user.create({
-    data: {
-      email: 'yasmine.dupont@test.com',
+const student = await prisma.user.create({
+  data: {
+    email: `student.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.ELEVE,
       firstName: 'Yasmine',
@@ -122,7 +124,7 @@ async function main() {
 
   const coach = await prisma.user.create({
     data: {
-      email: 'helios@test.com',
+      email: `coach.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.COACH,
       firstName: 'Alexandre',
@@ -130,7 +132,7 @@ async function main() {
       coachProfile: {
         create: {
           title: 'Agrégé',
-          pseudonym: 'Hélios',
+          pseudonym: `Hélios_${timestamp}`,
           tag: '🎓 Agrégé',
           description: 'Expert en mathématiques et physique',
           philosophy: "L'apprentissage par la compréhension profonde",
@@ -145,7 +147,7 @@ async function main() {
   // Additional test users for RBAC matrix
   const student2 = await prisma.user.create({
     data: {
-      email: 'karim.dupont@test.com',
+      email: `student2.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.ELEVE,
       firstName: 'Karim',
@@ -186,7 +188,7 @@ async function main() {
 
   const coach2 = await prisma.user.create({
     data: {
-      email: 'zenon@test.com',
+      email: `coach2.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.COACH,
       firstName: 'Sophie',
@@ -194,7 +196,7 @@ async function main() {
       coachProfile: {
         create: {
           title: 'Certifiée',
-          pseudonym: 'Zénon',
+          pseudonym: `Zénon_${timestamp}`,
           tag: '🎯 Stratège',
           description: 'Spécialiste français et philosophie',
           philosophy: 'La réflexion critique avant tout',
@@ -273,12 +275,12 @@ async function main() {
   console.log(`  Session Bookings: ${await prisma.sessionBooking.count()}\n`);
 
   console.log('🔑 Test Credentials:');
-  console.log(`  Admin:   admin@test.com / password123`);
-  console.log(`  Parent:  parent.dashboard@test.com / password123`);
-  console.log(`  Student: yasmine.dupont@test.com / password123`);
-  console.log(`  Student2: karim.dupont@test.com / password123`);
-  console.log(`  Coach:   helios@test.com / password123`);
-  console.log(`  Coach2:  zenon@test.com / password123\n`);
+  console.log(`  Admin:   admin.${timestamp}@test.com / password123`);
+  console.log(`  Parent:  parent.${timestamp}@test.com / password123`);
+  console.log(`  Student: student.${timestamp}@test.com / password123`);
+  console.log(`  Student2: student2.${timestamp}@test.com / password123`);
+  console.log(`  Coach:   coach.${timestamp}@test.com / password123`);
+  console.log(`  Coach2:  coach2.${timestamp}@test.com / password123\n`);
 
   console.log('🧪 Ready for E2E tests!');
 }
