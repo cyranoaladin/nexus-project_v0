@@ -12,10 +12,10 @@ import { assessmentStatusSchema, type AssessmentStatus } from '../../submit/type
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch assessment from database
     const assessment = await prisma.assessment.findUnique({
