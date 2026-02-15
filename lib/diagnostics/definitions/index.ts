@@ -7,14 +7,21 @@
 
 import type { DiagnosticDefinition } from '../types';
 import { MATHS_PREMIERE_P2 } from './maths-premiere-p2';
+import { MATHS_TERMINALE_P2 } from './maths-terminale-p2';
+import { NSI_PREMIERE_P2 } from './nsi-premiere-p2';
+import { NSI_TERMINALE_P2 } from './nsi-terminale-p2';
 
 /** All registered diagnostic definitions, keyed by definitionKey */
 const DEFINITIONS: Record<string, DiagnosticDefinition> = {
   'maths-premiere-p2': MATHS_PREMIERE_P2,
+  'maths-terminale-p2': MATHS_TERMINALE_P2,
+  'nsi-premiere-p2': NSI_PREMIERE_P2,
+  'nsi-terminale-p2': NSI_TERMINALE_P2,
+  // Legacy aliases
   'eds_maths_1ere': MATHS_PREMIERE_P2,
-  'eds_maths_tle': MATHS_PREMIERE_P2,
-  'eds_nsi_1ere': MATHS_PREMIERE_P2,
-  'eds_nsi_tle': MATHS_PREMIERE_P2,
+  'eds_maths_tle': MATHS_TERMINALE_P2,
+  'eds_nsi_1ere': NSI_PREMIERE_P2,
+  'eds_nsi_tle': NSI_TERMINALE_P2,
 };
 
 /**

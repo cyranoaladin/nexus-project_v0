@@ -1,0 +1,140 @@
+# Mapping YAML — Maths Terminale EDS
+# Source de vérité pour les IDs stables et la structure des domaines.
+
+programmeKey: maths_terminale
+definitionKey: maths-terminale-p2
+schemaVersion: v1.3
+label: "Diagnostic Pré-Stage Maths — Terminale Spécialité"
+discipline: maths
+level: terminale
+
+domains:
+  - domainId: analysis
+    domainLabel: "Analyse"
+    weight: 0.28
+    skills:
+      - skillId: ANA_DERIV_DEF
+        label: "Nombre dérivé (sens + calcul)"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_DERIV_RULES
+        label: "Règles de dérivation"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_DERIV_CHAIN
+        label: "Dérivation composées"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_VARIATIONS
+        label: "Tableau de variations"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_OPTIMIZATION
+        label: "Extremum/optimisation"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_EXP
+        label: "Exponentielle"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: ANA_TRIG
+        label: "Trigonométrie"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: TLE_LIMITS
+        label: "Limites & continuité"
+        tags: ["programme", "terminale", "eds", "analyse", "limites"]
+      - skillId: TLE_LOG
+        label: "Logarithme ln"
+        tags: ["programme", "terminale", "eds", "analyse", "log"]
+      - skillId: TLE_DERIV_ADV
+        label: "Dérivation avancée (convexité)"
+        tags: ["programme", "terminale", "eds", "analyse"]
+      - skillId: TLE_INTEGRATION
+        label: "Primitives/intégrales"
+        tags: ["programme", "terminale", "eds", "analyse", "integration"]
+
+  - domainId: algebra
+    domainLabel: "Algèbre"
+    weight: 0.22
+    skills:
+      - skillId: ALG_SUITE_ARITH
+        label: "Suites arithmétiques (u_n, somme)"
+        tags: ["programme", "terminale", "eds", "algebre"]
+      - skillId: ALG_SUITE_GEO
+        label: "Suites géométriques (u_n, somme)"
+        tags: ["programme", "terminale", "eds", "algebre"]
+      - skillId: ALG_SUITE_VARIATION
+        label: "Variation d'une suite"
+        tags: ["programme", "terminale", "eds", "algebre"]
+      - skillId: ALG_SUITE_CONV
+        label: "Convergence/divergence"
+        tags: ["programme", "terminale", "eds", "algebre"]
+      - skillId: TLE_RECURRENCE
+        label: "Récurrence"
+        tags: ["programme", "terminale", "eds", "algebre", "recurrence"]
+      - skillId: TLE_SUMS
+        label: "Sommes/séries"
+        tags: ["programme", "terminale", "eds", "algebre"]
+      - skillId: TLE_COMPLEX
+        label: "Nombres complexes"
+        tags: ["programme", "terminale", "eds", "algebre", "complexes"]
+
+  - domainId: geometry
+    domainLabel: "Géométrie dans l'espace"
+    weight: 0.15
+    skills:
+      - skillId: GEO_DOT_PRODUCT
+        label: "Produit scalaire"
+        tags: ["programme", "terminale", "eds", "geometrie"]
+      - skillId: GEO_AL_KASHI
+        label: "Al-Kashi"
+        tags: ["programme", "terminale", "eds", "geometrie"]
+      - skillId: GEO_ORTHOGONALITY
+        label: "Orthogonalité"
+        tags: ["programme", "terminale", "eds", "geometrie"]
+      - skillId: GEO_LINE_EQUATION
+        label: "Équation de droite"
+        tags: ["programme", "terminale", "eds", "geometrie"]
+      - skillId: GEO_CIRCLE_EQUATION
+        label: "Équation de cercle"
+        tags: ["programme", "terminale", "eds", "geometrie"]
+      - skillId: TLE_SPACE_GEO
+        label: "Géométrie 3D (plans, droites, orthogonalité)"
+        tags: ["programme", "terminale", "eds", "geometrie", "espace"]
+
+  - domainId: prob_stats
+    domainLabel: "Probabilités & statistiques"
+    weight: 0.20
+    skills:
+      - skillId: PROB_CONDITIONAL
+        label: "Conditionnelles P_A(B)"
+        tags: ["programme", "terminale", "eds", "probabilites"]
+      - skillId: PROB_INDEPENDENCE
+        label: "Indépendance"
+        tags: ["programme", "terminale", "eds", "probabilites"]
+      - skillId: PROB_TREE
+        label: "Arbre pondéré"
+        tags: ["programme", "terminale", "eds", "probabilites"]
+      - skillId: PROB_TOTAL
+        label: "Probabilités totales"
+        tags: ["programme", "terminale", "eds", "probabilites"]
+      - skillId: PROB_RANDOM_VAR
+        label: "Variable aléatoire/espérance"
+        tags: ["programme", "terminale", "eds", "probabilites"]
+      - skillId: TLE_BINOMIAL
+        label: "Loi binomiale approfondie"
+        tags: ["programme", "terminale", "eds", "probabilites", "binomiale"]
+
+  - domainId: algorithmic
+    domainLabel: "Algorithmique & programmation"
+    weight: 0.15
+    skills:
+      - skillId: PY_FUNC
+        label: "Fonctions Python"
+        tags: ["programme", "terminale", "eds", "python"]
+      - skillId: PY_LOOPS
+        label: "Boucles for/while"
+        tags: ["programme", "terminale", "eds", "python"]
+      - skillId: PY_LISTS
+        label: "Listes avancées"
+        tags: ["programme", "terminale", "eds", "python"]
+      - skillId: PY_SEQ_SIM
+        label: "Suites algorithmique"
+        tags: ["programme", "terminale", "eds", "python"]
+      - skillId: PY_MONTE_CARLO
+        label: "Simulation Monte-Carlo"
+        tags: ["programme", "terminale", "eds", "python"]

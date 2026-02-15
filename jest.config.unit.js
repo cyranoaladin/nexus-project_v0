@@ -28,7 +28,7 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(uuid|@auth|glob|chokidar)/)',
+    'node_modules/(?!(uuid|@auth|glob|chokidar|yaml)/)',
   ],
   testPathIgnorePatterns: [
     '/node_modules/',

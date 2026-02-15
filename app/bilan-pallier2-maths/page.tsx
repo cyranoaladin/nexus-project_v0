@@ -215,6 +215,14 @@ export default function BilanPallier2MathsPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Derived track info for dynamic UI
+  const trackKey = formData.schoolContext.mathTrack || 'eds_maths_1ere';
+  const isMaths = trackKey.includes('maths');
+  const isTerminale = trackKey.includes('tle');
+  const disciplineLabel = isMaths ? 'Mathématiques' : 'NSI';
+  const levelLabel = isTerminale ? 'Terminale' : 'Première';
+  const trackLabel = `${disciplineLabel} — ${levelLabel} Spécialité`;
+
   const updateIdentity = (f: keyof FormData["identity"], v: string) => setFormData(p => ({ ...p, identity: { ...p.identity, [f]: v } }));
   const updateSchool = (f: keyof FormData["schoolContext"], v: string) => {
     setFormData(p => {
@@ -286,11 +294,27 @@ export default function BilanPallier2MathsPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => { if (currentStep < totalSteps && validateStep(currentStep)) setCurrentStep(c => c + 1); };
-  const prevStep = () => { if (currentStep > 1) setCurrentStep(c => c - 1); };
+  const nextStep = () => {
+    if (currentStep < effectiveTotalSteps && validateStep(currentStep)) {
+      let next = currentStep + 1;
+      // Skip step 4 (Anticipation Tle) for Terminale tracks
+      if (isTerminale && next === 4) next = 5;
+      setCurrentStep(next);
+    }
+  };
+  const prevStep = () => {
+    if (currentStep > 1) {
+      let prev = currentStep - 1;
+      // Skip step 4 (Anticipation Tle) for Terminale tracks
+      if (isTerminale && prev === 4) prev = 3;
+      setCurrentStep(prev);
+    }
+  };
 
   const onSubmit = async () => {
-    for (let s = 1; s <= totalSteps; s++) {
+    for (let s = 1; s <= effectiveTotalSteps; s++) {
+      // Skip step 4 for Terminale tracks
+      if (isTerminale && s === 4) continue;
       if (!validateStep(s)) { setCurrentStep(s); return; }
     }
     setIsSubmitting(true);
@@ -303,7 +327,10 @@ export default function BilanPallier2MathsPage() {
     finally { setIsSubmitting(false); }
   };
 
-  const stepTitles = ["Identité", "Contexte", "Programme 1ère", "Anticipation Tle", "Épreuve anticipée", "Méthodo", "Objectifs"];
+  const stepTitles = isTerminale
+    ? ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Épreuve BAC", "Méthodo", "Objectifs"]
+    : ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Anticipation Tle", "Épreuve anticipée", "Méthodo", "Objectifs"];
+  const effectiveTotalSteps = isTerminale ? 6 : 7;
 
   return (
     <div className="min-h-screen bg-surface-darker">
@@ -315,13 +342,13 @@ export default function BilanPallier2MathsPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
             <Badge variant="outline" className="mb-4 border-brand-accent/40 bg-brand-accent/10 text-brand-accent"><Target className="w-4 h-4 mr-2" />BILAN DIAGNOSTIC PRÉ-STAGE</Badge>
             <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-3">Bilan Diagnostic Pré-Stage</h1>
-            <p className="text-slate-300">Votre positionnement personnalisé en mathématiques — Préparation épreuve anticipée 2026</p>
+            <p className="text-slate-300">Votre positionnement personnalisé en {trackLabel} — {isTerminale ? 'Préparation BAC 2026' : 'Préparation épreuve anticipée 2026'}</p>
           </motion.div>
           <div className="mb-6">
-            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{totalSteps}</span><span className="text-slate-400">{Math.round((currentStep / totalSteps) * 100)}%</span></div>
-            <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
+            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{effectiveTotalSteps}</span><span className="text-slate-400">{Math.round((currentStep / effectiveTotalSteps) * 100)}%</span></div>
+            <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep / effectiveTotalSteps) * 100}%` }} /></div>
             <div className="flex justify-center gap-2 mt-4 flex-wrap">
-              {Array.from({ length: totalSteps }, (_, i) => i + 1).map(s => (
+              {Array.from({ length: effectiveTotalSteps }, (_, i) => i + 1).map(s => (
                 <button key={s} onClick={() => setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-400"}`}>
                   {currentStep > s ? "✓" : s}
                 </button>
@@ -425,7 +452,7 @@ export default function BilanPallier2MathsPage() {
                 <Card className="border-white/10 bg-white/5">
                   <CardHeader><CardTitle className="flex items-center text-white"><AlertTriangle className="w-5 h-5 mr-2 text-brand-accent" />Épreuve anticipée 2026</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm text-blue-200"><strong>Rappel :</strong> 2h sans calculatrice • 6 pts automatismes + 14 pts exercices</div>
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm text-blue-200"><strong>Rappel :</strong> {isMaths ? (isTerminale ? '4h avec calculatrice • 20 pts (5-7 exercices)' : '2h sans calculatrice • 6 pts automatismes + 14 pts exercices') : (isTerminale ? '3h30 écrit + épreuve pratique 1h' : 'Contrôle continu + épreuves communes')}</div>
                     <div className="grid grid-cols-3 gap-4">
                       <div><Label className="text-slate-300">Score /6</Label><Input type="number" min={0} max={6} value={formData.examPrep.miniTest.score} onChange={e => updateExamPrep("miniTest", "score", parseInt(e.target.value) || 0)} className="bg-white/5 border-white/10" /></div>
                       <div><Label className="text-slate-300">Temps (min)</Label><Input type="number" value={formData.examPrep.miniTest.timeUsedMinutes} onChange={e => updateExamPrep("miniTest", "timeUsedMinutes", parseInt(e.target.value) || 0)} className="bg-white/5 border-white/10" /></div>
@@ -482,7 +509,7 @@ export default function BilanPallier2MathsPage() {
           </AnimatePresence>
           <div className="flex justify-between mt-8">
             <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>Précédent</Button>
-            {currentStep < totalSteps ? <Button onClick={nextStep} className="bg-brand-accent">Suivant</Button> : <Button onClick={onSubmit} disabled={isSubmitting} className="bg-green-600">{isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Envoi...</> : <><CheckCircle className="w-4 h-4 mr-2" />Soumettre</>}</Button>}
+            {currentStep < effectiveTotalSteps ? <Button onClick={nextStep} className="bg-brand-accent">Suivant</Button> : <Button onClick={onSubmit} disabled={isSubmitting} className="bg-green-600">{isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Envoi...</> : <><CheckCircle className="w-4 h-4 mr-2" />Soumettre</>}</Button>}
           </div>
         </div>
       </main>
