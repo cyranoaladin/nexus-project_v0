@@ -455,19 +455,82 @@ npm run build && npx playwright test --config playwright.config.e2e.ts --reporte
 
 | Critère | Statut | Preuve |
 |---------|--------|--------|
-| 0 test en échec | ✅ | 2042 unit + 454 integration = 2496 tests, 0 failures |
+| 0 test en échec | ✅ | **2117 unit** + 454 integration = **2571 tests, 0 failures** |
 | ≥75% branches sur moteur diagnostics | ✅ | **79.61%** branches (`lib/diagnostics/**`) |
 | Tests RAG explicitement présents | ✅ | 8 tests RAG (6 existants + 2 audit §3) |
 | Tests prerequisite explicitement présents | ✅ | 4 tests prereq (3 existants + 1 audit §4) |
-| Tests coverageProgramme explicitement présents | ✅ | 11 tests coverage (6 existants + 5 audit §5) |
+| Tests coverageProgramme explicitement présents | ✅ | 12 tests coverage (6 existants + 5 audit §5 + 1 cohérence §D) |
 | RBAC réellement testé | ✅ | 5 tests route-level (403/401/200) |
 | Pas de hack via cast agressif | ✅ | Seul `as unknown as jest.Mock` sur type guards (voir §7) |
 | `.zenflow/` exclu du build | ✅ | 0 imports depuis app/, non tracé par Next.js standalone |
+| **Regression snapshots scoring** | ✅ | 39 tests — 4 fixtures gelées avec valeurs exactes |
+| **Robustesse LLM JSON malformé** | ✅ | 20 tests — timeout, empty, malformed, HTML, fallback |
+| **Sécurité token public** | ✅ | 15 tests — sign/verify, tampered, expired, no-leak |
+| **coverageProgramme ↔ skills filtrés** | ✅ | 1 test — evaluatedSkillRatio cohérent avec chapitres sélectionnés |
+
+---
+
+## AUDIT FINAL — 4 dernières briques (commit 16dce754)
+
+### A) Scoring Regression Snapshots — `scoring-regression.snapshot.test.ts` (39 tests)
+
+4 fixtures gelées avec **valeurs exactes contrôlées** :
+
+| Programme | readinessScore | riskIndex | masteryIndex | coverageIndex | examReadinessIndex | recommendation |
+|-----------|---------------|-----------|-------------|---------------|-------------------|----------------|
+| **Maths Première** | 75 | 24 | 71 | 100 | 70 | Pallier2_confirmed |
+| **Maths Terminale** | 70 | 24 | 61 | 100 | 70 | Pallier2_confirmed |
+| **NSI Première** | 75 | 24 | 71 | 100 | 70 | Pallier2_confirmed |
+| **NSI Terminale** | 70 | 24 | 63 | 92 | 70 | Pallier2_confirmed |
+
+Plus : trustScore=100, trustLevel=green, domainScores count vérifié, prerequisite penalty determinism (r1 === r2 sur appels répétés).
+
+**Si un skill est ajouté en YAML, un weight changé, ou un prérequis modifié → ces tests cassent immédiatement.**
+
+### B) LLM Robustness — `llm-robustness.test.ts` (20 tests)
+
+| Scénario | Résultat attendu |
+|----------|-----------------|
+| LLM throws (Connection refused) | Fallback bilans utilisés, pas de crash |
+| LLM renvoie réponse vide | Fallback bilans utilisés |
+| LLM timeout (120s) | Fallback bilans utilisés |
+| LLM succès partiel (1/3) | LLM pour eleve, fallback pour parents+nexus |
+| LLM renvoie JSON malformé | Pas de crash (traité comme markdown) |
+| LLM renvoie HTML (502 Bad Gateway) | Pas de crash |
+| `validateMarkdownOutput` : vide, court, sections manquantes, null | Rejeté avec issues détaillées |
+| `buildQualityFlags` : RAG_EMPTY, RAG_LOW, LLM_PARTIAL, LOW_DATA, LOW_COVERAGE | Flags corrects |
+
+### C) Token Security — `token-security.test.ts` (15 tests)
+
+| Test | Assertion |
+|------|-----------|
+| Generate → verify round-trip (eleve) | shareId + audience + exp corrects |
+| Generate → verify round-trip (parents) | shareId + audience corrects |
+| Différents shareIds → tokens différents | t1 ≠ t2 |
+| Payload tampered + signature originale | → `null` (rejeté) |
+| Signature modifiée | → `null` (rejeté) |
+| String aléatoire | → `null` |
+| String vide | → `null` |
+| Token avec 3 parties (a.b.c) | → `null` |
+| Token expiré il y a 1s | → `null` |
+| Token expiré il y a 1 jour | → `null` |
+| Token valide (expire dans 1h) | → payload valide |
+| Audience `nexus` (staff-only) | → `null` (rejeté) |
+| Audience inconnue | → `null` (rejeté) |
+| Token ne contient pas le secret | ✅ vérifié |
+| Token absent du JSON response simulé | ✅ vérifié |
+
+### D) Coverage-Skills Coherence — `comprehensive-engine.test.ts` (+1 test)
+
+Vérifie que `coverageProgramme.evaluatedSkillRatio` est cohérent avec les skills réellement filtrés par les chapitres sélectionnés :
+- 3 chapitres sélectionnés → `seenChapters=3`, `seenChapterRatio≈0.43`
+- Skills des chapitres notYet (geo_vect) ne comptent PAS
+- `evaluatedSkillRatio > 0` et `≤ 1`
+- `totalChapters = 7`
 
 ---
 
 ## 7. Prochaines Étapes
 
-1. Commit propre sur branche `fix/diagnostic-gaps-ci-green`
-2. Rebase sur main, PR review
-3. Build standalone + E2E run en CI
+1. Rebase sur main, PR review
+2. Build standalone + E2E run en CI
