@@ -35,7 +35,8 @@ jest.mock('@/lib/prisma', () => ({
     payment: {
       count: jest.fn(),
       aggregate: jest.fn(),
-      groupBy: jest.fn()
+      groupBy: jest.fn(),
+      findMany: jest.fn()
     },
     subscription: {
       count: jest.fn(),
@@ -122,6 +123,7 @@ describe('RBAC - Admin Routes', () => {
       prisma.creditTransaction.findMany.mockResolvedValue([]);
       prisma.user.groupBy.mockResolvedValue([]);
       prisma.payment.groupBy.mockResolvedValue([]);
+      prisma.payment.findMany.mockResolvedValue([]);
 
       const response = await GET({} as any);
       const data = await response.json();
