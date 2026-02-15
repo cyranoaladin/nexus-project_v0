@@ -157,7 +157,7 @@ export function HeroSection() {
           <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
             <p className="text-slate-900 font-medium text-center text-xs md:text-sm">
-              Coachs <span className="text-blue-600 font-semibold">Agrégés & Certifiés</span>
+              Coachs <span className="text-blue-600 font-semibold">Agrégés et Certifiés</span>
             </p>
           </div>
           <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
@@ -239,7 +239,7 @@ export function HeroSection() {
                 </div>
                 <div className="text-center">
                   <p className="text-lg md:text-2xl font-bold text-slate-900">100%</p>
-                  <p className="text-xs md:text-sm text-slate-600">de nos coachs sont Agrégés ou Certifiés</p>
+                  <p className="text-xs md:text-sm text-slate-600">de nos coachs sont Agrégés et Certifiés</p>
                 </div>
               </div>
             </div>

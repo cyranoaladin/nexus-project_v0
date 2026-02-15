@@ -4,14 +4,16 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 // Mock de next/image
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, priority, ...props }: any) {
+  // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+  return function MockedImage({ src, alt, ...props }: any) {
     return <img src={src} alt={alt} {...props} />;
   };
 });
 
 // Mock de framer-motion — filter motion-specific props
+// Mock de framer-motion — filter motion-specific props
 jest.mock('framer-motion', () => {
-  const React = require('react');
+  const React = require('react'); // eslint-disable-line @typescript-eslint/no-var-requires
   const motionProps = new Set([
     'initial', 'animate', 'exit', 'transition', 'variants',
     'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
@@ -24,9 +26,13 @@ jest.mock('framer-motion', () => {
     Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
     return filtered;
   };
+
+  const MotionDiv = React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>);
+  MotionDiv.displayName = 'MotionDiv';
+
   return {
     motion: {
-      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
+      div: MotionDiv,
     },
     useReducedMotion: () => false,
     AnimatePresence: ({ children }: any) => children,
@@ -94,10 +100,10 @@ describe('PillarsSection', () => {
     render(<PillarsSection />);
 
     // Check for important feature text (some may be in multiple places)
-    expect(screen.getByText(/Agrégés & Certifiés/)).toBeInTheDocument();
+    expect(screen.getByText(/Agrégés et Certifiés/)).toBeInTheDocument();
     expect(screen.getByText(/IA ARIA/)).toBeInTheDocument();
     expect(screen.getByText(/Bilan Stratégique/)).toBeInTheDocument();
-    
+
     // Parcoursup appears multiple times
     const parcoursupElements = screen.getAllByText(/Parcoursup/);
     expect(parcoursupElements.length).toBeGreaterThanOrEqual(1);

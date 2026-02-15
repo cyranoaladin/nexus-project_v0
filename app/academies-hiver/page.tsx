@@ -18,7 +18,7 @@ const ACADEMIES = [
     audience: "Terminale EDS Maths",
     duration: "24h (20h Maths + 4h Python)",
     group: "6 élèves max",
-    expert: "Professeur Agrégé",
+    expert: "Agrégés et Certifiés",
     category: ["terminale", "maths", "essentielle", "budget"],
     description: "Ne jouez pas à la roulette russe avec votre moyenne. Verrouillez le 14/20.",
     features: [
@@ -41,7 +41,7 @@ const ACADEMIES = [
     audience: "Terminale Maths Expertes + Prépas",
     duration: "32h",
     group: "6 élèves max",
-    expert: "Agrégé & Jury Concours",
+    expert: "Agrégés et Certifiés & Jury Concours",
     category: ["terminale", "maths", "premium"],
     description: "Le programme des Prépas d'élite. Pour ceux qui trouvent le 16/20 banal.",
     features: [
@@ -112,7 +112,7 @@ const ACADEMIES = [
     audience: "Première VIsant Maths Expertes",
     duration: "30h",
     group: "6 élèves max",
-    expert: "Agrégé de Mathématiques",
+    expert: "Agrégés et Certifiés de Mathématiques",
     category: ["premiere", "maths", "premium"],
     description: "Pourquoi attendre la Terminale ? Prenez 6 mois d'avance sur la concurrence.",
     features: [
