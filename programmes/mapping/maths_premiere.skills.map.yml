@@ -13,12 +13,17 @@ domains:
   - domainId: algebra
     domainLabel: "Algèbre & Suites"
     weight: 0.22
+    fromCandidates:
+      include: ["Suites", "Second degré", "Factorisation"]
+      exclude: ["Objectifs", "Histoire", "Repères"]
     skills:
       - skillId: ALG_SUITE_ARITH
         label: "Suites arithmétiques (u_n, somme)"
+        mergeFrom: ["Suites (définition, sens de variation, calculs itératifs)"]
         tags: ["programme", "premiere", "eds", "algebre", "suites"]
       - skillId: ALG_SUITE_GEO
         label: "Suites géométriques (u_n, somme)"
+        mergeFrom: ["Suites géométriques"]
         tags: ["programme", "premiere", "eds", "algebre", "suites"]
       - skillId: ALG_SUITE_VARIATION
         label: "Variation d'une suite"
