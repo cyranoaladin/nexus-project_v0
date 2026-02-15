@@ -5,7 +5,7 @@
   "level": "terminale",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:48:21.264Z",
+  "generatedAt": "2026-02-15T21:12:16.682Z",
   "domains": [
     {
       "domainId": "analysis",
@@ -20,7 +20,10 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_DERIV_RULES",
@@ -30,7 +33,10 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_DERIV_CHAIN",
@@ -40,7 +46,8 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV"
         },
         {
           "skillId": "ANA_VARIATIONS",
@@ -50,7 +57,10 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_OPTIMIZATION",
@@ -60,7 +70,8 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV"
         },
         {
           "skillId": "ANA_EXP",
@@ -70,7 +81,10 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_EXPO",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_TRIG",
@@ -80,7 +94,8 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_TRIGO"
         },
         {
           "skillId": "TLE_LIMITS",
@@ -91,7 +106,10 @@
             "eds",
             "analyse",
             "limites"
-          ]
+          ],
+          "chapterId": "CH_MT_LIMITES",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "TLE_LOG",
@@ -102,7 +120,8 @@
             "eds",
             "analyse",
             "log"
-          ]
+          ],
+          "chapterId": "CH_MT_LOG"
         },
         {
           "skillId": "TLE_DERIV_ADV",
@@ -112,7 +131,8 @@
             "terminale",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_MT_DERIVATION_ADV"
         },
         {
           "skillId": "TLE_INTEGRATION",
@@ -123,7 +143,8 @@
             "eds",
             "analyse",
             "integration"
-          ]
+          ],
+          "chapterId": "CH_MT_INTEGRATION"
         }
       ]
     },
@@ -140,7 +161,10 @@
             "terminale",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ALG_SUITE_GEO",
@@ -150,7 +174,10 @@
             "terminale",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ALG_SUITE_VARIATION",
@@ -160,7 +187,8 @@
             "terminale",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV"
         },
         {
           "skillId": "ALG_SUITE_CONV",
@@ -170,7 +198,8 @@
             "terminale",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV"
         },
         {
           "skillId": "TLE_RECURRENCE",
@@ -181,7 +210,8 @@
             "eds",
             "algebre",
             "recurrence"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV"
         },
         {
           "skillId": "TLE_SUMS",
@@ -191,7 +221,8 @@
             "terminale",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_MT_SUITES_ADV"
         },
         {
           "skillId": "TLE_COMPLEX",
@@ -202,7 +233,8 @@
             "eds",
             "algebre",
             "complexes"
-          ]
+          ],
+          "chapterId": "CH_MT_COMPLEXES"
         }
       ]
     },
@@ -219,7 +251,8 @@
             "terminale",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         },
         {
           "skillId": "GEO_AL_KASHI",
@@ -229,7 +262,8 @@
             "terminale",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         },
         {
           "skillId": "GEO_ORTHOGONALITY",
@@ -239,7 +273,8 @@
             "terminale",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         },
         {
           "skillId": "GEO_LINE_EQUATION",
@@ -249,7 +284,8 @@
             "terminale",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         },
         {
           "skillId": "GEO_CIRCLE_EQUATION",
@@ -259,7 +295,8 @@
             "terminale",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         },
         {
           "skillId": "TLE_SPACE_GEO",
@@ -270,7 +307,8 @@
             "eds",
             "geometrie",
             "espace"
-          ]
+          ],
+          "chapterId": "CH_MT_GEO_ESPACE"
         }
       ]
     },
@@ -287,7 +325,8 @@
             "terminale",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         },
         {
           "skillId": "PROB_INDEPENDENCE",
@@ -297,7 +336,8 @@
             "terminale",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         },
         {
           "skillId": "PROB_TREE",
@@ -307,7 +347,8 @@
             "terminale",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         },
         {
           "skillId": "PROB_TOTAL",
@@ -317,7 +358,8 @@
             "terminale",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         },
         {
           "skillId": "PROB_RANDOM_VAR",
@@ -327,7 +369,8 @@
             "terminale",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         },
         {
           "skillId": "TLE_BINOMIAL",
@@ -338,7 +381,8 @@
             "eds",
             "probabilites",
             "binomiale"
-          ]
+          ],
+          "chapterId": "CH_MT_PROBAS_ADV"
         }
       ]
     },
@@ -355,7 +399,10 @@
             "terminale",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "PY_LOOPS",
@@ -365,7 +412,10 @@
             "terminale",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_MT_ALGO_PYTHON",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "PY_LISTS",
@@ -375,7 +425,8 @@
             "terminale",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_MT_ALGO_PYTHON"
         },
         {
           "skillId": "PY_SEQ_SIM",
@@ -385,7 +436,8 @@
             "terminale",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_MT_ALGO_PYTHON"
         },
         {
           "skillId": "PY_MONTE_CARLO",
@@ -395,7 +447,8 @@
             "terminale",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_MT_ALGO_PYTHON"
         }
       ]
     }
@@ -408,6 +461,12 @@
       "domainId": "analysis",
       "skills": [
         "TLE_LIMITS"
+      ],
+      "ragTopics": [
+        "limites",
+        "continuite",
+        "asymptotes",
+        "TVI"
       ]
     },
     {
@@ -422,6 +481,12 @@
         "ANA_VARIATIONS",
         "ANA_OPTIMIZATION",
         "TLE_DERIV_ADV"
+      ],
+      "ragTopics": [
+        "derivee",
+        "convexite",
+        "inflexion",
+        "etude_fonction"
       ]
     },
     {
@@ -431,6 +496,11 @@
       "domainId": "analysis",
       "skills": [
         "ANA_EXP"
+      ],
+      "ragTopics": [
+        "exponentielle",
+        "croissance_comparee",
+        "equations_exp"
       ]
     },
     {
@@ -440,6 +510,12 @@
       "domainId": "analysis",
       "skills": [
         "TLE_LOG"
+      ],
+      "ragTopics": [
+        "logarithme",
+        "ln",
+        "equations_ln",
+        "croissance_comparee"
       ]
     },
     {
@@ -449,6 +525,11 @@
       "domainId": "analysis",
       "skills": [
         "ANA_TRIG"
+      ],
+      "ragTopics": [
+        "trigonometrie",
+        "sinus_cosinus",
+        "equations_trigo"
       ]
     },
     {
@@ -458,6 +539,12 @@
       "domainId": "analysis",
       "skills": [
         "TLE_INTEGRATION"
+      ],
+      "ragTopics": [
+        "primitives",
+        "integration",
+        "calcul_aire",
+        "integrale"
       ]
     },
     {
@@ -472,6 +559,12 @@
         "ALG_SUITE_CONV",
         "TLE_RECURRENCE",
         "TLE_SUMS"
+      ],
+      "ragTopics": [
+        "recurrence",
+        "suites",
+        "convergence",
+        "sommes_sigma"
       ]
     },
     {
@@ -481,6 +574,12 @@
       "domainId": "algebra",
       "skills": [
         "TLE_COMPLEX"
+      ],
+      "ragTopics": [
+        "complexes",
+        "forme_algebrique",
+        "forme_trigo",
+        "module_argument"
       ]
     },
     {
@@ -495,6 +594,12 @@
         "GEO_LINE_EQUATION",
         "GEO_CIRCLE_EQUATION",
         "TLE_SPACE_GEO"
+      ],
+      "ragTopics": [
+        "geometrie_3d",
+        "vecteurs_espace",
+        "plans",
+        "droites_espace"
       ]
     },
     {
@@ -509,6 +614,12 @@
         "PROB_TOTAL",
         "PROB_RANDOM_VAR",
         "TLE_BINOMIAL"
+      ],
+      "ragTopics": [
+        "probabilites",
+        "loi_binomiale",
+        "conditionnelles",
+        "estimation"
       ]
     },
     {
@@ -522,6 +633,12 @@
         "PY_LISTS",
         "PY_SEQ_SIM",
         "PY_MONTE_CARLO"
+      ],
+      "ragTopics": [
+        "python",
+        "simulation",
+        "monte_carlo",
+        "listes_avancees"
       ]
     }
   ]

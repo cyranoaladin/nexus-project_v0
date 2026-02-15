@@ -16,36 +16,57 @@ domains:
       - skillId: ANA_DERIV_DEF
         label: "Nombre dérivé (sens + calcul)"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ANA_DERIV_RULES
         label: "Règles de dérivation"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ANA_DERIV_CHAIN
         label: "Dérivation composées"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
       - skillId: ANA_VARIATIONS
         label: "Tableau de variations"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ANA_OPTIMIZATION
         label: "Extremum/optimisation"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
       - skillId: ANA_EXP
         label: "Exponentielle"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_EXPO
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ANA_TRIG
         label: "Trigonométrie"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_TRIGO
       - skillId: TLE_LIMITS
         label: "Limites & continuité"
         tags: ["programme", "terminale", "eds", "analyse", "limites"]
+        chapterId: CH_MT_LIMITES
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: TLE_LOG
         label: "Logarithme ln"
         tags: ["programme", "terminale", "eds", "analyse", "log"]
+        chapterId: CH_MT_LOG
       - skillId: TLE_DERIV_ADV
         label: "Dérivation avancée (convexité)"
         tags: ["programme", "terminale", "eds", "analyse"]
+        chapterId: CH_MT_DERIVATION_ADV
       - skillId: TLE_INTEGRATION
         label: "Primitives/intégrales"
         tags: ["programme", "terminale", "eds", "analyse", "integration"]
+        chapterId: CH_MT_INTEGRATION
 
   - domainId: algebra
     domainLabel: "Algèbre"
@@ -54,24 +75,35 @@ domains:
       - skillId: ALG_SUITE_ARITH
         label: "Suites arithmétiques (u_n, somme)"
         tags: ["programme", "terminale", "eds", "algebre"]
+        chapterId: CH_MT_SUITES_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ALG_SUITE_GEO
         label: "Suites géométriques (u_n, somme)"
         tags: ["programme", "terminale", "eds", "algebre"]
+        chapterId: CH_MT_SUITES_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: ALG_SUITE_VARIATION
         label: "Variation d'une suite"
         tags: ["programme", "terminale", "eds", "algebre"]
+        chapterId: CH_MT_SUITES_ADV
       - skillId: ALG_SUITE_CONV
         label: "Convergence/divergence"
         tags: ["programme", "terminale", "eds", "algebre"]
+        chapterId: CH_MT_SUITES_ADV
       - skillId: TLE_RECURRENCE
         label: "Récurrence"
         tags: ["programme", "terminale", "eds", "algebre", "recurrence"]
+        chapterId: CH_MT_SUITES_ADV
       - skillId: TLE_SUMS
         label: "Sommes/séries"
         tags: ["programme", "terminale", "eds", "algebre"]
+        chapterId: CH_MT_SUITES_ADV
       - skillId: TLE_COMPLEX
         label: "Nombres complexes"
         tags: ["programme", "terminale", "eds", "algebre", "complexes"]
+        chapterId: CH_MT_COMPLEXES
 
   - domainId: geometry
     domainLabel: "Géométrie dans l'espace"
@@ -80,21 +112,27 @@ domains:
       - skillId: GEO_DOT_PRODUCT
         label: "Produit scalaire"
         tags: ["programme", "terminale", "eds", "geometrie"]
+        chapterId: CH_MT_GEO_ESPACE
       - skillId: GEO_AL_KASHI
         label: "Al-Kashi"
         tags: ["programme", "terminale", "eds", "geometrie"]
+        chapterId: CH_MT_GEO_ESPACE
       - skillId: GEO_ORTHOGONALITY
         label: "Orthogonalité"
         tags: ["programme", "terminale", "eds", "geometrie"]
+        chapterId: CH_MT_GEO_ESPACE
       - skillId: GEO_LINE_EQUATION
         label: "Équation de droite"
         tags: ["programme", "terminale", "eds", "geometrie"]
+        chapterId: CH_MT_GEO_ESPACE
       - skillId: GEO_CIRCLE_EQUATION
         label: "Équation de cercle"
         tags: ["programme", "terminale", "eds", "geometrie"]
+        chapterId: CH_MT_GEO_ESPACE
       - skillId: TLE_SPACE_GEO
         label: "Géométrie 3D (plans, droites, orthogonalité)"
         tags: ["programme", "terminale", "eds", "geometrie", "espace"]
+        chapterId: CH_MT_GEO_ESPACE
 
   - domainId: prob_stats
     domainLabel: "Probabilités & statistiques"
@@ -103,21 +141,27 @@ domains:
       - skillId: PROB_CONDITIONAL
         label: "Conditionnelles P_A(B)"
         tags: ["programme", "terminale", "eds", "probabilites"]
+        chapterId: CH_MT_PROBAS_ADV
       - skillId: PROB_INDEPENDENCE
         label: "Indépendance"
         tags: ["programme", "terminale", "eds", "probabilites"]
+        chapterId: CH_MT_PROBAS_ADV
       - skillId: PROB_TREE
         label: "Arbre pondéré"
         tags: ["programme", "terminale", "eds", "probabilites"]
+        chapterId: CH_MT_PROBAS_ADV
       - skillId: PROB_TOTAL
         label: "Probabilités totales"
         tags: ["programme", "terminale", "eds", "probabilites"]
+        chapterId: CH_MT_PROBAS_ADV
       - skillId: PROB_RANDOM_VAR
         label: "Variable aléatoire/espérance"
         tags: ["programme", "terminale", "eds", "probabilites"]
+        chapterId: CH_MT_PROBAS_ADV
       - skillId: TLE_BINOMIAL
         label: "Loi binomiale approfondie"
         tags: ["programme", "terminale", "eds", "probabilites", "binomiale"]
+        chapterId: CH_MT_PROBAS_ADV
 
   - domainId: algorithmic
     domainLabel: "Algorithmique & programmation"
@@ -126,18 +170,27 @@ domains:
       - skillId: PY_FUNC
         label: "Fonctions Python"
         tags: ["programme", "terminale", "eds", "python"]
+        chapterId: CH_MT_ALGO_PYTHON
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: PY_LOOPS
         label: "Boucles for/while"
         tags: ["programme", "terminale", "eds", "python"]
+        chapterId: CH_MT_ALGO_PYTHON
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: PY_LISTS
         label: "Listes avancées"
         tags: ["programme", "terminale", "eds", "python"]
+        chapterId: CH_MT_ALGO_PYTHON
       - skillId: PY_SEQ_SIM
         label: "Suites algorithmique"
         tags: ["programme", "terminale", "eds", "python"]
+        chapterId: CH_MT_ALGO_PYTHON
       - skillId: PY_MONTE_CARLO
         label: "Simulation Monte-Carlo"
         tags: ["programme", "terminale", "eds", "python"]
+        chapterId: CH_MT_ALGO_PYTHON
 
 chapters:
   - chapterId: CH_MT_LIMITES
@@ -145,53 +198,64 @@ chapters:
     description: "Limites de fonctions et suites, continuité, TVI"
     domainId: analysis
     skills: [TLE_LIMITS]
+    ragTopics: [limites, continuite, asymptotes, TVI]
   - chapterId: CH_MT_DERIVATION_ADV
     chapterLabel: "Dérivation avancée et convexité"
     description: "Dérivée seconde, convexité, points d'inflexion"
     domainId: analysis
     skills: [ANA_DERIV_DEF, ANA_DERIV_RULES, ANA_DERIV_CHAIN, ANA_VARIATIONS, ANA_OPTIMIZATION, TLE_DERIV_ADV]
+    ragTopics: [derivee, convexite, inflexion, etude_fonction]
   - chapterId: CH_MT_EXPO
     chapterLabel: "Fonction exponentielle"
     description: "Propriétés de exp, équations, limites"
     domainId: analysis
     skills: [ANA_EXP]
+    ragTopics: [exponentielle, croissance_comparee, equations_exp]
   - chapterId: CH_MT_LOG
     chapterLabel: "Logarithme népérien"
     description: "Propriétés de ln, équations, croissance comparée"
     domainId: analysis
     skills: [TLE_LOG]
+    ragTopics: [logarithme, ln, equations_ln, croissance_comparee]
   - chapterId: CH_MT_TRIGO
     chapterLabel: "Trigonométrie"
     description: "Fonctions sin/cos, équations trigonométriques"
     domainId: analysis
     skills: [ANA_TRIG]
+    ragTopics: [trigonometrie, sinus_cosinus, equations_trigo]
   - chapterId: CH_MT_INTEGRATION
     chapterLabel: "Primitives et intégrales"
     description: "Primitives, intégrale, calcul d'aires"
     domainId: analysis
     skills: [TLE_INTEGRATION]
+    ragTopics: [primitives, integration, calcul_aire, integrale]
   - chapterId: CH_MT_SUITES_ADV
     chapterLabel: "Suites avancées"
     description: "Récurrence, suites adjacentes, convergence"
     domainId: algebra
     skills: [ALG_SUITE_ARITH, ALG_SUITE_GEO, ALG_SUITE_VARIATION, ALG_SUITE_CONV, TLE_RECURRENCE, TLE_SUMS]
+    ragTopics: [recurrence, suites, convergence, sommes_sigma]
   - chapterId: CH_MT_COMPLEXES
     chapterLabel: "Nombres complexes"
     description: "Forme algébrique, trigonométrique, exponentielle"
     domainId: algebra
     skills: [TLE_COMPLEX]
+    ragTopics: [complexes, forme_algebrique, forme_trigo, module_argument]
   - chapterId: CH_MT_GEO_ESPACE
     chapterLabel: "Géométrie dans l'espace"
     description: "Vecteurs 3D, plans, droites, orthogonalité dans l'espace"
     domainId: geometry
     skills: [GEO_DOT_PRODUCT, GEO_AL_KASHI, GEO_ORTHOGONALITY, GEO_LINE_EQUATION, GEO_CIRCLE_EQUATION, TLE_SPACE_GEO]
+    ragTopics: [geometrie_3d, vecteurs_espace, plans, droites_espace]
   - chapterId: CH_MT_PROBAS_ADV
     chapterLabel: "Probabilités avancées"
     description: "Conditionnelles, indépendance, loi binomiale"
     domainId: prob_stats
     skills: [PROB_CONDITIONAL, PROB_INDEPENDENCE, PROB_TREE, PROB_TOTAL, PROB_RANDOM_VAR, TLE_BINOMIAL]
+    ragTopics: [probabilites, loi_binomiale, conditionnelles, estimation]
   - chapterId: CH_MT_ALGO_PYTHON
     chapterLabel: "Algorithmique et Python"
     description: "Listes avancées, suites algorithmiques, simulations"
     domainId: algorithmic
     skills: [PY_FUNC, PY_LOOPS, PY_LISTS, PY_SEQ_SIM, PY_MONTE_CARLO]
+    ragTopics: [python, simulation, monte_carlo, listes_avancees]
