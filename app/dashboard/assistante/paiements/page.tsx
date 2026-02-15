@@ -100,7 +100,6 @@ export default function PaiementsAssistantePage() {
         alert('Erreur lors de la validation')
       }
     } catch (error) {
-      console.error('Erreur:', error)
       alert('Une erreur est survenue')
     }
   }

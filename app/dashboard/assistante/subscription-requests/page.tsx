@@ -66,7 +66,6 @@ export default function SubscriptionRequestsPage() {
       const data = await response.json();
       setRequests(data.requests);
     } catch (err) {
-      console.error('Error fetching requests:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -110,7 +109,6 @@ export default function SubscriptionRequestsPage() {
         alert(`Erreur: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error processing request:', error);
       alert('Une erreur est survenue lors du traitement');
     } finally {
       setProcessing(false);

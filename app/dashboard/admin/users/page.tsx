@@ -82,7 +82,6 @@ export default function UsersManagementPage() {
       setUsers(data.users);
       setTotalPages(data.pagination.totalPages);
     } catch (err) {
-      console.error('Error fetching users:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -132,7 +131,6 @@ export default function UsersManagementPage() {
       setIsDialogOpen(false);
       fetchUsers();
     } catch (err) {
-      console.error('Error creating user:', err);
       alert(err instanceof Error ? err.message : 'Failed to create user');
     } finally {
       setIsSubmitting(false);
@@ -177,7 +175,6 @@ export default function UsersManagementPage() {
       setIsDialogOpen(false);
       fetchUsers();
     } catch (err) {
-      console.error('Error updating user:', err);
       alert(err instanceof Error ? err.message : 'Failed to update user');
     } finally {
       setIsSubmitting(false);
@@ -203,7 +200,6 @@ export default function UsersManagementPage() {
       alert(result.message);
       fetchUsers();
     } catch (err) {
-      console.error('Error deleting user:', err);
       alert(err instanceof Error ? err.message : 'Failed to delete user');
     }
   };

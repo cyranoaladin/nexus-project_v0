@@ -95,7 +95,6 @@ function WisePaymentContent() {
         alert('Erreur lors de l\'envoi de la preuve de virement');
       }
     } catch (error) {
-      console.error('Erreur:', error);
       alert('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);

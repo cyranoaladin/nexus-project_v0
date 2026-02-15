@@ -72,7 +72,6 @@ export default function DashboardAssistante() {
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);

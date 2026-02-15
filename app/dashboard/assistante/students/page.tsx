@@ -53,7 +53,6 @@ export default function StudentsManagement() {
       const data = await response.json();
       setStudents(data);
     } catch (err) {
-      console.error('Error fetching students:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
