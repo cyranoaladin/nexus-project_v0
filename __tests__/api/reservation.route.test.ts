@@ -17,6 +17,11 @@ jest.mock('@/lib/rate-limit', () => ({
   checkRateLimit: jest.fn().mockResolvedValue(null),
 }));
 
+jest.mock('@/lib/csrf', () => ({
+  checkCsrf: jest.fn().mockReturnValue(null),
+  checkBodySize: jest.fn().mockReturnValue(null),
+}));
+
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
 }));

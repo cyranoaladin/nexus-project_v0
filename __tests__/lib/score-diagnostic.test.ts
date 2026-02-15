@@ -8,6 +8,29 @@
 import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';
 
+type CompStatus = 'studied' | 'in_progress' | 'not_studied' | 'unknown';
+
+/** Helper: build a competency with all required fields */
+let _skCounter = 0;
+function sk(
+  skillLabel: string,
+  status: CompStatus,
+  mastery: number | null,
+  friction: number | null = mastery !== null ? Math.max(0, 4 - mastery) : null,
+  errorTypes: string[] = []
+) {
+  return {
+    skillId: `sk_${++_skCounter}`,
+    skillLabel,
+    status,
+    mastery,
+    confidence: mastery !== null ? 3 : null,
+    friction,
+    errorTypes,
+    evidence: '',
+  };
+}
+
 /** Helper: build a minimal valid diagnostic data object */
 function buildData(overrides: Partial<BilanDiagnosticMathsData> = {}): BilanDiagnosticMathsData {
   const base: BilanDiagnosticMathsData = {
@@ -17,26 +40,26 @@ function buildData(overrides: Partial<BilanDiagnosticMathsData> = {}): BilanDiag
     chapters: {},
     competencies: {
       algebra: [
-        { skillLabel: 'Suites', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-        { skillLabel: 'Second degré', status: 'studied', mastery: 2, friction: 2, errorTypes: ['calcul'] },
-        { skillLabel: 'Inéquations', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+        sk('Suites', 'studied', 3, 1),
+        sk('Second degré', 'studied', 2, 2, ['calcul']),
+        sk('Inéquations', 'studied', 3, 1),
       ],
       analysis: [
-        { skillLabel: 'Dérivation', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-        { skillLabel: 'Variations', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-        { skillLabel: 'Limites', status: 'studied', mastery: 2, friction: 2, errorTypes: ['signe'] },
+        sk('Dérivation', 'studied', 4, 0),
+        sk('Variations', 'studied', 3, 1),
+        sk('Limites', 'studied', 2, 2, ['signe']),
       ],
       geometry: [
-        { skillLabel: 'Vecteurs', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-        { skillLabel: 'Produit scalaire', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+        sk('Vecteurs', 'studied', 3, 1),
+        sk('Produit scalaire', 'studied', 2, 2),
       ],
       probabilities: [
-        { skillLabel: 'Conditionnelles', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-        { skillLabel: 'Arbres', status: 'studied', mastery: 3, friction: 0, errorTypes: [] },
+        sk('Conditionnelles', 'studied', 3, 1),
+        sk('Arbres', 'studied', 3, 0),
       ],
       python: [
-        { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-        { skillLabel: 'Fonctions', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+        sk('Boucles', 'studied', 4, 0),
+        sk('Fonctions', 'studied', 3, 1),
       ],
     },
     openQuestions: {},
@@ -105,12 +128,12 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'studied', mastery: 1, friction: 3, errorTypes: ['calcul'] },
-            { skillLabel: 'Second degré', status: 'studied', mastery: 0, friction: 4, errorTypes: ['calcul', 'signe'] },
+            sk('Suites', 'studied', 1, 3, ['calcul']),
+            sk('Second degré', 'studied', 0, 4, ['calcul', 'signe']),
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 1, friction: 3, errorTypes: ['signe'] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 0, friction: 4, errorTypes: [] },
+            sk('Dérivation', 'studied', 1, 3, ['signe']),
+            sk('Variations', 'studied', 0, 4),
           ],
           geometry: [],
           probabilities: [],
@@ -133,25 +156,25 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Second degré', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Inéquations', status: 'not_studied', mastery: null, friction: null, errorTypes: [] },
+            sk('Suites', 'studied', 4, 0),
+            sk('Second degré', 'studied', 4, 0),
+            sk('Inéquations', 'not_studied', null, null),
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Dérivation', 'studied', 4, 0),
+            sk('Variations', 'studied', 4, 0),
           ],
           geometry: [
-            { skillLabel: 'Vecteurs', status: 'not_studied', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'Produit scalaire', status: 'not_studied', mastery: null, friction: null, errorTypes: [] },
+            sk('Vecteurs', 'not_studied', null, null),
+            sk('Produit scalaire', 'not_studied', null, null),
           ],
           probabilities: [
-            { skillLabel: 'Conditionnelles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Arbres', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Conditionnelles', 'studied', 4, 0),
+            sk('Arbres', 'studied', 4, 0),
           ],
           python: [
-            { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Fonctions', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Boucles', 'studied', 4, 0),
+            sk('Fonctions', 'studied', 4, 0),
           ],
         },
       });
@@ -172,13 +195,13 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'Second degré', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'Inéquations', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            sk('Suites', 'unknown', null, null),
+            sk('Second degré', 'unknown', null, null),
+            sk('Inéquations', 'unknown', null, null),
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Dérivation', 'studied', 3, 1),
+            sk('Variations', 'studied', 3, 1),
           ],
           geometry: [],
           probabilities: [],
@@ -198,12 +221,12 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Suites', 'studied', 4, 0),
             // Only 1 evaluated → domain should be inactive
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Dérivation', 'studied', 4, 0),
+            sk('Variations', 'studied', 4, 0),
           ],
           geometry: [],
           probabilities: [],
@@ -224,20 +247,20 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'studied', mastery: 1, friction: 3, errorTypes: [] },
-            { skillLabel: 'B', status: 'studied', mastery: 1, friction: 3, errorTypes: [] },
+            sk('A', 'studied', 1, 3),
+            sk('B', 'studied', 1, 3),
           ],
           analysis: [
-            { skillLabel: 'C', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'D', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('C', 'studied', 2, 2),
+            sk('D', 'studied', 2, 2),
           ],
           geometry: [
-            { skillLabel: 'E', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'F', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('E', 'studied', 3, 1),
+            sk('F', 'studied', 3, 1),
           ],
           probabilities: [
-            { skillLabel: 'G', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'H', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('G', 'studied', 4, 0),
+            sk('H', 'studied', 4, 0),
           ],
           python: [],
         },
@@ -264,7 +287,7 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 4, timeUsedMinutes: 15, completedInTime: true },
           selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 4 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const result = computeScoringV2(data);
@@ -276,7 +299,7 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 1, timeUsedMinutes: 20, completedInTime: false },
           selfRatings: { speedNoCalc: 1, calcReliability: 1, redaction: 1, justifications: 1, stress: 1 },
-          signals: { hardestItems: [1, 2, 3], feeling: 'ok' },
+          signals: { hardestItems: [1, 2, 3], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const result = computeScoringV2(data);
@@ -288,7 +311,7 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 3, timeUsedMinutes: 15, completedInTime: true },
           selfRatings: { speedNoCalc: 2, calcReliability: 2, redaction: 2, justifications: 2, stress: 2 },
-          signals: { hardestItems: [], feeling: 'panic' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'panic' },
         },
       });
       const result = computeScoringV2(data);
@@ -299,12 +322,12 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'B', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('A', 'studied', 3, 1),
+            sk('B', 'studied', 3, 1),
           ],
           analysis: [
-            { skillLabel: 'C', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'D', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('C', 'studied', 3, 1),
+            sk('D', 'studied', 3, 1),
           ],
           geometry: [],
           probabilities: [],
@@ -332,30 +355,30 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'B', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('A', 'studied', 2, 2),
+            sk('B', 'studied', 2, 2),
           ],
           analysis: [
-            { skillLabel: 'C', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'D', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('C', 'studied', 2, 2),
+            sk('D', 'studied', 2, 2),
           ],
           geometry: [
-            { skillLabel: 'E', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'F', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('E', 'studied', 2, 2),
+            sk('F', 'studied', 2, 2),
           ],
           probabilities: [
-            { skillLabel: 'G', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'H', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('G', 'studied', 2, 2),
+            sk('H', 'studied', 2, 2),
           ],
           python: [
-            { skillLabel: 'I', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
-            { skillLabel: 'J', status: 'studied', mastery: 2, friction: 2, errorTypes: [] },
+            sk('I', 'studied', 2, 2),
+            sk('J', 'studied', 2, 2),
           ],
         },
         examPrep: {
           miniTest: { score: 3, timeUsedMinutes: 18, completedInTime: true },
           selfRatings: { speedNoCalc: 2, calcReliability: 2, redaction: 2, justifications: 2, stress: 2 },
-          signals: { hardestItems: [4, 5], feeling: 'ok' },
+          signals: { hardestItems: [4, 5], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const result = computeScoringV2(data);
@@ -379,8 +402,8 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'B', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('A', 'studied', 3, 1),
+            sk('B', 'studied', 3, 1),
           ],
           analysis: [],
           geometry: [],
@@ -410,14 +433,14 @@ describe('computeScoringV2', () => {
       const bad = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'B', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'C', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
-            { skillLabel: 'D', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            sk('A', 'unknown', null, null),
+            sk('B', 'unknown', null, null),
+            sk('C', 'unknown', null, null),
+            sk('D', 'unknown', null, null),
           ],
           analysis: [
-            { skillLabel: 'E', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'F', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('E', 'studied', 3, 1),
+            sk('F', 'studied', 3, 1),
           ],
           geometry: [],
           probabilities: [],
@@ -435,7 +458,7 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'A', status: 'unknown', mastery: null, friction: null, errorTypes: [] },
+            sk('A', 'unknown', null, null),
           ],
           analysis: [],
           geometry: [],
@@ -468,7 +491,7 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 1, timeUsedMinutes: 5, completedInTime: true },
           selfRatings: { speedNoCalc: 1, calcReliability: 1, redaction: 1, justifications: 1, stress: 1 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const result = computeScoringV2(data);
@@ -489,24 +512,24 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'studied', mastery: 0, friction: 3, errorTypes: ['calcul'] },
-            { skillLabel: 'Second degré', status: 'studied', mastery: 1, friction: 2, errorTypes: ['signe'] },
+            sk('Suites', 'studied', 0, 3, ['calcul']),
+            sk('Second degré', 'studied', 1, 2, ['signe']),
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
+            sk('Dérivation', 'studied', 4, 0),
+            sk('Variations', 'studied', 4, 0),
           ],
           geometry: [
-            { skillLabel: 'Vecteurs', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Produit scalaire', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Vecteurs', 'studied', 3, 1),
+            sk('Produit scalaire', 'studied', 3, 1),
           ],
           probabilities: [
-            { skillLabel: 'Conditionnelles', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Arbres', status: 'studied', mastery: 3, friction: 0, errorTypes: [] },
+            sk('Conditionnelles', 'studied', 3, 1),
+            sk('Arbres', 'studied', 3, 0),
           ],
           python: [
-            { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Fonctions', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Boucles', 'studied', 4, 0),
+            sk('Fonctions', 'studied', 3, 1),
           ],
         },
       });
@@ -527,24 +550,24 @@ describe('computeScoringV2', () => {
       const data = buildData({
         competencies: {
           algebra: [
-            { skillLabel: 'Suites', status: 'studied', mastery: 0, friction: 4, errorTypes: ['calcul'] },
-            { skillLabel: 'Second degré', status: 'studied', mastery: 0, friction: 4, errorTypes: ['signe'] },
+            sk('Suites', 'studied', 0, 4, ['calcul']),
+            sk('Second degré', 'studied', 0, 4, ['signe']),
           ],
           analysis: [
-            { skillLabel: 'Dérivation', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Variations', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Dérivation', 'studied', 3, 1),
+            sk('Variations', 'studied', 3, 1),
           ],
           geometry: [
-            { skillLabel: 'Vecteurs', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Produit scalaire', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Vecteurs', 'studied', 3, 1),
+            sk('Produit scalaire', 'studied', 3, 1),
           ],
           probabilities: [
-            { skillLabel: 'Conditionnelles', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
-            { skillLabel: 'Arbres', status: 'studied', mastery: 3, friction: 0, errorTypes: [] },
+            sk('Conditionnelles', 'studied', 3, 1),
+            sk('Arbres', 'studied', 3, 0),
           ],
           python: [
-            { skillLabel: 'Boucles', status: 'studied', mastery: 4, friction: 0, errorTypes: [] },
-            { skillLabel: 'Fonctions', status: 'studied', mastery: 3, friction: 1, errorTypes: [] },
+            sk('Boucles', 'studied', 4, 0),
+            sk('Fonctions', 'studied', 3, 1),
           ],
         },
       });
@@ -561,14 +584,14 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 4, timeUsedMinutes: 15, completedInTime: true },
           selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 0 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const highStress = buildData({
         examPrep: {
           miniTest: { score: 4, timeUsedMinutes: 15, completedInTime: true },
           selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 4 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
 
@@ -583,14 +606,14 @@ describe('computeScoringV2', () => {
         examPrep: {
           miniTest: { score: 4, timeUsedMinutes: 15, completedInTime: true },
           selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 1 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
       const notInTime = buildData({
         examPrep: {
           miniTest: { score: 4, timeUsedMinutes: 25, completedInTime: false },
           selfRatings: { speedNoCalc: 3, calcReliability: 3, redaction: 3, justifications: 3, stress: 1 },
-          signals: { hardestItems: [], feeling: 'ok' },
+          signals: { hardestItems: [], verifiedAnswers: null, feeling: 'ok' },
         },
       });
 

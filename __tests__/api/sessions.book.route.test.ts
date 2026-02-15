@@ -140,7 +140,7 @@ describe('POST /api/sessions/book', () => {
 
     (RateLimitPresets.expensive as jest.Mock).mockReturnValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue(mockSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (parseBody as jest.Mock).mockResolvedValue(buildPayload());
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
   });
@@ -162,7 +162,7 @@ describe('POST /api/sessions/book', () => {
   it('returns auth error response when guard fails', async () => {
     const mockErrorResponse = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-    (isErrorResponse as jest.Mock).mockReturnValue(true);
+    (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
 
     const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
 
