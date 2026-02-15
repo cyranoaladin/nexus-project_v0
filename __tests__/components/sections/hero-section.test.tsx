@@ -12,15 +12,16 @@ jest.mock('next/link', () => {
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, priority, ...props }: any) => {
+  default: ({ src, alt, ...props }: any) => {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...props} />;
   },
 }));
 
 // Mock de framer-motion — filter motion-specific props
+// Mock de framer-motion
 jest.mock('framer-motion', () => {
-  const React = require('react');
+  const React = require('react'); // eslint-disable-line @typescript-eslint/no-var-requires
   const motionProps = new Set([
     'initial', 'animate', 'exit', 'transition', 'variants',
     'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
@@ -33,12 +34,25 @@ jest.mock('framer-motion', () => {
     Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
     return filtered;
   };
+
+  const MotionDiv = React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>);
+  MotionDiv.displayName = 'MotionDiv';
+
+  const MotionH1 = React.forwardRef(({ children, ...props }: any, ref: any) => <h1 {...filterProps(props)} ref={ref}>{children}</h1>);
+  MotionH1.displayName = 'MotionH1';
+
+  const MotionP = React.forwardRef(({ children, ...props }: any, ref: any) => <p {...filterProps(props)} ref={ref}>{children}</p>);
+  MotionP.displayName = 'MotionP';
+
+  const MotionButton = React.forwardRef(({ children, ...props }: any, ref: any) => <button {...filterProps(props)} ref={ref}>{children}</button>);
+  MotionButton.displayName = 'MotionButton';
+
   return {
     motion: {
-      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
-      h1: React.forwardRef(({ children, ...props }: any, ref: any) => <h1 {...filterProps(props)} ref={ref}>{children}</h1>),
-      p: React.forwardRef(({ children, ...props }: any, ref: any) => <p {...filterProps(props)} ref={ref}>{children}</p>),
-      button: React.forwardRef(({ children, ...props }: any, ref: any) => <button {...filterProps(props)} ref={ref}>{children}</button>),
+      div: MotionDiv,
+      h1: MotionH1,
+      p: MotionP,
+      button: MotionButton,
     },
     useReducedMotion: () => false,
     AnimatePresence: ({ children }: any) => children,
@@ -93,14 +107,14 @@ describe('HeroSection', () => {
     render(<HeroSection />);
 
     // Vérifier la présence des piliers principaux
-    expect(screen.getByText(/Agrégés & Certifiés/i)).toBeInTheDocument();
+    expect(screen.getByText(/Agrégés et Certifiés/i)).toBeInTheDocument();
     expect(screen.getByText(/IA ARIA/i)).toBeInTheDocument();
     expect(screen.getByText(/24\/7/i)).toBeInTheDocument();
-    
+
     // Use getAllByText for items that might be found in multiple nested elements
     const enseignementElements = screen.getAllByText(/Enseignement Français/i);
     expect(enseignementElements.length).toBeGreaterThanOrEqual(1);
-    
+
     expect(screen.getByText(/DIU NSI/i)).toBeInTheDocument();
   });
 

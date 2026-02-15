@@ -111,7 +111,7 @@ export default function FamillePage() {
                 <h3 className="text-xl font-semibold text-white">La Révolution Nexus</h3>
                 <ul className="mt-4 space-y-2 text-slate-300">
                   <li>• Suivi Analytique & Temps réel.</li>
-                  <li>• Des Agrégés qui parlent le langage de votre enfant.</li>
+                  <li>• Des Agrégés et Certifiés qui parlent le langage de votre enfant.</li>
                   <li>• Un plan sur-mesure qui s&apos;adapte à SES difficultés.</li>
                 </ul>
               </div>
@@ -252,7 +252,7 @@ export default function FamillePage() {
                 href="/equipe"
                 className="btn-outline-strong"
               >
-                Découvrir nos profs Agrégés
+                Découvrir nos profs Agrégés et Certifiés
               </a>
             </div>
 
