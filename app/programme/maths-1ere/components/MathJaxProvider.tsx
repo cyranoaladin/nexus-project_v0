@@ -12,7 +12,7 @@ export function MathJaxProvider({ children }: { children: React.ReactNode }) {
     <>
       <Script
         id="mathjax-config"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.MathJax = {

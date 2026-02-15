@@ -224,6 +224,12 @@ export interface SkillDefinition {
   skillId: string;
   label: string;
   domain: string;
+  /** Chapter this skill belongs to */
+  chapterId?: string;
+  /** Whether this skill is a prerequisite (measured even if chapter notYet) */
+  prerequisite?: boolean;
+  /** Prerequisite level: core (weight 0.25 in readiness) or recommended (informational) */
+  prerequisiteLevel?: 'core' | 'recommended';
   /** Prerequisite skill IDs */
   prerequisites?: string[];
 }
@@ -235,6 +241,8 @@ export interface ChapterDefinition {
   description: string;
   domainId: string;
   skills: string[];
+  /** RAG topics for chapter-coherent queries */
+  ragTopics?: string[];
 }
 
 /** Chapters selection state from the form */
