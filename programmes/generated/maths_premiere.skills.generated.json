@@ -1,0 +1,372 @@
+{
+  "programmeKey": "maths_premiere",
+  "generatedAt": "2026-02-15T20:18:52.288Z",
+  "schemaVersion": "v1.3",
+  "sections": [
+    {
+      "rawTitle": "Algèbre",
+      "normalizedTitle": "Algèbre & Suites",
+      "domainId": "algebra",
+      "candidates": [
+        {
+          "rawLabel": "Suites arithmétiques (u_n, somme)",
+          "normalizedLabel": "Suites arithmétiques (u_n, somme)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Suites arithmétiques (u_n, somme)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Suites géométriques (u_n, somme)",
+          "normalizedLabel": "Suites géométriques (u_n, somme)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Suites géométriques (u_n, somme)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Variation d'une suite",
+          "normalizedLabel": "Variation d'une suite",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Variation d'une suite"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Convergence/divergence",
+          "normalizedLabel": "Convergence/divergence",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Convergence/divergence"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Modélisation exponentielle",
+          "normalizedLabel": "Modélisation exponentielle",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Modélisation exponentielle"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Second degré (équations)",
+          "normalizedLabel": "Second degré (équations)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Second degré (équations)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Forme canonique",
+          "normalizedLabel": "Forme canonique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Forme canonique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Factorisations stratégiques",
+          "normalizedLabel": "Factorisations stratégiques",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algèbre — Factorisations stratégiques"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Analyse",
+      "normalizedTitle": "Analyse & Dérivation",
+      "domainId": "analysis",
+      "candidates": [
+        {
+          "rawLabel": "Nombre dérivé (sens + calcul)",
+          "normalizedLabel": "Nombre dérivé (sens + calcul)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Nombre dérivé (sens + calcul)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Règles de dérivation",
+          "normalizedLabel": "Règles de dérivation",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Règles de dérivation"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Dérivation composées",
+          "normalizedLabel": "Dérivation composées",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Dérivation composées"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Tableau de variations",
+          "normalizedLabel": "Tableau de variations",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Tableau de variations"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Extremum/optimisation",
+          "normalizedLabel": "Extremum/optimisation",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Extremum/optimisation"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Exponentielle",
+          "normalizedLabel": "Exponentielle",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Exponentielle"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Trigonométrie",
+          "normalizedLabel": "Trigonométrie",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Analyse — Trigonométrie"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Géométrie",
+      "normalizedTitle": "Géométrie",
+      "domainId": "geometry",
+      "candidates": [
+        {
+          "rawLabel": "Produit scalaire",
+          "normalizedLabel": "Produit scalaire",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Produit scalaire"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Al-Kashi",
+          "normalizedLabel": "Al-Kashi",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Al-Kashi"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Formule de la médiane",
+          "normalizedLabel": "Formule de la médiane",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Formule de la médiane"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Orthogonalité",
+          "normalizedLabel": "Orthogonalité",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Orthogonalité"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Équation de droite",
+          "normalizedLabel": "Équation de droite",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Équation de droite"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Équation de cercle",
+          "normalizedLabel": "Équation de cercle",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Équation de cercle"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Projeté orthogonal",
+          "normalizedLabel": "Projeté orthogonal",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Projeté orthogonal"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Distance point-droite",
+          "normalizedLabel": "Distance point-droite",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Géométrie — Distance point-droite"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Probabilités et statistiques",
+      "normalizedTitle": "Probabilités",
+      "domainId": "probabilities",
+      "candidates": [
+        {
+          "rawLabel": "Conditionnelles P_A(B)",
+          "normalizedLabel": "Conditionnelles P_A(B)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et statistiques — Conditionnelles P_A(B)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Indépendance",
+          "normalizedLabel": "Indépendance",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et statistiques — Indépendance"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Arbre pondéré",
+          "normalizedLabel": "Arbre pondéré",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et statistiques — Arbre pondéré"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Probabilités totales",
+          "normalizedLabel": "Probabilités totales",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et statistiques — Probabilités totales"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Variable aléatoire/espérance",
+          "normalizedLabel": "Variable aléatoire/espérance",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et statistiques — Variable aléatoire/espérance"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Algorithmique et programmation",
+      "normalizedTitle": "Python & Algorithmique",
+      "domainId": "python",
+      "candidates": [
+        {
+          "rawLabel": "Fonctions Python",
+          "normalizedLabel": "Fonctions Python",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique et programmation — Fonctions Python"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Boucles for/while",
+          "normalizedLabel": "Boucles for/while",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique et programmation — Boucles for/while"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Listes",
+          "normalizedLabel": "Listes",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique et programmation — Listes"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Suites algorithmique",
+          "normalizedLabel": "Suites algorithmique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique et programmation — Suites algorithmique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Simulation Monte-Carlo",
+          "normalizedLabel": "Simulation Monte-Carlo",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique et programmation — Simulation Monte-Carlo"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
