@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   programmeData,
   quizData,
@@ -13,6 +14,25 @@ import { useMathsLabStore } from '../store';
 import { useMathJax } from './MathJaxProvider';
 import ExerciseEngine from './ExerciseEngine';
 import InteractiveGraph from './InteractiveGraph';
+import SkillTree from './SkillTree';
+import dynamic from 'next/dynamic';
+
+const PythonIDE = dynamic(() => import('./PythonIDE'), { ssr: false });
+const InteractiveMafs = dynamic(() => import('./InteractiveMafs'), { ssr: false });
+const MathInput = dynamic(() => import('./MathInput'), { ssr: false });
+
+// ─── Framer Motion variants ─────────────────────────────────────────────────
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+};
+
+const cardVariants = {
+  initial: { opacity: 0, scale: 0.96 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.96 },
+};
 
 // ─── Tab types ───────────────────────────────────────────────────────────────
 type TabName = 'dashboard' | 'cours' | 'entrainement';
@@ -41,10 +61,23 @@ export default function MathsRevisionClient() {
   const store = useMathsLabStore();
   const typeset = useMathJax([currentTab, selectedChapter]);
 
-  // Record activity on mount (for streak tracking)
+  // Record activity + evaluate badges on mount
   useEffect(() => {
     store.recordActivity();
+    store.evaluateBadges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-evaluate badges after any state change
+  useEffect(() => {
+    const unsub = useMathsLabStore.subscribe(() => {
+      // Debounce badge evaluation
+      const timer = setTimeout(() => {
+        useMathsLabStore.getState().evaluateBadges();
+      }, 300);
+      return () => clearTimeout(timer);
+    });
+    return unsub;
   }, []);
 
   const switchTab = useCallback((tab: TabName) => {
@@ -77,24 +110,53 @@ export default function MathsRevisionClient() {
 
         {/* ─── Content ──────────────────────────────────────────────────── */}
         <main className="min-h-[600px]">
-          {currentTab === 'dashboard' && (
-            <Dashboard onSwitchTab={switchTab} />
-          )}
-          {currentTab === 'cours' && (
-            <CoursView
-              selectedChapter={selectedChapter}
-              onSelectChapter={setSelectedChapter}
-              typeset={typeset}
-              focusMode={focusMode}
-              onToggleFocus={() => setFocusMode(!focusMode)}
-            />
-          )}
-          {currentTab === 'entrainement' && (
-            <QuizView
-              onSwitchTab={switchTab}
-              typeset={typeset}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            {currentTab === 'dashboard' && (
+              <motion.div
+                key="dashboard"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                <Dashboard onSwitchTab={switchTab} />
+              </motion.div>
+            )}
+            {currentTab === 'cours' && (
+              <motion.div
+                key="cours"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                <CoursView
+                  selectedChapter={selectedChapter}
+                  onSelectChapter={setSelectedChapter}
+                  typeset={typeset}
+                  focusMode={focusMode}
+                  onToggleFocus={() => setFocusMode(!focusMode)}
+                />
+              </motion.div>
+            )}
+            {currentTab === 'entrainement' && (
+              <motion.div
+                key="entrainement"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                <QuizView
+                  onSwitchTab={switchTab}
+                  typeset={typeset}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
       </div>
     </div>
@@ -359,11 +421,52 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
         </div>
       </div>
 
+      {/* SRS Due Reviews */}
+      {store.getDueReviews().length > 0 && (
+        <div className="bg-gradient-to-br from-indigo-900/20 to-slate-900 border border-indigo-500/20 rounded-2xl p-5 mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">🔄</span>
+            <h3 className="font-bold text-indigo-300 text-sm">Révisions du jour (SRS)</h3>
+            <span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
+              {store.getDueReviews().length} chapitre(s)
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {store.getDueReviews().map((chapId) => {
+              // Find chapter title
+              let chapTitle = chapId;
+              for (const cat of Object.values(programmeData)) {
+                const found = cat.chapitres.find((c) => c.id === chapId);
+                if (found) {
+                  chapTitle = found.titre;
+                  break;
+                }
+              }
+              return (
+                <motion.button
+                  key={chapId}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    onSwitchTab('cours');
+                  }}
+                  className="text-xs px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 transition-all font-medium"
+                >
+                  📖 {chapTitle}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Theme Overview */}
       <h3 className="text-xl font-bold text-white mb-4">Vue d&apos;ensemble des thèmes</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {Object.entries(programmeData).map(([key, cat]) => (
-          <ThemeCard key={key} cat={cat} completedCount={cat.chapitres.filter((c) => store.completedChapters.includes(c.id)).length} />
+          <motion.div key={key} whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
+            <ThemeCard cat={cat} completedCount={cat.chapitres.filter((c) => store.completedChapters.includes(c.id)).length} />
+          </motion.div>
         ))}
       </div>
     </>
@@ -407,62 +510,46 @@ function CoursView({ selectedChapter, onSelectChapter, typeset, focusMode, onTog
   focusMode: boolean;
   onToggleFocus: () => void;
 }) {
-  const store = useMathsLabStore();
-
   return (
     <div className={`grid grid-cols-1 ${focusMode ? '' : 'lg:grid-cols-12'} gap-6 h-full`}>
-      {/* Sidebar */}
+      {/* Skill Tree Sidebar */}
       {!focusMode && (
-        <div className="lg:col-span-3 space-y-4">
-          {Object.entries(programmeData).map(([key, cat]) => {
-            const colors = getColorClasses(cat.couleur);
-            return (
-              <div key={key} className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-2xl p-4">
-                <h3 className={`font-bold ${colors.text} mb-3 flex items-center gap-2`}>
-                  {cat.icon} {cat.titre}
-                </h3>
-                <div className="space-y-1">
-                  {cat.chapitres.map((chap) => {
-                    const isLocked = chap.prerequis?.some((p) => !store.completedChapters.includes(p));
-                    return (
-                      <button
-                        key={chap.id}
-                        onClick={() => !isLocked && onSelectChapter({ catKey: key, chapId: chap.id })}
-                        disabled={isLocked}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex justify-between items-center ${
-                          isLocked ? 'text-slate-600 cursor-not-allowed' :
-                          selectedChapter?.chapId === chap.id ? 'bg-slate-700/80 text-white' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          {isLocked && <span className="text-xs">🔒</span>}
-                          {chap.titre}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span className="text-[10px] text-slate-600">{chap.pointsXP}xp</span>
-                          {store.completedChapters.includes(chap.id) && <span className="text-green-400">✓</span>}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+        <div className="lg:col-span-3 bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-2xl p-4 max-h-[80vh] overflow-y-auto">
+          <SkillTree
+            onSelectChapter={onSelectChapter}
+            selectedChapterId={selectedChapter?.chapId}
+          />
         </div>
       )}
 
       {/* Chapter Viewer */}
       <div className={focusMode ? 'w-full' : 'lg:col-span-9'}>
-        {selectedChapter ? (
-          <ChapterViewer catKey={selectedChapter.catKey} chapId={selectedChapter.chapId} typeset={typeset} onToggleFocus={onToggleFocus} focusMode={focusMode} />
-        ) : (
-          <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-12 text-center h-full flex flex-col items-center justify-center text-slate-500 min-h-[400px]">
-            <div className="text-6xl mb-4 opacity-50">📚</div>
-            <h3 className="text-xl font-bold text-slate-300 mb-2">Sélectionnez une fiche</h3>
-            <p>Cliquez sur un chapitre à gauche pour afficher la fiche de révision.</p>
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {selectedChapter ? (
+            <motion.div
+              key={selectedChapter.chapId}
+              variants={cardVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+            >
+              <ChapterViewer catKey={selectedChapter.catKey} chapId={selectedChapter.chapId} typeset={typeset} onToggleFocus={onToggleFocus} focusMode={focusMode} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              variants={cardVariants}
+              initial="initial"
+              animate="animate"
+              className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-12 text-center h-full flex flex-col items-center justify-center text-slate-500 min-h-[400px]"
+            >
+              <div className="text-6xl mb-4 opacity-50">📚</div>
+              <h3 className="text-xl font-bold text-slate-300 mb-2">Sélectionnez une fiche</h3>
+              <p>Cliquez sur un chapitre dans l&apos;arbre de compétences pour commencer.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -667,6 +754,73 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.exercices && chap.exercices.length > 0 && (
           <ExerciseEngine exercices={chap.exercices} chapId={chapId} onExerciseCorrect={store.recordExerciseResult} />
         )}
+
+        {/* Python IDE for algorithmique chapters */}
+        {catKey === 'algorithmique' && (
+          <PythonIDE
+            initialCode={`# ${chap.titre}\n# Écris ton code Python ici\n\n`}
+            onSuccess={() => store.recordExerciseResult(chapId, 99)}
+          />
+        )}
+
+        {/* Interactive Mafs graph for analysis/geometry chapters */}
+        {(catKey === 'analyse' || catKey === 'geometrie') && (
+          <InteractiveMafs
+            title={`${chap.titre} — Visualisation`}
+            elements={
+              catKey === 'analyse'
+                ? [
+                    { type: 'function', fn: 'x^2', color: 'blue', label: 'f(x) = x²' },
+                    { type: 'function', fn: '2*x', color: 'red', label: "f'(x) = 2x" },
+                  ]
+                : chapId === 'equations-cercles'
+                ? [
+                    { type: 'circle', center: [2, -3] as [number, number], radius: 4, color: 'blue' },
+                    { type: 'point', x: 2, y: -3, color: 'red', label: 'Centre' },
+                  ]
+                : [
+                    { type: 'line', point1: [0, 0] as [number, number], point2: [3, 4] as [number, number], color: 'blue' },
+                    { type: 'point', x: 0, y: 0, color: 'red' },
+                    { type: 'point', x: 3, y: 4, color: 'green' },
+                  ]
+            }
+            interactivePoint={{ initial: [1, 1], label: 'Point mobile' }}
+          />
+        )}
+
+        {/* SRS Review Button */}
+        <div className="bg-slate-900/50 border border-indigo-500/20 rounded-2xl p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-indigo-300 text-sm flex items-center gap-2">🔄 Révision espacée (SRS)</h3>
+              <p className="text-xs text-slate-500 mt-1">
+                {store.srsQueue[chapId]
+                  ? `Prochaine révision : ${store.srsQueue[chapId].nextReview} (intervalle : ${store.srsQueue[chapId].interval}j)`
+                  : 'Pas encore planifié'}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => store.recordSRSReview(chapId, 2)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold"
+              >
+                😰 Difficile
+              </button>
+              <button
+                onClick={() => store.recordSRSReview(chapId, 3)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all font-bold"
+              >
+                🤔 Moyen
+              </button>
+              <button
+                onClick={() => store.recordSRSReview(chapId, 5)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all font-bold"
+              >
+                😎 Facile
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* External Resources */}
         {chap.ressourcesExt && chap.ressourcesExt.length > 0 && (
