@@ -32,7 +32,7 @@ const MENTORS: Mentor[] = [
     id: "marc",
     name: "Marc",
     subject: "Maths",
-    title: "Agrégé de Mathématiques",
+    title: "Agrégés et Certifiés de Mathématiques",
     experience: "22 ans d'expérience",
     tagline: "Transforme l'angoisse des équations en plaisir de la résolution",
     stats: ["+4,2 pts de moyenne", "92% mentions", "12 places/mois"],
@@ -57,7 +57,7 @@ const MENTORS: Mentor[] = [
     id: "sophie",
     name: "Sophie",
     subject: "Physique-Chimie",
-    title: "Professeure Agrégée",
+    title: "Professeur Agrégés et Certifiés",
     experience: "18 ans d'expérience",
     tagline: "Rend la physique intuitive et passionnante",
     stats: ["+3,6 pts", "88% mentions", "8 places/mois"],
@@ -132,7 +132,7 @@ const MENTORS: Mentor[] = [
     id: "alexandre",
     name: "Alexandre",
     subject: "Maths",
-    title: "Agrégé de Mathématiques",
+    title: "Agrégés et Certifiés de Mathématiques",
     experience: "20 ans d'expérience",
     tagline: "Spécialiste de l'algèbre et de la géométrie avancée",
     stats: ["+3,4 pts", "4 places", "4.9/5"],
@@ -207,7 +207,7 @@ const MENTORS: Mentor[] = [
     id: "olivier",
     name: "Olivier",
     subject: "Physique",
-    title: "Professeur Agrégé",
+    title: "Professeur Agrégés et Certifiés",
     experience: "19 ans d'expérience",
     tagline: "Passionné par la physique théorique et les défis",
     stats: ["+3,1 pts", "4 places", "4.9/5"],
@@ -506,7 +506,7 @@ export default function EquipePage() {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { value: `${counters.agr}%`, label: "Agrégés/Certifiés" },
+                    { value: `${counters.agr}%`, label: "Agrégés et Certifiés" },
                     { value: `${counters.mentions}+`, label: "Mentions TB" },
                     { value: `${counters.satisfaction}%`, label: "Satisfaction" },
                     { value: `${counters.students}+`, label: "Élèves accompagnés" },
@@ -575,9 +575,8 @@ export default function EquipePage() {
                   {quizQuestions.map((q, index) => (
                     <div
                       key={q.key}
-                      className={`rounded-full px-3 py-1 border ${
-                        index <= quizStep ? "border-gold-500/50 text-gold-400" : "border-white/10"
-                      }`}
+                      className={`rounded-full px-3 py-1 border ${index <= quizStep ? "border-gold-500/50 text-gold-400" : "border-white/10"
+                        }`}
                     >
                       {q.question.split(" ")[0]}
                     </div>
@@ -758,11 +757,10 @@ export default function EquipePage() {
                 <button
                   key={category.value}
                   onClick={() => setFilters((prev) => ({ ...prev, category: category.value }))}
-                  className={`rounded-full px-3 py-1 text-xs border transition ${
-                    filters.category === category.value
+                  className={`rounded-full px-3 py-1 text-xs border transition ${filters.category === category.value
                       ? "border-gold-500 bg-gold-500/10 text-gold-400"
                       : "border-white/10 text-slate-300 hover:border-gold-500/40"
-                  }`}
+                    }`}
                 >
                   {category.label}
                 </button>
@@ -770,21 +768,19 @@ export default function EquipePage() {
               <span className="text-xs text-slate-400">Disponibilité :</span>
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "available" }))}
-                className={`rounded-full px-3 py-1 text-xs border transition ${
-                  filters.availability === "available"
+                className={`rounded-full px-3 py-1 text-xs border transition ${filters.availability === "available"
                     ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
                     : "border-white/10 text-slate-300"
-                }`}
+                  }`}
               >
                 🟢 Disponible
               </button>
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "all" }))}
-                className={`rounded-full px-3 py-1 text-xs border transition ${
-                  filters.availability === "all"
+                className={`rounded-full px-3 py-1 text-xs border transition ${filters.availability === "all"
                     ? "border-gold-500 bg-gold-500/10 text-gold-400"
                     : "border-white/10 text-slate-300"
-                }`}
+                  }`}
               >
                 Tous
               </button>
