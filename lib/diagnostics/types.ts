@@ -210,6 +210,10 @@ export interface DiagnosticDefinition {
   prompts: PromptDefinition;
   /** RAG policy: collections, query strategy */
   ragPolicy: RAGPolicy;
+  /** Risk model: discipline-specific risk factors (CdC V2 §2.2) */
+  riskModel?: RiskModel;
+  /** Exam format: timer, rules, structure (CdC V2 §5.2) */
+  examFormat?: ExamFormat;
 }
 
 export interface SkillDefinition {
@@ -239,4 +243,23 @@ export interface RAGPolicy {
   collections: string[];
   maxQueries: number;
   topK: number;
+}
+
+/** Risk model: discipline-specific risk factors */
+export interface RiskModel {
+  factors: string[];
+  /** Discipline-specific risk weights (factor → weight 0-1) */
+  weights?: Record<string, number>;
+}
+
+/** Exam format: structure and rules for the target exam */
+export interface ExamFormat {
+  /** Duration in minutes */
+  duration: number;
+  /** Whether calculator is allowed */
+  calculatorAllowed: boolean;
+  /** Description of the exam structure */
+  structure: string;
+  /** Total points */
+  totalPoints: number;
 }
