@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useState } from 'react';
 import { Send, Phone, Mail, MapPin, GraduationCap, Building2, Briefcase } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const ContactSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 120 });
     const [profileType, setProfileType] = useState<'student' | 'school' | 'pro'>('school');
 
     const [formData, setFormData] = useState({
@@ -49,35 +46,6 @@ const ContactSectionGSAP = () => {
         }
     };
 
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                gsap.fromTo('.animate-item',
-                    { y: 30, opacity: 0 },
-                    {
-                        scrollTrigger: {
-                            trigger: sectionRef.current,
-                            start: 'top 70%',
-                        },
-                        y: 0,
-                        opacity: 1,
-                        stagger: 0.1,
-                        duration: 0.8,
-                        ease: 'power3.out'
-                    }
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.set('.animate-item', { opacity: 1, y: 0 });
-            });
-        }, sectionRef);
-
-        return () => ctx.revert();
-    }, []);
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Form submitted:', { ...formData, profile: profileType });
@@ -92,7 +60,7 @@ const ContactSectionGSAP = () => {
             <div className="max-w-7xl mx-auto px-6">
 
                 {/* Header */}
-                <div className="text-center mb-16 animate-item">
+                <div className="text-center mb-16" data-reveal="up">
                     <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-accent mb-4 block">
                         Démarrer la transformation
                     </span>
@@ -106,7 +74,7 @@ const ContactSectionGSAP = () => {
                 </div>
 
                 {/* Profile Selector */}
-                <div className="animate-item flex flex-wrap justify-center gap-4 mb-12">
+                <div data-reveal="up" className="flex flex-wrap justify-center gap-4 mb-12">
                     {(Object.entries(profiles) as [keyof typeof profiles, typeof profiles.school][]).map(([key, p]) => {
                         const isActive = profileType === key;
                         return (
@@ -134,7 +102,7 @@ const ContactSectionGSAP = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
                     {/* Left - Contact Info */}
-                    <div className="animate-item lg:col-span-2 space-y-6">
+                    <div data-reveal="left" className="lg:col-span-2 space-y-6">
                         <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                             <h3 className="font-display text-lg font-semibold text-white mb-4">
                                 Contact direct
@@ -196,7 +164,7 @@ const ContactSectionGSAP = () => {
                     </div>
 
                     {/* Right - Form */}
-                    <div className="animate-item lg:col-span-3">
+                    <div data-reveal="right" className="lg:col-span-3">
                         <form
                             onSubmit={handleSubmit}
                             className="p-8 rounded-2xl bg-white/5 border border-white/10"

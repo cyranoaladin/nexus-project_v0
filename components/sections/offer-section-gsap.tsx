@@ -1,100 +1,14 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { School, Users, GraduationCap, FileCheck, Bot, Shield, Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const OfferSection = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const photoCardRef = useRef<HTMLDivElement>(null);
-    const offerCardRef = useRef<HTMLDivElement>(null);
-    const bottomCardsRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 120 });
     const [activeTab, setActiveTab] = useState(0);
-
-    useEffect(() => {
-        const section = sectionRef.current;
-        const photoCard = photoCardRef.current;
-        const offerCard = offerCardRef.current;
-        const bottomCards = bottomCardsRef.current;
-
-        if (!section || !photoCard || !offerCard || !bottomCards) return;
-
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                const scrollTl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top top',
-                        end: '+=140%',
-                        pin: true,
-                        scrub: 0.7,
-                    }
-                });
-
-                // ENTRANCE (0-30%)
-                scrollTl
-                    .fromTo(photoCard,
-                        { x: '-60vw', opacity: 0, scale: 0.98 },
-                        { x: 0, opacity: 1, scale: 1, ease: 'none' },
-                        0
-                    )
-                    .fromTo(offerCard,
-                        { x: '60vw', opacity: 0 },
-                        { x: 0, opacity: 1, ease: 'none' },
-                        0.05
-                    )
-                    .fromTo(bottomCards.querySelectorAll('.micro-card'),
-                        { y: '12vh', opacity: 0 },
-                        { y: 0, opacity: 1, stagger: 0.03, ease: 'none' },
-                        0.1
-                    );
-
-                // EXIT (70-100%)
-                scrollTl
-                    .fromTo(photoCard,
-                        { x: 0, opacity: 1 },
-                        { x: '-18vw', opacity: 0, ease: 'power2.in' },
-                        0.7
-                    )
-                    .fromTo(offerCard,
-                        { x: 0, opacity: 1 },
-                        { x: '18vw', opacity: 0, ease: 'power2.in' },
-                        0.7
-                    )
-                    .fromTo(bottomCards.querySelectorAll('.micro-card'),
-                        { y: 0, opacity: 1 },
-                        { y: '10vh', opacity: 0, stagger: 0.02, ease: 'power2.in' },
-                        0.7
-                    );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top top',
-                        end: '+=140%',
-                        pin: true,
-                    }
-                });
-
-                // Set final state for visibility
-                gsap.set(photoCard, { x: 0, opacity: 1, scale: 1 });
-                gsap.set(offerCard, { x: 0, opacity: 1 });
-                gsap.set(bottomCards.querySelectorAll('.micro-card'), { y: 0, opacity: 1 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
 
     const tabs = [
         { icon: School, label: 'Plateforme' },
@@ -142,15 +56,18 @@ const OfferSection = () => {
         <section
             ref={sectionRef}
             id="offer"
-            className="section-pinned bg-neutral-950 flex items-center justify-center cursor-default min-h-screen relative overflow-hidden"
+            className="bg-neutral-950 py-24 cursor-default relative overflow-hidden"
             style={{ zIndex: 50 }}
         >
-            <div className="relative w-full h-full flex items-center px-[6vw]">
+            <div className="relative w-full max-w-7xl mx-auto px-[6vw]">
+
+                {/* Layout Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
                 {/* Left Photo Card */}
                 <div
-                    ref={photoCardRef}
-                    className="absolute left-[6vw] top-[14vh] w-[44vw] h-[72vh] bg-surface-card overflow-hidden rounded-[18px] border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-0.5"
+                    data-reveal="left"
+                    className="w-full h-[50vh] lg:h-[72vh] bg-surface-card overflow-hidden rounded-[18px] border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-0.5 relative"
                 >
                     <img
                         src="/images/classroom.jpg"
@@ -175,8 +92,8 @@ const OfferSection = () => {
 
                 {/* Right Offer Card */}
                 <div
-                    ref={offerCardRef}
-                    className="absolute left-[52vw] top-[14vh] w-[42vw] h-[72vh] rounded-[18px] border border-white/10 bg-neutral-950/80 backdrop-blur-xl p-6 flex flex-col"
+                    data-reveal="right"
+                    className="w-full h-[50vh] lg:h-[72vh] rounded-[18px] border border-white/10 bg-neutral-950/80 backdrop-blur-xl p-6 flex flex-col"
                 >
                     {/* Tabs */}
                     <div className="flex border-b border-white/10">
@@ -226,12 +143,13 @@ const OfferSection = () => {
                     </div>
                 </div>
 
+                </div>
+
                 {/* Bottom Micro Cards */}
                 <div
-                    ref={bottomCardsRef}
-                    className="absolute left-[6vw] top-[88vh] w-[88vw] h-[10vh] flex gap-[2vw]"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4"
                 >
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
+                    <div data-reveal="up" className="rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <GraduationCap className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Bilan stratégique</span>
@@ -239,7 +157,7 @@ const OfferSection = () => {
                         </div>
                     </div>
 
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
+                    <div data-reveal="up" className="rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <Bot className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">IA ARIA 24/7</span>
@@ -247,7 +165,7 @@ const OfferSection = () => {
                         </div>
                     </div>
 
-                    <div className="micro-card w-[28vw] h-full rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
+                    <div data-reveal="up" className="rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <FileCheck className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
                             <span className="block text-white text-xs font-medium">Suivi parent</span>

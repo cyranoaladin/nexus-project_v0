@@ -1,67 +1,12 @@
 "use client";
 
-import React, { useRef, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { User, GraduationCap, ArrowRight, School, Target } from 'lucide-react';
 import Link from 'next/link';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const PathsSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    useLayoutEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Cards Stagger Animation
-                gsap.fromTo('.path-card',
-                    { y: 100, opacity: 0 },
-                    {
-                        scrollTrigger: {
-                            trigger: section,
-                            start: 'top 80%',
-                            end: 'center center',
-                            toggleActions: 'play none none reverse'
-                        },
-                        y: 0,
-                        opacity: 1,
-                        duration: 0.8,
-                        stagger: 0.2,
-                        ease: 'power3.out'
-                    }
-                );
-
-                // Title Animation
-                gsap.fromTo('.section-title',
-                    { y: 50, opacity: 0 },
-                    {
-                        scrollTrigger: {
-                            trigger: section,
-                            start: 'top 90%',
-                        },
-                        y: 0,
-                        opacity: 1,
-                        duration: 1,
-                        ease: 'power3.out'
-                    }
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.set('.path-card', { opacity: 1, y: 0 });
-                gsap.set('.section-title', { opacity: 1, y: 0 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 150 });
 
     const paths = [
         {
@@ -112,7 +57,7 @@ const PathsSectionGSAP = () => {
 
             <div className="relative z-10 max-w-7xl mx-auto px-6">
                 {/* Header */}
-                <div className="text-center mb-24 section-title">
+                <div className="text-center mb-24" data-reveal="up">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
                         <User className="w-4 h-4 text-blue-400" />
                         <span className="font-mono text-xs uppercase tracking-wider text-gray-400">Pour chaque ambition</span>
@@ -130,7 +75,8 @@ const PathsSectionGSAP = () => {
                     {paths.map((path) => (
                         <div
                             key={path.id}
-                            className={`path-card group relative p-1 rounded-3xl bg-gradient-to-br ${path.gradient} hover:scale-[1.02] transition-transform duration-500`}
+                            data-reveal="up"
+                            className={`group relative p-1 rounded-3xl bg-gradient-to-br ${path.gradient} hover:scale-[1.02] transition-transform duration-500`}
                         >
                             <div className={`relative h-full bg-surface-card rounded-[22px] p-8 border border-white/5 ${path.border} transition-colors duration-500 overflow-hidden`}>
 
