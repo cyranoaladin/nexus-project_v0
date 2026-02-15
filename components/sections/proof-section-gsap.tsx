@@ -1,61 +1,35 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TrendingUp, Users, Award, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useScrollReveal, useCountUp } from '@/hooks/useScrollReveal';
 
-gsap.registerPlugin(ScrollTrigger);
+/**
+ * Individual stat card with count-up animation.
+ */
+function StatCard({ stat, index }: { stat: { icon: React.ElementType; value: number; suffix: string; label: string; color: string }; index: number }) {
+    const countRef = useCountUp(stat.value, stat.suffix);
+
+    return (
+        <div
+            data-reveal="scale"
+            className="bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-8 text-center hover:border-brand-accent/40 transition-all duration-300"
+        >
+            <div className={`w-16 h-16 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-6`}>
+                <stat.icon className="w-8 h-8 text-brand-accent" />
+            </div>
+            <div className="font-display text-5xl font-bold text-white mb-3">
+                <span ref={countRef}>0{stat.suffix}</span>
+            </div>
+            <p className="text-neutral-400 text-sm leading-relaxed">
+                {stat.label}
+            </p>
+        </div>
+    );
+}
 
 const ProofSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const ctx = gsap.context(() => {
-            // Animated counter effect
-            gsap.fromTo('.proof-stat',
-                { scale: 0.8, opacity: 0 },
-                {
-                    scale: 1,
-                    opacity: 1,
-                    duration: 0.8,
-                    stagger: 0.15,
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top 70%',
-                        toggleActions: 'play none none reverse',
-                    }
-                }
-            );
-
-            // Number count-up animation
-            document.querySelectorAll('.count-up').forEach((el) => {
-                const target = parseInt(el.getAttribute('data-target') || '0');
-                const suffix = el.getAttribute('data-suffix') || '';
-
-                ScrollTrigger.create({
-                    trigger: el,
-                    start: 'top 80%',
-                    onEnter: () => {
-                        gsap.to(el, {
-                            innerHTML: target,
-                            duration: 2,
-                            snap: { innerHTML: 1 },
-                            onUpdate: function () {
-                                el.innerHTML = Math.ceil(parseFloat(el.innerHTML as string)) + suffix;
-                            }
-                        });
-                    }
-                });
-            });
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 120 });
 
     const stats = [
         {
@@ -109,20 +83,7 @@ const ProofSectionGSAP = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {stats.map((stat, index) => (
-                        <div
-                            key={index}
-                            className="proof-stat bg-surface-card border border-white/[0.08] rounded-[18px] shadow-[0_24px_70px_rgba(0,0,0,0.45)] p-8 text-center hover:border-brand-accent/40 transition-all duration-300"
-                        >
-                            <div className={`w-16 h-16 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-6`}>
-                                <stat.icon className="w-8 h-8 text-brand-accent" />
-                            </div>
-                            <div className="font-display text-5xl font-bold text-white mb-3">
-                                <span className="count-up" data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
-                            </div>
-                            <p className="text-neutral-400 text-sm leading-relaxed">
-                                {stat.label}
-                            </p>
-                        </div>
+                        <StatCard key={index} stat={stat} index={index} />
                     ))}
                 </div>
 

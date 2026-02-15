@@ -1,70 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FileCheck, BarChart3, Users, Zap, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const KorrigoSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const section = sectionRef.current;
-        const content = contentRef.current;
-
-        if (!section || !content) return;
-
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Entry animation
-                const entryTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-
-                entryTl
-                    .fromTo('.korrigo-header',
-                        { y: 40, opacity: 0 },
-                        { y: 0, opacity: 1, duration: 0.8 }
-                    )
-                    .fromTo('.korrigo-feature',
-                        { x: 60, opacity: 0 },
-                        { x: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
-                        '-=0.4'
-                    );
-
-                // Pinned scroll animation
-                const scrollTl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top top',
-                        end: '+=100%',
-                        pin: true,
-                        scrub: 0.8,
-                    }
-                });
-
-                // Exit animation
-                scrollTl.to(content,
-                    { opacity: 0, y: -50, ease: 'power2.in' },
-                    0.7
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.set('.korrigo-header', { opacity: 1, y: 0 });
-                gsap.set('.korrigo-feature', { opacity: 1, x: 0 });
-                gsap.set(content, { opacity: 1, y: 0 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 100 });
 
     const features = [
         {
@@ -109,16 +51,15 @@ const KorrigoSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="korrigo"
-            className="section-pinned bg-surface-dark flex items-center justify-center py-20 px-4 md:px-6 lg:px-12 relative overflow-hidden"
-            style={{ zIndex: 50 }}
+            className="bg-surface-dark py-20 px-4 md:px-6 lg:px-12 relative overflow-hidden"
         >
             <div className="pointer-events-none absolute inset-0 opacity-40">
                 <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-brand-accent/10 blur-[120px]" />
                 <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-blue-500/10 blur-[120px]" />
             </div>
-            <div ref={contentRef} className="relative z-10 w-full max-w-7xl mx-auto">
+            <div className="relative z-10 w-full max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="korrigo-header text-center mb-12 md:mb-16">
+                <div data-reveal="up" className="text-center mb-12 md:mb-16">
                     <span className="label-mono text-brand-accent block mb-4">Suivi intelligent</span>
                     <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
                         Suivi & corrections Korrigo
@@ -133,7 +74,8 @@ const KorrigoSectionGSAP = () => {
                     {features.map((feature, index) => (
                         <div
                             key={index}
-                            className="korrigo-feature bg-surface-card border border-white/[0.08] rounded-[18px] shadow-card p-6 md:p-8 hover:border-brand-accent/40 hover:shadow-premium-strong transition-all duration-300"
+                            data-reveal="right"
+                            className="bg-surface-card border border-white/[0.08] rounded-[18px] shadow-card p-6 md:p-8 hover:border-brand-accent/40 hover:shadow-premium-strong transition-all duration-300"
                         >
                             <div className={`w-14 h-14 rounded-xl ${feature.color} flex items-center justify-center mb-6`}>
                                 <feature.icon className="w-7 h-7 text-brand-accent" />

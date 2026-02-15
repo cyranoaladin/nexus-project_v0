@@ -1,49 +1,11 @@
 "use client";
 
-import React, { useRef, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { Brain, Target, Shield, ArrowRight } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const ApproachSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    useLayoutEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const ctx = gsap.context(() => {
-
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Cards Animation
-                gsap.fromTo('.approach-card',
-                    { y: 50, opacity: 0 },
-                    {
-                        scrollTrigger: {
-                            trigger: section,
-                            start: 'top 75%',
-                        },
-                        y: 0,
-                        opacity: 1,
-                        stagger: 0.2,
-                        duration: 0.8,
-                        ease: 'power3.out'
-                    }
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.set('.approach-card', { opacity: 1, y: 0 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 150 });
 
     const approaches = [
         {
@@ -93,7 +55,8 @@ const ApproachSectionGSAP = () => {
                     {approaches.map((item, idx) => (
                         <div
                             key={idx}
-                            className={`approach-card relative p-8 rounded-3xl bg-gradient-to-b ${item.gradient} border border-white/5 group hover:border-white/10 transition-colors duration-500 hover:shadow-premium`}
+                            data-reveal="up"
+                            className={`relative p-8 rounded-3xl bg-gradient-to-b ${item.gradient} border border-white/5 group hover:border-white/10 transition-colors duration-500 hover:shadow-premium`}
                         >
                             <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 text-white border border-white/10">
                                 <item.icon className={`w-6 h-6 ${item.color}`} />

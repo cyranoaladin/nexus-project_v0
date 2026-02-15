@@ -300,30 +300,6 @@ jest.mock('next/image', () => {
   };
 });
 
-// Mock GSAP
-jest.mock('gsap', () => ({
-  gsap: {
-    registerPlugin: jest.fn(),
-    context: jest.fn(() => ({ revert: jest.fn() })),
-    timeline: jest.fn(() => ({
-      fromTo: jest.fn().mockReturnThis(),
-      to: jest.fn().mockReturnThis(),
-      scrollTrigger: jest.fn(),
-    })),
-    fromTo: jest.fn().mockReturnThis(),
-    to: jest.fn().mockReturnThis(),
-  },
-}));
-
-jest.mock('gsap/ScrollTrigger', () => ({
-  ScrollTrigger: {
-    config: jest.fn(),
-    create: jest.fn(),
-    refresh: jest.fn(),
-    getAll: jest.fn().mockReturnValue([]),
-  },
-}));
-
 // Mock Framer Motion — strip ALL motion-specific props to prevent React DOM warnings
 jest.mock('framer-motion', () => {
   const React = require('react');

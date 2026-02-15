@@ -16,12 +16,10 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
   // NOTE: 'unsafe-inline' required by style jsx (stages, academies pages)
-  // NOTE: 'unsafe-eval' required by GSAP ScrollTrigger on homepage
   // TODO: Migrate to CSS modules/Tailwind to remove unsafe-inline
-  // TODO: Migrate to CSS animations/Intersection Observer to remove unsafe-eval
   response.headers.set('Content-Security-Policy', [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https:",
     "font-src 'self' data: https://fonts.gstatic.com",

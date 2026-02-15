@@ -1,91 +1,12 @@
 "use client";
 
-import React, { useLayoutEffect, useRef } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Sparkles, Cpu, Blocks, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const HeroSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const visualRef = useRef<HTMLDivElement>(null);
-    const badgesRef = useRef<HTMLDivElement>(null);
-
-    useLayoutEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const ctx = gsap.context(() => {
-            const content = contentRef.current;
-            const visual = visualRef.current;
-
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Initial Animation
-                const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-                tl.fromTo(visual,
-                    { scale: 1.1, opacity: 0 },
-                    { scale: 1, opacity: 1, duration: 1.5 }
-                )
-                    .fromTo('.animate-item',
-                        { y: 30, opacity: 0 },
-                        { y: 0, opacity: 1, stagger: 0.1, duration: 0.8 },
-                        '-=1'
-                    )
-                    .fromTo('.badge-item',
-                        { scale: 0, opacity: 0 },
-                        { scale: 1, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'back.out(1.7)' },
-                        '-=0.5'
-                    );
-
-                // Scroll Trigger Pinning & Exit
-                const scrollTl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top top',
-                        end: '+=130%',
-                        pin: true,
-                        scrub: 0.7,
-                    }
-                });
-
-                scrollTl
-                    .fromTo(content,
-                        { y: 0, opacity: 1 },
-                        { y: '-12vh', opacity: 0, ease: 'power2.in' },
-                        0.7
-                    )
-                    .fromTo(visual,
-                        { scale: 1, opacity: 1 },
-                        { scale: 1.05, opacity: 0.4, ease: 'power2.in' },
-                        0.7
-                    )
-                    .fromTo('.badge-item',
-                        { y: 0, opacity: 1 },
-                        { y: '8vh', opacity: 0, stagger: 0.02, ease: 'power2.in' },
-                        0.7
-                    );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                // Instant visibility for reduced motion
-                gsap.set(visual, { opacity: 1, scale: 1 });
-                gsap.set('.animate-item', { opacity: 1, y: 0 });
-                gsap.set('.badge-item', { opacity: 1, scale: 1 });
-                gsap.set(content, { opacity: 1, y: 0 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
 
     const authorityBadges = [
         { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
@@ -110,15 +31,13 @@ const HeroSectionGSAP = () => {
 
     return (
         <section
-            ref={sectionRef}
             id="hero"
-            className="section-pinned bg-surface-darker flex items-center justify-center overflow-hidden h-screen w-full relative"
+            className="bg-surface-darker flex items-center justify-center overflow-hidden h-screen w-full relative"
             style={{ zIndex: 10 }}
         >
             {/* Background Visual */}
             <div
-                ref={visualRef}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0 z-0 hero-bg-animate"
             >
                 <Image
                     src="/images/hero_precision.jpg"
@@ -147,9 +66,9 @@ const HeroSectionGSAP = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full max-w-7xl mx-auto">
 
                     {/* Left - Text Content */}
-                    <div ref={contentRef} className="flex flex-col justify-center">
+                    <div className="flex flex-col justify-center">
                         {/* Premium Badge */}
-                        <div className="animate-item inline-flex items-center gap-2 px-4 py-2 rounded-full
+                        <div className="hero-animate-in hero-stagger-1 inline-flex items-center gap-2 px-4 py-2 rounded-full
                             bg-white/5 border border-white/10 w-fit mb-6 backdrop-blur-sm">
                             <Sparkles className="w-4 h-4 text-brand-primary" aria-hidden="true" />
                             <span className="font-mono text-xs uppercase tracking-[0.16em] text-neutral-400">
@@ -158,7 +77,7 @@ const HeroSectionGSAP = () => {
                         </div>
 
                         {/* Headline */}
-                        <h1 className="animate-item font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05]">
+                        <h1 className="hero-animate-in hero-stagger-2 font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05]">
                             La{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary">
                                 réussite au Bac
@@ -167,14 +86,14 @@ const HeroSectionGSAP = () => {
                         </h1>
 
                         {/* Value Proposition */}
-                        <p className="animate-item text-neutral-300/90 mt-6 text-lg leading-relaxed max-w-xl">
+                        <p className="hero-animate-in hero-stagger-3 text-neutral-300/90 mt-6 text-lg leading-relaxed max-w-xl">
                             Coachs agrégés et certifiés, IA ARIA 24/7 et suivi parent clair :
                             Nexus Réussite transforme le potentiel de votre enfant
                             en résultats visibles.
                         </p>
 
                         {/* CTAs */}
-                        <div className="animate-item flex flex-wrap items-center gap-4 mt-8">
+                        <div className="hero-animate-in hero-stagger-4 flex flex-wrap items-center gap-4 mt-8">
                             <Button
                                 asChild
                                 size="lg"
@@ -201,7 +120,6 @@ const HeroSectionGSAP = () => {
                     {/* Right - Authority Indicators */}
                     <div className="hidden lg:flex items-center justify-center">
                         <div
-                            ref={badgesRef}
                             className="relative"
                         >
                             {/* Central Hub */}
@@ -221,7 +139,7 @@ const HeroSectionGSAP = () => {
                                 return (
                                     <div
                                         key={index}
-                                        className="badge-item absolute w-24 h-24 -ml-12 -mt-12"
+                                        className={`hero-badge-animate hero-badge-stagger-${index + 1} absolute w-24 h-24 -ml-12 -mt-12`}
                                         style={{
                                             left: formatOffset(position.x),
                                             top: formatOffset(position.y),

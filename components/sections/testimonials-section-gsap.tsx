@@ -1,67 +1,12 @@
 "use client";
 
-import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Star, Quote, ArrowRight, User } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const TestimonialsSectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const [isCompact, setIsCompact] = useState(false);
-
-    useLayoutEffect(() => {
-        if (isCompact) return;
-        const section = sectionRef.current;
-        const scrollContainer = scrollContainerRef.current;
-
-        if (!section || !scrollContainer) return;
-
-        const ctx = gsap.context(() => {
-            // Horizontal Scroll Animation
-            const totalWidth = scrollContainer.scrollWidth;
-            const viewportWidth = window.innerWidth;
-
-            gsap.to(scrollContainer, {
-                x: () => -(totalWidth - viewportWidth),
-                ease: "none",
-                scrollTrigger: {
-                    trigger: section,
-                    pin: true,
-                    scrub: 1,
-                    end: () => "+=" + totalWidth,
-                    invalidateOnRefresh: true,
-                }
-            });
-
-            // Background Parallax
-            gsap.to('.bg-parallax', {
-                yPercent: 20,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: section,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: true
-                }
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, [isCompact]);
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(max-width: 1024px)');
-        setIsCompact(mediaQuery.matches);
-
-        const handler = (event: MediaQueryListEvent) => setIsCompact(event.matches);
-        mediaQuery.addEventListener('change', handler);
-        return () => mediaQuery.removeEventListener('change', handler);
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 100 });
 
     const testimonials = [
         {
@@ -120,17 +65,17 @@ const TestimonialsSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="testimonials"
-            className={`relative bg-surface-darker overflow-hidden flex flex-col justify-center ${isCompact ? 'py-16' : 'h-screen'}`}
+            className="relative bg-surface-darker overflow-hidden py-24"
         >
 
             {/* Dynamic Background */}
-            <div className="bg-parallax absolute inset-0 opacity-30 pointer-events-none">
+            <div className="absolute inset-0 opacity-30 pointer-events-none">
                 <div className="absolute top-[10%] left-[20%] w-[30vw] h-[30vw] rounded-full bg-blue-600/10 blur-[100px]" />
                 <div className="absolute bottom-[10%] right-[20%] w-[30vw] h-[30vw] rounded-full bg-cyan-600/10 blur-[100px]" />
             </div>
 
             {/* Header */}
-            <div className="absolute top-12 left-0 w-full px-6 md:px-12 z-10">
+            <div data-reveal="up" className="relative z-10 px-6 md:px-12 mb-12">
                 <div className="max-w-7xl mx-auto flex items-end justify-between">
                     <div>
                         <span className="font-mono text-xs text-brand-accent uppercase tracking-widest mb-2 block">
@@ -146,14 +91,14 @@ const TestimonialsSectionGSAP = () => {
                 </div>
             </div>
 
-            {/* Horizontal Scroll Container */}
+            {/* Horizontal Scroll Container — native CSS scroll */}
             <div
-                ref={scrollContainerRef}
-                className={`flex items-center gap-8 w-fit ${isCompact ? 'px-6 overflow-x-auto snap-x snap-mandatory' : 'pl-[6vw] pr-[20vw]'}`}
+                className="relative z-10 flex items-stretch gap-8 px-6 md:pl-[6vw] md:pr-[6vw] overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+                style={{ scrollbarWidth: 'none' }}
             >
 
                 {/* Intro Card */}
-                <div className={`shrink-0 ${isCompact ? 'w-[70vw] snap-center' : 'w-[30vw] md:w-[20vw]'}`}>
+                <div data-reveal="fade" className="shrink-0 w-[70vw] md:w-[20vw] snap-center flex flex-col justify-center">
                     <Quote className="w-16 h-16 text-nexus-gray/20 mb-6" />
                     <p className="text-xl text-gray-400 font-light leading-relaxed">
                         Des parents rassurés, des élèves confiants, et des résultats visibles.
@@ -164,7 +109,8 @@ const TestimonialsSectionGSAP = () => {
                 {testimonials.map((item) => (
                     <div
                         key={item.id}
-                        className={`shrink-0 p-8 rounded-3xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-md relative group hover:scale-[1.02] transition-transform duration-500 hover:shadow-premium ${isCompact ? 'w-[80vw] snap-center' : 'w-[85vw] md:w-[35vw]'}`}
+                        data-reveal="scale"
+                        className={`shrink-0 w-[80vw] md:w-[35vw] snap-center p-8 rounded-3xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-md relative group hover:scale-[1.02] transition-transform duration-500 hover:shadow-premium`}
                     >
                         {/* Stars */}
                         <div className="flex gap-1 mb-6">
@@ -175,7 +121,7 @@ const TestimonialsSectionGSAP = () => {
 
                         {/* Content */}
                         <p className="text-lg md:text-xl text-white leading-relaxed mb-8 italic">
-                            "{item.content}"
+                            &ldquo;{item.content}&rdquo;
                         </p>
 
                         {/* Footer */}
@@ -202,7 +148,7 @@ const TestimonialsSectionGSAP = () => {
                 ))}
 
                 {/* Call to Action Card */}
-                <div className={`shrink-0 h-full flex items-center justify-center ${isCompact ? 'w-[80vw] snap-center' : 'w-[85vw] md:w-[25vw]'}`}>
+                <div className="shrink-0 w-[80vw] md:w-[25vw] snap-center flex items-center justify-center">
                     <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 w-full text-center block">
                         <span className="block font-display text-3xl font-bold text-white mb-4">
                             Démarrer un bilan gratuit
