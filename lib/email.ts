@@ -161,6 +161,82 @@ export async function sendCreditExpirationReminder(
   }
 }
 
+// ─── Password Reset Email ────────────────────────────────────────────────────
+
+/**
+ * Send a password reset email with a signed token link.
+ */
+export async function sendPasswordResetEmail(
+  email: string,
+  firstName: string,
+  resetUrl: string
+) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    to: email,
+    subject: '🔐 Réinitialisation de votre mot de passe — Nexus Réussite',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #2563EB, #7C3AED); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Réinitialisation du mot de passe</h1>
+        </div>
+
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2>Bonjour ${firstName},</h2>
+
+          <p>Vous avez demandé la réinitialisation de votre mot de passe sur Nexus Réussite.</p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563EB;">
+            <p>Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}"
+               style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+              Réinitialiser mon mot de passe
+            </a>
+          </div>
+
+          <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #92400e;">
+              ⏰ Ce lien expire dans <strong>1 heure</strong>.<br>
+              🔒 Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+            </p>
+          </div>
+
+          <p style="color: #6b7280; font-size: 13px; margin-top: 24px;">
+            Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br>
+            <a href="${resetUrl}" style="color: #2563EB; word-break: break-all;">${resetUrl}</a>
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+
+          <p>Une question ? Contactez-nous :</p>
+          <ul>
+            <li>📞 +216 99 19 28 29</li>
+            <li>📧 contact@nexusreussite.academy</li>
+          </ul>
+
+          <p>Cordialement,<br><strong>L'équipe Nexus Réussite</strong></p>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    const transporter = createTransporter();
+    await transporter.sendMail(mailOptions);
+    console.log('[Password Reset] Email envoyé à:', email.replace(/(?<=.{2}).*(?=@)/, '***'));
+  } catch (error) {
+    console.error('[Password Reset] Erreur envoi email:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Password Reset] Email non envoyé en mode développement');
+      return;
+    }
+    throw error;
+  }
+}
+
 // ─── Stage Février 2026 Email Templates ──────────────────────────────────────
 
 /**

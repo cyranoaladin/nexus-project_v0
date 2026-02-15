@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       specialties = [];
     }
 
-    // Recent students (last 30 days), fetch Student model for credit balance
+    // Recent students (last 30 days) — single query with includes to avoid N+1
     const recentBookings = await prisma.sessionBooking.findMany({
       where: {
         coachId: coachUserId,
@@ -138,31 +138,46 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { scheduledDate: 'desc' },
       distinct: ['studentId'],
-      select: { studentId: true, subject: true, scheduledDate: true }
+      select: {
+        studentId: true,
+        subject: true,
+        scheduledDate: true,
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            studentProfile: { select: { grade: true } }
+          }
+        }
+      }
     });
 
-    const students: Array<{ id: string; name: string; grade: string | null; subject: string; lastSession: Date; creditBalance: number; isNew: boolean; }> = [];
+    // Batch fetch credit balances for all student IDs in one query
+    const studentUserIds = recentBookings.map(rb => rb.studentId);
+    const studentEntities = await prisma.student.findMany({
+      where: { userId: { in: studentUserIds } },
+      include: { creditTransactions: { select: { amount: true } } }
+    });
+    const creditMap = new Map(
+      studentEntities.map(se => [
+        se.userId,
+        { id: se.id, grade: se.grade, balance: se.creditTransactions.reduce((t, tr) => t + tr.amount, 0) }
+      ])
+    );
 
-    for (const rb of recentBookings) {
-      const studentUser = await prisma.user.findUnique({ where: { id: rb.studentId } });
-      // Find Student entity to compute credits and grade
-      const studentEntity = await prisma.student.findFirst({
-        where: { userId: rb.studentId },
-        include: { creditTransactions: true }
-      });
-
-      const creditBalance = studentEntity?.creditTransactions?.reduce((t, tr) => t + tr.amount, 0) ?? 0;
-
-      students.push({
-        id: studentEntity?.id ?? rb.studentId,
-        name: `${studentUser?.firstName ?? ''} ${studentUser?.lastName ?? ''}`.trim(),
-        grade: studentEntity?.grade ?? null,
+    const students = recentBookings.map(rb => {
+      const entity = creditMap.get(rb.studentId);
+      return {
+        id: entity?.id ?? rb.studentId,
+        name: `${rb.student?.firstName ?? ''} ${rb.student?.lastName ?? ''}`.trim(),
+        grade: entity?.grade ?? rb.student?.studentProfile?.grade ?? null,
         subject: rb.subject,
         lastSession: rb.scheduledDate,
-        creditBalance,
+        creditBalance: entity?.balance ?? 0,
         isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      });
-    }
+      };
+    });
 
     const dashboardData = {
       coach: {

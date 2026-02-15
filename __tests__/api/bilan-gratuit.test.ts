@@ -7,6 +7,16 @@ jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashed-password')
 }));
 
+// Mock rate limiting (always allow)
+jest.mock('../../lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null)
+}));
+
+// Mock cuid2
+jest.mock('@paralleldrive/cuid2', () => ({
+  createId: jest.fn().mockReturnValue('test-cuid-123')
+}));
+
 // Mock email service
 jest.mock('../../lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined)
@@ -63,7 +73,7 @@ describe('/api/bilan-gratuit', () => {
 
       const mockStudentUser = {
         id: 'student-123',
-        email: 'marie.dupont@nexus-student.local',
+        email: 'student-test-cuid-123@nexus-student.local',
         firstName: 'Marie',
         lastName: 'Dupont',
         role: 'ELEVE'

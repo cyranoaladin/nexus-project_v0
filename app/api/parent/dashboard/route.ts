@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
@@ -73,7 +75,15 @@ export async function GET() {
                     status: true,
                     modality: true,
                     type: true,
-                    coachId: true
+                    duration: true,
+                    coachId: true,
+                    coach: {
+                      select: {
+                        firstName: true,
+                        lastName: true,
+                        coachProfile: { select: { pseudonym: true } }
+                      }
+                    }
                   }
                 }
               }
@@ -104,14 +114,15 @@ export async function GET() {
       // Fetch coach names for sessions if needed, or use placeholder
       // For simplicity/performance in this fix, we map sessions directly
 
-      const mappedSessions = child.user.studentSessions.map(s => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedSessions = child.user.studentSessions.map((s: any) => ({
         id: s.id,
         subject: s.subject,
         scheduledAt: s.scheduledDate.toISOString(),
-        coachName: 'Coach',
-        type: s.type === 'INDIVIDUAL' ? 'COURS_ONLINE' : 'COURS_COLLECTIF', // Use generic types for now
+        coachName: s.coach?.coachProfile?.pseudonym ?? (`${s.coach?.firstName ?? ''} ${s.coach?.lastName ?? ''}`.trim() || 'Coach'),
+        type: s.type === 'INDIVIDUAL' ? 'COURS_ONLINE' : 'COURS_COLLECTIF',
         status: s.status,
-        duration: 60
+        duration: s.duration ?? 60
       }));
 
       const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;

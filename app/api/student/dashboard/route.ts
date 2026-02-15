@@ -30,8 +30,7 @@ export async function GET(request: NextRequest) {
           take: 1
         },
         creditTransactions: {
-          orderBy: { createdAt: 'desc' },
-          take: 10
+          orderBy: { createdAt: 'desc' }
         },
         sessions: {
           where: {

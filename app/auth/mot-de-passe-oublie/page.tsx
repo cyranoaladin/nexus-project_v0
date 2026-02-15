@@ -23,13 +23,22 @@ export default function MotDePasseOubliePage() {
     setError("");
 
     try {
-      // Simulation d'envoi d'email de réinitialisation
-      // TODO: Implémenter la logique réelle de reset password
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-      setIsSuccess(true);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsSuccess(true);
+      } else {
+        // Always show success to prevent email enumeration
+        setIsSuccess(true);
+      }
     } catch {
-      setError("Une erreur est survenue. Veuillez réessayer.");
+      setError("Une erreur réseau est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
     }
