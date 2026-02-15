@@ -14,6 +14,7 @@
   - `canWriteRemote`: vrai uniquement si l'écriture distante est autorisée.
   - `hydrationError`: bloque la sync si non null.
 - Le flux de sync est gardé: aucune requête d'upsert n'est envoyée tant que `isHydrated !== true` ou `canWriteRemote !== true`.
+- Invariant de sécurité: un timeout d'hydratation ne peut pas déclencher un upsert "vide", car `canWriteRemote` reste `false`.
 - Écriture distante:
   - chemin principal: `POST /api/programme/maths-1ere/progress` (authentifié, serveur, `SUPABASE_SERVICE_ROLE_KEY`).
   - fallback client direct Supabase (si nécessaire) pour robustesse.
@@ -23,6 +24,12 @@
   - flush critique via `navigator.sendBeacon()` puis fallback `fetch(..., { keepalive: true })` sur `beforeunload/pagehide/visibilitychange`.
 - Sécurité API:
   - middleware exige un token pour `/api/programme/maths-1ere/progress`.
+
+## Runbook incident (résumé)
+
+- Symptôme: bannière "Mode hors ligne" ou "Échec de sauvegarde".
+- Action: vérifier connectivité réseau, statut Supabase, et variables `NEXT_PUBLIC_SUPABASE_*` + `SUPABASE_SERVICE_ROLE_KEY`.
+- Comportement attendu: l'UI continue sans crash, les écritures distantes reprennent automatiquement au retour `online`.
 
 ## 3) MathJax et prévention du FOUC
 
