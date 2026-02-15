@@ -93,8 +93,6 @@ export default function CreditsManagement() {
       }
 
       const result = await response.json();
-      console.log('Credits added:', result);
-      
       // Reset form and close dialog
       setAddCreditsForm({
         amount: "",

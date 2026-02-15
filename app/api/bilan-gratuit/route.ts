@@ -29,6 +29,12 @@ export async function POST(request: NextRequest) {
       console.log('Received request body:', body);
     }
 
+    // Honeypot check — bots fill hidden fields, humans don't
+    if (body.website || body.url || body.honeypot) {
+      // Silently reject bot submissions with a fake success response
+      return NextResponse.json({ success: true, message: 'Inscription réussie !' });
+    }
+
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
 
