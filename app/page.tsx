@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { Toaster } from 'sonner';
 
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
@@ -19,21 +17,7 @@ import KorrigoProofSection from '@/components/sections/korrigo-section-gsap';
 import TestimonialsSectionGSAP from '@/components/sections/testimonials-section-gsap';
 import ContactSectionGSAP from '@/components/sections/contact-section-gsap';
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function HomePage() {
-  useEffect(() => {
-    ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
-    // Wait for all ScrollTriggers to be created
-    const timeout = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 500);
-
-    return () => {
-      clearTimeout(timeout);
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, []);
 
   return (
     <div className="relative bg-surface-darker min-h-screen font-sans selection:bg-brand-primary/30 selection:text-white">

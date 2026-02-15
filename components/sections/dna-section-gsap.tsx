@@ -1,43 +1,11 @@
 "use client";
 
-import React, { useRef, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { Check } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const DNASectionGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Simple fade in for values
-                gsap.fromTo('.dna-item',
-                    { opacity: 0, x: -20 },
-                    {
-                        scrollTrigger: {
-                            trigger: sectionRef.current,
-                            start: 'top 80%',
-                        },
-                        opacity: 1,
-                        x: 0,
-                        stagger: 0.1,
-                        duration: 0.8
-                    }
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                gsap.set('.dna-item', { opacity: 1, x: 0 });
-            });
-        }, sectionRef);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 100 });
 
     const values = [
         "Coachs agrégés et certifiés",
@@ -84,7 +52,7 @@ const DNASectionGSAP = () => {
 
                     <ul className="space-y-4">
                         {values.map((val, idx) => (
-                            <li key={idx} className="dna-item flex items-center gap-4 text-white font-medium">
+                            <li key={idx} data-reveal="left" className="flex items-center gap-4 text-white font-medium">
                                 <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
                                     <Check className="w-3 h-3 text-blue-400" />
                                 </div>

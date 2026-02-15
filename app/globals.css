@@ -656,7 +656,91 @@ body {
 
 @layer components {
 
-  /* GSAP-compatible card styles */
+  /* ─── Scroll Reveal Animations (replaces GSAP) ─── */
+
+  /* Base state: hidden before reveal */
+  [data-reveal] {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Reveal variants */
+  [data-reveal="up"] {
+    transform: translateY(40px);
+  }
+  [data-reveal="down"] {
+    transform: translateY(-40px);
+  }
+  [data-reveal="left"] {
+    transform: translateX(-30px);
+  }
+  [data-reveal="right"] {
+    transform: translateX(30px);
+  }
+  [data-reveal="scale"] {
+    transform: scale(0.9);
+  }
+  [data-reveal="fade"] {
+    transform: none;
+  }
+
+  /* Revealed state */
+  [data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+
+  /* Hero entrance animation (plays on load, not on scroll) */
+  @keyframes hero-fade-in {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hero-scale-in {
+    from { opacity: 0; transform: scale(1.1); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes hero-badge-pop {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .hero-animate-in {
+    animation: hero-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-bg-animate {
+    animation: hero-scale-in 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-badge-animate {
+    animation: hero-badge-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Stagger delays for hero items */
+  .hero-stagger-1 { animation-delay: 0.1s; }
+  .hero-stagger-2 { animation-delay: 0.2s; }
+  .hero-stagger-3 { animation-delay: 0.3s; }
+  .hero-stagger-4 { animation-delay: 0.4s; }
+  .hero-badge-stagger-1 { animation-delay: 0.5s; }
+  .hero-badge-stagger-2 { animation-delay: 0.6s; }
+  .hero-badge-stagger-3 { animation-delay: 0.7s; }
+
+  /* Prefers reduced motion: instant visibility */
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .hero-animate-in,
+    .hero-bg-animate,
+    .hero-badge-animate {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Card styles */
   .card-dark {
     @apply bg-surface-card border border-white/[0.08] rounded-[18px];
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
