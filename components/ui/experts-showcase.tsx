@@ -19,10 +19,10 @@ interface Expert {
 const experts: Expert[] = [
   {
     pseudonyme: "Axiom",
-    titre: "Mentor Agrégé en Mathématiques",
+    titre: "Mentor Agrégés et Certifiés en Mathématiques",
     citation: "La véritable élégance mathématique ne réside pas dans la complexité des calculs, mais dans la pureté du raisonnement. Je vous apprends à construire cette élégance.",
     competences: [
-      "Professeur Agrégé de Mathématiques",
+      "Professeur Agrégés et Certifiés de Mathématiques",
       "Spécialiste de l'algèbre abstraite",
       "+20 ans d'expérience en classes préparatoires"
     ],

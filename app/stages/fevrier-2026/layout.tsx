@@ -3,7 +3,7 @@ import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI) | Nexus Réussite',
-  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 6 élèves max. Enseignants agrégés et certifiés. Centre Urbain Nord, Tunis.',
+  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 6 élèves max. Enseignants Agrégés et Certifiés. Centre Urbain Nord, Tunis.',
   keywords: [
     'stage février 2026',
     'stage maths terminale',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI)',
-    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 6 élèves max, enseignants agrégés et certifiés.',
+    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 6 élèves max, enseignants Agrégés et Certifiés.',
     type: 'website',
     locale: 'fr_TN',
     url: 'https://nexusreussite.tn/stages/fevrier-2026',
@@ -43,7 +43,7 @@ export default function StagesFevrier2026Layout({
   return (
     <>
       {children}
-      
+
       {/* JSON-LD Schemas */}
       <Script
         id="schema-event"
@@ -166,7 +166,7 @@ export default function StagesFevrier2026Layout({
                 name: "Qui encadre les stages ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: "Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé.",
+                  text: "Enseignants experts : professeurs Agrégés et Certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé.",
                 },
               },
               {

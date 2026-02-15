@@ -21,7 +21,7 @@ const ACADEMIES = [
     audience: "Terminale EDS Maths • Première & Terminale",
     duration: "24h (20h Maths + 4h Python)",
     group: "6 élèves max",
-    expert: "Professeur Agrégé",
+    expert: "Agrégés et Certifiés",
     category: ["terminale", "maths", "essentielle", "budget", "pallier1"],
     description: "Consolider les fondamentaux, corriger les erreurs récurrentes et acquérir des méthodes fiables pour l'écrit.",
     features: [
@@ -44,7 +44,7 @@ const ACADEMIES = [
     audience: "Terminale Maths Expertes • Objectif Prépa",
     duration: "32h",
     group: "6 élèves max",
-    expert: "Agrégé & Jury Concours",
+    expert: "Agrégés et Certifiés & Jury Concours",
     category: ["terminale", "maths", "premium", "pallier2"],
     description: "Approfondir les notions fines, travailler le raisonnement avancé et préparer les concours d'excellence.",
     features: [
@@ -115,7 +115,7 @@ const ACADEMIES = [
     audience: "Première • Objectif Maths Expertes",
     duration: "30h",
     group: "6 élèves max",
-    expert: "Agrégé de Mathématiques",
+    expert: "Agrégés et Certifiés de Mathématiques",
     category: ["premiere", "maths", "premium", "pallier2"],
     description: "Approfondir les notions, anticiper le programme de Terminale et développer un raisonnement avancé.",
     features: [
@@ -542,17 +542,17 @@ export default function AcademiesHiverPage() {
                     </div>
                   </div>
                   <div className="mt-6 pt-5 border-t border-white/10"><div className="font-bold text-white text-sm uppercase tracking-wider mb-3">NSI</div>
-                  <ul className="mt-2 space-y-2">
-                    {MATERIALS.nsi.map((item) => (
-                      <li key={item} className="text-sm text-blue-200/80 flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span>{item}</li>
-                    ))}
-                  </ul>
+                    <ul className="mt-2 space-y-2">
+                      {MATERIALS.nsi.map((item) => (
+                        <li key={item} className="text-sm text-blue-200/80 flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span>{item}</li>
+                      ))}
+                    </ul>
                   </div>
 
                   <div className="mt-6 pt-5 border-t border-white/10 space-y-3">
                     {[
                       "Groupes de niveau (6-8 élèves)",
-                      "Professeurs agrégés et certifiés & jurys du Bac",
+                      "Professeurs Agrégés et Certifiés & jurys du Bac",
                       "Suivi personnalisé post-stage",
                     ].map((item) => (
                       <div key={item} className="flex items-center gap-3 text-sm text-white font-medium">
@@ -981,7 +981,7 @@ export default function AcademiesHiverPage() {
                         </span>
                       </button>
                       <p className="text-center text-[10px] text-slate-400 italic">
-                        Pédagogie différenciée garantie par nos professeurs agrégés et certifiés.
+                        Pédagogie différenciée garantie par nos professeurs Agrégés et Certifiés.
                       </p>
 
                       <button
@@ -1136,7 +1136,7 @@ export default function AcademiesHiverPage() {
                 <ul className="mt-10 space-y-5 text-sm font-bold text-slate-200 relative z-10">
                   <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Pour la Mention Très Bien</li>
                   <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Prépa Concours / Post-Bac</li>
-                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Professeurs Agrégés</li>
+                  <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Professeurs Agrégés et Certifiés</li>
                   <li className="flex gap-4 items-center"><Star className="w-5 h-5 text-brand-secondary fill-current" /> Groupe Élite (6 max)</li>
                 </ul>
 
