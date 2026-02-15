@@ -1,0 +1,302 @@
+{
+  "programmeKey": "nsi_terminale",
+  "generatedAt": "2026-02-15T20:18:52.289Z",
+  "schemaVersion": "v1.3",
+  "sections": [
+    {
+      "rawTitle": "Structures de données",
+      "normalizedTitle": "Structures de Données",
+      "domainId": "data_structures",
+      "candidates": [
+        {
+          "rawLabel": "Types de base & construits",
+          "normalizedLabel": "Types de base & construits",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Types de base & construits"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Tables de vérité / Booléens",
+          "normalizedLabel": "Tables de vérité / Booléens",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Tables de vérité / Booléens"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Représentation binaire/héxa",
+          "normalizedLabel": "Représentation binaire/héxa",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Représentation binaire/héxa"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Traitement de données (CSV)",
+          "normalizedLabel": "Traitement de données (CSV)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Traitement de données (CSV)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Arbres binaires",
+          "normalizedLabel": "Arbres binaires",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Arbres binaires"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Graphes (DFS/BFS)",
+          "normalizedLabel": "Graphes (DFS/BFS)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Graphes (DFS/BFS)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Piles & Files",
+          "normalizedLabel": "Piles & Files",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Structures de données — Piles & Files"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Algorithmique avancée",
+      "normalizedTitle": "Algo Avancée",
+      "domainId": "algorithmic_advanced",
+      "candidates": [
+        {
+          "rawLabel": "Complexité algorithmique",
+          "normalizedLabel": "Complexité algorithmique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — Complexité algorithmique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Algorithmes de tri",
+          "normalizedLabel": "Algorithmes de tri",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — Algorithmes de tri"
+            }
+          ]
+        },
+        {
+          "rawLabel": "k-plus proches voisins",
+          "normalizedLabel": "k-plus proches voisins",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — k-plus proches voisins"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Algorithmes gloutons",
+          "normalizedLabel": "Algorithmes gloutons",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — Algorithmes gloutons"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Diviser pour régner",
+          "normalizedLabel": "Diviser pour régner",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — Diviser pour régner"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Programmation dynamique",
+          "normalizedLabel": "Programmation dynamique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique avancée — Programmation dynamique"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Bases de données",
+      "normalizedTitle": "Bases de Données",
+      "domainId": "databases",
+      "candidates": [
+        {
+          "rawLabel": "Bases de données SQL",
+          "normalizedLabel": "Bases de données SQL",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Bases de données — Bases de données SQL"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Requêtes JOIN",
+          "normalizedLabel": "Requêtes JOIN",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Bases de données — Requêtes JOIN"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Modèle relationnel",
+          "normalizedLabel": "Modèle relationnel",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Bases de données — Modèle relationnel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Architectures et réseaux",
+      "normalizedTitle": "Archi & Réseaux",
+      "domainId": "networks",
+      "candidates": [
+        {
+          "rawLabel": "Architecture Von Neumann",
+          "normalizedLabel": "Architecture Von Neumann",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures et réseaux — Architecture Von Neumann"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Processus & OS",
+          "normalizedLabel": "Processus & OS",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures et réseaux — Processus & OS"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Protocoles réseau (TCP/IP)",
+          "normalizedLabel": "Protocoles réseau (TCP/IP)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures et réseaux — Protocoles réseau (TCP/IP)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Routage & IHM Web",
+          "normalizedLabel": "Routage & IHM Web",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures et réseaux — Routage & IHM Web"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Sécurité informatique",
+          "normalizedLabel": "Sécurité informatique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures et réseaux — Sécurité informatique"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Langages et programmation",
+      "normalizedTitle": "POO & Projets",
+      "domainId": "python_advanced",
+      "candidates": [
+        {
+          "rawLabel": "Fonctions & Spécifications",
+          "normalizedLabel": "Fonctions & Spécifications",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Fonctions & Spécifications"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Tests & Assertions",
+          "normalizedLabel": "Tests & Assertions",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Tests & Assertions"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Modules & Bibliothèques",
+          "normalizedLabel": "Modules & Bibliothèques",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Modules & Bibliothèques"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Récursivité (Intro)",
+          "normalizedLabel": "Récursivité (Intro)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Récursivité (Intro)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Programmation Orientée Objet",
+          "normalizedLabel": "Programmation Orientée Objet",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Programmation Orientée Objet"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

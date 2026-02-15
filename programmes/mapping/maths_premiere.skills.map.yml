@@ -1,0 +1,146 @@
+# Mapping YAML — Maths Première EDS
+# Source de vérité pour les IDs stables et la structure des domaines.
+# schemaVersion doit correspondre au generated JSON.
+
+programmeKey: maths_premiere
+definitionKey: maths-premiere-p2
+schemaVersion: v1.3
+label: "Diagnostic Pré-Stage Maths — Première Spécialité"
+discipline: maths
+level: premiere
+
+domains:
+  - domainId: algebra
+    domainLabel: "Algèbre & Suites"
+    weight: 0.22
+    skills:
+      - skillId: ALG_SUITE_ARITH
+        label: "Suites arithmétiques (u_n, somme)"
+        tags: ["programme", "premiere", "eds", "algebre", "suites"]
+      - skillId: ALG_SUITE_GEO
+        label: "Suites géométriques (u_n, somme)"
+        tags: ["programme", "premiere", "eds", "algebre", "suites"]
+      - skillId: ALG_SUITE_VARIATION
+        label: "Variation d'une suite"
+        tags: ["programme", "premiere", "eds", "algebre", "suites"]
+      - skillId: ALG_SUITE_CONV
+        label: "Convergence/divergence"
+        tags: ["programme", "premiere", "eds", "algebre", "suites"]
+      - skillId: ALG_MODEL_EXP
+        label: "Modélisation exponentielle"
+        tags: ["programme", "premiere", "eds", "algebre"]
+      - skillId: ALG_QUADRATIC_EQ
+        label: "Second degré (équations)"
+        tags: ["programme", "premiere", "eds", "algebre", "second-degre"]
+      - skillId: ALG_QUADRATIC_CANON
+        label: "Forme canonique"
+        tags: ["programme", "premiere", "eds", "algebre", "second-degre"]
+      - skillId: ALG_FACTORIZATION
+        label: "Factorisations stratégiques"
+        tags: ["programme", "premiere", "eds", "algebre"]
+
+  - domainId: analysis
+    domainLabel: "Analyse & Dérivation"
+    weight: 0.22
+    skills:
+      - skillId: ANA_DERIV_DEF
+        label: "Nombre dérivé (sens + calcul)"
+        tags: ["programme", "premiere", "eds", "analyse", "derivation"]
+      - skillId: ANA_DERIV_RULES
+        label: "Règles de dérivation"
+        tags: ["programme", "premiere", "eds", "analyse", "derivation"]
+      - skillId: ANA_DERIV_CHAIN
+        label: "Dérivation composées"
+        tags: ["programme", "premiere", "eds", "analyse", "derivation"]
+      - skillId: ANA_VARIATIONS
+        label: "Tableau de variations"
+        tags: ["programme", "premiere", "eds", "analyse"]
+      - skillId: ANA_OPTIMIZATION
+        label: "Extremum/optimisation"
+        tags: ["programme", "premiere", "eds", "analyse"]
+      - skillId: ANA_EXP
+        label: "Exponentielle"
+        tags: ["programme", "premiere", "eds", "analyse"]
+      - skillId: ANA_TRIG
+        label: "Trigonométrie"
+        tags: ["programme", "premiere", "eds", "analyse"]
+
+  - domainId: geometry
+    domainLabel: "Géométrie"
+    weight: 0.18
+    skills:
+      - skillId: GEO_DOT_PRODUCT
+        label: "Produit scalaire"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_AL_KASHI
+        label: "Al-Kashi"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_MEDIAN_FORMULA
+        label: "Formule de la médiane"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_ORTHOGONALITY
+        label: "Orthogonalité"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_LINE_EQUATION
+        label: "Équation de droite"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_CIRCLE_EQUATION
+        label: "Équation de cercle"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_PROJECTION
+        label: "Projeté orthogonal"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+      - skillId: GEO_DISTANCE_POINT_LINE
+        label: "Distance point-droite"
+        tags: ["programme", "premiere", "eds", "geometrie"]
+
+  - domainId: prob_stats
+    domainLabel: "Probabilités & statistiques"
+    weight: 0.18
+    skills:
+      - skillId: PROB_CONDITIONAL
+        label: "Conditionnelles P_A(B)"
+        tags: ["programme", "premiere", "eds", "probabilites"]
+      - skillId: PROB_INDEPENDENCE
+        label: "Indépendance"
+        tags: ["programme", "premiere", "eds", "probabilites"]
+      - skillId: PROB_TREE
+        label: "Arbre pondéré"
+        tags: ["programme", "premiere", "eds", "probabilites"]
+      - skillId: PROB_TOTAL
+        label: "Probabilités totales"
+        tags: ["programme", "premiere", "eds", "probabilites"]
+      - skillId: PROB_RANDOM_VAR
+        label: "Variable aléatoire/espérance"
+        tags: ["programme", "premiere", "eds", "probabilites"]
+
+  - domainId: algo_prog
+    domainLabel: "Algorithmique & programmation"
+    weight: 0.10
+    skills:
+      - skillId: PY_FUNC
+        label: "Fonctions Python"
+        tags: ["programme", "premiere", "eds", "python"]
+      - skillId: PY_LOOPS
+        label: "Boucles for/while"
+        tags: ["programme", "premiere", "eds", "python"]
+      - skillId: PY_LISTS
+        label: "Listes"
+        tags: ["programme", "premiere", "eds", "python"]
+      - skillId: PY_SEQ_SIM
+        label: "Suites algorithmique"
+        tags: ["programme", "premiere", "eds", "python"]
+      - skillId: PY_MONTE_CARLO
+        label: "Simulation Monte-Carlo"
+        tags: ["programme", "premiere", "eds", "python"]
+
+  - domainId: logic_sets
+    domainLabel: "Logique & ensembles"
+    weight: 0.10
+    skills:
+      - skillId: LOG_RAISONNEMENT
+        label: "Raisonnement par l'absurde / contraposée"
+        tags: ["programme", "premiere", "eds", "logique"]
+      - skillId: LOG_ENSEMBLES
+        label: "Vocabulaire ensembliste"
+        tags: ["programme", "premiere", "eds", "logique"]
