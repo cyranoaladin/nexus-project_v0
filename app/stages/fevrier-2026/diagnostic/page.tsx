@@ -18,7 +18,38 @@ function DiagnosticContent() {
   const reservationId = searchParams.get('rid') || undefined;
 
   const [email, setEmail] = useState(emailParam);
-  const [started, setStarted] = useState(!!emailParam);
+  const [started, setStarted] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState('');
+
+  // Auto-verify if email param is present
+  React.useEffect(() => {
+    if (emailParam) {
+      verifyEmail(emailParam);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function verifyEmail(emailToVerify: string) {
+    setVerifying(true);
+    setError('');
+    try {
+      const res = await fetch('/api/reservation/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailToVerify.trim() }),
+      });
+      const data = await res.json();
+      if (data.exists) {
+        setStarted(true);
+      } else {
+        setError('Aucune réservation trouvée avec cet email. Vérifie que tu utilises l\'email d\'inscription.');
+      }
+    } catch {
+      setError('Erreur de vérification. Réessaie dans quelques instants.');
+    } finally {
+      setVerifying(false);
+    }
+  }
 
   if (!started) {
     return (
@@ -35,22 +66,32 @@ function DiagnosticContent() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (email.trim()) setStarted(true);
+                if (email.trim()) verifyEmail(email);
               }}
             >
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 placeholder="ton.email@exemple.com"
                 required
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none mb-4"
               />
+              {error && (
+                <p className="text-red-600 text-xs mb-3">{error}</p>
+              )}
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all"
+                disabled={verifying}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50"
               >
-                Accéder au diagnostic
+                {verifying ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Vérification...
+                  </span>
+                ) : (
+                  'Accéder au diagnostic'
+                )}
               </button>
             </form>
           </div>

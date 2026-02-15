@@ -108,19 +108,29 @@ function BilanGratuitForm() {
 
   const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[\d\s+()-]{8,20}$/;
 
     if (step === 1) {
       if (!formData.parentFirstName) newErrors.parentFirstName = 'Prénom requis';
+      else if (formData.parentFirstName.length < 2) newErrors.parentFirstName = 'Prénom trop court (min 2 caractères)';
       if (!formData.parentLastName) newErrors.parentLastName = 'Nom requis';
+      else if (formData.parentLastName.length < 2) newErrors.parentLastName = 'Nom trop court (min 2 caractères)';
       if (!formData.parentEmail) newErrors.parentEmail = 'Email requis';
+      else if (!emailRegex.test(formData.parentEmail)) newErrors.parentEmail = 'Format email invalide';
       if (!formData.parentPhone) newErrors.parentPhone = 'Téléphone requis';
+      else if (!phoneRegex.test(formData.parentPhone)) newErrors.parentPhone = 'Format téléphone invalide';
       if (!formData.parentPassword) newErrors.parentPassword = 'Mot de passe requis';
+      else if (formData.parentPassword.length < 8) newErrors.parentPassword = 'Mot de passe trop court (min 8 caractères)';
     } else {
       if (!formData.studentFirstName) newErrors.studentFirstName = 'Prénom de l\'élève requis';
+      else if (formData.studentFirstName.length < 2) newErrors.studentFirstName = 'Prénom trop court (min 2 caractères)';
       if (!formData.studentLastName) newErrors.studentLastName = 'Nom de l\'élève requis';
+      else if (formData.studentLastName.length < 2) newErrors.studentLastName = 'Nom trop court (min 2 caractères)';
       if (!formData.studentGrade) newErrors.studentGrade = 'Classe requise';
       if (!formData.currentLevel) newErrors.currentLevel = 'Niveau requis';
       if (!formData.objectives) newErrors.objectives = 'Objectifs requis';
+      else if (formData.objectives.length < 10) newErrors.objectives = 'Décrivez vos objectifs (min 10 caractères)';
       if (!formData.preferredModality) newErrors.preferredModality = 'Modalité requise';
     }
 
