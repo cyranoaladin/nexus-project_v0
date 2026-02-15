@@ -89,7 +89,7 @@ const HeroSectionGSAP = () => {
 
     const authorityBadges = [
         { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
-        { icon: GraduationCap, label: 'Agrégés', color: 'emerald' },
+        { icon: GraduationCap, label: 'Agrégés et Certifiés', color: 'emerald' },
         { icon: Blocks, label: '98% Réussite', color: 'purple' },
     ];
 
