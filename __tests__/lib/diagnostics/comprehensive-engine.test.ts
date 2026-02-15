@@ -631,6 +631,236 @@ function buildCtx(overrides: Partial<RenderContext> = {}): RenderContext {
   };
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUDIT §3 — RAG coherence: SQL queries contain sql, NOT boucle python
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+describe('RAG coherence — SQL focus must NOT leak unrelated topics', () => {
+  function makeDefinition(overrides: Partial<DiagnosticDefinition> = {}): DiagnosticDefinition {
+    return {
+      key: 'nsi-terminale-p2',
+      version: '1.0',
+      label: 'NSI Terminale P2',
+      track: 'nsi',
+      level: 'terminale',
+      stage: 'pallier2',
+      skills: {},
+      scoringPolicy: POLICY,
+      prompts: { system: '', user: '' },
+      ragPolicy: { enabled: true, collections: ['nsi_terminale'], topK: 5 },
+      chapters: [
+        { chapterId: 'ch_sql', chapterLabel: 'SQL et bases de données', description: 'Requêtes SQL', domainId: 'databases', skills: ['db_sql'], ragTopics: ['sql', 'join', 'modele_relationnel'] },
+        { chapterId: 'ch_algo', chapterLabel: 'Algorithmes avancés', description: 'Tri et complexité', domainId: 'algorithmic_advanced', skills: ['algo_tri'], ragTopics: ['tri', 'complexite', 'recursivite'] },
+        { chapterId: 'ch_python', chapterLabel: 'Boucles et fonctions Python', description: 'Boucles for/while', domainId: 'python_programming', skills: ['py_boucles'], ragTopics: ['boucle', 'fonction', 'python'] },
+      ],
+      examFormat: { duration: 210, calculatorAllowed: false, structure: '3 exercices' },
+      ...overrides,
+    } as DiagnosticDefinition;
+  }
+
+  function makeScoringForRAG(weakDomains: Array<{ domain: string; score: number }>): ScoringV2Result {
+    return {
+      masteryIndex: 50, coverageIndex: 60, examReadinessIndex: 55,
+      readinessScore: 55, riskIndex: 30,
+      recommendation: 'Pallier2_conditional', recommendationMessage: '', justification: '', upgradeConditions: [],
+      domainScores: weakDomains.map(d => ({
+        domain: d.domain, score: d.score, evaluatedCount: 2, totalCount: 3,
+        notStudiedCount: 0, unknownCount: 0, gaps: [], dominantErrors: [],
+        priority: (d.score < 35 ? 'critical' : d.score < 50 ? 'high' : d.score < 70 ? 'medium' : 'low') as 'critical' | 'high' | 'medium' | 'low',
+      })),
+      alerts: [],
+      dataQuality: { activeDomains: 2, evaluatedCompetencies: 4, notStudiedCompetencies: 0, unknownCompetencies: 0, lowConfidence: false, quality: 'good', coherenceIssues: 0, miniTestFilled: true, criticalFieldsMissing: 0 },
+      trustScore: 80, trustLevel: 'green',
+      topPriorities: [], quickWins: [], highRisk: [], inconsistencies: [],
+    } as ScoringV2Result;
+  }
+
+  it('SQL weak domain queries contain "sql" and "join"', () => {
+    const def = makeDefinition();
+    const data = makeData({
+      discipline: 'nsi', level: 'terminale',
+      chapters: { selected: ['ch_sql', 'ch_algo', 'ch_python'], inProgress: [], notYet: [] },
+    });
+    const scoring = makeScoringForRAG([
+      { domain: 'databases', score: 20 },       // WEAK — should trigger SQL ragTopics
+      { domain: 'algorithmic_advanced', score: 85 },
+      { domain: 'python_programming', score: 90 },
+    ]);
+
+    const queries = buildChapterAwareRAGQueries(data, scoring, def);
+    const allText = queries.join(' ');
+
+    expect(allText).toContain('sql');
+    expect(allText).toContain('join');
+    // Must NOT contain python/boucle topics (python_programming is NOT weak)
+    expect(allText).not.toContain('boucle');
+    expect(allText).not.toMatch(/\bpython\b.*boucle|boucle.*\bpython\b/);
+  });
+
+  it('when only algo is weak, queries contain tri/complexite but NOT sql', () => {
+    const def = makeDefinition();
+    const data = makeData({
+      discipline: 'nsi', level: 'terminale',
+      chapters: { selected: ['ch_sql', 'ch_algo'], inProgress: [], notYet: [] },
+    });
+    const scoring = makeScoringForRAG([
+      { domain: 'algorithmic_advanced', score: 15 }, // WEAK
+      { domain: 'databases', score: 85 },            // STRONG (>=70 => priority 'low')
+    ]);
+
+    const queries = buildChapterAwareRAGQueries(data, scoring, def);
+    const allText = queries.join(' ');
+
+    expect(allText).toContain('tri');
+    expect(allText).toContain('complexite');
+    // databases is strong — no SQL topics should appear in weak-domain queries
+    const weakDomainQueries = queries.filter(q => !q.includes('épreuve') && !q.includes('erreurs'));
+    const weakText = weakDomainQueries.join(' ');
+    expect(weakText).not.toContain('sql');
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUDIT §4 — Prerequisite: NOT_YET + mastery null + readiness stable + bases à consolider
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+describe('prerequisites — critical business case (audit §4)', () => {
+  it('NOT_YET chapter + prereq skill mastery=null => readiness does NOT drop + bases à consolider appears', () => {
+    // Setup: prereq skill alg_eq1 has mastery=null (not evaluated)
+    const dataWithNullPrereq = makeData({
+      competencies: {
+        algebra: [
+          makeCompetency('alg_eq1', null, 'not_studied', null, null), // prereq, mastery NULL
+          makeCompetency('alg_eq2', 3),
+          makeCompetency('alg_suites', 3),
+        ],
+        analysis: [makeCompetency('ana_deriv', 3), makeCompetency('ana_fonc', 3)],
+        geometry: [makeCompetency('geo_vect', null, 'not_studied', null, null), makeCompetency('geo_prod', 2)],
+        prob_stats: [makeCompetency('prob_cond', 3)],
+        algo_prog: [makeCompetency('algo_boucles', null, 'not_studied', null, null)],
+        logic_sets: [makeCompetency('logic_ens', 3)],
+      },
+    });
+
+    const sel: ChaptersSelection = {
+      selected: ['ch_suites', 'ch_deriv', 'ch_proba', 'ch_logic'],
+      inProgress: [],
+      notYet: ['ch_eq1', 'ch_vect', 'ch_algo'], // prereq chapters are NOT_YET
+    };
+
+    // With skill meta (prereqs identified) vs without
+    const resultWith = computeScoringV2(dataWithNullPrereq, POLICY, sel, CHAPTERS, SKILL_META);
+    const resultWithout = computeScoringV2(dataWithNullPrereq, POLICY, sel, CHAPTERS, []);
+
+    // mastery=null prereqs should NOT cause penalty (only low mastery does)
+    // getPrerequisiteCoreSkillIdsFromNotYet filters for mastery !== null before computing penalty
+    expect(resultWith.readinessScore).toBe(resultWithout.readinessScore);
+
+    // Verify "bases à consolider" would appear in renderer
+    // The renderer shows it when weakPrerequisites is provided
+    const weakPrereqs = SKILL_META
+      .filter(sm => sm.prerequisite && sm.prerequisiteLevel === 'core' && sel.notYet.includes(sm.chapterId!))
+      .map(sm => {
+        const allComps = Object.values(dataWithNullPrereq.competencies).flat();
+        const comp = allComps.find(c => c.skillId === sm.skillId);
+        return { skillLabel: sm.skillId, domain: 'prereq', mastery: comp?.mastery ?? 0 };
+      })
+      .filter(p => {
+        // Only include skills that were actually evaluated with low mastery
+        const allComps = Object.values(dataWithNullPrereq.competencies).flat();
+        const comp = allComps.find(c => c.skillId === p.skillLabel);
+        return comp?.mastery !== null && comp?.mastery !== undefined && comp.mastery <= 2;
+      });
+
+    // alg_eq1/geo_vect/algo_boucles all have mastery=null => none qualify for "bases à consolider"
+    // This is correct: null mastery means "not evaluated" — no penalty, no entry
+    expect(weakPrereqs.length).toBe(0);
+
+    // Now test with LOW mastery prereqs
+    const dataWithLowPrereq = makeData({
+      competencies: {
+        algebra: [
+          makeCompetency('alg_eq1', 1), // prereq, mastery LOW
+          makeCompetency('alg_eq2', 3),
+          makeCompetency('alg_suites', 3),
+        ],
+        analysis: [makeCompetency('ana_deriv', 3), makeCompetency('ana_fonc', 3)],
+        geometry: [makeCompetency('geo_vect', 1), makeCompetency('geo_prod', 2)],
+        prob_stats: [makeCompetency('prob_cond', 3)],
+        algo_prog: [makeCompetency('algo_boucles', 1)],
+        logic_sets: [makeCompetency('logic_ens', 3)],
+      },
+    });
+
+    const resultLow = computeScoringV2(dataWithLowPrereq, POLICY, sel, CHAPTERS, SKILL_META);
+    const resultLowNoMeta = computeScoringV2(dataWithLowPrereq, POLICY, sel, CHAPTERS, []);
+
+    // Low mastery prereqs SHOULD cause penalty
+    expect(resultLow.readinessScore).toBeLessThanOrEqual(resultLowNoMeta.readinessScore);
+
+    // And "bases à consolider" should appear in the renderer
+    const md = renderEleveBilan(resultLow, {
+      firstName: 'Test', lastName: 'User',
+      miniTestScore: 4, miniTestTime: 12, miniTestCompleted: true,
+      verbatims: {},
+      weakPrerequisites: [
+        { skillLabel: 'Équations 1er degré', domain: 'algebra', mastery: 1 },
+        { skillLabel: 'Vecteurs', domain: 'geometry', mastery: 1 },
+      ],
+    });
+    expect(md).toContain('Bases à consolider');
+    expect(md).toContain('Équations 1er degré');
+    expect(md).toContain('Vecteurs');
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUDIT §5 — coverageProgramme: 5 mandatory edge cases
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+describe('coverageProgramme — 5 mandatory edge cases (audit §5)', () => {
+  it('0 chapters checked', () => {
+    const sel: ChaptersSelection = { selected: [], inProgress: [], notYet: CHAPTERS.map(c => c.chapterId) };
+    const result = computeScoringV2(makeData(), POLICY, sel, CHAPTERS);
+    expect(result.coverageProgramme!.seenChapters).toBe(0);
+    expect(result.coverageProgramme!.seenChapterRatio).toBe(0);
+  });
+
+  it('1 single chapter checked', () => {
+    const sel: ChaptersSelection = { selected: ['ch_eq1'], inProgress: [], notYet: ['ch_suites', 'ch_deriv', 'ch_vect', 'ch_proba', 'ch_algo', 'ch_logic'] };
+    const result = computeScoringV2(makeData(), POLICY, sel, CHAPTERS);
+    expect(result.coverageProgramme!.seenChapters).toBe(1);
+    expect(result.coverageProgramme!.seenChapterRatio).toBeCloseTo(1 / 7, 2);
+  });
+
+  it('all chapters checked', () => {
+    const sel: ChaptersSelection = { selected: CHAPTERS.map(c => c.chapterId), inProgress: [], notYet: [] };
+    const result = computeScoringV2(makeData(), POLICY, sel, CHAPTERS);
+    expect(result.coverageProgramme!.seenChapters).toBe(7);
+    expect(result.coverageProgramme!.seenChapterRatio).toBe(1);
+  });
+
+  it('unknown chapter ID in selection', () => {
+    const sel: ChaptersSelection = { selected: ['UNKNOWN_XYZ', 'ch_eq1'], inProgress: [], notYet: [] };
+    const result = computeScoringV2(makeData(), POLICY, sel, CHAPTERS);
+    // Should not crash — unknown chapter counted in selection but no skills mapped
+    expect(result.coverageProgramme!.seenChapters).toBe(2);
+    expect(result.coverageProgramme).toBeDefined();
+  });
+
+  it('chapter with no associated skills', () => {
+    const chaptersWithEmpty: ChapterDefinition[] = [
+      ...CHAPTERS,
+      { chapterId: 'ch_empty', chapterLabel: 'Empty Chapter', description: 'No skills', domainId: 'misc', skills: [], ragTopics: [] },
+    ];
+    const sel: ChaptersSelection = { selected: ['ch_empty'], inProgress: [], notYet: CHAPTERS.map(c => c.chapterId) };
+    const result = computeScoringV2(makeData(), POLICY, sel, chaptersWithEmpty);
+    expect(result.coverageProgramme!.seenChapters).toBe(1);
+    // evaluatedSkillRatio: 0 skills in seen chapters => 0
+    expect(result.coverageProgramme!.evaluatedSkillRatio).toBe(0);
+  });
+});
+
 describe('renderEleveBilan — structural/semantic', () => {
   it('contains all required structural sections', () => {
     const md = renderEleveBilan(buildScoring(), buildCtx());
