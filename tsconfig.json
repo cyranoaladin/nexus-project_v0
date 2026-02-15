@@ -45,6 +45,10 @@
   "exclude": [
     "node_modules",
     "/state/**/*",
-    "/tasks/**/*"
+    "/tasks/**/*",
+    "/cli/**/*.test.ts",
+    "/core/**/*.test.ts",
+    "/daemon/**/*.test.ts",
+    "/tests/**/*"
   ]
 }

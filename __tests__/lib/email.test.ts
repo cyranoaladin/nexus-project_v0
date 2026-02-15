@@ -29,13 +29,13 @@ describe('email', () => {
   });
 
   it('sends welcome parent email', async () => {
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     await sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student', 'temp123');
     expect(transport.sendMail).toHaveBeenCalledTimes(1);
   });
 
   it('handles send error in development without throwing', async () => {
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
     transport.sendMail.mockRejectedValueOnce(new Error('smtp down'));
     await expect(
       sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student')
@@ -43,7 +43,7 @@ describe('email', () => {
   });
 
   it('throws send error in production', async () => {
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     transport.sendMail.mockRejectedValueOnce(new Error('smtp down'));
     await expect(
       sendCreditExpirationReminder('parent@test.com', 'Parent', 'Student', 2, new Date())
