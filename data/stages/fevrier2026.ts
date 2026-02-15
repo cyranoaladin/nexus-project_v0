@@ -238,7 +238,7 @@ export const academies: Academy[] = [
     promise: 'Approfondissement, rédaction fine, exposé de maîtrise. Trajectoire prépa/ingénieur.',
     detailsAnchor: '#details-nsi-t-p2'
   },
-  
+
   // PREMIERE
   {
     id: 'maths-premiere-pallier1',
@@ -334,7 +334,7 @@ export const faq: FAQ[] = [
   },
   {
     question: "Qui encadre les stages ?",
-    answer: "Enseignants experts : professeurs agrégés et certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé."
+    answer: "Enseignants experts : professeurs Agrégés et Certifiés, avec expérience du Bac. Pédagogie différenciée, bilans individualisés, suivi personnalisé."
   },
   {
     question: "Candidats libres : comment cela se passe ?",

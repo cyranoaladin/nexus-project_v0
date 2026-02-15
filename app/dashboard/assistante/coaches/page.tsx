@@ -102,11 +102,11 @@ export default function CoachManagement() {
     try {
       setLoading(true);
       const response = await fetch('/api/assistant/coaches');
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch coaches');
       }
-      
+
       const data = await response.json();
       setCoaches(data.coaches || []);
     } catch (err) {
@@ -259,7 +259,7 @@ export default function CoachManagement() {
                 <p className="text-sm text-neutral-400">Créer et gérer les coachs de la plateforme</p>
               </div>
             </div>
-            
+
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="btn-primary">
@@ -271,7 +271,7 @@ export default function CoachManagement() {
                 <DialogHeader>
                   <DialogTitle className="text-white">Ajouter un nouveau coach</DialogTitle>
                 </DialogHeader>
-                <CoachForm 
+                <CoachForm
                   formData={formData}
                   setFormData={setFormData}
                   onSubmit={handleAddCoach}
@@ -335,7 +335,7 @@ export default function CoachManagement() {
                     <h4 className="font-medium text-white mb-2">Description</h4>
                     <p className="text-sm text-neutral-300">{coach.description}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="font-medium text-white mb-2">Matières</h4>
                     <div className="flex flex-wrap gap-2">
@@ -384,7 +384,7 @@ export default function CoachManagement() {
           <DialogHeader>
             <DialogTitle className="text-white">Modifier le coach</DialogTitle>
           </DialogHeader>
-          <CoachForm 
+          <CoachForm
             formData={formData}
             setFormData={setFormData}
             onSubmit={handleEditCoach}
@@ -476,7 +476,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             id="tag"
             value={formData.tag}
             onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-            placeholder="🎓 Agrégé, 🎯 Stratège, etc."
+            placeholder="🎓 Agrégés et Certifiés, 🎯 Stratège, etc."
           />
         </div>
       </div>

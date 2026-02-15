@@ -87,7 +87,7 @@ const comparisonRows = [
   {
     label: "Expertise enseignants",
     prof: "Aléatoire",
-    nexus: "100% Agrégés/Certifiés",
+    nexus: "100% Agrégés et Certifiés",
     other: "Variable",
   },
   {
@@ -335,33 +335,30 @@ export default function OffresPage() {
                 <button
                   type="button"
                   onClick={() => setRecommendedPlan("hybride")}
-                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
-                    recommendedPlan === "hybride"
-                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
-                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
-                  }`}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${recommendedPlan === "hybride"
+                    ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                    : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                    }`}
                 >
                   Lycée français
                 </button>
                 <button
                   type="button"
                   onClick={() => setRecommendedPlan("immersion")}
-                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
-                    recommendedPlan === "immersion"
-                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
-                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
-                  }`}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${recommendedPlan === "immersion"
+                    ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                    : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                    }`}
                 >
                   Candidat libre
                 </button>
                 <button
                   type="button"
                   onClick={() => setRecommendedPlan("plateforme")}
-                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${
-                    recommendedPlan === "plateforme"
-                      ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
-                      : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
-                  }`}
+                  className={`rounded-full border px-5 py-2 text-xs font-semibold transition ${recommendedPlan === "plateforme"
+                    ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                    : "border-white/10 text-neutral-200 hover:border-brand-accent/40"
+                    }`}
                 >
                   Découverte
                 </button>
@@ -420,7 +417,7 @@ export default function OffresPage() {
 
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
               {/* ACCÈS PLATEFORME */}
-                <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "plateforme" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
+              <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "plateforme" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
                 <div className="marketing-badge bg-white/10 text-neutral-200 normal-case">
                   📱 ACCÈS DIGITAL
                 </div>
@@ -490,7 +487,7 @@ export default function OffresPage() {
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
                   {[
                     "Tout Accès Plateforme inclus",
-                    "4h/mois avec coach agrégé et certifié",
+                    "4h/mois avec coachs Agrégés et Certifiés",
                     "Coach référent dédié",
                     "IA ARIA (1 matière)",
                     "Suivi personnalisé",
@@ -536,7 +533,7 @@ export default function OffresPage() {
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
                   {[
                     "Tout Hybride inclus",
-                    "8h/mois avec experts agrégés et certifiés",
+                    "8h/mois avec experts Agrégés et Certifiés",
                     "Support prioritaire",
                     "Bilan trimestriel",
                     "IA ARIA (1 matière)",
@@ -675,7 +672,7 @@ export default function OffresPage() {
             </div>
 
             <p className="mt-4 text-xs text-neutral-400 text-center">
-              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach agrégé et certifié + IA ARIA + dashboard + suivi).
+              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach Agrégés et Certifiés + IA ARIA + dashboard + suivi).
             </p>
           </div>
         </section>
@@ -764,7 +761,7 @@ export default function OffresPage() {
                       {nexusMonthly} TND/mois
                     </div>
                     <ul className="mt-3 text-xs text-neutral-300 space-y-1">
-                      <li>Expertise : Agrégés et certifiés</li>
+                      <li>Expertise : Agrégés et Certifiés</li>
                       <li>Flexibilité : 24/7</li>
                       <li>Garantie : Résultats</li>
                     </ul>
@@ -903,11 +900,10 @@ export default function OffresPage() {
                       <button
                         key={option.value}
                         onClick={() => handleQuiz(option.value)}
-                        className={`rounded-2xl border px-4 py-3 text-sm transition ${
-                          selectedOption === option.value
-                            ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
-                            : "border-white/10 bg-black/20 text-neutral-200 hover:border-brand-accent/40"
-                        }`}
+                        className={`rounded-2xl border px-4 py-3 text-sm transition ${selectedOption === option.value
+                          ? "border-brand-accent bg-brand-accent/10 text-brand-accent"
+                          : "border-white/10 bg-black/20 text-neutral-200 hover:border-brand-accent/40"
+                          }`}
                       >
                         {option.label}
                       </button>
@@ -978,11 +974,11 @@ export default function OffresPage() {
               {[
                 {
                   q: "Qu'est-ce qu'un crédit et comment fonctionne-t-il ?",
-                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach agrégé et certifié. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
+                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach Agrégés et Certifiés. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
                 },
                 {
                   q: "Qui sont les coachs Nexus Réussite ?",
-                  a: "Tous nos coachs sont agrégés et certifiés. Ils sont sélectionnés pour leur expertise et leur capacité à accompagner des lycéens du système français. Chaque coach a un pseudonyme mythique et un profil spécialisé."
+                  a: "Tous nos coachs sont Agrégés et Certifiés. Ils sont sélectionnés pour leur expertise et leur capacité à accompagner des lycéens du système français. Chaque coach a un pseudonyme mythique et un profil spécialisé."
                 },
                 {
                   q: "Comment fonctionne l'IA ARIA ?",

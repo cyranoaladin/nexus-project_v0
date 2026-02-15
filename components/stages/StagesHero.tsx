@@ -44,7 +44,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
           {/* Sous-texte explicite */}
           <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6 max-w-3xl mx-auto mb-6">
             <p className="text-base md:text-lg text-white leading-relaxed">
-              Ces stages s'adressent aux élèves de <strong>Première et Terminale</strong> préparant le baccalauréat français. 
+              Ces stages s'adressent aux élèves de <strong>Première et Terminale</strong> préparant le baccalauréat français.
               Les contenus sont adaptés au niveau de chaque élève, tout en conservant une exigence et une méthode communes.
             </p>
           </div>
@@ -102,7 +102,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
             </div>
             <div className="pill-stage">
               <span className="text-green-400">✓</span>
-              <span>Enseignants experts (agrégés et certifiés)</span>
+              <span>Enseignants experts (Agrégés et Certifiés)</span>
             </div>
             <div className="pill-stage">
               <span className="text-green-400">✓</span>
