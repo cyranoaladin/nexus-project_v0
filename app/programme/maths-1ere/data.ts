@@ -77,6 +77,9 @@ export interface ChapitreContenu {
   geogebraId?: string;
 }
 
+/** B.O. competences (CdC §1.2) */
+export type CompetenceBO = 'chercher' | 'modeliser' | 'representer' | 'raisonner' | 'calculer' | 'communiquer';
+
 export interface Chapitre {
   id: string;
   titre: string;
@@ -84,6 +87,8 @@ export interface Chapitre {
   difficulte: 1 | 2 | 3 | 4 | 5;
   pointsXP: number;
   prerequis?: string[];
+  /** B.O. competences worked in this chapter */
+  competences?: CompetenceBO[];
   contenu: ChapitreContenu;
   exercices?: Exercice[];
   ressourcesExt?: { label: string; url: string }[];
@@ -115,11 +120,11 @@ export interface NiveauEleve {
 }
 
 export const niveaux: NiveauEleve[] = [
-  { nom: 'Apprenti', xpMin: 0, badge: '🌱' },
+  { nom: 'Novice', xpMin: 0, badge: '🌱' },
   { nom: 'Initié', xpMin: 200, badge: '📗' },
-  { nom: 'Praticien', xpMin: 500, badge: '⚡' },
-  { nom: 'Expert', xpMin: 1000, badge: '🔥' },
-  { nom: "Maître de l'Abstraction", xpMin: 2000, badge: '👑' },
+  { nom: 'Expert', xpMin: 500, badge: '🔥' },
+  { nom: 'Maître', xpMin: 1000, badge: '�' },
+  { nom: 'Légende', xpMin: 2000, badge: '🏆' },
 ];
 
 export function getNiveau(xp: number): NiveauEleve {
@@ -204,6 +209,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 2,
         pointsXP: 50,
+        competences: ['calculer', 'representer', 'raisonner'],
         contenu: {
           rappel:
             'Fonction polynôme $f(x) = ax^2+bx+c$. Forme canonique : $a(x-\\alpha)^2+\\beta$ avec $\\alpha=-\\frac{b}{2a}$ et $\\beta=f(\\alpha)$.',
@@ -284,6 +290,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['second-degre'],
+        competences: ['modeliser', 'calculer', 'chercher'],
         contenu: {
           rappel:
             'Une suite peut être définie par une formule explicite $u_n = f(n)$ ou par récurrence $u_{n+1} = f(u_n)$.',
@@ -348,6 +355,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'maitrise',
         difficulte: 3,
         pointsXP: 50,
+        competences: ['calculer', 'raisonner'],
         contenu: {
           rappel:
             'Dénombrer, c\'est compter le nombre de façons de choisir ou d\'organiser des éléments. On distingue les arrangements (ordre compte) et les combinaisons (ordre ne compte pas).',
@@ -417,6 +425,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 3,
         pointsXP: 70,
+        competences: ['calculer', 'representer', 'raisonner', 'chercher'],
         contenu: {
           rappel:
             "Le nombre dérivé $f'(a)$ est la limite du taux de variation : $f'(a) = \\lim_{h \\to 0} \\frac{f(a+h)-f(a)}{h}$. C'est la pente de la tangente en $a$.",
@@ -499,6 +508,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['derivation'],
+        competences: ['representer', 'raisonner', 'communiquer'],
         contenu: {
           rappel:
             "L'étude des variations d'une fonction repose sur le signe de sa dérivée. Les extrema locaux se trouvent aux changements de signe de $f'$.",
@@ -550,6 +560,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['derivation'],
+        competences: ['calculer', 'modeliser', 'raisonner'],
         contenu: {
           rappel:
             "L'unique fonction $f$ telle que $f'=f$ et $f(0)=1$. Elle est strictement positive sur $\\mathbb{R}$.",
@@ -609,6 +620,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 80,
         prerequis: ['derivation'],
+        competences: ['representer', 'calculer', 'chercher'],
         contenu: {
           rappel:
             'Cercle trigonométrique de rayon 1. Mesure en radians : $\\pi$ rad $= 180°$. Relation fondamentale : $\\cos^2(x) + \\sin^2(x) = 1$.',
@@ -669,6 +681,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 80,
         prerequis: ['variations-courbes', 'exponentielle'],
+        competences: ['calculer', 'raisonner', 'representer'],
         contenu: {
           rappel:
             'La notion de limite décrit le comportement d\'une fonction quand $x$ tend vers $+\\infty$, $-\\infty$ ou un réel $a$. On écrit $\\lim_{x \\to +\\infty} f(x) = L$ si $f(x)$ se rapproche de $L$.',
@@ -745,6 +758,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 70,
         prerequis: ['limites-initiation'],
+        competences: ['raisonner', 'communiquer', 'chercher'],
         contenu: {
           rappel:
             'Une fonction $f$ est continue en $a$ si $\\lim_{x \\to a} f(x) = f(a)$. Intuitivement, on peut tracer la courbe sans lever le crayon.',
@@ -824,6 +838,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 3,
         pointsXP: 70,
+        competences: ['calculer', 'representer', 'raisonner'],
         contenu: {
           rappel:
             'Le produit scalaire est un outil pour calculer longueurs et angles. $\\vec{u} \\cdot \\vec{v} = ||\\vec{u}|| \\times ||\\vec{v}|| \\times \\cos(\\vec{u},\\vec{v})$.',
@@ -884,6 +899,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 2,
         pointsXP: 40,
+        competences: ['representer', 'calculer', 'modeliser'],
         contenu: {
           rappel:
             'Une droite du plan peut s\'écrire sous forme cartésienne $ax+by+c=0$ ou réduite $y=mx+p$ (si non verticale). $m$ est le coefficient directeur, $p$ l\'ordonnée à l\'origine.',
@@ -939,6 +955,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['produit-scalaire'],
+        competences: ['calculer', 'raisonner', 'representer'],
         contenu: {
           rappel:
             'Les vecteurs permettent de traduire des propriétés géométriques en calculs. $\\vec{AB} = B - A$. Deux vecteurs sont colinéaires ssi $\\det(\\vec{u}, \\vec{v}) = 0$.',
@@ -1009,6 +1026,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 70,
         prerequis: ['equations-droites', 'produit-scalaire'],
+        competences: ['calculer', 'representer', 'chercher'],
         contenu: {
           rappel:
             'Le cercle de centre $\\Omega(a;b)$ et de rayon $r$ a pour équation : $(x-a)^2 + (y-b)^2 = r^2$. Développée : $x^2 + y^2 - 2ax - 2by + (a^2+b^2-r^2) = 0$.',
@@ -1094,6 +1112,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 3,
         pointsXP: 60,
+        competences: ['modeliser', 'calculer', 'raisonner'],
         contenu: {
           rappel:
             'Probabilité de B sachant A : $P_A(B) = \\frac{P(A \\cap B)}{P(A)}$. L\'arbre pondéré est l\'outil principal.',
@@ -1154,6 +1173,7 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['probabilites-cond'],
+        competences: ['modeliser', 'calculer', 'chercher'],
         contenu: {
           rappel:
             'Une variable aléatoire $X$ associe un nombre réel à chaque issue d\'une expérience aléatoire. Sa loi de probabilité donne $P(X=x_i)$ pour chaque valeur.',
@@ -1208,6 +1228,7 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'maitrise',
         difficulte: 2,
         pointsXP: 50,
+        competences: ['chercher', 'modeliser', 'calculer'],
         contenu: {
           rappel:
             'Le programme de Première utilise Python pour implémenter les algorithmes liés aux suites, aux probabilités et à l\'analyse. Les structures de base : variables, boucles `for`/`while`, fonctions `def`, listes.',

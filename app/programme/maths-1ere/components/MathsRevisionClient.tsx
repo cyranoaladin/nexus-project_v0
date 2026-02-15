@@ -20,6 +20,10 @@ import dynamic from 'next/dynamic';
 const PythonIDE = dynamic(() => import('./PythonIDE'), { ssr: false });
 const InteractiveMafs = dynamic(() => import('./InteractiveMafs'), { ssr: false });
 const MathInput = dynamic(() => import('./MathInput'), { ssr: false });
+const ParabolaController = dynamic(() => import('./labs/ParabolaController'), { ssr: false });
+const TangenteGlissante = dynamic(() => import('./labs/TangenteGlissante'), { ssr: false });
+const MonteCarloSim = dynamic(() => import('./labs/MonteCarloSim'), { ssr: false });
+const PythonExercises = dynamic(() => import('./labs/PythonExercises'), { ssr: false });
 
 // ─── Framer Motion variants ─────────────────────────────────────────────────
 const pageVariants = {
@@ -512,9 +516,9 @@ function CoursView({ selectedChapter, onSelectChapter, typeset, focusMode, onTog
 }) {
   return (
     <div className={`grid grid-cols-1 ${focusMode ? '' : 'lg:grid-cols-12'} gap-6 h-full`}>
-      {/* Skill Tree Sidebar */}
+      {/* Skill Tree Sidebar (35% per CdC §3.1) */}
       {!focusMode && (
-        <div className="lg:col-span-3 bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-2xl p-4 max-h-[80vh] overflow-y-auto">
+        <div className="lg:col-span-4 bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-2xl p-4 max-h-[80vh] overflow-y-auto">
           <SkillTree
             onSelectChapter={onSelectChapter}
             selectedChapterId={selectedChapter?.chapId}
@@ -523,7 +527,8 @@ function CoursView({ selectedChapter, onSelectChapter, typeset, focusMode, onTog
       )}
 
       {/* Chapter Viewer */}
-      <div className={focusMode ? 'w-full' : 'lg:col-span-9'}>
+      {/* Lab Content (65% per CdC §3.1) */}
+      <div className={focusMode ? 'w-full' : 'lg:col-span-8'}>
         <AnimatePresence mode="wait">
           {selectedChapter ? (
             <motion.div
@@ -596,6 +601,27 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400">{chap.pointsXP} XP</span>
           </div>
           <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>{chap.titre}</h2>
+          {/* B.O. Competences (CdC §1.2) */}
+          {chap.competences && chap.competences.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {chap.competences.map((c) => {
+                const compMap: Record<string, { label: string; color: string }> = {
+                  chercher: { label: '🔍 Chercher', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+                  modeliser: { label: '🧩 Modéliser', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+                  representer: { label: '📊 Représenter', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+                  raisonner: { label: '🧠 Raisonner', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+                  calculer: { label: '🔢 Calculer', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
+                  communiquer: { label: '💬 Communiquer', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
+                };
+                const info = compMap[c] ?? { label: c, color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
+                return (
+                  <span key={c} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${info.color}`}>
+                    {info.label}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <button onClick={onToggleFocus} className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">
@@ -699,10 +725,10 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
                 💡 Indice <span className="opacity-60">(-10% XP)</span>
               </button>
               <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
-                🔍 Début de raisonnement <span className="opacity-60">(-25% XP)</span>
+                🔍 Début de raisonnement <span className="opacity-60">(-30% XP)</span>
               </button>
               <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
-                📖 Correction détaillée <span className="opacity-60">(-50% XP)</span>
+                📖 Correction détaillée <span className="opacity-60">(-100% XP)</span>
               </button>
             </div>
           )}
@@ -755,28 +781,72 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           <ExerciseEngine exercices={chap.exercices} chapId={chapId} onExerciseCorrect={store.recordExerciseResult} />
         )}
 
-        {/* Python IDE for algorithmique chapters */}
-        {catKey === 'algorithmique' && (
-          <PythonIDE
-            initialCode={`# ${chap.titre}\n# Écris ton code Python ici\n\n`}
-            onSuccess={() => store.recordExerciseResult(chapId, 99)}
+        {/* ─── Chapter-specific Lab Interactifs (CdC §4) ─────────────── */}
+
+        {/* CdC §4.1.2 — Le Contrôleur de Parabole (Second Degré) */}
+        {chapId === 'second-degre' && <ParabolaController />}
+
+        {/* CdC §4.2.1 — La Tangente Glissante (Dérivation) */}
+        {(chapId === 'derivation' || chapId === 'variations-courbes') && (
+          <TangenteGlissante
+            fnExpr={chapId === 'derivation' ? 'x^3 - 3*x' : 'x^2'}
+            title={chapId === 'derivation' ? 'La Tangente Glissante — f(x) = x³ − 3x' : 'Variations — f(x) = x²'}
           />
         )}
 
-        {/* Interactive Mafs graph for analysis/geometry chapters */}
-        {(catKey === 'analyse' || catKey === 'geometrie') && (
+        {/* CdC §4.4.2 — Simulation de Monte-Carlo (Probabilités) */}
+        {(chapId === 'probabilites-cond' || chapId === 'variables-aleatoires') && (
+          <MonteCarloSim />
+        )}
+
+        {/* CdC §4.5 — Python IDE + Pre-loaded exercises (Algorithmique) */}
+        {catKey === 'algorithmique' && (
+          <>
+            <PythonExercises />
+            <PythonIDE
+              initialCode={`# ${chap.titre}\n# Écris ton code Python ici\n\n`}
+              onSuccess={() => store.recordExerciseResult(chapId, 99)}
+            />
+          </>
+        )}
+
+        {/* Interactive Mafs graphs for Analyse & Géométrie */}
+        {catKey === 'analyse' && chapId !== 'derivation' && chapId !== 'variations-courbes' && (
           <InteractiveMafs
             title={`${chap.titre} — Visualisation`}
             elements={
-              catKey === 'analyse'
+              chapId === 'exponentielle'
                 ? [
+                    { type: 'function', fn: 'exp(x)', color: 'blue', label: 'eˣ' },
+                    { type: 'function', fn: 'x', color: 'red', label: 'y = x' },
+                  ]
+                : chapId === 'trigonometrie'
+                ? [
+                    { type: 'function', fn: 'sin(x)', color: 'blue', label: 'sin(x)' },
+                    { type: 'function', fn: 'cos(x)', color: 'red', label: 'cos(x)' },
+                  ]
+                : [
                     { type: 'function', fn: 'x^2', color: 'blue', label: 'f(x) = x²' },
                     { type: 'function', fn: '2*x', color: 'red', label: "f'(x) = 2x" },
                   ]
-                : chapId === 'equations-cercles'
+            }
+          />
+        )}
+
+        {catKey === 'geometrie' && (
+          <InteractiveMafs
+            title={`${chap.titre} — Visualisation`}
+            elements={
+              chapId === 'equations-cercles'
                 ? [
                     { type: 'circle', center: [2, -3] as [number, number], radius: 4, color: 'blue' },
                     { type: 'point', x: 2, y: -3, color: 'red', label: 'Centre' },
+                  ]
+                : chapId === 'produit-scalaire'
+                ? [
+                    { type: 'line', point1: [0, 0] as [number, number], point2: [3, 1] as [number, number], color: 'blue' },
+                    { type: 'line', point1: [0, 0] as [number, number], point2: [1, 3] as [number, number], color: 'red' },
+                    { type: 'point', x: 0, y: 0, color: 'green' },
                   ]
                 : [
                     { type: 'line', point1: [0, 0] as [number, number], point2: [3, 4] as [number, number], color: 'blue' },

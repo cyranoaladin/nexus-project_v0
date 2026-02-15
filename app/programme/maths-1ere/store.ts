@@ -21,15 +21,15 @@ interface DailyChallengeState {
   completedToday: boolean;
 }
 
-/** Hint level used: 0=none, 1=indice(-10%), 2=début(-25%), 3=correction(-50%) */
+/** Hint level used: 0=none, 1=indice(-10%), 2=début(-30%), 3=correction(-100%) */
 type HintLevel = 0 | 1 | 2 | 3;
 
-/** XP malus multipliers per hint level */
+/** XP malus multipliers per hint level (CdC §3.2) */
 const HINT_MALUS: Record<HintLevel, number> = {
   0: 1.0,
-  1: 0.9,
-  2: 0.75,
-  3: 0.5,
+  1: 0.9,   // -10% XP
+  2: 0.7,   // -30% XP
+  3: 0.0,   // -100% XP (solution complète = 0 XP)
 };
 
 interface MathsLabState {

@@ -136,6 +136,51 @@ export async function deleteProgress(userId: string): Promise<boolean> {
 
 // ─── SQL Migration (for reference) ──────────────────────────────────────────
 //
+// -- ═══════════════════════════════════════════════════════════════════════════
+// -- CdC §5 — Relational Schema (Programme Structure)
+// -- ═══════════════════════════════════════════════════════════════════════════
+//
+// CREATE TABLE themes (
+//   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//   slug TEXT UNIQUE NOT NULL,       -- 'algebre', 'analyse', 'geometrie', 'probabilites', 'algorithmique'
+//   title TEXT NOT NULL,
+//   icon TEXT,
+//   color_hex TEXT,
+//   order_index INT DEFAULT 0,
+//   created_at TIMESTAMPTZ DEFAULT NOW()
+// );
+//
+// CREATE TABLE chapters (
+//   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//   theme_id UUID REFERENCES themes ON DELETE CASCADE,
+//   slug TEXT UNIQUE NOT NULL,       -- 'second-degre', 'derivation', etc.
+//   title TEXT NOT NULL,
+//   niveau VARCHAR DEFAULT 'essentiel',  -- 'essentiel' | 'maitrise' | 'approfondissement'
+//   difficulty INT DEFAULT 1 CHECK (difficulty BETWEEN 1 AND 5),
+//   xp_reward INT DEFAULT 10,
+//   competences TEXT[] DEFAULT '{}', -- B.O. competences: chercher, modeliser, representer, raisonner, calculer, communiquer
+//   prerequisites TEXT[] DEFAULT '{}', -- slugs of prerequisite chapters
+//   order_index INT DEFAULT 0,
+//   is_published BOOLEAN DEFAULT true,
+//   created_at TIMESTAMPTZ DEFAULT NOW()
+// );
+//
+// CREATE TABLE learning_nodes (
+//   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//   chapter_id UUID REFERENCES chapters ON DELETE CASCADE,
+//   type VARCHAR NOT NULL,           -- 'LESSON', 'QUIZ', 'LAB_GRAPH', 'LAB_CODE', 'LAB_SLIDER', 'LAB_SIMULATION'
+//   title TEXT NOT NULL,
+//   content_payload JSONB NOT NULL,  -- Contains the config for the React component
+//   difficulty INT DEFAULT 1 CHECK (difficulty BETWEEN 1 AND 5),
+//   xp_reward INT DEFAULT 10,
+//   order_index INT DEFAULT 0,
+//   created_at TIMESTAMPTZ DEFAULT NOW()
+// );
+//
+// -- ═══════════════════════════════════════════════════════════════════════════
+// -- User Progress (flat table for Zustand sync)
+// -- ═══════════════════════════════════════════════════════════════════════════
+//
 // CREATE TABLE maths_lab_progress (
 //   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
 //   user_id TEXT UNIQUE NOT NULL,
@@ -157,13 +202,51 @@ export async function deleteProgress(userId: string): Promise<boolean> {
 //   created_at TIMESTAMPTZ DEFAULT NOW()
 // );
 //
-// -- RLS Policy
+// -- Granular per-node progress (CdC §5)
+// CREATE TABLE user_node_progress (
+//   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//   user_id TEXT NOT NULL,
+//   node_id UUID REFERENCES learning_nodes ON DELETE CASCADE,
+//   status VARCHAR DEFAULT 'LOCKED', -- 'LOCKED', 'OPEN', 'COMPLETED', 'MASTERED'
+//   score INT DEFAULT 0,
+//   attempts INT DEFAULT 0,
+//   mistakes_log JSONB DEFAULT '[]', -- For error analysis
+//   hint_level_used INT DEFAULT 0,   -- 0-3
+//   completed_at TIMESTAMPTZ,
+//   UNIQUE(user_id, node_id)
+// );
+//
+// -- ═══════════════════════════════════════════════════════════════════════════
+// -- RLS Policies
+// -- ═══════════════════════════════════════════════════════════════════════════
+//
 // ALTER TABLE maths_lab_progress ENABLE ROW LEVEL SECURITY;
 // CREATE POLICY "Users can manage own progress"
-//   ON maths_lab_progress
-//   FOR ALL
+//   ON maths_lab_progress FOR ALL
 //   USING (auth.uid()::text = user_id)
 //   WITH CHECK (auth.uid()::text = user_id);
 //
-// -- Index
+// ALTER TABLE user_node_progress ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Users can manage own node progress"
+//   ON user_node_progress FOR ALL
+//   USING (auth.uid()::text = user_id)
+//   WITH CHECK (auth.uid()::text = user_id);
+//
+// -- Themes and chapters are public read
+// ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Public read themes" ON themes FOR SELECT USING (true);
+//
+// ALTER TABLE chapters ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Public read chapters" ON chapters FOR SELECT USING (true);
+//
+// ALTER TABLE learning_nodes ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Public read nodes" ON learning_nodes FOR SELECT USING (true);
+//
+// -- ═══════════════════════════════════════════════════════════════════════════
+// -- Indexes
+// -- ═══════════════════════════════════════════════════════════════════════════
+//
 // CREATE INDEX idx_maths_lab_user ON maths_lab_progress(user_id);
+// CREATE INDEX idx_user_node_user ON user_node_progress(user_id);
+// CREATE INDEX idx_chapters_theme ON chapters(theme_id);
+// CREATE INDEX idx_nodes_chapter ON learning_nodes(chapter_id);
