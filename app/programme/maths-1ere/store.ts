@@ -2,7 +2,13 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getNiveau, getNextNiveau, type NiveauEleve } from './data';
+import {
+  getNiveau,
+  getNextNiveau,
+  programmeData,
+  badgeDefinitions,
+  type NiveauEleve,
+} from './data';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -66,11 +72,16 @@ interface MathsLabState {
   /** Earned badge IDs */
   badges: string[];
 
+  // ─── SRS (Spaced Repetition System) ───────────────────────────────────
+  /** Map of chapterId -> { nextReview: ISO date, interval: days, easeFactor } */
+  srsQueue: Record<string, SRSItem>;
+
   // ─── Computed (derived from state) ──────────────────────────────────────
   getNiveau: () => NiveauEleve;
   getNextNiveau: () => NiveauEleve | null;
   getXPProgress: () => { current: number; nextThreshold: number; percent: number };
   getComboMultiplier: () => number;
+  getDueReviews: () => string[];
 
   // ─── Actions ────────────────────────────────────────────────────────────
   toggleChapterComplete: (chapId: string) => void;
@@ -84,7 +95,120 @@ interface MathsLabState {
   buyStreakFreeze: () => boolean;
   earnBadge: (badgeId: string) => void;
   recordActivity: () => void;
+  evaluateBadges: () => void;
+  recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => void;
   resetProgress: () => void;
+}
+
+// ─── SRS Types ──────────────────────────────────────────────────────────────
+
+interface SRSItem {
+  /** ISO date of next scheduled review */
+  nextReview: string;
+  /** Current interval in days */
+  interval: number;
+  /** SM-2 ease factor (default 2.5) */
+  easeFactor: number;
+  /** Number of consecutive correct reviews */
+  repetitions: number;
+}
+
+/**
+ * SM-2 algorithm for spaced repetition.
+ * quality: 0-5 (0=blackout, 5=perfect)
+ */
+function sm2(item: SRSItem, quality: number): SRSItem {
+  let { interval, easeFactor, repetitions } = item;
+
+  if (quality < 3) {
+    // Failed: reset
+    repetitions = 0;
+    interval = 1;
+  } else {
+    // Success
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 3;
+    else interval = Math.round(interval * easeFactor);
+    repetitions += 1;
+  }
+
+  // Update ease factor (minimum 1.3)
+  easeFactor = Math.max(
+    1.3,
+    easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+  );
+
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + interval);
+
+  return {
+    nextReview: nextDate.toISOString().slice(0, 10),
+    interval,
+    easeFactor,
+    repetitions,
+  };
+}
+
+// ─── Badge Evaluation Logic ─────────────────────────────────────────────────
+
+function evaluateBadgeConditions(state: {
+  streak: number;
+  bestCombo: number;
+  completedChapters: string[];
+  masteredChapters: string[];
+  exerciseResults: Record<string, number[]>;
+  hintUsage: Record<string, HintLevel>;
+  badges: string[];
+}): string[] {
+  const newBadges: string[] = [];
+  const allChapterIds = Object.values(programmeData).flatMap((cat) =>
+    cat.chapitres.map((c) => c.id)
+  );
+  const geoChapterIds = programmeData.geometrie?.chapitres.map((c) => c.id) ?? [];
+  const probaChapterIds = programmeData.probabilites?.chapitres.map((c) => c.id) ?? [];
+
+  for (const badge of badgeDefinitions) {
+    if (state.badges.includes(badge.id)) continue;
+
+    let earned = false;
+    const cond = badge.condition;
+
+    if (cond === 'streak >= 7') earned = state.streak >= 7;
+    else if (cond === 'streak >= 30') earned = state.streak >= 30;
+    else if (cond === 'combo >= 10') earned = state.bestCombo >= 10;
+    else if (cond === 'hard_no_hint') {
+      // Any exercise on a difficulty >= 4 chapter completed with no hints
+      for (const cat of Object.values(programmeData)) {
+        for (const chap of cat.chapitres) {
+          if (chap.difficulte >= 4 && (state.exerciseResults[chap.id]?.length ?? 0) > 0) {
+            const hasHint = state.exerciseResults[chap.id]?.some(
+              (idx) => (state.hintUsage[`${chap.id}:${idx}`] ?? 0) > 0
+            );
+            if (!hasHint) earned = true;
+          }
+        }
+      }
+    } else if (cond === 'perfect_chapter') {
+      earned = state.masteredChapters.length > 0;
+    } else if (cond === 'first_python') {
+      earned = (state.exerciseResults['algorithmique-python']?.length ?? 0) > 0;
+    } else if (cond.startsWith('mastered:')) {
+      const target = cond.replace('mastered:', '');
+      if (target === 'geometrie-all') {
+        earned = geoChapterIds.length > 0 && geoChapterIds.every((id) => state.completedChapters.includes(id));
+      } else if (target === 'probabilites-all') {
+        earned = probaChapterIds.length > 0 && probaChapterIds.every((id) => state.completedChapters.includes(id));
+      } else {
+        earned = state.completedChapters.includes(target);
+      }
+    } else if (cond === 'all_chapters_completed') {
+      earned = allChapterIds.length > 0 && allChapterIds.every((id) => state.completedChapters.includes(id));
+    }
+
+    if (earned) newBadges.push(badge.id);
+  }
+
+  return newBadges;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -139,6 +263,7 @@ export const useMathsLabStore = create<MathsLabState>()(
       exerciseResults: {},
       hintUsage: {},
       badges: [],
+      srsQueue: {},
 
       // ─── Computed ───────────────────────────────────────────────────────
       getNiveau: () => getNiveau(get().totalXP),
@@ -162,6 +287,13 @@ export const useMathsLabStore = create<MathsLabState>()(
         if (combo >= 5) return 1.5;
         if (combo >= 3) return 1.25;
         return 1.0;
+      },
+      getDueReviews: () => {
+        const today = getTodayISO();
+        const queue = get().srsQueue;
+        return Object.entries(queue)
+          .filter(([, item]) => item.nextReview <= today)
+          .map(([chapId]) => chapId);
       },
 
       // ─── Actions ────────────────────────────────────────────────────────
@@ -275,6 +407,41 @@ export const useMathsLabStore = create<MathsLabState>()(
         });
       },
 
+      evaluateBadges: () => {
+        const state = get();
+        const newBadges = evaluateBadgeConditions({
+          streak: state.streak,
+          bestCombo: state.bestCombo,
+          completedChapters: state.completedChapters,
+          masteredChapters: state.masteredChapters,
+          exerciseResults: state.exerciseResults,
+          hintUsage: state.hintUsage,
+          badges: state.badges,
+        });
+        if (newBadges.length > 0) {
+          set((s) => ({
+            badges: [...s.badges, ...newBadges],
+            totalXP: s.totalXP + newBadges.length * 50,
+          }));
+        }
+      },
+
+      recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => {
+        set((state) => {
+          const current = state.srsQueue[chapId] ?? {
+            nextReview: getTodayISO(),
+            interval: 0,
+            easeFactor: 2.5,
+            repetitions: 0,
+          };
+          const updated = sm2(current, quality);
+          return {
+            srsQueue: { ...state.srsQueue, [chapId]: updated },
+          };
+        });
+        get().recordActivity();
+      },
+
       recordActivity: () => {
         const today = getTodayISO();
         set((state) => {
@@ -313,12 +480,13 @@ export const useMathsLabStore = create<MathsLabState>()(
           exerciseResults: {},
           hintUsage: {},
           badges: [],
+          srsQueue: {},
         });
       },
     }),
     {
       name: 'nexus-maths-lab-v2',
-      version: 2,
+      version: 3,
     }
   )
 );
