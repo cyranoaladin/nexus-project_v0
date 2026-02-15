@@ -1,60 +1,11 @@
 "use client";
 
-import React, { useRef, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { Brain, LayoutDashboard, Users, CheckCircle2 } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const TrinityServicesGSAP = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
-
-    useLayoutEffect(() => {
-        const section = sectionRef.current;
-        if (!section) return;
-
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Pinning Effect for Title
-                ScrollTrigger.create({
-                    trigger: section,
-                    start: "top top",
-                    end: "+=100%",
-                    pin: true,
-                    pinSpacing: true,
-                });
-
-                // Cards Animation
-                gsap.fromTo('.trinity-card',
-                    { y: 100, opacity: 0, scale: 0.9 },
-                    {
-                        scrollTrigger: {
-                            trigger: section,
-                            start: "top center",
-                            end: "bottom bottom",
-                            scrub: 1,
-                        },
-                        y: 0,
-                        opacity: 1,
-                        scale: 1,
-                        stagger: 0.3,
-                        ease: "power2.out"
-                    }
-                );
-            });
-
-            mm.add("(prefers-reduced-motion: reduce)", () => {
-                // No pinning, just visible content
-                gsap.set('.trinity-card', { opacity: 1, y: 0, scale: 1 });
-            });
-
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+    const sectionRef = useScrollReveal<HTMLElement>({ staggerDelay: 150 });
 
     const services = [
         {
@@ -90,7 +41,7 @@ const TrinityServicesGSAP = () => {
     ];
 
     return (
-        <section ref={sectionRef} id="trinity" className="relative h-[150vh] bg-surface-darker py-24 overflow-hidden">
+        <section ref={sectionRef} id="trinity" className="relative bg-surface-darker py-24 overflow-hidden">
 
             {/* Background Gradients */}
             <div className="absolute inset-0 pointer-events-none">
@@ -118,7 +69,8 @@ const TrinityServicesGSAP = () => {
                     {services.map((service) => (
                         <div
                             key={service.id}
-                            className={`trinity-card relative p-8 rounded-3xl bg-white/[0.03] border ${service.border} backdrop-blur-sm group hover:bg-white/[0.06] transition-colors duration-500 hover:shadow-premium`}
+                            data-reveal="up"
+                            className={`relative p-8 rounded-3xl bg-white/[0.03] border ${service.border} backdrop-blur-sm group hover:bg-white/[0.06] transition-colors duration-500 hover:shadow-premium`}
                         >
                             {/* Icon */}
                             <div className={`w-14 h-14 rounded-2xl ${service.bg} flex items-center justify-center mb-6`}>
