@@ -116,4 +116,15 @@ Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
     maxQueries: 4,
     topK: 2,
   },
+
+  riskModel: {
+    factors: ['Compréhension du code', 'Débuggage', 'Logique booléenne', 'Gestion du temps', 'Lisibilité code'],
+  },
+
+  examFormat: {
+    duration: 120,
+    calculatorAllowed: false,
+    structure: 'Contrôle continu + épreuves communes',
+    totalPoints: 20,
+  },
 };

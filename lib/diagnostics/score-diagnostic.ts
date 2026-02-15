@@ -61,10 +61,13 @@ function calculateDomainScores(
   let totalUnknown = 0;
   let activeDomains = 0;
 
-  const domains = ['algebra', 'analysis', 'geometry', 'probabilities', 'python'] as const;
+  // Dynamic: iterate over all domain keys present in competencies (not hardcoded)
+  const domains = Object.keys(competencies).filter(
+    (k) => Array.isArray(competencies[k as keyof typeof competencies])
+  );
 
   for (const domain of domains) {
-    const items = competencies[domain] || [];
+    const items = competencies[domain as keyof typeof competencies] || [];
     totalItems += items.length;
 
     const evaluated = items.filter(
@@ -224,13 +227,10 @@ function detectAlerts(
     });
   }
 
-  const allCompetencies = [
-    ...(data.competencies.algebra || []),
-    ...(data.competencies.analysis || []),
-    ...(data.competencies.geometry || []),
-    ...(data.competencies.probabilities || []),
-    ...(data.competencies.python || []),
-  ];
+  // Dynamic: flatten all competency domains
+  const allCompetencies = Object.values(data.competencies)
+    .filter(Array.isArray)
+    .flat();
 
   const highFrictionCount = allCompetencies.filter(
     (c) => c.friction !== null && c.friction >= 3
@@ -316,13 +316,9 @@ function detectInconsistencies(
   }
 
   // studied status but null mastery
-  const allComp = [
-    ...(data.competencies.algebra || []),
-    ...(data.competencies.analysis || []),
-    ...(data.competencies.geometry || []),
-    ...(data.competencies.probabilities || []),
-    ...(data.competencies.python || []),
-  ];
+  const allComp = Object.values(data.competencies)
+    .filter(Array.isArray)
+    .flat();
   const studiedNullMastery = allComp.filter((c) => c.status === 'studied' && c.mastery === null);
   if (studiedNullMastery.length >= 2) {
     flags.push({
@@ -336,11 +332,13 @@ function detectInconsistencies(
   // High average declared but low mastery
   const avg = parseFloat(data.performance.mathAverage || '');
   if (!isNaN(avg) && avg >= 14) {
-    const activeDomains = ['algebra', 'analysis', 'geometry', 'probabilities', 'python'] as const;
+    const activeDomainKeys = Object.keys(data.competencies).filter(
+      (k) => Array.isArray(data.competencies[k as keyof typeof data.competencies])
+    );
     let totalMastery = 0;
     let totalEval = 0;
-    for (const d of activeDomains) {
-      const items = data.competencies[d] || [];
+    for (const d of activeDomainKeys) {
+      const items = data.competencies[d as keyof typeof data.competencies] || [];
       const evaluated = items.filter((c) => c.status !== 'not_studied' && c.status !== 'unknown' && c.mastery !== null);
       totalMastery += evaluated.reduce((s, c) => s + (c.mastery ?? 0), 0);
       totalEval += evaluated.length;
@@ -425,13 +423,9 @@ function computePriorities(
   }
 
   // QuickWins: skills with mastery 2-3 and low friction (easy to upgrade)
-  const allComp = [
-    ...(data.competencies.algebra || []).map((c) => ({ ...c, domain: 'algebra' })),
-    ...(data.competencies.analysis || []).map((c) => ({ ...c, domain: 'analysis' })),
-    ...(data.competencies.geometry || []).map((c) => ({ ...c, domain: 'geometry' })),
-    ...(data.competencies.probabilities || []).map((c) => ({ ...c, domain: 'probabilities' })),
-    ...(data.competencies.python || []).map((c) => ({ ...c, domain: 'python' })),
-  ];
+  const allComp = Object.entries(data.competencies)
+    .filter(([, v]) => Array.isArray(v))
+    .flatMap(([domain, items]) => (items as typeof data.competencies.algebra).map((c) => ({ ...c, domain })));
 
   const upgradeable = allComp
     .filter((c) => c.mastery !== null && c.mastery >= 2 && c.mastery <= 3 && (c.friction === null || c.friction <= 1))

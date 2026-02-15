@@ -112,4 +112,15 @@ Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
     maxQueries: 4,
     topK: 2,
   },
+
+  riskModel: {
+    factors: ['Abstraction des structures', 'SQL', 'Complexité algorithmique', 'Capacité debug', 'Compréhension invariants'],
+  },
+
+  examFormat: {
+    duration: 210,
+    calculatorAllowed: false,
+    structure: '3h30 écrit + 1h épreuve pratique',
+    totalPoints: 20,
+  },
 };
