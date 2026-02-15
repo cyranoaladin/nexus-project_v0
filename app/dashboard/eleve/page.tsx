@@ -124,7 +124,6 @@ export default function DashboardEleve() {
         }
 
         const data = await response.json();
-        console.log('[Student Dashboard] Data received:', data);
         setDashboardData(data);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);

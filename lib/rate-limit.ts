@@ -16,6 +16,14 @@ const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_RE
     })
     : undefined;
 
+// SECURITY: Warn loudly if rate limiting is disabled in production
+if (!redis && process.env.NODE_ENV === 'production') {
+    console.error(
+        '[SECURITY WARNING] Rate limiting is DISABLED — UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN is not set. ' +
+        'All rate limits are bypassed. Set these environment variables to enable rate limiting.'
+    );
+}
+
 // Create rate limiters for different endpoints
 export const rateLimiters = {
     // Strict rate limit for authentication endpoints
