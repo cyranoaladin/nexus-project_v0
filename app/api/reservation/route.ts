@@ -6,6 +6,7 @@ import { sendStageDiagnosticInvitation } from '@/lib/email';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -75,6 +76,14 @@ _Ce prospect attend votre appel !_
  */
 export async function POST(request: NextRequest) {
   try {
+    // 0a. CSRF protection
+    const csrfResponse = checkCsrf(request);
+    if (csrfResponse) return csrfResponse;
+
+    // 0b. Body size limit (1MB)
+    const bodySizeResponse = checkBodySize(request);
+    if (bodySizeResponse) return bodySizeResponse;
+
     // 1. Rate Limiting (10 requests per minute per IP)
     const rateLimitResponse = await checkRateLimit(request, 'api');
     if (rateLimitResponse) {

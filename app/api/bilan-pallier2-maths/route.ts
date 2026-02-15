@@ -14,6 +14,8 @@ import { generateBilanToken, verifyBilanToken } from '@/lib/diagnostics/signed-t
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'crypto';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { checkCsrf, checkBodySize } from '@/lib/csrf';
 
 /**
  * POST /api/bilan-pallier2-maths
@@ -23,6 +25,18 @@ import { createHash } from 'crypto';
  */
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfResponse = checkCsrf(request);
+    if (csrfResponse) return csrfResponse;
+
+    // Body size limit (1MB)
+    const bodySizeResponse = checkBodySize(request);
+    if (bodySizeResponse) return bodySizeResponse;
+
+    // Rate limiting (100 req/min per IP)
+    const rateLimitResponse = await checkRateLimit(request, 'api');
+    if (rateLimitResponse) return rateLimitResponse;
+
     const body = await request.json();
 
     // PII-safe logging (never log personal data)

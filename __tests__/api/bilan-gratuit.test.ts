@@ -12,6 +12,12 @@ jest.mock('../../lib/rate-limit', () => ({
   checkRateLimit: jest.fn().mockResolvedValue(null)
 }));
 
+// Mock CSRF (always allow)
+jest.mock('../../lib/csrf', () => ({
+  checkCsrf: jest.fn().mockReturnValue(null),
+  checkBodySize: jest.fn().mockReturnValue(null)
+}));
+
 // Mock cuid2
 jest.mock('@paralleldrive/cuid2', () => ({
   createId: jest.fn().mockReturnValue('test-cuid-123')
