@@ -72,6 +72,7 @@ interface ScoringData {
   quickWins?: PriorityItem[];
   highRisk?: PriorityItem[];
   inconsistencies?: Array<{ code: string; message: string; fields: string[]; severity: string }>;
+  coverageProgramme?: { seenChapterRatio: number; evaluatedSkillRatio: number; totalChapters: number; seenChapters: number; inProgressChapters: number };
 }
 
 interface DiagnosticResult {
@@ -367,6 +368,35 @@ export default function BilanResultatPage() {
                   scoring.trustLevel === 'orange' ? 'bg-semantic-warning' :
                   'bg-semantic-error'
                 }`} style={{ width: `${scoring.trustScore}%` }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Coverage Programme ── */}
+        {scoring && scoring.coverageProgramme && (
+          <div className="mb-8">
+            <div className="flex items-center gap-4 p-4 rounded-[14px] border bg-surface-card border-white/[0.08]">
+              <BookOpen className="w-6 h-6 shrink-0 text-brand-accent" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-sm font-semibold">Couverture du programme</p>
+                  <span className={`text-xs font-bold font-mono ${
+                    scoring.coverageProgramme.seenChapterRatio >= 0.7 ? 'text-semantic-success' :
+                    scoring.coverageProgramme.seenChapterRatio >= 0.4 ? 'text-semantic-warning' :
+                    'text-semantic-error'
+                  }`}>{Math.round(scoring.coverageProgramme.seenChapterRatio * 100)}%</span>
+                </div>
+                <p className="text-neutral-300 text-xs mt-0.5">
+                  {scoring.coverageProgramme.seenChapters} chapitres vus + {scoring.coverageProgramme.inProgressChapters} en cours sur {scoring.coverageProgramme.totalChapters} au programme
+                </p>
+              </div>
+              <div className="w-24 h-2 bg-surface-elevated rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${
+                  scoring.coverageProgramme.seenChapterRatio >= 0.7 ? 'bg-semantic-success' :
+                  scoring.coverageProgramme.seenChapterRatio >= 0.4 ? 'bg-semantic-warning' :
+                  'bg-semantic-error'
+                }`} style={{ width: `${Math.round(scoring.coverageProgramme.seenChapterRatio * 100)}%` }} />
               </div>
             </div>
           </div>

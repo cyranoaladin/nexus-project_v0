@@ -17,9 +17,10 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
   // NOTE: 'unsafe-inline' required by style jsx (stages, academies pages)
   // TODO: Migrate to CSS modules/Tailwind to remove unsafe-inline
+  const isDev = process.env.NODE_ENV !== 'production';
   response.headers.set('Content-Security-Policy', [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    `script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "img-src 'self' data: https:",
     "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
