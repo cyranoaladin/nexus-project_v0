@@ -28,8 +28,9 @@ export default function ParabolaController() {
     return [(-b - sqrtD) / (2 * a), (-b + sqrtD) / (2 * a)];
   }, [a, b, c, delta, alpha]);
 
-  const deltaColor = delta > 0 ? 'text-green-400' : delta === 0 ? 'text-amber-400' : 'text-red-400';
-  const deltaBg = delta > 0 ? 'bg-green-500/10 border-green-500/30' : delta === 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30';
+  const isDegenerate = Math.abs(a) < 0.001;
+  const deltaColor = isDegenerate ? 'text-slate-400' : delta > 0 ? 'text-green-400' : delta === 0 ? 'text-amber-400' : 'text-red-400';
+  const deltaBg = isDegenerate ? 'bg-slate-500/10 border-slate-500/30' : delta > 0 ? 'bg-green-500/10 border-green-500/30' : delta === 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30';
 
   const f = (x: number) => a * x * x + b * x + c;
 
@@ -56,45 +57,63 @@ export default function ParabolaController() {
             <SliderControl label="c" value={c} onChange={setC} min={-10} max={10} step={0.5} color="text-purple-400" />
           </div>
 
-          {/* Discriminant info */}
-          <div className={`rounded-xl p-3 border ${deltaBg}`}>
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <span className="text-xs font-bold text-slate-400">Δ = b² − 4ac = </span>
-                <span className={`font-bold font-mono ${deltaColor}`}>{delta.toFixed(2)}</span>
+          {/* Degenerate case warning (a ≈ 0) */}
+          {isDegenerate && (
+            <div className="rounded-xl p-3 border bg-amber-500/10 border-amber-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold text-xs">⚠️ a ≈ 0 : ce n&apos;est plus une parabole !</span>
               </div>
-              <div className={`text-xs font-bold ${deltaColor}`}>
-                {delta > 0 ? '✓ 2 racines distinctes' : delta === 0 ? '• 1 racine double' : '✗ Pas de racine réelle'}
+              <p className="text-[11px] text-slate-400 mt-1">
+                Quand a = 0, f(x) = bx + c est une <strong className="text-white">fonction affine</strong> (droite).
+                Le discriminant, le sommet et la notion de concavité n&apos;ont plus de sens.
+                {b !== 0 ? ` La droite coupe l'axe des x en x = ${(-c / b).toFixed(2)}.` : c === 0 ? ' La droite est confondue avec l\'axe des x.' : ' La droite est horizontale (y = ' + c.toFixed(1) + ').'}
+              </p>
+            </div>
+          )}
+
+          {/* Discriminant info (only for true parabola) */}
+          {!isDegenerate && (
+            <div className={`rounded-xl p-3 border ${deltaBg}`}>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <span className="text-xs font-bold text-slate-400">Δ = b² − 4ac = </span>
+                  <span className={`font-bold font-mono ${deltaColor}`}>{delta.toFixed(2)}</span>
+                </div>
+                <div className={`text-xs font-bold ${deltaColor}`}>
+                  {delta > 0 ? '✓ 2 racines distinctes' : delta === 0 ? '• 1 racine double' : '✗ Pas de racine réelle'}
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                Sommet S({alpha.toFixed(2)} ; {beta.toFixed(2)})
+                {a > 0 ? ' — Parabole ouverte vers le haut (minimum)' : ' — Parabole ouverte vers le bas (maximum)'}
+                {roots.length > 0 && (
+                  <span className="ml-3">
+                    Racines : {roots.map((r) => r.toFixed(2)).join(' ; ')}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="text-xs text-slate-500 mt-1">
-              Sommet S({alpha.toFixed(2)} ; {beta.toFixed(2)})
-              {roots.length > 0 && (
-                <span className="ml-3">
-                  Racines : {roots.map((r) => r.toFixed(2)).join(' ; ')}
-                </span>
-              )}
-            </div>
-          </div>
+          )}
 
           {/* Graph */}
           <div className="rounded-xl overflow-hidden border border-slate-700/50 bg-white">
             <Mafs viewBox={{ x: [-6, 6], y: [-8, 8] }} preserveAspectRatio={false} height={320}>
               <Coordinates.Cartesian />
-              {a !== 0 && (
-                <Plot.OfX
-                  y={f}
-                  color={delta > 0 ? Theme.green : delta === 0 ? Theme.yellow : Theme.red}
-                />
-              )}
-              {/* Vertex */}
-              {a !== 0 && <Point x={alpha} y={beta} color={Theme.blue} />}
+              {/* Parabola or line depending on a */}
+              <Plot.OfX
+                y={f}
+                color={isDegenerate ? Theme.blue : delta > 0 ? Theme.green : delta === 0 ? Theme.yellow : Theme.red}
+              />
+              {/* Vertex (only for parabola) */}
+              {!isDegenerate && <Point x={alpha} y={beta} color={Theme.blue} />}
               {/* Roots */}
               {roots.map((r, i) => (
                 <Point key={i} x={r} y={0} color={Theme.green} />
               ))}
+              {/* Line root when a=0 */}
+              {isDegenerate && b !== 0 && <Point x={-c / b} y={0} color={Theme.green} />}
               {/* Vertex label */}
-              {a !== 0 && (
+              {!isDegenerate && (
                 <MafsText x={alpha + 0.5} y={beta + 0.5} size={12}>
                   S
                 </MafsText>
@@ -104,9 +123,10 @@ export default function ParabolaController() {
 
           {/* Equation display */}
           <div className="text-center text-sm font-mono text-slate-300">
-            f(x) = {a !== 1 && a !== -1 ? a : a === -1 ? '−' : ''}x²
-            {b !== 0 ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b) !== 1 ? Math.abs(b) : ''}x` : ''}
-            {c !== 0 ? ` ${c > 0 ? '+' : '−'} ${Math.abs(c)}` : ''}
+            f(x) = {isDegenerate
+              ? `${b !== 0 ? (b !== 1 && b !== -1 ? b : b === -1 ? '−' : '') + 'x' : ''}${c !== 0 ? ` ${c > 0 && b !== 0 ? '+' : c < 0 ? '−' : ''} ${c !== 0 ? Math.abs(c) : ''}` : b === 0 ? '0' : ''}`
+              : `${a !== 1 && a !== -1 ? a : a === -1 ? '−' : ''}x²${b !== 0 ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b) !== 1 ? Math.abs(b) : ''}x` : ''}${c !== 0 ? ` ${c > 0 ? '+' : '−'} ${Math.abs(c)}` : ''}`
+            }
           </div>
         </div>
       )}
