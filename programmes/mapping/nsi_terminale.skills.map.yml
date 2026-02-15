@@ -16,18 +16,27 @@ domains:
       - skillId: NSI_TREES
         label: "Arbres binaires"
         tags: ["programme", "terminale", "eds", "nsi", "structures"]
+        chapterId: CH_NT_STRUCTURES
       - skillId: NSI_GRAPHS
         label: "Graphes (DFS/BFS)"
         tags: ["programme", "terminale", "eds", "nsi", "structures"]
+        chapterId: CH_NT_STRUCTURES
       - skillId: NSI_STACKS_QUEUES
         label: "Piles & Files"
         tags: ["programme", "terminale", "eds", "nsi", "structures"]
+        chapterId: CH_NT_STRUCTURES
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: NSI_LINKED_LISTS
         label: "Listes chaînées"
         tags: ["programme", "terminale", "eds", "nsi", "structures"]
+        chapterId: CH_NT_STRUCTURES
       - skillId: NSI_DICTS
         label: "Dictionnaires & Tables de hachage"
         tags: ["programme", "terminale", "eds", "nsi", "structures"]
+        chapterId: CH_NT_STRUCTURES
+        prerequisite: true
+        prerequisiteLevel: core
 
   - domainId: algorithmic_advanced
     domainLabel: "Algorithmique avancée"
@@ -36,18 +45,25 @@ domains:
       - skillId: NSI_COMPLEXITY_ADV
         label: "Complexité O(n), O(log n), O(n²)"
         tags: ["programme", "terminale", "eds", "nsi", "algo"]
+        chapterId: CH_NT_ALGO_ADV
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: NSI_DIVIDE_CONQUER
         label: "Diviser pour régner"
         tags: ["programme", "terminale", "eds", "nsi", "algo"]
+        chapterId: CH_NT_ALGO_ADV
       - skillId: NSI_DYNAMIC_PROG
         label: "Programmation dynamique"
         tags: ["programme", "terminale", "eds", "nsi", "algo"]
+        chapterId: CH_NT_ALGO_ADV
       - skillId: NSI_GRAPH_ALGO
         label: "Parcours de graphes (DFS/BFS)"
         tags: ["programme", "terminale", "eds", "nsi", "algo"]
+        chapterId: CH_NT_ALGO_ADV
       - skillId: NSI_SORT_ADV
         label: "Tris avancés (fusion, rapide)"
         tags: ["programme", "terminale", "eds", "nsi", "algo"]
+        chapterId: CH_NT_ALGO_ADV
 
   - domainId: databases
     domainLabel: "Bases de données"
@@ -56,15 +72,23 @@ domains:
       - skillId: NSI_SQL_SELECT
         label: "Requêtes SELECT"
         tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+        chapterId: CH_NT_BDD
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: NSI_SQL_JOIN
         label: "Requêtes JOIN"
         tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+        chapterId: CH_NT_BDD
       - skillId: NSI_RELATIONAL
         label: "Modèle relationnel"
         tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+        chapterId: CH_NT_BDD
+        prerequisite: true
+        prerequisiteLevel: core
       - skillId: NSI_SQL_CRUD
         label: "INSERT/UPDATE/DELETE"
         tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+        chapterId: CH_NT_BDD
 
   - domainId: networks
     domainLabel: "Réseaux & OS"
@@ -73,15 +97,19 @@ domains:
       - skillId: NSI_NETWORK_PROTO
         label: "Protocoles réseau (TCP/IP)"
         tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+        chapterId: CH_NT_RESEAUX
       - skillId: NSI_ROUTING_ADV
         label: "Routage (tables, algorithmes)"
         tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+        chapterId: CH_NT_RESEAUX
       - skillId: NSI_PROCESSES_ADV
         label: "Processus & ordonnancement"
         tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+        chapterId: CH_NT_RESEAUX
       - skillId: NSI_SECURITY
         label: "Sécurité informatique"
         tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+        chapterId: CH_NT_RESEAUX
 
   - domainId: systems_os
     domainLabel: "Systèmes d'exploitation"
@@ -90,9 +118,11 @@ domains:
       - skillId: NSI_OS_MEMORY
         label: "Gestion mémoire"
         tags: ["programme", "terminale", "eds", "nsi", "os"]
+        chapterId: CH_NT_OS
       - skillId: NSI_OS_FILES
         label: "Système de fichiers"
         tags: ["programme", "terminale", "eds", "nsi", "os"]
+        chapterId: CH_NT_OS
 
   - domainId: python_advanced
     domainLabel: "POO & Projets"
@@ -101,12 +131,15 @@ domains:
       - skillId: NSI_POO
         label: "Programmation Orientée Objet"
         tags: ["programme", "terminale", "eds", "nsi", "python"]
+        chapterId: CH_NT_POO
       - skillId: NSI_PY_RECURSION_ADV
         label: "Récursivité avancée"
         tags: ["programme", "terminale", "eds", "nsi", "python"]
+        chapterId: CH_NT_POO
       - skillId: NSI_PY_MODULES_ADV
         label: "Modules & API"
         tags: ["programme", "terminale", "eds", "nsi", "python"]
+        chapterId: CH_NT_POO
 
 chapters:
   - chapterId: CH_NT_STRUCTURES
@@ -114,28 +147,34 @@ chapters:
     description: "Arbres binaires, graphes, piles, files, listes chaînées, dictionnaires"
     domainId: data_structures
     skills: [NSI_TREES, NSI_GRAPHS, NSI_STACKS_QUEUES, NSI_LINKED_LISTS, NSI_DICTS]
+    ragTopics: [arbres, graphes, piles, files, listes_chainees, dictionnaires]
   - chapterId: CH_NT_ALGO_ADV
     chapterLabel: "Algorithmique avancée"
     description: "Complexité, diviser pour régner, programmation dynamique, parcours graphes"
     domainId: algorithmic_advanced
     skills: [NSI_COMPLEXITY_ADV, NSI_DIVIDE_CONQUER, NSI_DYNAMIC_PROG, NSI_GRAPH_ALGO, NSI_SORT_ADV]
+    ragTopics: [complexite, diviser_regner, programmation_dynamique, parcours_graphes, tri_fusion]
   - chapterId: CH_NT_BDD
     chapterLabel: "Bases de données"
     description: "Modèle relationnel, SQL SELECT/JOIN/CRUD"
     domainId: databases
     skills: [NSI_SQL_SELECT, NSI_SQL_JOIN, NSI_RELATIONAL, NSI_SQL_CRUD]
+    ragTopics: [sql, join, modele_relationnel, select, crud, requetes]
   - chapterId: CH_NT_RESEAUX
     chapterLabel: "Réseaux"
     description: "Protocoles, routage, sécurité informatique"
     domainId: networks
     skills: [NSI_NETWORK_PROTO, NSI_ROUTING_ADV, NSI_PROCESSES_ADV, NSI_SECURITY]
+    ragTopics: [tcp_ip, routage, securite, protocoles, ordonnancement]
   - chapterId: CH_NT_OS
     chapterLabel: "Systèmes d'exploitation"
     description: "Gestion mémoire, système de fichiers"
     domainId: systems_os
     skills: [NSI_OS_MEMORY, NSI_OS_FILES]
+    ragTopics: [memoire, fichiers, systeme_exploitation, permissions]
   - chapterId: CH_NT_POO
     chapterLabel: "POO et projets"
     description: "Programmation orientée objet, récursivité avancée, modules"
     domainId: python_advanced
     skills: [NSI_POO, NSI_PY_RECURSION_ADV, NSI_PY_MODULES_ADV]
+    ragTopics: [poo, classes, recursivite, modules, api]

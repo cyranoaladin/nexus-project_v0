@@ -67,8 +67,11 @@ export default function MathsRevisionClient() {
   const store = useMathsLabStore();
   const typeset = useMathJax([currentTab, selectedChapter]);
 
+  const [isMounted, setIsMounted] = useState(false);
+
   // Record activity + evaluate badges on mount
   useEffect(() => {
+    setIsMounted(true);
     store.recordActivity();
     store.evaluateBadges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,6 +94,14 @@ export default function MathsRevisionClient() {
     setSelectedChapter(null);
     setFocusMode(false);
   }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-slate-400 font-medium">
+        Chargement du Nexus...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-cyan-500/30 overflow-x-hidden">
@@ -391,11 +402,10 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
             <button
               onClick={() => store.buyStreakFreeze()}
               disabled={store.totalXP < 100}
-              className={`text-xs font-bold px-4 py-2 rounded-lg transition-all ${
-                store.totalXP >= 100
-                  ? 'bg-blue-600 text-white hover:bg-blue-500'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
-              }`}
+              className={`text-xs font-bold px-4 py-2 rounded-lg transition-all ${store.totalXP >= 100
+                ? 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                }`}
             >
               Acheter (100 XP)
             </button>
@@ -413,11 +423,10 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
             {badgeDefinitions.map((b) => (
               <div
                 key={b.id}
-                className={`text-lg p-1.5 rounded-lg transition-all ${
-                  store.badges.includes(b.id)
-                    ? 'bg-amber-500/20 border border-amber-500/30'
-                    : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
-                }`}
+                className={`text-lg p-1.5 rounded-lg transition-all ${store.badges.includes(b.id)
+                  ? 'bg-amber-500/20 border border-amber-500/30'
+                  : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
+                  }`}
                 title={`${b.nom}: ${b.description}`}
               >
                 {b.icon}
@@ -825,15 +834,15 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             elements={
               chapId === 'exponentielle'
                 ? [
-                    { type: 'function', fn: 'exp(x)', color: 'blue', label: 'eˣ' },
-                    { type: 'function', fn: 'x', color: 'red', label: 'y = x' },
-                  ]
+                  { type: 'function', fn: 'exp(x)', color: 'blue', label: 'eˣ' },
+                  { type: 'function', fn: 'x', color: 'red', label: 'y = x' },
+                ]
                 : chapId === 'trigonometrie'
-                ? [
+                  ? [
                     { type: 'function', fn: 'sin(x)', color: 'blue', label: 'sin(x)' },
                     { type: 'function', fn: 'cos(x)', color: 'red', label: 'cos(x)' },
                   ]
-                : [
+                  : [
                     { type: 'function', fn: 'x^2', color: 'blue', label: 'f(x) = x²' },
                     { type: 'function', fn: '2*x', color: 'red', label: "f'(x) = 2x" },
                   ]
@@ -847,16 +856,16 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             elements={
               chapId === 'equations-cercles'
                 ? [
-                    { type: 'circle', center: [2, -3] as [number, number], radius: 4, color: 'blue' },
-                    { type: 'point', x: 2, y: -3, color: 'red', label: 'Centre' },
-                  ]
+                  { type: 'circle', center: [2, -3] as [number, number], radius: 4, color: 'blue' },
+                  { type: 'point', x: 2, y: -3, color: 'red', label: 'Centre' },
+                ]
                 : chapId === 'produit-scalaire'
-                ? [
+                  ? [
                     { type: 'line', point1: [0, 0] as [number, number], point2: [3, 1] as [number, number], color: 'blue' },
                     { type: 'line', point1: [0, 0] as [number, number], point2: [1, 3] as [number, number], color: 'red' },
                     { type: 'point', x: 0, y: 0, color: 'green' },
                   ]
-                : [
+                  : [
                     { type: 'line', point1: [0, 0] as [number, number], point2: [3, 4] as [number, number], color: 'blue' },
                     { type: 'point', x: 0, y: 0, color: 'red' },
                     { type: 'point', x: 3, y: 4, color: 'green' },

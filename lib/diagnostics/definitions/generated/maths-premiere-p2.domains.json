@@ -5,7 +5,7 @@
   "level": "premiere",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:48:21.251Z",
+  "generatedAt": "2026-02-15T21:12:16.656Z",
   "domains": [
     {
       "domainId": "algebra",
@@ -21,7 +21,8 @@
             "eds",
             "algebre",
             "suites"
-          ]
+          ],
+          "chapterId": "CH_M1_SUITES"
         },
         {
           "skillId": "ALG_SUITE_GEO",
@@ -32,7 +33,8 @@
             "eds",
             "algebre",
             "suites"
-          ]
+          ],
+          "chapterId": "CH_M1_SUITES"
         },
         {
           "skillId": "ALG_SUITE_VARIATION",
@@ -43,7 +45,8 @@
             "eds",
             "algebre",
             "suites"
-          ]
+          ],
+          "chapterId": "CH_M1_SUITES"
         },
         {
           "skillId": "ALG_SUITE_CONV",
@@ -54,7 +57,8 @@
             "eds",
             "algebre",
             "suites"
-          ]
+          ],
+          "chapterId": "CH_M1_SUITES"
         },
         {
           "skillId": "ALG_MODEL_EXP",
@@ -64,7 +68,8 @@
             "premiere",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_M1_SUITES"
         },
         {
           "skillId": "ALG_QUADRATIC_EQ",
@@ -75,7 +80,10 @@
             "eds",
             "algebre",
             "second-degre"
-          ]
+          ],
+          "chapterId": "CH_M1_SECOND_DEGRE",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ALG_QUADRATIC_CANON",
@@ -86,7 +94,8 @@
             "eds",
             "algebre",
             "second-degre"
-          ]
+          ],
+          "chapterId": "CH_M1_SECOND_DEGRE"
         },
         {
           "skillId": "ALG_FACTORIZATION",
@@ -96,7 +105,10 @@
             "premiere",
             "eds",
             "algebre"
-          ]
+          ],
+          "chapterId": "CH_M1_SECOND_DEGRE",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         }
       ]
     },
@@ -114,7 +126,10 @@
             "eds",
             "analyse",
             "derivation"
-          ]
+          ],
+          "chapterId": "CH_M1_DERIVATION",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_DERIV_RULES",
@@ -125,7 +140,10 @@
             "eds",
             "analyse",
             "derivation"
-          ]
+          ],
+          "chapterId": "CH_M1_DERIVATION",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_DERIV_CHAIN",
@@ -136,7 +154,8 @@
             "eds",
             "analyse",
             "derivation"
-          ]
+          ],
+          "chapterId": "CH_M1_DERIVATION"
         },
         {
           "skillId": "ANA_VARIATIONS",
@@ -146,7 +165,10 @@
             "premiere",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_M1_VARIATIONS",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "ANA_OPTIMIZATION",
@@ -156,7 +178,8 @@
             "premiere",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_M1_VARIATIONS"
         },
         {
           "skillId": "ANA_EXP",
@@ -166,7 +189,8 @@
             "premiere",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_M1_EXPO"
         },
         {
           "skillId": "ANA_TRIG",
@@ -176,7 +200,8 @@
             "premiere",
             "eds",
             "analyse"
-          ]
+          ],
+          "chapterId": "CH_M1_TRIGO"
         }
       ]
     },
@@ -193,7 +218,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_PRODUIT_SCALAIRE"
         },
         {
           "skillId": "GEO_AL_KASHI",
@@ -203,7 +229,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_PRODUIT_SCALAIRE"
         },
         {
           "skillId": "GEO_MEDIAN_FORMULA",
@@ -213,7 +240,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_PRODUIT_SCALAIRE"
         },
         {
           "skillId": "GEO_ORTHOGONALITY",
@@ -223,7 +251,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_PRODUIT_SCALAIRE"
         },
         {
           "skillId": "GEO_LINE_EQUATION",
@@ -233,7 +262,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_GEO_REPEREE"
         },
         {
           "skillId": "GEO_CIRCLE_EQUATION",
@@ -243,7 +273,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_GEO_REPEREE"
         },
         {
           "skillId": "GEO_PROJECTION",
@@ -253,7 +284,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_GEO_REPEREE"
         },
         {
           "skillId": "GEO_DISTANCE_POINT_LINE",
@@ -263,7 +295,8 @@
             "premiere",
             "eds",
             "geometrie"
-          ]
+          ],
+          "chapterId": "CH_M1_GEO_REPEREE"
         }
       ]
     },
@@ -280,7 +313,8 @@
             "premiere",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_M1_PROBAS_COND"
         },
         {
           "skillId": "PROB_INDEPENDENCE",
@@ -290,7 +324,8 @@
             "premiere",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_M1_PROBAS_COND"
         },
         {
           "skillId": "PROB_TREE",
@@ -300,7 +335,8 @@
             "premiere",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_M1_PROBAS_COND"
         },
         {
           "skillId": "PROB_TOTAL",
@@ -310,7 +346,8 @@
             "premiere",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_M1_PROBAS_COND"
         },
         {
           "skillId": "PROB_RANDOM_VAR",
@@ -320,7 +357,8 @@
             "premiere",
             "eds",
             "probabilites"
-          ]
+          ],
+          "chapterId": "CH_M1_VAR_ALEATOIRE"
         }
       ]
     },
@@ -337,7 +375,10 @@
             "premiere",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_M1_ALGO_PYTHON",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "PY_LOOPS",
@@ -347,7 +388,10 @@
             "premiere",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_M1_ALGO_PYTHON",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "PY_LISTS",
@@ -357,7 +401,8 @@
             "premiere",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_M1_ALGO_PYTHON"
         },
         {
           "skillId": "PY_SEQ_SIM",
@@ -367,7 +412,8 @@
             "premiere",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_M1_ALGO_PYTHON"
         },
         {
           "skillId": "PY_MONTE_CARLO",
@@ -377,7 +423,8 @@
             "premiere",
             "eds",
             "python"
-          ]
+          ],
+          "chapterId": "CH_M1_ALGO_PYTHON"
         }
       ]
     },
@@ -394,7 +441,10 @@
             "premiere",
             "eds",
             "logique"
-          ]
+          ],
+          "chapterId": "CH_M1_LOGIQUE",
+          "prerequisite": true,
+          "prerequisiteLevel": "recommended"
         },
         {
           "skillId": "LOG_ENSEMBLES",
@@ -404,7 +454,8 @@
             "premiere",
             "eds",
             "logique"
-          ]
+          ],
+          "chapterId": "CH_M1_LOGIQUE"
         }
       ]
     }
@@ -421,6 +472,13 @@
         "ALG_SUITE_VARIATION",
         "ALG_SUITE_CONV",
         "ALG_MODEL_EXP"
+      ],
+      "ragTopics": [
+        "suites",
+        "arithmetique",
+        "geometrique",
+        "somme",
+        "convergence"
       ]
     },
     {
@@ -432,6 +490,12 @@
         "ALG_QUADRATIC_EQ",
         "ALG_QUADRATIC_CANON",
         "ALG_FACTORIZATION"
+      ],
+      "ragTopics": [
+        "second_degre",
+        "discriminant",
+        "factorisation",
+        "forme_canonique"
       ]
     },
     {
@@ -443,6 +507,12 @@
         "ANA_DERIV_DEF",
         "ANA_DERIV_RULES",
         "ANA_DERIV_CHAIN"
+      ],
+      "ragTopics": [
+        "derivee",
+        "nombre_derive",
+        "tangente",
+        "regles_derivation"
       ]
     },
     {
@@ -453,6 +523,12 @@
       "skills": [
         "ANA_VARIATIONS",
         "ANA_OPTIMIZATION"
+      ],
+      "ragTopics": [
+        "variations",
+        "extremum",
+        "optimisation",
+        "tableau_variations"
       ]
     },
     {
@@ -462,6 +538,11 @@
       "domainId": "analysis",
       "skills": [
         "ANA_EXP"
+      ],
+      "ragTopics": [
+        "exponentielle",
+        "croissance_comparee",
+        "modelisation"
       ]
     },
     {
@@ -471,6 +552,12 @@
       "domainId": "analysis",
       "skills": [
         "ANA_TRIG"
+      ],
+      "ragTopics": [
+        "trigonometrie",
+        "cercle_trigo",
+        "sinus_cosinus",
+        "equations_trigo"
       ]
     },
     {
@@ -483,6 +570,12 @@
         "GEO_AL_KASHI",
         "GEO_MEDIAN_FORMULA",
         "GEO_ORTHOGONALITY"
+      ],
+      "ragTopics": [
+        "produit_scalaire",
+        "al_kashi",
+        "orthogonalite",
+        "mediane"
       ]
     },
     {
@@ -495,6 +588,12 @@
         "GEO_CIRCLE_EQUATION",
         "GEO_PROJECTION",
         "GEO_DISTANCE_POINT_LINE"
+      ],
+      "ragTopics": [
+        "equation_droite",
+        "equation_cercle",
+        "projete_orthogonal",
+        "distance_point_droite"
       ]
     },
     {
@@ -507,6 +606,12 @@
         "PROB_INDEPENDENCE",
         "PROB_TREE",
         "PROB_TOTAL"
+      ],
+      "ragTopics": [
+        "probabilites_conditionnelles",
+        "independance",
+        "arbres_ponderes",
+        "formule_totale"
       ]
     },
     {
@@ -516,6 +621,11 @@
       "domainId": "prob_stats",
       "skills": [
         "PROB_RANDOM_VAR"
+      ],
+      "ragTopics": [
+        "variable_aleatoire",
+        "esperance",
+        "loi_discrete"
       ]
     },
     {
@@ -529,6 +639,14 @@
         "PY_LISTS",
         "PY_SEQ_SIM",
         "PY_MONTE_CARLO"
+      ],
+      "ragTopics": [
+        "python",
+        "fonctions",
+        "boucles",
+        "listes",
+        "simulation",
+        "monte_carlo"
       ]
     },
     {
@@ -539,6 +657,12 @@
       "skills": [
         "LOG_RAISONNEMENT",
         "LOG_ENSEMBLES"
+      ],
+      "ragTopics": [
+        "raisonnement",
+        "absurde",
+        "contraposee",
+        "ensembles"
       ]
     }
   ]

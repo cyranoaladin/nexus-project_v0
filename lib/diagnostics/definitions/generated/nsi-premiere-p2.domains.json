@@ -5,7 +5,7 @@
   "level": "premiere",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:48:21.270Z",
+  "generatedAt": "2026-02-15T21:12:16.693Z",
   "domains": [
     {
       "domainId": "data_representation",
@@ -21,7 +21,10 @@
             "eds",
             "nsi",
             "donnees"
-          ]
+          ],
+          "chapterId": "CH_N1_TYPES",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_TRUTH_TABLE",
@@ -32,7 +35,8 @@
             "eds",
             "nsi",
             "donnees"
-          ]
+          ],
+          "chapterId": "CH_N1_TYPES"
         },
         {
           "skillId": "NSI_BINARY",
@@ -43,7 +47,8 @@
             "eds",
             "nsi",
             "donnees"
-          ]
+          ],
+          "chapterId": "CH_N1_BINAIRE"
         },
         {
           "skillId": "NSI_CSV",
@@ -54,7 +59,8 @@
             "eds",
             "nsi",
             "donnees"
-          ]
+          ],
+          "chapterId": "CH_N1_DONNEES_TABLE"
         },
         {
           "skillId": "NSI_ENCODING",
@@ -65,7 +71,8 @@
             "eds",
             "nsi",
             "donnees"
-          ]
+          ],
+          "chapterId": "CH_N1_BINAIRE"
         }
       ]
     },
@@ -83,7 +90,8 @@
             "eds",
             "nsi",
             "traitement"
-          ]
+          ],
+          "chapterId": "CH_N1_DONNEES_TABLE"
         },
         {
           "skillId": "NSI_TABLE_SORT",
@@ -94,7 +102,8 @@
             "eds",
             "nsi",
             "traitement"
-          ]
+          ],
+          "chapterId": "CH_N1_DONNEES_TABLE"
         },
         {
           "skillId": "NSI_TABLE_FUSION",
@@ -105,7 +114,8 @@
             "eds",
             "nsi",
             "traitement"
-          ]
+          ],
+          "chapterId": "CH_N1_DONNEES_TABLE"
         }
       ]
     },
@@ -123,7 +133,10 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_N1_ALGO_BASE",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_SORT",
@@ -134,7 +147,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_N1_ALGO_BASE"
         },
         {
           "skillId": "NSI_KNN",
@@ -145,7 +159,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_N1_ALGO_BASE"
         },
         {
           "skillId": "NSI_GREEDY",
@@ -156,7 +171,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_N1_ALGO_BASE"
         }
       ]
     },
@@ -174,7 +190,10 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_N1_PYTHON",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_PY_TESTS",
@@ -185,7 +204,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_N1_PYTHON"
         },
         {
           "skillId": "NSI_PY_MODULES",
@@ -196,7 +216,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_N1_PYTHON"
         },
         {
           "skillId": "NSI_PY_RECURSION",
@@ -207,7 +228,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_N1_PYTHON"
         }
       ]
     },
@@ -225,7 +247,8 @@
             "eds",
             "nsi",
             "archi"
-          ]
+          ],
+          "chapterId": "CH_N1_ARCHI"
         },
         {
           "skillId": "NSI_PROCESSES",
@@ -236,7 +259,8 @@
             "eds",
             "nsi",
             "archi"
-          ]
+          ],
+          "chapterId": "CH_N1_ARCHI"
         },
         {
           "skillId": "NSI_NETWORK_PROTO",
@@ -247,7 +271,8 @@
             "eds",
             "nsi",
             "archi"
-          ]
+          ],
+          "chapterId": "CH_N1_RESEAUX"
         },
         {
           "skillId": "NSI_ROUTING",
@@ -258,7 +283,8 @@
             "eds",
             "nsi",
             "archi"
-          ]
+          ],
+          "chapterId": "CH_N1_RESEAUX"
         }
       ]
     }
@@ -272,6 +298,13 @@
       "skills": [
         "NSI_TYPES",
         "NSI_TRUTH_TABLE"
+      ],
+      "ragTopics": [
+        "types",
+        "booleens",
+        "entiers",
+        "flottants",
+        "construits"
       ]
     },
     {
@@ -282,6 +315,13 @@
       "skills": [
         "NSI_BINARY",
         "NSI_ENCODING"
+      ],
+      "ragTopics": [
+        "binaire",
+        "hexadecimal",
+        "ascii",
+        "utf8",
+        "encodage"
       ]
     },
     {
@@ -294,6 +334,13 @@
         "NSI_TABLE_SEARCH",
         "NSI_TABLE_SORT",
         "NSI_TABLE_FUSION"
+      ],
+      "ragTopics": [
+        "csv",
+        "tables",
+        "recherche",
+        "tri",
+        "fusion"
       ]
     },
     {
@@ -306,6 +353,13 @@
         "NSI_SORT",
         "NSI_KNN",
         "NSI_GREEDY"
+      ],
+      "ragTopics": [
+        "complexite",
+        "tri",
+        "knn",
+        "gloutons",
+        "algorithmes"
       ]
     },
     {
@@ -318,6 +372,13 @@
         "NSI_PY_TESTS",
         "NSI_PY_MODULES",
         "NSI_PY_RECURSION"
+      ],
+      "ragTopics": [
+        "python",
+        "fonctions",
+        "tests",
+        "modules",
+        "recursivite"
       ]
     },
     {
@@ -328,6 +389,12 @@
       "skills": [
         "NSI_VON_NEUMANN",
         "NSI_PROCESSES"
+      ],
+      "ragTopics": [
+        "architecture",
+        "von_neumann",
+        "processus",
+        "systeme"
       ]
     },
     {
@@ -338,6 +405,12 @@
       "skills": [
         "NSI_NETWORK_PROTO",
         "NSI_ROUTING"
+      ],
+      "ragTopics": [
+        "tcp_ip",
+        "routage",
+        "protocoles",
+        "ihm_web"
       ]
     }
   ]
