@@ -44,3 +44,8 @@ Ce document liste les variables d'environnement nécessaires pour déployer l'ap
 2. Vérifier que `SUPABASE_SERVICE_ROLE_KEY` n'apparaît dans aucun bundle client.
 3. Vérifier que les variables test-only ne sont pas définies en production.
 4. Vérifier que le rate limiting n'affiche plus d'alertes "DISABLED" au build/runtime.
+
+## Règle de classification rapide
+
+- Toute variable préfixée `NEXT_PUBLIC_` est exposée au navigateur (publique).
+- Toute variable sans préfixe `NEXT_PUBLIC_` est à traiter comme secrète côté serveur.
