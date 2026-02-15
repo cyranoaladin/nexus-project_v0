@@ -1,5 +1,8 @@
 import { MathJaxProvider } from './components/MathJaxProvider';
 import MathsRevisionClient from './components/MathsRevisionClient';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
 
 /**
  * Spécialité Maths Première - Interactive Revision Page
@@ -11,10 +14,28 @@ import MathsRevisionClient from './components/MathsRevisionClient';
  *
  * Based on B.O. Éducation Nationale 2025-2026 programme.
  */
-export default function MathsPremierePage() {
+export default async function MathsPremierePage() {
+  const bypassAuth = process.env.SKIP_APP_AUTH === 'true' && process.env.NODE_ENV !== 'production';
+  const callbackUrl = '/programme/maths-1ere';
+
+  let userId = 'e2e-student';
+  let displayName = 'Élève';
+
+  if (!bypassAuth) {
+    const session = await getServerSession(authOptions);
+    const sessionUser = session?.user as { id?: string; firstName?: string; name?: string } | undefined;
+
+    if (!sessionUser?.id) {
+      redirect(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    }
+
+    userId = sessionUser.id;
+    displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || displayName;
+  }
+
   return (
     <MathJaxProvider>
-      <MathsRevisionClient />
+      <MathsRevisionClient userId={userId} initialDisplayName={displayName} />
     </MathJaxProvider>
   );
 }
