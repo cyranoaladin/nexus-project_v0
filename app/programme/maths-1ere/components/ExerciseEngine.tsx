@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Exercice, ExerciceQCM, ExerciceNumerique, ExerciceOrdonnancement } from '../data';
 import { useMathJax } from './MathJaxProvider';
-import { areEquivalentAnswers } from '../lib/math-engine';
 
 // ─── QCM Exercise ───────────────────────────────────────────────────────────
 
@@ -94,13 +93,11 @@ function NumericExercise({
   const [value, setValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [errorHint, setErrorHint] = useState<string | null>(null);
 
   useEffect(() => {
     setValue('');
     setSubmitted(false);
     setIsCorrect(false);
-    setErrorHint(null);
   }, [exercice]);
 
   useEffect(() => {
@@ -111,45 +108,12 @@ function NumericExercise({
   const handleSubmit = () => {
     if (!value.trim()) return;
     const numVal = parseFloat(value.replace(',', '.'));
-    const expectedRaw = String(exercice.reponse).replace(/\$/g, '');
-    const expected = typeof exercice.reponse === 'number' ? exercice.reponse : parseFloat(expectedRaw.replace(',', '.'));
+    const expected = typeof exercice.reponse === 'number' ? exercice.reponse : parseFloat(String(exercice.reponse).replace(',', '.'));
     const tol = exercice.tolerance ?? 0.001;
-    const numericMatch = Number.isFinite(numVal) && Number.isFinite(expected) && Math.abs(numVal - expected) <= tol;
-    const symbolicMatch = areEquivalentAnswers(value, expectedRaw);
-    const correct = numericMatch || symbolicMatch;
+    const correct = Math.abs(numVal - expected) <= tol;
     setIsCorrect(correct);
     setSubmitted(true);
-
-    if (correct) {
-      onCorrect();
-      setErrorHint(null);
-    } else {
-      // ─── Error Profiling ────────────────────────────────────────
-      let hint: string | null = null;
-
-      // Sign error: student answered -expected
-      if (expected !== 0 && Math.abs(numVal + expected) <= tol) {
-        hint = '⚠️ Attention au signe ! Votre réponse a le signe opposé.';
-      }
-      // Factor error: student is off by an integer factor
-      else if (expected !== 0 && numVal !== 0) {
-        const ratio = numVal / expected;
-        if (Math.abs(ratio - Math.round(ratio)) < 0.01 && Math.abs(ratio) >= 2 && Math.abs(ratio) <= 10) {
-          hint = `⚠️ Vérifiez le coefficient ! Votre réponse semble être ×${Math.round(ratio)} la réponse attendue.`;
-        }
-        // Inverse error: student swapped numerator/denominator
-        const invRatio = expected / numVal;
-        if (!hint && Math.abs(invRatio - Math.round(invRatio)) < 0.01 && Math.abs(invRatio) >= 2 && Math.abs(invRatio) <= 10) {
-          hint = '⚠️ Vérifiez l\'ordre ! Vous avez peut-être inversé numérateur et dénominateur.';
-        }
-        // Off by one
-        if (!hint && Math.abs(numVal - expected) === 1) {
-          hint = '⚠️ Presque ! Vous êtes à 1 près. Attention aux bornes et aux indices.';
-        }
-      }
-
-      setErrorHint(hint);
-    }
+    if (correct) onCorrect();
   };
 
   return (
@@ -178,18 +142,11 @@ function NumericExercise({
           Valider
         </button>
       ) : (
-        <div className="space-y-2">
-          <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
-            <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-              {isCorrect ? '✓ Correct !' : `✗ Incorrect — Réponse attendue : ${exercice.reponse}`}
-            </p>
-            <p className="text-slate-400">{exercice.explication}</p>
-          </div>
-          {errorHint && (
-            <div className="p-3 rounded-xl text-sm bg-amber-500/10 border border-amber-500/30">
-              <p className="text-amber-400 font-bold">{errorHint}</p>
-            </div>
-          )}
+        <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+          <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+            {isCorrect ? '✓ Correct !' : `✗ Incorrect — Réponse attendue : ${exercice.reponse}`}
+          </p>
+          <p className="text-slate-400">{exercice.explication}</p>
         </div>
       )}
     </div>
@@ -347,10 +304,11 @@ export default function ExerciseEngine({
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
-              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentIndex
-                ? 'bg-cyan-500 text-white'
-                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                }`}
+              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                i === currentIndex
+                  ? 'bg-cyan-500 text-white'
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              }`}
             >
               {i + 1}
             </button>
