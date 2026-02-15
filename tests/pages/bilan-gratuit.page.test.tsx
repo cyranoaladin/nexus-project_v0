@@ -5,7 +5,7 @@ import BilanGratuitPage from '@/app/bilan-gratuit/page';
 jest.mock('framer-motion', () => ({
   motion: {
     div: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    button: ({ children, whileHover, whileTap, transition, ...props }: { children: React.ReactNode }) => (
+    button: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
       <button {...props}>{children}</button>
     ),
   },
