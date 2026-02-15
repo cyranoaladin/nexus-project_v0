@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { UserRole } from '@/types/enums';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { createId } from '@paralleldrive/cuid2';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
@@ -11,6 +12,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const isTestEnv = process.env.NODE_ENV === 'test';
+
+    // CSRF protection — verify same-origin
+    const csrfResponse = checkCsrf(request);
+    if (csrfResponse) return csrfResponse;
+
+    // Body size limit — reject oversized payloads (1MB)
+    const bodySizeResponse = checkBodySize(request);
+    if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting (10 requests per minute per IP)
     const rateLimitResponse = await checkRateLimit(request, 'api');

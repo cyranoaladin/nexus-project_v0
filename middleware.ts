@@ -37,8 +37,8 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 
 export default withAuth(
   function middleware(req) {
-    // Bypass middleware for E2E tests
-    if (process.env.DISABLE_MIDDLEWARE === 'true') {
+    // Bypass middleware for E2E tests (NEVER in production)
+    if (process.env.DISABLE_MIDDLEWARE === 'true' && process.env.NODE_ENV !== 'production') {
       return NextResponse.next();
     }
 
@@ -144,8 +144,8 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Bypass auth for E2E tests
-        if (process.env.DISABLE_MIDDLEWARE === 'true') {
+        // Bypass auth for E2E tests (NEVER in production)
+        if (process.env.DISABLE_MIDDLEWARE === 'true' && process.env.NODE_ENV !== 'production') {
           return true;
         }
 
