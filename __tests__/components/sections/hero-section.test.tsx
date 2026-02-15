@@ -107,7 +107,9 @@ describe('HeroSection', () => {
     render(<HeroSection />);
 
     // Vérifier la présence des piliers principaux
-    expect(screen.getByText(/Agrégés et Certifiés/i)).toBeInTheDocument();
+    // Text appears in both a <span> and a <p> — use getAllByText
+    const agregesElements = screen.getAllByText(/Agrégés et Certifiés/i);
+    expect(agregesElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/IA ARIA/i)).toBeInTheDocument();
     expect(screen.getByText(/24\/7/i)).toBeInTheDocument();
 
