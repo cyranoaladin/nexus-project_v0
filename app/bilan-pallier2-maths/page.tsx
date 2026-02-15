@@ -14,10 +14,11 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, GraduationCap, Loader2, Calculator, Target, TrendingUp, ChevronDown, AlertTriangle, BarChart3, Code2, Lightbulb, Sigma, FileText, BrainCircuit, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast, Toaster } from "sonner";
 import { track } from "@/lib/analytics";
 import SplashScreen from "@/components/ui/SplashScreen";
+import type { ChapterDefinition } from "@/lib/diagnostics/types";
 
 import {
   createCompetency,
@@ -33,9 +34,25 @@ import {
   ERROR_ENUM
 } from "@/lib/diagnostics/skills-data";
 
+/** Chapter status in the checklist */
+type ChapterStatus = 'seen' | 'inProgress' | 'notYet';
+
+/** Loaded definition metadata from API */
+interface DefinitionMeta {
+  key: string;
+  label: string;
+  track: string;
+  level: string;
+  domains: Array<{ domainId: string; weight: number; skills: Array<{ skillId: string; label: string }> }>;
+  chapters: ChapterDefinition[];
+}
+
 interface FormData {
   version: string;
   submittedAt: string;
+  discipline: 'maths' | 'nsi' | '';
+  level: 'premiere' | 'terminale' | '';
+  definitionKey: string;
   identity: {
     firstName: string;
     lastName: string;
@@ -60,6 +77,9 @@ interface FormData {
     chaptersStudied: string;
     chaptersInProgress: string;
     chaptersNotYet: string;
+    selected?: string[];
+    inProgress?: string[];
+    notYet?: string[];
   };
   competencies: {
     algebra: CompetencyItem[];
@@ -183,12 +203,15 @@ function CompetencyRow({ competency, onUpdate }: { competency: CompetencyItem; o
 export default function BilanPallier2MathsPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 7;
 
   const [formData, setFormData] = useState<FormData>({
     version: "v1.3",
     submittedAt: new Date().toISOString(),
+    discipline: '',
+    level: '',
+    definitionKey: '',
     identity: { firstName: "", lastName: "", birthDate: "", email: "", phone: "", city: "" },
     schoolContext: { establishment: "", mathTrack: "", mathTeacher: "", classSize: "" },
     performance: { generalAverage: "", mathAverage: "", lastTestScore: "", classRanking: "" },
@@ -216,13 +239,92 @@ export default function BilanPallier2MathsPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Definition loaded from API
+  const [definitionMeta, setDefinitionMeta] = useState<DefinitionMeta | null>(null);
+  const [isLoadingDef, setIsLoadingDef] = useState(false);
+
+  // Chapter statuses: chapterId → status
+  const [chapterStatuses, setChapterStatuses] = useState<Record<string, ChapterStatus>>({});
+
+  // Has the user confirmed discipline/level (Step 0 gate)?
+  const hasChosenProgramme = formData.discipline !== '' && formData.level !== '' && formData.definitionKey !== '';
+
+  // Load definition from API when definitionKey changes
+  const loadDefinition = useCallback(async (defKey: string) => {
+    if (!defKey) return;
+    setIsLoadingDef(true);
+    try {
+      const res = await fetch(`/api/diagnostics/definitions?id=${defKey}`);
+      if (!res.ok) throw new Error('Definition not found');
+      const data: DefinitionMeta = await res.json();
+      setDefinitionMeta(data);
+
+      // Initialize chapter statuses (all notYet by default)
+      const statuses: Record<string, ChapterStatus> = {};
+      for (const ch of data.chapters ?? []) {
+        statuses[ch.chapterId] = 'notYet';
+      }
+      setChapterStatuses(statuses);
+
+      // Build competencies from definition domains
+      const newCompetencies: Record<string, CompetencyItem[]> = {};
+      for (const domain of data.domains) {
+        newCompetencies[domain.domainId] = domain.skills.map(s => createCompetency(s.skillId, s.label));
+      }
+      setFormData(p => ({
+        ...p,
+        competencies: newCompetencies as FormData['competencies'],
+      }));
+    } catch (err) {
+      console.error('Failed to load definition:', err);
+      toast.error('Erreur lors du chargement de la définition');
+    } finally {
+      setIsLoadingDef(false);
+    }
+  }, []);
+
+  // Handle discipline/level selection (Step 0)
+  const handleProgrammeSelect = (discipline: 'maths' | 'nsi', level: 'premiere' | 'terminale') => {
+    const defKey = `${discipline}-${level}-p2`;
+    const mathTrack = `eds_${discipline}_${level === 'premiere' ? '1ere' : 'tle'}`;
+    setFormData(p => ({
+      ...p,
+      discipline,
+      level,
+      definitionKey: defKey,
+      schoolContext: { ...p.schoolContext, mathTrack },
+    }));
+    loadDefinition(defKey);
+  };
+
   // Derived track info for dynamic UI
   const trackKey = formData.schoolContext.mathTrack || 'eds_maths_1ere';
-  const isMaths = trackKey.includes('maths');
-  const isTerminale = trackKey.includes('tle');
+  const isMaths = formData.discipline === 'maths' || trackKey.includes('maths');
+  const isTerminale = formData.level === 'terminale' || trackKey.includes('tle');
   const disciplineLabel = isMaths ? 'Mathématiques' : 'NSI';
   const levelLabel = isTerminale ? 'Terminale' : 'Première';
   const trackLabel = `${disciplineLabel} — ${levelLabel} Spécialité`;
+
+  // Sync chapter statuses → formData.chapters structured arrays
+  useEffect(() => {
+    const selected: string[] = [];
+    const inProgress: string[] = [];
+    const notYet: string[] = [];
+    for (const [chId, status] of Object.entries(chapterStatuses)) {
+      if (status === 'seen') selected.push(chId);
+      else if (status === 'inProgress') inProgress.push(chId);
+      else notYet.push(chId);
+    }
+    setFormData(p => ({
+      ...p,
+      chapters: {
+        ...p.chapters,
+        selected,
+        inProgress,
+        notYet,
+      } as FormData['chapters'],
+    }));
+  }, [chapterStatuses]);
 
   const updateIdentity = (f: keyof FormData["identity"], v: string) => setFormData(p => ({ ...p, identity: { ...p.identity, [f]: v } }));
   const updateSchool = (f: keyof FormData["schoolContext"], v: string) => {
@@ -270,6 +372,9 @@ export default function BilanPallier2MathsPage() {
 
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
+    if (step === 0) {
+      if (!hasChosenProgramme) { newErrors.programme = "Veuillez choisir votre discipline et niveau"; }
+    }
     if (step === 1) {
       if (!formData.identity.firstName) newErrors.firstName = "Prénom requis";
       if (!formData.identity.lastName) newErrors.lastName = "Nom requis";
@@ -278,6 +383,11 @@ export default function BilanPallier2MathsPage() {
     }
     if (step === 2) {
       if (!formData.performance.mathAverage) newErrors.mathAverage = "Moyenne maths requise";
+      // Require at least 1 chapter marked as seen or inProgress
+      const seenCount = Object.values(chapterStatuses).filter(s => s === 'seen' || s === 'inProgress').length;
+      if (definitionMeta && definitionMeta.chapters.length > 0 && seenCount === 0) {
+        newErrors.chapters = "Cochez au moins 1 chapitre vu ou en cours";
+      }
     }
     if (step === 5) {
       if (!formData.examPrep.signals.feeling) newErrors.feeling = "Ressenti requis";
@@ -304,7 +414,7 @@ export default function BilanPallier2MathsPage() {
     }
   };
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       let prev = currentStep - 1;
       // Skip step 4 (Anticipation Tle) for Terminale tracks
       if (isTerminale && prev === 4) prev = 3;
@@ -329,8 +439,8 @@ export default function BilanPallier2MathsPage() {
   };
 
   const stepTitles = isTerminale
-    ? ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Épreuve BAC", "Méthodo", "Objectifs"]
-    : ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Anticipation Tle", "Épreuve anticipée", "Méthodo", "Objectifs"];
+    ? ["Programme", "Identité", "Contexte & Chapitres", `Compétences ${disciplineLabel}`, "Épreuve BAC", "Méthodo", "Objectifs"]
+    : ["Programme", "Identité", "Contexte & Chapitres", `Compétences ${disciplineLabel}`, "Anticipation Tle", "Épreuve anticipée", "Méthodo", "Objectifs"];
   const effectiveTotalSteps = isTerminale ? 6 : 7;
   const [showSplash, setShowSplash] = useState(true);
 
@@ -363,15 +473,54 @@ export default function BilanPallier2MathsPage() {
             <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{effectiveTotalSteps}</span><span className="text-slate-400">{Math.round((currentStep / effectiveTotalSteps) * 100)}%</span></div>
             <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep / effectiveTotalSteps) * 100}%` }} /></div>
             <div className="flex justify-center gap-2 mt-4 flex-wrap">
-              {Array.from({ length: effectiveTotalSteps }, (_, i) => i + 1).map(s => (
-                <button key={s} onClick={() => setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-400"}`}>
+              {Array.from({ length: effectiveTotalSteps + 1 }, (_, i) => i).map(s => (
+                <button key={s} onClick={() => s <= currentStep && setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-400"}`}>
                   {currentStep > s ? "✓" : s}
                 </button>
               ))}
             </div>
-            <h2 className="text-xl font-semibold text-white text-center mt-4">{stepTitles[currentStep - 1]}</h2>
+            <h2 className="text-xl font-semibold text-white text-center mt-4">{stepTitles[currentStep] ?? ''}</h2>
           </div>
           <AnimatePresence mode="wait">
+            {currentStep === 0 && (
+              <motion.div key="s0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <Card className="border-white/10 bg-white/5">
+                  <CardHeader><CardTitle className="flex items-center text-white"><Target className="w-5 h-5 mr-2 text-brand-accent" />Choisissez votre programme</CardTitle></CardHeader>
+                  <CardContent>
+                    <p className="text-slate-300 mb-6">Sélectionnez votre discipline et niveau. Ce choix détermine les chapitres, compétences et le barème de votre diagnostic.</p>
+                    {isLoadingDef && <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-brand-accent" /><span className="ml-2 text-slate-300">Chargement de la définition...</span></div>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {([
+                        { discipline: 'maths' as const, level: 'premiere' as const, label: 'Maths — Première Spé', desc: '6 domaines • 35 compétences • 12 chapitres', icon: Sigma, color: 'border-blue-500/40 hover:border-blue-500' },
+                        { discipline: 'maths' as const, level: 'terminale' as const, label: 'Maths — Terminale Spé', desc: '5 domaines • 35 compétences • 11 chapitres', icon: Calculator, color: 'border-purple-500/40 hover:border-purple-500' },
+                        { discipline: 'nsi' as const, level: 'premiere' as const, label: 'NSI — Première Spé', desc: '5 domaines • 20 compétences • 7 chapitres', icon: Code2, color: 'border-green-500/40 hover:border-green-500' },
+                        { discipline: 'nsi' as const, level: 'terminale' as const, label: 'NSI — Terminale Spé', desc: '6 domaines • 23 compétences • 6 chapitres', icon: BrainCircuit, color: 'border-orange-500/40 hover:border-orange-500' },
+                      ]).map(opt => {
+                        const isSelected = formData.discipline === opt.discipline && formData.level === opt.level;
+                        return (
+                          <button key={`${opt.discipline}-${opt.level}`} type="button"
+                            onClick={() => handleProgrammeSelect(opt.discipline, opt.level)}
+                            className={`p-4 rounded-xl border-2 text-left transition-all ${isSelected ? 'border-brand-accent bg-brand-accent/10 ring-2 ring-brand-accent/30' : `${opt.color} bg-white/5`}`}>
+                            <div className="flex items-center gap-3 mb-2">
+                              <opt.icon className={`w-6 h-6 ${isSelected ? 'text-brand-accent' : 'text-slate-400'}`} />
+                              <span className={`font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>{opt.label}</span>
+                              {isSelected && <CheckCircle className="w-5 h-5 text-brand-accent ml-auto" />}
+                            </div>
+                            <p className="text-xs text-slate-400">{opt.desc}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {hasChosenProgramme && definitionMeta && (
+                      <div className="mt-4 p-3 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
+                        <p className="text-sm text-brand-accent font-medium">✓ {definitionMeta.label}</p>
+                        <p className="text-xs text-slate-400 mt-1">{definitionMeta.domains.length} domaines • {definitionMeta.chapters.length} chapitres officiels</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
             {currentStep === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <Card className="border-white/10 bg-white/5">
@@ -404,34 +553,109 @@ export default function BilanPallier2MathsPage() {
                       <div><Label className="text-slate-200">Dernier DS</Label><Input value={formData.performance.lastTestScore} onChange={e => updatePerf("lastTestScore", e.target.value)} className="bg-white/5 border-white/10" placeholder="12/20" /></div>
                       <div><Label className="text-slate-200">Classement</Label><Input value={formData.performance.classRanking} onChange={e => updatePerf("classRanking", e.target.value)} className="bg-white/5 border-white/10" placeholder="5e/35" /></div>
                     </div>
-                    <div><Label className="text-slate-200">Chapitres vus depuis septembre</Label><Textarea value={formData.chapters.chaptersStudied} onChange={e => updateChapter("chaptersStudied", e.target.value)} className="bg-white/5 border-white/10 min-h-[80px]" placeholder="Copiez les titres des chapitres terminés..." /></div>
-                    <div><Label className="text-slate-200">Chapitres en cours</Label><Textarea value={formData.chapters.chaptersInProgress} onChange={e => updateChapter("chaptersInProgress", e.target.value)} className="bg-white/5 border-white/10 min-h-[60px]" placeholder="Chapitres actuellement étudiés..." /></div>
-                    <div><Label className="text-slate-200">Chapitres non encore abordés</Label><Textarea value={formData.chapters.chaptersNotYet} onChange={e => updateChapter("chaptersNotYet", e.target.value)} className="bg-white/5 border-white/10 min-h-[60px]" placeholder="Chapitres restants à voir..." /></div>
+                    {/* Structured chapters checklist from definition */}
+                    {definitionMeta && definitionMeta.chapters.length > 0 ? (
+                      <div className="space-y-3">
+                        <Label className="text-slate-200 text-base font-semibold">Chapitres du programme officiel</Label>
+                        <p className="text-xs text-slate-400 mb-2">Pour chaque chapitre, indiquez votre avancement. Cliquez pour changer le statut.</p>
+                        <div className="flex gap-4 text-xs text-slate-400 mb-3">
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500/60 inline-block" /> Vu</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500/60 inline-block" /> En cours</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-slate-600 inline-block" /> Pas encore</span>
+                        </div>
+                        {/* Group chapters by domain */}
+                        {(() => {
+                          const domainMap = new Map<string, typeof definitionMeta.chapters>();
+                          for (const ch of definitionMeta.chapters) {
+                            if (!domainMap.has(ch.domainId)) domainMap.set(ch.domainId, []);
+                            domainMap.get(ch.domainId)!.push(ch);
+                          }
+                          const domainLabels = new Map(definitionMeta.domains.map(d => [d.domainId, d.domainId]));
+                          // Use domain label from DOMAIN_LABELS if available
+                          const labels = DOMAIN_LABELS[trackKey] || {};
+                          return Array.from(domainMap.entries()).map(([domainId, chapters]) => (
+                            <div key={domainId} className="border border-white/10 rounded-lg p-3">
+                              <h4 className="text-sm font-medium text-slate-200 mb-2">{labels[domainId] || domainLabels.get(domainId) || domainId}</h4>
+                              <div className="space-y-1">
+                                {chapters.map(ch => {
+                                  const status = chapterStatuses[ch.chapterId] || 'notYet';
+                                  const nextStatus: ChapterStatus = status === 'notYet' ? 'seen' : status === 'seen' ? 'inProgress' : 'notYet';
+                                  const bgColor = status === 'seen' ? 'bg-green-500/15 border-green-500/30' : status === 'inProgress' ? 'bg-yellow-500/15 border-yellow-500/30' : 'bg-white/5 border-white/10';
+                                  const dotColor = status === 'seen' ? 'bg-green-500' : status === 'inProgress' ? 'bg-yellow-500' : 'bg-slate-600';
+                                  const statusLabel = status === 'seen' ? 'Vu' : status === 'inProgress' ? 'En cours' : 'Pas encore';
+                                  return (
+                                    <button key={ch.chapterId} type="button"
+                                      onClick={() => setChapterStatuses(prev => ({ ...prev, [ch.chapterId]: nextStatus }))}
+                                      className={`w-full flex items-center gap-2 p-2 rounded-lg border text-left transition-all ${bgColor} hover:brightness-110`}
+                                      title={ch.description}>
+                                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dotColor}`} />
+                                      <span className="flex-1 text-xs text-slate-200">{ch.chapterLabel}</span>
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-white/20">{statusLabel}</Badge>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ));
+                        })()}
+                        {/* Summary */}
+                        {(() => {
+                          const seen = Object.values(chapterStatuses).filter(s => s === 'seen').length;
+                          const inProg = Object.values(chapterStatuses).filter(s => s === 'inProgress').length;
+                          const notYet = Object.values(chapterStatuses).filter(s => s === 'notYet').length;
+                          const total = definitionMeta.chapters.length;
+                          const pct = total > 0 ? Math.round(((seen + inProg) / total) * 100) : 0;
+                          return (
+                            <div className={`p-3 rounded-lg border ${pct >= 50 ? 'bg-green-500/10 border-green-500/20' : pct >= 30 ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                              <p className="text-sm text-slate-200">Couverture : <strong>{seen + inProg}/{total}</strong> chapitres ({pct}%)</p>
+                              <p className="text-xs text-slate-400">{seen} vus • {inProg} en cours • {notYet} pas encore</p>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <>
+                        <div><Label className="text-slate-200">Chapitres vus depuis septembre</Label><Textarea value={formData.chapters.chaptersStudied} onChange={e => updateChapter("chaptersStudied", e.target.value)} className="bg-white/5 border-white/10 min-h-[80px]" placeholder="Copiez les titres des chapitres terminés..." /></div>
+                        <div><Label className="text-slate-200">Chapitres en cours</Label><Textarea value={formData.chapters.chaptersInProgress} onChange={e => updateChapter("chaptersInProgress", e.target.value)} className="bg-white/5 border-white/10 min-h-[60px]" placeholder="Chapitres actuellement étudiés..." /></div>
+                        <div><Label className="text-slate-200">Chapitres non encore abordés</Label><Textarea value={formData.chapters.chaptersNotYet} onChange={e => updateChapter("chaptersNotYet", e.target.value)} className="bg-white/5 border-white/10 min-h-[60px]" placeholder="Chapitres restants à voir..." /></div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
             )}
             {currentStep === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                {[
+                {/* Dynamic domains from definition or fallback to hardcoded */}
+                {(definitionMeta ? definitionMeta.domains.map(d => ({ key: d.domainId, icon: Sigma })) : [
                   { key: "algebra", icon: Sigma },
                   { key: "analysis", icon: TrendingUp },
                   { key: "geometry", icon: Calculator },
                   { key: "probabilities", icon: BarChart3 },
                   { key: "python", icon: Code2 }
-                ].map(domain => {
-                  const trackKey = formData.schoolContext.mathTrack || 'eds_maths_1ere';
+                ]).map(domain => {
                   const labels = DOMAIN_LABELS[trackKey] || DOMAIN_LABELS['eds_maths_1ere'];
-                  const title = labels[domain.key] || domain.key;
-                  // Only render if there are skills in this domain
-                  if (formData.competencies[domain.key as keyof FormData["competencies"]].length === 0) return null;
+                  const defDomain = definitionMeta?.domains.find(d => d.domainId === domain.key);
+                  const title = labels[domain.key] || defDomain?.domainId || domain.key;
+                  const domainItems = (formData.competencies as Record<string, CompetencyItem[]>)[domain.key];
+                  if (!domainItems || domainItems.length === 0) return null;
+
+                  // Pick icon based on domain key
+                  const IconComp = domain.key.includes('algo') || domain.key.includes('python') ? Code2
+                    : domain.key.includes('prob') || domain.key.includes('stat') ? BarChart3
+                    : domain.key.includes('geo') || domain.key.includes('space') ? Calculator
+                    : domain.key.includes('analysis') || domain.key.includes('ana') ? TrendingUp
+                    : domain.key.includes('data') ? FileText
+                    : domain.key.includes('network') || domain.key.includes('system') || domain.key.includes('archi') ? BrainCircuit
+                    : domain.key.includes('database') || domain.key.includes('sql') ? BookOpen
+                    : Sigma;
 
                   return (
                     <Card key={domain.key} className="border-white/10 bg-white/5">
-                      <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><domain.icon className="w-4 h-4 mr-2 text-brand-accent" />{title}</CardTitle></CardHeader>
+                      <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><IconComp className="w-4 h-4 mr-2 text-brand-accent" />{title}</CardTitle></CardHeader>
                       <CardContent className="py-2">
                         <div className="text-xs text-slate-500 mb-2 flex gap-2"><span className="w-[90px]">Statut</span><span className="flex-1 min-w-[140px]">Compétence</span><span className="w-24">Maîtrise</span></div>
-                        {formData.competencies[domain.key as keyof FormData["competencies"]].map((comp, idx) => (
+                        {domainItems.map((comp, idx) => (
                           <CompetencyRow key={comp.skillId} competency={comp} onUpdate={(f, v) => updateCompetency(domain.key as keyof FormData["competencies"], idx, f, v)} />
                         ))}
                       </CardContent>
