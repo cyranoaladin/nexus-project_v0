@@ -2,11 +2,7 @@
   "name": "nexus-reussite-app",
   "version": "0.1.0",
   "private": true,
-  "bin": {
-    "": "/cli/index.ts"
-  },
   "scripts": {
-    "": "tsx /cli/index.ts",
     "dev": "next dev",
     "build": "next build && node scripts/copy-public-assets.js",
     "build:base": "next build",
