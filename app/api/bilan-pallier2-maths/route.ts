@@ -6,7 +6,7 @@ import { computeScoring } from '@/lib/bilan-scoring';
 import { computeScoringV2 } from '@/lib/diagnostics/score-diagnostic';
 import { generateBilans } from '@/lib/bilan-generator';
 import { buildQualityFlags } from '@/lib/diagnostics/llm-contract';
-import { getDefinition, resolveDefinitionKey } from '@/lib/diagnostics/definitions';
+import { getDefinition } from '@/lib/diagnostics/definitions';
 import { DiagnosticStatus } from '@/lib/diagnostics/types';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { safeSubmissionLog, safeDiagnosticLog } from '@/lib/diagnostics/safe-log';
@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
       where: headerKey
         ? { type: 'DIAGNOSTIC_PRE_STAGE_MATHS', data: { path: ['idempotencyKey'], equals: headerKey } }
         : {
-            studentEmail: validatedData.identity.email,
-            type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
-            createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
-          },
+          studentEmail: validatedData.identity.email,
+          type: 'DIAGNOSTIC_PRE_STAGE_MATHS',
+          createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) },
+        },
       select: { id: true, publicShareId: true, status: true },
     });
     if (existingDuplicate) {
@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Resolve definition
-    const defKey = 'maths-premiere-p2';
+    // Use the selected track (EDS/Niveau) as the definition key, fallback to default if missing
+    const defKey = validatedData.schoolContext.mathTrack || 'maths-premiere-p2';
     const definition = getDefinition(defKey);
 
     // 3. Compute scoring V1 (backward compat) + V2 (new indices)
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         establishment: validatedData.schoolContext.establishment,
         teacherName: validatedData.schoolContext.mathTeacher,
         mathAverage: validatedData.performance.mathAverage,
-        specialtyAverage: validatedData.performance.mathAverage,
+        specialtyAverage: validatedData.performance.lastTestScore,
         bacBlancResult: validatedData.performance.lastTestScore,
         classRanking: validatedData.performance.classRanking,
         data: diagnosticData,
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
       const errorMessage = bilanError instanceof Error ? bilanError.message : 'Unknown error';
       const errorCode = errorMessage.includes('timeout') ? 'OLLAMA_TIMEOUT'
         : errorMessage.includes('Empty') ? 'OLLAMA_EMPTY_RESPONSE'
-        : 'UNKNOWN_ERROR';
+          : 'UNKNOWN_ERROR';
 
       console.error(safeDiagnosticLog('LLM_FAILED', diagnostic.id, { errorCode, attempt: 1 }));
       await prisma.diagnostic.update({

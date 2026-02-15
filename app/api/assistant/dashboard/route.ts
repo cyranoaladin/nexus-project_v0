@@ -110,6 +110,10 @@ export async function GET(request: NextRequest) {
             lt: new Date(new Date().setHours(23, 59, 59, 999))
           }
         },
+        include: {
+          student: { select: { firstName: true, lastName: true } },
+          coach: { select: { firstName: true, lastName: true, coachProfile: { select: { pseudonym: true } } } }
+        },
         orderBy: [
           { scheduledDate: 'asc' },
           { startTime: 'asc' }
@@ -119,6 +123,10 @@ export async function GET(request: NextRequest) {
       // Recent activities (last 10) from SessionBooking
       prisma.sessionBooking.findMany({
         take: 10,
+        include: {
+          student: { select: { firstName: true, lastName: true } },
+          coach: { select: { firstName: true, lastName: true, coachProfile: { select: { pseudonym: true } } } }
+        },
         orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }]
       })
     ]);
@@ -128,23 +136,25 @@ export async function GET(request: NextRequest) {
     const subscriptionRevenueAmount = subscriptionRevenue._sum.monthlyPrice || 0;
     const totalRevenue = paymentRevenueAmount + subscriptionRevenueAmount;
 
-    // Format today's sessions
-    const formattedTodaySessions = todaySessions.map((s) => ({
+    // Format today's sessions (includes student + coach from query)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formattedTodaySessions = todaySessions.map((s: any) => ({
       id: s.id,
-      studentName: '',
-      coachName: '',
+      studentName: `${s.student?.firstName ?? ''} ${s.student?.lastName ?? ''}`.trim() || 'Élève',
+      coachName: s.coach?.coachProfile?.pseudonym ?? (`${s.coach?.firstName ?? ''} ${s.coach?.lastName ?? ''}`.trim() || 'Coach'),
       subject: s.subject,
       time: s.startTime,
       status: s.status,
       type: s.type
     }));
 
-    // Format recent activities
-    const formattedRecentActivities = recentActivities.map((a) => ({
+    // Format recent activities (includes student + coach from query)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formattedRecentActivities = recentActivities.map((a: any) => ({
       id: a.id,
       type: 'session',
       title: `Session ${a.subject}`,
-      description: '',
+      description: `${a.student?.firstName ?? ''} ${a.student?.lastName ?? ''}`.trim(),
       time: a.scheduledDate,
       status: a.status
     }));
