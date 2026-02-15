@@ -123,6 +123,17 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
   // Category headers
   const catEntries = Object.entries(programmeData);
 
+  // Identify entry-point chapters (no prerequisites) for new students
+  const entryPoints = useMemo(() => nodes.filter((n) => n.prerequis.length === 0), [nodes]);
+  const isNewStudent = store.completedChapters.length === 0;
+
+  // Build a map of chapId -> chapter title for prerequisite display
+  const idToTitle = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of nodes) m.set(n.id, n.titre);
+    return m;
+  }, [nodes]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
@@ -132,6 +143,19 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
           {store.completedChapters.length}/{nodes.length} débloqués
         </span>
       </div>
+
+      {/* New student guidance */}
+      {isNewStudent && (
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 text-xs text-slate-400">
+          <span className="text-cyan-400 font-bold">🚀 Par où commencer ?</span>{' '}
+          Les chapitres sans prérequis sont accessibles dès maintenant :
+          <span className="text-white font-medium ml-1">
+            {entryPoints.slice(0, 4).map((n) => n.titre).join(', ')}
+          </span>
+          {entryPoints.length > 4 && <span> et {entryPoints.length - 4} autres</span>}.
+          Complète-les pour débloquer la suite !
+        </div>
+      )}
 
       {/* Render by category */}
       <div className="space-y-3">
@@ -156,6 +180,11 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                   const dueReviews = store.getDueReviews();
                   const isDue = dueReviews.includes(node.id);
 
+                  // Identify which prerequisites are still missing
+                  const missingPrereqs = isLocked
+                    ? node.prerequis.filter((p) => !store.completedChapters.includes(p))
+                    : [];
+
                   return (
                     <motion.button
                       key={node.id}
@@ -166,6 +195,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                         !isLocked && onSelectChapter({ catKey: node.catKey, chapId: node.id })
                       }
                       disabled={isLocked}
+                      title={isLocked ? `🔒 Prérequis manquant(s) : ${missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}` : ''}
                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
                         isLocked
                           ? 'opacity-40 cursor-not-allowed'
@@ -200,6 +230,11 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                           <span>{'★'.repeat(node.difficulte)}{'☆'.repeat(5 - node.difficulte)}</span>
                           <span>{node.pointsXP} XP</span>
                           {isDue && <span className="text-amber-400 font-bold">À réviser</span>}
+                          {isLocked && missingPrereqs.length > 0 && (
+                            <span className="text-red-400/70 truncate max-w-[120px]">
+                              ← {missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}
+                            </span>
+                          )}
                         </div>
                       </div>
 
