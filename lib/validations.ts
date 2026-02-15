@@ -126,7 +126,7 @@ export const bilanPallier2MathsSchema = z.object({
   specialtyAverage: z.string().optional(),
   bacBlancResult: z.string().optional(),
   classRanking: z.string().optional(),
-  
+
   algebra: z.array(z.object({
     skill: z.string(),
     level: z.number().min(0).max(4),
@@ -152,33 +152,33 @@ export const bilanPallier2MathsSchema = z.object({
     level: z.number().min(0).max(4),
     comment: z.string()
   })),
-  
+
   algebraOpenAnswer: z.string().optional(),
   analysisQuestion: z.string().optional(),
   geometryQuestion: z.string().optional(),
   probabilitiesQuestion: z.string().optional(),
-  
+
   hasPythonEnvironment: z.boolean(),
   hasWorkedOnZeroSubjects: z.boolean(),
-  
+
   mentalMathLevel: z.number().min(0).max(4),
   structuredProofLevel: z.number().min(0).max(4),
   speedWithoutCalculatorLevel: z.number().min(0).max(4),
   stressManagementLevel: z.number().min(0).max(4),
-  
+
   mainRiskIdentified: z.string().optional(),
-  
+
   comprehensionMethod: z.string().optional(),
   problemSolvingApproach: z.string().optional(),
   avgTimeToSolveExercise: z.string().optional(),
   weeklyWorkHours: z.string().optional(),
   attentionCapacity: z.number().min(0).max(4),
-  
+
   targetMention: z.string().optional(),
   postBacProject: z.string().optional(),
   eliteTrainingInterest: z.string().optional(),
   acceptsDemandingPace: z.boolean(),
-  
+
   improvementGoals: z.string().optional(),
   invisibleDifficulties: z.string().optional()
 });
@@ -211,7 +211,7 @@ export const bilanDiagnosticMathsSchema = z.object({
   }),
   schoolContext: z.object({
     establishment: z.string().optional(),
-    mathTrack: z.string().optional(),
+    mathTrack: z.enum(['eds_maths_1ere', 'eds_maths_tle', 'eds_nsi_1ere', 'eds_nsi_tle']).optional(),
     mathTeacher: z.string().optional(),
     classSize: z.string().optional()
   }),
