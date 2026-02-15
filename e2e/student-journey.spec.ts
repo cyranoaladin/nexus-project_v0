@@ -41,7 +41,7 @@ test.describe('Student journey - Maths 1ere', () => {
     await page.goto(BASE_URL);
     await page.getByRole('button', { name: /Fiches de Cours/i }).click();
     await derivationButton(page).click();
-    await page.waitForTimeout(2500);
+    await page.waitForSelector('mjx-container, mjx-math, .mjx-chtml', { timeout: 5000 }).catch(() => {});
 
     const renderedText = await page.locator('body').innerText();
     const rawLatexPatterns = [
@@ -80,7 +80,7 @@ test.describe('Student journey - Maths 1ere', () => {
     // Répondre juste à une question
     const exerciseHeading = page.getByRole('heading', { name: /Exercices interactifs/i });
     await expect(exerciseHeading).toBeVisible();
-    const panel = exerciseHeading.locator('xpath=ancestor::div[contains(@class,"bg-slate-900")]').first();
+    const panel = page.locator('section, div').filter({ has: exerciseHeading }).first();
     await panel.getByRole('button', { name: '2' }).click();
     await panel.getByPlaceholder('Votre réponse...').fill('1');
     await panel.getByRole('button', { name: /^Valider$/ }).click();
