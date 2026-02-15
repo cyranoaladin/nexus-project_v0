@@ -86,7 +86,6 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
         alert(`Erreur: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error requesting ARIA addon:', error);
       alert('Une erreur est survenue lors de la demande');
     } finally {
       setLoading(false);

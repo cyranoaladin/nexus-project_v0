@@ -61,7 +61,6 @@ export default function AdminTestsPage() {
         setPaymentConfig(paymentData.configuration);
       }
     } catch (error) {
-      console.error('Erreur chargement configurations:', error);
     }
   };
 

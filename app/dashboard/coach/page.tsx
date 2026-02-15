@@ -91,7 +91,6 @@ export default function DashboardCoach() {
       const data = await response.json()
       setDashboardData(data)
     } catch (err) {
-      console.error('Error fetching dashboard data:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
@@ -451,7 +450,6 @@ export default function DashboardCoach() {
             coachId={session.user.id}
             onAvailabilityUpdated={() => {
               // Optionally refresh dashboard data
-              console.log('Availability updated');
             }}
           />
         )}

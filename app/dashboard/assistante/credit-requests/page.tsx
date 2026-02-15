@@ -65,7 +65,6 @@ export default function CreditRequestsPage() {
       const data = await response.json();
       setCreditRequests(data.creditRequests);
     } catch (err) {
-      console.error('Error fetching credit requests:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -104,7 +103,6 @@ export default function CreditRequestsPage() {
       // Refresh data
       fetchCreditRequests();
     } catch (err) {
-      console.error('Error processing credit request:', err);
       alert(err instanceof Error ? err.message : 'Failed to process credit request');
     } finally {
       setIsProcessing(false);

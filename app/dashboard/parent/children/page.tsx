@@ -67,7 +67,6 @@ export default function ChildrenManagement() {
       const data = await response.json();
       setChildren(data);
     } catch (err) {
-      console.error('Error fetching children:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -90,7 +89,6 @@ export default function ChildrenManagement() {
       }
 
       const result = await response.json();
-      console.log('Child created:', result);
       
       // Reset form and close dialog
       setCreateFormData({
@@ -106,7 +104,6 @@ export default function ChildrenManagement() {
       // Refresh children list
       fetchChildren();
     } catch (err) {
-      console.error('Error creating child:', err);
       setError(err instanceof Error ? err.message : 'Failed to create child');
     }
   };

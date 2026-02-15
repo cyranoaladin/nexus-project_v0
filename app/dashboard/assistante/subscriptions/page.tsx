@@ -72,7 +72,6 @@ export default function SubscriptionsManagement() {
       const data = await response.json();
       setPendingSubscriptions(data.pendingSubscriptions);
     } catch (err) {
-      console.error('Error fetching subscriptions:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -111,7 +110,6 @@ export default function SubscriptionsManagement() {
       // Refresh data
       fetchSubscriptions();
     } catch (err) {
-      console.error('Error processing subscription:', err);
       alert(err instanceof Error ? err.message : 'Failed to process subscription');
     } finally {
       setIsProcessing(false);

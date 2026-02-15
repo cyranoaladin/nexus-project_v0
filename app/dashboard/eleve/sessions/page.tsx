@@ -89,7 +89,6 @@ export default function SessionsPage() {
         const data = await response.json();
         setAvailableCredits(data.balance);
       } catch (err) {
-        console.error('Error fetching student data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
@@ -120,7 +119,6 @@ export default function SessionsPage() {
         alert(result.error || 'Erreur lors de la réservation');
       }
     } catch (error) {
-      console.error('Erreur:', error);
       alert('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);

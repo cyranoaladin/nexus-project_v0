@@ -59,7 +59,6 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
         alert(`Erreur: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error adding child:', error);
       alert('Une erreur est survenue lors de l\'ajout de l\'enfant');
     } finally {
       setLoading(false);
