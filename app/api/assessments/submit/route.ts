@@ -12,11 +12,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { QuestionBank } from '@/lib/assessments/questions';
 import { ScoringFactory } from '@/lib/assessments/scoring';
 import { BilanGenerator } from '@/lib/assessments/generators';
 import { Subject, Grade } from '@/lib/assessments/core/types';
 import type { StudentAnswer } from '@/lib/assessments/core/types';
+import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 
@@ -99,7 +101,13 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Assessment Submit] Score: ${scoringResult.globalScore}/100, Confidence: ${scoringResult.confidenceIndex}/100`);
 
-    // ─── Step 4: Persist to Database ─────────────────────────────────────────
+    // ─── Step 4: Validate & Persist to Database ──────────────────────────────
+
+    // Validate scoringResult shape before persisting (runtime type safety)
+    const validatedScoring = scoringResultSchema.safeParse(scoringResult);
+    if (!validatedScoring.success) {
+      console.error('[Assessment Submit] Scoring result validation failed:', validatedScoring.error.flatten());
+    }
 
     const assessment = await prisma.assessment.create({
       data: {
@@ -109,11 +117,11 @@ export async function POST(request: NextRequest) {
         studentName: studentData.name,
         studentPhone: studentData.phone,
         studentMetadata: studentData.schoolYear ? { schoolYear: studentData.schoolYear } : undefined,
-        answers: answers as any,
+        answers: answers as Prisma.InputJsonValue,
         duration,
         startedAt: metadata?.startedAt ? new Date(metadata.startedAt) : undefined,
         completedAt: metadata?.completedAt ? new Date(metadata.completedAt) : new Date(),
-        scoringResult: scoringResult as any,
+        scoringResult: JSON.parse(JSON.stringify(validatedScoring.success ? validatedScoring.data : scoringResult)) as Prisma.InputJsonValue,
         globalScore: scoringResult.globalScore,
         confidenceIndex: scoringResult.confidenceIndex,
         status: 'SCORING',

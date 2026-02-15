@@ -71,12 +71,11 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Pending bilans (recent registrations)
-      prisma.user.count({
+      // Pending bilans (diagnostics not yet analyzed)
+      prisma.diagnostic.count({
         where: {
-          role: 'PARENT',
-          createdAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+          status: {
+            notIn: ['ANALYZED', 'FAILED']
           }
         }
       }),
