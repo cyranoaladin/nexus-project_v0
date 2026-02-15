@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast, Toaster } from "sonner";
 import { track } from "@/lib/analytics";
+import SplashScreen from "@/components/ui/SplashScreen";
 
 import {
   createCompetency,
@@ -331,9 +332,23 @@ export default function BilanPallier2MathsPage() {
     ? ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Épreuve BAC", "Méthodo", "Objectifs"]
     : ["Identité", "Contexte", `Programme ${disciplineLabel}`, "Anticipation Tle", "Épreuve anticipée", "Méthodo", "Objectifs"];
   const effectiveTotalSteps = isTerminale ? 6 : 7;
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <div className="min-h-screen bg-surface-darker">
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[10000]"
+          >
+            <SplashScreen onComplete={() => setShowSplash(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
       <main className="py-8 md:py-12">
