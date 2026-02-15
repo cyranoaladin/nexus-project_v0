@@ -12,6 +12,7 @@ type CompStatus = 'studied' | 'in_progress' | 'not_studied' | 'unknown';
 
 /** Helper: build a competency with all required fields */
 let _skCounter = 0;
+beforeEach(() => { _skCounter = 0; });
 function sk(
   skillLabel: string,
   status: CompStatus,

@@ -268,6 +268,93 @@ export default function Enrouleur() {
       ctx.fillStyle = '#a855f7';
       ctx.fillText(`cos(θ) = ${Math.cos(t).toFixed(3)}`, graphLeft + 4, graphTop + (mode === 'both' ? 28 : 14));
     }
+
+    // ─── REMARKABLE VALUES ─────────────────────────────────────────────
+    const remarkables = [
+      { angle: Math.PI / 6, label: 'π/6', sin: 0.5, cos: Math.sqrt(3) / 2 },
+      { angle: Math.PI / 4, label: 'π/4', sin: Math.SQRT2 / 2, cos: Math.SQRT2 / 2 },
+      { angle: Math.PI / 3, label: 'π/3', sin: Math.sqrt(3) / 2, cos: 0.5 },
+      { angle: Math.PI / 2, label: 'π/2', sin: 1, cos: 0 },
+      { angle: Math.PI, label: 'π', sin: 0, cos: -1 },
+      { angle: 3 * Math.PI / 2, label: '3π/2', sin: -1, cos: 0 },
+      { angle: 2 * Math.PI, label: '2π', sin: 0, cos: 1 },
+    ];
+
+    for (const rm of remarkables) {
+      const isNear = Math.abs(t - rm.angle) < 0.08;
+
+      // Point on circle
+      const rmPx = circleCx + circleR * Math.cos(rm.angle);
+      const rmPy = circleCy - circleR * Math.sin(rm.angle);
+
+      ctx.fillStyle = isNear ? '#22d3ee' : 'rgba(148, 163, 184, 0.35)';
+      ctx.beginPath();
+      ctx.arc(rmPx, rmPy, isNear ? 5 : 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glow effect when near
+      if (isNear) {
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(rmPx, rmPy, 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Label on circle
+      ctx.fillStyle = isNear ? '#22d3ee' : 'rgba(148, 163, 184, 0.4)';
+      ctx.font = isNear ? 'bold 10px monospace' : '8px monospace';
+      const labelOffX = Math.cos(rm.angle) * (circleR + 14);
+      const labelOffY = -Math.sin(rm.angle) * (circleR + 14);
+      ctx.fillText(rm.label, circleCx + labelOffX - 8, circleCy + labelOffY + 4);
+
+      // Points on graph (sin / cos)
+      if (rm.angle <= maxTheta) {
+        const rmGx = graphLeft + (rm.angle / maxTheta) * graphWidth;
+
+        if (mode === 'sin' || mode === 'both') {
+          const rmGy = graphCy - rm.sin * graphAmp;
+          ctx.fillStyle = isNear ? '#f97316' : 'rgba(249, 115, 22, 0.25)';
+          ctx.beginPath();
+          ctx.arc(rmGx, rmGy, isNear ? 4 : 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Value label when near
+          if (isNear) {
+            ctx.fillStyle = '#f97316';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(`${rm.sin.toFixed(3)}`, rmGx + 6, rmGy - 6);
+          }
+        }
+
+        if (mode === 'cos' || mode === 'both') {
+          const rmGy = graphCy - rm.cos * graphAmp;
+          ctx.fillStyle = isNear ? '#a855f7' : 'rgba(168, 85, 247, 0.25)';
+          ctx.beginPath();
+          ctx.arc(rmGx, rmGy, isNear ? 4 : 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (isNear) {
+            ctx.fillStyle = '#a855f7';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(`${rm.cos.toFixed(3)}`, rmGx + 6, rmGy - 6);
+          }
+        }
+
+        // Vertical dashed line connecting circle point to graph point when near
+        if (isNear) {
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.2)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(rmGx, graphTop);
+          ctx.lineTo(rmGx, graphBottom);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+
   }, [mode]);
 
   // Animation loop
@@ -327,11 +414,10 @@ export default function Enrouleur() {
               <button
                 key={m.id}
                 onClick={() => setMode(m.id)}
-                className={`flex-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  mode === m.id
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
-                }`}
+                className={`flex-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${mode === m.id
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                  : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                  }`}
               >
                 {m.label}
               </button>
@@ -342,11 +428,10 @@ export default function Enrouleur() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setPlaying(!playing)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                playing
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                  : 'bg-green-500/20 text-green-400 border border-green-500/30'
-              }`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${playing
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                }`}
             >
               {playing ? '⏸ Pause' : '▶ Animer'}
             </button>
