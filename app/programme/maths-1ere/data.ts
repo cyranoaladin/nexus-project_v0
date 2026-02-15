@@ -146,16 +146,43 @@ export interface DailyChallenge {
 }
 
 export const dailyChallenges: DailyChallenge[] = [
+  // Dérivation
   { id: 'dc1', question: 'Dériver $f(x)=3x^4$', reponse: '$12x^3$', categorie: 'Dérivation', xp: 15 },
-  { id: 'dc2', question: '$\\Delta$ de $x^2-6x+9$ ?', reponse: '$0$', categorie: 'Second Degré', xp: 10 },
-  { id: 'dc3', question: 'Simplifier $e^3 \\times e^{-1}$', reponse: '$e^2$', categorie: 'Exponentielle', xp: 10 },
-  { id: 'dc4', question: '$\\cos(\\pi)=$ ?', reponse: '$-1$', categorie: 'Trigonométrie', xp: 10 },
-  { id: 'dc5', question: '$\\binom{5}{2}=$ ?', reponse: '$10$', categorie: 'Combinatoire', xp: 15 },
-  { id: 'dc6', question: 'Suite $u_0=1$, $u_{n+1}=u_n+4$. $u_5=$ ?', reponse: '$21$', categorie: 'Suites', xp: 10 },
-  { id: 'dc7', question: '$\\vec{u}(1;2)\\cdot\\vec{v}(3;-1)=$ ?', reponse: '$1$', categorie: 'Produit Scalaire', xp: 10 },
-  { id: 'dc8', question: 'Dérivée de $\\sin(x)$ ?', reponse: '$\\cos(x)$', categorie: 'Trigonométrie', xp: 10 },
-  { id: 'dc9', question: '$P(A)=0.3$, $P_A(B)=0.5$. $P(A\\cap B)=$ ?', reponse: '$0.15$', categorie: 'Probabilités', xp: 15 },
-  { id: 'dc10', question: 'Somme $1+2+\\ldots+100=$ ?', reponse: '$5050$', categorie: 'Suites', xp: 20 },
+  { id: 'dc2', question: 'Dérivée de $g(x) = \\frac{1}{x^2}$ ?', reponse: '$-\\frac{2}{x^3}$', categorie: 'Dérivation', xp: 15 },
+  { id: 'dc3', question: 'Dérivée de $h(x) = 5\\sqrt{x}$ ?', reponse: '$\\frac{5}{2\\sqrt{x}}$', categorie: 'Dérivation', xp: 15 },
+  // Second Degré
+  { id: 'dc4', question: '$\\Delta$ de $x^2-6x+9$ ?', reponse: '$0$', categorie: 'Second Degré', xp: 10 },
+  { id: 'dc5', question: 'Sommet de $f(x) = x^2 - 4x + 3$ ?', reponse: '$(2; -1)$', categorie: 'Second Degré', xp: 15 },
+  // Exponentielle
+  { id: 'dc6', question: 'Simplifier $e^3 \\times e^{-1}$', reponse: '$e^2$', categorie: 'Exponentielle', xp: 10 },
+  { id: 'dc7', question: '$e^0 = $ ?', reponse: '$1$', categorie: 'Exponentielle', xp: 5 },
+  // Trigonométrie
+  { id: 'dc8', question: '$\\cos(\\pi)=$ ?', reponse: '$-1$', categorie: 'Trigonométrie', xp: 10 },
+  { id: 'dc9', question: 'Dérivée de $\\sin(x)$ ?', reponse: '$\\cos(x)$', categorie: 'Trigonométrie', xp: 10 },
+  { id: 'dc10', question: '$\\sin(\\pi/4) = $ ?', reponse: '$\\frac{\\sqrt{2}}{2}$', categorie: 'Trigonométrie', xp: 10 },
+  // Combinatoire
+  { id: 'dc11', question: '$\\binom{5}{2}=$ ?', reponse: '$10$', categorie: 'Combinatoire', xp: 15 },
+  { id: 'dc12', question: '$4! = $ ?', reponse: '$24$', categorie: 'Combinatoire', xp: 10 },
+  // Suites
+  { id: 'dc13', question: 'Suite $u_0=1$, $u_{n+1}=u_n+4$. $u_5=$ ?', reponse: '$21$', categorie: 'Suites', xp: 10 },
+  { id: 'dc14', question: 'Somme $1+2+\\ldots+100=$ ?', reponse: '$5050$', categorie: 'Suites', xp: 20 },
+  { id: 'dc15', question: 'Suite géom. $u_0=3$, $q=2$. $u_3=$ ?', reponse: '$24$', categorie: 'Suites', xp: 10 },
+  // Produit Scalaire
+  { id: 'dc16', question: '$\\vec{u}(1;2)\\cdot\\vec{v}(3;-1)=$ ?', reponse: '$1$', categorie: 'Produit Scalaire', xp: 10 },
+  { id: 'dc17', question: '$||\\vec{u}(3;4)|| = $ ?', reponse: '$5$', categorie: 'Géométrie', xp: 10 },
+  // Probabilités
+  { id: 'dc18', question: '$P(A)=0.3$, $P_A(B)=0.5$. $P(A\\cap B)=$ ?', reponse: '$0.15$', categorie: 'Probabilités', xp: 15 },
+  { id: 'dc19', question: '$E(X)$ si $P(X=0)=0.5$, $P(X=4)=0.5$ ?', reponse: '$2$', categorie: 'Probabilités', xp: 10 },
+  // Limites
+  { id: 'dc20', question: '$\\lim_{x \\to +\\infty} \\frac{3x}{x+1} = $ ?', reponse: '$3$', categorie: 'Limites', xp: 15 },
+  { id: 'dc21', question: '$\\lim_{x \\to +\\infty} e^{-x} = $ ?', reponse: '$0$', categorie: 'Limites', xp: 10 },
+  // Géométrie vectorielle
+  { id: 'dc22', question: 'Distance $A(0;0)$ à $B(3;4)$ ?', reponse: '$5$', categorie: 'Géométrie', xp: 10 },
+  { id: 'dc23', question: '$\\det(\\vec{u}(2;3), \\vec{v}(4;6)) = $ ?', reponse: '$0$', categorie: 'Géométrie', xp: 15 },
+  // Cercles
+  { id: 'dc24', question: 'Rayon du cercle $(x-1)^2+(y-2)^2=25$ ?', reponse: '$5$', categorie: 'Géométrie', xp: 10 },
+  // Algorithmique
+  { id: 'dc25', question: 'En Python, `7 % 3` vaut ?', reponse: '$1$', categorie: 'Algorithmique', xp: 10 },
 ];
 
 // ─── Programme Data (B.O. complet) ──────────────────────────────────────────
@@ -633,6 +660,152 @@ export const programmeData: Record<string, Categorie> = {
           { label: 'GeoGebra — Cercle trigonométrique', url: 'https://www.geogebra.org/m/mMbMfKsp' },
         ],
       },
+
+      // ── Limites de Fonctions (Initiation) ─────────────────────────────
+      {
+        id: 'limites-initiation',
+        titre: 'Limites de Fonctions (Initiation)',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 80,
+        prerequis: ['variations-courbes', 'exponentielle'],
+        contenu: {
+          rappel:
+            'La notion de limite décrit le comportement d\'une fonction quand $x$ tend vers $+\\infty$, $-\\infty$ ou un réel $a$. On écrit $\\lim_{x \\to +\\infty} f(x) = L$ si $f(x)$ se rapproche de $L$.',
+          methode:
+            '\\lim_{x \\to +\\infty} x^n = +\\infty \\quad \\lim_{x \\to +\\infty} \\frac{1}{x} = 0 \\quad \\lim_{x \\to +\\infty} e^x = +\\infty \\\\ \\text{Croissance comparée : } \\lim_{x \\to +\\infty} \\frac{e^x}{x^n} = +\\infty',
+          tableau: [
+            { f: '$\\lim_{x \\to +\\infty} x^n$', derivee: '$+\\infty$' },
+            { f: '$\\lim_{x \\to +\\infty} 1/x$', derivee: '$0$' },
+            { f: '$\\lim_{x \\to +\\infty} e^x$', derivee: '$+\\infty$' },
+            { f: '$\\lim_{x \\to -\\infty} e^x$', derivee: '$0$' },
+            { f: '$\\lim_{x \\to +\\infty} e^x/x^n$', derivee: '$+\\infty$ (croissance comparée)' },
+          ],
+          astuce:
+            'Pour les formes indéterminées ($\\infty - \\infty$, $0 \\times \\infty$, $\\infty/\\infty$), factorisez par le terme dominant.',
+          exercice: {
+            question: 'Calculer $\\lim_{x \\to +\\infty} \\frac{3x^2 + 1}{x^2 - 5}$.',
+            reponse: '$3$',
+            etapes: [
+              'Factoriser par $x^2$ au numérateur et au dénominateur.',
+              '$= \\frac{x^2(3 + 1/x^2)}{x^2(1 - 5/x^2)}$.',
+              'Quand $x \\to +\\infty$ : $1/x^2 \\to 0$ et $5/x^2 \\to 0$.',
+              'Donc la limite vaut $3/1 = 3$.',
+            ],
+          },
+          erreursClassiques: [
+            'Écrire $\\infty - \\infty = 0$ (c\'est une forme indéterminée).',
+            'Oublier de factoriser par le terme de plus haut degré.',
+            'Confondre $\\lim_{x \\to 0^+} 1/x = +\\infty$ et $\\lim_{x \\to 0^-} 1/x = -\\infty$.',
+          ],
+          methodologieBac:
+            'Pour calculer une limite en $+\\infty$ d\'une fraction rationnelle, factoriser par la plus haute puissance de $x$ au numérateur ET au dénominateur. Pour les exponentielles, utiliser la croissance comparée.',
+          coupDePouce: {
+            indice: 'Factorisez numérateur et dénominateur par $x^2$.',
+            debutRaisonnement: '$\\frac{3x^2+1}{x^2-5} = \\frac{x^2(3+1/x^2)}{x^2(1-5/x^2)}$. Simplifiez par $x^2$.',
+            correctionDetaillee: [
+              '$\\frac{3x^2+1}{x^2-5} = \\frac{3 + 1/x^2}{1 - 5/x^2}$.',
+              'Quand $x \\to +\\infty$ : $\\frac{3+0}{1-0} = 3$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: '$\\lim_{x \\to +\\infty} \\frac{x^3 - 2x}{x^2 + 1}$ vaut :',
+            options: ['$0$', '$1$', '$+\\infty$', '$-\\infty$'],
+            correct: 2,
+            explication: 'Le degré du numérateur (3) > degré du dénominateur (2), donc la limite est $+\\infty$.',
+          },
+          {
+            type: 'numerique',
+            question: '$\\lim_{x \\to +\\infty} \\frac{5x + 3}{2x - 1}$ = ?',
+            reponse: 2.5,
+            tolerance: 0.01,
+            explication: 'Factoriser par $x$ : $\\frac{5+3/x}{2-1/x} \\to 5/2 = 2.5$.',
+          },
+          {
+            type: 'qcm',
+            question: '$\\lim_{x \\to +\\infty} xe^{-x}$ vaut :',
+            options: ['$+\\infty$', '$0$', '$1$', '$-\\infty$'],
+            correct: 1,
+            explication: 'Croissance comparée : $e^x$ l\'emporte sur $x$, donc $x/e^x \\to 0$.',
+          },
+        ],
+        ressourcesExt: [
+          { label: 'GeoGebra — Limites et asymptotes', url: 'https://www.geogebra.org/m/sXnBhKP7' },
+        ],
+      },
+
+      // ── Continuité (sur des exemples) ─────────────────────────────────
+      {
+        id: 'continuite',
+        titre: 'Continuité (sur des exemples)',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 70,
+        prerequis: ['limites-initiation'],
+        contenu: {
+          rappel:
+            'Une fonction $f$ est continue en $a$ si $\\lim_{x \\to a} f(x) = f(a)$. Intuitivement, on peut tracer la courbe sans lever le crayon.',
+          methode:
+            '\\text{TVI : Si } f \\text{ continue sur } [a;b] \\text{ et } f(a) \\times f(b) < 0 \\\\ \\text{alors } \\exists\\, c \\in ]a;b[ \\text{ tel que } f(c) = 0',
+          astuce:
+            'Le TVI (Théorème des Valeurs Intermédiaires) est l\'outil principal pour montrer l\'existence d\'une solution. Il ne donne pas la valeur exacte, mais garantit l\'existence.',
+          exercice: {
+            question: 'Montrer que $f(x) = x^3 - 3x + 1$ admet au moins une racine dans $[0; 1]$.',
+            reponse: 'Par le TVI : $f(0) = 1 > 0$ et $f(1) = -1 < 0$, donc $\\exists\\, c \\in ]0;1[$ tel que $f(c) = 0$.',
+            etapes: [
+              '$f$ est un polynôme, donc continue sur $\\mathbb{R}$.',
+              '$f(0) = 0 - 0 + 1 = 1 > 0$.',
+              '$f(1) = 1 - 3 + 1 = -1 < 0$.',
+              '$f(0) \\times f(1) = -1 < 0$. Par le TVI, $f$ s\'annule dans $]0;1[$.',
+            ],
+          },
+          erreursClassiques: [
+            'Oublier de vérifier que $f$ est continue sur l\'intervalle.',
+            'Le TVI donne l\'existence, pas l\'unicité (il peut y avoir plusieurs racines).',
+            'Confondre TVI et théorème de la bijection (qui donne l\'unicité si $f$ est strictement monotone).',
+          ],
+          methodologieBac:
+            'Pour montrer l\'existence d\'une solution : 1) Dire que $f$ est continue (justifier). 2) Calculer $f(a)$ et $f(b)$. 3) Constater le changement de signe. 4) Conclure par le TVI.',
+          coupDePouce: {
+            indice: 'Calculez $f(0)$ et $f(1)$, puis appliquez le TVI.',
+            debutRaisonnement: '$f(0) = 1$ et $f(1) = -1$. Comme $f$ est continue et change de signe...',
+            correctionDetaillee: [
+              '$f$ est polynomiale donc continue sur $[0;1]$.',
+              '$f(0) = 1 > 0$ et $f(1) = -1 < 0$.',
+              'Par le TVI, $\\exists\\, c \\in ]0;1[$ tel que $f(c) = 0$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: 'Le TVI permet de :',
+            options: [
+              'Calculer la valeur exacte d\'une racine',
+              'Montrer l\'existence d\'une racine dans un intervalle',
+              'Montrer l\'unicité d\'une racine',
+              'Calculer la dérivée',
+            ],
+            correct: 1,
+            explication: 'Le TVI garantit l\'existence d\'une solution, pas sa valeur exacte ni son unicité.',
+          },
+          {
+            type: 'ordonnancement',
+            question: 'Remettre dans l\'ordre les étapes pour appliquer le TVI :',
+            etapesDesordre: [
+              'Conclure par le TVI : $\\exists\\, c$ tel que $f(c) = 0$',
+              'Vérifier que $f$ est continue sur $[a;b]$',
+              'Constater que $f(a)$ et $f(b)$ sont de signes opposés',
+              'Calculer $f(a)$ et $f(b)$',
+            ],
+            ordreCorrect: [1, 3, 2, 0],
+            explication: 'On vérifie la continuité, on calcule les valeurs aux bornes, on constate le changement de signe, puis on conclut.',
+          },
+        ],
+      },
     ],
   },
 
@@ -749,6 +922,158 @@ export const programmeData: Record<string, Categorie> = {
             correct: 1,
             explication: '$3 \\times (-1/3) = -1$, donc perpendiculaires.',
           },
+          {
+            type: 'numerique',
+            question: 'Ordonnée à l\'origine de la droite passant par $A(2;5)$ de pente $m=-3$ ?',
+            reponse: 11,
+            explication: '$y = -3x + p$. En $A$ : $5 = -6 + p$, donc $p = 11$.',
+          },
+        ],
+      },
+
+      // ── Géométrie Vectorielle (Approfondissement) ─────────────────────
+      {
+        id: 'geometrie-vectorielle',
+        titre: 'Géométrie Vectorielle (Approfondissement)',
+        niveau: 'maitrise',
+        difficulte: 3,
+        pointsXP: 60,
+        prerequis: ['produit-scalaire'],
+        contenu: {
+          rappel:
+            'Les vecteurs permettent de traduire des propriétés géométriques en calculs. $\\vec{AB} = B - A$. Deux vecteurs sont colinéaires ssi $\\det(\\vec{u}, \\vec{v}) = 0$.',
+          methode:
+            '\\vec{u}(x;y), \\vec{v}(x\';y\') \\text{ colinéaires} \\iff xy\' - x\'y = 0 \\\\ \\text{Milieu de } [AB] : I\\left(\\frac{x_A+x_B}{2}; \\frac{y_A+y_B}{2}\\right) \\\\ \\text{Distance : } AB = \\sqrt{(x_B-x_A)^2 + (y_B-y_A)^2}',
+          tableau: [
+            { f: '$\\vec{u} + \\vec{v}$', derivee: '$(x+x\'; y+y\')$' },
+            { f: '$k\\vec{u}$', derivee: '$(kx; ky)$' },
+            { f: '$||\\vec{u}||$', derivee: '$\\sqrt{x^2+y^2}$' },
+            { f: '$\\det(\\vec{u},\\vec{v})$', derivee: '$xy\' - x\'y$' },
+          ],
+          astuce:
+            'Le déterminant nul signifie colinéarité (points alignés). Le produit scalaire nul signifie orthogonalité. Ce sont deux outils complémentaires.',
+          exercice: {
+            question: 'Les points $A(1;2)$, $B(3;6)$, $C(5;10)$ sont-ils alignés ?',
+            reponse: 'Oui',
+            etapes: [
+              '$\\vec{AB} = (2;4)$ et $\\vec{AC} = (4;8)$.',
+              '$\\det(\\vec{AB}, \\vec{AC}) = 2 \\times 8 - 4 \\times 4 = 16 - 16 = 0$.',
+              'Déterminant nul → vecteurs colinéaires → points alignés.',
+            ],
+          },
+          erreursClassiques: [
+            'Confondre déterminant (colinéarité) et produit scalaire (orthogonalité).',
+            'Oublier l\'ordre dans $\\vec{AB} = B - A$ (et non $A - B$).',
+            'Se tromper dans le calcul du déterminant : c\'est $xy\' - x\'y$, pas $xy\' + x\'y$.',
+          ],
+          methodologieBac:
+            'Pour montrer un alignement : calculer le déterminant de deux vecteurs. Pour montrer un parallélisme : même méthode. Pour montrer une perpendicularité : produit scalaire.',
+          coupDePouce: {
+            indice: 'Calculez $\\vec{AB}$ et $\\vec{AC}$, puis leur déterminant.',
+            debutRaisonnement: '$\\vec{AB} = (2;4)$, $\\vec{AC} = (4;8)$. $\\det = 2 \\times 8 - 4 \\times 4$.',
+            correctionDetaillee: [
+              '$\\vec{AB} = (3-1; 6-2) = (2;4)$.',
+              '$\\vec{AC} = (5-1; 10-2) = (4;8)$.',
+              '$\\det = 2 \\times 8 - 4 \\times 4 = 0$. Points alignés.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'numerique',
+            question: 'Distance entre $A(1;3)$ et $B(4;7)$ ?',
+            reponse: 5,
+            explication: '$AB = \\sqrt{(4-1)^2 + (7-3)^2} = \\sqrt{9+16} = \\sqrt{25} = 5$.',
+          },
+          {
+            type: 'qcm',
+            question: '$\\vec{u}(2;6)$ et $\\vec{v}(1;3)$ sont :',
+            options: ['Orthogonaux', 'Colinéaires', 'Ni l\'un ni l\'autre', 'Opposés'],
+            correct: 1,
+            explication: '$\\det = 2 \\times 3 - 6 \\times 1 = 0$. Colinéaires (et même $\\vec{u} = 2\\vec{v}$).',
+          },
+          {
+            type: 'numerique',
+            question: 'Milieu de $[A(2;8), B(6;4)]$. Donner l\'abscisse du milieu.',
+            reponse: 4,
+            explication: '$x_I = (2+6)/2 = 4$.',
+          },
+        ],
+      },
+
+      // ── Équations de Cercles ──────────────────────────────────────────
+      {
+        id: 'equations-cercles',
+        titre: 'Équations de Cercles',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 70,
+        prerequis: ['equations-droites', 'produit-scalaire'],
+        contenu: {
+          rappel:
+            'Le cercle de centre $\\Omega(a;b)$ et de rayon $r$ a pour équation : $(x-a)^2 + (y-b)^2 = r^2$. Développée : $x^2 + y^2 - 2ax - 2by + (a^2+b^2-r^2) = 0$.',
+          methode:
+            '\\text{Forme canonique : } (x-a)^2 + (y-b)^2 = r^2 \\\\ \\text{Centre : } \\Omega(a;b) \\quad \\text{Rayon : } r \\\\ \\text{Point sur le cercle : } (x_0-a)^2 + (y_0-b)^2 = r^2',
+          astuce:
+            'Pour retrouver centre et rayon à partir de la forme développée $x^2+y^2+Dx+Ey+F=0$ : compléter le carré. Centre $(-D/2; -E/2)$, rayon $\\sqrt{D^2/4 + E^2/4 - F}$.',
+          exercice: {
+            question: 'Déterminer le centre et le rayon du cercle $x^2 + y^2 - 4x + 6y - 3 = 0$.',
+            reponse: 'Centre $(2; -3)$, rayon $4$',
+            etapes: [
+              'Compléter le carré en $x$ : $x^2 - 4x = (x-2)^2 - 4$.',
+              'Compléter le carré en $y$ : $y^2 + 6y = (y+3)^2 - 9$.',
+              '$(x-2)^2 - 4 + (y+3)^2 - 9 - 3 = 0$.',
+              '$(x-2)^2 + (y+3)^2 = 16$.',
+              'Centre $(2; -3)$, rayon $\\sqrt{16} = 4$.',
+            ],
+          },
+          erreursClassiques: [
+            'Se tromper dans le signe du centre : $(x-a)^2$ donne $a$, pas $-a$.',
+            'Oublier de vérifier que $r^2 > 0$ (sinon pas de cercle).',
+            'Confondre l\'équation d\'un cercle avec celle d\'une ellipse.',
+          ],
+          methodologieBac:
+            'Pour identifier un cercle : mettre sous forme canonique par complétion du carré. Pour montrer qu\'un point est sur un cercle : vérifier que ses coordonnées satisfont l\'équation.',
+          coupDePouce: {
+            indice: 'Complétez le carré pour $x$ et pour $y$ séparément.',
+            debutRaisonnement: '$x^2 - 4x = (x-2)^2 - 4$ et $y^2 + 6y = (y+3)^2 - 9$.',
+            correctionDetaillee: [
+              '$(x-2)^2 - 4 + (y+3)^2 - 9 - 3 = 0$.',
+              '$(x-2)^2 + (y+3)^2 = 16$.',
+              'Centre $(2;-3)$, rayon $4$.',
+            ],
+          },
+          geogebraId: 'nBjGnpmA',
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: 'L\'équation $(x-1)^2 + (y+2)^2 = 9$ représente un cercle de :',
+            options: [
+              'Centre $(1;2)$, rayon $3$',
+              'Centre $(1;-2)$, rayon $3$',
+              'Centre $(-1;2)$, rayon $9$',
+              'Centre $(1;-2)$, rayon $9$',
+            ],
+            correct: 1,
+            explication: '$(x-1)^2 + (y-(-2))^2 = 3^2$. Centre $(1;-2)$, rayon $3$.',
+          },
+          {
+            type: 'numerique',
+            question: 'Rayon du cercle $x^2 + y^2 - 6x + 2y + 1 = 0$ ?',
+            reponse: 3,
+            explication: '$(x-3)^2 - 9 + (y+1)^2 - 1 + 1 = 0 \\Rightarrow (x-3)^2 + (y+1)^2 = 9$. Rayon $= 3$.',
+          },
+          {
+            type: 'qcm',
+            question: 'Le point $A(5; -3)$ est-il sur le cercle $(x-2)^2 + (y+3)^2 = 9$ ?',
+            options: ['Oui', 'Non, il est à l\'intérieur', 'Non, il est à l\'extérieur', 'Impossible à dire'],
+            correct: 0,
+            explication: '$(5-2)^2 + (-3+3)^2 = 9 + 0 = 9$. Oui, le point est sur le cercle.',
+          },
+        ],
+        ressourcesExt: [
+          { label: 'GeoGebra — Équation de cercle', url: 'https://www.geogebra.org/m/nBjGnpmA' },
         ],
       },
     ],
@@ -1114,4 +1439,164 @@ export const quizData: QuizQuestion[] = [
     categorie: 'Algorithmique',
     difficulte: 1,
   },
+  // Limites
+  {
+    id: 19,
+    question: '$\\lim_{x \\to +\\infty} \\frac{2x^2 + 1}{x^2 - 3}$ vaut :',
+    options: ['$0$', '$2$', '$+\\infty$', '$-3$'],
+    correct: 1,
+    explication: 'Même degré : on divise les coefficients dominants $2/1 = 2$.',
+    categorie: 'Limites',
+    difficulte: 2,
+  },
+  {
+    id: 20,
+    question: '$\\lim_{x \\to +\\infty} \\frac{x}{e^x}$ vaut :',
+    options: ['$+\\infty$', '$1$', '$0$', '$e$'],
+    correct: 2,
+    explication: 'Croissance comparée : $e^x$ l\'emporte sur tout polynôme.',
+    categorie: 'Limites',
+    difficulte: 2,
+  },
+  {
+    id: 21,
+    question: '$\\infty - \\infty$ est :',
+    options: ['$0$', '$+\\infty$', 'Une forme indéterminée', '$-\\infty$'],
+    correct: 2,
+    explication: 'C\'est une forme indéterminée : le résultat dépend des fonctions en jeu.',
+    categorie: 'Limites',
+    difficulte: 1,
+  },
+  // Continuité / TVI
+  {
+    id: 22,
+    question: 'Le TVI s\'applique si la fonction est :',
+    options: ['Dérivable', 'Continue', 'Croissante', 'Positive'],
+    correct: 1,
+    explication: 'Le Théorème des Valeurs Intermédiaires nécessite la continuité sur un intervalle fermé.',
+    categorie: 'Continuité',
+    difficulte: 1,
+  },
+  {
+    id: 23,
+    question: '$f(x) = x^3 - 1$. $f(0)=-1$ et $f(2)=7$. Par le TVI :',
+    options: ['$f$ n\'a pas de racine', '$f$ a au moins une racine dans $]0;2[$', '$f$ a exactement 3 racines', 'On ne peut rien dire'],
+    correct: 1,
+    explication: '$f$ continue, $f(0) < 0$ et $f(2) > 0$ : changement de signe → racine dans $]0;2[$.',
+    categorie: 'Continuité',
+    difficulte: 2,
+  },
+  // Géométrie vectorielle
+  {
+    id: 24,
+    question: '$\\det(\\vec{u}(3;1), \\vec{v}(6;2))$ vaut :',
+    options: ['$0$', '$12$', '$-12$', '$8$'],
+    correct: 0,
+    explication: '$3 \\times 2 - 1 \\times 6 = 6 - 6 = 0$. Vecteurs colinéaires.',
+    categorie: 'Géométrie',
+    difficulte: 1,
+  },
+  {
+    id: 25,
+    question: 'Distance entre $A(1;1)$ et $B(4;5)$ ?',
+    options: ['$3$', '$4$', '$5$', '$7$'],
+    correct: 2,
+    explication: '$AB = \\sqrt{9+16} = \\sqrt{25} = 5$.',
+    categorie: 'Géométrie',
+    difficulte: 1,
+  },
+  // Cercles
+  {
+    id: 26,
+    question: 'Centre du cercle $(x+3)^2 + (y-1)^2 = 4$ ?',
+    options: ['$(3;1)$', '$(-3;1)$', '$(-3;-1)$', '$(3;-1)$'],
+    correct: 1,
+    explication: '$(x-(-3))^2 + (y-1)^2 = 4$. Centre $(-3;1)$.',
+    categorie: 'Géométrie',
+    difficulte: 1,
+  },
+  {
+    id: 27,
+    question: 'Le point $(0;0)$ est-il dans le cercle $(x-1)^2+(y-1)^2=4$ ?',
+    options: ['Sur le cercle', 'À l\'intérieur', 'À l\'extérieur', 'Au centre'],
+    correct: 1,
+    explication: '$(0-1)^2+(0-1)^2 = 2 < 4$. Le point est à l\'intérieur.',
+    categorie: 'Géométrie',
+    difficulte: 2,
+  },
+  // Dérivation avancée
+  {
+    id: 28,
+    question: 'Dérivée de $f(x) = \\frac{x}{x+1}$ ?',
+    options: ['$\\frac{1}{(x+1)^2}$', '$\\frac{1}{x+1}$', '$\\frac{-1}{(x+1)^2}$', '$\\frac{x}{(x+1)^2}$'],
+    correct: 0,
+    explication: '$(u/v)\' = (u\'v - uv\')/v^2 = (1 \\cdot (x+1) - x \\cdot 1)/(x+1)^2 = 1/(x+1)^2$.',
+    categorie: 'Dérivation',
+    difficulte: 3,
+  },
+  // Suites avancée
+  {
+    id: 29,
+    question: 'Suite $u_n = 3 \\times 2^n$. $u_0 + u_1 + u_2 + u_3 = $ ?',
+    options: ['$24$', '$45$', '$30$', '$48$'],
+    correct: 1,
+    explication: '$3 + 6 + 12 + 24 = 45$.',
+    categorie: 'Suites',
+    difficulte: 2,
+  },
+  // Probabilités avancée
+  {
+    id: 30,
+    question: 'A et B indépendants. $P(A)=0.5$, $P(B)=0.6$. $P(A \\cup B) = $ ?',
+    options: ['$1.1$', '$0.8$', '$0.3$', '$0.5$'],
+    correct: 1,
+    explication: '$P(A \\cup B) = P(A) + P(B) - P(A \\cap B) = 0.5 + 0.6 - 0.3 = 0.8$.',
+    categorie: 'Probabilités',
+    difficulte: 2,
+  },
+  // Exponentielle avancée
+  {
+    id: 31,
+    question: 'Résoudre $e^{x^2} = e^4$. Solutions ?',
+    options: ['$x = 4$', '$x = 2$ uniquement', '$x = 2$ ou $x = -2$', '$x = \\pm 4$'],
+    correct: 2,
+    explication: '$x^2 = 4 \\Rightarrow x = 2$ ou $x = -2$.',
+    categorie: 'Exponentielle',
+    difficulte: 2,
+  },
+  // Trigonométrie avancée
+  {
+    id: 32,
+    question: 'Nombre de solutions de $\\cos(x) = 0$ sur $[0; 2\\pi]$ ?',
+    options: ['$1$', '$2$', '$3$', '$4$'],
+    correct: 1,
+    explication: '$x = \\pi/2$ et $x = 3\\pi/2$. Deux solutions.',
+    categorie: 'Trigonométrie',
+    difficulte: 2,
+  },
+];
+
+// ─── Badge Definitions ──────────────────────────────────────────────────────
+
+export interface BadgeDefinition {
+  id: string;
+  nom: string;
+  description: string;
+  icon: string;
+  condition: string;
+}
+
+export const badgeDefinitions: BadgeDefinition[] = [
+  { id: 'stakhanoviste', nom: 'Stakhanoviste', description: '7 jours de suite', icon: '🏅', condition: 'streak >= 7' },
+  { id: 'sherlock', nom: 'Sherlock', description: 'Résoudre un exercice difficile sans indice', icon: '🧠', condition: 'hard_no_hint' },
+  { id: 'fusee', nom: 'Fusée Ariane', description: 'Aucune erreur sur un chapitre complet', icon: '🚀', condition: 'perfect_chapter' },
+  { id: 'debugger', nom: 'De-bugger', description: 'Réussir le premier exercice Python du premier coup', icon: '🐛', condition: 'first_python' },
+  { id: 'combo-king', nom: 'Combo King', description: '10 bonnes réponses d\'affilée', icon: '⚡', condition: 'combo >= 10' },
+  { id: 'marathonien', nom: 'Marathonien', description: '30 jours de streak', icon: '🏆', condition: 'streak >= 30' },
+  { id: 'expert-discriminant', nom: 'Expert du Discriminant', description: 'Maîtriser le chapitre Second Degré', icon: '🎯', condition: 'mastered:second-degre' },
+  { id: 'maitre-suites', nom: 'Maître des Suites', description: 'Maîtriser le chapitre Suites', icon: '📊', condition: 'mastered:suites' },
+  { id: 'as-derivation', nom: 'As de la Dérivation', description: 'Maîtriser le chapitre Dérivation', icon: '📐', condition: 'mastered:derivation' },
+  { id: 'geometre', nom: 'Géomètre', description: 'Maîtriser tous les chapitres de Géométrie', icon: '📏', condition: 'mastered:geometrie-all' },
+  { id: 'probabiliste', nom: 'Probabiliste', description: 'Maîtriser Probabilités et Variables Aléatoires', icon: '🎲', condition: 'mastered:probabilites-all' },
+  { id: 'polymathe', nom: 'Polymathe', description: 'Compléter tous les chapitres du programme', icon: '👑', condition: 'all_chapters_completed' },
 ];
