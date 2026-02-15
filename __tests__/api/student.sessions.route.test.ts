@@ -48,7 +48,7 @@ describe('GET /api/student/sessions', () => {
     jest.clearAllMocks();
     (RateLimitPresets.api as jest.Mock).mockReturnValue(null);
     (requireRole as jest.Mock).mockResolvedValue(mockSession);
-    (isErrorResponse as jest.Mock).mockReturnValue(false);
+    (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
   });
 
@@ -65,7 +65,7 @@ describe('GET /api/student/sessions', () => {
   it('returns auth error response when guard fails', async () => {
     const mockErrorResponse = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     (requireRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-    (isErrorResponse as jest.Mock).mockReturnValue(true);
+    (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
 
     const response = await GET(makeRequest());
 
