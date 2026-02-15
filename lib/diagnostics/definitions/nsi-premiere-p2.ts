@@ -3,7 +3,7 @@
  * Version: v1.3 — Domains loaded from compiled JSON (CdC §3.3)
  */
 
-import type { DiagnosticDefinition } from '../types';
+import type { DiagnosticDefinition, ChapterDefinition } from '../types';
 import compiledDomains from './generated/nsi-premiere-p2.domains.json';
 
 /** Build skills record from compiled domains */
@@ -37,6 +37,7 @@ export const NSI_PREMIERE_P2: DiagnosticDefinition = {
   stage: 'pallier2',
 
   skills: buildSkills(),
+  chapters: (compiledDomains.chapters ?? []) as ChapterDefinition[],
 
   scoringPolicy: {
     domainWeights: buildWeights(),
