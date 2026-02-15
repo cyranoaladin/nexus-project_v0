@@ -21,6 +21,34 @@ type RecentCreditTransaction = Prisma.CreditTransactionGetPayload<{
   include: { student: { include: { user: true } } };
 }>;
 
+/**
+ * Aggregate an array of records with createdAt into monthly counts.
+ */
+function aggregateByMonth(items: { createdAt: Date }[]): { month: string; count: number }[] {
+  const map = new Map<string, number>();
+  for (const item of items) {
+    const key = item.createdAt.toISOString().slice(0, 7); // "YYYY-MM"
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+  return Array.from(map.entries())
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+/**
+ * Aggregate an array of payment records into monthly revenue totals.
+ */
+function aggregateRevenueByMonth(items: { createdAt: Date; amount: number }[]): { month: string; amount: number }[] {
+  const map = new Map<string, number>();
+  for (const item of items) {
+    const key = item.createdAt.toISOString().slice(0, 7);
+    map.set(key, (map.get(key) || 0) + item.amount);
+  }
+  return Array.from(map.entries())
+    .map(([month, amount]) => ({ month, amount }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Require ADMIN role
@@ -194,31 +222,25 @@ export async function GET(request: NextRequest) {
         prisma.subscription.count()
       ]),
 
-      // User growth (last 6 months)
-      prisma.user.groupBy({
-        by: ['createdAt'],
+      // User growth (last 6 months) — fetch raw dates, aggregate by month in JS
+      prisma.user.findMany({
         where: {
           createdAt: {
             gte: new Date(now.getFullYear(), now.getMonth() - 6, 1)
           }
         },
-        _count: {
-          id: true
-        }
+        select: { createdAt: true }
       }),
 
-      // Revenue growth (last 6 months)
-      prisma.payment.groupBy({
-        by: ['createdAt'],
+      // Revenue growth (last 6 months) — fetch raw dates+amounts, aggregate by month in JS
+      prisma.payment.findMany({
         where: {
           status: 'COMPLETED',
           createdAt: {
             gte: new Date(now.getFullYear(), now.getMonth() - 6, 1)
           }
         },
-        _sum: {
-          amount: true
-        }
+        select: { createdAt: true, amount: true }
       })
     ]);
 
@@ -334,14 +356,8 @@ export async function GET(request: NextRequest) {
       },
       systemHealth: healthStatus,
       recentActivities: formattedRecentActivities,
-      userGrowth: userGrowth.map((item) => ({
-        month: item.createdAt.toISOString().slice(0, 7),
-        count: item._count.id
-      })),
-      revenueGrowth: revenueGrowth.map((item) => ({
-        month: item.createdAt.toISOString().slice(0, 7),
-        amount: item._sum.amount || 0
-      }))
+      userGrowth: aggregateByMonth(userGrowth as { createdAt: Date }[]),
+      revenueGrowth: aggregateRevenueByMonth(revenueGrowth as { createdAt: Date; amount: number }[])
     };
 
     return NextResponse.json(dashboardData);

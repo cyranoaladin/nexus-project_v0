@@ -3,12 +3,21 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { UserRole } from '@/types/enums';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { createId } from '@paralleldrive/cuid2';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const isTestEnv = process.env.NODE_ENV === 'test';
+
+    // Rate limiting (10 requests per minute per IP)
+    const rateLimitResponse = await checkRateLimit(request, 'api');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     // Reset Prisma transaction mock call count in test environment (no-op in production)
     const maybeMock = prisma.$transaction as unknown as { mockClear?: () => void };
     if (typeof maybeMock?.mockClear === 'function') {
@@ -29,7 +38,7 @@ export async function POST(request: NextRequest) {
       existingUser = await prisma.user.findUnique({ where: { email: validatedData.parentEmail } });
     } catch (dbErr) {
       if (!isTestEnv) {
-        console.error('DB check failed, attempting to initialize sqlite file path:', dbErr);
+        console.error('DB check failed:', dbErr);
       }
     }
 
@@ -65,14 +74,14 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Créer le compte élève
+      // Créer le compte élève (unique email via cuid, no password — requires activation)
       const studentUser = await tx.user.create({
         data: {
-          email: `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}@nexus-student.local`,
+          email: `student-${createId()}@nexus-student.local`,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
           lastName: validatedData.studentLastName,
-          password: hashedPassword
+          password: null
         }
       });
 
