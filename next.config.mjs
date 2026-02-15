@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Config update to force restart
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 
