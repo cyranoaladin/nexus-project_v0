@@ -521,6 +521,26 @@ function buildJustification(
 }
 
 /**
+ * Get skill IDs that are core prerequisites AND belong to notYet chapters.
+ * These skills should be scored with a reduced weight (0.25) instead of excluded.
+ */
+function getPrerequisiteCoreSkillIdsFromNotYet(
+  chaptersSelection: ChaptersSelection | null,
+  chapters: ChapterDefinition[],
+  skillMeta: Array<{ skillId: string; chapterId?: string; prerequisite?: boolean; prerequisiteLevel?: string }>
+): Set<string> {
+  if (!chaptersSelection) return new Set();
+  const notYetSet = new Set(chaptersSelection.notYet);
+  const ids = new Set<string>();
+  for (const skill of skillMeta) {
+    if (skill.prerequisite && skill.prerequisiteLevel === 'core' && skill.chapterId && notYetSet.has(skill.chapterId)) {
+      ids.add(skill.skillId);
+    }
+  }
+  return ids;
+}
+
+/**
  * Compute programme coverage metrics from chapters selection.
  */
 function computeCoverageProgramme(
@@ -621,12 +641,14 @@ function detectChapterAlerts(
  *
  * @param chaptersSelection - Optional structured chapters selection (new pipeline)
  * @param chapters - Optional chapter definitions from the diagnostic definition
+ * @param skillMeta - Optional skill metadata with chapterId/prerequisite fields (from compiled JSON)
  */
 export function computeScoringV2(
   data: BilanDiagnosticMathsData,
   policy: ScoringPolicy = DEFAULT_POLICY,
   chaptersSelection: ChaptersSelection | null = null,
-  chapters: ChapterDefinition[] = []
+  chapters: ChapterDefinition[] = [],
+  skillMeta: Array<{ skillId: string; chapterId?: string; prerequisite?: boolean; prerequisiteLevel?: string }> = []
 ): ScoringV2Result {
   const { domainScores, masteryIndex, coverageIndex, dataQuality } =
     calculateDomainScores(data.competencies, policy.domainWeights);
@@ -647,12 +669,27 @@ export function computeScoringV2(
     0.60 * proofRisk + 0.40 * declarativeRisk
   )));
 
-  // Derived ReadinessScore: weighted combination
-  const readinessScore = Math.round(
+  // Prerequisite adjustment: core prerequisites in notYet chapters count at 0.25 weight
+  const prereqCoreNotYet = getPrerequisiteCoreSkillIdsFromNotYet(chaptersSelection, chapters, skillMeta);
+  let prereqPenalty = 0;
+  if (prereqCoreNotYet.size > 0) {
+    // Compute average mastery of core prerequisites in notYet chapters
+    const allComps = Object.values(data.competencies).filter(Array.isArray).flat();
+    const prereqComps = allComps.filter(c => prereqCoreNotYet.has(c.skillId) && c.mastery !== null);
+    if (prereqComps.length > 0) {
+      const avgMastery = prereqComps.reduce((s, c) => s + (c.mastery ?? 0), 0) / prereqComps.length;
+      // Low mastery on core prereqs => small penalty (max ~10 points)
+      prereqPenalty = Math.round((1 - avgMastery / 4) * 0.25 * 40);
+    }
+  }
+
+  // Derived ReadinessScore: weighted combination - prerequisite penalty
+  const readinessScore = Math.round(Math.max(0,
     0.50 * masteryIndex +
     0.15 * coverageIndex +
-    0.35 * examReadinessIndex
-  );
+    0.35 * examReadinessIndex -
+    prereqPenalty
+  ));
 
   // Decision based on thresholds
   let recommendation: ScoringV2Result['recommendation'];
