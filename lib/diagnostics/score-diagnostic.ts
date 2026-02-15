@@ -20,6 +20,9 @@ import type {
   ScoringPolicy,
   PriorityItem,
   InconsistencyFlag,
+  CoverageProgramme,
+  ChaptersSelection,
+  ChapterDefinition,
 } from './types';
 
 /**
@@ -425,7 +428,7 @@ function computePriorities(
   // QuickWins: skills with mastery 2-3 and low friction (easy to upgrade)
   const allComp = Object.entries(data.competencies)
     .filter(([, v]) => Array.isArray(v))
-    .flatMap(([domain, items]) => (items as typeof data.competencies.algebra).map((c) => ({ ...c, domain })));
+    .flatMap(([domain, items]) => (items as Array<{ skillId: string; skillLabel: string; status: string; mastery: number | null; confidence: number | null; friction: number | null; errorTypes: string[]; evidence: string }>).map((c) => ({ ...c, domain })));
 
   const upgradeable = allComp
     .filter((c) => c.mastery !== null && c.mastery >= 2 && c.mastery <= 3 && (c.friction === null || c.friction <= 1))
@@ -518,12 +521,112 @@ function buildJustification(
 }
 
 /**
+ * Compute programme coverage metrics from chapters selection.
+ */
+function computeCoverageProgramme(
+  chaptersSelection: ChaptersSelection | null,
+  chapters: ChapterDefinition[],
+  data: BilanDiagnosticMathsData
+): CoverageProgramme | undefined {
+  if (!chaptersSelection || chapters.length === 0) return undefined;
+
+  const totalChapters = chapters.length;
+  const seenChapters = chaptersSelection.selected.length;
+  const inProgressChapters = chaptersSelection.inProgress.length;
+  const seenChapterRatio = totalChapters > 0
+    ? Math.round(((seenChapters + inProgressChapters) / totalChapters) * 100) / 100
+    : 0;
+
+  // Count skills in seen chapters that were actually evaluated
+  const seenChapterIds = new Set([...chaptersSelection.selected, ...chaptersSelection.inProgress]);
+  const seenSkillIds = new Set<string>();
+  for (const ch of chapters) {
+    if (seenChapterIds.has(ch.chapterId)) {
+      for (const sid of ch.skills) seenSkillIds.add(sid);
+    }
+  }
+
+  let evaluatedSkillCount = 0;
+  const allCompetencies = Object.values(data.competencies)
+    .filter(Array.isArray)
+    .flat();
+  for (const c of allCompetencies) {
+    if (seenSkillIds.has(c.skillId) && c.status !== 'not_studied' && c.status !== 'unknown' && c.mastery !== null) {
+      evaluatedSkillCount++;
+    }
+  }
+
+  const evaluatedSkillRatio = seenSkillIds.size > 0
+    ? Math.round((evaluatedSkillCount / seenSkillIds.size) * 100) / 100
+    : 0;
+
+  return {
+    seenChapterRatio,
+    evaluatedSkillRatio,
+    totalChapters,
+    seenChapters,
+    inProgressChapters,
+  };
+}
+
+/**
+ * Detect chapter-aware pedagogical alerts.
+ */
+function detectChapterAlerts(
+  chaptersSelection: ChaptersSelection | null,
+  chapters: ChapterDefinition[],
+  domainScores: DomainScoreV2[]
+): ScoringAlertV2[] {
+  const alerts: ScoringAlertV2[] = [];
+  if (!chaptersSelection || chapters.length === 0) return alerts;
+
+  const totalChapters = chapters.length;
+  const seenCount = chaptersSelection.selected.length + chaptersSelection.inProgress.length;
+
+  // PROGRAM_NOT_COVERED: less than 30% of chapters seen
+  if (totalChapters > 0 && seenCount / totalChapters < 0.30) {
+    alerts.push({
+      type: 'warning',
+      code: 'PROGRAM_NOT_COVERED',
+      message: `Seulement ${seenCount}/${totalChapters} chapitres abordés (< 30%) — couverture programme insuffisante`,
+      impact: 'Le diagnostic porte sur une fraction limitée du programme — recommandations partielles',
+    });
+  }
+
+  // ADVANCED_GAPS: seen chapters with low mastery in their domain
+  const seenChapterIds = new Set(chaptersSelection.selected);
+  const weakSeenDomains = domainScores.filter(
+    (d) => d.score > 0 && d.score < 40 && d.priority !== 'low'
+  );
+  for (const wd of weakSeenDomains) {
+    const domainChapters = chapters.filter(
+      (ch) => ch.domainId === wd.domain && seenChapterIds.has(ch.chapterId)
+    );
+    if (domainChapters.length > 0) {
+      alerts.push({
+        type: 'warning',
+        code: 'ADVANCED_GAPS',
+        message: `Chapitres vus en ${wd.domain} mais maîtrise faible (${wd.score}%) — lacunes à combler en priorité`,
+        impact: `Risque d'échec sur les exercices portant sur ${domainChapters.map((c) => c.chapterLabel).join(', ')}`,
+      });
+    }
+  }
+
+  return alerts;
+}
+
+/**
  * Main scoring function V2.
  * Computes all indices and returns a complete ScoringV2Result.
+ *
+ * @param chaptersSelection - Optional structured chapters selection (new pipeline)
+ * @param chapters - Optional chapter definitions from the diagnostic definition
  */
 export function computeScoringV2(
   data: BilanDiagnosticMathsData,
-  policy: ScoringPolicy = DEFAULT_POLICY
+  policy: ScoringPolicy = DEFAULT_POLICY,
+  chaptersSelection: ChaptersSelection | null = null,
+  chapters: ChapterDefinition[] = []
 ): ScoringV2Result {
   const { domainScores, masteryIndex, coverageIndex, dataQuality } =
     calculateDomainScores(data.competencies, policy.domainWeights);
@@ -602,6 +705,13 @@ export function computeScoringV2(
     readinessScore, riskIndex, recommendation, policy.thresholds
   );
 
+  // Chapter-aware coverage
+  const coverageProgramme = computeCoverageProgramme(chaptersSelection, chapters, data);
+
+  // Chapter-aware alerts
+  const chapterAlerts = detectChapterAlerts(chaptersSelection, chapters, domainScores);
+  alerts.push(...chapterAlerts);
+
   return {
     masteryIndex,
     coverageIndex,
@@ -621,5 +731,6 @@ export function computeScoringV2(
     quickWins,
     highRisk,
     inconsistencies,
+    coverageProgramme,
   };
 }
