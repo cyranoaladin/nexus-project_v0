@@ -197,8 +197,8 @@ export function renderPromptContext(ctx: PromptContextPack): string {
 }
 
 /**
- * Build chapter-aware RAG queries.
- * Focuses on: weakest seen chapters, dominant errors, exam format.
+ * Build chapter-aware RAG queries using ragTopics for precise topic coherence.
+ * Focuses on: weakest seen chapters (ragTopics), dominant errors, exam format.
  */
 export function buildChapterAwareRAGQueries(
   data: BilanDiagnosticMathsData,
@@ -211,7 +211,7 @@ export function buildChapterAwareRAGQueries(
   const chapters = definition?.chapters ?? [];
   const chaptersSelection = resolveChaptersSelection(data, definition);
 
-  // 1. Weakest seen chapters (2-3 queries)
+  // 1. Weakest seen chapters — use ragTopics for precise queries (2-3 queries)
   const seenChapterIds = new Set([...chaptersSelection.selected, ...chaptersSelection.inProgress]);
   const weakDomains = [...scoring.domainScores]
     .filter((d) => d.score > 0 && d.priority !== 'low')
@@ -222,8 +222,9 @@ export function buildChapterAwareRAGQueries(
     const domainChapters = chapters
       .filter((ch) => ch.domainId === domain.domain && seenChapterIds.has(ch.chapterId));
     if (domainChapters.length > 0) {
-      const chLabel = domainChapters[0].chapterLabel;
-      queries.push(`${chLabel} ${discipline} ${level} exercices méthode`);
+      const ch = domainChapters[0];
+      const topics = ch.ragTopics?.slice(0, 3).join(' ') ?? ch.chapterLabel;
+      queries.push(`${topics} ${discipline} ${level} exercices corrigés`);
     } else {
       queries.push(`${domain.domain} ${discipline} ${level} méthode`);
     }

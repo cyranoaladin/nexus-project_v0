@@ -43,8 +43,8 @@ interface DefinitionMeta {
   label: string;
   track: string;
   level: string;
-  domains: Array<{ domainId: string; weight: number; skills: Array<{ skillId: string; label: string }> }>;
-  chapters: ChapterDefinition[];
+  domains: Array<{ domainId: string; weight: number; skills: Array<{ skillId: string; label: string; chapterId?: string; prerequisite?: boolean; prerequisiteLevel?: string }> }>;
+  chapters: (ChapterDefinition & { ragTopics?: string[] })[];
 }
 
 interface FormData {
@@ -246,6 +246,9 @@ export default function BilanPallier2MathsPage() {
   // Chapter statuses: chapterId → status
   const [chapterStatuses, setChapterStatuses] = useState<Record<string, ChapterStatus>>({});
 
+  // Toggle: show all skills or only those from seen/inProgress chapters
+  const [showAllSkills, setShowAllSkills] = useState(false);
+
   // Has the user confirmed discipline/level (Step 0 gate)?
   const hasChosenProgramme = formData.discipline !== '' && formData.level !== '' && formData.definitionKey !== '';
 
@@ -325,6 +328,24 @@ export default function BilanPallier2MathsPage() {
       } as FormData['chapters'],
     }));
   }, [chapterStatuses]);
+
+  // Compute visible skill IDs: skills from seen/inProgress chapters + core prerequisites
+  const visibleSkillIds = (() => {
+    if (!definitionMeta || showAllSkills) return null; // null = show all
+    const seenChapterIds = new Set<string>();
+    for (const [chId, status] of Object.entries(chapterStatuses)) {
+      if (status === 'seen' || status === 'inProgress') seenChapterIds.add(chId);
+    }
+    const ids = new Set<string>();
+    for (const domain of definitionMeta.domains) {
+      for (const skill of domain.skills) {
+        const inSeenChapter = skill.chapterId && seenChapterIds.has(skill.chapterId);
+        const isCorePrereq = skill.prerequisite && skill.prerequisiteLevel === 'core';
+        if (inSeenChapter || isCorePrereq) ids.add(skill.skillId);
+      }
+    }
+    return ids;
+  })();
 
   const updateIdentity = (f: keyof FormData["identity"], v: string) => setFormData(p => ({ ...p, identity: { ...p.identity, [f]: v } }));
   const updateSchool = (f: keyof FormData["schoolContext"], v: string) => {
@@ -626,6 +647,19 @@ export default function BilanPallier2MathsPage() {
             )}
             {currentStep === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                {/* Toggle: show all skills or only from checked chapters */}
+                {definitionMeta && (
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-white/5">
+                    <div>
+                      <p className="text-sm text-slate-200 font-medium">Filtrage par chapitres cochés</p>
+                      <p className="text-xs text-slate-400">{showAllSkills ? 'Toutes les compétences du programme sont affichées' : 'Seules les compétences des chapitres vus/en cours + prérequis fondamentaux sont affichées'}</p>
+                    </div>
+                    <button type="button" onClick={() => setShowAllSkills(p => !p)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showAllSkills ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30' : 'bg-white/10 text-slate-300 border border-white/10'}`}>
+                      {showAllSkills ? '✓ Tout le programme' : 'Afficher tout'}
+                    </button>
+                  </div>
+                )}
                 {/* Dynamic domains from definition or fallback to hardcoded */}
                 {(definitionMeta ? definitionMeta.domains.map(d => ({ key: d.domainId, icon: Sigma })) : [
                   { key: "algebra", icon: Sigma },
@@ -640,6 +674,13 @@ export default function BilanPallier2MathsPage() {
                   const domainItems = (formData.competencies as Record<string, CompetencyItem[]>)[domain.key];
                   if (!domainItems || domainItems.length === 0) return null;
 
+                  // Filter skills by visible set (null = show all)
+                  const filteredItems = visibleSkillIds
+                    ? domainItems.filter(c => visibleSkillIds.has(c.skillId))
+                    : domainItems;
+                  const hiddenCount = domainItems.length - filteredItems.length;
+                  if (filteredItems.length === 0 && !showAllSkills) return null;
+
                   // Pick icon based on domain key
                   const IconComp = domain.key.includes('algo') || domain.key.includes('python') ? Code2
                     : domain.key.includes('prob') || domain.key.includes('stat') ? BarChart3
@@ -652,12 +693,18 @@ export default function BilanPallier2MathsPage() {
 
                   return (
                     <Card key={domain.key} className="border-white/10 bg-white/5">
-                      <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><IconComp className="w-4 h-4 mr-2 text-brand-accent" />{title}</CardTitle></CardHeader>
+                      <CardHeader className="py-3">
+                        <CardTitle className="flex items-center text-white text-sm">
+                          <IconComp className="w-4 h-4 mr-2 text-brand-accent" />{title}
+                          {hiddenCount > 0 && <span className="ml-auto text-[10px] text-slate-500 font-normal">{hiddenCount} masquées (chapitres non vus)</span>}
+                        </CardTitle>
+                      </CardHeader>
                       <CardContent className="py-2">
                         <div className="text-xs text-slate-500 mb-2 flex gap-2"><span className="w-[90px]">Statut</span><span className="flex-1 min-w-[140px]">Compétence</span><span className="w-24">Maîtrise</span></div>
-                        {domainItems.map((comp, idx) => (
-                          <CompetencyRow key={comp.skillId} competency={comp} onUpdate={(f, v) => updateCompetency(domain.key as keyof FormData["competencies"], idx, f, v)} />
-                        ))}
+                        {filteredItems.map((comp) => {
+                          const origIdx = domainItems.findIndex(c => c.skillId === comp.skillId);
+                          return <CompetencyRow key={comp.skillId} competency={comp} onUpdate={(f, v) => updateCompetency(domain.key as keyof FormData["competencies"], origIdx, f, v)} />;
+                        })}
                       </CardContent>
                     </Card>
                   )
