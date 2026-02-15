@@ -201,6 +201,10 @@ const competencyItemSchema = z.object({
 export const bilanDiagnosticMathsSchema = z.object({
   version: z.string().optional(),
   submittedAt: z.string().optional(),
+  /** Discipline/level/definitionKey — governs the entire pipeline */
+  discipline: z.enum(['maths', 'nsi']).optional(),
+  level: z.enum(['premiere', 'terminale']).optional(),
+  definitionKey: z.string().optional(),
   identity: z.object({
     firstName: z.string().min(1, 'Prénom requis'),
     lastName: z.string().min(1, 'Nom requis'),
@@ -222,18 +226,32 @@ export const bilanDiagnosticMathsSchema = z.object({
     classRanking: z.string().optional()
   }),
   chapters: z.object({
+    /** Legacy free-text fields (backward compat) */
     chaptersStudied: z.string().optional(),
     chaptersInProgress: z.string().optional(),
-    chaptersNotYet: z.string().optional()
+    chaptersNotYet: z.string().optional(),
+    /** Structured chapter selection (new pipeline) */
+    selected: z.array(z.string()).optional(),
+    inProgress: z.array(z.string()).optional(),
+    notYet: z.array(z.string()).optional(),
+    freeText: z.string().optional()
   }),
+  /** Work profile for enhanced bilan quality */
+  workProfile: z.object({
+    weeklyHours: z.string().optional(),
+    method: z.string().optional(),
+    organization: z.string().optional(),
+    stressLevel: z.number().min(0).max(4).optional(),
+    confidenceLevel: z.number().min(0).max(4).optional()
+  }).optional(),
   competencies: z.object({
-    algebra: z.array(competencyItemSchema),
-    analysis: z.array(competencyItemSchema),
-    geometry: z.array(competencyItemSchema),
-    probabilities: z.array(competencyItemSchema),
-    python: z.array(competencyItemSchema),
+    algebra: z.array(competencyItemSchema).optional(),
+    analysis: z.array(competencyItemSchema).optional(),
+    geometry: z.array(competencyItemSchema).optional(),
+    probabilities: z.array(competencyItemSchema).optional(),
+    python: z.array(competencyItemSchema).optional(),
     terminalAnticipation: z.array(competencyItemSchema).optional()
-  }),
+  }).catchall(z.array(competencyItemSchema)),
   openQuestions: z.object({
     algebraUnderstanding: z.string().optional(),
     canDemonstrateProductRule: z.string().optional(),
