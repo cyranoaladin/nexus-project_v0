@@ -5,7 +5,7 @@
   "level": "terminale",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:48:21.276Z",
+  "generatedAt": "2026-02-15T21:12:16.708Z",
   "domains": [
     {
       "domainId": "data_structures",
@@ -21,7 +21,8 @@
             "eds",
             "nsi",
             "structures"
-          ]
+          ],
+          "chapterId": "CH_NT_STRUCTURES"
         },
         {
           "skillId": "NSI_GRAPHS",
@@ -32,7 +33,8 @@
             "eds",
             "nsi",
             "structures"
-          ]
+          ],
+          "chapterId": "CH_NT_STRUCTURES"
         },
         {
           "skillId": "NSI_STACKS_QUEUES",
@@ -43,7 +45,10 @@
             "eds",
             "nsi",
             "structures"
-          ]
+          ],
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_LINKED_LISTS",
@@ -54,7 +59,8 @@
             "eds",
             "nsi",
             "structures"
-          ]
+          ],
+          "chapterId": "CH_NT_STRUCTURES"
         },
         {
           "skillId": "NSI_DICTS",
@@ -65,7 +71,10 @@
             "eds",
             "nsi",
             "structures"
-          ]
+          ],
+          "chapterId": "CH_NT_STRUCTURES",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         }
       ]
     },
@@ -83,7 +92,10 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_NT_ALGO_ADV",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_DIVIDE_CONQUER",
@@ -94,7 +106,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_NT_ALGO_ADV"
         },
         {
           "skillId": "NSI_DYNAMIC_PROG",
@@ -105,7 +118,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_NT_ALGO_ADV"
         },
         {
           "skillId": "NSI_GRAPH_ALGO",
@@ -116,7 +130,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_NT_ALGO_ADV"
         },
         {
           "skillId": "NSI_SORT_ADV",
@@ -127,7 +142,8 @@
             "eds",
             "nsi",
             "algo"
-          ]
+          ],
+          "chapterId": "CH_NT_ALGO_ADV"
         }
       ]
     },
@@ -145,7 +161,10 @@
             "eds",
             "nsi",
             "bdd"
-          ]
+          ],
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_SQL_JOIN",
@@ -156,7 +175,8 @@
             "eds",
             "nsi",
             "bdd"
-          ]
+          ],
+          "chapterId": "CH_NT_BDD"
         },
         {
           "skillId": "NSI_RELATIONAL",
@@ -167,7 +187,10 @@
             "eds",
             "nsi",
             "bdd"
-          ]
+          ],
+          "chapterId": "CH_NT_BDD",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
         },
         {
           "skillId": "NSI_SQL_CRUD",
@@ -178,7 +201,8 @@
             "eds",
             "nsi",
             "bdd"
-          ]
+          ],
+          "chapterId": "CH_NT_BDD"
         }
       ]
     },
@@ -196,7 +220,8 @@
             "eds",
             "nsi",
             "reseaux"
-          ]
+          ],
+          "chapterId": "CH_NT_RESEAUX"
         },
         {
           "skillId": "NSI_ROUTING_ADV",
@@ -207,7 +232,8 @@
             "eds",
             "nsi",
             "reseaux"
-          ]
+          ],
+          "chapterId": "CH_NT_RESEAUX"
         },
         {
           "skillId": "NSI_PROCESSES_ADV",
@@ -218,7 +244,8 @@
             "eds",
             "nsi",
             "reseaux"
-          ]
+          ],
+          "chapterId": "CH_NT_RESEAUX"
         },
         {
           "skillId": "NSI_SECURITY",
@@ -229,7 +256,8 @@
             "eds",
             "nsi",
             "reseaux"
-          ]
+          ],
+          "chapterId": "CH_NT_RESEAUX"
         }
       ]
     },
@@ -247,7 +275,8 @@
             "eds",
             "nsi",
             "os"
-          ]
+          ],
+          "chapterId": "CH_NT_OS"
         },
         {
           "skillId": "NSI_OS_FILES",
@@ -258,7 +287,8 @@
             "eds",
             "nsi",
             "os"
-          ]
+          ],
+          "chapterId": "CH_NT_OS"
         }
       ]
     },
@@ -276,7 +306,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_NT_POO"
         },
         {
           "skillId": "NSI_PY_RECURSION_ADV",
@@ -287,7 +318,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_NT_POO"
         },
         {
           "skillId": "NSI_PY_MODULES_ADV",
@@ -298,7 +330,8 @@
             "eds",
             "nsi",
             "python"
-          ]
+          ],
+          "chapterId": "CH_NT_POO"
         }
       ]
     }
@@ -315,6 +348,14 @@
         "NSI_STACKS_QUEUES",
         "NSI_LINKED_LISTS",
         "NSI_DICTS"
+      ],
+      "ragTopics": [
+        "arbres",
+        "graphes",
+        "piles",
+        "files",
+        "listes_chainees",
+        "dictionnaires"
       ]
     },
     {
@@ -328,6 +369,13 @@
         "NSI_DYNAMIC_PROG",
         "NSI_GRAPH_ALGO",
         "NSI_SORT_ADV"
+      ],
+      "ragTopics": [
+        "complexite",
+        "diviser_regner",
+        "programmation_dynamique",
+        "parcours_graphes",
+        "tri_fusion"
       ]
     },
     {
@@ -340,6 +388,14 @@
         "NSI_SQL_JOIN",
         "NSI_RELATIONAL",
         "NSI_SQL_CRUD"
+      ],
+      "ragTopics": [
+        "sql",
+        "join",
+        "modele_relationnel",
+        "select",
+        "crud",
+        "requetes"
       ]
     },
     {
@@ -352,6 +408,13 @@
         "NSI_ROUTING_ADV",
         "NSI_PROCESSES_ADV",
         "NSI_SECURITY"
+      ],
+      "ragTopics": [
+        "tcp_ip",
+        "routage",
+        "securite",
+        "protocoles",
+        "ordonnancement"
       ]
     },
     {
@@ -362,6 +425,12 @@
       "skills": [
         "NSI_OS_MEMORY",
         "NSI_OS_FILES"
+      ],
+      "ragTopics": [
+        "memoire",
+        "fichiers",
+        "systeme_exploitation",
+        "permissions"
       ]
     },
     {
@@ -373,6 +442,13 @@
         "NSI_POO",
         "NSI_PY_RECURSION_ADV",
         "NSI_PY_MODULES_ADV"
+      ],
+      "ragTopics": [
+        "poo",
+        "classes",
+        "recursivite",
+        "modules",
+        "api"
       ]
     }
   ]

@@ -19,10 +19,10 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   // TODO: Migrate to CSS modules/Tailwind to remove unsafe-inline
   response.headers.set('Content-Security-Policy', [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "img-src 'self' data: https:",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
     "connect-src 'self' https://api.openai.com https://api.konnect.network https://fonts.googleapis.com",
     "frame-src 'self' https://meet.jit.si https://*.jitsi.net",
     "frame-ancestors 'self'",

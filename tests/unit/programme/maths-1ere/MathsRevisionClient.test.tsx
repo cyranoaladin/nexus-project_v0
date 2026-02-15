@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import MathsRevisionClient from '@/app/programme/maths-1ere/components/MathsRevisionClient';
 
 // Mock next/dynamic
@@ -84,5 +84,12 @@ describe('MathsRevisionClient', () => {
         render(<MathsRevisionClient />);
         expect(screen.getByText(/Progression Globale/i)).toBeInTheDocument();
         expect(screen.getByText(/Défi du jour/i)).toBeInTheDocument();
+    });
+
+    it('switches to cours tab', () => {
+        render(<MathsRevisionClient />);
+        const coursTab = screen.getByText(/Fiches de Cours/i);
+        fireEvent.click(coursTab);
+        expect(screen.getByText(/Sélectionnez une fiche/i)).toBeInTheDocument();
     });
 });
