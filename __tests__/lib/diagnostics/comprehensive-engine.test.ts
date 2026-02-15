@@ -848,6 +848,40 @@ describe('coverageProgramme — 5 mandatory edge cases (audit §5)', () => {
     expect(result.coverageProgramme).toBeDefined();
   });
 
+  it('coverageProgramme evaluatedSkillRatio is coherent with filtered skills (audit D)', () => {
+    // Select 3 chapters that have skills: ch_eq1 (alg_eq1, alg_eq2), ch_suites (alg_suites), ch_deriv (ana_deriv, ana_fonc)
+    const sel: ChaptersSelection = { selected: ['ch_eq1', 'ch_suites', 'ch_deriv'], inProgress: [], notYet: ['ch_vect', 'ch_proba', 'ch_algo', 'ch_logic'] };
+    const data = makeData({
+      competencies: {
+        algebra: [
+          makeCompetency('alg_eq1', 3),   // in ch_eq1 — evaluated
+          makeCompetency('alg_eq2', 2),   // in ch_eq1 — evaluated
+          makeCompetency('alg_suites', 4), // in ch_suites — evaluated
+        ],
+        analysis: [
+          makeCompetency('ana_deriv', 3),  // in ch_deriv — evaluated
+          makeCompetency('ana_fonc', null, 'not_studied'), // in ch_deriv — NOT evaluated
+        ],
+        geometry: [makeCompetency('geo_vect', 3)], // in ch_vect (notYet) — should NOT count
+      },
+    });
+
+    const result = computeScoringV2(data, POLICY, sel, CHAPTERS, SKILL_META);
+    const cp = result.coverageProgramme!;
+
+    // 3 seen chapters out of 7
+    expect(cp.seenChapters).toBe(3);
+    expect(cp.seenChapterRatio).toBeCloseTo(3 / 7, 2);
+
+    // Skills in seen chapters: alg_eq1, alg_eq2, alg_suites, ana_deriv, ana_fonc = 5 total
+    // Evaluated (mastery !== null && status !== 'not_studied'): 4 out of 5
+    expect(cp.evaluatedSkillRatio).toBeGreaterThan(0);
+    expect(cp.evaluatedSkillRatio).toBeLessThanOrEqual(1);
+
+    // totalChapters should be 7 (all chapters in definition)
+    expect(cp.totalChapters).toBe(7);
+  });
+
   it('chapter with no associated skills', () => {
     const chaptersWithEmpty: ChapterDefinition[] = [
       ...CHAPTERS,
