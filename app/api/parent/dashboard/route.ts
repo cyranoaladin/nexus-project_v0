@@ -88,6 +88,22 @@ export async function GET() {
                 }
               }
             },
+            subscriptions: {
+              where: { status: 'ACTIVE' },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              select: {
+                id: true,
+                planName: true,
+                monthlyPrice: true,
+                creditsPerMonth: true,
+                status: true,
+                startDate: true,
+                endDate: true,
+                ariaSubjects: true,
+                ariaCost: true
+              }
+            },
             badges: {
               include: {
                 badge: true
@@ -142,14 +158,27 @@ export async function GET() {
         school: child.school,
         credits: child.credits,
 
-        // Subscription details (mock or from DB)
-        subscription: "Standard", // Default
-        subscriptionDetails: null,
+        // Subscription details from DB
+        subscription: (child as any).subscriptions?.[0]?.planName ?? 'Aucun',
+        subscriptionDetails: (child as any).subscriptions?.[0] ? {
+          id: (child as any).subscriptions[0].id,
+          planName: (child as any).subscriptions[0].planName,
+          monthlyPrice: (child as any).subscriptions[0].monthlyPrice,
+          creditsPerMonth: (child as any).subscriptions[0].creditsPerMonth,
+          status: (child as any).subscriptions[0].status,
+          startDate: (child as any).subscriptions[0].startDate?.toISOString(),
+          endDate: (child as any).subscriptions[0].endDate?.toISOString() ?? null,
+          ariaSubjects: (child as any).subscriptions[0].ariaSubjects,
+          ariaCost: (child as any).subscriptions[0].ariaCost
+        } : null,
 
         nextSession: nextSession,
 
-        progress: 0, // Mock
-        subjectProgress: {}, // Mock
+        // Progress from real session stats
+        progress: child.totalSessions > 0
+          ? Math.round((child.completedSessions / child.totalSessions) * 100)
+          : 0,
+        subjectProgress: {},
 
         sessions: mappedSessions,
 
