@@ -1,0 +1,109 @@
+# Mapping YAML — NSI Terminale EDS
+# Source de vérité pour les IDs stables et la structure des domaines.
+
+programmeKey: nsi_terminale
+definitionKey: nsi-terminale-p2
+schemaVersion: v1.3
+label: "Diagnostic Pré-Stage NSI — Terminale Spécialité"
+discipline: nsi
+level: terminale
+
+domains:
+  - domainId: data_structures
+    domainLabel: "Structures de données"
+    weight: 0.25
+    skills:
+      - skillId: NSI_TREES
+        label: "Arbres binaires"
+        tags: ["programme", "terminale", "eds", "nsi", "structures"]
+      - skillId: NSI_GRAPHS
+        label: "Graphes (DFS/BFS)"
+        tags: ["programme", "terminale", "eds", "nsi", "structures"]
+      - skillId: NSI_STACKS_QUEUES
+        label: "Piles & Files"
+        tags: ["programme", "terminale", "eds", "nsi", "structures"]
+      - skillId: NSI_LINKED_LISTS
+        label: "Listes chaînées"
+        tags: ["programme", "terminale", "eds", "nsi", "structures"]
+      - skillId: NSI_DICTS
+        label: "Dictionnaires & Tables de hachage"
+        tags: ["programme", "terminale", "eds", "nsi", "structures"]
+
+  - domainId: algorithmic_advanced
+    domainLabel: "Algorithmique avancée"
+    weight: 0.25
+    skills:
+      - skillId: NSI_COMPLEXITY_ADV
+        label: "Complexité O(n), O(log n), O(n²)"
+        tags: ["programme", "terminale", "eds", "nsi", "algo"]
+      - skillId: NSI_DIVIDE_CONQUER
+        label: "Diviser pour régner"
+        tags: ["programme", "terminale", "eds", "nsi", "algo"]
+      - skillId: NSI_DYNAMIC_PROG
+        label: "Programmation dynamique"
+        tags: ["programme", "terminale", "eds", "nsi", "algo"]
+      - skillId: NSI_GRAPH_ALGO
+        label: "Parcours de graphes (DFS/BFS)"
+        tags: ["programme", "terminale", "eds", "nsi", "algo"]
+      - skillId: NSI_SORT_ADV
+        label: "Tris avancés (fusion, rapide)"
+        tags: ["programme", "terminale", "eds", "nsi", "algo"]
+
+  - domainId: databases
+    domainLabel: "Bases de données"
+    weight: 0.15
+    skills:
+      - skillId: NSI_SQL_SELECT
+        label: "Requêtes SELECT"
+        tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+      - skillId: NSI_SQL_JOIN
+        label: "Requêtes JOIN"
+        tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+      - skillId: NSI_RELATIONAL
+        label: "Modèle relationnel"
+        tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+      - skillId: NSI_SQL_CRUD
+        label: "INSERT/UPDATE/DELETE"
+        tags: ["programme", "terminale", "eds", "nsi", "bdd"]
+
+  - domainId: networks
+    domainLabel: "Réseaux & OS"
+    weight: 0.15
+    skills:
+      - skillId: NSI_NETWORK_PROTO
+        label: "Protocoles réseau (TCP/IP)"
+        tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+      - skillId: NSI_ROUTING_ADV
+        label: "Routage (tables, algorithmes)"
+        tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+      - skillId: NSI_PROCESSES_ADV
+        label: "Processus & ordonnancement"
+        tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+      - skillId: NSI_SECURITY
+        label: "Sécurité informatique"
+        tags: ["programme", "terminale", "eds", "nsi", "reseaux"]
+
+  - domainId: systems_os
+    domainLabel: "Systèmes d'exploitation"
+    weight: 0.10
+    skills:
+      - skillId: NSI_OS_MEMORY
+        label: "Gestion mémoire"
+        tags: ["programme", "terminale", "eds", "nsi", "os"]
+      - skillId: NSI_OS_FILES
+        label: "Système de fichiers"
+        tags: ["programme", "terminale", "eds", "nsi", "os"]
+
+  - domainId: python_advanced
+    domainLabel: "POO & Projets"
+    weight: 0.10
+    skills:
+      - skillId: NSI_POO
+        label: "Programmation Orientée Objet"
+        tags: ["programme", "terminale", "eds", "nsi", "python"]
+      - skillId: NSI_PY_RECURSION_ADV
+        label: "Récursivité avancée"
+        tags: ["programme", "terminale", "eds", "nsi", "python"]
+      - skillId: NSI_PY_MODULES_ADV
+        label: "Modules & API"
+        tags: ["programme", "terminale", "eds", "nsi", "python"]

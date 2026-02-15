@@ -1,10 +1,10 @@
 /**
- * DiagnosticDefinition — Maths Première Spécialité, Pallier 2
- * Version: v1.3 — Domains loaded from compiled JSON (CdC §3.1)
+ * DiagnosticDefinition — Maths Terminale Spécialité, Pallier 2
+ * Version: v1.3 — Domains loaded from compiled JSON (CdC §3.2)
  */
 
 import type { DiagnosticDefinition } from '../types';
-import compiledDomains from './generated/maths-premiere-p2.domains.json';
+import compiledDomains from './generated/maths-terminale-p2.domains.json';
 
 /** Build skills record from compiled domains */
 function buildSkills(): Record<string, { skillId: string; label: string; domain: string }[]> {
@@ -28,12 +28,12 @@ function buildWeights(): Record<string, number> {
   return weights;
 }
 
-export const MATHS_PREMIERE_P2: DiagnosticDefinition = {
-  key: 'maths-premiere-p2',
+export const MATHS_TERMINALE_P2: DiagnosticDefinition = {
+  key: 'maths-terminale-p2',
   version: 'v1.3',
   label: compiledDomains.label,
   track: 'maths',
-  level: 'premiere',
+  level: 'terminale',
   stage: 'pallier2',
 
   skills: buildSkills(),
@@ -41,14 +41,14 @@ export const MATHS_PREMIERE_P2: DiagnosticDefinition = {
   scoringPolicy: {
     domainWeights: buildWeights(),
     thresholds: {
-      confirmed: { readiness: 60, risk: 55 },
-      conditional: { readiness: 48, risk: 70 },
+      confirmed: { readiness: 55, risk: 60 },
+      conditional: { readiness: 45, risk: 75 },
     },
   },
 
   prompts: {
     version: 'v1.0',
-    eleve: `Tu es un expert pédagogique bienveillant en mathématiques (Première spécialité, programme français).
+    eleve: `Tu es un expert pédagogique bienveillant en mathématiques (Terminale spécialité, programme français).
 Tu travailles pour Nexus Réussite, centre de soutien scolaire en Tunisie.
 
 Génère un bilan personnalisé pour l'ÉLÈVE en Markdown.
@@ -58,7 +58,8 @@ Génère un bilan personnalisé pour l'ÉLÈVE en Markdown.
 - Ne JAMAIS inventer de données, ressources ou exigences du programme.
 - Si du contexte pédagogique RAG est fourni, le citer (ex: "Conformément au programme…").
 - Si une donnée est manquante ou "not_studied", dire "à planifier" et non "faiblesse".
-- Toujours expliquer POURQUOI une priorité est importante (impact épreuve anticipée, terminale, orientation).
+- Toujours expliquer POURQUOI une priorité est importante (impact BAC, orientation post-bac).
+- Focus Terminale : limites, continuité, logarithme, intégrales, complexes, récurrence.
 
 ## Structure obligatoire
 1. **Résumé 15 secondes** : 3 puces (force, priorité, objectif 2 semaines)
@@ -70,28 +71,28 @@ Génère un bilan personnalisé pour l'ÉLÈVE en Markdown.
 
 ~400 mots. Retourne UNIQUEMENT le Markdown.`,
 
-    parents: `Tu es un expert pédagogique professionnel en mathématiques (Première spécialité, programme français).
+    parents: `Tu es un expert pédagogique professionnel en mathématiques (Terminale spécialité, programme français).
 Tu travailles pour Nexus Réussite, centre de soutien scolaire en Tunisie.
 
 Génère un rapport pour les PARENTS en Markdown.
 
 ## Règles strictes
 - Ton : professionnel, rassurant, transparent. Vouvoiement.
-- Ne JAMAIS exposer les scores bruts (ReadinessScore, RiskIndex) — utiliser des termes qualitatifs.
+- Ne JAMAIS exposer les scores bruts — utiliser des termes qualitatifs.
 - Ne JAMAIS inventer de données ou de ressources.
-- Si du contexte pédagogique RAG est fourni, le citer de manière accessible.
 - "not_studied" = "sera abordé prochainement", pas une faiblesse.
+- Contexte Terminale : épreuve BAC en mars, enjeux orientation Parcoursup.
 
 ## Structure obligatoire
-1. **Synthèse** : où en est l'élève à mi-année (qualitatif)
+1. **Synthèse** : où en est l'élève dans la préparation BAC
 2. **Risques** : stress/temps/automatismes expliqués sans dramatiser
-3. **Plan réaliste maison** : 15-20 min/jour, comment aider sans faire à la place
+3. **Plan réaliste maison** : 20-30 min/jour, comment aider sans faire à la place
 4. **Ce que Nexus va faire** : promesse opérationnelle concrète
-5. **Indicateurs de progrès** : mesurables (ex: "80% automatismes en 2 semaines")
+5. **Indicateurs de progrès** : mesurables
 
 ~500 mots. Retourne UNIQUEMENT le Markdown.`,
 
-    nexus: `Tu es un expert pédagogique technique en mathématiques (Première spécialité, programme français).
+    nexus: `Tu es un expert pédagogique technique en mathématiques (Terminale spécialité, programme français).
 Tu travailles pour Nexus Réussite, centre de soutien scolaire en Tunisie.
 
 Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
@@ -99,8 +100,9 @@ Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
 ## Règles strictes
 - Ton : technique, factuel.
 - Citer les sources RAG avec chunk ID si disponibles.
-- Signaler les incohérences dans les données (ex: moyenne élevée mais mastery faible).
-- Distinguer "not_studied" (exclu du mastery, compté dans coverage) de "unknown" (pénalise qualité).
+- Signaler les incohérences dans les données.
+- Distinguer "not_studied" de "unknown".
+- Focus Terminale : prioriser intégrales, limites, log, complexes pour le BAC.
 
 ## Structure obligatoire
 1. **DataQuality / Coverage / Incohérences**
@@ -113,7 +115,7 @@ Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
   },
 
   ragPolicy: {
-    collections: ['ressources_pedagogiques_premiere_maths'],
+    collections: ['ressources_pedagogiques_terminale'],
     maxQueries: 4,
     topK: 2,
   },

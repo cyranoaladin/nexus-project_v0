@@ -1,0 +1,95 @@
+# Mapping YAML — NSI Première EDS
+# Source de vérité pour les IDs stables et la structure des domaines.
+
+programmeKey: nsi_premiere
+definitionKey: nsi-premiere-p2
+schemaVersion: v1.3
+label: "Diagnostic Pré-Stage NSI — Première Spécialité"
+discipline: nsi
+level: premiere
+
+domains:
+  - domainId: data_representation
+    domainLabel: "Représentation des données"
+    weight: 0.20
+    skills:
+      - skillId: NSI_TYPES
+        label: "Types de base & construits"
+        tags: ["programme", "premiere", "eds", "nsi", "donnees"]
+      - skillId: NSI_TRUTH_TABLE
+        label: "Tables de vérité / Booléens"
+        tags: ["programme", "premiere", "eds", "nsi", "donnees"]
+      - skillId: NSI_BINARY
+        label: "Représentation binaire/héxa"
+        tags: ["programme", "premiere", "eds", "nsi", "donnees"]
+      - skillId: NSI_CSV
+        label: "Traitement de données (CSV)"
+        tags: ["programme", "premiere", "eds", "nsi", "donnees"]
+      - skillId: NSI_ENCODING
+        label: "Encodage texte (ASCII, UTF-8)"
+        tags: ["programme", "premiere", "eds", "nsi", "donnees"]
+
+  - domainId: data_processing
+    domainLabel: "Traitement des données"
+    weight: 0.20
+    skills:
+      - skillId: NSI_TABLE_SEARCH
+        label: "Recherche dans une table"
+        tags: ["programme", "premiere", "eds", "nsi", "traitement"]
+      - skillId: NSI_TABLE_SORT
+        label: "Tri d'une table"
+        tags: ["programme", "premiere", "eds", "nsi", "traitement"]
+      - skillId: NSI_TABLE_FUSION
+        label: "Fusion de tables"
+        tags: ["programme", "premiere", "eds", "nsi", "traitement"]
+
+  - domainId: algorithms
+    domainLabel: "Algorithmique"
+    weight: 0.20
+    skills:
+      - skillId: NSI_COMPLEXITY
+        label: "Complexité algorithmique"
+        tags: ["programme", "premiere", "eds", "nsi", "algo"]
+      - skillId: NSI_SORT
+        label: "Algorithmes de tri"
+        tags: ["programme", "premiere", "eds", "nsi", "algo"]
+      - skillId: NSI_KNN
+        label: "k-plus proches voisins"
+        tags: ["programme", "premiere", "eds", "nsi", "algo"]
+      - skillId: NSI_GREEDY
+        label: "Algorithmes gloutons"
+        tags: ["programme", "premiere", "eds", "nsi", "algo"]
+
+  - domainId: python_programming
+    domainLabel: "Langage Python"
+    weight: 0.25
+    skills:
+      - skillId: NSI_PY_FUNCTIONS
+        label: "Fonctions & Spécifications"
+        tags: ["programme", "premiere", "eds", "nsi", "python"]
+      - skillId: NSI_PY_TESTS
+        label: "Tests & Assertions"
+        tags: ["programme", "premiere", "eds", "nsi", "python"]
+      - skillId: NSI_PY_MODULES
+        label: "Modules & Bibliothèques"
+        tags: ["programme", "premiere", "eds", "nsi", "python"]
+      - skillId: NSI_PY_RECURSION
+        label: "Récursivité (Intro)"
+        tags: ["programme", "premiere", "eds", "nsi", "python"]
+
+  - domainId: systems_architecture
+    domainLabel: "Architecture & OS"
+    weight: 0.15
+    skills:
+      - skillId: NSI_VON_NEUMANN
+        label: "Architecture Von Neumann"
+        tags: ["programme", "premiere", "eds", "nsi", "archi"]
+      - skillId: NSI_PROCESSES
+        label: "Processus & OS"
+        tags: ["programme", "premiere", "eds", "nsi", "archi"]
+      - skillId: NSI_NETWORK_PROTO
+        label: "Protocoles réseau (TCP/IP)"
+        tags: ["programme", "premiere", "eds", "nsi", "archi"]
+      - skillId: NSI_ROUTING
+        label: "Routage & IHM Web"
+        tags: ["programme", "premiere", "eds", "nsi", "archi"]

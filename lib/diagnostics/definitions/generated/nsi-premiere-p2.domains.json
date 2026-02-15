@@ -1,0 +1,266 @@
+{
+  "id": "nsi-premiere-p2",
+  "label": "Diagnostic Pré-Stage NSI — Première Spécialité",
+  "discipline": "nsi",
+  "level": "premiere",
+  "track": "eds",
+  "schemaVersion": "v1.3",
+  "generatedAt": "2026-02-15T20:21:00.882Z",
+  "domains": [
+    {
+      "domainId": "data_representation",
+      "domainLabel": "Représentation des données",
+      "weight": 0.2,
+      "skills": [
+        {
+          "skillId": "NSI_TYPES",
+          "skillLabel": "Types de base & construits",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "donnees"
+          ]
+        },
+        {
+          "skillId": "NSI_TRUTH_TABLE",
+          "skillLabel": "Tables de vérité / Booléens",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "donnees"
+          ]
+        },
+        {
+          "skillId": "NSI_BINARY",
+          "skillLabel": "Représentation binaire/héxa",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "donnees"
+          ]
+        },
+        {
+          "skillId": "NSI_CSV",
+          "skillLabel": "Traitement de données (CSV)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "donnees"
+          ]
+        },
+        {
+          "skillId": "NSI_ENCODING",
+          "skillLabel": "Encodage texte (ASCII, UTF-8)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "donnees"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "data_processing",
+      "domainLabel": "Traitement des données",
+      "weight": 0.2,
+      "skills": [
+        {
+          "skillId": "NSI_TABLE_SEARCH",
+          "skillLabel": "Recherche dans une table",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "traitement"
+          ]
+        },
+        {
+          "skillId": "NSI_TABLE_SORT",
+          "skillLabel": "Tri d'une table",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "traitement"
+          ]
+        },
+        {
+          "skillId": "NSI_TABLE_FUSION",
+          "skillLabel": "Fusion de tables",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "traitement"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "algorithms",
+      "domainLabel": "Algorithmique",
+      "weight": 0.2,
+      "skills": [
+        {
+          "skillId": "NSI_COMPLEXITY",
+          "skillLabel": "Complexité algorithmique",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "algo"
+          ]
+        },
+        {
+          "skillId": "NSI_SORT",
+          "skillLabel": "Algorithmes de tri",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "algo"
+          ]
+        },
+        {
+          "skillId": "NSI_KNN",
+          "skillLabel": "k-plus proches voisins",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "algo"
+          ]
+        },
+        {
+          "skillId": "NSI_GREEDY",
+          "skillLabel": "Algorithmes gloutons",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "algo"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "python_programming",
+      "domainLabel": "Langage Python",
+      "weight": 0.25,
+      "skills": [
+        {
+          "skillId": "NSI_PY_FUNCTIONS",
+          "skillLabel": "Fonctions & Spécifications",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "python"
+          ]
+        },
+        {
+          "skillId": "NSI_PY_TESTS",
+          "skillLabel": "Tests & Assertions",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "python"
+          ]
+        },
+        {
+          "skillId": "NSI_PY_MODULES",
+          "skillLabel": "Modules & Bibliothèques",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "python"
+          ]
+        },
+        {
+          "skillId": "NSI_PY_RECURSION",
+          "skillLabel": "Récursivité (Intro)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "python"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "systems_architecture",
+      "domainLabel": "Architecture & OS",
+      "weight": 0.15,
+      "skills": [
+        {
+          "skillId": "NSI_VON_NEUMANN",
+          "skillLabel": "Architecture Von Neumann",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "archi"
+          ]
+        },
+        {
+          "skillId": "NSI_PROCESSES",
+          "skillLabel": "Processus & OS",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "archi"
+          ]
+        },
+        {
+          "skillId": "NSI_NETWORK_PROTO",
+          "skillLabel": "Protocoles réseau (TCP/IP)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "archi"
+          ]
+        },
+        {
+          "skillId": "NSI_ROUTING",
+          "skillLabel": "Routage & IHM Web",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "archi"
+          ]
+        }
+      ]
+    }
+  ]
+}

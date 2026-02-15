@@ -1,0 +1,195 @@
+{
+  "programmeKey": "nsi_premiere",
+  "generatedAt": "2026-02-15T20:18:52.289Z",
+  "schemaVersion": "v1.3",
+  "sections": [
+    {
+      "rawTitle": "Représentation des données",
+      "normalizedTitle": "Données & Types",
+      "domainId": "data_representation",
+      "candidates": [
+        {
+          "rawLabel": "Types de base & construits",
+          "normalizedLabel": "Types de base & construits",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Représentation des données — Types de base & construits"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Tables de vérité / Booléens",
+          "normalizedLabel": "Tables de vérité / Booléens",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Représentation des données — Tables de vérité / Booléens"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Représentation binaire/héxa",
+          "normalizedLabel": "Représentation binaire/héxa",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Représentation des données — Représentation binaire/héxa"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Traitement de données (CSV)",
+          "normalizedLabel": "Traitement de données (CSV)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Représentation des données — Traitement de données (CSV)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Algorithmique",
+      "normalizedTitle": "Algorithmique",
+      "domainId": "algorithms",
+      "candidates": [
+        {
+          "rawLabel": "Complexité algorithmique",
+          "normalizedLabel": "Complexité algorithmique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique — Complexité algorithmique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Algorithmes de tri",
+          "normalizedLabel": "Algorithmes de tri",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique — Algorithmes de tri"
+            }
+          ]
+        },
+        {
+          "rawLabel": "k-plus proches voisins",
+          "normalizedLabel": "k-plus proches voisins",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique — k-plus proches voisins"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Algorithmes gloutons",
+          "normalizedLabel": "Algorithmes gloutons",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique — Algorithmes gloutons"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Architectures matérielles et OS",
+      "normalizedTitle": "Architecture & OS",
+      "domainId": "systems_architecture",
+      "candidates": [
+        {
+          "rawLabel": "Architecture Von Neumann",
+          "normalizedLabel": "Architecture Von Neumann",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures matérielles et OS — Architecture Von Neumann"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Processus & OS",
+          "normalizedLabel": "Processus & OS",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures matérielles et OS — Processus & OS"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Protocoles réseau (TCP/IP)",
+          "normalizedLabel": "Protocoles réseau (TCP/IP)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures matérielles et OS — Protocoles réseau (TCP/IP)"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Routage & IHM Web",
+          "normalizedLabel": "Routage & IHM Web",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Architectures matérielles et OS — Routage & IHM Web"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Langages et programmation",
+      "normalizedTitle": "Langage Python",
+      "domainId": "python_programming",
+      "candidates": [
+        {
+          "rawLabel": "Fonctions & Spécifications",
+          "normalizedLabel": "Fonctions & Spécifications",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Fonctions & Spécifications"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Tests & Assertions",
+          "normalizedLabel": "Tests & Assertions",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Tests & Assertions"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Modules & Bibliothèques",
+          "normalizedLabel": "Modules & Bibliothèques",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Modules & Bibliothèques"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Récursivité (Intro)",
+          "normalizedLabel": "Récursivité (Intro)",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Langages et programmation — Récursivité (Intro)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
