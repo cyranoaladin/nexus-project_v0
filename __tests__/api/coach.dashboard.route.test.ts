@@ -11,7 +11,7 @@ jest.mock('@/lib/prisma', () => ({
     coachProfile: { findUnique: jest.fn() },
     sessionBooking: { findMany: jest.fn() },
     user: { findUnique: jest.fn() },
-    student: { findFirst: jest.fn() },
+    student: { findFirst: jest.fn(), findMany: jest.fn() },
   },
 }));
 
@@ -106,6 +106,13 @@ describe('GET /api/coach/dashboard', () => {
       grade: 'Seconde',
       creditTransactions: [{ amount: 2 }],
     });
+    (prisma.student.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'student-entity-1',
+        userId: 'student-1',
+        creditTransactions: [{ amount: 2 }],
+      },
+    ]);
 
     const response = await GET(makeRequest());
     const body = await response.json();
