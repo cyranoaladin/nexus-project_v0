@@ -131,8 +131,21 @@ export default function MonteCarloSim() {
                     {(1 - coinFreq) > 0.1 ? `Face ${((1 - coinFreq) * 100).toFixed(0)}%` : ''}
                   </div>
                 </div>
+                {/* Convergence indicator */}
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[10px] text-slate-500">Écart à P=0.5 :</span>
+                  <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${Math.abs(coinFreq - 0.5) < 0.02 ? 'bg-green-500' : Math.abs(coinFreq - 0.5) < 0.05 ? 'bg-amber-500' : 'bg-red-500'}`}
+                      style={{ width: `${Math.max(2, Math.min(100, (1 - Math.abs(coinFreq - 0.5) * 10) * 100))}%` }}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : Math.abs(coinFreq - 0.5) < 0.05 ? 'text-amber-400' : 'text-red-400'}`}>
+                    {Math.abs(coinFreq - 0.5) < 0.02 ? '✓ Convergence' : `±${(Math.abs(coinFreq - 0.5) * 100).toFixed(1)}%`}
+                  </span>
+                </div>
                 <div className="text-center text-[10px] text-slate-600 mt-1">
-                  La fréquence converge vers P = 0.5 (loi des grands nombres)
+                  Loi des grands nombres : la fréquence fₙ → P = 0.5 quand n → ∞. Vitesse : ± 1/√n ≈ ±{(1 / Math.sqrt(totalTrials) * 100).toFixed(1)}%
                 </div>
               </div>
             )}
@@ -140,24 +153,43 @@ export default function MonteCarloSim() {
             {/* Dice visualization */}
             {mode === 'dice' && totalTrials > 0 && (
               <div>
-                <div className="flex gap-1 h-20 items-end">
-                  {diceCounts.map((count, i) => {
-                    const freq = count / totalTrials;
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div
-                          className="w-full bg-amber-500/40 rounded-t-lg transition-all"
-                          style={{ height: `${Math.max(2, freq * 300)}px` }}
-                        />
-                        <span className="text-[10px] text-slate-400">{i + 1}</span>
-                        <span className="text-[9px] text-slate-600">{(freq * 100).toFixed(0)}%</span>
-                      </div>
-                    );
-                  })}
+                <div className="relative">
+                  {/* Theoretical reference line at 1/6 */}
+                  <div className="absolute left-0 right-0" style={{ bottom: `${(1/6) * 300 + 24}px` }}>
+                    <div className="border-t border-dashed border-green-500/40 w-full" />
+                    <span className="text-[8px] text-green-500/60 absolute right-0 -top-3">1/6</span>
+                  </div>
+                  <div className="flex gap-1 h-20 items-end">
+                    {diceCounts.map((count, i) => {
+                      const freq = count / totalTrials;
+                      const deviation = Math.abs(freq - 1/6);
+                      const barColor = deviation < 0.02 ? 'bg-green-500/50' : deviation < 0.05 ? 'bg-amber-500/40' : 'bg-red-500/40';
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                          <div
+                            className={`w-full ${barColor} rounded-t-lg transition-all`}
+                            style={{ height: `${Math.max(2, freq * 300)}px` }}
+                          />
+                          <span className="text-[10px] text-slate-400">{i + 1}</span>
+                          <span className="text-[9px] text-slate-600">{(freq * 100).toFixed(0)}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="text-center text-[10px] text-slate-600 mt-1">
-                  Chaque face devrait converger vers 1/6 ≈ 16.7%
-                </div>
+                {/* Max deviation */}
+                {(() => {
+                  const maxDev = Math.max(...diceCounts.map((c) => Math.abs(c / totalTrials - 1/6)));
+                  return (
+                    <div className="text-center text-[10px] text-slate-600 mt-2">
+                      Théorique : 1/6 ≈ 16.7% par face.
+                      <span className={`ml-1 font-bold ${maxDev < 0.02 ? 'text-green-400' : maxDev < 0.05 ? 'text-amber-400' : 'text-red-400'}`}>
+                        Écart max : {(maxDev * 100).toFixed(1)}%
+                        {maxDev < 0.02 ? ' ✓' : ''}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
