@@ -11,6 +11,10 @@ import { MATHS_PREMIERE_P2 } from './maths-premiere-p2';
 /** All registered diagnostic definitions, keyed by definitionKey */
 const DEFINITIONS: Record<string, DiagnosticDefinition> = {
   'maths-premiere-p2': MATHS_PREMIERE_P2,
+  'eds_maths_1ere': MATHS_PREMIERE_P2,
+  'eds_maths_tle': MATHS_PREMIERE_P2,
+  'eds_nsi_1ere': MATHS_PREMIERE_P2,
+  'eds_nsi_tle': MATHS_PREMIERE_P2,
 };
 
 /**
