@@ -5,6 +5,7 @@ import {
   programmeData,
   quizData,
   dailyChallenges,
+  badgeDefinitions,
   type Categorie,
   type QuizQuestion,
 } from '../data';
@@ -141,11 +142,19 @@ function Navbar() {
               </div>
               <span className="text-xs text-cyan-400 font-bold">{store.totalXP} XP</span>
             </div>
+            {/* Combo */}
+            {store.comboCount >= 3 && (
+              <div className="flex items-center gap-1 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/30">
+                <span className="text-sm">⚡</span>
+                <span className="text-xs font-bold text-purple-400">x{store.getComboMultiplier()}</span>
+              </div>
+            )}
             {/* Streak */}
             {store.streak > 0 && (
               <div className="flex items-center gap-1 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/30">
                 <span className="text-sm">🔥</span>
                 <span className="text-xs font-bold text-amber-400">{store.streak}j</span>
+                {store.streakFreezes > 0 && <span className="text-[10px] text-blue-400">❄️{store.streakFreezes}</span>}
               </div>
             )}
             {/* Date */}
@@ -264,7 +273,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
 
         {/* Stats Cards */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StatCard icon="⚡" iconBg="bg-blue-500/20 text-blue-400" label="Série" value={`${store.streak}`} unit="jours" subtitle="Consécutifs" />
+          <StatCard icon="⚡" iconBg="bg-blue-500/20 text-blue-400" label="Série" value={`${store.streak}`} unit="jours" subtitle={store.streakFreezes > 0 ? `❄️ ${store.streakFreezes} gel(s)` : 'Consécutifs'} />
           <StatCard icon="🏆" iconBg="bg-purple-500/20 text-purple-400" label="XP Total" value={`${store.totalXP}`} unit="XP" subtitle={`${niveau.badge} ${niveau.nom}`} />
 
           {/* XP Progress to next level */}
@@ -299,6 +308,55 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
             <button onClick={handleDailySubmit} className="bg-amber-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-amber-500 text-sm">Valider</button>
           </div>
         )}
+      </div>
+
+      {/* Streak Freeze + Badges */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {/* Streak Freeze Shop */}
+        <div className="bg-slate-800/70 border border-blue-500/20 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xl">❄️</span>
+            <h3 className="font-bold text-blue-300 text-sm">Gel de Série</h3>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">Protège ta série si tu rates un jour. Coût : 100 XP.</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => store.buyStreakFreeze()}
+              disabled={store.totalXP < 100}
+              className={`text-xs font-bold px-4 py-2 rounded-lg transition-all ${
+                store.totalXP >= 100
+                  ? 'bg-blue-600 text-white hover:bg-blue-500'
+                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              }`}
+            >
+              Acheter (100 XP)
+            </button>
+            <span className="text-xs text-slate-500">En stock : {store.streakFreezes}</span>
+          </div>
+        </div>
+
+        {/* Badges */}
+        <div className="bg-slate-800/70 border border-amber-500/20 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xl">🏅</span>
+            <h3 className="font-bold text-amber-300 text-sm">Badges ({store.badges.length}/{badgeDefinitions.length})</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {badgeDefinitions.map((b) => (
+              <div
+                key={b.id}
+                className={`text-lg p-1.5 rounded-lg transition-all ${
+                  store.badges.includes(b.id)
+                    ? 'bg-amber-500/20 border border-amber-500/30'
+                    : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
+                }`}
+                title={`${b.nom}: ${b.description}`}
+              >
+                {b.icon}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Theme Overview */}
@@ -547,17 +605,17 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           <h3 className="font-bold text-white mb-3">📝 Exercice d&apos;application</h3>
           <p className="mb-4 text-slate-300" dangerouslySetInnerHTML={{ __html: chap.contenu.exercice.question }} />
 
-          {/* 3-level hint system */}
+          {/* 3-level hint system with XP malus indicator */}
           {chap.contenu.coupDePouce && (
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
               <button onClick={() => setHintLevel(hintLevel >= 1 ? 0 : 1)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
-                💡 Indice
+                💡 Indice <span className="opacity-60">(-10% XP)</span>
               </button>
               <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
-                🔍 Début de raisonnement
+                🔍 Début de raisonnement <span className="opacity-60">(-25% XP)</span>
               </button>
               <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
-                📖 Correction détaillée
+                📖 Correction détaillée <span className="opacity-60">(-50% XP)</span>
               </button>
             </div>
           )}
@@ -653,8 +711,13 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
     if (quiz.phase !== 'question') return;
     const q = quiz.questions[quiz.index];
     const isCorrect = choice === q.correct;
+    if (isCorrect) {
+      store.incrementCombo();
+    } else {
+      store.resetCombo();
+    }
     setQuiz({ phase: 'feedback', index: quiz.index, score: isCorrect ? quiz.score + 1 : quiz.score, questions: quiz.questions, isCorrect });
-  }, [quiz]);
+  }, [quiz, store]);
 
   const nextQuestion = useCallback(() => {
     if (quiz.phase !== 'feedback') return;
@@ -688,7 +751,12 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
           <div className="w-full">
             <div className="flex justify-between text-sm text-slate-400 mb-4">
               <span>Question {quiz.index + 1} / {quiz.questions.length}</span>
-              <span>{quiz.questions[quiz.index].categorie}</span>
+              <div className="flex items-center gap-3">
+                {store.comboCount >= 3 && (
+                  <span className="text-purple-400 font-bold text-xs">⚡ Combo x{store.getComboMultiplier()}</span>
+                )}
+                <span>{quiz.questions[quiz.index].categorie}</span>
+              </div>
             </div>
             <div className="h-2 bg-slate-800 rounded-full mb-6">
               <div className="h-full bg-cyan-500 rounded-full transition-all duration-300" style={{ width: `${(quiz.index / quiz.questions.length) * 100}%` }} />
