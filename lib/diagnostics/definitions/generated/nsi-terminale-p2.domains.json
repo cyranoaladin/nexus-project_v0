@@ -5,7 +5,7 @@
   "level": "terminale",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:21:00.887Z",
+  "generatedAt": "2026-02-15T20:48:21.276Z",
   "domains": [
     {
       "domainId": "data_structures",
@@ -300,6 +300,79 @@
             "python"
           ]
         }
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "chapterId": "CH_NT_STRUCTURES",
+      "chapterLabel": "Structures de données",
+      "description": "Arbres binaires, graphes, piles, files, listes chaînées, dictionnaires",
+      "domainId": "data_structures",
+      "skills": [
+        "NSI_TREES",
+        "NSI_GRAPHS",
+        "NSI_STACKS_QUEUES",
+        "NSI_LINKED_LISTS",
+        "NSI_DICTS"
+      ]
+    },
+    {
+      "chapterId": "CH_NT_ALGO_ADV",
+      "chapterLabel": "Algorithmique avancée",
+      "description": "Complexité, diviser pour régner, programmation dynamique, parcours graphes",
+      "domainId": "algorithmic_advanced",
+      "skills": [
+        "NSI_COMPLEXITY_ADV",
+        "NSI_DIVIDE_CONQUER",
+        "NSI_DYNAMIC_PROG",
+        "NSI_GRAPH_ALGO",
+        "NSI_SORT_ADV"
+      ]
+    },
+    {
+      "chapterId": "CH_NT_BDD",
+      "chapterLabel": "Bases de données",
+      "description": "Modèle relationnel, SQL SELECT/JOIN/CRUD",
+      "domainId": "databases",
+      "skills": [
+        "NSI_SQL_SELECT",
+        "NSI_SQL_JOIN",
+        "NSI_RELATIONAL",
+        "NSI_SQL_CRUD"
+      ]
+    },
+    {
+      "chapterId": "CH_NT_RESEAUX",
+      "chapterLabel": "Réseaux",
+      "description": "Protocoles, routage, sécurité informatique",
+      "domainId": "networks",
+      "skills": [
+        "NSI_NETWORK_PROTO",
+        "NSI_ROUTING_ADV",
+        "NSI_PROCESSES_ADV",
+        "NSI_SECURITY"
+      ]
+    },
+    {
+      "chapterId": "CH_NT_OS",
+      "chapterLabel": "Systèmes d'exploitation",
+      "description": "Gestion mémoire, système de fichiers",
+      "domainId": "systems_os",
+      "skills": [
+        "NSI_OS_MEMORY",
+        "NSI_OS_FILES"
+      ]
+    },
+    {
+      "chapterId": "CH_NT_POO",
+      "chapterLabel": "POO et projets",
+      "description": "Programmation orientée objet, récursivité avancée, modules",
+      "domainId": "python_advanced",
+      "skills": [
+        "NSI_POO",
+        "NSI_PY_RECURSION_ADV",
+        "NSI_PY_MODULES_ADV"
       ]
     }
   ]
