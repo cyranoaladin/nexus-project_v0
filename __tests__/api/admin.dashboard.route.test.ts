@@ -14,7 +14,7 @@ jest.mock('@/lib/prisma', () => ({
     student: { count: jest.fn() },
     coachProfile: { count: jest.fn() },
     parentProfile: { count: jest.fn() },
-    payment: { aggregate: jest.fn(), count: jest.fn(), groupBy: jest.fn() },
+    payment: { aggregate: jest.fn(), count: jest.fn(), groupBy: jest.fn(), findMany: jest.fn() },
     subscription: { aggregate: jest.fn(), count: jest.fn(), findMany: jest.fn() },
     sessionBooking: { count: jest.fn(), findMany: jest.fn() },
     creditTransaction: { findMany: jest.fn() },
@@ -87,15 +87,20 @@ describe('GET /api/admin/dashboard', () => {
         coach: { coachProfile: { pseudonym: 'CoachX' }, firstName: 'John' },
       },
     ]);
-    (prisma.user.findMany as jest.Mock).mockResolvedValueOnce([
-      {
-        id: 'user-1',
-        firstName: 'Sam',
-        lastName: 'Lee',
-        role: 'ELEVE',
-        createdAt: new Date('2025-01-04'),
-      },
-    ]);
+    (prisma.user.findMany as jest.Mock)
+      .mockResolvedValueOnce([
+        {
+          id: 'user-1',
+          firstName: 'Sam',
+          lastName: 'Lee',
+          role: 'ELEVE',
+          createdAt: new Date('2025-01-04'),
+        },
+      ])
+      // Second call: userGrowth (raw dates for JS aggregation)
+      .mockResolvedValueOnce([
+        { createdAt: new Date('2025-01-15') },
+      ]);
     (prisma.subscription.findMany as jest.Mock).mockResolvedValueOnce([
       {
         id: 'sub-1',
@@ -120,11 +125,13 @@ describe('GET /api/admin/dashboard', () => {
     (prisma.payment.count as jest.Mock).mockResolvedValueOnce(50);
     (prisma.subscription.count as jest.Mock).mockResolvedValueOnce(20);
 
-    (prisma.user.groupBy as jest.Mock).mockResolvedValueOnce([
-      { createdAt: new Date('2025-01-01'), _count: { id: 4 } },
-    ]);
-    (prisma.payment.groupBy as jest.Mock).mockResolvedValueOnce([
-      { createdAt: new Date('2025-01-01'), _sum: { amount: 300 } },
+    // user.groupBy and payment.groupBy are no longer used (replaced by findMany + JS aggregation)
+    // but keep mocks in case they're still called somewhere
+    (prisma.user.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.payment.groupBy as jest.Mock).mockResolvedValue([]);
+    // payment.findMany: revenueGrowth (raw dates+amounts for JS aggregation)
+    (prisma.payment.findMany as jest.Mock).mockResolvedValueOnce([
+      { createdAt: new Date('2025-01-01'), amount: 300 },
     ]);
 
     const response = await GET({} as any);
@@ -136,7 +143,7 @@ describe('GET /api/admin/dashboard', () => {
     expect(body.stats.currentMonthRevenue).toBe(1800);
     expect(body.stats.lastMonthRevenue).toBe(1200);
     expect(body.recentActivities.length).toBeGreaterThan(0);
-    expect(body.userGrowth[0]).toEqual({ month: '2025-01', count: 4 });
+    expect(body.userGrowth[0]).toEqual({ month: '2025-01', count: 1 });
     expect(body.revenueGrowth[0]).toEqual({ month: '2025-01', amount: 300 });
   });
 });
