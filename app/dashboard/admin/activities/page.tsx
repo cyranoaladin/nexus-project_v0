@@ -57,7 +57,6 @@ export default function ActivitiesPage() {
       setActivities(data.activities);
       setTotalPages(data.pagination.totalPages);
     } catch (err) {
-      console.error('Error fetching activities:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

@@ -72,7 +72,6 @@ export default function RessourcesPage() {
         const data = await response.json()
         setResources(data)
       } catch (err) {
-        console.error('Error fetching resources:', err)
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setLoading(false)
