@@ -2,6 +2,13 @@ import { ollamaChat } from '@/lib/ollama-client';
 import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';
 import type { ScoringResult } from '@/lib/bilan-scoring';
+import type { ScoringV2Result, DiagnosticDefinition } from '@/lib/diagnostics/types';
+import {
+  buildPromptContextPack,
+  renderPromptContext,
+  buildChapterAwareRAGQueries,
+  resolveChaptersSelection,
+} from '@/lib/diagnostics/prompt-context';
 
 /**
  * Bilan Generator — Generates 3 audience-specific reports using:
@@ -42,7 +49,9 @@ Règles :
 - Si une section manque de données, indiquer "Données insuffisantes".
 - Ne pas exposer les scores bruts (ReadinessScore, RiskIndex) dans la version parents — utiliser des termes qualitatifs.
 - Si du contexte pédagogique est fourni, l'utiliser pour enrichir les conseils et recommandations.
-- Toujours retourner un JSON valide avec exactement les 3 clés "eleve", "parents", "nexus".`;
+- Toujours retourner un JSON valide avec exactement les 3 clés "eleve", "parents", "nexus".
+- IMPORTANT: Ne pas exiger de notions issues des chapitres non encore vus par l'élève.
+- Distinguer clairement: "sécuriser les acquis vus" vs "préparer les prochains chapitres".`;
 
 export interface GeneratedBilans {
   eleve: string;
@@ -148,11 +157,20 @@ VERBATIMS:
 
 /**
  * Build RAG queries from the diagnostic data to retrieve relevant pedagogical content.
+ * Falls back to legacy logic if no definition is provided.
  */
-function buildRAGQueries(data: BilanDiagnosticMathsData, scoring: ScoringResult): string[] {
-  const queries: string[] = [];
+function buildRAGQueries(
+  data: BilanDiagnosticMathsData,
+  scoring: ScoringResult | ScoringV2Result,
+  definition?: DiagnosticDefinition | null
+): string[] {
+  // Use chapter-aware builder if definition is available
+  if (definition && 'topPriorities' in scoring) {
+    return buildChapterAwareRAGQueries(data, scoring as ScoringV2Result, definition);
+  }
 
-  // Query for weak domains
+  // Legacy fallback
+  const queries: string[] = [];
   const weakDomains = scoring.domainScores
     .filter((d) => d.priority === 'high' && d.score > 0)
     .slice(0, 3);
@@ -165,13 +183,11 @@ function buildRAGQueries(data: BilanDiagnosticMathsData, scoring: ScoringResult)
     }
   }
 
-  // Query for dominant error types
-  const errorTypes = data.methodology.errorTypes || [];
+  const errorTypes = data.methodology?.errorTypes || [];
   if (errorTypes.length > 0) {
     queries.push(`erreurs fréquentes ${errorTypes.slice(0, 2).join(' ')} méthode correction`);
   }
 
-  // Query for exam preparation if risk is high
   if (scoring.riskIndex > 60) {
     queries.push('épreuve anticipée mathématiques préparation automatismes');
   }
@@ -181,24 +197,51 @@ function buildRAGQueries(data: BilanDiagnosticMathsData, scoring: ScoringResult)
 
 /**
  * Audience-specific prompt fragments (shorter = faster generation).
+ * Enhanced with chapter-awareness and micro-plan requirements.
  */
 const AUDIENCE_PROMPTS: Record<string, string> = {
   eleve: `Tu es un expert pédagogique bienveillant. Génère un bilan pour l'ÉLÈVE en Markdown.
 Ton : bienveillant, direct, motivant. Tutoiement.
-Contenu : score de préparation, top 3 forces, top 5 priorités avec conseils concrets, profil d'apprentissage.
+Contenu :
+- Score de préparation
+- 3 points forts
+- 3 points faibles prioritaires (uniquement sur chapitres vus)
+- 2 erreurs typiques (liées aux errorTypes)
+- 1 recommandation méthodologique adaptée
+- 1 micro-plan d'entraînement (5 min / 15 min / 30 min) adapté au programme
+- Objectifs 7 jours + 30 jours
+IMPORTANT: Ne pas exiger de notions issues des chapitres non encore vus.
+Distinguer: "sécuriser les acquis" vs "préparer les prochains chapitres".
 Format : sections courtes, bullet points, pas de jargon. ~400 mots.
 Retourne UNIQUEMENT le texte Markdown du bilan, rien d'autre.`,
 
   parents: `Tu es un expert pédagogique professionnel. Génère un rapport pour les PARENTS en Markdown.
 Ton : professionnel, rassurant, transparent. Vouvoiement.
-Contenu : synthèse globale, points forts, points d'attention, recommandation pallier avec justification, bénéfices du stage.
+Contenu :
+- Synthèse globale du diagnostic
+- Points forts identifiés
+- Points d'attention (sans culpabiliser)
+- Recommandation pallier avec justification
+- Conseils d'accompagnement réalistes
+- Bénéfices concrets du stage
 Ne pas exposer les scores bruts — utiliser des termes qualitatifs.
+IMPORTANT: Mentionner que certains chapitres n'ont pas encore été abordés en classe (si applicable).
 Format : sections structurées, langage accessible. ~500 mots.
 Retourne UNIQUEMENT le texte Markdown du rapport, rien d'autre.`,
 
   nexus: `Tu es un expert pédagogique technique. Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
 Ton : technique, factuel.
-Contenu : scores bruts, cartographie par domaine, profil cognitif, signaux d'alerte, plan de stage suggéré, verbatims.
+Contenu :
+- Scores bruts + TrustScore
+- Cartographie par domaine (tableau)
+- Couverture programme (chapitres vus/non vus)
+- Profil cognitif + profil de travail
+- Signaux d'alerte
+- Priorités (skills + justifications)
+- Plan avant/durant/après stage
+- Risques (temps, rédaction, compréhension, code)
+- Ressources recommandées (issues RAG + fallback interne)
+- Verbatims élève
 Format : tableaux markdown, données structurées. ~600 mots.
 Retourne UNIQUEMENT le texte Markdown de la fiche, rien d'autre.`,
 };
@@ -237,25 +280,29 @@ async function generateSingleBilan(
 }
 
 /**
- * Generate the 3 audience-specific bilans using Ollama (Qwen 2.5:32b) + RAG.
- * Strategy: 3 parallel smaller calls (one per audience) instead of one monolithic call.
- * Each call has its own focused prompt and shorter timeout.
- * Falls back to template for any failed section.
+ * Generate the 3 audience-specific bilans using Ollama + RAG.
+ * Supports both legacy ScoringResult and new ScoringV2Result.
+ * When a DiagnosticDefinition is provided, uses chapter-aware prompts and RAG queries.
  */
 export async function generateBilans(
   data: BilanDiagnosticMathsData,
-  scoring: ScoringResult
+  scoring: ScoringResult | ScoringV2Result,
+  definition?: DiagnosticDefinition | null
 ): Promise<GeneratedBilans> {
-  const diagnosticContext = prepareLLMContext(data, scoring);
-  const fallback = generateFallbackBilans(data, scoring);
+  const isV2 = 'topPriorities' in scoring;
 
   // 1. RAG: retrieve relevant pedagogical content
   let ragContext = '';
+  const ragCollections = definition?.ragPolicy?.collections ?? [];
   try {
-    const ragQueries = buildRAGQueries(data, scoring);
+    const ragQueries = buildRAGQueries(data, scoring, definition);
     const allHits = [];
     for (const query of ragQueries) {
-      const hits = await ragSearch({ query, k: 2 });
+      const hits = await ragSearch({
+        query,
+        k: 2,
+        ...(ragCollections.length > 0 ? { collection: ragCollections[0] } : {}),
+      });
       allHits.push(...hits);
     }
     const uniqueHits = Array.from(
@@ -266,8 +313,36 @@ export async function generateBilans(
     console.warn('RAG search failed, proceeding without pedagogical context:', error);
   }
 
-  // 2. LLM: generate 3 bilans SEQUENTIALLY (one per audience)
-  //    Qwen 32B uses 24GB RAM + 2 CPU cores — parallel calls saturate and timeout.
+  // 2. Build context: use prompt context pack if V2 + definition available
+  let diagnosticContext: string;
+  if (isV2 && definition) {
+    const ctxPack = buildPromptContextPack(data, scoring as ScoringV2Result, definition, ragContext);
+    diagnosticContext = renderPromptContext(ctxPack);
+    // Also prepend student identity + performance
+    const identityBlock = `ÉLÈVE: ${data.identity.firstName} ${data.identity.lastName}
+ÉTABLISSEMENT: ${data.schoolContext?.establishment || 'Non renseigné'}
+MOYENNE: ${data.performance?.mathAverage || 'Non renseigné'}
+AMBITION: ${data.ambition?.targetMention || 'Non renseigné'} / ${data.ambition?.postBac || 'Non renseigné'}
+
+MÉTHODOLOGIE:
+  Style: ${data.methodology?.learningStyle || 'Non renseigné'}
+  Travail hebdo: ${data.methodology?.weeklyWork || 'Non renseigné'}
+  Concentration max: ${data.methodology?.maxConcentration || 'Non renseigné'}
+  Erreurs fréquentes: ${(data.methodology?.errorTypes || []).join(', ') || 'Non renseigné'}
+
+VERBATIMS:
+  ${data.freeText?.mustImprove ? `À améliorer: "${data.freeText.mustImprove}"` : ''}
+  ${data.freeText?.invisibleDifficulties ? `Difficultés invisibles: "${data.freeText.invisibleDifficulties}"` : ''}
+  ${data.freeText?.message ? `Message libre: "${data.freeText.message}"` : ''}
+`;
+    diagnosticContext = identityBlock + '\n' + diagnosticContext;
+  } else {
+    diagnosticContext = prepareLLMContext(data, scoring as ScoringResult);
+  }
+
+  const fallback = generateFallbackBilans(data, scoring as ScoringResult);
+
+  // 3. LLM: generate 3 bilans SEQUENTIALLY
   let eleve = fallback.eleve;
   let parents = fallback.parents;
   let nexus = fallback.nexus;
@@ -275,7 +350,7 @@ export async function generateBilans(
 
   for (const audience of ['eleve', 'parents', 'nexus'] as const) {
     try {
-      const result = await generateSingleBilan(audience, diagnosticContext, ragContext);
+      const result = await generateSingleBilan(audience, diagnosticContext, isV2 ? '' : ragContext);
       if (audience === 'eleve') eleve = result;
       else if (audience === 'parents') parents = result;
       else nexus = result;
