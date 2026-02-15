@@ -521,7 +521,9 @@ jobs:
     name: CI Success
     runs-on: ubuntu-latest
     needs: [lint, typecheck, unit, integration, e2e, security, build]
-    if: always()
+    # Do not report a failure for runs cancelled by concurrency (newer commit pushed).
+    # Keep strict validation for all non-cancelled runs.
+    if: ${{ always() && !cancelled() }}
 
     steps:
       - name: Check all jobs status
