@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   programmeData,
@@ -16,16 +16,101 @@ import ExerciseEngine from './ExerciseEngine';
 import InteractiveGraph from './InteractiveGraph';
 import SkillTree from './SkillTree';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import {
+  getSupabase,
+  loadProgressWithStatus,
+  saveProgress,
+  type MathsLabRow,
+} from '../lib/supabase';
 
 const PythonIDE = dynamic(() => import('./PythonIDE'), { ssr: false });
 const InteractiveMafs = dynamic(() => import('./InteractiveMafs'), { ssr: false });
-const MathInput = dynamic(() => import('./MathInput'), { ssr: false });
 const ParabolaController = dynamic(() => import('./labs/ParabolaController'), { ssr: false });
 const TangenteGlissante = dynamic(() => import('./labs/TangenteGlissante'), { ssr: false });
 const MonteCarloSim = dynamic(() => import('./labs/MonteCarloSim'), { ssr: false });
 const PythonExercises = dynamic(() => import('./labs/PythonExercises'), { ssr: false });
 const ToileAraignee = dynamic(() => import('./labs/ToileAraignee'), { ssr: false });
 const Enrouleur = dynamic(() => import('./labs/Enrouleur'), { ssr: false });
+const VectorProjector = dynamic(() => import('./labs/VectorProjector'), { ssr: false });
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+  let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+  try {
+    const timeoutPromise = new Promise<T>((resolve) => {
+      timeoutHandle = setTimeout(() => resolve(fallback), timeoutMs);
+    });
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
+  }
+}
+
+const PROGRESS_API_ROUTE = '/api/programme/maths-1ere/progress';
+
+type ProgressPayload = Omit<MathsLabRow, 'id' | 'user_id' | 'updated_at'>;
+
+function toProgressPayload(
+  state: Pick<
+    ReturnType<typeof useMathsLabStore.getState>,
+    | 'completedChapters'
+    | 'masteredChapters'
+    | 'totalXP'
+    | 'quizScore'
+    | 'comboCount'
+    | 'bestCombo'
+    | 'streak'
+    | 'streakFreezes'
+    | 'lastActivityDate'
+    | 'dailyChallenge'
+    | 'exerciseResults'
+    | 'hintUsage'
+    | 'badges'
+    | 'srsQueue'
+  >
+): ProgressPayload {
+  return {
+    completed_chapters: state.completedChapters,
+    mastered_chapters: state.masteredChapters,
+    total_xp: state.totalXP,
+    quiz_score: state.quizScore,
+    combo_count: state.comboCount,
+    best_combo: state.bestCombo,
+    streak: state.streak,
+    streak_freezes: state.streakFreezes,
+    last_activity_date: state.lastActivityDate,
+    daily_challenge: state.dailyChallenge as unknown as Record<string, unknown>,
+    exercise_results: state.exerciseResults,
+    hint_usage: state.hintUsage as Record<string, number>,
+    badges: state.badges,
+    srs_queue: state.srsQueue as Record<string, unknown>,
+  };
+}
+
+async function saveProgressViaApi(payload: ProgressPayload, keepalive = false): Promise<boolean> {
+  try {
+    const response = await fetch(PROGRESS_API_ROUTE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+      keepalive,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function saveProgressWithBeacon(payload: ProgressPayload): boolean {
+  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
+    return false;
+  }
+  const body = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  return navigator.sendBeacon(PROGRESS_API_ROUTE, body);
+}
 
 // ─── Framer Motion variants ─────────────────────────────────────────────────
 const pageVariants = {
@@ -56,26 +141,161 @@ function getColorClasses(couleur: string) {
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-export default function MathsRevisionClient() {
+export default function MathsRevisionClient({
+  userId,
+  initialDisplayName,
+}: {
+  userId: string;
+  initialDisplayName?: string;
+}) {
   const [currentTab, setCurrentTab] = useState<TabName>('dashboard');
   const [selectedChapter, setSelectedChapter] = useState<{
     catKey: string;
     chapId: string;
   } | null>(null);
   const [focusMode, setFocusMode] = useState(false);
+  const [displayName, setDisplayName] = useState(initialDisplayName ?? 'Élève');
+  const [isHydrating, setIsHydrating] = useState(true);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const store = useMathsLabStore();
   const typeset = useMathJax([currentTab, selectedChapter]);
 
   const [isMounted, setIsMounted] = useState(false);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPayloadRef = useRef<ProgressPayload | null>(null);
 
-  // Record activity + evaluate badges on mount
+  const flushPayload = useCallback(
+    async (payload: ProgressPayload, critical = false): Promise<boolean> => {
+      if (!useMathsLabStore.getState().isHydrated || !useMathsLabStore.getState().canWriteRemote) {
+        return false;
+      }
+
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        pendingPayloadRef.current = payload;
+        setSyncError('Mode hors ligne: progression en attente de synchronisation.');
+        return false;
+      }
+
+      const viaApi = await saveProgressViaApi(payload, critical);
+      if (viaApi) {
+        pendingPayloadRef.current = null;
+        setSyncError(null);
+        return true;
+      }
+
+      const viaSupabase = await saveProgress(userId, payload);
+      if (viaSupabase) {
+        pendingPayloadRef.current = null;
+        setSyncError(null);
+        return true;
+      }
+
+      pendingPayloadRef.current = payload;
+      setSyncError('Échec de sauvegarde. La progression sera réessayée automatiquement.');
+      return false;
+    },
+    [userId]
+  );
+
+  // Hydrate from Supabase + optional Supabase Auth metadata
   useEffect(() => {
+    let active = true;
+    const TIMEOUT_MARKER = '__HYDRATION_TIMEOUT__';
+
+    async function hydrateFromRemote() {
+      try {
+        useMathsLabStore.getState().setHydrationStatus({
+          isHydrated: false,
+          canWriteRemote: false,
+          hydrationError: null,
+        });
+
+        const remoteResult = await withTimeout(
+          loadProgressWithStatus(userId),
+          1800,
+          { status: 'error', data: null, error: TIMEOUT_MARKER } as const
+        );
+        if (!active) return;
+
+        if (remoteResult.status === 'error') {
+          const errorMessage =
+            remoteResult.error === TIMEOUT_MARKER
+              ? 'Impossible de récupérer votre profil (délai dépassé).'
+              : 'Impossible de récupérer votre profil. Réessayez.';
+          useMathsLabStore.getState().setHydrationStatus({
+            isHydrated: false,
+            canWriteRemote: false,
+            hydrationError: errorMessage,
+          });
+          return;
+        }
+
+        const remote = remoteResult.data;
+        if (remote) {
+          useMathsLabStore.setState((state) => ({
+            ...state,
+            completedChapters: remote.completed_chapters ?? state.completedChapters,
+            masteredChapters: remote.mastered_chapters ?? state.masteredChapters,
+            totalXP: remote.total_xp ?? state.totalXP,
+            quizScore: remote.quiz_score ?? state.quizScore,
+            comboCount: remote.combo_count ?? state.comboCount,
+            bestCombo: remote.best_combo ?? state.bestCombo,
+            streak: remote.streak ?? state.streak,
+            streakFreezes: remote.streak_freezes ?? state.streakFreezes,
+            lastActivityDate: remote.last_activity_date ?? state.lastActivityDate,
+            dailyChallenge: (remote.daily_challenge as unknown as typeof state.dailyChallenge) ?? state.dailyChallenge,
+            exerciseResults: (remote.exercise_results as typeof state.exerciseResults) ?? state.exerciseResults,
+            hintUsage: (remote.hint_usage as typeof state.hintUsage) ?? state.hintUsage,
+            badges: remote.badges ?? state.badges,
+            srsQueue: (remote.srs_queue as typeof state.srsQueue) ?? state.srsQueue,
+          }));
+
+          for (const chapId of remote.completed_chapters ?? []) {
+            useMathsLabStore.getState().unlockChapter(chapId);
+          }
+        }
+
+        const supabase = getSupabase();
+        if (supabase) {
+          const userResp = await withTimeout(supabase.auth.getUser(), 1200, null);
+          const data = userResp?.data;
+          const metadata = (data?.user?.user_metadata ?? {}) as Record<string, unknown>;
+          const fromFirstName =
+            typeof metadata.first_name === 'string' ? metadata.first_name.trim() : '';
+          const fromFullName =
+            typeof metadata.full_name === 'string' ? metadata.full_name.trim().split(' ')[0] : '';
+          const resolvedName = fromFirstName || fromFullName;
+          if (resolvedName && active) setDisplayName(resolvedName);
+        }
+
+        useMathsLabStore.getState().setHydrationStatus({
+          isHydrated: true,
+          canWriteRemote: remoteResult.status === 'ok',
+          hydrationError: null,
+        });
+        useMathsLabStore.getState().recordActivity();
+        useMathsLabStore.getState().evaluateBadges();
+      } catch {
+        if (!active) return;
+        useMathsLabStore.getState().setHydrationStatus({
+          isHydrated: false,
+          canWriteRemote: false,
+          hydrationError: 'Impossible de récupérer votre profil. Réessayez.',
+        });
+      } finally {
+        if (!active) return;
+        setIsHydrating(false);
+      }
+    }
+
     setIsMounted(true);
-    store.recordActivity();
-    store.evaluateBadges();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    hydrateFromRemote();
+
+    return () => {
+      active = false;
+    };
+  }, [userId]);
 
   // Re-evaluate badges after any state change
   useEffect(() => {
@@ -89,28 +309,137 @@ export default function MathsRevisionClient() {
     return unsub;
   }, []);
 
+  // Persist state to Supabase on progress-changing actions
+  useEffect(() => {
+    const unsub = useMathsLabStore.subscribe((state, prevState) => {
+      if (!state.isHydrated || !state.canWriteRemote || !!state.hydrationError) return;
+      const shouldSync =
+        state.totalXP !== prevState.totalXP ||
+        state.quizScore !== prevState.quizScore ||
+        state.completedChapters !== prevState.completedChapters ||
+        state.badges !== prevState.badges ||
+        state.streak !== prevState.streak ||
+        state.exerciseResults !== prevState.exerciseResults ||
+        state.hintUsage !== prevState.hintUsage;
+
+      if (!shouldSync) return;
+
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = setTimeout(() => {
+        const payload = toProgressPayload(state);
+        pendingPayloadRef.current = payload;
+        void flushPayload(payload);
+      }, 450);
+    });
+
+    return () => {
+      unsub();
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    };
+  }, [flushPayload]);
+
+  useEffect(() => {
+    const flushQueued = () => {
+      const payload = pendingPayloadRef.current;
+      if (!payload) return;
+      void flushPayload(payload, true);
+    };
+
+    const flushOnExit = () => {
+      const current = useMathsLabStore.getState();
+      if (!current.isHydrated || !current.canWriteRemote || !!current.hydrationError) return;
+      const payload = toProgressPayload(current);
+      pendingPayloadRef.current = payload;
+      const beaconSent = saveProgressWithBeacon(payload);
+      if (!beaconSent) {
+        void saveProgressViaApi(payload, true);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') flushOnExit();
+    };
+
+    window.addEventListener('online', flushQueued);
+    window.addEventListener('beforeunload', flushOnExit);
+    window.addEventListener('pagehide', flushOnExit);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.removeEventListener('online', flushQueued);
+      window.removeEventListener('beforeunload', flushOnExit);
+      window.removeEventListener('pagehide', flushOnExit);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [flushPayload]);
+
   const switchTab = useCallback((tab: TabName) => {
     setCurrentTab(tab);
     setSelectedChapter(null);
     setFocusMode(false);
   }, []);
 
-  if (!isMounted) {
+  if (!isMounted || isHydrating) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-slate-400 font-medium">
-        Chargement du Nexus...
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-slate-300 font-medium">
+        <div className="flex flex-col items-center gap-6">
+          <Image
+            src="/images/logo_nexus_reussite.png"
+            alt="Nexus Réussite"
+            width={260}
+            height={80}
+            priority
+            className="h-auto w-[220px] md:w-[260px]"
+          />
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+            <span>Chargement de ta session...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (store.hydrationError) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-slate-300 px-4">
+        <div className="max-w-xl w-full bg-slate-900/80 border border-red-500/30 rounded-2xl p-6 text-center">
+          <Image
+            src="/images/logo_nexus_reussite.png"
+            alt="Nexus Réussite"
+            width={220}
+            height={68}
+            priority
+            className="h-auto w-[200px] mx-auto mb-4"
+          />
+          <h1 className="text-xl font-bold text-red-300 mb-2">Session non disponible</h1>
+          <p className="text-slate-300 mb-5">{store.hydrationError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 border border-red-400/40 hover:bg-red-500/30 transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-cyan-500/30 overflow-x-hidden">
+      {syncError && (
+        <div className="sticky top-0 z-[70] mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-2">
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+            {syncError}
+          </div>
+        </div>
+      )}
       {/* ─── Navbar ─────────────────────────────────────────────────────── */}
       {!focusMode && <Navbar />}
 
       <div className={`${focusMode ? 'pt-4' : 'pt-24'} pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}>
         {/* ─── Header ───────────────────────────────────────────────────── */}
-        {!focusMode && <Header />}
+        {!focusMode && <Header displayName={displayName} />}
 
         {/* ─── Tab Bar ──────────────────────────────────────────────────── */}
         {!focusMode && <TabBar currentTab={currentTab} onSwitch={switchTab} />}
@@ -197,9 +526,14 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-cyan-500/20">
-              N
-            </div>
+            <Image
+              src="/images/logo_nexus_reussite.png"
+              alt="Nexus Réussite"
+              width={152}
+              height={44}
+              priority
+              className="h-10 w-auto object-contain"
+            />
             <div>
               <span className="font-bold text-xl tracking-tight text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
                 NEXUS MATHS LAB
@@ -249,7 +583,7 @@ function Navbar() {
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function Header() {
+function Header({ displayName }: { displayName: string }) {
   const [greeting, setGreeting] = useState('Bonjour');
   const store = useMathsLabStore();
   const niveau = store.getNiveau();
@@ -269,11 +603,13 @@ function Header() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
-                {greeting},{' '}
+                {greeting} {displayName}, prêt pour ta session ?{' '}
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
                 <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
                   {niveau.nom} {niveau.badge}
                 </span>
-              </h1>
+              </h2>
               <p className="text-slate-400 text-lg max-w-2xl">
                 Ton Learning Lab interactif pour la spécialité Mathématiques (4h/semaine).
               </p>
@@ -687,14 +1023,17 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           </div>
         )}
 
-        {/* Erreurs Classiques */}
+        {/* Erreurs Classiques — Enhanced visibility */}
         {chap.contenu.erreursClassiques && chap.contenu.erreursClassiques.length > 0 && (
-          <div className="bg-red-900/10 border border-red-500/20 rounded-2xl p-5">
-            <h3 className="font-bold text-red-400 mb-3 flex items-center gap-2">⚠️ Erreurs classiques</h3>
+          <div className="bg-red-900/15 border-2 border-red-500/30 rounded-2xl p-5 shadow-lg shadow-red-500/5">
+            <h3 className="font-bold text-red-400 mb-3 flex items-center gap-2 text-base">
+              <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-lg">⚠️</span>
+              Erreurs classiques — À éviter au Bac !
+            </h3>
             <ul className="space-y-2">
               {chap.contenu.erreursClassiques.map((err, i) => (
-                <li key={i} className="flex gap-2 text-sm text-slate-300">
-                  <span className="text-red-400 font-bold shrink-0">✗</span>
+                <li key={i} className="flex gap-2 text-sm text-slate-300 bg-red-500/5 rounded-lg p-2">
+                  <span className="text-red-400 font-bold shrink-0 text-base">✗</span>
                   <span dangerouslySetInnerHTML={{ __html: err }} />
                 </li>
               ))}
@@ -711,11 +1050,14 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           </div>
         </div>
 
-        {/* Méthodologie Bac */}
+        {/* Méthodologie Bac — Enhanced visibility */}
         {chap.contenu.methodologieBac && (
-          <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-2xl p-5">
-            <h3 className="font-bold text-emerald-400 mb-2 flex items-center gap-2">🎓 Méthodologie Bac</h3>
-            <p className="text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: chap.contenu.methodologieBac }} />
+          <div className="bg-emerald-900/15 border-2 border-emerald-500/30 rounded-2xl p-5 shadow-lg shadow-emerald-500/5">
+            <h3 className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-base">
+              <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">🎓</span>
+              Méthodologie Bac — Comment réussir
+            </h3>
+            <p className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: chap.contenu.methodologieBac }} />
           </div>
         )}
 
@@ -810,6 +1152,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* CdC §4.2.3 — L'Enrouleur (Trigonométrie) */}
         {chapId === 'trigonometrie' && <Enrouleur />}
+
+        {/* CdC §4.2 — Projecteur Vectoriel (Produit Scalaire) */}
+        {chapId === 'produit-scalaire' && <VectorProjector />}
 
         {/* CdC §4.4.2 — Simulation de Monte-Carlo (Probabilités) */}
         {(chapId === 'probabilites-cond' || chapId === 'variables-aleatoires') && (
