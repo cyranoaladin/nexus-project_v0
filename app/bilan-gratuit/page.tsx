@@ -101,6 +101,7 @@ function BilanGratuitForm() {
     acceptNewsletter: false
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [honeypot, setHoneypot] = useState('');
   const router = useRouter();
 
   const totalSteps = 2;
@@ -178,7 +179,9 @@ function BilanGratuitForm() {
     try {
       const submitData = {
         ...formData,
-        subjects: selectedSubjects
+        subjects: selectedSubjects,
+        // Honeypot field — bots fill this, humans don't see it
+        website: honeypot
       };
 
       const response = await fetch('/api/bilan-gratuit', {
@@ -555,6 +558,20 @@ function BilanGratuitForm() {
                         J'accepte de recevoir des informations et offres de Nexus Réussite
                       </Label>
                     </div>
+                  </div>
+
+                  {/* Honeypot — hidden from humans, bots fill it */}
+                  <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+                    <label htmlFor="website">Website</label>
+                    <input
+                      type="text"
+                      id="website"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">

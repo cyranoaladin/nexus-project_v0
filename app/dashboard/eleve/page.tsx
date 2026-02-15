@@ -411,8 +411,7 @@ export default function DashboardEleve() {
             studentId={session!.user.id}
             userCredits={dashboardData.credits.balance}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
-              // Refresh dashboard data
+              // Refresh dashboard data after booking
               window.location.reload();
               setActiveTab('dashboard');
             }}
