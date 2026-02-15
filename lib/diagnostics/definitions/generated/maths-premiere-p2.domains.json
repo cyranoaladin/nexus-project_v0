@@ -1,0 +1,412 @@
+{
+  "id": "maths-premiere-p2",
+  "label": "Diagnostic Pré-Stage Maths — Première Spécialité",
+  "discipline": "maths",
+  "level": "premiere",
+  "track": "eds",
+  "schemaVersion": "v1.3",
+  "generatedAt": "2026-02-15T20:21:00.867Z",
+  "domains": [
+    {
+      "domainId": "algebra",
+      "domainLabel": "Algèbre & Suites",
+      "weight": 0.22,
+      "skills": [
+        {
+          "skillId": "ALG_SUITE_ARITH",
+          "skillLabel": "Suites arithmétiques (u_n, somme)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "suites"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_GEO",
+          "skillLabel": "Suites géométriques (u_n, somme)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "suites"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_VARIATION",
+          "skillLabel": "Variation d'une suite",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "suites"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_CONV",
+          "skillLabel": "Convergence/divergence",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "suites"
+          ]
+        },
+        {
+          "skillId": "ALG_MODEL_EXP",
+          "skillLabel": "Modélisation exponentielle",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "ALG_QUADRATIC_EQ",
+          "skillLabel": "Second degré (équations)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "second-degre"
+          ]
+        },
+        {
+          "skillId": "ALG_QUADRATIC_CANON",
+          "skillLabel": "Forme canonique",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre",
+            "second-degre"
+          ]
+        },
+        {
+          "skillId": "ALG_FACTORIZATION",
+          "skillLabel": "Factorisations stratégiques",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "algebre"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "analysis",
+      "domainLabel": "Analyse & Dérivation",
+      "weight": 0.22,
+      "skills": [
+        {
+          "skillId": "ANA_DERIV_DEF",
+          "skillLabel": "Nombre dérivé (sens + calcul)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse",
+            "derivation"
+          ]
+        },
+        {
+          "skillId": "ANA_DERIV_RULES",
+          "skillLabel": "Règles de dérivation",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse",
+            "derivation"
+          ]
+        },
+        {
+          "skillId": "ANA_DERIV_CHAIN",
+          "skillLabel": "Dérivation composées",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse",
+            "derivation"
+          ]
+        },
+        {
+          "skillId": "ANA_VARIATIONS",
+          "skillLabel": "Tableau de variations",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_OPTIMIZATION",
+          "skillLabel": "Extremum/optimisation",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_EXP",
+          "skillLabel": "Exponentielle",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_TRIG",
+          "skillLabel": "Trigonométrie",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "analyse"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "geometry",
+      "domainLabel": "Géométrie",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "GEO_DOT_PRODUCT",
+          "skillLabel": "Produit scalaire",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_AL_KASHI",
+          "skillLabel": "Al-Kashi",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_MEDIAN_FORMULA",
+          "skillLabel": "Formule de la médiane",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_ORTHOGONALITY",
+          "skillLabel": "Orthogonalité",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_LINE_EQUATION",
+          "skillLabel": "Équation de droite",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_CIRCLE_EQUATION",
+          "skillLabel": "Équation de cercle",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_PROJECTION",
+          "skillLabel": "Projeté orthogonal",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_DISTANCE_POINT_LINE",
+          "skillLabel": "Distance point-droite",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "geometrie"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "prob_stats",
+      "domainLabel": "Probabilités & statistiques",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "PROB_CONDITIONAL",
+          "skillLabel": "Conditionnelles P_A(B)",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_INDEPENDENCE",
+          "skillLabel": "Indépendance",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_TREE",
+          "skillLabel": "Arbre pondéré",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_TOTAL",
+          "skillLabel": "Probabilités totales",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_RANDOM_VAR",
+          "skillLabel": "Variable aléatoire/espérance",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "probabilites"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "algo_prog",
+      "domainLabel": "Algorithmique & programmation",
+      "weight": 0.1,
+      "skills": [
+        {
+          "skillId": "PY_FUNC",
+          "skillLabel": "Fonctions Python",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_LOOPS",
+          "skillLabel": "Boucles for/while",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_LISTS",
+          "skillLabel": "Listes",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_SEQ_SIM",
+          "skillLabel": "Suites algorithmique",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_MONTE_CARLO",
+          "skillLabel": "Simulation Monte-Carlo",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "python"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "logic_sets",
+      "domainLabel": "Logique & ensembles",
+      "weight": 0.1,
+      "skills": [
+        {
+          "skillId": "LOG_RAISONNEMENT",
+          "skillLabel": "Raisonnement par l'absurde / contraposée",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "logique"
+          ]
+        },
+        {
+          "skillId": "LOG_ENSEMBLES",
+          "skillLabel": "Vocabulaire ensembliste",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "logique"
+          ]
+        }
+      ]
+    }
+  ]
+}

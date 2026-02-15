@@ -1,0 +1,403 @@
+{
+  "id": "maths-terminale-p2",
+  "label": "Diagnostic Pré-Stage Maths — Terminale Spécialité",
+  "discipline": "maths",
+  "level": "terminale",
+  "track": "eds",
+  "schemaVersion": "v1.3",
+  "generatedAt": "2026-02-15T20:21:00.877Z",
+  "domains": [
+    {
+      "domainId": "analysis",
+      "domainLabel": "Analyse",
+      "weight": 0.28,
+      "skills": [
+        {
+          "skillId": "ANA_DERIV_DEF",
+          "skillLabel": "Nombre dérivé (sens + calcul)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_DERIV_RULES",
+          "skillLabel": "Règles de dérivation",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_DERIV_CHAIN",
+          "skillLabel": "Dérivation composées",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_VARIATIONS",
+          "skillLabel": "Tableau de variations",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_OPTIMIZATION",
+          "skillLabel": "Extremum/optimisation",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_EXP",
+          "skillLabel": "Exponentielle",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "ANA_TRIG",
+          "skillLabel": "Trigonométrie",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "TLE_LIMITS",
+          "skillLabel": "Limites & continuité",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse",
+            "limites"
+          ]
+        },
+        {
+          "skillId": "TLE_LOG",
+          "skillLabel": "Logarithme ln",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse",
+            "log"
+          ]
+        },
+        {
+          "skillId": "TLE_DERIV_ADV",
+          "skillLabel": "Dérivation avancée (convexité)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse"
+          ]
+        },
+        {
+          "skillId": "TLE_INTEGRATION",
+          "skillLabel": "Primitives/intégrales",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "analyse",
+            "integration"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "algebra",
+      "domainLabel": "Algèbre",
+      "weight": 0.22,
+      "skills": [
+        {
+          "skillId": "ALG_SUITE_ARITH",
+          "skillLabel": "Suites arithmétiques (u_n, somme)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_GEO",
+          "skillLabel": "Suites géométriques (u_n, somme)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_VARIATION",
+          "skillLabel": "Variation d'une suite",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "ALG_SUITE_CONV",
+          "skillLabel": "Convergence/divergence",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "TLE_RECURRENCE",
+          "skillLabel": "Récurrence",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre",
+            "recurrence"
+          ]
+        },
+        {
+          "skillId": "TLE_SUMS",
+          "skillLabel": "Sommes/séries",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre"
+          ]
+        },
+        {
+          "skillId": "TLE_COMPLEX",
+          "skillLabel": "Nombres complexes",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "algebre",
+            "complexes"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "geometry",
+      "domainLabel": "Géométrie dans l'espace",
+      "weight": 0.15,
+      "skills": [
+        {
+          "skillId": "GEO_DOT_PRODUCT",
+          "skillLabel": "Produit scalaire",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_AL_KASHI",
+          "skillLabel": "Al-Kashi",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_ORTHOGONALITY",
+          "skillLabel": "Orthogonalité",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_LINE_EQUATION",
+          "skillLabel": "Équation de droite",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "GEO_CIRCLE_EQUATION",
+          "skillLabel": "Équation de cercle",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie"
+          ]
+        },
+        {
+          "skillId": "TLE_SPACE_GEO",
+          "skillLabel": "Géométrie 3D (plans, droites, orthogonalité)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "geometrie",
+            "espace"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "prob_stats",
+      "domainLabel": "Probabilités & statistiques",
+      "weight": 0.2,
+      "skills": [
+        {
+          "skillId": "PROB_CONDITIONAL",
+          "skillLabel": "Conditionnelles P_A(B)",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_INDEPENDENCE",
+          "skillLabel": "Indépendance",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_TREE",
+          "skillLabel": "Arbre pondéré",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_TOTAL",
+          "skillLabel": "Probabilités totales",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "PROB_RANDOM_VAR",
+          "skillLabel": "Variable aléatoire/espérance",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites"
+          ]
+        },
+        {
+          "skillId": "TLE_BINOMIAL",
+          "skillLabel": "Loi binomiale approfondie",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "probabilites",
+            "binomiale"
+          ]
+        }
+      ]
+    },
+    {
+      "domainId": "algorithmic",
+      "domainLabel": "Algorithmique & programmation",
+      "weight": 0.15,
+      "skills": [
+        {
+          "skillId": "PY_FUNC",
+          "skillLabel": "Fonctions Python",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_LOOPS",
+          "skillLabel": "Boucles for/while",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_LISTS",
+          "skillLabel": "Listes avancées",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_SEQ_SIM",
+          "skillLabel": "Suites algorithmique",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "python"
+          ]
+        },
+        {
+          "skillId": "PY_MONTE_CARLO",
+          "skillLabel": "Simulation Monte-Carlo",
+          "tags": [
+            "programme",
+            "terminale",
+            "eds",
+            "python"
+          ]
+        }
+      ]
+    }
+  ]
+}
