@@ -4,11 +4,11 @@ const BASE_URL = '/programme/maths-1ere';
 const STORE_KEY = 'nexus-maths-lab-v2';
 
 function derivationButton(page: import('@playwright/test').Page) {
-  return page.getByRole('button', { name: /^1Dérivation/i }).first();
+  return page.getByRole('button', { name: /^1\s*Dérivation/i }).first();
 }
 
 function secondDegreButton(page: import('@playwright/test').Page) {
-  return page.getByRole('button', { name: /^1Second Degré/i }).first();
+  return page.getByRole('button', { name: /^1\s*Second Degré/i }).first();
 }
 
 function buildPersistedState(totalXP: number, completedChapters: string[] = []) {
@@ -41,7 +41,7 @@ test.describe('Student journey - Maths 1ere', () => {
     await page.goto(BASE_URL);
     await page.getByRole('button', { name: /Fiches de Cours/i }).click();
     await derivationButton(page).click();
-    await page.waitForTimeout(2500);
+    await page.waitForSelector('mjx-container, mjx-math, .mjx-chtml', { timeout: 5000 }).catch(() => {});
 
     const renderedText = await page.locator('body').innerText();
     const rawLatexPatterns = [
@@ -71,18 +71,16 @@ test.describe('Student journey - Maths 1ere', () => {
     const derivativeChip = page.locator('span').filter({ hasText: /f'\(/ }).first();
     const before = await derivativeChip.innerText();
     const slider = page.locator('input[type="range"]').first();
-    await slider.evaluate((el) => {
-      const input = el as HTMLInputElement;
-      input.value = '1.5';
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-    await expect(derivativeChip).not.toHaveText(before);
+    await slider.focus();
+    for (let i = 0; i < 20; i += 1) {
+      await slider.press('ArrowRight');
+    }
+    await expect.poll(async () => derivativeChip.innerText()).not.toBe(before);
 
     // Répondre juste à une question
     const exerciseHeading = page.getByRole('heading', { name: /Exercices interactifs/i });
     await expect(exerciseHeading).toBeVisible();
-    const panel = exerciseHeading.locator('xpath=ancestor::div[contains(@class,"bg-slate-900")]').first();
+    const panel = page.locator('section, div').filter({ has: exerciseHeading }).first();
     await panel.getByRole('button', { name: '2' }).click();
     await panel.getByPlaceholder('Votre réponse...').fill('1');
     await panel.getByRole('button', { name: /^Valider$/ }).click();
@@ -174,5 +172,18 @@ test.describe('Student journey - Maths 1ere', () => {
 
     expect(completed.chapters).toContain('second-degre');
     expect(completed.xp).toBeGreaterThanOrEqual(50);
+  });
+
+  test('Résilience offline: pas de crash en hors-ligne puis retour online', async ({ page }) => {
+    await page.goto(BASE_URL);
+    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
+
+    await page.context().setOffline(true);
+    await page.getByRole('button', { name: /Fiches de Cours/i }).click();
+    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
+
+    await page.context().setOffline(false);
+    await page.reload();
+    await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();
   });
 });
