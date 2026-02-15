@@ -130,8 +130,8 @@ test.describe('Diagnostic Flow — Error Handling', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // Should be 400 (schema validation) or 500 (if CSRF blocks first)
-    expect([400, 403, 500]).toContain(res.status());
+    // Should be 400 (schema validation) or 403 (CSRF/auth)
+    expect([400, 403]).toContain(res.status());
   });
 
   test('GET list without auth returns 403', async ({ request }) => {
