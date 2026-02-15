@@ -37,21 +37,12 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 export default withAuth(
   function middleware(req) {
     // Bypass middleware for E2E tests (NEVER in production)
-    const shouldBypass =
-      (process.env.DISABLE_MIDDLEWARE === 'true' || process.env.SKIP_MIDDLEWARE === 'true') &&
-      process.env.NODE_ENV !== 'production';
-    if (shouldBypass) {
+    if (process.env.DISABLE_MIDDLEWARE === 'true' && process.env.NODE_ENV !== 'production') {
       return NextResponse.next();
     }
 
     const token = req.nextauth.token
     const { pathname } = req.nextUrl
-
-    if (pathname.startsWith('/api/programme/maths-1ere/progress') && !token) {
-      return applySecurityHeaders(
-        NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-      );
-    }
 
     // Rate limiting for authentication endpoint
     if (pathname === '/api/auth/callback/credentials') {
@@ -153,15 +144,8 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         // Bypass auth for E2E tests (NEVER in production)
-        const shouldBypass =
-          (process.env.DISABLE_MIDDLEWARE === 'true' || process.env.SKIP_MIDDLEWARE === 'true') &&
-          process.env.NODE_ENV !== 'production';
-        if (shouldBypass) {
+        if (process.env.DISABLE_MIDDLEWARE === 'true' && process.env.NODE_ENV !== 'production') {
           return true;
-        }
-
-        if (req.nextUrl.pathname.startsWith('/api/programme/maths-1ere/progress')) {
-          return !!token;
         }
 
         // Permettre l'accès aux pages publiques

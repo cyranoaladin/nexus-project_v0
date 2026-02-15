@@ -89,7 +89,7 @@ describe('POST /api/sessions/cancel', () => {
 
     (RateLimitPresets.expensive as jest.Mock).mockReturnValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
-    (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
+    (isErrorResponse as jest.Mock).mockReturnValue(false);
     (parseBody as jest.Mock).mockResolvedValue({ sessionId: 'session-1', reason: 'Change' });
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
     (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession());
@@ -114,7 +114,7 @@ describe('POST /api/sessions/cancel', () => {
   it('returns auth error response when guard fails', async () => {
     const mockErrorResponse = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     (requireAnyRole as jest.Mock).mockResolvedValue(mockErrorResponse);
-    (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
+    (isErrorResponse as jest.Mock).mockReturnValue(true);
 
     const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
 

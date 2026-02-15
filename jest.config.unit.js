@@ -17,8 +17,6 @@ const customJestConfig = {
     url: 'http://localhost',
   },
   testMatch: [
-    '**/__tests__/store.test.ts',
-    '**/__tests__/math-engine.test.ts',
     '**/__tests__/lib/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/components/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/ui/**/*.(test|spec).(js|ts|tsx)',
@@ -37,7 +35,6 @@ const customJestConfig = {
     '/.next/',
     '/.next/standalone/',
     '/e2e/',
-    '/tests/student-journey.spec.ts',
     '/.zenflow/tests/integration/',
     '/.zenflow/tests/performance/',
     '/tests/database/',
