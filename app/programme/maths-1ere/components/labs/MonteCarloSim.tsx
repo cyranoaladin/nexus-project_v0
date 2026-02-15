@@ -1,0 +1,189 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+
+/**
+ * CdC §4.4.2 — Simulation de Monte-Carlo
+ * Simulate coin flips / dice rolls to see frequency converge to probability.
+ * Also includes π estimation via random points in a unit square.
+ */
+
+type SimMode = 'coin' | 'dice' | 'pi';
+
+export default function MonteCarloSim() {
+  const [expanded, setExpanded] = useState(false);
+  const [mode, setMode] = useState<SimMode>('coin');
+  const [results, setResults] = useState<number[]>([]);
+  const [running, setRunning] = useState(false);
+
+  const totalTrials = results.length;
+
+  // Coin: count heads (1)
+  const coinHeads = mode === 'coin' ? results.filter((r) => r === 1).length : 0;
+  const coinFreq = totalTrials > 0 ? coinHeads / totalTrials : 0;
+
+  // Dice: count each face
+  const diceCounts = mode === 'dice'
+    ? Array.from({ length: 6 }, (_, i) => results.filter((r) => r === i + 1).length)
+    : [];
+
+  // Pi: count points inside circle
+  const piInside = mode === 'pi' ? results.filter((r) => r === 1).length : 0;
+  const piEstimate = totalTrials > 0 ? (4 * piInside) / totalTrials : 0;
+
+  const reset = useCallback(() => {
+    setResults([]);
+  }, []);
+
+  const simulate = useCallback((n: number) => {
+    setRunning(true);
+    const newResults: number[] = [];
+
+    for (let i = 0; i < n; i++) {
+      if (mode === 'coin') {
+        newResults.push(Math.random() < 0.5 ? 1 : 0);
+      } else if (mode === 'dice') {
+        newResults.push(Math.floor(Math.random() * 6) + 1);
+      } else {
+        // Pi estimation: random point in [0,1]², check if inside quarter circle
+        const x = Math.random();
+        const y = Math.random();
+        newResults.push(x * x + y * y <= 1 ? 1 : 0);
+      }
+    }
+
+    setResults((prev) => [...prev, ...newResults]);
+    setRunning(false);
+  }, [mode]);
+
+  return (
+    <div className="bg-slate-900/50 border border-amber-500/20 rounded-2xl overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🎲</span>
+          <span className="font-bold text-amber-300 text-sm">Simulation de Monte-Carlo</span>
+          <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
+        </div>
+        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+      </button>
+
+      {expanded && (
+        <div className="p-4 pt-0 space-y-4">
+          {/* Mode selector */}
+          <div className="flex gap-2">
+            {([
+              { id: 'coin' as SimMode, label: '🪙 Pile ou Face', desc: 'P = 0.5' },
+              { id: 'dice' as SimMode, label: '🎲 Lancer de dé', desc: 'P = 1/6' },
+              { id: 'pi' as SimMode, label: '🔵 Estimation de π', desc: 'Monte-Carlo' },
+            ]).map((m) => (
+              <button
+                key={m.id}
+                onClick={() => { setMode(m.id); reset(); }}
+                className={`flex-1 text-xs px-3 py-2 rounded-lg font-bold transition-all ${
+                  mode === m.id
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Controls */}
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => simulate(1)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+1</button>
+            <button onClick={() => simulate(10)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+10</button>
+            <button onClick={() => simulate(100)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+100</button>
+            <button onClick={() => simulate(1000)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+1000</button>
+            <button onClick={reset} className="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 transition-all ml-auto">↺ Reset</button>
+          </div>
+
+          {/* Results */}
+          <div className="bg-slate-800/50 rounded-xl p-4 space-y-3">
+            <div className="flex justify-between text-xs text-slate-400">
+              <span>Essais : <span className="text-white font-bold">{totalTrials}</span></span>
+              {mode === 'coin' && (
+                <span>Fréquence Pile : <span className={`font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : 'text-amber-400'}`}>{(coinFreq * 100).toFixed(1)}%</span> (théorique : 50%)</span>
+              )}
+              {mode === 'pi' && (
+                <span>π ≈ <span className={`font-bold ${Math.abs(piEstimate - Math.PI) < 0.1 ? 'text-green-400' : 'text-amber-400'}`}>{piEstimate.toFixed(4)}</span> (réel : {Math.PI.toFixed(4)})</span>
+              )}
+            </div>
+
+            {/* Coin visualization */}
+            {mode === 'coin' && totalTrials > 0 && (
+              <div>
+                <div className="flex gap-1 h-8">
+                  <div
+                    className="bg-amber-500/40 rounded-l-lg flex items-center justify-center text-[10px] font-bold text-amber-300 transition-all"
+                    style={{ width: `${coinFreq * 100}%` }}
+                  >
+                    {coinFreq > 0.1 ? `Pile ${(coinFreq * 100).toFixed(0)}%` : ''}
+                  </div>
+                  <div
+                    className="bg-blue-500/40 rounded-r-lg flex items-center justify-center text-[10px] font-bold text-blue-300 transition-all"
+                    style={{ width: `${(1 - coinFreq) * 100}%` }}
+                  >
+                    {(1 - coinFreq) > 0.1 ? `Face ${((1 - coinFreq) * 100).toFixed(0)}%` : ''}
+                  </div>
+                </div>
+                <div className="text-center text-[10px] text-slate-600 mt-1">
+                  La fréquence converge vers P = 0.5 (loi des grands nombres)
+                </div>
+              </div>
+            )}
+
+            {/* Dice visualization */}
+            {mode === 'dice' && totalTrials > 0 && (
+              <div>
+                <div className="flex gap-1 h-20 items-end">
+                  {diceCounts.map((count, i) => {
+                    const freq = count / totalTrials;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className="w-full bg-amber-500/40 rounded-t-lg transition-all"
+                          style={{ height: `${Math.max(2, freq * 300)}px` }}
+                        />
+                        <span className="text-[10px] text-slate-400">{i + 1}</span>
+                        <span className="text-[9px] text-slate-600">{(freq * 100).toFixed(0)}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="text-center text-[10px] text-slate-600 mt-1">
+                  Chaque face devrait converger vers 1/6 ≈ 16.7%
+                </div>
+              </div>
+            )}
+
+            {/* Pi visualization */}
+            {mode === 'pi' && totalTrials > 0 && (
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-400 font-mono">
+                  π ≈ {piEstimate.toFixed(6)}
+                </div>
+                <div className="text-xs text-slate-500 mt-1">
+                  Erreur : {Math.abs(piEstimate - Math.PI).toFixed(6)} ({piInside} points dans le cercle / {totalTrials} total)
+                </div>
+                <div className="w-full h-2 bg-slate-700 rounded-full mt-2 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, (1 - Math.abs(piEstimate - Math.PI) / Math.PI) * 100)}%` }}
+                  />
+                </div>
+                <div className="text-[10px] text-slate-600 mt-1">
+                  On lance des points aléatoires dans un carré [0,1]². Le ratio dans le quart de cercle × 4 ≈ π.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
