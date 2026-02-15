@@ -38,6 +38,13 @@ interface MappingYaml {
       tags?: string[];
     }>;
   }>;
+  chapters?: Array<{
+    chapterId: string;
+    chapterLabel: string;
+    description: string;
+    domainId: string;
+    skills: string[];
+  }>;
 }
 
 /**
@@ -95,6 +102,22 @@ function validateMapping(mapping: MappingYaml, filePath: string): void {
  * Compile a single mapping YAML into a CompiledDefinitionPayload.
  */
 function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
+  const allSkillIds = new Set<string>();
+  for (const d of mapping.domains) {
+    for (const s of d.skills) allSkillIds.add(s.skillId);
+  }
+
+  // Validate chapter skill references
+  if (mapping.chapters) {
+    for (const ch of mapping.chapters) {
+      for (const sid of ch.skills) {
+        if (!allSkillIds.has(sid)) {
+          console.warn(`⚠️  Chapter ${ch.chapterId} references unknown skill: ${sid}`);
+        }
+      }
+    }
+  }
+
   return {
     id: mapping.definitionKey,
     label: mapping.label,
@@ -112,6 +135,13 @@ function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
         skillLabel: s.label,
         tags: s.tags,
       })),
+    })),
+    chapters: mapping.chapters?.map((ch) => ({
+      chapterId: ch.chapterId,
+      chapterLabel: ch.chapterLabel,
+      description: ch.description,
+      domainId: ch.domainId,
+      skills: ch.skills,
     })),
   };
 }

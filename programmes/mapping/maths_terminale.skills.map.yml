@@ -138,3 +138,60 @@ domains:
       - skillId: PY_MONTE_CARLO
         label: "Simulation Monte-Carlo"
         tags: ["programme", "terminale", "eds", "python"]
+
+chapters:
+  - chapterId: CH_MT_LIMITES
+    chapterLabel: "Limites et continuité"
+    description: "Limites de fonctions et suites, continuité, TVI"
+    domainId: analysis
+    skills: [TLE_LIMITS]
+  - chapterId: CH_MT_DERIVATION_ADV
+    chapterLabel: "Dérivation avancée et convexité"
+    description: "Dérivée seconde, convexité, points d'inflexion"
+    domainId: analysis
+    skills: [ANA_DERIV_DEF, ANA_DERIV_RULES, ANA_DERIV_CHAIN, ANA_VARIATIONS, ANA_OPTIMIZATION, TLE_DERIV_ADV]
+  - chapterId: CH_MT_EXPO
+    chapterLabel: "Fonction exponentielle"
+    description: "Propriétés de exp, équations, limites"
+    domainId: analysis
+    skills: [ANA_EXP]
+  - chapterId: CH_MT_LOG
+    chapterLabel: "Logarithme népérien"
+    description: "Propriétés de ln, équations, croissance comparée"
+    domainId: analysis
+    skills: [TLE_LOG]
+  - chapterId: CH_MT_TRIGO
+    chapterLabel: "Trigonométrie"
+    description: "Fonctions sin/cos, équations trigonométriques"
+    domainId: analysis
+    skills: [ANA_TRIG]
+  - chapterId: CH_MT_INTEGRATION
+    chapterLabel: "Primitives et intégrales"
+    description: "Primitives, intégrale, calcul d'aires"
+    domainId: analysis
+    skills: [TLE_INTEGRATION]
+  - chapterId: CH_MT_SUITES_ADV
+    chapterLabel: "Suites avancées"
+    description: "Récurrence, suites adjacentes, convergence"
+    domainId: algebra
+    skills: [ALG_SUITE_ARITH, ALG_SUITE_GEO, ALG_SUITE_VARIATION, ALG_SUITE_CONV, TLE_RECURRENCE, TLE_SUMS]
+  - chapterId: CH_MT_COMPLEXES
+    chapterLabel: "Nombres complexes"
+    description: "Forme algébrique, trigonométrique, exponentielle"
+    domainId: algebra
+    skills: [TLE_COMPLEX]
+  - chapterId: CH_MT_GEO_ESPACE
+    chapterLabel: "Géométrie dans l'espace"
+    description: "Vecteurs 3D, plans, droites, orthogonalité dans l'espace"
+    domainId: geometry
+    skills: [GEO_DOT_PRODUCT, GEO_AL_KASHI, GEO_ORTHOGONALITY, GEO_LINE_EQUATION, GEO_CIRCLE_EQUATION, TLE_SPACE_GEO]
+  - chapterId: CH_MT_PROBAS_ADV
+    chapterLabel: "Probabilités avancées"
+    description: "Conditionnelles, indépendance, loi binomiale"
+    domainId: prob_stats
+    skills: [PROB_CONDITIONAL, PROB_INDEPENDENCE, PROB_TREE, PROB_TOTAL, PROB_RANDOM_VAR, TLE_BINOMIAL]
+  - chapterId: CH_MT_ALGO_PYTHON
+    chapterLabel: "Algorithmique et Python"
+    description: "Listes avancées, suites algorithmiques, simulations"
+    domainId: algorithmic
+    skills: [PY_FUNC, PY_LOOPS, PY_LISTS, PY_SEQ_SIM, PY_MONTE_CARLO]

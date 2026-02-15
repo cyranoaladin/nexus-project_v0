@@ -149,3 +149,65 @@ domains:
       - skillId: LOG_ENSEMBLES
         label: "Vocabulaire ensembliste"
         tags: ["programme", "premiere", "eds", "logique"]
+
+chapters:
+  - chapterId: CH_M1_SUITES
+    chapterLabel: "Suites numériques"
+    description: "Suites arithmétiques, géométriques, sens de variation, convergence"
+    domainId: algebra
+    skills: [ALG_SUITE_ARITH, ALG_SUITE_GEO, ALG_SUITE_VARIATION, ALG_SUITE_CONV, ALG_MODEL_EXP]
+  - chapterId: CH_M1_SECOND_DEGRE
+    chapterLabel: "Second degré"
+    description: "Forme canonique, discriminant, factorisation, résolution"
+    domainId: algebra
+    skills: [ALG_QUADRATIC_EQ, ALG_QUADRATIC_CANON, ALG_FACTORIZATION]
+  - chapterId: CH_M1_DERIVATION
+    chapterLabel: "Dérivation"
+    description: "Nombre dérivé, tangente, règles de dérivation, dérivées composées"
+    domainId: analysis
+    skills: [ANA_DERIV_DEF, ANA_DERIV_RULES, ANA_DERIV_CHAIN]
+  - chapterId: CH_M1_VARIATIONS
+    chapterLabel: "Variations et optimisation"
+    description: "Tableau de variations, extremums, problèmes d'optimisation"
+    domainId: analysis
+    skills: [ANA_VARIATIONS, ANA_OPTIMIZATION]
+  - chapterId: CH_M1_EXPO
+    chapterLabel: "Fonction exponentielle"
+    description: "Propriétés de exp, équations, croissance comparée"
+    domainId: analysis
+    skills: [ANA_EXP]
+  - chapterId: CH_M1_TRIGO
+    chapterLabel: "Trigonométrie"
+    description: "Cercle trigonométrique, formules, équations"
+    domainId: analysis
+    skills: [ANA_TRIG]
+  - chapterId: CH_M1_PRODUIT_SCALAIRE
+    chapterLabel: "Produit scalaire"
+    description: "Définition, propriétés, Al-Kashi, médiane, orthogonalité"
+    domainId: geometry
+    skills: [GEO_DOT_PRODUCT, GEO_AL_KASHI, GEO_MEDIAN_FORMULA, GEO_ORTHOGONALITY]
+  - chapterId: CH_M1_GEO_REPEREE
+    chapterLabel: "Géométrie repérée"
+    description: "Équations de droites, cercles, projeté orthogonal, distances"
+    domainId: geometry
+    skills: [GEO_LINE_EQUATION, GEO_CIRCLE_EQUATION, GEO_PROJECTION, GEO_DISTANCE_POINT_LINE]
+  - chapterId: CH_M1_PROBAS_COND
+    chapterLabel: "Probabilités conditionnelles"
+    description: "Conditionnelles, indépendance, arbres pondérés, formule totale"
+    domainId: prob_stats
+    skills: [PROB_CONDITIONAL, PROB_INDEPENDENCE, PROB_TREE, PROB_TOTAL]
+  - chapterId: CH_M1_VAR_ALEATOIRE
+    chapterLabel: "Variables aléatoires"
+    description: "Loi de probabilité, espérance, variance"
+    domainId: prob_stats
+    skills: [PROB_RANDOM_VAR]
+  - chapterId: CH_M1_ALGO_PYTHON
+    chapterLabel: "Algorithmique et Python"
+    description: "Fonctions, boucles, listes, suites algorithmiques, simulations"
+    domainId: algo_prog
+    skills: [PY_FUNC, PY_LOOPS, PY_LISTS, PY_SEQ_SIM, PY_MONTE_CARLO]
+  - chapterId: CH_M1_LOGIQUE
+    chapterLabel: "Logique et raisonnement"
+    description: "Raisonnement par l'absurde, contraposée, vocabulaire ensembliste"
+    domainId: logic_sets
+    skills: [LOG_RAISONNEMENT, LOG_ENSEMBLES]
