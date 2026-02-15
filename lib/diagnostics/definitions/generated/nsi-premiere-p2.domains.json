@@ -5,7 +5,7 @@
   "level": "premiere",
   "track": "eds",
   "schemaVersion": "v1.3",
-  "generatedAt": "2026-02-15T20:21:00.882Z",
+  "generatedAt": "2026-02-15T20:48:21.270Z",
   "domains": [
     {
       "domainId": "data_representation",
@@ -260,6 +260,84 @@
             "archi"
           ]
         }
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "chapterId": "CH_N1_TYPES",
+      "chapterLabel": "Types et valeurs de base",
+      "description": "Entiers, flottants, booléens, chaînes, types construits",
+      "domainId": "data_representation",
+      "skills": [
+        "NSI_TYPES",
+        "NSI_TRUTH_TABLE"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_BINAIRE",
+      "chapterLabel": "Représentation binaire et hexadécimale",
+      "description": "Binaire, hexadécimal, encodage texte (ASCII, UTF-8)",
+      "domainId": "data_representation",
+      "skills": [
+        "NSI_BINARY",
+        "NSI_ENCODING"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_DONNEES_TABLE",
+      "chapterLabel": "Traitement de données en table",
+      "description": "CSV, recherche, tri, fusion de tables",
+      "domainId": "data_processing",
+      "skills": [
+        "NSI_CSV",
+        "NSI_TABLE_SEARCH",
+        "NSI_TABLE_SORT",
+        "NSI_TABLE_FUSION"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_ALGO_BASE",
+      "chapterLabel": "Algorithmique de base",
+      "description": "Complexité, algorithmes de tri, k-plus proches voisins, gloutons",
+      "domainId": "algorithms",
+      "skills": [
+        "NSI_COMPLEXITY",
+        "NSI_SORT",
+        "NSI_KNN",
+        "NSI_GREEDY"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_PYTHON",
+      "chapterLabel": "Programmation Python",
+      "description": "Fonctions, spécifications, tests, modules, récursivité intro",
+      "domainId": "python_programming",
+      "skills": [
+        "NSI_PY_FUNCTIONS",
+        "NSI_PY_TESTS",
+        "NSI_PY_MODULES",
+        "NSI_PY_RECURSION"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_ARCHI",
+      "chapterLabel": "Architecture des machines",
+      "description": "Von Neumann, processus, OS",
+      "domainId": "systems_architecture",
+      "skills": [
+        "NSI_VON_NEUMANN",
+        "NSI_PROCESSES"
+      ]
+    },
+    {
+      "chapterId": "CH_N1_RESEAUX",
+      "chapterLabel": "Réseaux et IHM Web",
+      "description": "Protocoles TCP/IP, routage, IHM Web",
+      "domainId": "systems_architecture",
+      "skills": [
+        "NSI_NETWORK_PROTO",
+        "NSI_ROUTING"
       ]
     }
   ]

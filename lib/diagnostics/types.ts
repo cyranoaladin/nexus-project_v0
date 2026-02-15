@@ -126,6 +126,8 @@ export interface ScoringV2Result {
   highRisk: PriorityItem[];
   /** Inconsistency flags detected in the data */
   inconsistencies: InconsistencyFlag[];
+  /** Programme coverage metrics (chapter-aware) */
+  coverageProgramme?: CoverageProgramme;
 }
 
 export interface DomainScoreV2 {
@@ -214,6 +216,8 @@ export interface DiagnosticDefinition {
   riskModel?: RiskModel;
   /** Exam format: timer, rules, structure (CdC V2 §5.2) */
   examFormat?: ExamFormat;
+  /** Official programme chapters mapped to domains and skills */
+  chapters?: ChapterDefinition[];
 }
 
 export interface SkillDefinition {
@@ -222,6 +226,59 @@ export interface SkillDefinition {
   domain: string;
   /** Prerequisite skill IDs */
   prerequisites?: string[];
+}
+
+/** Official programme chapter mapped to a domain and its skills */
+export interface ChapterDefinition {
+  chapterId: string;
+  chapterLabel: string;
+  description: string;
+  domainId: string;
+  skills: string[];
+}
+
+/** Chapters selection state from the form */
+export interface ChaptersSelection {
+  /** Chapter IDs the student has already studied */
+  selected: string[];
+  /** Chapter IDs currently being studied */
+  inProgress: string[];
+  /** Chapter IDs not yet seen (auto-computed: programme - selected - inProgress) */
+  notYet: string[];
+}
+
+/** Prompt context pack injected into LLM calls */
+export interface PromptContextPack {
+  programme: { discipline: string; level: string; definitionKey: string };
+  chaptersSeen: string[];
+  chaptersInProgress: string[];
+  chaptersNotYet: string[];
+  scoring: {
+    readinessScore: number;
+    riskIndex: number;
+    trustScore: number;
+    recommendation: string;
+  };
+  weakestDomains: Array<{ domain: string; score: number }>;
+  dominantErrors: string[];
+  topPriorities: Array<{ skill: string; reason: string }>;
+  examFormat: { duration: number; calculatorAllowed: boolean; structure: string } | null;
+  riskFactors: string[];
+  ragContext: string;
+}
+
+/** Coverage programme metrics */
+export interface CoverageProgramme {
+  /** Ratio of chapters seen (selected + inProgress) / total */
+  seenChapterRatio: number;
+  /** Ratio of skills in seen chapters that were evaluated */
+  evaluatedSkillRatio: number;
+  /** Total chapters in programme */
+  totalChapters: number;
+  /** Chapters selected as seen */
+  seenChapters: number;
+  /** Chapters in progress */
+  inProgressChapters: number;
 }
 
 export interface ScoringPolicy {
