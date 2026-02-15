@@ -119,14 +119,12 @@ export default function DashboardEleve() {
         const response = await fetch('/api/student/dashboard');
 
         if (!response.ok) {
-          console.error(`[Student Dashboard] Failed to fetch data. Status: ${response.status}`);
           throw new Error('Failed to fetch dashboard data');
         }
 
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);

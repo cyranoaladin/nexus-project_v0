@@ -55,7 +55,6 @@ function KonnectDemoContent() {
         alert('Erreur lors de la validation du paiement');
       }
     } catch (error) {
-      console.error('Erreur:', error);
       alert('Une erreur est survenue');
     } finally {
       setIsProcessing(false);

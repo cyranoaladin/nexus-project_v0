@@ -127,7 +127,6 @@ function PaiementContent() {
         })}`);
       }
     } catch (error) {
-      console.error('Erreur de paiement:', error);
       alert('Une erreur est survenue lors du traitement du paiement. Veuillez réessayer.');
     } finally {
       setLoading(false);

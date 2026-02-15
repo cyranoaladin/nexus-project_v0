@@ -88,7 +88,6 @@ export default function DashboardParent() {
         setSelectedChild(data.children[0].id)
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
@@ -427,7 +426,6 @@ export default function DashboardParent() {
             parentId={session?.user?.id}
             userCredits={currentChild?.credits}
             onBookingComplete={(sessionId) => {
-              console.log('Session booked:', sessionId);
               refreshDashboardData();
               setActiveTab('dashboard');
             }}

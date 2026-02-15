@@ -95,7 +95,6 @@ export default function DashboardAdmin() {
         const data = await response.json();
         setAdminData(data);
       } catch (err) {
-        console.error('Error fetching admin dashboard data:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
