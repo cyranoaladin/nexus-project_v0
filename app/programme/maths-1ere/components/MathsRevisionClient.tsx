@@ -24,6 +24,8 @@ const ParabolaController = dynamic(() => import('./labs/ParabolaController'), { 
 const TangenteGlissante = dynamic(() => import('./labs/TangenteGlissante'), { ssr: false });
 const MonteCarloSim = dynamic(() => import('./labs/MonteCarloSim'), { ssr: false });
 const PythonExercises = dynamic(() => import('./labs/PythonExercises'), { ssr: false });
+const ToileAraignee = dynamic(() => import('./labs/ToileAraignee'), { ssr: false });
+const Enrouleur = dynamic(() => import('./labs/Enrouleur'), { ssr: false });
 
 // ─── Framer Motion variants ─────────────────────────────────────────────────
 const pageVariants = {
@@ -783,6 +785,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* ─── Chapter-specific Lab Interactifs (CdC §4) ─────────────── */}
 
+        {/* CdC §4.1.1 — La Toile d'Araignée (Suites) */}
+        {chapId === 'suites' && <ToileAraignee />}
+
         {/* CdC §4.1.2 — Le Contrôleur de Parabole (Second Degré) */}
         {chapId === 'second-degre' && <ParabolaController />}
 
@@ -793,6 +798,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             title={chapId === 'derivation' ? 'La Tangente Glissante — f(x) = x³ − 3x' : 'Variations — f(x) = x²'}
           />
         )}
+
+        {/* CdC §4.2.3 — L'Enrouleur (Trigonométrie) */}
+        {chapId === 'trigonometrie' && <Enrouleur />}
 
         {/* CdC §4.4.2 — Simulation de Monte-Carlo (Probabilités) */}
         {(chapId === 'probabilites-cond' || chapId === 'variables-aleatoires') && (
