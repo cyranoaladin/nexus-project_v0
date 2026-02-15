@@ -72,7 +72,6 @@ export default function MesSessions() {
         
         setSessions(transformedSessions);
       } catch (err) {
-        console.error('Error fetching sessions:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);

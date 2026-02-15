@@ -72,7 +72,6 @@ export default function SubscriptionsManagementPage() {
       setSubscriptions(data.subscriptions);
       setTotalPages(data.pagination.totalPages);
     } catch (err) {
-      console.error('Error fetching subscriptions:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -127,7 +126,6 @@ export default function SubscriptionsManagementPage() {
       setIsDialogOpen(false);
       fetchSubscriptions();
     } catch (err) {
-      console.error('Error updating subscription:', err);
       alert(err instanceof Error ? err.message : 'Failed to update subscription');
     } finally {
       setIsSubmitting(false);

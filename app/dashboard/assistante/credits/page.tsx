@@ -63,7 +63,6 @@ export default function CreditsManagement() {
       const data = await response.json();
       setStudents(data);
     } catch (err) {
-      console.error('Error fetching students:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -104,7 +103,6 @@ export default function CreditsManagement() {
       // Refresh students list
       fetchStudents();
     } catch (err) {
-      console.error('Error adding credits:', err);
       setError(err instanceof Error ? err.message : 'Failed to add credits');
     }
   };

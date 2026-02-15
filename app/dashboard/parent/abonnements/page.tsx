@@ -69,7 +69,6 @@ export default function AbonnementsPage() {
         setSelectedChild(data.children[0].id);
       }
     } catch (err) {
-      console.error('Error fetching subscriptions:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -91,7 +90,6 @@ export default function AbonnementsPage() {
       creditsPerMonth: plan.credits
     };
 
-    console.log('Sending subscription request:', requestData);
 
     setIsRequesting(true);
     try {
@@ -110,11 +108,9 @@ export default function AbonnementsPage() {
         fetchSubscriptions(); // Refresh data
       } else {
         const errorData = await response.json();
-        console.error('Subscription request failed:', errorData);
         alert(`Erreur lors de la demande d'abonnement: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Erreur:', error);
       alert('Une erreur est survenue');
     } finally {
       setIsRequesting(false);
@@ -151,7 +147,6 @@ export default function AbonnementsPage() {
         alert(errorData.error || 'Erreur lors de l\'ajout de l\'add-on');
       }
     } catch (error) {
-      console.error('Erreur:', error);
       alert('Une erreur est survenue');
     } finally {
       setIsRequesting(false);

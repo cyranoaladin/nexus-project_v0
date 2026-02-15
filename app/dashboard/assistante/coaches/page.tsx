@@ -110,7 +110,6 @@ export default function CoachManagement() {
       const data = await response.json();
       setCoaches(data.coaches || []);
     } catch (err) {
-      console.error('Error fetching coaches:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -154,7 +153,6 @@ export default function CoachManagement() {
       setIsAddDialogOpen(false);
       resetForm();
     } catch (err) {
-      console.error('Error adding coach:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setSubmitting(false);
@@ -184,7 +182,6 @@ export default function CoachManagement() {
       setEditingCoach(null);
       resetForm();
     } catch (err) {
-      console.error('Error updating coach:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setSubmitting(false);
@@ -206,7 +203,6 @@ export default function CoachManagement() {
 
       await fetchCoaches();
     } catch (err) {
-      console.error('Error deleting coach:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
