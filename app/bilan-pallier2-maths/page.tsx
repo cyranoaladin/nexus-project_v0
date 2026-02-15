@@ -609,9 +609,12 @@ export default function BilanPallier2MathsPage() {
                                       onClick={() => setChapterStatuses(prev => ({ ...prev, [ch.chapterId]: nextStatus }))}
                                       className={`w-full flex items-center gap-2 p-2 rounded-lg border text-left transition-all ${bgColor} hover:brightness-110`}
                                       title={ch.description}>
-                                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dotColor}`} />
-                                      <span className="flex-1 text-xs text-slate-200">{ch.chapterLabel}</span>
-                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-white/20">{statusLabel}</Badge>
+                                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5 ${dotColor}`} />
+                                      <span className="flex-1">
+                                        <span className="text-xs text-slate-200 block">{ch.chapterLabel}</span>
+                                        {ch.description && <span className="text-[10px] text-slate-500 block leading-tight">{ch.description}</span>}
+                                      </span>
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-white/20 flex-shrink-0">{statusLabel}</Badge>
                                     </button>
                                   );
                                 })}

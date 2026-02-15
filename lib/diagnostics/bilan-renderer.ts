@@ -16,6 +16,10 @@ import type { ScoringV2Result } from './types';
 export interface RenderContext {
   firstName: string;
   lastName: string;
+  /** Discipline: maths | nsi (defaults to maths for backward compat) */
+  discipline?: 'maths' | 'nsi';
+  /** Level: premiere | terminale */
+  level?: 'premiere' | 'terminale';
   establishment?: string;
   mathAverage?: string;
   classRanking?: string;
@@ -30,6 +34,8 @@ export interface RenderContext {
   miniTestCompleted: boolean;
   mainRisk?: string;
   verbatims: Record<string, string>;
+  /** Core prerequisite skills with low mastery (for 'Bases à consolider' block) */
+  weakPrerequisites?: Array<{ skillLabel: string; domain: string; mastery: number }>;
 }
 
 /** LLM-enriched sections (optional — renderer works without them) */
@@ -61,7 +67,38 @@ const DOMAIN_LABELS: Record<string, string> = {
   geometry: 'Géométrie',
   probabilities: 'Probabilités',
   python: 'Python / Algorithmique',
+  data_representation: 'Représentation des données',
+  data_processing: 'Traitement des données',
+  algorithms: 'Algorithmique',
+  python_programming: 'Langage Python',
+  systems_architecture: 'Architecture & OS',
+  data_structures: 'Structures de données',
+  algorithmic_advanced: 'Algorithmique avancée',
+  databases: 'Bases de données',
+  networks: 'Réseaux & OS',
+  systems_os: 'Systèmes d\'exploitation',
+  python_advanced: 'POO & Projets',
+  prob_stats: 'Probabilités & statistiques',
+  algo_prog: 'Algorithmique & programmation',
+  logic_sets: 'Logique & ensembles',
+  algorithmic: 'Algorithmique & programmation',
 };
+
+/**
+ * Discipline label for dynamic titles.
+ */
+function disciplineLabel(discipline?: string): string {
+  if (discipline === 'nsi') return 'NSI';
+  return 'Mathématiques';
+}
+
+/**
+ * Level label for display.
+ */
+function levelLabel(level?: string): string {
+  if (level === 'terminale') return 'Terminale';
+  return 'Première';
+}
 
 /**
  * Render the élève bilan (student-facing).
@@ -73,9 +110,11 @@ export function renderEleveBilan(
 ): string {
   const lines: string[] = [];
 
-  lines.push(`# 📊 Mon Diagnostic Maths`);
+  const disc = disciplineLabel(ctx.discipline);
+  const lvl = levelLabel(ctx.level);
+  lines.push(`# 📊 Mon Diagnostic ${disc}`);
   lines.push('');
-  lines.push(enrichment?.eleveIntro || `Bonjour ${ctx.firstName} ! Voici ton bilan personnalisé pour préparer l'épreuve anticipée de mathématiques.`);
+  lines.push(enrichment?.eleveIntro || `Bonjour ${ctx.firstName} ! Voici ton bilan personnalisé pour préparer l'épreuve de ${disc} en ${lvl}.`);
   lines.push('');
 
   // Résumé 60 secondes
@@ -138,12 +177,33 @@ export function renderEleveBilan(
   if (ctx.weeklyWork) lines.push(`- Travail hebdo : **${ctx.weeklyWork}**`);
   lines.push('');
 
-  // Routine
-  lines.push(`## 📅 Ta routine avant le stage`);
+  // Bases à consolider (prérequis faibles)
+  if (ctx.weakPrerequisites && ctx.weakPrerequisites.length > 0) {
+    lines.push(`## 🧱 Bases à consolider`);
+    lines.push('');
+    lines.push(`Ces fondamentaux sont importants pour la suite du programme, même si tu ne les as pas encore abordés en classe cette année :`);
+    lines.push('');
+    for (const p of ctx.weakPrerequisites) {
+      const masteryPct = Math.round((p.mastery / 4) * 100);
+      lines.push(`- **${p.skillLabel}** (${DOMAIN_LABELS[p.domain] || p.domain}) — maîtrise actuelle : ${masteryPct}%`);
+    }
+    lines.push('');
+  }
+
+  // Micro-plan adapté EDS/niveau
+  lines.push(`## 📅 Ton micro-plan d'entraînement`);
   lines.push('');
-  lines.push(`1. **15 min/jour** : exercices d'automatismes sans calculatrice`);
-  lines.push(`2. **20 min/jour** : reprendre 1 compétence prioritaire`);
-  lines.push(`3. **1 sujet type** par semaine en conditions d'examen`);
+  if (ctx.discipline === 'nsi') {
+    lines.push(`**⏱ 5 min** : relire 1 fiche mémo (structure de données, complexité, ou SQL)`);
+    lines.push(`**⏱ 15 min** : résoudre 1 exercice de code ou 1 requête SQL sur papier`);
+    lines.push(`**⏱ 30 min** : implémenter 1 algorithme complet (tri, parcours, ou requête multi-tables)`);
+  } else {
+    lines.push(`**⏱ 5 min** : 3 calculs d'automatismes sans calculatrice`);
+    lines.push(`**⏱ 15 min** : reprendre 1 compétence prioritaire (exercice type)`);
+    lines.push(`**⏱ 30 min** : 1 exercice complet en conditions d'examen (rédaction soignée)`);
+  }
+  lines.push('');
+  lines.push(`> Adapte ce plan à ton rythme : l'important est la **régularité**, pas la durée.`);
   lines.push('');
 
   // Alerts
@@ -173,11 +233,13 @@ export function renderParentsBilan(
 ): string {
   const lines: string[] = [];
 
-  lines.push(`# Rapport de Positionnement — Mathématiques`);
+  const disc = disciplineLabel(ctx.discipline);
+  const lvl = levelLabel(ctx.level);
+  lines.push(`# Rapport de Positionnement — ${disc}`);
   lines.push('');
   lines.push(enrichment?.parentsIntro || `Madame, Monsieur,`);
   lines.push('');
-  lines.push(`Voici le bilan diagnostic de ${ctx.firstName} ${ctx.lastName} en mathématiques, réalisé dans le cadre de la préparation à l'épreuve anticipée 2026.`);
+  lines.push(`Voici le bilan diagnostic de ${ctx.firstName} ${ctx.lastName} en ${disc.toLowerCase()}, réalisé dans le cadre de la préparation à l'épreuve de ${lvl} 2026.`);
   lines.push('');
 
   // Synthèse globale (qualitative, pas de scores bruts)
@@ -256,7 +318,9 @@ export function renderParentsBilan(
   lines.push(`## Ce que le stage va apporter`);
   lines.push('');
   lines.push(`- Travail ciblé sur les lacunes identifiées`);
-  lines.push(`- Renforcement des automatismes pour l'épreuve sans calculatrice`);
+  lines.push(ctx.discipline === 'nsi'
+    ? `- Renforcement des compétences en programmation et algorithmique`
+    : `- Renforcement des automatismes pour l'épreuve sans calculatrice`);
   lines.push(`- Accompagnement méthodologique personnalisé`);
   if (scoring.quickWins.length > 0) {
     lines.push(`- Gains rapides identifiés : ${scoring.quickWins.map((q) => q.skillLabel).join(', ')}`);
@@ -318,6 +382,20 @@ export function renderNexusBilan(
   lines.push(`| RiskIndex | ${scoring.riskIndex}/100 |`);
   lines.push(`| Recommandation | ${scoring.recommendation} |`);
   lines.push('');
+
+  // Coverage programme
+  if (scoring.coverageProgramme) {
+    const cp = scoring.coverageProgramme;
+    lines.push(`## Couverture du programme`);
+    lines.push('');
+    lines.push(`| Métrique | Valeur |`);
+    lines.push(`|----------|--------|`);
+    lines.push(`| Chapitres vus | ${cp.seenChapters}/${cp.totalChapters} |`);
+    lines.push(`| Chapitres en cours | ${cp.inProgressChapters} |`);
+    lines.push(`| Ratio couverture | **${Math.round(cp.seenChapterRatio * 100)}%** |`);
+    lines.push(`| Skills évalués (chapitres vus) | ${Math.round(cp.evaluatedSkillRatio * 100)}% |`);
+    lines.push('');
+  }
 
   // Domain map
   lines.push(`## Cartographie par domaine`);
