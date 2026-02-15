@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skills-mapping-schema-v1.3",
+  "title": "Skills Mapping YAML Schema",
+  "description": "Validates the structure of *.skills.map.yml files used by compile_definitions.ts",
+  "type": "object",
+  "required": ["programmeKey", "definitionKey", "schemaVersion", "label", "discipline", "level", "domains"],
+  "properties": {
+    "programmeKey": {
+      "type": "string",
+      "enum": ["maths_premiere", "maths_terminale", "nsi_premiere", "nsi_terminale"]
+    },
+    "definitionKey": {
+      "type": "string",
+      "pattern": "^[a-z]+-[a-z]+-p[0-9]+$"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["v1.2", "v1.3"]
+    },
+    "label": {
+      "type": "string",
+      "minLength": 10
+    },
+    "discipline": {
+      "type": "string",
+      "enum": ["maths", "nsi"]
+    },
+    "level": {
+      "type": "string",
+      "enum": ["premiere", "terminale"]
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["domainId", "domainLabel", "weight", "skills"],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "pattern": "^[a-z_]+$"
+          },
+          "domainLabel": {
+            "type": "string",
+            "minLength": 3
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 0.50
+          },
+          "fromCandidates": {
+            "type": "object",
+            "properties": {
+              "include": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "exclude": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["skillId", "label"],
+              "properties": {
+                "skillId": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]+$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 3
+                },
+                "mergeFrom": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Candidate labels merged into this skill"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

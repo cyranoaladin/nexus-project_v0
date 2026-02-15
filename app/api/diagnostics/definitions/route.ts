@@ -44,6 +44,8 @@ export async function GET(request: Request) {
         version: def.version,
         stage: def.stage,
         domains,
+        examFormat: def.examFormat ?? null,
+        riskFactors: def.riskModel?.factors ?? [],
       });
     }
 

@@ -117,4 +117,15 @@ Génère une fiche pédagogique pour l'ÉQUIPE NEXUS en Markdown.
     maxQueries: 4,
     topK: 2,
   },
+
+  riskModel: {
+    factors: ['Calcul sans calculatrice', 'Rigueur rédactionnelle', 'Gestion du temps', 'Justification', 'Stress'],
+  },
+
+  examFormat: {
+    duration: 120,
+    calculatorAllowed: false,
+    structure: '6 pts automatismes + 14 pts exercices',
+    totalPoints: 20,
+  },
 };
