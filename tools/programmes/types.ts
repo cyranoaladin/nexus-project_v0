@@ -55,6 +55,9 @@ export interface CompiledDefinitionPayload {
       skillId: string;
       skillLabel: string;
       tags?: string[];
+      chapterId?: string;
+      prerequisite?: boolean;
+      prerequisiteLevel?: 'core' | 'recommended';
     }>;
   }>;
   chapters?: Array<{
@@ -63,5 +66,6 @@ export interface CompiledDefinitionPayload {
     description: string;
     domainId: string;
     skills: string[];
+    ragTopics?: string[];
   }>;
 }

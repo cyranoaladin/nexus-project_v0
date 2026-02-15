@@ -36,6 +36,9 @@ interface MappingYaml {
       skillId: string;
       label: string;
       tags?: string[];
+      chapterId?: string;
+      prerequisite?: boolean;
+      prerequisiteLevel?: 'core' | 'recommended';
     }>;
   }>;
   chapters?: Array<{
@@ -44,6 +47,7 @@ interface MappingYaml {
     description: string;
     domainId: string;
     skills: string[];
+    ragTopics?: string[];
   }>;
 }
 
@@ -134,6 +138,9 @@ function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
         skillId: s.skillId,
         skillLabel: s.label,
         tags: s.tags,
+        chapterId: s.chapterId,
+        prerequisite: s.prerequisite,
+        prerequisiteLevel: s.prerequisiteLevel,
       })),
     })),
     chapters: mapping.chapters?.map((ch) => ({
@@ -142,6 +149,7 @@ function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
       description: ch.description,
       domainId: ch.domainId,
       skills: ch.skills,
+      ragTopics: ch.ragTopics,
     })),
   };
 }
