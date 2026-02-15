@@ -18,16 +18,19 @@ import { useState } from "react";
 import { toast, Toaster } from "sonner";
 import { track } from "@/lib/analytics";
 
-interface CompetencyItem {
-  skillId: string;
-  skillLabel: string;
-  status: "studied" | "in_progress" | "not_studied" | "unknown";
-  mastery: number | null;
-  confidence: number | null;
-  friction: number | null;
-  errorTypes: string[];
-  evidence: string;
-}
+import {
+  createCompetency,
+  CompetencyItem,
+  SKILLS_BY_TRACK,
+  DOMAIN_LABELS,
+  LEARNING_STYLES,
+  PROBLEM_REFLUX,
+  TARGET_MENTIONS,
+  POSTBAC,
+  FEELINGS,
+  ERROR_LABELS,
+  ERROR_ENUM
+} from "@/lib/diagnostics/skills-data";
 
 interface FormData {
   version: string;
@@ -113,132 +116,8 @@ interface FormData {
   };
 }
 
-const ERROR_ENUM = ["cours", "methode", "calcul", "signe", "raisonnement", "redaction", "temps", "stress", "lecture", "attention"];
-
-const createCompetency = (skillId: string, skillLabel: string): CompetencyItem => ({
-  skillId,
-  skillLabel,
-  status: "studied",
-  mastery: 2,
-  confidence: 2,
-  friction: 1,
-  errorTypes: [],
-  evidence: ""
-});
-
-const ALGEBRA_SKILLS = [
-  { id: "ALG_SUITE_ARITH", label: "Suites arithmétiques (u_n, somme)" },
-  { id: "ALG_SUITE_GEO", label: "Suites géométriques (u_n, somme)" },
-  { id: "ALG_SUITE_VARIATION", label: "Variation d'une suite" },
-  { id: "ALG_SUITE_CONV", label: "Convergence/divergence" },
-  { id: "ALG_MODEL_EXP", label: "Modélisation exponentielle" },
-  { id: "ALG_QUADRATIC_EQ", label: "Second degré (équations)" },
-  { id: "ALG_QUADRATIC_CANON", label: "Forme canonique" },
-  { id: "ALG_FACTORIZATION", label: "Factorisations stratégiques" }
-];
-
-const ANALYSIS_SKILLS = [
-  { id: "ANA_DERIV_DEF", label: "Nombre dérivé (sens + calcul)" },
-  { id: "ANA_DERIV_RULES", label: "Règles de dérivation" },
-  { id: "ANA_DERIV_CHAIN", label: "Dérivation composées" },
-  { id: "ANA_VARIATIONS", label: "Tableau de variations" },
-  { id: "ANA_OPTIMIZATION", label: "Extremum/optimisation" },
-  { id: "ANA_EXP", label: "Exponentielle" },
-  { id: "ANA_TRIG", label: "Trigonométrie" }
-];
-
-const GEOMETRY_SKILLS = [
-  { id: "GEO_DOT_PRODUCT", label: "Produit scalaire" },
-  { id: "GEO_AL_KASHI", label: "Al-Kashi" },
-  { id: "GEO_MEDIAN_FORMULA", label: "Formule de la médiane" },
-  { id: "GEO_ORTHOGONALITY", label: "Orthogonalité" },
-  { id: "GEO_LINE_EQUATION", label: "Équation de droite" },
-  { id: "GEO_CIRCLE_EQUATION", label: "Équation de cercle" },
-  { id: "GEO_PROJECTION", label: "Projeté orthogonal" },
-  { id: "GEO_DISTANCE_POINT_LINE", label: "Distance point-droite" }
-];
-
-const PROBABILITY_SKILLS = [
-  { id: "PROB_CONDITIONAL", label: "Conditionnelles P_A(B)" },
-  { id: "PROB_INDEPENDENCE", label: "Indépendance" },
-  { id: "PROB_TREE", label: "Arbre pondéré" },
-  { id: "PROB_TOTAL", label: "Probabilités totales" },
-  { id: "PROB_RANDOM_VAR", label: "Variable aléatoire/espérance" }
-];
-
-const PYTHON_SKILLS = [
-  { id: "PY_FUNC", label: "Fonctions Python" },
-  { id: "PY_LOOPS", label: "Boucles for/while" },
-  { id: "PY_LISTS", label: "Listes" },
-  { id: "PY_SEQ_SIM", label: "Suites algorithmique" },
-  { id: "PY_MONTE_CARLO", label: "Simulation Monte-Carlo" }
-];
-
-const TERMINAL_SKILLS = [
-  { id: "TLE_LIMITS", label: "Limites & continuité" },
-  { id: "TLE_LOG", label: "Logarithme ln" },
-  { id: "TLE_DERIV_ADV", label: "Dérivation avancée" },
-  { id: "TLE_SPACE_GEO", label: "Géométrie 3D" },
-  { id: "TLE_RECURRENCE", label: "Récurrence" },
-  { id: "TLE_SUMS", label: "Sommes/séries" },
-  { id: "TLE_INTEGRATION", label: "Primitives/intégrales" },
-  { id: "TLE_BINOMIAL", label: "Loi binomiale approfondie" }
-];
-
-const LEARNING_STYLES = [
-  { value: "theoretical", label: "Théorie/démo" },
-  { value: "practice", label: "Pratique" },
-  { value: "visual", label: "Visualisation" },
-  { value: "concrete", label: "Exemples" },
-  { value: "exploratory", label: "Recherche" },
-  { value: "oral", label: "Oral" }
-];
-
-const PROBLEM_REFLUX = [
-  { value: "persevere", label: "Je persévère" },
-  { value: "course", label: "Je reviens au cours" },
-  { value: "similarExample", label: "Je cherche un exemple" },
-  { value: "askHelp", label: "Je demande aide" },
-  { value: "giveUp", label: "J'abandonne" },
-  { value: "reread", label: "Je relis" }
-];
-
-const TARGET_MENTIONS = [
-  { value: "bien", label: "Bien" },
-  { value: "tres_bien", label: "Très Bien" },
-  { value: "felicitations", label: "Félicitations" },
-  { value: "unknown", label: "Non défini" }
-];
-
-const POSTBAC = [
-  { value: "mpsi", label: "MPSI" },
-  { value: "mp2i", label: "MP2I" },
-  { value: "pcsi", label: "PCSI" },
-  { value: "university", label: "Université" },
-  { value: "engineering", label: "École ingé" },
-  { value: "other", label: "Autre" },
-  { value: "unknown", label: "?" }
-];
-
-const FEELINGS = [
-  { value: "confident", label: "Confiant" },
-  { value: "neutral", label: "Neutre" },
-  { value: "difficulty", label: "Difficulté" },
-  { value: "panic", label: "Panique" }
-];
-
-const ERROR_LABELS = [
-  { value: "cours", label: "Cours" },
-  { value: "methode", label: "Méthode" },
-  { value: "calcul", label: "Calcul" },
-  { value: "signe", label: "Signe" },
-  { value: "raisonnement", label: "Raisonnement" },
-  { value: "redaction", label: "Rédaction" },
-  { value: "temps", label: "Temps" },
-  { value: "stress", label: "Stress" },
-  { value: "lecture", label: "Lecture" },
-  { value: "attention", label: "Attention" }
-];
+// Re-export specific constants if used elsewhere or keep local aliases if needed
+// For now, we use them directly from the import
 
 function LevelSelector({ value, onChange, max = 4, disabled = false }: { value: number; onChange: (val: number) => void; max?: number; disabled?: boolean }) {
   return (
@@ -314,12 +193,12 @@ export default function BilanPallier2MathsPage() {
     performance: { generalAverage: "", mathAverage: "", lastTestScore: "", classRanking: "" },
     chapters: { chaptersStudied: "", chaptersInProgress: "", chaptersNotYet: "" },
     competencies: {
-      algebra: ALGEBRA_SKILLS.map(s => createCompetency(s.id, s.label)),
-      analysis: ANALYSIS_SKILLS.map(s => createCompetency(s.id, s.label)),
-      geometry: GEOMETRY_SKILLS.map(s => createCompetency(s.id, s.label)),
-      probabilities: PROBABILITY_SKILLS.map(s => createCompetency(s.id, s.label)),
-      python: PYTHON_SKILLS.map(s => createCompetency(s.id, s.label)),
-      terminalAnticipation: TERMINAL_SKILLS.map(s => createCompetency(s.id, s.label))
+      algebra: SKILLS_BY_TRACK['eds_maths_1ere'].algebra.map(s => createCompetency(s.id, s.label)),
+      analysis: SKILLS_BY_TRACK['eds_maths_1ere'].analysis.map(s => createCompetency(s.id, s.label)),
+      geometry: SKILLS_BY_TRACK['eds_maths_1ere'].geometry.map(s => createCompetency(s.id, s.label)),
+      probabilities: SKILLS_BY_TRACK['eds_maths_1ere'].probabilities.map(s => createCompetency(s.id, s.label)),
+      python: SKILLS_BY_TRACK['eds_maths_1ere'].python.map(s => createCompetency(s.id, s.label)),
+      terminalAnticipation: SKILLS_BY_TRACK['eds_maths_1ere'].terminalAnticipation.map(s => createCompetency(s.id, s.label))
     },
     openQuestions: { algebraUnderstanding: "", canDemonstrateProductRule: "", probabilityQuestion: "", hardestAnalysisChapter: "", geometryMixedExercise: "" },
     examPrep: {
@@ -337,7 +216,25 @@ export default function BilanPallier2MathsPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const updateIdentity = (f: keyof FormData["identity"], v: string) => setFormData(p => ({ ...p, identity: { ...p.identity, [f]: v } }));
-  const updateSchool = (f: keyof FormData["schoolContext"], v: string) => setFormData(p => ({ ...p, schoolContext: { ...p.schoolContext, [f]: v } }));
+  const updateSchool = (f: keyof FormData["schoolContext"], v: string) => {
+    setFormData(p => {
+      const newData = { ...p, schoolContext: { ...p.schoolContext, [f]: v } };
+
+      // If updating mathTrack, reset competencies based on new track
+      if (f === 'mathTrack' && SKILLS_BY_TRACK[v]) {
+        const skills = SKILLS_BY_TRACK[v];
+        newData.competencies = {
+          algebra: skills.algebra.map(s => createCompetency(s.id, s.label)),
+          analysis: skills.analysis.map(s => createCompetency(s.id, s.label)),
+          geometry: skills.geometry.map(s => createCompetency(s.id, s.label)),
+          probabilities: skills.probabilities.map(s => createCompetency(s.id, s.label)),
+          python: skills.python.map(s => createCompetency(s.id, s.label)),
+          terminalAnticipation: skills.terminalAnticipation.map(s => createCompetency(s.id, s.label))
+        };
+      }
+      return newData;
+    });
+  };
   const updatePerf = (f: keyof FormData["performance"], v: string) => setFormData(p => ({ ...p, performance: { ...p.performance, [f]: v } }));
   const updateChapter = (f: keyof FormData["chapters"], v: string) => setFormData(p => ({ ...p, chapters: { ...p.chapters, [f]: v } }));
   const updateOpenQ = (f: keyof FormData["openQuestions"], v: string) => setFormData(p => ({ ...p, openQuestions: { ...p.openQuestions, [f]: v } }));
@@ -402,7 +299,7 @@ export default function BilanPallier2MathsPage() {
       const result = await response.json();
       if (response.ok) { track.bilanPallier2Success(result.id); router.push(`/bilan-pallier2-maths/confirmation?id=${result.id}&share=${result.publicShareId || result.id}`); }
       else { track.bilanPallier2Error(result.error); toast.error(result.error); }
-    } catch { toast.error("Erreur lors de la soumission"); } 
+    } catch { toast.error("Erreur lors de la soumission"); }
     finally { setIsSubmitting(false); }
   };
 
@@ -421,8 +318,8 @@ export default function BilanPallier2MathsPage() {
             <p className="text-slate-300">Votre positionnement personnalisé en mathématiques — Préparation épreuve anticipée 2026</p>
           </motion.div>
           <div className="mb-6">
-            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{totalSteps}</span><span className="text-slate-400">{Math.round((currentStep/totalSteps)*100)}%</span></div>
-            <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep/totalSteps)*100}%` }} /></div>
+            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{totalSteps}</span><span className="text-slate-400">{Math.round((currentStep / totalSteps) * 100)}%</span></div>
+            <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
             <div className="flex justify-center gap-2 mt-4 flex-wrap">
               {Array.from({ length: totalSteps }, (_, i) => i + 1).map(s => (
                 <button key={s} onClick={() => setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-400"}`}>
@@ -430,7 +327,7 @@ export default function BilanPallier2MathsPage() {
                 </button>
               ))}
             </div>
-            <h2 className="text-xl font-semibold text-white text-center mt-4">{stepTitles[currentStep-1]}</h2>
+            <h2 className="text-xl font-semibold text-white text-center mt-4">{stepTitles[currentStep - 1]}</h2>
           </div>
           <AnimatePresence mode="wait">
             {currentStep === 1 && (
@@ -448,7 +345,7 @@ export default function BilanPallier2MathsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div><Label className="text-slate-200">Établissement</Label><Input value={formData.schoolContext.establishment} onChange={e => updateSchool("establishment", e.target.value)} className="bg-white/5 border-white/10" /></div>
-                      <div><Label className="text-slate-200">Filière</Label><Select value={formData.schoolContext.mathTrack} onValueChange={v => updateSchool("mathTrack", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="..."/></SelectTrigger><SelectContent><SelectItem value="specialite">Spécialité</SelectItem><SelectItem value="option">Option</SelectItem><SelectItem value="renforce">Renforcée</SelectItem><SelectItem value="unknown">?</SelectItem></SelectContent></Select></div>
+                      <div><Label className="text-slate-200">EDS / Niveau</Label><Select value={formData.schoolContext.mathTrack} onValueChange={v => updateSchool("mathTrack", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="Sélectionnez..." /></SelectTrigger><SelectContent><SelectItem value="eds_maths_1ere">EDS Maths / Première</SelectItem><SelectItem value="eds_maths_tle">EDS Maths / Terminale</SelectItem><SelectItem value="eds_nsi_1ere">EDS NSI / Première</SelectItem><SelectItem value="eds_nsi_tle">EDS NSI / Terminale</SelectItem></SelectContent></Select></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -475,29 +372,37 @@ export default function BilanPallier2MathsPage() {
             {currentStep === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                 {[
-                  { key: "algebra", title: "Algèbre & Suites", icon: Sigma, skills: ALGEBRA_SKILLS },
-                  { key: "analysis", title: "Analyse & Dérivation", icon: TrendingUp, skills: ANALYSIS_SKILLS },
-                  { key: "geometry", title: "Géométrie", icon: Calculator, skills: GEOMETRY_SKILLS },
-                  { key: "probabilities", title: "Probabilités", icon: BarChart3, skills: PROBABILITY_SKILLS },
-                  { key: "python", title: "Python", icon: Code2, skills: PYTHON_SKILLS }
-                ].map(domain => (
-                  <Card key={domain.key} className="border-white/10 bg-white/5">
-                    <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><domain.icon className="w-4 h-4 mr-2 text-brand-accent" />{domain.title}</CardTitle></CardHeader>
-                    <CardContent className="py-2">
-                      <div className="text-xs text-slate-500 mb-2 flex gap-2"><span className="w-[90px]">Statut</span><span className="flex-1 min-w-[140px]">Compétence</span><span className="w-24">Maîtrise</span></div>
-                      {formData.competencies[domain.key as keyof FormData["competencies"]].map((comp, idx) => (
-                        <CompetencyRow key={comp.skillId} competency={comp} onUpdate={(f, v) => updateCompetency(domain.key as keyof FormData["competencies"], idx, f, v)} />
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
+                  { key: "algebra", icon: Sigma },
+                  { key: "analysis", icon: TrendingUp },
+                  { key: "geometry", icon: Calculator },
+                  { key: "probabilities", icon: BarChart3 },
+                  { key: "python", icon: Code2 }
+                ].map(domain => {
+                  const trackKey = formData.schoolContext.mathTrack || 'eds_maths_1ere';
+                  const labels = DOMAIN_LABELS[trackKey] || DOMAIN_LABELS['eds_maths_1ere'];
+                  const title = labels[domain.key] || domain.key;
+                  // Only render if there are skills in this domain
+                  if (formData.competencies[domain.key as keyof FormData["competencies"]].length === 0) return null;
+
+                  return (
+                    <Card key={domain.key} className="border-white/10 bg-white/5">
+                      <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><domain.icon className="w-4 h-4 mr-2 text-brand-accent" />{title}</CardTitle></CardHeader>
+                      <CardContent className="py-2">
+                        <div className="text-xs text-slate-500 mb-2 flex gap-2"><span className="w-[90px]">Statut</span><span className="flex-1 min-w-[140px]">Compétence</span><span className="w-24">Maîtrise</span></div>
+                        {formData.competencies[domain.key as keyof FormData["competencies"]].map((comp, idx) => (
+                          <CompetencyRow key={comp.skillId} competency={comp} onUpdate={(f, v) => updateCompetency(domain.key as keyof FormData["competencies"], idx, f, v)} />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
                 <Card className="border-white/10 bg-white/5">
                   <CardHeader className="py-3"><CardTitle className="flex items-center text-white text-sm"><FileText className="w-4 h-4 mr-2 text-brand-accent" />Questions ouvertes</CardTitle></CardHeader>
                   <CardContent className="space-y-4 py-2">
                     <div><Label className="text-slate-200 block mb-2">2 chapitres compris + 2 chapitres mécaniques/flous</Label><Textarea value={formData.openQuestions.algebraUnderstanding} onChange={e => updateOpenQ("algebraUnderstanding", e.target.value)} className="bg-white/5 border-white/10" placeholder="Ex: Je comprends vraiment les suites arithmétiques et le second degré. Par contre, la trigonométrie et les dérivées composées restent mécaniques..." /></div>
-                    <div><Label className="text-slate-200 block mb-2">Savez-vous démontrer (u·v)&apos; = u&apos;v + uv&apos; ?</Label><Select value={formData.openQuestions.canDemonstrateProductRule} onValueChange={v => updateOpenQ("canDemonstrateProductRule", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="..."/></SelectTrigger><SelectContent><SelectItem value="yes">Oui</SelectItem><SelectItem value="partially">Partiellement</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="not_seen">Non vu</SelectItem></SelectContent></Select></div>
+                    <div><Label className="text-slate-200 block mb-2">Savez-vous démontrer (u·v)&apos; = u&apos;v + uv&apos; ?</Label><Select value={formData.openQuestions.canDemonstrateProductRule} onValueChange={v => updateOpenQ("canDemonstrateProductRule", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="..." /></SelectTrigger><SelectContent><SelectItem value="yes">Oui</SelectItem><SelectItem value="partially">Partiellement</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="not_seen">Non vu</SelectItem></SelectContent></Select></div>
                     <div><Label className="text-slate-200 block mb-2">Quel point est le plus difficile en analyse ?</Label><Textarea value={formData.openQuestions.hardestAnalysisChapter} onChange={e => updateOpenQ("hardestAnalysisChapter", e.target.value)} className="bg-white/5 border-white/10" placeholder="Ex: L'optimisation, je ne sais jamais quand utiliser la dérivée..." /></div>
-                    <div><Label className="text-slate-200 block mb-2">Exercice mixte PS + analytique + optimisation déjà résolu ?</Label><Select value={formData.openQuestions.geometryMixedExercise} onValueChange={v => updateOpenQ("geometryMixedExercise", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="..."/></SelectTrigger><SelectContent><SelectItem value="yes_alone">Oui seul</SelectItem><SelectItem value="yes_with_help">Avec aide</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="not_seen">Non vu</SelectItem></SelectContent></Select></div>
+                    <div><Label className="text-slate-200 block mb-2">Exercice mixte PS + analytique + optimisation déjà résolu ?</Label><Select value={formData.openQuestions.geometryMixedExercise} onValueChange={v => updateOpenQ("geometryMixedExercise", v)}><SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="..." /></SelectTrigger><SelectContent><SelectItem value="yes_alone">Oui seul</SelectItem><SelectItem value="yes_with_help">Avec aide</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="not_seen">Non vu</SelectItem></SelectContent></Select></div>
                     <div><Label className="text-slate-200 block mb-2">Expliquez la différence entre P_A(B) et P_B(A) + exemple</Label><Textarea value={formData.openQuestions.probabilityQuestion} onChange={e => updateOpenQ("probabilityQuestion", e.target.value)} className="bg-white/5 border-white/10" placeholder="Ex: P_A(B) c'est la probabilité de B sachant que A est réalisé..." /></div>
                   </CardContent>
                 </Card>
@@ -522,8 +427,8 @@ export default function BilanPallier2MathsPage() {
                   <CardContent className="space-y-4">
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm text-blue-200"><strong>Rappel :</strong> 2h sans calculatrice • 6 pts automatismes + 14 pts exercices</div>
                     <div className="grid grid-cols-3 gap-4">
-                      <div><Label className="text-slate-300">Score /6</Label><Input type="number" min={0} max={6} value={formData.examPrep.miniTest.score} onChange={e => updateExamPrep("miniTest", "score", parseInt(e.target.value)||0)} className="bg-white/5 border-white/10" /></div>
-                      <div><Label className="text-slate-300">Temps (min)</Label><Input type="number" value={formData.examPrep.miniTest.timeUsedMinutes} onChange={e => updateExamPrep("miniTest", "timeUsedMinutes", parseInt(e.target.value)||0)} className="bg-white/5 border-white/10" /></div>
+                      <div><Label className="text-slate-300">Score /6</Label><Input type="number" min={0} max={6} value={formData.examPrep.miniTest.score} onChange={e => updateExamPrep("miniTest", "score", parseInt(e.target.value) || 0)} className="bg-white/5 border-white/10" /></div>
+                      <div><Label className="text-slate-300">Temps (min)</Label><Input type="number" value={formData.examPrep.miniTest.timeUsedMinutes} onChange={e => updateExamPrep("miniTest", "timeUsedMinutes", parseInt(e.target.value) || 0)} className="bg-white/5 border-white/10" /></div>
                       <div className="flex items-center gap-2 pt-6"><Checkbox checked={formData.examPrep.miniTest.completedInTime === true} onCheckedChange={c => updateExamPrep("miniTest", "completedInTime", c)} /><Label className="text-slate-300">Terminé ?</Label></div>
                     </div>
                     <div className="grid grid-cols-5 gap-2">
@@ -531,10 +436,10 @@ export default function BilanPallier2MathsPage() {
                         <div key={item.k}><Label className="text-slate-300 text-xs">{item.l}</Label><div className="mt-1"><LevelSelector value={formData.examPrep.selfRatings[item.k as keyof typeof formData.examPrep.selfRatings]} onChange={v => updateExamPrep("selfRatings", item.k, v)} /></div></div>
                       ))}
                     </div>
-                    <div><Label className="text-slate-200">Items difficiles</Label><div className="flex gap-2 mt-1">{[1,2,3,4,5,6].map(n => <div key={n} className="flex items-center gap-1"><Checkbox checked={formData.examPrep.signals.hardestItems.includes(n)} onCheckedChange={c => updateExamPrep("signals", "hardestItems", c ? [...formData.examPrep.signals.hardestItems, n] : formData.examPrep.signals.hardestItems.filter(x => x !== n))} /><Label>{n}</Label></div>)}</div></div>
-                    <div><Label className="text-slate-200">Erreur dominante</Label><Select value={formData.examPrep.signals.dominantErrorType} onValueChange={v => updateExamPrep("signals", "dominantErrorType", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{ERROR_LABELS.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent></Select></div>
-                    <div><Label className="text-slate-200">Ressenti</Label><Select value={formData.examPrep.signals.feeling} onValueChange={v => updateExamPrep("signals", "feeling", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{FEELINGS.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent></Select></div>
-                    <div><Label className="text-slate-200">Avez-vous travaillé sur des sujets zéro ?</Label><Select value={formData.examPrep.zeroSubjects} onValueChange={v => updateExamPrep("root", "zeroSubjects", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent><SelectItem value="yes_multiple">Oui, plusieurs</SelectItem><SelectItem value="yes_one">Oui, un</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="dont_know">Je ne connais pas</SelectItem></SelectContent></Select></div>
+                    <div><Label className="text-slate-200">Items difficiles</Label><div className="flex gap-2 mt-1">{[1, 2, 3, 4, 5, 6].map(n => <div key={n} className="flex items-center gap-1"><Checkbox checked={formData.examPrep.signals.hardestItems.includes(n)} onCheckedChange={c => updateExamPrep("signals", "hardestItems", c ? [...formData.examPrep.signals.hardestItems, n] : formData.examPrep.signals.hardestItems.filter(x => x !== n))} /><Label>{n}</Label></div>)}</div></div>
+                    <div><Label className="text-slate-200">Erreur dominante</Label><Select value={formData.examPrep.signals.dominantErrorType} onValueChange={v => updateExamPrep("signals", "dominantErrorType", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{ERROR_LABELS.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent></Select></div>
+                    <div><Label className="text-slate-200">Ressenti</Label><Select value={formData.examPrep.signals.feeling} onValueChange={v => updateExamPrep("signals", "feeling", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{FEELINGS.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}</SelectContent></Select></div>
+                    <div><Label className="text-slate-200">Avez-vous travaillé sur des sujets zéro ?</Label><Select value={formData.examPrep.zeroSubjects} onValueChange={v => updateExamPrep("root", "zeroSubjects", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent><SelectItem value="yes_multiple">Oui, plusieurs</SelectItem><SelectItem value="yes_one">Oui, un</SelectItem><SelectItem value="no">Non</SelectItem><SelectItem value="dont_know">Je ne connais pas</SelectItem></SelectContent></Select></div>
                     <div><Label className="text-slate-200">Risque principal</Label><Textarea value={formData.examPrep.mainRisk} onChange={e => updateExamPrep("root", "mainRisk", e.target.value)} className="bg-white/5 border-white/10" placeholder="Votre risque principal pour l'épreuve..." /></div>
                   </CardContent>
                 </Card>
@@ -546,12 +451,12 @@ export default function BilanPallier2MathsPage() {
                   <CardHeader><CardTitle className="flex items-center text-white"><BrainCircuit className="w-5 h-5 mr-2 text-brand-accent" />Méthodologie</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div><Label className="text-slate-200">Compréhension</Label><Select value={formData.methodology.learningStyle} onValueChange={v => updateMethod("learningStyle", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{LEARNING_STYLES.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent></Select></div>
-                      <div><Label className="text-slate-200">Blocage</Label><Select value={formData.methodology.problemReflex} onValueChange={v => updateMethod("problemReflex", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{PROBLEM_REFLUX.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent></Select></div>
+                      <div><Label className="text-slate-200">Compréhension</Label><Select value={formData.methodology.learningStyle} onValueChange={v => updateMethod("learningStyle", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{LEARNING_STYLES.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent></Select></div>
+                      <div><Label className="text-slate-200">Blocage</Label><Select value={formData.methodology.problemReflex} onValueChange={v => updateMethod("problemReflex", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{PROBLEM_REFLUX.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent></Select></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div><Label className="text-slate-200">Travail hebdo</Label><Input value={formData.methodology.weeklyWork} onChange={e => updateMethod("weeklyWork", e.target.value)} className="bg-white/5 border-white/10 mt-1" placeholder="3h" /></div>
-                      <div><Label className="text-slate-200">Concentration</Label><Select value={formData.methodology.maxConcentration} onValueChange={v => updateMethod("maxConcentration", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="30min">30 min</SelectItem><SelectItem value="1h">1h</SelectItem><SelectItem value="1h30">1h30</SelectItem><SelectItem value="2h">2h</SelectItem><SelectItem value="3h+">3h+</SelectItem></SelectContent></Select></div>
+                      <div><Label className="text-slate-200">Concentration</Label><Select value={formData.methodology.maxConcentration} onValueChange={v => updateMethod("maxConcentration", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="30min">30 min</SelectItem><SelectItem value="1h">1h</SelectItem><SelectItem value="1h30">1h30</SelectItem><SelectItem value="2h">2h</SelectItem><SelectItem value="3h+">3h+</SelectItem></SelectContent></Select></div>
                     </div>
                     <div><Label className="text-slate-200">Erreurs fréquentes</Label><div className="flex flex-wrap gap-2 mt-1">{ERROR_LABELS.map(e => (<div key={e.value} className="flex items-center gap-1"><Checkbox checked={formData.methodology.errorTypes.includes(e.value)} onCheckedChange={c => updateMethod("errorTypes", c ? [...formData.methodology.errorTypes, e.value] : formData.methodology.errorTypes.filter(x => x !== e.value))} /><Label className="text-xs">{e.label}</Label></div>))}</div></div>
                   </CardContent>
@@ -564,8 +469,8 @@ export default function BilanPallier2MathsPage() {
                   <CardHeader><CardTitle className="flex items-center text-white"><Lightbulb className="w-5 h-5 mr-2 text-brand-accent" />Ambition</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div><Label className="text-slate-200">Mention</Label><Select value={formData.ambition.targetMention} onValueChange={v => updateAmb("targetMention", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{TARGET_MENTIONS.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent></Select></div>
-                      <div><Label className="text-slate-200">Post-Bac</Label><Select value={formData.ambition.postBac} onValueChange={v => updateAmb("postBac", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..."/></SelectTrigger><SelectContent>{POSTBAC.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent></Select></div>
+                      <div><Label className="text-slate-200">Mention</Label><Select value={formData.ambition.targetMention} onValueChange={v => updateAmb("targetMention", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{TARGET_MENTIONS.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent></Select></div>
+                      <div><Label className="text-slate-200">Post-Bac</Label><Select value={formData.ambition.postBac} onValueChange={v => updateAmb("postBac", v)}><SelectTrigger className="bg-white/5 border-white/10 mt-1"><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{POSTBAC.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent></Select></div>
                     </div>
                     <div><Label className="text-slate-200">Rythme Pallier 2</Label><div className="flex gap-4 mt-1">{[{ v: "yes", l: "Oui" }, { v: "yes_but_irregular", l: "Oui mais" }, { v: "no", l: "Non" }, { v: "to_discuss", l: "À voir" }].map(o => (<div key={o.v} className="flex items-center gap-1"><Checkbox checked={formData.ambition.pallier2Pace === o.v} onCheckedChange={() => updateAmb("pallier2Pace", o.v)} /><Label>{o.l}</Label></div>))}</div></div>
                     <div><Label className="text-slate-200">À améliorer</Label><Textarea value={formData.freeText.mustImprove} onChange={e => updateFree("mustImprove", e.target.value)} className="bg-white/5 border-white/10 mt-1" /></div>
@@ -577,7 +482,7 @@ export default function BilanPallier2MathsPage() {
           </AnimatePresence>
           <div className="flex justify-between mt-8">
             <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>Précédent</Button>
-            {currentStep < totalSteps ? <Button onClick={nextStep} className="bg-brand-accent">Suivant</Button> : <Button onClick={onSubmit} disabled={isSubmitting} className="bg-green-600">{isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/>Envoi...</> : <><CheckCircle className="w-4 h-4 mr-2"/>Soumettre</>}</Button>}
+            {currentStep < totalSteps ? <Button onClick={nextStep} className="bg-brand-accent">Suivant</Button> : <Button onClick={onSubmit} disabled={isSubmitting} className="bg-green-600">{isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Envoi...</> : <><CheckCircle className="w-4 h-4 mr-2" />Soumettre</>}</Button>}
           </div>
         </div>
       </main>
