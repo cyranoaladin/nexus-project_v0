@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { scoringResultSchema, analysisJsonSchema, safeParse } from '@/lib/assessments/core/schemas';
 
 export async function GET(
   request: NextRequest,
@@ -56,7 +57,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(assessment);
+    // Validate JSON fields with Zod schemas (type-safe at runtime)
+    const scoringResult = safeParse(scoringResultSchema, assessment.scoringResult);
+    const analysisJson = safeParse(analysisJsonSchema, assessment.analysisJson);
+
+    return NextResponse.json({
+      ...assessment,
+      scoringResult: scoringResult ?? assessment.scoringResult,
+      analysisJson: analysisJson ?? assessment.analysisJson,
+    });
   } catch (error) {
     console.error('[Assessment Result] Error:', error);
 
