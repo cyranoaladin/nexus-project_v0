@@ -44,6 +44,13 @@ export async function GET(request: Request) {
         version: def.version,
         stage: def.stage,
         domains,
+        chapters: (def.chapters ?? []).map((ch) => ({
+          chapterId: ch.chapterId,
+          chapterLabel: ch.chapterLabel,
+          description: ch.description,
+          domainId: ch.domainId,
+          skills: ch.skills,
+        })),
         examFormat: def.examFormat ?? null,
         riskFactors: def.riskModel?.factors ?? [],
       });

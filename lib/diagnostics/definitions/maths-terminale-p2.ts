@@ -3,7 +3,7 @@
  * Version: v1.3 — Domains loaded from compiled JSON (CdC §3.2)
  */
 
-import type { DiagnosticDefinition } from '../types';
+import type { DiagnosticDefinition, ChapterDefinition } from '../types';
 import compiledDomains from './generated/maths-terminale-p2.domains.json';
 
 /** Build skills record from compiled domains */
@@ -37,6 +37,7 @@ export const MATHS_TERMINALE_P2: DiagnosticDefinition = {
   stage: 'pallier2',
 
   skills: buildSkills(),
+  chapters: (compiledDomains.chapters ?? []) as ChapterDefinition[],
 
   scoringPolicy: {
     domainWeights: buildWeights(),

@@ -57,4 +57,11 @@ export interface CompiledDefinitionPayload {
       tags?: string[];
     }>;
   }>;
+  chapters?: Array<{
+    chapterId: string;
+    chapterLabel: string;
+    description: string;
+    domainId: string;
+    skills: string[];
+  }>;
 }
