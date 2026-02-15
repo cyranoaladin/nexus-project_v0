@@ -1,6 +1,6 @@
 jest.mock('next/server', () => ({
   NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
+    json: (body: any, init?: { status?: number; headers?: Record<string, string> }) => ({
       status: init?.status,
       body,
       headers: init?.headers,
