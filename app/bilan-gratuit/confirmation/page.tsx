@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function ConfirmationPage() {
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
 
       <main className="py-20">
@@ -35,7 +35,7 @@ export default function ConfirmationPage() {
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0 }}
-              className="font-display text-3xl md:text-4xl font-bold text-neutral-900 mb-4"
+              className="font-display text-3xl md:text-4xl font-bold text-white mb-4"
             >
               Félicitations ! Votre Bilan est Créé
             </motion.h1>
@@ -44,7 +44,7 @@ export default function ConfirmationPage() {
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0 }}
-              className="text-xl text-neutral-600 mb-12 max-w-2xl mx-auto"
+              className="text-xl text-neutral-300 mb-12 max-w-2xl mx-auto"
             >
               Votre demande de bilan stratégique gratuit a été enregistrée avec succès.
               Notre équipe va analyser votre profil et vous contacter très prochainement.
@@ -57,37 +57,37 @@ export default function ConfirmationPage() {
               transition={{ duration: 0 }}
               className="grid md:grid-cols-3 gap-6 mb-12"
             >
-              <Card className="text-center">
+              <Card className="text-center bg-surface-card border border-white/10">
                 <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-full mb-4">
-                    <Clock className="w-6 h-6 text-primary-600" aria-hidden="true" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-accent/15 rounded-full mb-4">
+                    <Clock className="w-6 h-6 text-brand-accent" aria-hidden="true" />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Sous 24h</h3>
-                  <p className="text-neutral-600 text-sm">
+                  <h3 className="font-semibold text-lg mb-2 text-white">Sous 24h</h3>
+                  <p className="text-neutral-400 text-sm">
                     Notre équipe analyse votre profil et prépare votre bilan personnalisé
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="text-center">
+              <Card className="text-center bg-surface-card border border-white/10">
                 <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-secondary-100 rounded-full mb-4">
-                    <Phone className="w-6 h-6 text-secondary-600" aria-hidden="true" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-500/15 rounded-full mb-4">
+                    <Phone className="w-6 h-6 text-emerald-400" aria-hidden="true" />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Appel Découverte</h3>
-                  <p className="text-neutral-600 text-sm">
+                  <h3 className="font-semibold text-lg mb-2 text-white">Appel Découverte</h3>
+                  <p className="text-neutral-400 text-sm">
                     Un échange de 30 minutes pour comprendre vos besoins et présenter nos solutions
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="text-center">
+              <Card className="text-center bg-surface-card border border-white/10">
                 <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
-                    <CheckCircle className="w-6 h-6 text-green-600" aria-hidden="true" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-500/15 rounded-full mb-4">
+                    <CheckCircle className="w-6 h-6 text-purple-400" aria-hidden="true" />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Plan d'Action</h3>
-                  <p className="text-neutral-600 text-sm">
+                  <h3 className="font-semibold text-lg mb-2 text-white">Plan d'Action</h3>
+                  <p className="text-neutral-400 text-sm">
                     Nous vous proposons un plan personnalisé pour la réussite de votre enfant
                   </p>
                 </CardContent>
@@ -99,15 +99,15 @@ export default function ConfirmationPage() {
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0 }}
-              className="bg-blue-100 rounded-xl p-6 mb-8"
+              className="bg-brand-accent/10 border border-brand-accent/20 rounded-xl p-6 mb-8"
             >
               <div className="flex items-start space-x-3">
-                <Mail className="w-5 h-5 text-brand-primary mt-1" aria-hidden="true" />
+                <Mail className="w-5 h-5 text-brand-accent mt-1" aria-hidden="true" />
                 <div className="text-left">
-                  <h3 className="font-semibold text-slate-900 mb-2">
+                  <h3 className="font-semibold text-white mb-2">
                     Vérifiez votre boîte email
                   </h3>
-                  <p className="text-slate-800 text-sm">
+                  <p className="text-neutral-300 text-sm">
                     Un email de confirmation a été envoyé avec vos identifiants de connexion.
                     Si vous ne le trouvez pas, pensez à vérifier vos spams.
                   </p>
@@ -122,16 +122,16 @@ export default function ConfirmationPage() {
               transition={{ duration: 0 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <Button asChild size="lg" className="bg-blue-700 border-blue-700 text-white hover:bg-blue-800">
-                <Link href="/">
-                  Retour à l'Accueil
+              <Button asChild size="lg">
+                <Link href="/auth/signin">
+                  Se Connecter
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
 
-              <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  Nous Contacter
+              <Button asChild variant="outline" size="lg" className="border-white/20 text-neutral-100 hover:bg-white/10">
+                <Link href="/">
+                  Retour à l'Accueil
                 </Link>
               </Button>
             </motion.div>
@@ -141,15 +141,15 @@ export default function ConfirmationPage() {
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0 }}
-              className="mt-12 pt-8 border-t border-neutral-200"
+              className="mt-12 pt-8 border-t border-white/10"
             >
-              <p className="text-neutral-700 text-sm">
+              <p className="text-neutral-400 text-sm">
                 Une question urgente ? Contactez-nous directement au{' '}
-                <a href="tel:+21699192829" className="text-blue-700 font-medium hover:underline">
+                <a href="tel:+21699192829" className="text-brand-accent font-medium hover:underline">
                   +216 99 19 28 29
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-blue-700 font-medium hover:underline">
+                <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent font-medium hover:underline">
                   contact@nexusreussite.academy
                 </a>
               </p>
