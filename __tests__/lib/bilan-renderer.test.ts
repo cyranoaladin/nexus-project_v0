@@ -94,13 +94,13 @@ describe('renderEleveBilan', () => {
   it('should contain required sections', () => {
     const md = renderEleveBilan(buildScoring(), buildContext());
 
-    expect(md).toContain('# 📊 Mon Diagnostic Maths');
+    expect(md).toContain('# 📊 Mon Diagnostic Mathématiques');
     expect(md).toContain('## En résumé');
     expect(md).toContain('## ✅ Tes points forts');
     expect(md).toContain('## 🎯 Tes priorités');
     expect(md).toContain('## 💡 Gains rapides');
     expect(md).toContain('## 🧠 Ton profil');
-    expect(md).toContain('## 📅 Ta routine avant le stage');
+    expect(md).toContain('## 📅 Ton micro-plan d\'entraînement');
   });
 
   it('should use tutoiement', () => {
@@ -295,6 +295,97 @@ describe('renderNexusBilan', () => {
 
     expect(md).toContain('Notes complémentaires');
     expect(md).toContain('suivre de près');
+  });
+});
+
+describe('renderEleveBilan — dynamic discipline/level', () => {
+  it('should use NSI title when discipline is nsi', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext({ discipline: 'nsi', level: 'terminale' }));
+
+    expect(md).toContain('Mon Diagnostic NSI');
+    expect(md).toContain('épreuve de NSI en Terminale');
+  });
+
+  it('should use Mathématiques title when discipline is maths', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext({ discipline: 'maths', level: 'premiere' }));
+
+    expect(md).toContain('Mon Diagnostic Mathématiques');
+    expect(md).toContain('épreuve de Mathématiques en Première');
+  });
+
+  it('should show bases à consolider when weakPrerequisites provided', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext({
+      weakPrerequisites: [
+        { skillLabel: 'Variables Python', domain: 'python', mastery: 1 },
+        { skillLabel: 'Boucles', domain: 'python', mastery: 2 },
+      ],
+    }));
+
+    expect(md).toContain('Bases à consolider');
+    expect(md).toContain('Variables Python');
+    expect(md).toContain('25%'); // mastery 1/4 = 25%
+  });
+
+  it('should NOT show bases à consolider when no weakPrerequisites', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext());
+
+    expect(md).not.toContain('Bases à consolider');
+  });
+
+  it('should show NSI micro-plan for nsi discipline', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext({ discipline: 'nsi' }));
+
+    expect(md).toContain('fiche mémo');
+    expect(md).toContain('SQL');
+    expect(md).toContain('algorithme complet');
+  });
+
+  it('should show maths micro-plan for maths discipline', () => {
+    const md = renderEleveBilan(buildScoring(), buildContext({ discipline: 'maths' }));
+
+    expect(md).toContain('automatismes sans calculatrice');
+    expect(md).toContain('conditions d\'examen');
+  });
+});
+
+describe('renderParentsBilan — dynamic discipline', () => {
+  it('should use NSI in title for nsi discipline', () => {
+    const md = renderParentsBilan(buildScoring(), buildContext({ discipline: 'nsi', level: 'terminale' }));
+
+    expect(md).toContain('Rapport de Positionnement — NSI');
+    expect(md).toContain('épreuve de Terminale');
+  });
+
+  it('should mention programmation for nsi in stage section', () => {
+    const md = renderParentsBilan(buildScoring(), buildContext({ discipline: 'nsi' }));
+
+    expect(md).toContain('programmation et algorithmique');
+  });
+});
+
+describe('renderNexusBilan — coverageProgramme', () => {
+  it('should include coverage table when coverageProgramme present', () => {
+    const scoring = buildScoring({
+      coverageProgramme: {
+        seenChapterRatio: 0.6,
+        evaluatedSkillRatio: 0.85,
+        totalChapters: 10,
+        seenChapters: 5,
+        inProgressChapters: 1,
+      },
+    });
+    const md = renderNexusBilan(scoring, buildContext());
+
+    expect(md).toContain('Couverture du programme');
+    expect(md).toContain('5/10');
+    expect(md).toContain('60%');
+    expect(md).toContain('85%');
+  });
+
+  it('should NOT include coverage table when coverageProgramme absent', () => {
+    const md = renderNexusBilan(buildScoring(), buildContext());
+
+    expect(md).not.toContain('Couverture du programme');
   });
 });
 
