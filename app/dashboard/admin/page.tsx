@@ -85,13 +85,13 @@ export default function DashboardAdmin() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch('/api/admin/dashboard');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch admin dashboard data');
         }
-        
+
         const data = await response.json();
         setAdminData(data);
       } catch (err) {
@@ -356,6 +356,18 @@ export default function DashboardAdmin() {
                     </div>
                   </Link>
                 </Button>
+
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
+                  <Link href="/bilan-pallier2-maths/dashboard">
+                    <div className="flex items-center space-x-3">
+                      <Activity className="w-4 h-4 md:w-5 md:h-5 text-brand-accent" aria-hidden="true" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Diagnostics Pré-Stage</p>
+                        <p className="text-xs md:text-sm text-neutral-400">Suivi des bilans</p>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -395,12 +407,12 @@ export default function DashboardAdmin() {
                           activity.status === 'COMPLETED'
                             ? 'default'
                             : activity.status === 'SUCCESS'
-                            ? 'success'
-                            : activity.status === 'WARNING'
-                            ? 'warning'
-                            : activity.status === 'DESTRUCTIVE'
-                            ? 'destructive'
-                            : 'outline'
+                              ? 'success'
+                              : activity.status === 'WARNING'
+                                ? 'warning'
+                                : activity.status === 'DESTRUCTIVE'
+                                  ? 'destructive'
+                                  : 'outline'
                         }
                         className="ml-2 text-xs"
                       >
