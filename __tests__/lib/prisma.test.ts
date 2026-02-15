@@ -17,12 +17,12 @@ describe('prisma singleton', () => {
   afterEach(() => {
     jest.resetModules();
     created = 0;
-    process.env.NODE_ENV = originalEnv;
+    (process.env as any).NODE_ENV = originalEnv;
     delete (globalThis as any).prisma;
   });
 
   it('reuses instance in non-production', () => {
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
     delete (globalThis as any).prisma;
 
     let first: any;
@@ -42,7 +42,7 @@ describe('prisma singleton', () => {
   });
 
   it('does not attach to global in production', () => {
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     delete (globalThis as any).prisma;
 
     let instance: any;
