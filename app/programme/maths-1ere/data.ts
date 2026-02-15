@@ -165,9 +165,9 @@ export const dailyChallenges: DailyChallenge[] = [
   { id: 'dc8', question: '$\\cos(\\pi)=$ ?', reponse: '$-1$', categorie: 'Trigonométrie', xp: 10 },
   { id: 'dc9', question: 'Dérivée de $\\sin(x)$ ?', reponse: '$\\cos(x)$', categorie: 'Trigonométrie', xp: 10 },
   { id: 'dc10', question: '$\\sin(\\pi/4) = $ ?', reponse: '$\\frac{\\sqrt{2}}{2}$', categorie: 'Trigonométrie', xp: 10 },
-  // Produit Scalaire & Probabilités
-  { id: 'dc11', question: '$\\vec{u}(2;3) \\cdot \\vec{v}(-3;2) = $ ?', reponse: '$0$', categorie: 'Produit Scalaire', xp: 15 },
-  { id: 'dc12', question: '$P(A)=0.6$, $P(\\bar{A})$ = ?', reponse: '$0.4$', categorie: 'Probabilités', xp: 10 },
+  // Combinatoire
+  { id: 'dc11', question: '$\\binom{5}{2}=$ ?', reponse: '$10$', categorie: 'Combinatoire', xp: 15 },
+  { id: 'dc12', question: '$4! = $ ?', reponse: '$24$', categorie: 'Combinatoire', xp: 10 },
   // Suites
   { id: 'dc13', question: 'Suite $u_0=1$, $u_{n+1}=u_n+4$. $u_5=$ ?', reponse: '$21$', categorie: 'Suites', xp: 10 },
   { id: 'dc14', question: 'Somme $1+2+\\ldots+100=$ ?', reponse: '$5050$', categorie: 'Suites', xp: 20 },
@@ -178,9 +178,9 @@ export const dailyChallenges: DailyChallenge[] = [
   // Probabilités
   { id: 'dc18', question: '$P(A)=0.3$, $P_A(B)=0.5$. $P(A\\cap B)=$ ?', reponse: '$0.15$', categorie: 'Probabilités', xp: 15 },
   { id: 'dc19', question: '$E(X)$ si $P(X=0)=0.5$, $P(X=4)=0.5$ ?', reponse: '$2$', categorie: 'Probabilités', xp: 10 },
-  // Exponentielle & Variations
-  { id: 'dc20', question: 'Simplifier $\\frac{e^{3x}}{e^x}$', reponse: '$e^{2x}$', categorie: 'Exponentielle', xp: 15 },
-  { id: 'dc21', question: '$f(x) = x^2 - 6x + 5$, $f\'(x) = $ ?', reponse: '$2x-6$', categorie: 'Dérivation', xp: 10 },
+  // Limites
+  { id: 'dc20', question: '$\\lim_{x \\to +\\infty} \\frac{3x}{x+1} = $ ?', reponse: '$3$', categorie: 'Limites', xp: 15 },
+  { id: 'dc21', question: '$\\lim_{x \\to +\\infty} e^{-x} = $ ?', reponse: '$0$', categorie: 'Limites', xp: 10 },
   // Géométrie vectorielle
   { id: 'dc22', question: 'Distance $A(0;0)$ à $B(3;4)$ ?', reponse: '$5$', categorie: 'Géométrie', xp: 10 },
   { id: 'dc23', question: '$\\det(\\vec{u}(2;3), \\vec{v}(4;6)) = $ ?', reponse: '$0$', categorie: 'Géométrie', xp: 15 },
@@ -188,12 +188,6 @@ export const dailyChallenges: DailyChallenge[] = [
   { id: 'dc24', question: 'Rayon du cercle $(x-1)^2+(y-2)^2=25$ ?', reponse: '$5$', categorie: 'Géométrie', xp: 10 },
   // Algorithmique
   { id: 'dc25', question: 'En Python, `7 % 3` vaut ?', reponse: '$1$', categorie: 'Algorithmique', xp: 10 },
-  // ─── Automatismes (Calcul Mental / Dérivées Usuelles) ─────────
-  { id: 'dc26', question: 'Calcul mental : $17 \\times 6$ ?', reponse: '$102$', categorie: 'Automatismes', xp: 5 },
-  { id: 'dc27', question: 'Dérivée de $e^{2x}$ ?', reponse: '$2e^{2x}$', categorie: 'Dérivation', xp: 15 },
-  { id: 'dc28', question: 'Calcul mental : $\\frac{3}{4} + \\frac{5}{6}$ ?', reponse: '$\\frac{19}{12}$', categorie: 'Automatismes', xp: 10 },
-  { id: 'dc29', question: 'Dérivée de $e^{3x+1}$ ?', reponse: '$3e^{3x+1}$', categorie: 'Dérivation', xp: 10 },
-  { id: 'dc30', question: 'Calcul mental : $\\sqrt{144}$ ?', reponse: '$12$', categorie: 'Automatismes', xp: 5 },
 ];
 
 // ─── Programme Data (B.O. complet) ──────────────────────────────────────────
@@ -323,7 +317,7 @@ export const programmeData: Record<string, Categorie> = {
             'Appliquer la formule géométrique avec $q=1$ (division par zéro).',
           ],
           methodologieBac:
-            'Toujours préciser la nature de la suite (arithmétique/géométrique/ni l\'une ni l\'autre) avant d\'appliquer une formule. Pour calculer un terme, utiliser soit la formule explicite soit la définition par récurrence en calculant pas à pas.',
+            'Toujours préciser la nature de la suite (arithmétique/géométrique/ni l\'une ni l\'autre) avant d\'appliquer une formule. Pour une récurrence, bien écrire l\'initialisation ET l\'hérédité.',
           coupDePouce: {
             indice: 'Identifiez la nature de la suite : $u_{n+1} = u_n + r$ → arithmétique.',
             debutRaisonnement: 'Ici $r = 3$ et $u_0 = 2$. Appliquez la formule explicite.',
@@ -354,6 +348,65 @@ export const programmeData: Record<string, Categorie> = {
         ],
       },
 
+      // ── Combinatoire & Dénombrement ─────────────────────────────────────
+      {
+        id: 'combinatoire',
+        titre: 'Combinatoire & Dénombrement',
+        niveau: 'maitrise',
+        difficulte: 3,
+        pointsXP: 50,
+        competences: ['calculer', 'raisonner'],
+        contenu: {
+          rappel:
+            'Dénombrer, c\'est compter le nombre de façons de choisir ou d\'organiser des éléments. On distingue les arrangements (ordre compte) et les combinaisons (ordre ne compte pas).',
+          methode:
+            'n! = n \\times (n-1) \\times \\ldots \\times 1 \\quad \\binom{n}{k} = \\frac{n!}{k!(n-k)!} \\\\ \\text{Triangle de Pascal : } \\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}',
+          tableau: [
+            { f: '$\\binom{n}{0}$', derivee: '$1$' },
+            { f: '$\\binom{n}{1}$', derivee: '$n$' },
+            { f: '$\\binom{n}{n}$', derivee: '$1$' },
+            { f: '$\\binom{n}{k} = \\binom{n}{n-k}$', derivee: 'Symétrie' },
+          ],
+          astuce:
+            'Utilisez le triangle de Pascal pour les petites valeurs. Pour les grandes, la formule avec factorielles est plus efficace.',
+          exercice: {
+            question: 'Calculer $\\binom{6}{2}$.',
+            reponse: '15',
+            etapes: [
+              '$\\binom{6}{2} = \\frac{6!}{2! \\times 4!}$.',
+              '$= \\frac{6 \\times 5}{2 \\times 1} = 15$.',
+            ],
+          },
+          erreursClassiques: [
+            'Confondre arrangement et combinaison (l\'ordre compte-t-il ?).',
+            'Oublier que $0! = 1$.',
+            'Ne pas simplifier les factorielles avant de calculer.',
+          ],
+          coupDePouce: {
+            indice: 'Appliquez la formule $\\binom{n}{k} = \\frac{n!}{k!(n-k)!}$.',
+            debutRaisonnement: '$\\binom{6}{2} = \\frac{6!}{2! \\times 4!}$. Simplifiez $6! = 6 \\times 5 \\times 4!$.',
+            correctionDetaillee: [
+              '$\\binom{6}{2} = \\frac{6!}{2! \\times 4!} = \\frac{6 \\times 5 \\times 4!}{2 \\times 1 \\times 4!}$.',
+              '$= \\frac{30}{2} = 15$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'numerique',
+            question: 'Calculer $\\binom{5}{3}$.',
+            reponse: 10,
+            explication: '$\\binom{5}{3} = \\frac{5!}{3!2!} = \\frac{120}{6 \\times 2} = 10$.',
+          },
+          {
+            type: 'qcm',
+            question: 'Combien de mots de 3 lettres (sans répétition) peut-on former avec A, B, C, D, E ?',
+            options: ['10', '60', '125', '15'],
+            correct: 1,
+            explication: 'Arrangement : $5 \\times 4 \\times 3 = 60$.',
+          },
+        ],
+      },
     ],
   },
 
@@ -529,7 +582,7 @@ export const programmeData: Record<string, Categorie> = {
             "Oublier la dérivée de $e^{u(x)}$ : c'est $u'(x) \\times e^{u(x)}$, pas juste $e^{u(x)}$.",
           ],
           methodologieBac:
-            "Pour résoudre $e^{f(x)} = e^{g(x)}$, simplifier en $f(x) = g(x)$ (l'exponentielle est une bijection strictement croissante). Pour $e^{f(x)} > e^{g(x)}$, comparer directement $f(x)$ et $g(x)$.",
+            "Pour résoudre $e^{f(x)} = e^{g(x)}$, simplifier en $f(x) = g(x)$ (l'exponentielle est une bijection). Pour $e^{f(x)} > k$ avec $k > 0$, passer au $\\ln$.",
           coupDePouce: {
             indice: 'Utilisez la propriété $e^a \\times e^b = e^{a+b}$.',
             debutRaisonnement: 'Additionnez les exposants : $x + (-x+2) = 2$.',
@@ -617,6 +670,154 @@ export const programmeData: Record<string, Categorie> = {
         ],
         ressourcesExt: [
           { label: 'GeoGebra — Cercle trigonométrique', url: 'https://www.geogebra.org/m/mMbMfKsp' },
+        ],
+      },
+
+      // ── Limites de Fonctions (Initiation) ─────────────────────────────
+      {
+        id: 'limites-initiation',
+        titre: 'Limites de Fonctions (Initiation)',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 80,
+        prerequis: ['variations-courbes', 'exponentielle'],
+        competences: ['calculer', 'raisonner', 'representer'],
+        contenu: {
+          rappel:
+            'La notion de limite décrit le comportement d\'une fonction quand $x$ tend vers $+\\infty$, $-\\infty$ ou un réel $a$. On écrit $\\lim_{x \\to +\\infty} f(x) = L$ si $f(x)$ se rapproche de $L$.',
+          methode:
+            '\\lim_{x \\to +\\infty} x^n = +\\infty \\quad \\lim_{x \\to +\\infty} \\frac{1}{x} = 0 \\quad \\lim_{x \\to +\\infty} e^x = +\\infty \\\\ \\text{Croissance comparée : } \\lim_{x \\to +\\infty} \\frac{e^x}{x^n} = +\\infty',
+          tableau: [
+            { f: '$\\lim_{x \\to +\\infty} x^n$', derivee: '$+\\infty$' },
+            { f: '$\\lim_{x \\to +\\infty} 1/x$', derivee: '$0$' },
+            { f: '$\\lim_{x \\to +\\infty} e^x$', derivee: '$+\\infty$' },
+            { f: '$\\lim_{x \\to -\\infty} e^x$', derivee: '$0$' },
+            { f: '$\\lim_{x \\to +\\infty} e^x/x^n$', derivee: '$+\\infty$ (croissance comparée)' },
+          ],
+          astuce:
+            'Pour les formes indéterminées ($\\infty - \\infty$, $0 \\times \\infty$, $\\infty/\\infty$), factorisez par le terme dominant.',
+          exercice: {
+            question: 'Calculer $\\lim_{x \\to +\\infty} \\frac{3x^2 + 1}{x^2 - 5}$.',
+            reponse: '$3$',
+            etapes: [
+              'Factoriser par $x^2$ au numérateur et au dénominateur.',
+              '$= \\frac{x^2(3 + 1/x^2)}{x^2(1 - 5/x^2)}$.',
+              'Quand $x \\to +\\infty$ : $1/x^2 \\to 0$ et $5/x^2 \\to 0$.',
+              'Donc la limite vaut $3/1 = 3$.',
+            ],
+          },
+          erreursClassiques: [
+            'Écrire $\\infty - \\infty = 0$ (c\'est une forme indéterminée).',
+            'Oublier de factoriser par le terme de plus haut degré.',
+            'Confondre $\\lim_{x \\to 0^+} 1/x = +\\infty$ et $\\lim_{x \\to 0^-} 1/x = -\\infty$.',
+          ],
+          methodologieBac:
+            'Pour calculer une limite en $+\\infty$ d\'une fraction rationnelle, factoriser par la plus haute puissance de $x$ au numérateur ET au dénominateur. Pour les exponentielles, utiliser la croissance comparée.',
+          coupDePouce: {
+            indice: 'Factorisez numérateur et dénominateur par $x^2$.',
+            debutRaisonnement: '$\\frac{3x^2+1}{x^2-5} = \\frac{x^2(3+1/x^2)}{x^2(1-5/x^2)}$. Simplifiez par $x^2$.',
+            correctionDetaillee: [
+              '$\\frac{3x^2+1}{x^2-5} = \\frac{3 + 1/x^2}{1 - 5/x^2}$.',
+              'Quand $x \\to +\\infty$ : $\\frac{3+0}{1-0} = 3$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: '$\\lim_{x \\to +\\infty} \\frac{x^3 - 2x}{x^2 + 1}$ vaut :',
+            options: ['$0$', '$1$', '$+\\infty$', '$-\\infty$'],
+            correct: 2,
+            explication: 'Le degré du numérateur (3) > degré du dénominateur (2), donc la limite est $+\\infty$.',
+          },
+          {
+            type: 'numerique',
+            question: '$\\lim_{x \\to +\\infty} \\frac{5x + 3}{2x - 1}$ = ?',
+            reponse: 2.5,
+            tolerance: 0.01,
+            explication: 'Factoriser par $x$ : $\\frac{5+3/x}{2-1/x} \\to 5/2 = 2.5$.',
+          },
+          {
+            type: 'qcm',
+            question: '$\\lim_{x \\to +\\infty} xe^{-x}$ vaut :',
+            options: ['$+\\infty$', '$0$', '$1$', '$-\\infty$'],
+            correct: 1,
+            explication: 'Croissance comparée : $e^x$ l\'emporte sur $x$, donc $x/e^x \\to 0$.',
+          },
+        ],
+        ressourcesExt: [
+          { label: 'GeoGebra — Limites et asymptotes', url: 'https://www.geogebra.org/m/sXnBhKP7' },
+        ],
+      },
+
+      // ── Continuité (sur des exemples) ─────────────────────────────────
+      {
+        id: 'continuite',
+        titre: 'Continuité (sur des exemples)',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 70,
+        prerequis: ['limites-initiation'],
+        competences: ['raisonner', 'communiquer', 'chercher'],
+        contenu: {
+          rappel:
+            'Une fonction $f$ est continue en $a$ si $\\lim_{x \\to a} f(x) = f(a)$. Intuitivement, on peut tracer la courbe sans lever le crayon.',
+          methode:
+            '\\text{TVI : Si } f \\text{ continue sur } [a;b] \\text{ et } f(a) \\times f(b) < 0 \\\\ \\text{alors } \\exists\\, c \\in ]a;b[ \\text{ tel que } f(c) = 0',
+          astuce:
+            'Le TVI (Théorème des Valeurs Intermédiaires) est l\'outil principal pour montrer l\'existence d\'une solution. Il ne donne pas la valeur exacte, mais garantit l\'existence.',
+          exercice: {
+            question: 'Montrer que $f(x) = x^3 - 3x + 1$ admet au moins une racine dans $[0; 1]$.',
+            reponse: 'Par le TVI : $f(0) = 1 > 0$ et $f(1) = -1 < 0$, donc $\\exists\\, c \\in ]0;1[$ tel que $f(c) = 0$.',
+            etapes: [
+              '$f$ est un polynôme, donc continue sur $\\mathbb{R}$.',
+              '$f(0) = 0 - 0 + 1 = 1 > 0$.',
+              '$f(1) = 1 - 3 + 1 = -1 < 0$.',
+              '$f(0) \\times f(1) = -1 < 0$. Par le TVI, $f$ s\'annule dans $]0;1[$.',
+            ],
+          },
+          erreursClassiques: [
+            'Oublier de vérifier que $f$ est continue sur l\'intervalle.',
+            'Le TVI donne l\'existence, pas l\'unicité (il peut y avoir plusieurs racines).',
+            'Confondre TVI et théorème de la bijection (qui donne l\'unicité si $f$ est strictement monotone).',
+          ],
+          methodologieBac:
+            'Pour montrer l\'existence d\'une solution : 1) Dire que $f$ est continue (justifier). 2) Calculer $f(a)$ et $f(b)$. 3) Constater le changement de signe. 4) Conclure par le TVI.',
+          coupDePouce: {
+            indice: 'Calculez $f(0)$ et $f(1)$, puis appliquez le TVI.',
+            debutRaisonnement: '$f(0) = 1$ et $f(1) = -1$. Comme $f$ est continue et change de signe...',
+            correctionDetaillee: [
+              '$f$ est polynomiale donc continue sur $[0;1]$.',
+              '$f(0) = 1 > 0$ et $f(1) = -1 < 0$.',
+              'Par le TVI, $\\exists\\, c \\in ]0;1[$ tel que $f(c) = 0$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: 'Le TVI permet de :',
+            options: [
+              'Calculer la valeur exacte d\'une racine',
+              'Montrer l\'existence d\'une racine dans un intervalle',
+              'Montrer l\'unicité d\'une racine',
+              'Calculer la dérivée',
+            ],
+            correct: 1,
+            explication: 'Le TVI garantit l\'existence d\'une solution, pas sa valeur exacte ni son unicité.',
+          },
+          {
+            type: 'ordonnancement',
+            question: 'Remettre dans l\'ordre les étapes pour appliquer le TVI :',
+            etapesDesordre: [
+              'Conclure par le TVI : $\\exists\\, c$ tel que $f(c) = 0$',
+              'Vérifier que $f$ est continue sur $[a;b]$',
+              'Constater que $f(a)$ et $f(b)$ sont de signes opposés',
+              'Calculer $f(a)$ et $f(b)$',
+            ],
+            ordreCorrect: [1, 3, 2, 0],
+            explication: 'On vérifie la continuité, on calcule les valeurs aux bornes, on constate le changement de signe, puis on conclut.',
+          },
         ],
       },
     ],
@@ -1138,10 +1339,10 @@ export const quizData: QuizQuestion[] = [
   // Exponentielle
   {
     id: 6,
-    question: 'Simplifier $e^{2} \\times e^{3}$.',
-    options: ['$e^{6}$', '$e^{5}$', '$2e^{3}$', '$e^{23}$'],
+    question: 'Que vaut $e^{\\ln(5)}$ ?',
+    options: ['$e^5$', '$5$', '$\\ln(5)$', '$1$'],
     correct: 1,
-    explication: '$e^a \\times e^b = e^{a+b}$. Donc $e^2 \\times e^3 = e^{5}$.',
+    explication: '$e^{\\ln(x)} = x$ pour $x > 0$.',
     categorie: 'Exponentielle',
     difficulte: 1,
   },
@@ -1230,14 +1431,14 @@ export const quizData: QuizQuestion[] = [
     categorie: 'Probabilités',
     difficulte: 1,
   },
-  // Produit Scalaire
+  // Combinatoire
   {
     id: 16,
-    question: '$\\vec{u}(1;2)$ et $\\vec{v}(4;-2)$. Produit scalaire $\\vec{u} \\cdot \\vec{v}$ ?',
-    options: ['$8$', '$0$', '$6$', '$-6$'],
+    question: '$\\binom{4}{2} = $ ?',
+    options: ['$4$', '$6$', '$8$', '$2$'],
     correct: 1,
-    explication: '$\\vec{u} \\cdot \\vec{v} = 1 \\times 4 + 2 \\times (-2) = 4 - 4 = 0$. Vecteurs orthogonaux.',
-    categorie: 'Géométrie',
+    explication: '$\\binom{4}{2} = \\frac{4!}{2!2!} = \\frac{24}{4} = 6$.',
+    categorie: 'Combinatoire',
     difficulte: 1,
   },
   // Algorithmique
@@ -1259,51 +1460,51 @@ export const quizData: QuizQuestion[] = [
     categorie: 'Algorithmique',
     difficulte: 1,
   },
-  // Variations & Dérivation
+  // Limites
   {
     id: 19,
-    question: '$f\'(x) > 0$ sur $]a;b[$. Que peut-on dire de $f$ sur $]a;b[$ ?',
-    options: ['$f$ est décroissante', '$f$ est croissante', '$f$ a un extremum', '$f$ est constante'],
+    question: '$\\lim_{x \\to +\\infty} \\frac{2x^2 + 1}{x^2 - 3}$ vaut :',
+    options: ['$0$', '$2$', '$+\\infty$', '$-3$'],
     correct: 1,
-    explication: 'Si $f\'(x) > 0$ sur un intervalle, alors $f$ est strictement croissante sur cet intervalle.',
-    categorie: 'Dérivation',
-    difficulte: 1,
+    explication: 'Même degré : on divise les coefficients dominants $2/1 = 2$.',
+    categorie: 'Limites',
+    difficulte: 2,
   },
   {
     id: 20,
-    question: 'Dérivée de $f(x) = e^{-2x}$ ?',
-    options: ['$e^{-2x}$', '$-2e^{-2x}$', '$2e^{-2x}$', '$-e^{-2x}$'],
-    correct: 1,
-    explication: 'Composée affine : $(e^{ax+b})\' = a \\cdot e^{ax+b}$. Ici $a = -2$.',
-    categorie: 'Dérivation',
+    question: '$\\lim_{x \\to +\\infty} \\frac{x}{e^x}$ vaut :',
+    options: ['$+\\infty$', '$1$', '$0$', '$e$'],
+    correct: 2,
+    explication: 'Croissance comparée : $e^x$ l\'emporte sur tout polynôme.',
+    categorie: 'Limites',
     difficulte: 2,
   },
   {
     id: 21,
-    question: '$f\'(a) = 0$ et $f\'$ change de signe en $a$. Alors $f(a)$ est :',
-    options: ['Un point d\'inflexion', 'Un extremum local', 'Un zéro de $f$', 'Indéterminé'],
-    correct: 1,
-    explication: 'Si $f\'$ s\'annule en $a$ et change de signe, $f$ admet un extremum local en $a$.',
-    categorie: 'Dérivation',
-    difficulte: 2,
+    question: '$\\infty - \\infty$ est :',
+    options: ['$0$', '$+\\infty$', 'Une forme indéterminée', '$-\\infty$'],
+    correct: 2,
+    explication: 'C\'est une forme indéterminée : le résultat dépend des fonctions en jeu.',
+    categorie: 'Limites',
+    difficulte: 1,
   },
-  // Probabilités complémentaires
+  // Continuité / TVI
   {
     id: 22,
-    question: 'Formule des probabilités totales : $P(B) = $ ?',
-    options: ['$P(A \\cap B)$', '$P_A(B) \\times P(A) + P_{\\bar{A}}(B) \\times P(\\bar{A})$', '$P(A) + P(B)$', '$1 - P(\\bar{B})$'],
+    question: 'Le TVI s\'applique si la fonction est :',
+    options: ['Dérivable', 'Continue', 'Croissante', 'Positive'],
     correct: 1,
-    explication: 'Formule des probabilités totales avec partition $(A, \\bar{A})$.',
-    categorie: 'Probabilités',
-    difficulte: 2,
+    explication: 'Le Théorème des Valeurs Intermédiaires nécessite la continuité sur un intervalle fermé.',
+    categorie: 'Continuité',
+    difficulte: 1,
   },
   {
     id: 23,
-    question: '$X$ variable aléatoire : $P(X=1)=0.3$, $P(X=2)=0.5$, $P(X=5)=0.2$. $E(X) = $ ?',
-    options: ['$2$', '$1.8$', '$2.3$', '$2.6$'],
-    correct: 2,
-    explication: '$E(X) = 1 \\times 0.3 + 2 \\times 0.5 + 5 \\times 0.2 = 0.3 + 1 + 1 = 2.3$.',
-    categorie: 'Probabilités',
+    question: '$f(x) = x^3 - 1$. $f(0)=-1$ et $f(2)=7$. Par le TVI :',
+    options: ['$f$ n\'a pas de racine', '$f$ a au moins une racine dans $]0;2[$', '$f$ a exactement 3 racines', 'On ne peut rien dire'],
+    correct: 1,
+    explication: '$f$ continue, $f(0) < 0$ et $f(2) > 0$ : changement de signe → racine dans $]0;2[$.',
+    categorie: 'Continuité',
     difficulte: 2,
   },
   // Géométrie vectorielle
@@ -1419,6 +1620,4 @@ export const badgeDefinitions: BadgeDefinition[] = [
   { id: 'geometre', nom: 'Géomètre', description: 'Maîtriser tous les chapitres de Géométrie', icon: '📏', condition: 'mastered:geometrie-all' },
   { id: 'probabiliste', nom: 'Probabiliste', description: 'Maîtriser Probabilités et Variables Aléatoires', icon: '🎲', condition: 'mastered:probabilites-all' },
   { id: 'polymathe', nom: 'Polymathe', description: 'Compléter tous les chapitres du programme', icon: '👑', condition: 'all_chapters_completed' },
-  { id: 'modelisateur', nom: 'Modélisateur', description: 'Réussir 5 exercices en Suites ou Probabilités', icon: '🧮', condition: 'exercises_count:suites,probabilites-cond,variables-aleatoires >= 5' },
 ];
-

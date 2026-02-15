@@ -45,10 +45,6 @@
   "exclude": [
     "node_modules",
     ".zenflow/state/**/*",
-    ".zenflow/tasks/**/*",
-    ".zenflow/cli/**/*.test.ts",
-    ".zenflow/core/**/*.test.ts",
-    ".zenflow/daemon/**/*.test.ts",
-    ".zenflow/tests/**/*"
+    ".zenflow/tasks/**/*"
   ]
 }

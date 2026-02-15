@@ -33,11 +33,6 @@ export interface MathsLabRow {
   updated_at: string;
 }
 
-export type LoadProgressStatus =
-  | { status: 'disabled'; data: null }
-  | { status: 'ok'; data: MathsLabRow | null }
-  | { status: 'error'; data: null; error: string };
-
 // ─── Client Singleton ────────────────────────────────────────────────────────
 
 let supabaseInstance: SupabaseClient | null = null;
@@ -74,18 +69,8 @@ const TABLE = 'maths_lab_progress';
  * Returns null if not found or Supabase is not configured.
  */
 export async function loadProgress(userId: string): Promise<MathsLabRow | null> {
-  const result = await loadProgressWithStatus(userId);
-  if (result.status !== 'ok') return null;
-  return result.data;
-}
-
-/**
- * Load user progress from Supabase with explicit status.
- * This is used to guarantee hydration safety before enabling writes.
- */
-export async function loadProgressWithStatus(userId: string): Promise<LoadProgressStatus> {
   const supabase = getSupabase();
-  if (!supabase) return { status: 'disabled', data: null };
+  if (!supabase) return null;
 
   try {
     const { data, error } = await supabase
@@ -94,17 +79,10 @@ export async function loadProgressWithStatus(userId: string): Promise<LoadProgre
       .eq('user_id', userId)
       .single();
 
-    if (error) {
-      // "No rows" is a valid state for a new learner.
-      if (error.code === 'PGRST116') {
-        return { status: 'ok', data: null };
-      }
-      return { status: 'error', data: null, error: error.message };
-    }
-    if (!data) return { status: 'ok', data: null };
-    return { status: 'ok', data: data as MathsLabRow };
+    if (error || !data) return null;
+    return data as MathsLabRow;
   } catch {
-    return { status: 'error', data: null, error: 'Network error while loading progress' };
+    return null;
   }
 }
 

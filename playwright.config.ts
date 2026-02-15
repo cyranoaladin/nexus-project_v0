@@ -1,39 +1,83 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright Configuration - Chromium Desktop focus
+ * Playwright Configuration - Nexus Réussite Platform
+ *
+ * Port Convention: Always use 3000 for consistency
+ * - Local dev: 3000
+ * - E2E tests: 3000
+ * - CI: 3000
  */
-const baseURL = 'http://127.0.0.1:3001';
+const baseURL = 'http://localhost:3000'; // Fixed port for consistency
 
 export default defineConfig({
-  testDir: '.',
-  testMatch: ['tests/student-journey.spec.ts'],
-  fullyParallel: false,
+  testDir: './e2e',
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  timeout: 90_000,
   use: {
     baseURL,
     trace: 'on-first-retry',
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        launchOptions: {
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-          chromiumSandbox: false,
+  projects: (() => {
+    const skipChromium = process.env.SKIP_CHROMIUM === '1';
+    const setupProject = skipChromium
+      ? {
+          name: 'setup',
+          testMatch: /.*\.setup\.ts/,
+          use: { ...devices['Desktop Firefox'] },
+        }
+      : {
+          name: 'setup',
+          testMatch: /.*\.setup\.ts/,
+          use: {
+            ...devices['Desktop Chrome'],
+            launchOptions: {
+              args: ['--no-sandbox', '--disable-setuid-sandbox'],
+              chromiumSandbox: false,
+            },
+          },
+        };
+
+    if (skipChromium) {
+      return [
+        setupProject,
+        { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+        { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
+      ];
+    }
+
+    return [
+      setupProject,
+      {
+        name: 'chromium',
+        use: {
+          ...devices['Desktop Chrome'],
+          launchOptions: {
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            chromiumSandbox: false,
+          },
         },
+        dependencies: ['setup'],
       },
-    },
-  ],
-  webServer: {
-    command: 'HOSTNAME=127.0.0.1 PORT=3001 SKIP_MIDDLEWARE=true SKIP_APP_AUTH=true npm run dev',
-    url: baseURL,
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+        dependencies: ['setup'],
+      },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+        dependencies: ['setup'],
+      },
+    ];
+  })(),
+  // webServer disabled - run dev server manually before running tests
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: baseURL,
+  //   reuseExistingServer: true,
+  // },
 });

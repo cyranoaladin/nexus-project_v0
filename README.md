@@ -91,8 +91,6 @@ Pour plus de détails, voir :
 - `ARCHITECTURE_TECHNIQUE.md`
 - `DOCUMENTATION_TECHNIQUE_LIVRAISON.md`
 - `ENVIRONMENT_REFERENCE.md`
-- `ARCHITECTURE.md` (module `maths-1ere`, hydratation/sync/MathJax)
-- `ENV_CHECKLIST.md` (variables d'environnement production)
 - `README_TESTS.md`
 
 ## 11) Zenflow — Synchronisation Automatique des Worktrees
