@@ -8,8 +8,7 @@ import 'mafs/core.css';
  * CdC §4.2.1 — "La Tangente Glissante"
  * Synchronized dual graph: f(x) on top, f'(x) on bottom.
  * Slider to move the tangent point along the curve.
- * Shows tangent line, derivative value, croissance/décroissance zones,
- * and a synchronized vertical cursor on both graphs.
+ * Shows tangent line, derivative value, and croissance/décroissance zones.
  */
 
 interface TangenteGlissanteProps {
@@ -41,11 +40,6 @@ export default function TangenteGlissante({
     return (x: number) => 3 * x * x - 3;
   }, [fnExpr]);
 
-  // Positive part of f' (for green shading)
-  const fPrimePos = useMemo(() => (x: number) => Math.max(0, fPrime(x)), [fPrime]);
-  // Negative part of f' (for red shading)
-  const fPrimeNeg = useMemo(() => (x: number) => Math.min(0, fPrime(x)), [fPrime]);
-
   const fa = f(a);
   const fpa = fPrime(a);
 
@@ -54,7 +48,6 @@ export default function TangenteGlissante({
 
   const variation = fpa > 0.01 ? '↗ Croissante' : fpa < -0.01 ? '↘ Décroissante' : '→ Extremum';
   const variationColor = fpa > 0.01 ? 'text-green-400' : fpa < -0.01 ? 'text-red-400' : 'text-amber-400';
-  const variationBg = fpa > 0.01 ? 'bg-green-500/10 border-green-500/20' : fpa < -0.01 ? 'bg-red-500/10 border-red-500/20' : 'bg-amber-500/10 border-amber-500/20';
 
   return (
     <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl overflow-hidden">
@@ -95,12 +88,12 @@ export default function TangenteGlissante({
             <span className="bg-slate-800 px-2 py-1 rounded text-slate-300">
               f&apos;({a.toFixed(1)}) = <span className="text-white font-bold">{fpa.toFixed(2)}</span>
             </span>
-            <span className={`px-2 py-1 rounded font-bold border ${variationBg} ${variationColor}`}>
+            <span className={`bg-slate-800 px-2 py-1 rounded font-bold ${variationColor}`}>
               {variation}
             </span>
           </div>
 
-          {/* Top graph: f(x) with tangent + synced cursor */}
+          {/* Top graph: f(x) with tangent */}
           <div>
             <div className="text-xs text-slate-500 mb-1 font-bold">f(x) et tangente</div>
             <div className="rounded-xl overflow-hidden border border-slate-700/50 bg-white">
@@ -109,8 +102,6 @@ export default function TangenteGlissante({
                 <Plot.OfX y={f} color={Theme.blue} />
                 <Plot.OfX y={tangent} color={Theme.orange} opacity={0.7} />
                 <Point x={a} y={fa} color={Theme.orange} />
-                {/* Synchronized vertical cursor */}
-                <Line.Segment point1={[a, -6]} point2={[a, 6]} color={Theme.orange} opacity={0.15} />
                 <MafsText x={a + 0.3} y={fa + 0.5} size={11}>
                   ({a.toFixed(1)}, {fa.toFixed(1)})
                 </MafsText>
@@ -118,21 +109,15 @@ export default function TangenteGlissante({
             </div>
           </div>
 
-          {/* Bottom graph: f'(x) synchronized with colored zones */}
+          {/* Bottom graph: f'(x) synchronized */}
           <div>
             <div className="text-xs text-slate-500 mb-1 font-bold">f&apos;(x) — signe et variations</div>
             <div className="rounded-xl overflow-hidden border border-slate-700/50 bg-white">
               <Mafs viewBox={{ x: [-4, 4], y: [-5, 5] }} preserveAspectRatio={false} height={180}>
                 <Coordinates.Cartesian />
-                {/* Colored zones: green where f'(x) > 0, red where f'(x) < 0 */}
-                <Plot.OfX y={fPrimePos} color="#22c55e" opacity={0.15} />
-                <Plot.OfX y={fPrimeNeg} color="#ef4444" opacity={0.15} />
-                {/* f'(x) curve */}
                 <Plot.OfX y={fPrime} color={Theme.red} />
                 {/* Horizontal line at y=0 */}
                 <Line.Segment point1={[-4, 0]} point2={[4, 0]} color={Theme.foreground} opacity={0.3} />
-                {/* Synchronized vertical cursor */}
-                <Line.Segment point1={[a, -5]} point2={[a, 5]} color={Theme.orange} opacity={0.15} />
                 {/* Current point on f' */}
                 <Point x={a} y={fpa} color={Theme.orange} />
                 {/* Vertical line from point to x-axis */}
@@ -144,34 +129,12 @@ export default function TangenteGlissante({
             </div>
           </div>
 
-          {/* Dynamic pedagogical explanation */}
-          <div className={`rounded-xl border p-3 text-center transition-all ${variationBg}`}>
-            <p className={`text-xs font-bold ${variationColor}`}>
-              {fpa > 0.01
-                ? `f'(${a.toFixed(1)}) = ${fpa.toFixed(2)} > 0 → f est CROISSANTE en a = ${a.toFixed(1)}`
-                : fpa < -0.01
-                  ? `f'(${a.toFixed(1)}) = ${fpa.toFixed(2)} < 0 → f est DÉCROISSANTE en a = ${a.toFixed(1)}`
-                  : `f'(${a.toFixed(1)}) ≈ 0 → EXTREMUM local possible en a = ${a.toFixed(1)}`
-              }
-            </p>
-            <p className="text-[10px] text-slate-500 mt-1">
-              {fpa > 0.01
-                ? 'La pente de la tangente est positive (tangente inclinée ↗). La courbe monte.'
-                : fpa < -0.01
-                  ? 'La pente de la tangente est négative (tangente inclinée ↘). La courbe descend.'
-                  : 'La tangente est quasi horizontale. Cherchez un maximum ou un minimum local.'
-              }
-            </p>
-          </div>
-
           <p className="text-[10px] text-slate-600 text-center">
             Déplacez le curseur pour voir la tangente glisser le long de la courbe.
-            Les zones <span className="text-green-400">vertes</span> sur f&apos;(x) indiquent f croissante,
-            les zones <span className="text-red-400">rouges</span> f décroissante.
+            Quand f&apos;(a) &gt; 0, f est croissante. Quand f&apos;(a) &lt; 0, f est décroissante.
           </p>
         </div>
       )}
     </div>
   );
 }
-

@@ -33,7 +33,6 @@ export async function extractProgrammeText(pdfPath: string): Promise<ExtractedPr
   // Dynamic import for pdf-parse (optional dependency)
   let pdfParse: (buffer: Buffer) => Promise<{ numpages: number; text: string }>;
   try {
-    // @ts-ignore — pdf-parse has no type declarations
     const mod = await import('pdf-parse');
     pdfParse = mod.default || mod;
   } catch {

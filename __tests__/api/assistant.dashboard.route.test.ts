@@ -16,7 +16,6 @@ jest.mock('@/lib/prisma', () => ({
     creditTransaction: { count: jest.fn() },
     subscriptionRequest: { count: jest.fn() },
     user: { count: jest.fn() },
-    diagnostic: { count: jest.fn() },
   },
 }));
 
@@ -53,7 +52,6 @@ describe('GET /api/assistant/dashboard', () => {
     (prisma.payment.count as jest.Mock).mockResolvedValue(1);
     (prisma.creditTransaction.count as jest.Mock).mockResolvedValue(3);
     (prisma.subscriptionRequest.count as jest.Mock).mockResolvedValue(4);
-    (prisma.diagnostic.count as jest.Mock).mockResolvedValue(0);
     (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([
       { id: 's1', subject: 'MATHEMATIQUES', startTime: '10:00', status: 'SCHEDULED', type: 'INDIVIDUAL' },
     ]);
