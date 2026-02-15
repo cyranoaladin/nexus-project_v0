@@ -56,20 +56,20 @@ describe('api-error helpers', () => {
 
   it('handleApiError exposes message in development', async () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
     const res = handleApiError(new Error('boom')) as any;
     expect(res.status).toBe(500);
     expect(res.body.error.message).toBe('boom');
-    process.env.NODE_ENV = originalEnv;
+    (process.env as any).NODE_ENV = originalEnv;
   });
 
   it('handleApiError hides message in production', async () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     const res = handleApiError(new Error('boom')) as any;
     expect(res.status).toBe(500);
     expect(res.body.error.message).not.toBe('boom');
-    process.env.NODE_ENV = originalEnv;
+    (process.env as any).NODE_ENV = originalEnv;
   });
 
   it('validateRequiredFields returns missing fields', () => {
