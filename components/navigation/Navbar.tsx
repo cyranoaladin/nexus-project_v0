@@ -14,13 +14,13 @@ export async function Navbar() {
   const navigationItems = navigationConfig[session.user.role];
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-72" role="banner">
+    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-[280px]" role="banner">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         <div className="flex items-center gap-4">
           <MobileMenuWrapper items={navigationItems} user={session.user} />
 
           <h1 className="text-lg font-bold text-brand-primary lg:hidden">
-            YKS Platform
+            Nexus Réussite
           </h1>
         </div>
 
