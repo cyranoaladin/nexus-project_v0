@@ -3,7 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright Configuration - Chromium Desktop focus
  */
-const baseURL = 'http://127.0.0.1:3001';
+const baseURL = process.env.CI
+  ? (process.env.NEXTAUTH_URL ?? 'http://localhost:3000')
+  : 'http://127.0.0.1:3001';
 
 export default defineConfig({
   testDir: './e2e',
@@ -30,10 +32,14 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'HOSTNAME=127.0.0.1 PORT=3001 SKIP_MIDDLEWARE=true SKIP_APP_AUTH=true npm run dev',
-    url: baseURL,
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  ...(process.env.CI
+    ? {}
+    : {
+        webServer: {
+          command: 'HOSTNAME=127.0.0.1 PORT=3001 SKIP_MIDDLEWARE=true SKIP_APP_AUTH=true npm run dev',
+          url: baseURL,
+          reuseExistingServer: false,
+          timeout: 120_000,
+        },
+      }),
 });
