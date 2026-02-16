@@ -75,8 +75,8 @@ export async function POST(request: Request) {
       .from('maths_lab_progress')
       .upsert(
         {
-          user_id: user.id,
           ...payload,
+          user_id: user.id,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id' }
