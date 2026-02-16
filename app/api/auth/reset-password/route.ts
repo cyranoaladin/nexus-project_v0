@@ -2,10 +2,18 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+/** Common weak passwords to reject */
+const COMMON_PASSWORDS = new Set([
+  'password', '12345678', '123456789', 'qwerty123', 'admin123',
+  'nexus123', 'password1', 'iloveyou', 'sunshine1', 'princess1',
+  'football1', 'charlie1', 'access14', 'master12', 'dragon12',
+]);
 
 /** Schema for requesting a password reset email */
 const requestSchema = z.object({
@@ -15,7 +23,12 @@ const requestSchema = z.object({
 /** Schema for confirming a password reset */
 const confirmSchema = z.object({
   token: z.string().min(1, 'Token requis'),
-  newPassword: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+  newPassword: z.string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .refine(
+      (pw) => !COMMON_PASSWORDS.has(pw.toLowerCase()),
+      'Ce mot de passe est trop courant. Choisissez un mot de passe plus sécurisé.'
+    ),
 });
 
 /**
@@ -27,6 +40,14 @@ const confirmSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection — verify same-origin
+    const csrfResponse = checkCsrf(request);
+    if (csrfResponse) return csrfResponse;
+
+    // Body size limit — reject oversized payloads (1MB)
+    const bodySizeResponse = checkBodySize(request);
+    if (bodySizeResponse) return bodySizeResponse;
+
     // Rate limiting: strict for password reset (5 req/15min)
     const rateLimitResponse = await checkRateLimit(request, 'auth');
     if (rateLimitResponse) {

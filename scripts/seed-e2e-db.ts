@@ -92,21 +92,17 @@ const student = await prisma.user.create({
       role: UserRole.ELEVE,
       firstName: 'Yasmine',
       lastName: 'Dupont',
-      studentProfile: {
-        create: {
-          grade: 'Terminale',
-          school: 'Lycée Pilote Ariana'
-        }
-      }
+      activatedAt: new Date(),
     },
-    include: { studentProfile: true }
   });
 
-  // Create Student Entity linked to Parent
+  // Create Student Entity linked to Parent (source de vérité unique)
   await prisma.student.create({
     data: {
       userId: student.id,
       parentId: parent.parentProfile!.id,
+      grade: 'Terminale',
+      school: 'Lycée Pilote Ariana',
       credits: 8,
       totalSessions: 24
     }
@@ -159,12 +155,7 @@ const student = await prisma.user.create({
       role: UserRole.ELEVE,
       firstName: 'Karim',
       lastName: 'Dupont',
-      studentProfile: {
-        create: {
-          grade: 'Première',
-          school: 'Lycée Pilote Ariana'
-        }
-      }
+      activatedAt: new Date(),
     },
   });
 
@@ -172,6 +163,8 @@ const student = await prisma.user.create({
   await prisma.student.create({
     data: {
       userId: student2.id,
+      grade: 'Première',
+      school: 'Lycée Pilote Ariana',
       parentId: parent.parentProfile!.id,
       credits: 5,
       totalSessions: 16

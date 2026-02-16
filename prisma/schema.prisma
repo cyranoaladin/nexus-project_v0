@@ -86,11 +86,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Activation (Modèle B: assistante/parent déclenche l'activation élève)
+  activatedAt     DateTime? // null = compte non activé (élève en attente)
+  activationToken String?   // token hashé pour activation par email
+  activationExpiry DateTime? // expiration du token d'activation
+
   // Relations spécifiques selon le rôle
-  parentProfile  ParentProfile?
-  studentProfile StudentProfile?
-  student        Student?
-  coachProfile   CoachProfile?
+  parentProfile ParentProfile?
+  student       Student?
+  coachProfile  CoachProfile?
 
   // Relations communes
   sentMessages     Message[] @relation("MessageSender")
@@ -131,21 +135,7 @@ model ParentProfile {
   @@map("parent_profiles")
 }
 
-// Profil Élève
-model StudentProfile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Informations scolaires
-  grade     String? // Classe (Seconde, Première, Terminale)
-  school    String?
-  birthDate DateTime?
-
-  @@map("student_profiles")
-}
-
-// Modèle Élève (entité métier)
+// Modèle Élève (entité métier — source de vérité unique pour les données élève)
 model Student {
   id       String        @id @default(cuid())
   parentId String
