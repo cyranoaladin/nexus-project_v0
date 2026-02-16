@@ -60,7 +60,7 @@ export default function AdminTestsPage() {
         const paymentData = await paymentResponse.json();
         setPaymentConfig(paymentData.configuration);
       }
-    } catch (error) {
+    } catch {
     }
   };
 

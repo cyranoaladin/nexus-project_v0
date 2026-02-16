@@ -126,7 +126,7 @@ function PaiementContent() {
           description: orderDetails.description
         })}`);
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue lors du traitement du paiement. Veuillez réessayer.');
     } finally {
       setLoading(false);

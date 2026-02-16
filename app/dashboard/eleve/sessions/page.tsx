@@ -118,7 +118,7 @@ export default function SessionsPage() {
       } else {
         alert(result.error || 'Erreur lors de la réservation');
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
