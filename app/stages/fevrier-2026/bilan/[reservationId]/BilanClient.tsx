@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Download, CheckCircle, ArrowRight, Printer } from 'lucide-react';
+import { CheckCircle, ArrowRight, Printer } from 'lucide-react';
 import ScoreHeader from '@/components/stages/results/ScoreHeader';
 import CompetenceRadar from '@/components/stages/results/CompetenceRadar';
 import DetailedAnalysis from '@/components/stages/results/DetailedAnalysis';

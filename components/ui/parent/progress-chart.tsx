@@ -28,6 +28,20 @@ interface ProgressChartProps {
 }
 
 type TimeRange = "1M" | "3M" | "6M" | "1Y";
+type ChartTooltipEntry = {
+  name?: string;
+  value?: number;
+  color?: string;
+  payload?: {
+    completedSessions?: number;
+    totalSessions?: number;
+  };
+};
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: ChartTooltipEntry[];
+  label?: string;
+};
 
 const TIME_RANGE_OPTIONS: { value: TimeRange; label: string }[] = [
   { value: "1M", label: "1 mois" },
@@ -77,25 +91,25 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
   const hasProgressData = progressHistory.length > 0;
   const hasSubjectData = subjectProgressHistory.length > 0;
 
-  const CustomTooltip = React.useCallback(({ active, payload, label }: any) => {
+  const CustomTooltip = React.useCallback(({ active, payload, label }: ChartTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3" data-testid="custom-tooltip">
           <p className="font-medium text-sm mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <div key={index} className="flex items-center gap-2">
               <div 
                 className="w-3 h-3 rounded-full" 
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-sm text-neutral-600">
-                {entry.name}: <span className="font-semibold">{entry.value}%</span>
+                {entry.name}: <span className="font-semibold">{entry.value ?? 0}%</span>
               </span>
             </div>
           ))}
           {payload[0]?.payload?.completedSessions !== undefined && (
             <p className="text-xs text-neutral-500 mt-1">
-              {payload[0].payload.completedSessions}/{payload[0].payload.totalSessions} séances
+              {payload[0].payload?.completedSessions}/{payload[0].payload?.totalSessions} séances
             </p>
           )}
         </div>
@@ -104,16 +118,16 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
     return null;
   }, []);
 
-  const SubjectTooltip = React.useCallback(({ active, payload, label }: any) => {
+  const SubjectTooltip = React.useCallback(({ active, payload, label }: ChartTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3" data-testid="subject-tooltip">
           <p className="font-medium text-sm mb-2">{label}</p>
           <p className="text-sm text-neutral-600">
-            Progression: <span className="font-semibold">{payload[0].value}%</span>
+            Progression: <span className="font-semibold">{payload[0].value ?? 0}%</span>
           </p>
           <p className="text-xs text-neutral-500 mt-1">
-            {payload[0].payload.completedSessions}/{payload[0].payload.totalSessions} séances complétées
+            {payload[0].payload?.completedSessions}/{payload[0].payload?.totalSessions} séances complétées
           </p>
         </div>
       );

@@ -6,39 +6,11 @@ import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import type { Prisma } from '@prisma/client';
 
-type ChildWithRelations = Prisma.StudentProfileGetPayload<{
-  include: {
-    user: true;
-    badges: {
-      include: {
-        badge: true;
-      };
-    };
-    sessions: {
-      select: {
-        id: true;
-        subject: true;
-        scheduledAt: true;
-        status: true;
-      };
-    };
-  };
-}> & {
-  credits: number;
-};
-
 type StudentBadge = Prisma.StudentBadgeGetPayload<{
   include: {
     badge: true;
   };
 }>;
-
-type SessionData = {
-  id: string;
-  subject: string;
-  scheduledAt: Date;
-  status: string;
-};
 
 export async function GET() {
   try {
@@ -130,8 +102,7 @@ export async function GET() {
       // Fetch coach names for sessions if needed, or use placeholder
       // For simplicity/performance in this fix, we map sessions directly
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mappedSessions = child.user.studentSessions.map((s: any) => ({
+      const mappedSessions = child.user.studentSessions.map((s) => ({
         id: s.id,
         subject: s.subject,
         scheduledAt: s.scheduledDate.toISOString(),
@@ -142,6 +113,7 @@ export async function GET() {
       }));
 
       const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;
+      const subscription = child.subscriptions?.[0];
 
       return {
         id: child.id,
@@ -159,17 +131,17 @@ export async function GET() {
         credits: child.credits,
 
         // Subscription details from DB
-        subscription: (child as any).subscriptions?.[0]?.planName ?? 'Aucun',
-        subscriptionDetails: (child as any).subscriptions?.[0] ? {
-          id: (child as any).subscriptions[0].id,
-          planName: (child as any).subscriptions[0].planName,
-          monthlyPrice: (child as any).subscriptions[0].monthlyPrice,
-          creditsPerMonth: (child as any).subscriptions[0].creditsPerMonth,
-          status: (child as any).subscriptions[0].status,
-          startDate: (child as any).subscriptions[0].startDate?.toISOString(),
-          endDate: (child as any).subscriptions[0].endDate?.toISOString() ?? null,
-          ariaSubjects: (child as any).subscriptions[0].ariaSubjects,
-          ariaCost: (child as any).subscriptions[0].ariaCost
+        subscription: subscription?.planName ?? 'Aucun',
+        subscriptionDetails: subscription ? {
+          id: subscription.id,
+          planName: subscription.planName,
+          monthlyPrice: subscription.monthlyPrice,
+          creditsPerMonth: subscription.creditsPerMonth,
+          status: subscription.status,
+          startDate: subscription.startDate?.toISOString(),
+          endDate: subscription.endDate?.toISOString() ?? null,
+          ariaSubjects: subscription.ariaSubjects,
+          ariaCost: subscription.ariaCost
         } : null,
 
         nextSession: nextSession,

@@ -88,7 +88,7 @@ export default function ChildrenManagement() {
         throw new Error(errorData.error || 'Failed to create child');
       }
 
-      const result = await response.json();
+      await response.json();
       
       // Reset form and close dialog
       setCreateFormData({

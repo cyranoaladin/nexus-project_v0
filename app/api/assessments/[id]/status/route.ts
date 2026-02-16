@@ -41,13 +41,14 @@ export async function GET(
     }
 
     // Build response
+    const status = assessment.status as AssessmentStatus['status'];
     const response: AssessmentStatus = {
       id: assessment.id,
-      status: assessment.status as any,
+      status,
       progress: assessment.progress,
-      message: getStatusMessage(assessment.status as any),
+      message: getStatusMessage(status),
       result:
-        assessment.status === 'COMPLETED' && assessment.globalScore !== null
+        status === 'COMPLETED' && assessment.globalScore !== null
           ? {
               globalScore: assessment.globalScore,
               confidenceIndex: assessment.confidenceIndex || 0,

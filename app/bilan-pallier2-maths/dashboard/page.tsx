@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertTriangle,
   BarChart3,
@@ -15,7 +14,6 @@ import {
   RefreshCw,
   Search,
   Shield,
-  Target,
   TrendingUp,
   Users,
   XCircle,

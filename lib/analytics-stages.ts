@@ -14,6 +14,10 @@ type AnalyticsEvent =
   | { name: 'stage_open_faq'; params: { question: string } }
   | { name: 'stage_scroll_depth'; params: { depth: number } };
 
+type AnalyticsWindow = Window & {
+  gtag?: (command: 'event', eventName: string, params: Record<string, string | number>) => void;
+};
+
 /**
  * Track analytics event
  * No-op in development, can be connected to GTM/GA4/Plausible in production
@@ -27,8 +31,9 @@ export function trackEvent(event: AnalyticsEvent): void {
   }
 
   // Production: send to analytics service
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', event.name, event.params);
+  const analyticsWindow = window as AnalyticsWindow;
+  if (analyticsWindow.gtag) {
+    analyticsWindow.gtag('event', event.name, event.params);
   }
 
   // Alternative: custom analytics endpoint
