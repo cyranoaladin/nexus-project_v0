@@ -163,6 +163,7 @@ model Student {
   reports              StudentReport[]
   subscriptionRequests SubscriptionRequest[]
   sessionReports       SessionReport[]
+  trajectories         Trajectory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -917,4 +918,45 @@ model Assessment {
   @@index([status])
   @@index([createdAt])
   @@map("assessments")
+}
+
+// ─── Trajectoire Engine ──────────────────────────────────────────────────────
+
+enum TrajectoryStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ABANDONED
+}
+
+// Trajectoire — Strategic progression plan for a student
+model Trajectory {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Objective
+  title       String // e.g. "Préparer le Bac Maths"
+  description String? // Detailed objective description
+  targetScore Int? // Target Nexus Index score (0–100)
+
+  // Horizon
+  horizon   String // "3_MONTHS" | "6_MONTHS" | "12_MONTHS"
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  // Status
+  status TrajectoryStatus @default(ACTIVE)
+
+  // Milestones (stored as JSON array for flexibility)
+  milestones Json @default("[]") // Array of { id, title, targetDate, completed, completedAt }
+
+  // Metadata
+  createdBy String? // userId of who created it (coach, assistante, or auto)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, status])
+  @@map("trajectories")
 }
