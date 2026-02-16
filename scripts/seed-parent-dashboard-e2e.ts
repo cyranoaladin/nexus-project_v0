@@ -66,9 +66,6 @@ async function main() {
   await prisma.student.deleteMany({
     where: { id: { in: ['student-001', 'student-002'] } }
   });
-  await prisma.studentProfile.deleteMany({
-    where: { userId: { in: ['student-test-001', 'student-test-002'] } }
-  });
   await prisma.coachProfile.deleteMany({
     where: {
       OR: [
@@ -191,16 +188,6 @@ async function main() {
         role: UserRole.ELEVE,
         firstName: child.firstName,
         lastName: child.lastName,
-      },
-    });
-
-    await prisma.studentProfile.create({
-      data: {
-        id: child.studentProfile.id,
-        userId: studentUser.id,
-        grade: child.studentProfile.grade,
-        school: child.studentProfile.school,
-        birthDate: new Date(child.studentProfile.birthDate),
       },
     });
 
