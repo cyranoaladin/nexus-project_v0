@@ -12,6 +12,152 @@
 
 import { UserRole } from '@/types/enums';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 1: Resource/Action Permission Matrix (fine-grained RBAC)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** Business resources that can be acted upon */
+export type Resource =
+  | 'USER'
+  | 'STUDENT'
+  | 'BILAN'
+  | 'SESSION'
+  | 'RESERVATION'
+  | 'PAYMENT'
+  | 'SUBSCRIPTION'
+  | 'RESOURCE_CONTENT'
+  | 'NOTIFICATION'
+  | 'CONFIG'
+  | 'REPORT';
+
+/** Actions that can be performed on resources */
+export type Action =
+  | 'READ'
+  | 'READ_SELF'
+  | 'READ_OWN'
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'MANAGE'
+  | 'VALIDATE'
+  | 'EXPORT';
+
+/** A single permission entry */
+export interface Permission {
+  action: Action;
+  resource: Resource;
+}
+
+/**
+ * Resource/Action permission matrix.
+ * MANAGE implies all actions on that resource.
+ * READ_SELF = can only read own data.
+ * READ_OWN = can read data of owned entities (e.g. parent reads children).
+ */
+const rolePermissions: Record<UserRole, Permission[]> = {
+  [UserRole.ADMIN]: [
+    { action: 'MANAGE', resource: 'USER' },
+    { action: 'MANAGE', resource: 'STUDENT' },
+    { action: 'MANAGE', resource: 'BILAN' },
+    { action: 'MANAGE', resource: 'SESSION' },
+    { action: 'MANAGE', resource: 'RESERVATION' },
+    { action: 'MANAGE', resource: 'PAYMENT' },
+    { action: 'MANAGE', resource: 'SUBSCRIPTION' },
+    { action: 'MANAGE', resource: 'RESOURCE_CONTENT' },
+    { action: 'MANAGE', resource: 'NOTIFICATION' },
+    { action: 'MANAGE', resource: 'CONFIG' },
+    { action: 'MANAGE', resource: 'REPORT' },
+  ],
+  [UserRole.ASSISTANTE]: [
+    { action: 'READ', resource: 'USER' },
+    { action: 'READ', resource: 'STUDENT' },
+    { action: 'UPDATE', resource: 'STUDENT' },
+    { action: 'VALIDATE', resource: 'BILAN' },
+    { action: 'READ', resource: 'BILAN' },
+    { action: 'UPDATE', resource: 'SESSION' },
+    { action: 'READ', resource: 'SESSION' },
+    { action: 'MANAGE', resource: 'RESERVATION' },
+    { action: 'READ', resource: 'PAYMENT' },
+    { action: 'UPDATE', resource: 'SUBSCRIPTION' },
+    { action: 'READ', resource: 'SUBSCRIPTION' },
+    { action: 'READ', resource: 'RESOURCE_CONTENT' },
+    { action: 'READ', resource: 'REPORT' },
+  ],
+  [UserRole.COACH]: [
+    { action: 'READ', resource: 'USER' },
+    { action: 'READ', resource: 'STUDENT' },
+    { action: 'READ', resource: 'BILAN' },
+    { action: 'UPDATE', resource: 'SESSION' },
+    { action: 'READ', resource: 'SESSION' },
+    { action: 'READ', resource: 'RESERVATION' },
+    { action: 'READ', resource: 'RESOURCE_CONTENT' },
+    { action: 'CREATE', resource: 'REPORT' },
+    { action: 'READ', resource: 'REPORT' },
+  ],
+  [UserRole.PARENT]: [
+    { action: 'READ_SELF', resource: 'USER' },
+    { action: 'READ_OWN', resource: 'STUDENT' },
+    { action: 'CREATE', resource: 'BILAN' },
+    { action: 'READ_OWN', resource: 'BILAN' },
+    { action: 'READ_OWN', resource: 'SESSION' },
+    { action: 'CREATE', resource: 'RESERVATION' },
+    { action: 'READ_OWN', resource: 'PAYMENT' },
+    { action: 'READ', resource: 'SUBSCRIPTION' },
+    { action: 'READ', resource: 'RESOURCE_CONTENT' },
+  ],
+  [UserRole.ELEVE]: [
+    { action: 'READ_SELF', resource: 'USER' },
+    { action: 'READ_SELF', resource: 'STUDENT' },
+    { action: 'READ', resource: 'BILAN' },
+    { action: 'READ_OWN', resource: 'SESSION' },
+    { action: 'READ', resource: 'RESOURCE_CONTENT' },
+  ],
+};
+
+/**
+ * Check if a role can perform an action on a resource.
+ * MANAGE grants all actions. READ encompasses READ_SELF and READ_OWN.
+ *
+ * @param role - The user role
+ * @param action - The action to check
+ * @param resource - The resource to check
+ * @returns true if the role has the permission
+ *
+ * @example
+ * ```ts
+ * if (!can(session.user.role, 'UPDATE', 'SESSION')) {
+ *   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+ * }
+ * ```
+ */
+export function can(role: UserRole, action: Action, resource: Resource): boolean {
+  const permissions = rolePermissions[role];
+  if (!permissions) return false;
+
+  return permissions.some((p) => {
+    if (p.resource !== resource) return false;
+    // MANAGE grants everything
+    if (p.action === 'MANAGE') return true;
+    // Exact match
+    if (p.action === action) return true;
+    // READ_SELF and READ_OWN satisfy READ checks (but not vice versa)
+    if (action === 'READ' && (p.action === 'READ_SELF' || p.action === 'READ_OWN')) return true;
+    return false;
+  });
+}
+
+/**
+ * Get all permissions for a given role.
+ * Useful for debugging and admin views.
+ */
+export function getPermissions(role: UserRole): Permission[] {
+  return rolePermissions[role] ?? [];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 2: Route-Level Policy Map (coarse-grained RBAC)
+// ═══════════════════════════════════════════════════════════════════════════════
+
 /** Access policy for a single route/resource */
 export interface AccessPolicy {
   /** Roles allowed to access this resource */
