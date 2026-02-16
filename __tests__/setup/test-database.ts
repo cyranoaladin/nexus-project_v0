@@ -112,7 +112,6 @@ export async function setupTestDatabase() {
     try { await testPrisma.student.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.subscription.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.parentProfile.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.studentProfile.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.coachProfile.deleteMany(); } catch { /* ignore */ }
     try { await testPrisma.user.deleteMany(); } catch { /* ignore */ }
   }
@@ -163,25 +162,17 @@ export const createTestStudent = async (parentId: string, overrides: any = {}) =
     }
   });
 
-  const studentProfile = await testPrisma.studentProfile.create({
-    data: {
-      userId: studentUser.id,
-      grade: 'Terminale',
-      school: 'Lycée Test',
-      ...overrides.profile
-    }
-  });
-
   const student = await testPrisma.student.create({
     data: {
       parentId,
       userId: studentUser.id,
       grade: 'Terminale',
+      school: 'Lycée Test',
       ...overrides.student
     }
   });
 
-  return { studentUser, studentProfile, student };
+  return { studentUser, student };
 };
 
 export const createTestCoach = async (overrides: any = {}) => {

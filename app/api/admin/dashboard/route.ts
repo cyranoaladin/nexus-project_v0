@@ -8,7 +8,7 @@ import { UserRole } from '@/types/enums';
 
 type RecentSession = Prisma.SessionBookingGetPayload<{
   include: {
-    student: { include: { studentProfile: true } };
+    student: { include: { student: true } };
     coach: { include: { coachProfile: true } };
   };
 }>;
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
           take: 10,
           orderBy: [{ scheduledDate: 'desc' }, { startTime: 'desc' }],
           include: {
-            student: { include: { studentProfile: true } },
+            student: { include: { student: true } },
             coach: { include: { coachProfile: true } }
           }
         }),

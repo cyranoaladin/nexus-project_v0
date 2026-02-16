@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
           firstName: validatedData.parentFirstName,
           lastName: validatedData.parentLastName,
           phone: validatedData.parentPhone,
-          // isActive retiré: champ non présent sur User
+          activatedAt: new Date(), // Parent is active immediately
         }
       });
 
@@ -90,27 +90,19 @@ export async function POST(request: NextRequest) {
       });
 
       // Créer le compte élève (unique email via cuid, no password — requires activation)
+      // activatedAt = null → élève ne peut pas se connecter tant que non activé
       const studentUser = await tx.user.create({
         data: {
           email: `student-${createId()}@nexus-student.local`,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
           lastName: validatedData.studentLastName,
-          password: null
+          password: null,
+          activatedAt: null, // Requires activation by assistante/parent
         }
       });
 
-      // Créer le profil élève
-      const _studentProfile = await tx.studentProfile.create({
-        data: {
-          userId: studentUser.id,
-          grade: validatedData.studentGrade,
-          school: validatedData.studentSchool,
-          birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
-        }
-      });
-
-      // Créer l'entité Student liée au parent
+      // Créer l'entité Student liée au parent (source de vérité unique)
       const student = await tx.student.create({
         data: {
           parentId: parentProfile.id,

@@ -58,23 +58,23 @@ describe('Schema Integrity Tests', () => {
       });
     });
 
-    describe('User → StudentProfile cascade', () => {
-      it('should cascade delete StudentProfile when User is deleted', async () => {
+    describe('User → Student cascade', () => {
+      it('should cascade delete Student when User is deleted', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
-        const { studentUser, studentProfile } = await createTestStudent(parentProfile.id);
+        const { studentUser, student } = await createTestStudent(parentProfile.id);
 
-        const profileExists = await prisma.studentProfile.findUnique({
-          where: { id: studentProfile.id }
+        const studentExists = await prisma.student.findUnique({
+          where: { id: student.id }
         });
-        expect(profileExists).toBeDefined();
+        expect(studentExists).toBeDefined();
 
         await prisma.user.delete({ where: { id: studentUser.id } });
 
-        const profileAfterDelete = await prisma.studentProfile.findUnique({
-          where: { id: studentProfile.id }
+        const studentAfterDelete = await prisma.student.findUnique({
+          where: { id: student.id }
         });
-        expect(profileAfterDelete).toBeNull();
+        expect(studentAfterDelete).toBeNull();
       });
     });
 

@@ -51,18 +51,6 @@
           "chapterId": "CH_N1_BINAIRE"
         },
         {
-          "skillId": "NSI_CSV",
-          "skillLabel": "Traitement de données (CSV)",
-          "tags": [
-            "programme",
-            "premiere",
-            "eds",
-            "nsi",
-            "donnees"
-          ],
-          "chapterId": "CH_N1_DONNEES_TABLE"
-        },
-        {
           "skillId": "NSI_ENCODING",
           "skillLabel": "Encodage texte (ASCII, UTF-8)",
           "tags": [
@@ -81,6 +69,20 @@
       "domainLabel": "Traitement des données",
       "weight": 0.2,
       "skills": [
+        {
+          "skillId": "NSI_CSV",
+          "skillLabel": "Lecture/écriture CSV",
+          "tags": [
+            "programme",
+            "premiere",
+            "eds",
+            "nsi",
+            "traitement"
+          ],
+          "chapterId": "CH_N1_DONNEES_TABLE",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
+        },
         {
           "skillId": "NSI_TABLE_SEARCH",
           "skillLabel": "Recherche dans une table",

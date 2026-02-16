@@ -73,11 +73,11 @@ export async function GET(request: NextRequest) {
         }
       }),
 
-      // Session analytics
-      prisma.session.groupBy({
-        by: ['scheduledAt', 'status'],
+      // Session analytics (using SessionBooking as source of truth)
+      prisma.sessionBooking.groupBy({
+        by: ['scheduledDate', 'status'],
         where: {
-          scheduledAt: { gte: startDate }
+          scheduledDate: { gte: startDate }
         },
         _count: {
           id: true
@@ -110,20 +110,16 @@ export async function GET(request: NextRequest) {
       }),
 
       // Recent activities (last 50)
-      prisma.session.findMany({
+      prisma.sessionBooking.findMany({
         take: 50,
         orderBy: {
           createdAt: 'desc'
         },
         include: {
-          student: {
-            include: {
-              user: true
-            }
-          },
+          student: true,
           coach: {
             include: {
-              user: true
+              coachProfile: true
             }
           }
         }
@@ -146,7 +142,7 @@ export async function GET(request: NextRequest) {
 
     // Format session data
     const formattedSessionData = sessionData.map((item) => ({
-      date: item.scheduledAt.toISOString().slice(0, 10),
+      date: item.scheduledDate.toISOString().slice(0, 10),
       status: item.status,
       count: item._count.id
     }));
@@ -171,11 +167,11 @@ export async function GET(request: NextRequest) {
       id: activity.id,
       type: 'session',
       title: `Session ${activity.subject}`,
-      description: `${activity.student.user.firstName} ${activity.student.user.lastName} avec ${activity.coach?.pseudonym || 'Coach non assigné'}`,
+      description: `${activity.student?.firstName ?? ''} ${activity.student?.lastName ?? ''} avec ${activity.coach?.coachProfile?.pseudonym || 'Coach non assigné'}`,
       time: activity.createdAt,
       status: activity.status,
-      studentName: `${activity.student.user.firstName} ${activity.student.user.lastName}`,
-      coachName: activity.coach?.pseudonym || 'Coach non assigné',
+      studentName: `${activity.student?.firstName ?? ''} ${activity.student?.lastName ?? ''}`.trim(),
+      coachName: activity.coach?.coachProfile?.pseudonym || 'Coach non assigné',
       subject: activity.subject,
       action: activity.status === 'COMPLETED' ? 'Session terminée' :
         activity.status === 'SCHEDULED' ? 'Session programmée' :

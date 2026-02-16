@@ -102,9 +102,6 @@ describe('/api/bilan-gratuit', () => {
           parentProfile: {
             create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' })
           },
-          studentProfile: {
-            create: jest.fn().mockResolvedValue({ id: 'student-profile-123' })
-          },
           student: {
             create: jest.fn().mockResolvedValue(mockStudent)
           }

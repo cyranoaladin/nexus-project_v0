@@ -204,16 +204,7 @@ async function main() {
       firstName: 'Étudiant',
       lastName: 'Test',
       role: 'ELEVE',
-    },
-  });
-
-  const studentProfile = await prisma.studentProfile.upsert({
-    where: { userId: studentUser.id },
-    update: {},
-    create: {
-      userId: studentUser.id,
-      grade: 'Terminale',
-      school: 'Lycée Pilote'
+      activatedAt: new Date(), // Seeded student is pre-activated
     },
   });
 
@@ -223,6 +214,8 @@ async function main() {
     create: {
       userId: studentUser.id,
       parentId: parentProfile.id,
+      grade: 'Terminale',
+      school: 'Lycée Pilote',
       credits: 10,
       totalSessions: 0,
       completedSessions: 0
