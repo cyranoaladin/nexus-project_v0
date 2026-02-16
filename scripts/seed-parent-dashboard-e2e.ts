@@ -214,7 +214,7 @@ async function main() {
         status: SubscriptionStatus.ACTIVE,
         startDate: new Date(child.student.subscription.startDate),
         endDate: new Date(child.student.subscription.endDate),
-        ariaSubjects: JSON.stringify(child.student.subscription.ariaSubjects),
+        ariaSubjects: child.student.subscription.ariaSubjects,
         ariaCost: child.student.subscription.ariaCost,
       },
     });

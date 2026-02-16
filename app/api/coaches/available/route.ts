@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       id: coach.userId, // Use userId as the coach ID for consistency
       firstName: coach.user.firstName,
       lastName: coach.user.lastName,
-      coachSubjects: JSON.parse(coach.subjects || '[]'), // Parse the JSON string to match component interface
+      coachSubjects: (coach.subjects as unknown as string[] ?? []),
       availability: coach.user.coachAvailabilities,
       bio: coach.description,
       philosophy: coach.philosophy,

@@ -122,13 +122,8 @@ export async function GET(request: NextRequest) {
       distinct: ['studentId']
     });
 
-    // Parse subjects from JSON string stored in coach profile
-    let specialties: string[] = [];
-    try {
-      specialties = JSON.parse(coach.subjects || '[]');
-    } catch {
-      specialties = [];
-    }
+    // Subjects is now a native Json field — Prisma returns it as JsonValue
+    const specialties: string[] = Array.isArray(coach.subjects) ? (coach.subjects as string[]) : [];
 
     // Recent students (last 30 days) — single query with includes to avoid N+1
     const recentBookings = await prisma.sessionBooking.findMany({

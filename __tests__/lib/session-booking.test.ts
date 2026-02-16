@@ -112,7 +112,7 @@ describe('SessionBookingService', () => {
   it('returns available coaches with parsed subjects', async () => {
     (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
       {
-        subjects: JSON.stringify(['MATHEMATIQUES', 'NSI']),
+        subjects: ['MATHEMATIQUES', 'NSI'],
         user: {
           id: coachId,
           firstName: 'Jane',
