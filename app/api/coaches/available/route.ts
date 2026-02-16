@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     if (subject) {
       whereClause.subjects = {
-        contains: subject
+        array_contains: [subject]
       };
     }
 
