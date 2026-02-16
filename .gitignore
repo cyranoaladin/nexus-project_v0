@@ -69,3 +69,4 @@ prisma/**/node_modules/
 *.sql.gz
 backup_*.sql
 backup_*.sql.gz
+e2e/.credentials.json
