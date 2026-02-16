@@ -184,8 +184,8 @@ model CoachProfile {
   philosophy  String?
   expertise   String?
 
-  // Spécialités (JSON string pour SQLite)
-  subjects String // JSON array des subjects
+  // Spécialités
+  subjects Json @default("[]") // Array des subjects enseignés
 
   // Disponibilités
   availableOnline   Boolean @default(true)
@@ -218,8 +218,8 @@ model Subscription {
   startDate DateTime
   endDate   DateTime?
 
-  // Add-ons ARIA (JSON string pour SQLite)
-  ariaSubjects String @default("[]") // JSON array des matières ARIA activées
+  // Add-ons ARIA
+  ariaSubjects Json @default("[]") // Array des matières ARIA activées
   ariaCost     Int    @default(0) // Coût mensuel des add-ons ARIA
 
   createdAt DateTime @default(now())
@@ -441,9 +441,9 @@ model PedagogicalContent {
   subject Subject
   grade   String? // Niveau scolaire
 
-  // Métadonnées pour la recherche vectorielle (JSON string pour SQLite)
-  embedding String @default("[]") // JSON array pour vecteur d'embedding pour RAG
-  tags      String @default("[]") // JSON array pour tags
+  // Métadonnées pour la recherche vectorielle
+  embedding Json @default("[]") // Vecteur d'embedding pour RAG
+  tags      Json @default("[]") // Tags de catégorisation
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -482,7 +482,7 @@ model Notification {
   type      String // SUBSCRIPTION_REQUEST, CREDIT_REQUEST, etc.
   title     String
   message   String
-  data      String // JSON string pour données supplémentaires
+  data      Json // Données supplémentaires structurées
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
