@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { CheckCircle, ArrowRight, Printer } from 'lucide-react';
 import ScoreHeader from '@/components/stages/results/ScoreHeader';
 import CompetenceRadar from '@/components/stages/results/CompetenceRadar';
@@ -97,9 +98,19 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
       {/* Header bar — no print */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 no-print">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-bold text-slate-900">Bilan de Positionnement</p>
-            <p className="text-xs text-slate-500">{reservation.academyTitle}</p>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/logo_nexus_reussite.png"
+              alt="Nexus Réussite"
+              width={132}
+              height={40}
+              priority
+              className="h-8 w-auto object-contain"
+            />
+            <div>
+              <p className="text-sm font-bold text-slate-900">Bilan de Positionnement</p>
+              <p className="text-xs text-slate-500">{reservation.academyTitle}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -121,6 +132,18 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <div className="flex items-center justify-center gap-3 pb-1 print:pb-2">
+          <Image
+            src="/images/logo_nexus_reussite.png"
+            alt="Nexus Réussite"
+            width={180}
+            height={56}
+            priority
+            className="h-10 w-auto object-contain print:h-9"
+          />
+          <p className="text-sm font-bold text-slate-900">Bilan de Positionnement</p>
+        </div>
+
         {/* Score Header */}
         <ScoreHeader
           globalScore={globalScore}
@@ -181,6 +204,15 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
 
         {/* Footer info */}
         <div className="text-center text-xs text-slate-400 py-4">
+          <div className="mb-2 flex items-center justify-center">
+            <Image
+              src="/images/logo_nexus_reussite.png"
+              alt="Nexus Réussite"
+              width={140}
+              height={42}
+              className="h-7 w-auto object-contain opacity-80"
+            />
+          </div>
           <p>Diagnostic réalisé le {scoredAt ? new Date(scoredAt).toLocaleDateString('fr-FR', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
           }) : 'N/A'}</p>
