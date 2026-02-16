@@ -10,7 +10,6 @@ import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 // import { Badge } from "@/components/ui/badge"
-import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 import { track } from "@/lib/analytics";
@@ -66,11 +65,8 @@ export default function SignInPage() {
 
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
+          <div
+            className="text-center mb-8 animate-[fadeInUp_0.6s_ease-out_both]"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
               <LogIn className="w-8 h-8 text-brand-accent" aria-hidden="true" />
@@ -82,12 +78,10 @@ export default function SignInPage() {
               Connectez-vous pour accéder à votre espace personnalisé et continuer
               votre parcours vers l'excellence.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <div
+            className="animate-[fadeInUp_0.6s_ease-out_0.2s_both]"
           >
             <Card
               className="border border-white/10 shadow-lg bg-surface-card"
@@ -164,14 +158,12 @@ export default function SignInPage() {
                   </div>
 
                   {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-error/10 border border-error/20 rounded-lg p-4"
+                    <div
+                      className="bg-error/10 border border-error/20 rounded-lg p-4 animate-[fadeInUp_0.3s_ease-out_both]"
                       role="alert"
                     >
                       <p className="text-error text-sm font-medium">{error}</p>
-                    </motion.div>
+                    </div>
                   )}
 
                   <Button
@@ -216,7 +208,7 @@ export default function SignInPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </main>
 
