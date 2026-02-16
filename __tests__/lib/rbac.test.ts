@@ -3,7 +3,15 @@
  */
 
 import { UserRole } from '@/types/enums';
-import { RBAC_POLICIES, canAccess, getPoliciesForRole } from '@/lib/rbac';
+import {
+  RBAC_POLICIES,
+  canAccess,
+  getPoliciesForRole,
+  can,
+  getPermissions,
+  type Resource,
+  type Action,
+} from '@/lib/rbac';
 
 describe('RBAC Policy Map', () => {
   describe('Policy structure', () => {
@@ -159,5 +167,202 @@ describe('getPoliciesForRole()', () => {
     expect(keys).toContain('payments.wise');
     expect(keys).not.toContain('admin.dashboard');
     expect(keys).not.toContain('coach.dashboard');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Resource/Action Permission Matrix Tests
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe('can() — Resource/Action Permission Matrix', () => {
+  describe('ADMIN — full MANAGE on all resources', () => {
+    const resources: Resource[] = [
+      'USER', 'STUDENT', 'BILAN', 'SESSION', 'RESERVATION',
+      'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT',
+    ];
+    const actions: Action[] = ['READ', 'CREATE', 'UPDATE', 'DELETE', 'MANAGE', 'VALIDATE', 'EXPORT'];
+
+    it.each(resources)('should MANAGE %s', (resource) => {
+      for (const action of actions) {
+        expect(can(UserRole.ADMIN, action, resource)).toBe(true);
+      }
+    });
+  });
+
+  describe('ASSISTANTE — operational permissions', () => {
+    it('can READ and UPDATE students', () => {
+      expect(can(UserRole.ASSISTANTE, 'READ', 'STUDENT')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'UPDATE', 'STUDENT')).toBe(true);
+    });
+
+    it('can VALIDATE bilans', () => {
+      expect(can(UserRole.ASSISTANTE, 'VALIDATE', 'BILAN')).toBe(true);
+    });
+
+    it('can MANAGE reservations', () => {
+      expect(can(UserRole.ASSISTANTE, 'CREATE', 'RESERVATION')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'UPDATE', 'RESERVATION')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'DELETE', 'RESERVATION')).toBe(true);
+    });
+
+    it('can READ payments but not CREATE or DELETE', () => {
+      expect(can(UserRole.ASSISTANTE, 'READ', 'PAYMENT')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'CREATE', 'PAYMENT')).toBe(false);
+      expect(can(UserRole.ASSISTANTE, 'DELETE', 'PAYMENT')).toBe(false);
+    });
+
+    it('cannot MANAGE config', () => {
+      expect(can(UserRole.ASSISTANTE, 'MANAGE', 'CONFIG')).toBe(false);
+      expect(can(UserRole.ASSISTANTE, 'UPDATE', 'CONFIG')).toBe(false);
+    });
+  });
+
+  describe('COACH — teaching permissions', () => {
+    it('can READ students and bilans', () => {
+      expect(can(UserRole.COACH, 'READ', 'STUDENT')).toBe(true);
+      expect(can(UserRole.COACH, 'READ', 'BILAN')).toBe(true);
+    });
+
+    it('can UPDATE sessions (submit report)', () => {
+      expect(can(UserRole.COACH, 'UPDATE', 'SESSION')).toBe(true);
+    });
+
+    it('can CREATE and READ reports', () => {
+      expect(can(UserRole.COACH, 'CREATE', 'REPORT')).toBe(true);
+      expect(can(UserRole.COACH, 'READ', 'REPORT')).toBe(true);
+    });
+
+    it('cannot CREATE students or manage payments', () => {
+      expect(can(UserRole.COACH, 'CREATE', 'STUDENT')).toBe(false);
+      expect(can(UserRole.COACH, 'READ', 'PAYMENT')).toBe(false);
+      expect(can(UserRole.COACH, 'MANAGE', 'PAYMENT')).toBe(false);
+    });
+
+    it('cannot access config or subscriptions', () => {
+      expect(can(UserRole.COACH, 'READ', 'CONFIG')).toBe(false);
+      expect(can(UserRole.COACH, 'READ', 'SUBSCRIPTION')).toBe(false);
+    });
+  });
+
+  describe('PARENT — ownership-scoped permissions', () => {
+    it('can READ_SELF user data (satisfies READ)', () => {
+      expect(can(UserRole.PARENT, 'READ', 'USER')).toBe(true);
+      expect(can(UserRole.PARENT, 'READ_SELF', 'USER')).toBe(true);
+    });
+
+    it('can READ_OWN student data', () => {
+      expect(can(UserRole.PARENT, 'READ', 'STUDENT')).toBe(true);
+      expect(can(UserRole.PARENT, 'READ_OWN', 'STUDENT')).toBe(true);
+    });
+
+    it('can CREATE bilans and reservations', () => {
+      expect(can(UserRole.PARENT, 'CREATE', 'BILAN')).toBe(true);
+      expect(can(UserRole.PARENT, 'CREATE', 'RESERVATION')).toBe(true);
+    });
+
+    it('can READ own payments', () => {
+      expect(can(UserRole.PARENT, 'READ', 'PAYMENT')).toBe(true);
+      expect(can(UserRole.PARENT, 'READ_OWN', 'PAYMENT')).toBe(true);
+    });
+
+    it('cannot UPDATE or DELETE students', () => {
+      expect(can(UserRole.PARENT, 'UPDATE', 'STUDENT')).toBe(false);
+      expect(can(UserRole.PARENT, 'DELETE', 'STUDENT')).toBe(false);
+    });
+
+    it('cannot access config or reports', () => {
+      expect(can(UserRole.PARENT, 'READ', 'CONFIG')).toBe(false);
+      expect(can(UserRole.PARENT, 'READ', 'REPORT')).toBe(false);
+    });
+  });
+
+  describe('ELEVE — minimal read-only permissions', () => {
+    it('can READ_SELF user and student data', () => {
+      expect(can(UserRole.ELEVE, 'READ_SELF', 'USER')).toBe(true);
+      expect(can(UserRole.ELEVE, 'READ_SELF', 'STUDENT')).toBe(true);
+    });
+
+    it('can READ bilans and resource content', () => {
+      expect(can(UserRole.ELEVE, 'READ', 'BILAN')).toBe(true);
+      expect(can(UserRole.ELEVE, 'READ', 'RESOURCE_CONTENT')).toBe(true);
+    });
+
+    it('can READ_OWN sessions', () => {
+      expect(can(UserRole.ELEVE, 'READ_OWN', 'SESSION')).toBe(true);
+      expect(can(UserRole.ELEVE, 'READ', 'SESSION')).toBe(true);
+    });
+
+    it('cannot CREATE, UPDATE, or DELETE anything', () => {
+      expect(can(UserRole.ELEVE, 'CREATE', 'BILAN')).toBe(false);
+      expect(can(UserRole.ELEVE, 'UPDATE', 'SESSION')).toBe(false);
+      expect(can(UserRole.ELEVE, 'DELETE', 'USER')).toBe(false);
+    });
+
+    it('cannot access payments, subscriptions, config, or reservations', () => {
+      expect(can(UserRole.ELEVE, 'READ', 'PAYMENT')).toBe(false);
+      expect(can(UserRole.ELEVE, 'READ', 'SUBSCRIPTION')).toBe(false);
+      expect(can(UserRole.ELEVE, 'READ', 'CONFIG')).toBe(false);
+      expect(can(UserRole.ELEVE, 'READ', 'RESERVATION')).toBe(false);
+    });
+  });
+
+  describe('MANAGE semantics', () => {
+    it('MANAGE should grant all actions including VALIDATE and EXPORT', () => {
+      expect(can(UserRole.ADMIN, 'VALIDATE', 'BILAN')).toBe(true);
+      expect(can(UserRole.ADMIN, 'EXPORT', 'USER')).toBe(true);
+      expect(can(UserRole.ADMIN, 'DELETE', 'SESSION')).toBe(true);
+    });
+
+    it('ASSISTANTE MANAGE on RESERVATION should grant all actions', () => {
+      expect(can(UserRole.ASSISTANTE, 'CREATE', 'RESERVATION')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'READ', 'RESERVATION')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'UPDATE', 'RESERVATION')).toBe(true);
+      expect(can(UserRole.ASSISTANTE, 'DELETE', 'RESERVATION')).toBe(true);
+    });
+  });
+
+  describe('READ hierarchy', () => {
+    it('READ_SELF should satisfy READ check', () => {
+      // PARENT has READ_SELF on USER
+      expect(can(UserRole.PARENT, 'READ', 'USER')).toBe(true);
+    });
+
+    it('READ_OWN should satisfy READ check', () => {
+      // PARENT has READ_OWN on STUDENT
+      expect(can(UserRole.PARENT, 'READ', 'STUDENT')).toBe(true);
+    });
+
+    it('READ should NOT satisfy READ_SELF check (stricter)', () => {
+      // COACH has READ on USER (not READ_SELF)
+      expect(can(UserRole.COACH, 'READ', 'USER')).toBe(true);
+      // But READ_SELF is a different permission — COACH has READ which is broader
+      expect(can(UserRole.COACH, 'READ_SELF', 'USER')).toBe(false);
+    });
+  });
+});
+
+describe('getPermissions()', () => {
+  it('ADMIN should have permissions on all 11 resources', () => {
+    const perms = getPermissions(UserRole.ADMIN);
+    const resources = new Set(perms.map(p => p.resource));
+    expect(resources.size).toBe(11);
+  });
+
+  it('ELEVE should have the fewest permissions', () => {
+    const elevePerms = getPermissions(UserRole.ELEVE);
+    const coachPerms = getPermissions(UserRole.COACH);
+    expect(elevePerms.length).toBeLessThan(coachPerms.length);
+  });
+
+  it('every permission should have valid action and resource', () => {
+    const validActions: Action[] = ['READ', 'READ_SELF', 'READ_OWN', 'CREATE', 'UPDATE', 'DELETE', 'MANAGE', 'VALIDATE', 'EXPORT'];
+    const validResources: Resource[] = ['USER', 'STUDENT', 'BILAN', 'SESSION', 'RESERVATION', 'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT'];
+
+    for (const role of Object.values(UserRole)) {
+      for (const perm of getPermissions(role)) {
+        expect(validActions).toContain(perm.action);
+        expect(validResources).toContain(perm.resource);
+      }
+    }
   });
 });
