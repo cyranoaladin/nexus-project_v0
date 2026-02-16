@@ -29,7 +29,7 @@ async function main() {
       lastName: 'Lumière',
       pseudonym: 'Hélios',
       tag: '🎓 Agrégé',
-      subjects: JSON.stringify(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE']),
+      subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
       description: 'Agrégé en mathématiques avec 15 ans d\'expérience dans l\'enseignement supérieur.',
       philosophy: 'Les mathématiques sont un langage universel qui ouvre les portes de la logique et de la créativité.',
       expertise: 'Préparation aux concours, remise à niveau, approfondissement'
@@ -40,7 +40,7 @@ async function main() {
       lastName: 'Stratège',
       pseudonym: 'Zénon',
       tag: '🎯 Stratège',
-      subjects: JSON.stringify(['NSI', 'MATHEMATIQUES']),
+      subjects: ['NSI', 'MATHEMATIQUES'],
       description: 'Expert en informatique et algorithmique, spécialisé dans la préparation aux concours d\'ingénieur.',
       philosophy: 'L\'informatique moderne nécessite une approche structurée et créative.',
       expertise: 'Programmation, algorithmes, préparation aux concours d\'ingénieur'
@@ -51,7 +51,7 @@ async function main() {
       lastName: 'Sagesse',
       pseudonym: 'Athéna',
       tag: '📚 Philosophe',
-      subjects: JSON.stringify(['PHILOSOPHIE', 'FRANCAIS']),
+      subjects: ['PHILOSOPHIE', 'FRANCAIS'],
       description: 'Docteur en philosophie, spécialisée dans la méthodologie et l\'argumentation.',
       philosophy: 'La philosophie développe l\'esprit critique et la capacité d\'argumentation.',
       expertise: 'Méthodologie, dissertation, culture générale'
@@ -62,7 +62,7 @@ async function main() {
       lastName: 'Messager',
       pseudonym: 'Hermès',
       tag: '🌍 Linguiste',
-      subjects: JSON.stringify(['ANGLAIS', 'ESPAGNOL']),
+      subjects: ['ANGLAIS', 'ESPAGNOL'],
       description: 'Professeur de langues vivantes, spécialisé dans la préparation aux examens internationaux.',
       philosophy: 'Les langues sont des ponts vers d\'autres cultures et perspectives.',
       expertise: 'Préparation TOEFL, IELTS, DELE, conversation'
@@ -73,7 +73,7 @@ async function main() {
       lastName: 'Mémoire',
       pseudonym: 'Clio',
       tag: '🏛️ Historienne',
-      subjects: JSON.stringify(['HISTOIRE_GEO', 'SES']),
+      subjects: ['HISTOIRE_GEO', 'SES'],
       description: 'Agrégée d\'histoire-géographie, spécialisée dans la méthodologie et l\'analyse documentaire.',
       philosophy: 'L\'histoire nous éclaire sur le présent et nous guide vers l\'avenir.',
       expertise: 'Méthodologie, analyse documentaire, géopolitique'
