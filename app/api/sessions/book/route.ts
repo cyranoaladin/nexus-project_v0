@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         where: {
           userId: validatedData.coachId,
           subjects: {
-            contains: validatedData.subject
+            array_contains: [validatedData.subject]
           }
         },
         include: {

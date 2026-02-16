@@ -194,7 +194,7 @@ export class SessionBookingService {
     const coaches = await prisma.coachProfile.findMany({
       where: {
         subjects: {
-          contains: subject
+          array_contains: [subject]
         }
       },
       include: {
