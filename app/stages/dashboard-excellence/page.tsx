@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Outfit, Space_Grotesk } from "next/font/google";
+import Image from "next/image";
 import {
   Check,
   CheckCircle2,
@@ -263,9 +264,14 @@ export default function DashboardExcellencePage() {
       <header className="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 px-4 py-4 backdrop-blur-xl md:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-indigo-400 via-violet-400 to-pink-400 text-sm font-black text-white">
-              N
-            </div>
+            <Image
+              src="/images/logo_nexus_reussite.png"
+              alt="Nexus Reussite"
+              width={148}
+              height={44}
+              priority
+              className="h-9 w-auto object-contain"
+            />
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Nexus Reussite</p>
               <p className="[font-family:var(--font-space-grotesk)] text-base font-bold">Espace Excellence</p>
@@ -303,6 +309,17 @@ export default function DashboardExcellencePage() {
       </section>
 
       <section className="mx-auto mt-10 max-w-4xl px-4 md:px-8">
+        <div className="mb-5 flex items-center gap-3 rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-3 backdrop-blur-xl">
+          <Image
+            src="/images/logo_nexus_reussite.png"
+            alt="Nexus Reussite"
+            width={132}
+            height={40}
+            className="h-8 w-auto object-contain"
+          />
+          <p className="text-xs uppercase tracking-[0.14em] text-slate-300 md:text-sm">Planning officiel - Session Excellence</p>
+        </div>
+
         <div className="relative pl-0 md:pl-12">
           <div className="absolute bottom-4 left-5 top-4 hidden w-px bg-gradient-to-b from-indigo-400/50 to-pink-400/50 md:block" />
 
@@ -512,6 +529,13 @@ export default function DashboardExcellencePage() {
       <div className="pointer-events-none fixed -left-[9999px] top-0 z-[-1] h-[794px] w-[1123px] overflow-hidden bg-white opacity-0">
         <div ref={certificateRef} className="h-[794px] w-[1123px] bg-white p-10 text-slate-800">
           <div className="relative flex h-full flex-col items-center justify-center border-[10px] border-double border-amber-400 bg-[radial-gradient(circle,#fffaf0_0%,#ffffff_100%)] p-10">
+            <img
+              src="/images/logo_nexus_reussite.png"
+              alt="Nexus Reussite"
+              width="280"
+              height="80"
+              style={{ width: "240px", height: "auto", marginBottom: "12px" }}
+            />
             <p className="[font-family:var(--font-space-grotesk)] text-3xl font-bold tracking-[0.2em] text-slate-900">
               NEXUS REUSSITE ACADEMY
             </p>
