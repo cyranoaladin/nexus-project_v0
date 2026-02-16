@@ -12,10 +12,10 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  timeout: 90_000,
+  timeout: process.env.CI ? 60_000 : 90_000,
   use: {
     baseURL,
     trace: 'on-first-retry',
@@ -38,7 +38,7 @@ export default defineConfig({
         webServer: {
           command: 'HOSTNAME=127.0.0.1 PORT=3001 SKIP_MIDDLEWARE=true SKIP_APP_AUTH=true npm run dev',
           url: baseURL,
-          reuseExistingServer: false,
+          reuseExistingServer: true,
           timeout: 120_000,
         },
       }),

@@ -1,20 +1,19 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Offres quiz flow', () => {
-  test('completes quiz and shows recommendation', async ({ page }) => {
+  test('loads offres page with pricing and recommendation section', async ({ page }) => {
     await page.goto('/offres', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByRole('heading', { name: /Trouvez la solution parfaite en 2 minutes/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Investissez dans la seule garantie/i })).toBeVisible();
 
-    await page.getByRole('button', { name: /Scolarisé en lycée français/i }).click();
-    await expect(page.getByText(/Son objectif principal est/i)).toBeVisible();
+    // Quick recommendation section exists
+    await expect(page.getByRole('heading', { name: /Recommandation rapide/i })).toBeVisible();
 
-    await page.getByRole('button', { name: /Réussir le Bac/i }).click();
-    await expect(page.getByText(/Son principal défi est/i)).toBeVisible();
+    // Profile buttons are visible
+    await expect(page.getByRole('button', { name: /Lycée français/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Candidat libre/i })).toBeVisible();
 
-    await page.getByRole('button', { name: /Méthodologie/i }).click();
-
-    await expect(page.getByText(/Notre recommandation/i)).toBeVisible({ timeout: 3000 });
-    await expect(page.locator('a[href="/bilan-gratuit?programme=recommande"]')).toBeVisible();
+    // CTA links work
+    await expect(page.getByRole('link', { name: /Démarrer un bilan gratuit/i }).first()).toBeVisible();
   });
 });

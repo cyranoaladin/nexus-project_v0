@@ -54,6 +54,11 @@ export function getSupabase(): SupabaseClient | null {
 
   if (!url || !key) return null;
 
+  // Reject obviously placeholder/example URLs to avoid network errors during E2E/dev
+  if (url.includes('example.supabase') || key.startsWith('preflight-') || key === 'your-anon-key') {
+    return null;
+  }
+
   supabaseInstance = createClient(url, key);
   return supabaseInstance;
 }
