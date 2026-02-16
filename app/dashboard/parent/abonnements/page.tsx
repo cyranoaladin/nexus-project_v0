@@ -110,7 +110,7 @@ export default function AbonnementsPage() {
         const errorData = await response.json();
         alert(`Erreur lors de la demande d'abonnement: ${errorData.error}`);
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue');
     } finally {
       setIsRequesting(false);
@@ -146,7 +146,7 @@ export default function AbonnementsPage() {
         const errorData = await response.json();
         alert(errorData.error || 'Erreur lors de l\'ajout de l\'add-on');
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue');
     } finally {
       setIsRequesting(false);

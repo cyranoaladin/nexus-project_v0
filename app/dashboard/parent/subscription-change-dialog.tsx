@@ -87,7 +87,7 @@ export default function SubscriptionChangeDialog({ studentId, studentName, curre
         const errorData = await response.json();
         alert(`Erreur: ${errorData.error}`);
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue lors de la demande de changement');
     } finally {
       setLoading(false);

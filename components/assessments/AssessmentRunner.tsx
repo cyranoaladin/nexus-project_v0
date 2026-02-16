@@ -97,50 +97,8 @@ export function AssessmentRunner({
     setSelectedOption(null);
   };
 
-  // Validate answer
-  const handleValidate = () => {
-    if (!currentQuestion) return;
-
-    // Determine answer status
-    // Note: We don't know if it's correct/incorrect yet (that's determined server-side)
-    // For now, we just mark as 'nsp' if NSP, otherwise we'll need to check correctness
-    const answer: StudentAnswer = {
-      questionId: currentQuestion.id,
-      status: isNSP ? 'nsp' : 'incorrect', // Will be corrected server-side
-    };
-
-    // Store answer
-    const newAnswers = new Map(answers);
-    newAnswers.set(currentQuestion.id, answer);
-    setAnswers(newAnswers);
-
-    // Move to next question or complete
-    if (currentIndex < totalQuestions - 1) {
-      // Check if transitioning between categories
-      const nextQuestion = questions[currentIndex + 1];
-      const isTransition = currentQuestion.category !== nextQuestion.category;
-
-      if (isTransition) {
-        setState('TRANSITION');
-        setTimeout(() => {
-          setCurrentIndex(currentIndex + 1);
-          setSelectedOption(null);
-          setIsNSP(false);
-          setState('QUESTION');
-        }, 2000);
-      } else {
-        setCurrentIndex(currentIndex + 1);
-        setSelectedOption(null);
-        setIsNSP(false);
-      }
-    } else {
-      // All questions answered
-      submitAssessment(newAnswers);
-    }
-  };
-
   // Submit assessment
-  const submitAssessment = async (finalAnswers: Map<string, StudentAnswer>) => {
+  const submitAssessment = useCallback(async (finalAnswers: Map<string, StudentAnswer>) => {
     setState('SUBMITTING');
 
     try {
@@ -182,7 +140,49 @@ export function AssessmentRunner({
       setState('ERROR');
       toast.error('Erreur lors de la soumission');
     }
-  };
+  }, [apiEndpoint, grade, onComplete, router, startTime, studentId, subject]);
+
+  // Validate answer
+  const handleValidate = useCallback(() => {
+    if (!currentQuestion) return;
+
+    // Determine answer status
+    // Note: We don't know if it's correct/incorrect yet (that's determined server-side)
+    // For now, we just mark as 'nsp' if NSP, otherwise we'll need to check correctness
+    const answer: StudentAnswer = {
+      questionId: currentQuestion.id,
+      status: isNSP ? 'nsp' : 'incorrect', // Will be corrected server-side
+    };
+
+    // Store answer
+    const newAnswers = new Map(answers);
+    newAnswers.set(currentQuestion.id, answer);
+    setAnswers(newAnswers);
+
+    // Move to next question or complete
+    if (currentIndex < totalQuestions - 1) {
+      // Check if transitioning between categories
+      const nextQuestion = questions[currentIndex + 1];
+      const isTransition = currentQuestion.category !== nextQuestion.category;
+
+      if (isTransition) {
+        setState('TRANSITION');
+        setTimeout(() => {
+          setCurrentIndex(currentIndex + 1);
+          setSelectedOption(null);
+          setIsNSP(false);
+          setState('QUESTION');
+        }, 2000);
+      } else {
+        setCurrentIndex(currentIndex + 1);
+        setSelectedOption(null);
+        setIsNSP(false);
+      }
+    } else {
+      // All questions answered
+      submitAssessment(newAnswers);
+    }
+  }, [answers, currentIndex, currentQuestion, isNSP, questions, submitAssessment, totalQuestions]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -212,7 +212,7 @@ export function AssessmentRunner({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [state, currentQuestion, selectedOption, isNSP]);
+  }, [state, currentQuestion, selectedOption, isNSP, handleValidate]);
 
   // Calculate progress by category
   const calculateProgress = () => {

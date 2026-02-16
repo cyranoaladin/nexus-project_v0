@@ -99,7 +99,7 @@ export default function PaiementsAssistantePage() {
       } else {
         alert('Erreur lors de la validation')
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue')
     }
   }

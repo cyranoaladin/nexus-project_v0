@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -21,7 +20,6 @@ import {
   MessageSquareQuote,
   Shield,
   ShieldCheck,
-  Star,
   Target,
   TrendingUp,
   Users,
@@ -223,16 +221,18 @@ export default function BilanResultatPage() {
   }, [id, fetchDiagnostic]);
 
   // Auto-poll every 10s for pending statuses
+  const diagnosticStatus = diagnostic?.status;
+
   useEffect(() => {
-    if (!diagnostic) return;
-    const isPendingStatus = ['RECEIVED', 'VALIDATED', 'SCORED', 'GENERATING', 'PENDING'].includes(diagnostic.status);
+    if (!diagnosticStatus) return;
+    const isPendingStatus = ['RECEIVED', 'VALIDATED', 'SCORED', 'GENERATING', 'PENDING'].includes(diagnosticStatus);
     if (isPendingStatus && !pollingRef.current) {
       pollingRef.current = setInterval(() => { fetchDiagnostic(); }, 10000);
     }
     return () => {
       if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
     };
-  }, [diagnostic?.status, fetchDiagnostic]);
+  }, [diagnosticStatus, fetchDiagnostic]);
 
   /* Loading */
   if (loading) return (
@@ -261,7 +261,6 @@ export default function BilanResultatPage() {
   const scoring = diagnostic.data?.scoringV2 || diagnostic.data?.scoring;
   const isAnalyzed = diagnostic.status === "ANALYZED" && bilans;
   const isPending = ["RECEIVED", "VALIDATED", "SCORED", "GENERATING", "PENDING"].includes(diagnostic.status);
-  const isFailed = diagnostic.status === "FAILED" || diagnostic.status === "SCORE_ONLY";
 
   return (
     <div className="min-h-screen bg-surface-darker">

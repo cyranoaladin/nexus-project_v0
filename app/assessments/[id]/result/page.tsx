@@ -21,8 +21,8 @@ interface AssessmentResult {
   studentEmail: string;
   globalScore: number;
   confidenceIndex: number;
-  scoringResult: any;
-  analysisJson: any;
+  scoringResult: Record<string, unknown>;
+  analysisJson: Record<string, unknown>;
   studentMarkdown: string;
   parentsMarkdown: string;
   createdAt: string;

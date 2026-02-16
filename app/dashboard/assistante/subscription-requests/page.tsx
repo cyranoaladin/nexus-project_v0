@@ -108,7 +108,7 @@ export default function SubscriptionRequestsPage() {
         const errorData = await response.json();
         alert(`Erreur: ${errorData.error}`);
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue lors du traitement');
     } finally {
       setProcessing(false);

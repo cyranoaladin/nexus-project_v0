@@ -204,7 +204,6 @@ export default function BilanPallier2MathsPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = 7;
 
   const [formData, setFormData] = useState<FormData>({
     version: "v1.3",

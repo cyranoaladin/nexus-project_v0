@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod';
-import { Subject, Grade } from '@/lib/assessments/core/types';
+import { Subject } from '@/lib/assessments/core/types';
 
 // ─── Request Schema ──────────────────────────────────────────────────────────
 

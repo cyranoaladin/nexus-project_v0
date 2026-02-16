@@ -94,7 +94,7 @@ function WisePaymentContent() {
       } else {
         alert('Erreur lors de l\'envoi de la preuve de virement');
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
