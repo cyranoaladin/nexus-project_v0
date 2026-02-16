@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
           description,
           philosophy,
           expertise,
-          subjects: JSON.stringify(subjects || []),
+          subjects: subjects || [],
           availableOnline: availableOnline ?? true,
           availableInPerson: availableInPerson ?? true
         },

@@ -111,7 +111,7 @@ export async function PUT(
           description: validatedData.description,
           philosophy: validatedData.philosophy,
           expertise: validatedData.expertise,
-          subjects: JSON.stringify(validatedData.subjects),
+          subjects: validatedData.subjects,
           availableOnline: validatedData.availableOnline,
           availableInPerson: validatedData.availableInPerson
         }

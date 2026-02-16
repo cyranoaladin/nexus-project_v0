@@ -110,7 +110,7 @@ export class SessionBookingService {
       select: { subjects: true }
     });
 
-    const coachSubjects: string[] = coachProfile ? JSON.parse(coachProfile.subjects || '[]') : [];
+    const coachSubjects: string[] = coachProfile ? (coachProfile.subjects as unknown as string[] ?? []) : [];
 
     // Get existing bookings
     const bookedSlots = await prisma.sessionBooking.findMany({
@@ -217,7 +217,7 @@ export class SessionBookingService {
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
         email: coach.user.email,
-        coachSubjects: JSON.parse(coach.subjects || '[]'),
+        coachSubjects: (coach.subjects as unknown as string[] ?? []),
         coachAvailabilities: []
       }));
   }
