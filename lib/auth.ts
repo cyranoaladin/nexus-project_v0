@@ -48,7 +48,6 @@ export const authOptions: NextAuthOptions = {
             },
             include: {
               parentProfile: true,
-              studentProfile: true,
               coachProfile: true
             }
           });
@@ -58,6 +57,16 @@ export const authOptions: NextAuthOptions = {
               event: 'auth_failed',
               email: credentials.email.replace(/(?<=.{2}).*(?=@)/, '***')
             }, 'Failed login attempt: user not found')
+            return null;
+          }
+
+          // Block unactivated students (Modèle B: requires activation)
+          if (user.role === 'ELEVE' && !user.activatedAt) {
+            logger.warn({
+              event: 'auth_blocked',
+              userId: user.id,
+              reason: 'student_not_activated'
+            }, 'Login blocked: student account not activated')
             return null;
           }
 

@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            studentProfile: { select: { grade: true } }
+            student: { select: { grade: true } }
           }
         }
       }
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
       return {
         id: entity?.id ?? rb.studentId,
         name: `${rb.student?.firstName ?? ''} ${rb.student?.lastName ?? ''}`.trim(),
-        grade: entity?.grade ?? rb.student?.studentProfile?.grade ?? null,
+        grade: entity?.grade ?? rb.student?.student?.grade ?? null,
         subject: rb.subject,
         lastSession: rb.scheduledDate,
         creditBalance: entity?.balance ?? 0,

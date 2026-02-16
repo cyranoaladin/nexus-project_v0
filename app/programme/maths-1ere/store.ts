@@ -33,29 +33,15 @@ const HINT_MALUS: Record<HintLevel, number> = {
 };
 
 interface MathsLabState {
-  // ─── Remote Sync Safety ────────────────────────────────────────────────
-  /** True only when initial hydration has been explicitly confirmed */
-  isHydrated: boolean;
-  /** True when remote writes are allowed (hydration success + remote available) */
-  canWriteRemote: boolean;
-  /** Human-readable hydration error, when app must remain read-only */
-  hydrationError: string | null;
-
   // ─── Progression ────────────────────────────────────────────────────────
   /** IDs of completed chapters */
   completedChapters: string[];
-  /** IDs of chapters unlocked by prerequisite completion */
-  unlockedChapters: string[];
   /** IDs of chapters where all exercises were completed */
   masteredChapters: string[];
 
   // ─── XP & Gamification ──────────────────────────────────────────────────
   totalXP: number;
   quizScore: number;
-  /** Number of level-up events triggered */
-  levelUpCount: number;
-  /** Last level reached by level-up */
-  lastLevelUpName: string | null;
 
   // ─── Combo System ─────────────────────────────────────────────────────
   /** Consecutive correct answers (resets on wrong answer) */
@@ -98,7 +84,6 @@ interface MathsLabState {
   getDueReviews: () => string[];
 
   // ─── Actions ────────────────────────────────────────────────────────────
-  unlockChapter: (chapId: string) => void;
   toggleChapterComplete: (chapId: string) => void;
   addXP: (amount: number) => void;
   addQuizScore: (points: number) => void;
@@ -112,11 +97,6 @@ interface MathsLabState {
   recordActivity: () => void;
   evaluateBadges: () => void;
   recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => void;
-  setHydrationStatus: (payload: {
-    isHydrated: boolean;
-    canWriteRemote: boolean;
-    hydrationError: string | null;
-  }) => void;
   resetProgress: () => void;
 }
 
@@ -221,18 +201,6 @@ function evaluateBadgeConditions(state: {
       } else {
         earned = state.completedChapters.includes(target);
       }
-    } else if (cond.startsWith('exercises_count:')) {
-      // Format: exercises_count:chap1,chap2,... >= N
-      const match = cond.match(/^exercises_count:(.+)\s*>=\s*(\d+)$/);
-      if (match) {
-        const chapIds = match[1].split(',').map((s: string) => s.trim());
-        const threshold = parseInt(match[2], 10);
-        const totalExercises = chapIds.reduce(
-          (sum: number, cid: string) => sum + (state.exerciseResults[cid]?.length ?? 0),
-          0
-        );
-        earned = totalExercises >= threshold;
-      }
     } else if (cond === 'all_chapters_completed') {
       earned = allChapterIds.length > 0 && allChapterIds.every((id) => state.completedChapters.includes(id));
     }
@@ -272,72 +240,16 @@ function calculateStreak(lastDate: string | null, currentStreak: number, freezes
   return { streak: 1, freezesUsed: 0 }; // streak broken
 }
 
-const chapterGraph = Object.values(programmeData).flatMap((cat) => cat.chapitres);
-const entryPointChapters = chapterGraph
-  .filter((c) => (c.prerequis?.length ?? 0) === 0)
-  .map((c) => c.id);
-
-function applyXpGain(
-  state: Pick<MathsLabState, 'totalXP' | 'levelUpCount' | 'lastLevelUpName'>,
-  amount: number
-): Pick<MathsLabState, 'totalXP' | 'levelUpCount' | 'lastLevelUpName'> {
-  const prevLevel = getNiveau(state.totalXP);
-  const nextXP = state.totalXP + amount;
-  const nextLevel = getNiveau(nextXP);
-
-  if (nextLevel.xpMin > prevLevel.xpMin) {
-    return {
-      totalXP: nextXP,
-      levelUpCount: state.levelUpCount + 1,
-      lastLevelUpName: nextLevel.nom,
-    };
-  }
-
-  return {
-    totalXP: nextXP,
-    levelUpCount: state.levelUpCount,
-    lastLevelUpName: state.lastLevelUpName,
-  };
-}
-
-function computeUnlockCascade(chapId: string, completedChapters: string[], unlockedChapters: string[]): string[] {
-  const unlocked = new Set(unlockedChapters);
-  const completed = new Set(completedChapters);
-  unlocked.add(chapId);
-
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const chapter of chapterGraph) {
-      if (unlocked.has(chapter.id)) continue;
-      const prereq = chapter.prerequis ?? [];
-      if (prereq.length === 0 || prereq.every((id) => completed.has(id))) {
-        unlocked.add(chapter.id);
-        changed = true;
-      }
-    }
-  }
-
-  return Array.from(unlocked);
-}
-
 // ─── Store ──────────────────────────────────────────────────────────────────
 
 export const useMathsLabStore = create<MathsLabState>()(
   persist(
     (set, get) => ({
-      isHydrated: false,
-      canWriteRemote: false,
-      hydrationError: null,
-
       // ─── Initial State ──────────────────────────────────────────────────
       completedChapters: [],
-      unlockedChapters: entryPointChapters,
       masteredChapters: [],
       totalXP: 0,
       quizScore: 0,
-      levelUpCount: 0,
-      lastLevelUpName: null,
       comboCount: 0,
       bestCombo: 0,
       streak: 0,
@@ -385,13 +297,6 @@ export const useMathsLabStore = create<MathsLabState>()(
       },
 
       // ─── Actions ────────────────────────────────────────────────────────
-      unlockChapter: (chapId: string) => {
-        set((state) => {
-          const nextUnlocked = computeUnlockCascade(chapId, state.completedChapters, state.unlockedChapters);
-          return { unlockedChapters: nextUnlocked };
-        });
-      },
-
       toggleChapterComplete: (chapId: string) => {
         set((state) => {
           const isCompleted = state.completedChapters.includes(chapId);
@@ -400,33 +305,24 @@ export const useMathsLabStore = create<MathsLabState>()(
             : [...state.completedChapters, chapId];
 
           const xpDelta = isCompleted ? 0 : 25; // bonus XP for completing a chapter
-          const xpState = applyXpGain(state, xpDelta);
-          const unlockedChapters = isCompleted
-            ? state.unlockedChapters.filter((id) => id !== chapId || entryPointChapters.includes(id))
-            : computeUnlockCascade(chapId, completedChapters, state.unlockedChapters);
-
           return {
             completedChapters,
-            unlockedChapters,
-            ...xpState,
+            totalXP: state.totalXP + xpDelta,
           };
         });
         get().recordActivity();
       },
 
       addXP: (amount: number) => {
-        set((state) => applyXpGain(state, amount));
+        set((state) => ({ totalXP: state.totalXP + amount }));
         get().recordActivity();
       },
 
       addQuizScore: (points: number) => {
-        set((state) => {
-          const xpState = applyXpGain(state, points);
-          return {
-            quizScore: state.quizScore + points,
-            ...xpState,
-          };
-        });
+        set((state) => ({
+          quizScore: state.quizScore + points,
+          totalXP: state.totalXP + points,
+        }));
         get().recordActivity();
       },
 
@@ -436,13 +332,12 @@ export const useMathsLabStore = create<MathsLabState>()(
           if (prev.includes(exerciseIndex)) return state;
           const comboMult = get().getComboMultiplier();
           const xpGain = Math.round(10 * comboMult);
-          const xpState = applyXpGain(state, xpGain);
           return {
             exerciseResults: {
               ...state.exerciseResults,
               [chapId]: [...prev, exerciseIndex],
             },
-            ...xpState,
+            totalXP: state.totalXP + xpGain,
           };
         });
         get().recordActivity();
@@ -456,7 +351,6 @@ export const useMathsLabStore = create<MathsLabState>()(
           const malus = HINT_MALUS[hintLevel];
           const comboMult = get().getComboMultiplier();
           const xpGain = Math.round(baseXP * malus * comboMult);
-          const xpState = applyXpGain(state, xpGain);
           return {
             exerciseResults: {
               ...state.exerciseResults,
@@ -466,7 +360,7 @@ export const useMathsLabStore = create<MathsLabState>()(
               ...state.hintUsage,
               [key]: Math.max(state.hintUsage[key] ?? 0, hintLevel) as HintLevel,
             },
-            ...xpState,
+            totalXP: state.totalXP + xpGain,
           };
         });
         get().recordActivity();
@@ -478,17 +372,14 @@ export const useMathsLabStore = create<MathsLabState>()(
         if (get().dailyChallenge.completedToday && get().dailyChallenge.lastCompletedDate === today) return;
         const streakBonus = get().streak >= 5 ? 1.5 : get().streak >= 3 ? 1.25 : 1.0;
         const xpGain = Math.round(xp * streakBonus);
-        set((state) => {
-          const xpState = applyXpGain(state, xpGain);
-          return {
-            dailyChallenge: {
-              lastCompletedDate: today,
-              todayChallengeId: challengeId,
-              completedToday: true,
-            },
-            ...xpState,
-          };
-        });
+        set((state) => ({
+          dailyChallenge: {
+            lastCompletedDate: today,
+            todayChallengeId: challengeId,
+            completedToday: true,
+          },
+          totalXP: state.totalXP + xpGain,
+        }));
         get().recordActivity();
       },
 
@@ -507,23 +398,14 @@ export const useMathsLabStore = create<MathsLabState>()(
         const cost = 100;
         const state = get();
         if (state.totalXP < cost) return false;
-        set({
-          totalXP: state.totalXP - cost,
-          streakFreezes: state.streakFreezes + 1,
-          levelUpCount: state.levelUpCount,
-          lastLevelUpName: state.lastLevelUpName,
-        });
+        set({ totalXP: state.totalXP - cost, streakFreezes: state.streakFreezes + 1 });
         return true;
       },
 
       earnBadge: (badgeId: string) => {
         set((state) => {
           if (state.badges.includes(badgeId)) return state;
-          const xpState = applyXpGain(state, 50);
-          return {
-            badges: [...state.badges, badgeId],
-            ...xpState,
-          };
+          return { badges: [...state.badges, badgeId], totalXP: state.totalXP + 50 };
         });
       },
 
@@ -541,7 +423,7 @@ export const useMathsLabStore = create<MathsLabState>()(
         if (newBadges.length > 0) {
           set((s) => ({
             badges: [...s.badges, ...newBadges],
-            ...applyXpGain(s, newBadges.length * 50),
+            totalXP: s.totalXP + newBadges.length * 50,
           }));
         }
       },
@@ -560,14 +442,6 @@ export const useMathsLabStore = create<MathsLabState>()(
           };
         });
         get().recordActivity();
-      },
-
-      setHydrationStatus: ({ isHydrated, canWriteRemote, hydrationError }) => {
-        set({
-          isHydrated,
-          canWriteRemote,
-          hydrationError,
-        });
       },
 
       recordActivity: () => {
@@ -591,16 +465,10 @@ export const useMathsLabStore = create<MathsLabState>()(
 
       resetProgress: () => {
         set({
-          isHydrated: false,
-          canWriteRemote: false,
-          hydrationError: null,
           completedChapters: [],
-          unlockedChapters: entryPointChapters,
           masteredChapters: [],
           totalXP: 0,
           quizScore: 0,
-          levelUpCount: 0,
-          lastLevelUpName: null,
           comboCount: 0,
           bestCombo: 0,
           streak: 0,
@@ -620,49 +488,7 @@ export const useMathsLabStore = create<MathsLabState>()(
     }),
     {
       name: 'nexus-maths-lab-v2',
-      version: 5,
-      partialize: (state) => ({
-        isHydrated: false,
-        canWriteRemote: false,
-        hydrationError: null,
-        completedChapters: state.completedChapters,
-        unlockedChapters: state.unlockedChapters,
-        masteredChapters: state.masteredChapters,
-        totalXP: state.totalXP,
-        quizScore: state.quizScore,
-        levelUpCount: state.levelUpCount,
-        lastLevelUpName: state.lastLevelUpName,
-        comboCount: state.comboCount,
-        bestCombo: state.bestCombo,
-        streak: state.streak,
-        lastActivityDate: state.lastActivityDate,
-        streakFreezes: state.streakFreezes,
-        dailyChallenge: state.dailyChallenge,
-        exerciseResults: state.exerciseResults,
-        hintUsage: state.hintUsage,
-        badges: state.badges,
-        srsQueue: state.srsQueue,
-      }),
-      migrate: (persistedState: unknown, version: number) => {
-        const state = (persistedState ?? {}) as Partial<MathsLabState>;
-        if (version < 5) {
-          return {
-            ...state,
-            unlockedChapters: state.unlockedChapters ?? entryPointChapters,
-            levelUpCount: state.levelUpCount ?? 0,
-            lastLevelUpName: state.lastLevelUpName ?? null,
-            isHydrated: false,
-            canWriteRemote: false,
-            hydrationError: null,
-          };
-        }
-        return {
-          ...state,
-          isHydrated: false,
-          canWriteRemote: false,
-          hydrationError: null,
-        };
-      },
+      version: 3,
     }
   )
 );
