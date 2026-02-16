@@ -8,7 +8,7 @@
  * - Category-based analysis (Algèbre, Analyse, Géométrie, etc.)
  */
 
-import { BaseScorer, type ScoringStats, type CategoryStats } from './base-scorer';
+import { BaseScorer, type ScoringStats } from './base-scorer';
 import type {
   Subject,
   Grade,
@@ -18,7 +18,6 @@ import type {
   ScoringResult,
 } from '../core/types';
 import {
-  MATHS_COMPETENCY_WEIGHTS,
   MATHS_STRENGTH_THRESHOLD,
   MATHS_WEAKNESS_THRESHOLD,
   RECOMMENDATION_THRESHOLDS,

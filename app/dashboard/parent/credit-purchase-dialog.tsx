@@ -54,7 +54,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
         const errorData = await response.json();
         alert(`Erreur: ${errorData.error}`);
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue lors de la demande de crédits');
     } finally {
       setLoading(false);

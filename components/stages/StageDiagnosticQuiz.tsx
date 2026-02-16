@@ -20,7 +20,6 @@ import {
 import {
   MATHS_QUESTIONS,
   NSI_QUESTIONS,
-  ALL_STAGE_QUESTIONS,
 } from '@/lib/data/stage-qcm-structure';
 import type { StageQuestion } from '@/lib/data/stage-qcm-structure';
 

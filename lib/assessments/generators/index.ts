@@ -17,6 +17,22 @@ interface BilanGenerationResult {
   nexusMarkdown: string;
 }
 
+interface BilanPromptContext {
+  studentName: string;
+  globalScore: number;
+  confidenceIndex: number;
+  precisionIndex: number;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  metrics: unknown;
+  diagnosticText: string;
+  lucidityText: string;
+  totalQuestions: number;
+  totalAttempted: number;
+  totalCorrect: number;
+}
+
 export class BilanGenerator {
   /**
    * Generate personalized bilans for an assessment
@@ -196,7 +212,7 @@ export class BilanGenerator {
   /**
    * Build context object for prompt rendering
    */
-  private static buildContext(studentName: string, scoringResult: ScoringResult): Record<string, any> {
+  private static buildContext(studentName: string, scoringResult: ScoringResult): BilanPromptContext {
     return {
       studentName,
       globalScore: scoringResult.globalScore,
@@ -217,7 +233,7 @@ export class BilanGenerator {
   /**
    * Build user prompt from context
    */
-  private static buildUserPrompt(context: Record<string, any>): string {
+  private static buildUserPrompt(context: BilanPromptContext): string {
     return `
 Voici les résultats de l'évaluation pour ${context.studentName} :
 

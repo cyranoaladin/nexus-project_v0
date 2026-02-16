@@ -54,7 +54,7 @@ function KonnectDemoContent() {
       } else {
         alert('Erreur lors de la validation du paiement');
       }
-    } catch (error) {
+    } catch {
       alert('Une erreur est survenue');
     } finally {
       setIsProcessing(false);

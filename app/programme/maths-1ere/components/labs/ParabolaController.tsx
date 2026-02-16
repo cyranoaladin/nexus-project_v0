@@ -26,7 +26,7 @@ export default function ParabolaController() {
     if (delta === 0) return [alpha];
     const sqrtD = Math.sqrt(delta);
     return [(-b - sqrtD) / (2 * a), (-b + sqrtD) / (2 * a)];
-  }, [a, b, c, delta, alpha]);
+  }, [a, b, delta, alpha]);
 
   const isDegenerate = Math.abs(a) < 0.001;
   const deltaColor = isDegenerate ? 'text-slate-400' : delta > 0 ? 'text-green-400' : delta === 0 ? 'text-amber-400' : 'text-red-400';

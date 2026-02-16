@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import type { Question, QuestionOption } from '@/lib/assessments/questions/types';
+import type { Question } from '@/lib/assessments/questions/types';
 import { CodeBlock } from './CodeBlock';
 import 'katex/dist/katex.min.css';
 

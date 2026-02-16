@@ -91,7 +91,7 @@ export default function CreditsManagement() {
         throw new Error(errorData.error || 'Failed to add credits');
       }
 
-      const result = await response.json();
+      await response.json();
       // Reset form and close dialog
       setAddCreditsForm({
         amount: "",

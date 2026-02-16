@@ -9,7 +9,7 @@
  * - Category-based analysis (Python, POO, Structures, SQL, etc.)
  */
 
-import { BaseScorer, type ScoringStats, type CategoryStats } from './base-scorer';
+import { BaseScorer, type ScoringStats } from './base-scorer';
 import type {
   Subject,
   Grade,
@@ -19,10 +19,8 @@ import type {
   ScoringResult,
 } from '../core/types';
 import {
-  NSI_COMPETENCY_WEIGHTS,
   NSI_STRENGTH_THRESHOLD,
   NSI_WEAKNESS_THRESHOLD,
-  NSI_ERROR_WEIGHTS,
   RECOMMENDATION_THRESHOLDS,
 } from '../core/constants';
 import { getCategoryLabels } from '../core/config';
