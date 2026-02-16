@@ -28,16 +28,28 @@ describe('MathsLab store', () => {
     expect(state.lastLevelUpName).toBe('Initié');
   });
 
-  it('unlockChapter débloque aussi les chapitres enfants via prerequis', () => {
+  it('toggleChapterComplete débloque les chapitres enfants via prerequis', () => {
     const before = useMathsLabStore.getState();
     expect(before.unlockedChapters).not.toContain('suites');
 
+    act(() => {
+      useMathsLabStore.getState().toggleChapterComplete('second-degre');
+    });
+
+    const after = useMathsLabStore.getState();
+    expect(after.completedChapters).toContain('second-degre');
+    expect(after.unlockedChapters).toContain('suites');
+  });
+
+  it('unlockChapter does NOT mark chapter as completed for prerequisite evaluation', () => {
     act(() => {
       useMathsLabStore.getState().unlockChapter('second-degre');
     });
 
     const after = useMathsLabStore.getState();
     expect(after.unlockedChapters).toContain('second-degre');
-    expect(after.unlockedChapters).toContain('suites');
+    // suites requires second-degre to be COMPLETED, not just unlocked
+    expect(after.unlockedChapters).not.toContain('suites');
+    expect(after.completedChapters).not.toContain('second-degre');
   });
 });

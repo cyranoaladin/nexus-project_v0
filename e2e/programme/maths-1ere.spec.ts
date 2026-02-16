@@ -22,13 +22,12 @@ test.describe('Maths Lab — Student Journey', () => {
         const tabs = ['Tableau de bord', 'Fiches de Cours', 'Quiz Express'];
         for (const tabName of tabs) {
             const tab = page.getByText(tabName, { exact: false }).first();
-            if (await tab.isVisible()) {
-                await tab.click();
-                // Give time for content to render
-                await page.waitForTimeout(500);
-                // No 404/error page
-                await expect(page.locator('text=404')).not.toBeVisible();
-            }
+            await expect(tab).toBeVisible({ timeout: 5000 });
+            await tab.click();
+            // Give time for content to render
+            await page.waitForTimeout(500);
+            // No 404/error page
+            await expect(page.locator('text=404')).not.toBeVisible();
         }
     });
 
@@ -91,7 +90,7 @@ test.describe('Maths Lab — Student Journey', () => {
                         Math.max(0, innerText.indexOf(match[0]) - 50),
                         innerText.indexOf(match[0]) + match[0].length + 50
                     );
-                    console.warn(`⚠️ Potential raw LaTeX found: "${match[0]}" in context: "${context}"`);
+                    expect(match, `Raw LaTeX found: "${match[0]}" in context: "${context}"`).toBeNull();
                 }
             }
 

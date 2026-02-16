@@ -221,6 +221,18 @@ function evaluateBadgeConditions(state: {
       } else {
         earned = state.completedChapters.includes(target);
       }
+    } else if (cond.startsWith('exercises_count:')) {
+      // Format: exercises_count:chap1,chap2,... >= N
+      const match = cond.match(/^exercises_count:(.+)\s*>=\s*(\d+)$/);
+      if (match) {
+        const chapIds = match[1].split(',').map((s: string) => s.trim());
+        const threshold = parseInt(match[2], 10);
+        const totalExercises = chapIds.reduce(
+          (sum: number, cid: string) => sum + (state.exerciseResults[cid]?.length ?? 0),
+          0
+        );
+        earned = totalExercises >= threshold;
+      }
     } else if (cond === 'all_chapters_completed') {
       earned = allChapterIds.length > 0 && allChapterIds.every((id) => state.completedChapters.includes(id));
     }
@@ -292,7 +304,6 @@ function computeUnlockCascade(chapId: string, completedChapters: string[], unloc
   const unlocked = new Set(unlockedChapters);
   const completed = new Set(completedChapters);
   unlocked.add(chapId);
-  completed.add(chapId);
 
   let changed = true;
   while (changed) {

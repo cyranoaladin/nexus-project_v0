@@ -21,7 +21,7 @@ export function areEquivalentAnswers(studentAnswer: string, expectedAnswer: stri
 
   if (!lhs || !rhs) return false;
   if (lhs === rhs) return true;
-  if (lhs.replace(/\*/g, '') === rhs.replace(/\*/g, '')) return true;
+  // Removed: star-stripping shortcut was too permissive (e.g. 2*10 === 210)
 
   try {
     const ce = new ComputeEngine();
