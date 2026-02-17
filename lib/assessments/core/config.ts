@@ -110,12 +110,20 @@ export const ASSESSMENT_TYPE_LABELS: Record<AssessmentType, string> = {
 //   - Cohort aggregation reliability (no "holes" in statistics)
 //   - Consistent data shape across assessments
 
-/** Canonical Maths domains (Terminale Spé) */
+/**
+ * Canonical Maths domains (Terminale Spé) — 5 domains.
+ *
+ * Aligned with dataset maths_terminale_spe_v1 (50Q):
+ *   analyse(12Q), combinatoire(6Q), geometrie(10Q), logExp(10Q), probabilites(12Q)
+ *
+ * NOTE: 'algebre' is NOT a domain in the v1 dataset. The scorer mapping accepts
+ * it but no question produces it. If a future dataset version adds Algèbre
+ * questions, add 'algebre' here and bump the assessmentVersion.
+ */
 export const CANONICAL_DOMAINS_MATHS = [
-  'algebre',
   'analyse',
-  'geometrie',
   'combinatoire',
+  'geometrie',
   'logExp',
   'probabilites',
 ] as const;
