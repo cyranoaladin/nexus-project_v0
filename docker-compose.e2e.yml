@@ -1,42 +1,91 @@
 # =============================================================================
-# Docker Compose - E2E Testing Environment
+# Docker Compose — E2E Ephemeral (Autonomous, One-Shot)
 # =============================================================================
-# Ephemeral PostgreSQL database for E2E tests
-# Port: 5435 (isolated from dev on 5434 and CI on 5432)
-# Data: In-memory (tmpfs) for speed
-# Lifecycle: Created before tests, destroyed after tests
+# 3 services: postgres-e2e → app-e2e (migrate+seed+Next.js) → playwright
+#
+# Usage:
+#   npm run test:e2e:ephemeral
+#   # equivalent to:
+#   docker compose -f docker-compose.e2e.yml up --build \
+#     --abort-on-container-exit --exit-code-from playwright
+#
+# Teardown:
+#   npm run test:e2e:ephemeral:down
+#   # equivalent to:
+#   docker compose -f docker-compose.e2e.yml down -v
+#
+# Zero prerequisites: no running app, no external DB, no Ollama.
 # =============================================================================
-
-version: '3.9'
 
 services:
+  # ─── 1. PostgreSQL (ephemeral, tmpfs) ─────────────────────────────────────
   postgres-e2e:
     image: postgres:16-alpine
     container_name: nexus-postgres-e2e
-    restart: unless-stopped
-
-    ports:
-      - "5436:5432"
-
+    restart: "no"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: nexus_e2e
       PGDATA: /var/lib/postgresql/data
-
-    # Use tmpfs for in-memory storage (faster, ephemeral)
     tmpfs:
       - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
-
-    # Health check to ensure DB is ready before running tests
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_e2e"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - e2e-network
+
+  # ─── 2. Next.js App (build + migrate + seed + serve) ─────────────────────
+  app-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    container_name: nexus-app-e2e
+    restart: "no"
+    depends_on:
+      postgres-e2e:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
+      NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
+      NEXTAUTH_URL: http://app-e2e:3000
+      NEXTAUTH_TRUST_HOST: "true"
+      LLM_MODE: "off"
+      SKIP_MIDDLEWARE: "true"
+      # Disable external services
+      OLLAMA_URL: ""
+      RAG_INGESTOR_URL: ""
+      NEXT_PUBLIC_SUPABASE_URL: ""
+      UPSTASH_REDIS_REST_URL: ""
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 20
+      start_period: 30s
+    networks:
+      - e2e-network
 
-    # Network isolation
+  # ─── 3. Playwright (wait for app → run tests → exit) ─────────────────────
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    container_name: nexus-playwright-e2e
+    restart: "no"
+    depends_on:
+      app-e2e:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://app-e2e:3000
+      CI: "true"
     networks:
       - e2e-network
 
