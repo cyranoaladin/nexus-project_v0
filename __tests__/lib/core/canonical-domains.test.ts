@@ -16,9 +16,9 @@ import {
 // ─── getCanonicalDomains ─────────────────────────────────────────────────────
 
 describe('getCanonicalDomains', () => {
-  it('returns 6 domains for MATHS', () => {
+  it('returns 5 domains for MATHS', () => {
     const domains = getCanonicalDomains('MATHS');
-    expect(domains).toHaveLength(6);
+    expect(domains).toHaveLength(5);
     expect(domains).toEqual(CANONICAL_DOMAINS_MATHS);
   });
 
@@ -39,14 +39,15 @@ describe('getCanonicalDomains', () => {
     expect(domains).toEqual(CANONICAL_DOMAINS_MATHS);
   });
 
-  it('MATHS includes all expected keys', () => {
+  it('MATHS includes all expected keys (5 domains, no algebre)', () => {
     const domains = getCanonicalDomains('MATHS');
-    expect(domains).toContain('algebre');
     expect(domains).toContain('analyse');
-    expect(domains).toContain('geometrie');
     expect(domains).toContain('combinatoire');
+    expect(domains).toContain('geometrie');
     expect(domains).toContain('logExp');
     expect(domains).toContain('probabilites');
+    // algebre is NOT in v1 dataset — no question produces it
+    expect(domains).not.toContain('algebre');
   });
 
   it('NSI includes all expected keys', () => {
@@ -63,9 +64,9 @@ describe('getCanonicalDomains', () => {
 // ─── backfillCanonicalDomains ────────────────────────────────────────────────
 
 describe('backfillCanonicalDomains', () => {
-  it('returns all 6 MATHS domains even when partial is empty', () => {
+  it('returns all 5 MATHS domains even when partial is empty', () => {
     const result = backfillCanonicalDomains('MATHS', {});
-    expect(Object.keys(result)).toHaveLength(6);
+    expect(Object.keys(result)).toHaveLength(5);
     for (const domain of CANONICAL_DOMAINS_MATHS) {
       expect(result[domain]).toBe(0);
     }
@@ -78,15 +79,13 @@ describe('backfillCanonicalDomains', () => {
     });
     expect(result.analyse).toBe(75);
     expect(result.combinatoire).toBe(50);
-    expect(result.algebre).toBe(0);
     expect(result.geometrie).toBe(0);
     expect(result.logExp).toBe(0);
     expect(result.probabilites).toBe(0);
   });
 
-  it('returns all 6 MATHS domains when all are provided', () => {
+  it('returns all 5 MATHS domains when all are provided', () => {
     const partial = {
-      algebre: 80,
       analyse: 60,
       geometrie: 40,
       combinatoire: 100,
@@ -94,18 +93,20 @@ describe('backfillCanonicalDomains', () => {
       probabilites: 55,
     };
     const result = backfillCanonicalDomains('MATHS', partial);
-    expect(Object.keys(result)).toHaveLength(6);
-    expect(result.algebre).toBe(80);
+    expect(Object.keys(result)).toHaveLength(5);
+    expect(result.analyse).toBe(60);
     expect(result.probabilites).toBe(55);
   });
 
-  it('ignores non-canonical keys from partial', () => {
+  it('ignores non-canonical keys from partial (including algebre)', () => {
     const result = backfillCanonicalDomains('MATHS', {
       analyse: 50,
+      algebre: 99,
       unknown_domain: 99,
     } as Record<string, number>);
-    expect(Object.keys(result)).toHaveLength(6);
+    expect(Object.keys(result)).toHaveLength(5);
     expect(result).not.toHaveProperty('unknown_domain');
+    expect(result).not.toHaveProperty('algebre');
   });
 
   it('treats undefined scores as 0', () => {
@@ -139,12 +140,12 @@ describe('backfillCanonicalDomains', () => {
     expect(result.connaissances).toBe(0);
   });
 
-  it('"toutes fausses" assessment returns all domains at 0', () => {
+  it('"toutes fausses" assessment returns all 5 domains at 0', () => {
     const result = backfillCanonicalDomains('MATHS', {
       analyse: 0,
       combinatoire: 0,
     });
-    expect(Object.keys(result)).toHaveLength(6);
+    expect(Object.keys(result)).toHaveLength(5);
     for (const domain of CANONICAL_DOMAINS_MATHS) {
       expect(result[domain]).toBe(0);
     }

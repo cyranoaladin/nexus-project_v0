@@ -84,7 +84,7 @@ describe('Assessment Pipeline — Real DB', () => {
 
   // ─── Test 2: Canonical domain_scores insertion ───────────────────────────
 
-  it('persists all 6 canonical MATHS domain_scores (including 0)', async () => {
+  it('persists all 5 canonical MATHS domain_scores (including 0)', async () => {
     const assessment = await prisma.assessment.create({
       data: {
         subject: 'MATHS',
@@ -104,7 +104,7 @@ describe('Assessment Pipeline — Real DB', () => {
     const partial = { analyse: 75, combinatoire: 50 };
     const completeDomains = backfillCanonicalDomains('MATHS', partial);
 
-    expect(Object.keys(completeDomains)).toHaveLength(6);
+    expect(Object.keys(completeDomains)).toHaveLength(5);
 
     for (const [domain, score] of Object.entries(completeDomains)) {
       await prisma.$executeRawUnsafe(
@@ -116,26 +116,27 @@ describe('Assessment Pipeline — Real DB', () => {
       );
     }
 
-    // Verify all 6 are in DB
+    // Verify all 5 are in DB
     const rows = await prisma.$queryRawUnsafe<{ domain: string; score: number }[]>(
       `SELECT "domain", "score" FROM "domain_scores" WHERE "assessmentId" = $1 ORDER BY "domain"`,
       assessment.id
     );
 
-    expect(rows).toHaveLength(6);
+    expect(rows).toHaveLength(5);
 
     const domainMap = new Map(rows.map((r) => [r.domain, r.score]));
     expect(domainMap.get('analyse')).toBe(75);
     expect(domainMap.get('combinatoire')).toBe(50);
-    expect(domainMap.get('algebre')).toBe(0);
     expect(domainMap.get('geometrie')).toBe(0);
     expect(domainMap.get('logExp')).toBe(0);
     expect(domainMap.get('probabilites')).toBe(0);
+    // algebre is NOT in v1 dataset
+    expect(domainMap.has('algebre')).toBe(false);
   });
 
   // ─── Test 3: "Toutes fausses" → all 6 domains at 0 ──────────────────────
 
-  it('persists all 6 domains at 0 for a zero-score assessment', async () => {
+  it('persists all 5 domains at 0 for a zero-score assessment', async () => {
     const assessment = await prisma.assessment.create({
       data: {
         subject: 'MATHS',
@@ -168,10 +169,61 @@ describe('Assessment Pipeline — Real DB', () => {
       assessment.id
     );
 
-    expect(rows).toHaveLength(6);
+    expect(rows).toHaveLength(5);
     for (const row of rows) {
       expect(row.score).toBe(0);
     }
+  });
+
+  // ─── Test 3b: Cas C — historical assessment with partial domains ──────────
+  //     Simulates an old assessment persisted before canonical fix (only 2 domains).
+  //     The result API backfill logic must return 5 domains.
+
+  it('backfills historical assessment (2 domains in DB) to 5 canonical on read', async () => {
+    const assessment = await prisma.assessment.create({
+      data: {
+        subject: 'MATHS', grade: 'TERMINALE',
+        studentEmail: 'historical@nexus.com', studentName: 'Historical Student',
+        answers: {}, globalScore: 45, confidenceIndex: 60,
+        status: 'COMPLETED', progress: 100, scoringResult: { globalScore: 45 },
+      },
+    });
+
+    // Insert only 2 domains (simulating pre-fix persistence)
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
+       VALUES (gen_random_uuid()::text, $1, 'analyse', 60, NOW())`,
+      assessment.id
+    );
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
+       VALUES (gen_random_uuid()::text, $1, 'probabilites', 30, NOW())`,
+      assessment.id
+    );
+
+    // Verify only 2 rows in DB
+    const rawRows = await prisma.$queryRawUnsafe<{ domain: string; score: number }[]>(
+      `SELECT "domain", "score" FROM "domain_scores" WHERE "assessmentId" = $1`,
+      assessment.id
+    );
+    expect(rawRows).toHaveLength(2);
+
+    // Simulate result API backfill logic (same code as route.ts)
+    const { getCanonicalDomains } = await import('@/lib/assessments/core/config');
+    const canonical = getCanonicalDomains(assessment.subject);
+    const domainMap = new Map(rawRows.map((d) => [d.domain, d.score]));
+    const completeDomainScores = canonical.map((domain) => ({
+      domain,
+      score: domainMap.get(domain) ?? 0,
+    }));
+
+    // Must return exactly 5 domains
+    expect(completeDomainScores).toHaveLength(5);
+    expect(completeDomainScores.find((d) => d.domain === 'analyse')?.score).toBe(60);
+    expect(completeDomainScores.find((d) => d.domain === 'probabilites')?.score).toBe(30);
+    expect(completeDomainScores.find((d) => d.domain === 'combinatoire')?.score).toBe(0);
+    expect(completeDomainScores.find((d) => d.domain === 'geometrie')?.score).toBe(0);
+    expect(completeDomainScores.find((d) => d.domain === 'logExp')?.score).toBe(0);
   });
 
   // ─── Test 4: FK constraint — domain_scores.assessmentId ──────────────────
