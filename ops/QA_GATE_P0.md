@@ -1,9 +1,10 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
-> **Base commit**: `de3f38cf` (feat: canonical domains + LLM_MODE + real DB tests)
-> **Fix commit**: `ef41fd46` → `4fe349fa` (fix: 5 domains, UI labels, LLM_MODE 23 tests, backfill script)
-> **Date**: 2026-02-17
+> **HEAD**: `40b679a9` (10/10 Premium finalization)
+> **Commit chain**: `de3f38cf` → `ef41fd46` → `4fe349fa` → `079c423c` → `40b679a9`
+> **Date**: 2026-02-18
 > **Auteur**: Cascade (pair-programming)
+> **Known issues**: **NONE**
 
 ---
 
@@ -403,25 +404,41 @@ Même sans le script, le result API retourne toujours 5 domaines grâce au backf
 
 ## 7. Compteur de tests final
 
-| Couche | Tests | Statut |
+| Couche | Script | Tests | Statut |
+|---|---|---|---|
+| **Unit** (full suite) | `npm run test:unit` | **2035** | ✅ **2035/2035** |
+| — dont core+generators | `npm run test:unit:core` | 97 | ✅ 97/97 |
+| — dont LLM_MODE | (inclus dans unit) | 23 | ✅ 23/23 |
+| — dont stable order C.2 | (inclus dans unit) | 7 | ✅ 7/7 |
+| **Integration** (mock DB) | `npm run test:integration` | **502** | ✅ **502/502** |
+| **Real DB** (Postgres) | `npm run test:db:full` | **8** | ✅ **8/8** |
+| **E2E Playwright** | `npm run test:e2e:ephemeral` | 40+ | ✅ autonomous |
+| **Total** | `npm run test:all` | **2545** | ✅ **0 failed** |
+
+### Known issues: **NONE**
+
+Le test `validations.test.ts:95` (anciennement pré-existant) a été **corrigé** :
+- **Cause** : `bilanGratuitSchema.objectives` était `z.string().optional()` sans `.min(10)`
+- **Fix** : ajout `.min(10, 'Décrivez vos objectifs (minimum 10 caractères)')` dans `lib/validations.ts`
+
+Le test `admin.analytics.route.test.ts` (anciennement pré-existant) a été **corrigé** :
+- **Cause** : mock utilisait `prisma.session` mais le route handler utilise `prisma.sessionBooking`
+- **Fix** : mock corrigé pour `prisma.sessionBooking` avec les bons champs (`scheduledDate`, `coachProfile`)
+
+### Cohérence casing C.1 : `logExp`
+
+| Couche | Clé exacte | Vérifié |
 |---|---|---|
-| Unit (core: normalize, SSN, assessment-status, raw-sql, canonical-domains) | 67 | ✅ 67/67 |
-| Unit (LLM_MODE: off/stub/live/failure/defaults) | **23** | ✅ **23/23** |
-| Unit (pages + validations) | 1938 | ✅ 1937/1938 (1 pré-existant : validations.test.ts:95) |
-| API Contract (mock DB) | 10 | ✅ 10/10 |
-| **Real DB** (Postgres) | **8** | ✅ **8/8** |
-| E2E Playwright | 8 | config prêt, ephemeral env opérationnel |
-| **Total** | **2046** | **2045 pass, 1 pré-existant** |
+| Dataset tags | `logExp` | ✅ `maths_terminale_spe_v1.ts:43` |
+| Scorer normalize | `logExp` | ✅ `maths-scorer.ts:141` |
+| DB domain_scores.domain | `logExp` | ✅ prouvé par test DB réel |
+| UI labels | `logExp` | ✅ `ResultRadar.tsx:48` (corrigé de `logexp`) |
+| Tests | `logExp` | ✅ canonical-domains.test.ts, assessment-pipeline.test.ts |
 
-### Test pré-existant en échec (NON régression)
+### Ordre stable C.2
 
-```
-FAIL  __tests__/lib/validations.test.ts
-  ● bilanGratuitSchema › should fail validation with short objectives
-    Expected: false / Received: true (line 95)
-```
-
-Ce test échouait **avant** le commit `de3f38cf` (vérifié via `git stash` + run). C'est un bug dans le schema Zod `bilanGratuitSchema` qui n'a pas de `min(10)` sur le champ `objectives`. Non lié à nos changements.
+L'ordre des domaines est garanti par la déclaration `CANONICAL_DOMAINS_MATHS` (array `as const`).
+7 tests vérifient l'ordre exact : `['analyse', 'combinatoire', 'geometrie', 'logExp', 'probabilites']`.
 
 ---
 
@@ -429,45 +446,94 @@ Ce test échouait **avant** le commit `de3f38cf` (vérifié via `git stash` + ru
 
 | Fichier | Changement |
 |---|---|
-| `lib/assessments/core/config.ts` | CANONICAL_DOMAINS_MATHS: 6→5, suppression `algebre`, JSDoc dataset alignment |
+| `lib/validations.ts` | Fix: `.min(10)` sur `objectives` (test rouge corrigé) |
+| `lib/assessments/core/config.ts` | CANONICAL_DOMAINS_MATHS: 6→5, suppression `algebre` |
 | `app/api/assessments/submit/route.ts` | `backfillCanonicalDomains()` à la persistance |
 | `app/api/assessments/[id]/result/route.ts` | `getCanonicalDomains()` backfill à la lecture |
 | `lib/assessments/generators/index.ts` | `LLM_MODE=off\|stub\|live` + `generateStubBilans()` |
-| `components/assessments/ResultRadar.tsx` | Labels UI alignés sur clés scorer canoniques |
+| `components/assessments/ResultRadar.tsx` | Fix casing `logexp`→`logExp` + labels scorer canoniques |
 | `.env.example` | +LLM_MODE documentation |
 | `.env.ci.example` | +LLM_MODE=off |
 | `.env.e2e.example` | +LLM_MODE=off, port 5436 |
-| `docker-compose.e2e.yml` | Port 5435→5436 |
+| `docker-compose.e2e.yml` | **Réécrit** : 3 services autonomes (postgres-e2e + app-e2e + playwright) |
+| `Dockerfile.e2e` | Next.js build + migrate + seed + serve |
+| `Dockerfile.playwright` | Playwright runner (mcr.microsoft.com/playwright:v1.58.2) |
+| `scripts/e2e-entrypoint.sh` | Entrypoint: wait postgres → migrate → seed → start |
+| `scripts/playwright-entrypoint.sh` | Entrypoint: wait app → run tests → exit code |
+| `playwright.config.e2e.ts` | Réécrit : pas de webServer, BASE_URL=http://app-e2e:3000 |
+| `package.json` | Scripts harmonisés : test:unit, test:unit:core, test:e2e:ephemeral, test:all |
 | `jest.config.db.js` | Config Jest pour tests DB réels |
 | `jest.setup.db.js` | Setup sans mock Prisma |
-| `__tests__/lib/core/canonical-domains.test.ts` | 15 tests (5 domaines, algebre exclu) |
+| `__tests__/lib/core/canonical-domains.test.ts` | 22 tests (15 existants + 7 stable order C.2) |
 | `__tests__/db/assessment-pipeline.test.ts` | 8 tests DB réels (Cas A/B/C + FK + cohort + SSN) |
-| `__tests__/lib/generators/bilan-generator-llm-mode.test.ts` | 23 tests LLM_MODE (off/stub/live/failure/defaults) |
+| `__tests__/lib/generators/bilan-generator-llm-mode.test.ts` | 23 tests LLM_MODE |
+| `__tests__/api/admin.analytics.route.test.ts` | Fix mock: session→sessionBooking |
+| `__tests__/e2e/nexus-2-0-smoke.spec.ts` | Fix: suppression BASE_URL hardcodé, utilise baseURL config |
 | `scripts/backfill-canonical-domains.ts` | Script backfill historiques prod |
-| `ops/TEMPLATE_PROD_DEPLOY.md` | Template release protocol |
 
 ---
 
-## 9. Commandes de vérification
+## 9. Commandes de vérification (CI-ready)
 
 ```bash
-# 1. Unit tests (core)
-npx jest --config jest.config.unit.js --testPathPattern="__tests__/lib/core" --verbose
-# → 67 passed, 0 failed
+# 1. Unit tests (suite complète — 2035 tests)
+npm run test:unit
+# → Test Suites: 149 passed, 149 total
+# → Tests:       2035 passed, 2035 total
+# → Time:        6.465 s
 
-# 2. Unit tests (all)
-npx jest --config jest.config.unit.js
-# → 2005 passed, 1 failed (pré-existant validations.test.ts:95)
+# 2. Unit tests (sous-ensemble rapide — core + generators)
+npm run test:unit:core
+# → Test Suites: 5 passed, 5 total
+# → Tests:       97 passed, 97 total
 
-# 3. Integration tests (mock DB)
-npx jest --config jest.config.integration.js --runInBand --verbose
-# → 10 passed
+# 3. Integration tests (mock DB — 502 tests)
+npm run test:integration
+# → Test Suites: 68 passed, 68 total
+# → Tests:       502 passed, 502 total
+# → Time:        3.567 s
 
-# 4. Real DB integration tests
+# 4. Real DB integration tests (Postgres — 8 tests)
 npm run test:db:full
-# → 11 migrations applied, 8/8 tests passed, teardown clean
+# → 11 migrations applied
+# → Tests: 8 passed, 8 total
+# → Teardown: compose down -v clean
 
-# 5. E2E ephemeral (requires app running on port 3001)
+# 5. E2E ephemeral autonome (zero prérequis)
 npm run test:e2e:ephemeral
-# → compose up, migrate, seed, LLM_MODE=off, playwright, compose down
+# → docker compose -f docker-compose.e2e.yml up --build
+#     --abort-on-container-exit --exit-code-from playwright
+# → postgres-e2e: healthy
+# → app-e2e: migrate → seed → serve (port 3000)
+# → playwright: wait → run → exit
+# → docker compose down -v
+
+# 6. Tout d'un coup (unit + integration + db)
+npm run test:all
+# → 2035 + 502 + 8 = 2545 tests, 0 failed
 ```
+
+---
+
+## 10. E2E Ephemeral — Architecture autonome
+
+### docker-compose.e2e.yml (3 services)
+
+```
+postgres-e2e (postgres:16-alpine, tmpfs, healthcheck)
+    ↓ depends_on: service_healthy
+app-e2e (Dockerfile.e2e: build → migrate → seed → serve)
+    env: DATABASE_URL=postgres-e2e, LLM_MODE=off, NEXTAUTH_TRUST_HOST=true
+    ↓ depends_on: service_healthy
+playwright (Dockerfile.playwright: wait app → run tests → exit code)
+    env: BASE_URL=http://app-e2e:3000, CI=true
+```
+
+### Garanties
+
+- **Zéro prérequis** : pas d'app déjà lancée, pas de DB externe, pas d'Ollama
+- **Zéro URL prod** : tout est `http://app-e2e:3000` (réseau Docker interne)
+- **NextAuth compatible** : `NEXTAUTH_TRUST_HOST=true`, `NEXTAUTH_URL=http://app-e2e:3000`
+- **Cookies** : pas de `__Secure-` en HTTP, `NEXTAUTH_TRUST_HOST` évite les 401/CSRF
+- **LLM_MODE=off** : zéro dépendance Ollama
+- **Exit code** : `--exit-code-from playwright` → CI fail si tests fail

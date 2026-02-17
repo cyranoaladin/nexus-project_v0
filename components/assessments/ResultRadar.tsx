@@ -45,7 +45,7 @@ const DOMAIN_LABELS: Record<string, string> = {
   analyse: 'Analyse',
   combinatoire: 'Combinatoire',
   geometrie: 'Géométrie',
-  logexp: 'Log & Exp',
+  logExp: 'Log & Exp',
   probabilites: 'Probabilités',
   // NSI
   python: 'Python',

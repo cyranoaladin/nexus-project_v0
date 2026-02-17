@@ -151,3 +151,59 @@ describe('backfillCanonicalDomains', () => {
     }
   });
 });
+
+// ─── Stable Order (C.2) ──────────────────────────────────────────────────────
+
+describe('Stable domain order (C.2)', () => {
+  const EXPECTED_MATHS_ORDER = ['analyse', 'combinatoire', 'geometrie', 'logExp', 'probabilites'];
+  const EXPECTED_NSI_ORDER = ['python', 'poo', 'structures', 'algorithmique', 'sql', 'architecture'];
+  const EXPECTED_GENERAL_ORDER = ['methodologie', 'connaissances', 'raisonnement', 'organisation'];
+
+  it('getCanonicalDomains(MATHS) returns domains in exact declaration order', () => {
+    const domains = getCanonicalDomains('MATHS');
+    expect(domains).toEqual(EXPECTED_MATHS_ORDER);
+  });
+
+  it('getCanonicalDomains(NSI) returns domains in exact declaration order', () => {
+    const domains = getCanonicalDomains('NSI');
+    expect(domains).toEqual(EXPECTED_NSI_ORDER);
+  });
+
+  it('getCanonicalDomains(GENERAL) returns domains in exact declaration order', () => {
+    const domains = getCanonicalDomains('GENERAL');
+    expect(domains).toEqual(EXPECTED_GENERAL_ORDER);
+  });
+
+  it('backfillCanonicalDomains preserves canonical order in Object.keys()', () => {
+    const result = backfillCanonicalDomains('MATHS', {
+      probabilites: 90,
+      analyse: 50,
+    });
+    expect(Object.keys(result)).toEqual(EXPECTED_MATHS_ORDER);
+  });
+
+  it('result API simulation: canonical.map() produces ordered array', () => {
+    const canonical = getCanonicalDomains('MATHS');
+    const dbRows = [
+      { domain: 'probabilites', score: 80 },
+      { domain: 'analyse', score: 60 },
+    ];
+    const domainMap = new Map(dbRows.map((d) => [d.domain, d.score]));
+    const completeDomainScores = canonical.map((domain) => ({
+      domain,
+      score: domainMap.get(domain) ?? 0,
+    }));
+
+    expect(completeDomainScores.map((d) => d.domain)).toEqual(EXPECTED_MATHS_ORDER);
+    expect(completeDomainScores[0]).toEqual({ domain: 'analyse', score: 60 });
+    expect(completeDomainScores[4]).toEqual({ domain: 'probabilites', score: 80 });
+  });
+
+  it('order is stable across multiple calls', () => {
+    const call1 = getCanonicalDomains('MATHS');
+    const call2 = getCanonicalDomains('MATHS');
+    const call3 = getCanonicalDomains('MATHS');
+    expect(call1).toEqual(call2);
+    expect(call2).toEqual(call3);
+  });
+});
