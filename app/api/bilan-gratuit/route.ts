@@ -27,12 +27,6 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse;
     }
 
-    // Reset Prisma transaction mock call count in test environment (no-op in production)
-    const maybeMock = prisma.$transaction as unknown as { mockClear?: () => void };
-    if (typeof maybeMock?.mockClear === 'function') {
-      maybeMock.mockClear();
-    }
-
     const body = await request.json();
     if (process.env.NODE_ENV === 'development') {
       console.log('Received request body:', body);
