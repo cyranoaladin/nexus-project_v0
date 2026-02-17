@@ -1,7 +1,7 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
 > **Base commit**: `de3f38cf` (feat: canonical domains + LLM_MODE + real DB tests)
-> **Fix commit**: `<pending>` (fix: 5 domains not 6, UI labels, backfill script, .env docs)
+> **Fix commit**: `ef41fd46` + `<pending>` (fix: 5 domains, UI labels, LLM_MODE tests, backfill script)
 > **Date**: 2026-02-17
 > **Auteur**: Cascade (pair-programming)
 
@@ -223,6 +223,46 @@ if (llmMode === 'stub') {
 | `.env.ci.example` | `off` | CI (GitHub Actions) |
 | `.env.e2e.example` | `off` | E2E ephemeral |
 
+### 3.4 Tests unitaires LLM_MODE (23/23 ✅)
+
+Fichier : `__tests__/lib/generators/bilan-generator-llm-mode.test.ts`
+
+```
+PASS  __tests__/lib/generators/bilan-generator-llm-mode.test.ts
+  BilanGenerator — LLM_MODE
+    LLM_MODE=off
+      ✓ sets status=COMPLETED and errorCode=LLM_GENERATION_SKIPPED
+      ✓ does NOT call ollamaChat
+      ✓ does NOT fetch the assessment from DB
+      ✓ does NOT set status to GENERATING
+      ✓ includes errorDetails mentioning LLM_MODE=off
+    LLM_MODE=stub
+      ✓ generates deterministic bilans without calling ollamaChat
+      ✓ fetches the assessment from DB
+      ✓ saves studentMarkdown, parentsMarkdown, nexusMarkdown
+      ✓ sets status=COMPLETED with progress=100
+      ✓ does NOT set errorCode (no error in stub mode)
+      ✓ stub bilans contain score level classification
+      ✓ first sets GENERATING then COMPLETED
+    LLM_MODE=live
+      ✓ calls ollamaChat for each audience (3 calls)
+      ✓ saves LLM-generated bilans to DB
+      ✓ sets status=COMPLETED with progress=100
+    LLM_MODE=live (LLM failure)
+      ✓ sets status=COMPLETED despite LLM failure (P0 rule)
+      ✓ sets errorCode=LLM_GENERATION_FAILED
+      ✓ increments retryCount
+    LLM_MODE defaults and edge cases
+      ✓ defaults to live when LLM_MODE is unset
+      ✓ defaults to live when LLM_MODE is empty string
+      ✓ defaults to live for unknown LLM_MODE value
+      ✓ is case-insensitive (OFF → off)
+      ✓ is case-insensitive (Stub → stub)
+
+Tests: 23 passed, 0 failed
+Time:  0.786 s
+```
+
 ---
 
 ## 4. P0-3 Vrais tests DB intégration
@@ -365,12 +405,13 @@ Même sans le script, le result API retourne toujours 5 domaines grâce au backf
 
 | Couche | Tests | Statut |
 |---|---|---|
-| Unit (core) | 67 | ✅ 67/67 |
+| Unit (core: normalize, SSN, assessment-status, raw-sql, canonical-domains) | 67 | ✅ 67/67 |
+| Unit (LLM_MODE: off/stub/live/failure/defaults) | **23** | ✅ **23/23** |
 | Unit (pages + validations) | 1938 | ✅ 1937/1938 (1 pré-existant : validations.test.ts:95) |
 | API Contract (mock DB) | 10 | ✅ 10/10 |
 | **Real DB** (Postgres) | **8** | ✅ **8/8** |
 | E2E Playwright | 8 | config prêt, ephemeral env opérationnel |
-| **Total** | **2023** | **2022 pass, 1 pré-existant** |
+| **Total** | **2046** | **2045 pass, 1 pré-existant** |
 
 ### Test pré-existant en échec (NON régression)
 
@@ -401,6 +442,7 @@ Ce test échouait **avant** le commit `de3f38cf` (vérifié via `git stash` + ru
 | `jest.setup.db.js` | Setup sans mock Prisma |
 | `__tests__/lib/core/canonical-domains.test.ts` | 15 tests (5 domaines, algebre exclu) |
 | `__tests__/db/assessment-pipeline.test.ts` | 8 tests DB réels (Cas A/B/C + FK + cohort + SSN) |
+| `__tests__/lib/generators/bilan-generator-llm-mode.test.ts` | 23 tests LLM_MODE (off/stub/live/failure/defaults) |
 | `scripts/backfill-canonical-domains.ts` | Script backfill historiques prod |
 | `ops/TEMPLATE_PROD_DEPLOY.md` | Template release protocol |
 
