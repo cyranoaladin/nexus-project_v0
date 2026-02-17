@@ -170,7 +170,25 @@ jest.mock('./lib/prisma', () => ({
     studentBadge: {
       findMany: jest.fn(),
     },
+    assessment: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+      aggregate: jest.fn(),
+      groupBy: jest.fn(),
+    },
+    stageReservation: {
+      count: jest.fn(),
+    },
+    diagnostic: {
+      count: jest.fn(),
+      findMany: jest.fn(),
+    },
     $transaction: jest.fn(),
+    $queryRawUnsafe: jest.fn(),
+    $executeRawUnsafe: jest.fn(),
   },
 }));
 
