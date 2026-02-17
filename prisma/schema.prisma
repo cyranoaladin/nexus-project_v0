@@ -168,6 +168,11 @@ model Student {
   sessionReports       SessionReport[]
   trajectories         Trajectory[]
 
+  // Learning Graph v2 relations
+  assessments          Assessment[]          // Linked assessments (optional FK from Assessment)
+  progressionHistory   ProgressionHistory[]  // SSN history over time
+  projectionHistory    ProjectionHistory[]   // ML predictions history
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -876,11 +881,15 @@ model Assessment {
   subject String // MATHS, NSI, etc.
   grade   String // PREMIERE, TERMINALE
   
-  // Student Information
+  // Student Information (studentEmail kept for backward compat + anonymous assessments)
   studentEmail    String
   studentName     String
   studentPhone    String?
   studentMetadata Json? // Additional student data
+  
+  // Optional FK to Student (linked post-registration, null for anonymous assessments)
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
   
   // Assessment Data
   answers     Json // Record<questionId, optionId>
@@ -889,9 +898,15 @@ model Assessment {
   completedAt DateTime?
   
   // Scoring Results
-  scoringResult   Json? // Full ScoringResult from ScoringFactory
-  globalScore     Float?
-  confidenceIndex Float?
+  scoringResult   Json?  // Full ScoringResult from ScoringFactory (contains all metrics)
+  globalScore     Float? // Raw score (0-100) = (totalPoints / maxPoints) * 100 — denormalized for SQL indexing
+  confidenceIndex Float? // Student self-awareness index (0-100) — denormalized for SQL indexing
+  
+  // Score Standardisé Nexus (SSN) — normalized by cohort (z-score projection 0-100)
+  ssn Float? // null until cohort normalization is computed
+  
+  // Unified Academic Index (multi-discipline composite, null if single-discipline)
+  uai Float?
   
   // Analysis Results
   analysisJson     Json? // Structured analysis (forces, faiblesses, plan)
@@ -908,9 +923,17 @@ model Assessment {
   errorDetails String?
   retryCount   Int     @default(0)
   
+  // Versioning — track which question bank and scoring engine were used
+  assessmentVersion String? // e.g. "maths_terminale_spe_v1", "general_v1"
+  engineVersion     String? // e.g. "scorer_v2.1", "generic_v1"
+  
   // Metadata
   userAgent String?
   ipAddress String?
+  
+  // Learning Graph v2 relations
+  domainScores DomainScore[]
+  skillScores  SkillScore[]
   
   // Timestamps
   createdAt DateTime @default(now())
@@ -918,9 +941,75 @@ model Assessment {
   
   @@index([subject, grade])
   @@index([studentEmail])
+  @@index([studentId])
   @@index([status])
+  @@index([ssn])
   @@index([createdAt])
   @@map("assessments")
+}
+
+// ─── Learning Graph v2 ──────────────────────────────────────────────────────
+
+// DomainScore — Per-domain score breakdown for an assessment
+model DomainScore {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  domain String // e.g. "analysis", "algebra", "prob_stats", "geometry"
+  score  Float  // 0-100
+
+  createdAt DateTime @default(now())
+
+  @@index([assessmentId])
+  @@index([domain])
+  @@map("domain_scores")
+}
+
+// SkillScore — Per-skill granular score for an assessment
+model SkillScore {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  skillTag String // e.g. "limite_polynome", "suite_arithmetique", "module_complexe"
+  score    Float  // 0-100
+
+  createdAt DateTime @default(now())
+
+  @@index([assessmentId])
+  @@index([skillTag])
+  @@map("skill_scores")
+}
+
+// ProgressionHistory — SSN snapshots over time for longitudinal tracking
+model ProgressionHistory {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  ssn  Float    // SSN value at this point in time (0-100)
+  date DateTime @default(now())
+
+  @@index([studentId, date])
+  @@map("progression_history")
+}
+
+// ProjectionHistory — ML prediction snapshots for prospective analysis
+model ProjectionHistory {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  ssnProjected    Float   // Predicted SSN at horizon (0-100)
+  confidenceIndex Float   // Prediction confidence (0-100)
+  modelVersion    String  // e.g. "ridge_v1", "ridge_v2"
+  inputSnapshot   Json?   // Snapshot of input features used for prediction
+
+  createdAt DateTime @default(now())
+
+  @@index([studentId, createdAt])
+  @@map("projection_history")
 }
 
 // ─── Invoicing Engine ────────────────────────────────────────────────────────
