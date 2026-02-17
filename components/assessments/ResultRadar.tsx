@@ -29,8 +29,37 @@ interface ResultRadarProps {
   title?: string;
 }
 
-/** Map domain keys to French labels */
+/**
+ * Map domain keys to French labels.
+ *
+ * Assessment scorer keys (canonical):
+ *   MATHS: analyse, combinatoire, geometrie, logExp, probabilites
+ *   NSI:   python, poo, structures, algorithmique, sql, architecture
+ *   GENERAL: methodologie, connaissances, raisonnement, organisation
+ *
+ * Diagnostic engine keys (legacy, kept for backward compat):
+ *   analysis, algebra, geometry, prob_stats, etc.
+ */
 const DOMAIN_LABELS: Record<string, string> = {
+  // ─── Assessment scorer keys (canonical) ──────────────────────────────────
+  analyse: 'Analyse',
+  combinatoire: 'Combinatoire',
+  geometrie: 'Géométrie',
+  logexp: 'Log & Exp',
+  probabilites: 'Probabilités',
+  // NSI
+  python: 'Python',
+  poo: 'POO',
+  structures: 'Structures de données',
+  algorithmique: 'Algorithmique',
+  sql: 'SQL',
+  architecture: 'Architecture',
+  // General
+  methodologie: 'Méthodologie',
+  connaissances: 'Connaissances',
+  raisonnement: 'Raisonnement',
+  organisation: 'Organisation',
+  // ─── Diagnostic engine keys (legacy compat) ──────────────────────────────
   analysis: 'Analyse',
   algebra: 'Algèbre',
   geometry: 'Géométrie',
@@ -46,10 +75,6 @@ const DOMAIN_LABELS: Record<string, string> = {
   systems_architecture: 'Architecture',
   data_representation: 'Représentation',
   data_processing: 'Traitement',
-  methodologie: 'Méthodologie',
-  rigueur: 'Rigueur',
-  comprehension: 'Compréhension',
-  application: 'Application',
 };
 
 function getDomainLabel(domain: string): string {
