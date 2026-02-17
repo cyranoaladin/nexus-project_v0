@@ -106,7 +106,7 @@ function BilanGratuitForm() {
 
   const totalSteps = 2;
 
-  const validateStep = (step: number) => {
+  const getStepErrors = (step: number): Record<string, string> => {
     const newErrors: Record<string, string> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[\d\s+()-]{8,20}$/;
@@ -129,11 +129,14 @@ function BilanGratuitForm() {
       else if (formData.studentLastName.length < 2) newErrors.studentLastName = 'Nom trop court (min 2 caractères)';
       if (!formData.studentGrade) newErrors.studentGrade = 'Classe requise';
       if (!formData.currentLevel) newErrors.currentLevel = 'Niveau requis';
-      if (!formData.objectives) newErrors.objectives = 'Objectifs requis';
-      else if (formData.objectives.length < 10) newErrors.objectives = 'Décrivez vos objectifs (min 10 caractères)';
       if (!formData.preferredModality) newErrors.preferredModality = 'Modalité requise';
     }
 
+    return newErrors;
+  };
+
+  const validateStep = (step: number) => {
+    const newErrors = getStepErrors(step);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -168,8 +171,15 @@ function BilanGratuitForm() {
   };
 
   const onSubmit = async () => {
-    // Validate all fields
-    if (!validateStep(1) || !validateStep(2)) {
+    // Validate all fields — merge errors from both steps
+    const step1Errors = getStepErrors(1);
+    const step2Errors = getStepErrors(2);
+    const allErrors = { ...step1Errors, ...step2Errors };
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
+      if (Object.keys(step1Errors).length > 0) {
+        setCurrentStep(1);
+      }
       toast.error('Veuillez corriger les erreurs avant de soumettre.');
       return;
     }
@@ -206,7 +216,21 @@ function BilanGratuitForm() {
 
       if (response.ok) {
         track.bilanSuccess(result.parentId);
-        router.push('/bilan-gratuit/confirmation');
+        // Redirect to assessment questionnaire with student context
+        // Pick the first selected subject — MATHS/NSI get their dedicated assessment,
+        // all other subjects get the GENERAL cross-curricular diagnostic
+        const firstSubject = selectedSubjects[0] || 'GENERAL';
+        const assessmentSubject = (firstSubject === 'MATHEMATIQUES' || firstSubject === 'NSI')
+          ? firstSubject
+          : 'GENERAL';
+        const params = new URLSearchParams({
+          subject: assessmentSubject,
+          grade: formData.studentGrade,
+          name: `${formData.studentFirstName} ${formData.studentLastName}`,
+          email: formData.parentEmail,
+          originalSubject: firstSubject,
+        });
+        router.push(`/bilan-gratuit/assessment?${params.toString()}`);
       } else {
         const errorMessage = result.error || result.details || 'Une erreur est survenue';
         track.bilanError(errorMessage);

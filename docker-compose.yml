@@ -32,6 +32,8 @@ services:
     env_file:
       - .env
     environment:
+      # Override DATABASE_URL for Docker internal network (postgres-db is the service name)
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${DATABASE_PASSWORD}@postgres-db:5432/${POSTGRES_DB}?schema=public
       # LLM local (Ollama + Qwen) — accessible via infra_rag_net
       OLLAMA_URL: http://ollama:11434
       OLLAMA_MODEL: llama3.2:latest

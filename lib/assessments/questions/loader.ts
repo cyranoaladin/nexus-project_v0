@@ -44,6 +44,10 @@ export class QuestionBank {
       case 'NSI:PREMIERE':
         return this.loadNsiPremiere();
       
+      case 'GENERAL:TERMINALE':
+      case 'GENERAL:PREMIERE':
+        return this.loadGeneral();
+      
       default:
         throw new Error(`Unsupported combination: ${subject} / ${grade}`);
     }
@@ -135,6 +139,17 @@ export class QuestionBank {
   }
 
   /**
+   * Load General diagnostic modules (cross-curricular)
+   */
+  private static async loadGeneral(): Promise<QuestionModule[]> {
+    const [diagnostic] = await Promise.all([
+      import('./general/diagnostic').then((m) => m.default),
+    ]);
+
+    return [diagnostic];
+  }
+
+  /**
    * Get list of available modules for a subject/grade combination
    * 
    * @param subject - Subject
@@ -149,6 +164,8 @@ export class QuestionBank {
       'MATHS:PREMIERE': ['algebre'],
       'NSI:TERMINALE': ['poo', 'structures', 'sql', 'algorithmique', 'architecture'],
       'NSI:PREMIERE': ['python'],
+      'GENERAL:TERMINALE': ['diagnostic-general'],
+      'GENERAL:PREMIERE': ['diagnostic-general'],
     };
 
     return moduleMap[key] || [];

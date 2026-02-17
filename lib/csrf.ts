@@ -102,7 +102,26 @@ export function checkCsrf(request: NextRequest): NextResponse | null {
   }
 
   const allowedOrigins = getAllowedOrigins();
-  const isAllowed = allowedOrigins.some(
+
+  // Also allow the request's own host as a valid origin (handles proxies, tunnels, etc.)
+  const host = request.headers.get('host');
+  if (host) {
+    allowedOrigins.push(`http://${host}`);
+    allowedOrigins.push(`https://${host}`);
+  }
+
+  // Trust X-Forwarded-Host from reverse proxies
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  if (forwardedHost) {
+    allowedOrigins.push(`http://${forwardedHost}`);
+    allowedOrigins.push(`https://${forwardedHost}`);
+  }
+
+  // Allow localhost/127.0.0.1 on any port (always a local trusted request)
+  const sourceUrl = extractOrigin(sourceOrigin);
+  const isLocalOrigin = sourceUrl !== null && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(sourceUrl);
+
+  const isAllowed = isLocalOrigin || allowedOrigins.some(
     (allowed) => sourceOrigin === allowed || sourceOrigin === extractOrigin(allowed)
   );
 
