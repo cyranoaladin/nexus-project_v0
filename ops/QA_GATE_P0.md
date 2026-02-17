@@ -1,7 +1,7 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
-> **HEAD**: `40b679a9` (10/10 Premium finalization)
-> **Commit chain**: `de3f38cf` → `ef41fd46` → `4fe349fa` → `079c423c` → `40b679a9`
+> **HEAD**: `21e1f862` (10/10 Premium finalization)
+> **Commit chain**: `de3f38cf` → `ef41fd46` → `4fe349fa` → `079c423c` → `21e1f862`
 > **Date**: 2026-02-18
 > **Auteur**: Cascade (pair-programming)
 > **Known issues**: **NONE**
