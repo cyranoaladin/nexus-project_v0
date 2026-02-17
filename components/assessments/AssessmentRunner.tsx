@@ -30,10 +30,18 @@ type AssessmentState =
   | 'COMPLETED'
   | 'ERROR';
 
+interface StudentData {
+  email: string;
+  name: string;
+  phone?: string;
+  schoolYear?: string;
+}
+
 interface AssessmentRunnerProps {
   subject: Subject;
   grade: Grade;
   studentId?: string;
+  studentData?: StudentData;
   onComplete?: (answers: StudentAnswer[]) => void;
   apiEndpoint?: string;
 }
@@ -42,6 +50,7 @@ export function AssessmentRunner({
   subject,
   grade,
   studentId,
+  studentData,
   onComplete,
   apiEndpoint,
 }: AssessmentRunnerProps) {
@@ -52,6 +61,7 @@ export function AssessmentRunner({
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, StudentAnswer>>(new Map());
+  const [selectedOptions, setSelectedOptions] = useState<Map<string, string>>(new Map());
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isNSP, setIsNSP] = useState(false);
   const [startTime] = useState(Date.now());
@@ -109,15 +119,29 @@ export function AssessmentRunner({
       }
 
       if (apiEndpoint) {
+        // Convert to Record<questionId, optionId> for the API
+        const answersRecord: Record<string, string> = {};
+        for (const [qId, answer] of finalAnswers.entries()) {
+          if (answer.status === 'nsp') {
+            answersRecord[qId] = '__NSP__';
+          } else {
+            answersRecord[qId] = selectedOptions.get(qId) || '';
+          }
+        }
+
         const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             subject,
             grade,
-            studentId,
-            answers: answersArray,
+            studentData: studentData || { email: 'anonymous@nexus.local', name: 'Anonyme' },
+            answers: answersRecord,
             duration: Date.now() - startTime,
+            metadata: {
+              startedAt: new Date(startTime).toISOString(),
+              completedAt: new Date().toISOString(),
+            },
           }),
         });
 
@@ -140,7 +164,7 @@ export function AssessmentRunner({
       setState('ERROR');
       toast.error('Erreur lors de la soumission');
     }
-  }, [apiEndpoint, grade, onComplete, router, startTime, studentId, subject]);
+  }, [apiEndpoint, grade, onComplete, router, selectedOptions, startTime, studentData, studentId, subject]);
 
   // Validate answer
   const handleValidate = useCallback(() => {
@@ -154,10 +178,13 @@ export function AssessmentRunner({
       status: isNSP ? 'nsp' : 'incorrect', // Will be corrected server-side
     };
 
-    // Store answer
+    // Store answer + selected option ID
     const newAnswers = new Map(answers);
     newAnswers.set(currentQuestion.id, answer);
     setAnswers(newAnswers);
+    if (selectedOption) {
+      setSelectedOptions(prev => new Map(prev).set(currentQuestion.id, selectedOption));
+    }
 
     // Move to next question or complete
     if (currentIndex < totalQuestions - 1) {

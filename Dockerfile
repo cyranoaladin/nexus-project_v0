@@ -31,6 +31,9 @@ COPY prisma ./prisma/
 RUN npx prisma generate
 # On copie le reste du code de l'application.
 COPY . .
+# On fournit un secret factice pour le build (le vrai secret est injecté au runtime via .env)
+ARG NEXTAUTH_SECRET=build-time-placeholder
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 # On lance le build de Next.js.
 RUN npm run build
 

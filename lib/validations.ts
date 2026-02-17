@@ -33,11 +33,11 @@ export const bilanGratuitSchema = z.object({
   // Besoins et objectifs
   subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).min(1, 'Sélectionnez au moins une matière'),
   currentLevel: z.string().min(1, 'Veuillez indiquer le niveau actuel'),
-  objectives: z.string().min(10, 'Décrivez vos objectifs (minimum 10 caractères)'),
+  objectives: z.string().optional(),
   difficulties: z.string().optional(),
 
   // Préférences
-  preferredModality: z.enum(['online', 'presentiel', 'hybride']),
+  preferredModality: z.enum(['online', 'presentiel', 'hybride']).optional(),
   availability: z.string().optional(),
 
   // Consentements

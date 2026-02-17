@@ -184,6 +184,14 @@ jest.mock('./lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined)
 }));
 
+// Mock @paralleldrive/cuid2 to avoid ESM import issues
+jest.mock('@paralleldrive/cuid2', () => ({
+  createId: () => 'test-cuid-' + Math.random().toString(36).slice(2, 10),
+  init: jest.fn(),
+  getConstants: jest.fn(),
+  isCuid: () => true,
+}));
+
 // Mock uuid module to avoid ES6 module issues
 jest.mock('uuid', () => {
   const actual = jest.requireActual('crypto');
