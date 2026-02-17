@@ -146,6 +146,7 @@ export default function DirecteurDashboardPage() {
   }
 
   const { kpis, distribution, subjectAverages, alerts, monthlyProgression } = data;
+  const isLowSample = kpis.completedAssessments < 30;
   const distData = formatDistribution(distribution);
 
   const radarData = subjectAverages.map((s) => ({
@@ -163,6 +164,19 @@ export default function DirecteurDashboardPage() {
           <p className="text-slate-400 mt-1">Vue stratégique — Pilotage Nexus 2.0</p>
         </div>
 
+        {/* ─── Low Sample Warning ──────────────────────────────────────── */}
+        {isLowSample && (
+          <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div>
+              <span className="text-sm font-medium text-amber-300">Cohorte insuffisante</span>
+              <span className="text-sm text-amber-400/80 ml-2">
+                N={kpis.completedAssessments} (minimum recommandé : 30). Les métriques SSN, percentiles et distributions sont indicatives.
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* ─── KPI Cards ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
@@ -175,7 +189,7 @@ export default function DirecteurDashboardPage() {
           <MetricCard
             title="SSN Moyen"
             value={kpis.averageSSN !== null ? `${kpis.averageSSN}` : '—'}
-            subtitle="Score Standardisé Nexus"
+            subtitle={isLowSample ? `⚠ Indicatif (N=${kpis.completedAssessments})` : 'Score Standardisé Nexus'}
             icon={<Target className="w-5 h-5" />}
             variant="success"
           />
@@ -198,7 +212,10 @@ export default function DirecteurDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* SSN Distribution Histogram */}
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-semibold mb-4">Distribution SSN</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Distribution SSN
+              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+            </h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={distData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -223,7 +240,10 @@ export default function DirecteurDashboardPage() {
 
           {/* Monthly Progression */}
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-semibold mb-4">Progression Mensuelle SSN</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Progression Mensuelle SSN
+              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+            </h3>
             {monthlyProgression.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={monthlyProgression}>
@@ -260,7 +280,10 @@ export default function DirecteurDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Radar Global Cohorte */}
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-semibold mb-4">Radar Global Cohorte</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Radar Global Cohorte
+              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+            </h3>
             {radarData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="75%">
