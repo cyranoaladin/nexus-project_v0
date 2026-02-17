@@ -11,6 +11,7 @@ import { generateAriaResponse, saveAriaConversation } from '@/lib/aria'
 import { generateAriaResponseStream } from '@/lib/aria-streaming'
 import { checkAndAwardBadges } from '@/lib/badges'
 import { createLogger } from '@/lib/middleware/logger'
+import { requireFeatureApi } from '@/lib/access'
 
 // Schema de validation pour les messages ARIA
 const ariaMessageSchema = z.object({
@@ -48,6 +49,11 @@ export async function POST(request: NextRequest) {
     
     const body = await request.json()
     const validatedData = ariaMessageSchema.parse(body)
+
+    // Entitlement guard: check ARIA feature for the requested subject
+    const ariaFeature = validatedData.subject === Subject.NSI ? 'aria_nsi' : 'aria_maths'
+    const denied = await requireFeatureApi(ariaFeature as 'aria_maths' | 'aria_nsi', { id: session.user.id, role: session.user.role })
+    if (denied) return denied
     
     // Récupérer l'élève
     const student = await prisma.student.findUnique({
@@ -70,7 +76,7 @@ export async function POST(request: NextRequest) {
     
     // Vérifier l'accès à ARIA pour cette matière
     const activeSubscription = student.subscriptions[0]
-    if (!activeSubscription || !activeSubscription.ariaSubjects.includes(validatedData.subject)) {
+    if (!activeSubscription || !activeSubscription.ariaSubjects || !(activeSubscription.ariaSubjects as string[]).includes(validatedData.subject)) {
       const forwarded = request.headers.get('x-forwarded-for')
       const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
       

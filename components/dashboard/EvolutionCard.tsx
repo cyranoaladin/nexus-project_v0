@@ -1,27 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TrendingUp, Calendar, BookOpen, MessageSquare } from 'lucide-react';
+import { Calendar, CheckCircle, Activity, BarChart3 } from 'lucide-react';
 
 /**
- * EvolutionCard — Recent activity summary for the "Indicateurs clés" zone.
+ * EvolutionCard — Synthèse des 30 derniers jours.
  *
- * Shows key metrics from the last 30 days:
- * - Sessions completed
- * - Average rating
- * - ARIA conversations
- * - Days since last session
+ * Micro-copy pack: "Évolution récente", trajectoire vocabulary.
+ * Accepts optional studentId for parent multi-children scope.
  */
+
+interface EvolutionCardProps {
+  /** Student ID for scoped fetch (parent multi-children) */
+  studentId?: string | null;
+}
 
 interface EvolutionData {
   sessionsCompleted: number;
-  sessionsCancelled: number;
-  averageRating: number | null;
-  ariaConversations: number;
-  daysSinceLastSession: number | null;
+  globalScore: number;
+  engagement: number;
+  regularite: number;
 }
 
-export function EvolutionCard() {
+export function EvolutionCard({ studentId }: EvolutionCardProps) {
   const [data, setData] = useState<EvolutionData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +31,8 @@ export function EvolutionCard() {
 
     async function fetchEvolution() {
       try {
-        const res = await fetch('/api/student/nexus-index');
+        const params = studentId ? `?studentId=${studentId}` : '';
+        const res = await fetch(`/api/student/nexus-index${params}`);
         if (!res.ok) return;
         const json = await res.json();
         if (cancelled || !json.index) return;
@@ -39,13 +41,13 @@ export function EvolutionCard() {
         const pillars = index.pillars as Array<{ key: string; score: number }>;
         const assiduite = pillars.find((p) => p.key === 'assiduite');
         const engagement = pillars.find((p) => p.key === 'engagement');
+        const regularite = pillars.find((p) => p.key === 'regularite');
 
         setData({
           sessionsCompleted: Math.round((assiduite?.score ?? 0) / 10),
-          sessionsCancelled: 0,
-          averageRating: index.globalScore > 0 ? Math.round(index.globalScore / 20 * 10) / 10 : null,
-          ariaConversations: Math.round((engagement?.score ?? 0) / 5),
-          daysSinceLastSession: null,
+          globalScore: index.globalScore,
+          engagement: engagement?.score ?? 0,
+          regularite: regularite?.score ?? 0,
         });
       } catch {
         // Silently fail
@@ -56,7 +58,7 @@ export function EvolutionCard() {
 
     fetchEvolution();
     return () => { cancelled = true; };
-  }, []);
+  }, [studentId]);
 
   if (loading) {
     return (
@@ -74,37 +76,38 @@ export function EvolutionCard() {
   const metrics = [
     {
       icon: Calendar,
-      label: 'Séances complétées',
+      label: 'Séances réalisées',
       value: data?.sessionsCompleted ?? 0,
       suffix: '',
       color: 'text-emerald-400',
     },
     {
-      icon: TrendingUp,
-      label: 'Note moyenne',
-      value: data?.averageRating ?? '—',
-      suffix: data?.averageRating ? '/5' : '',
+      icon: CheckCircle,
+      label: 'Travail validé',
+      value: data?.globalScore ?? 0,
+      suffix: '/100',
       color: 'text-blue-400',
     },
     {
-      icon: MessageSquare,
-      label: 'Conversations ARIA',
-      value: data?.ariaConversations ?? 0,
-      suffix: '',
+      icon: Activity,
+      label: 'Engagement',
+      value: data?.engagement ?? 0,
+      suffix: '/100',
       color: 'text-brand-accent',
     },
     {
-      icon: BookOpen,
-      label: 'Dernière séance',
-      value: data?.daysSinceLastSession != null ? `il y a ${data.daysSinceLastSession}j` : '—',
-      suffix: '',
-      color: 'text-neutral-400',
+      icon: BarChart3,
+      label: 'Stabilité',
+      value: data?.regularite ?? 0,
+      suffix: '/100',
+      color: 'text-neutral-300',
     },
   ];
 
   return (
     <div className="rounded-xl border border-neutral-800 bg-surface-card p-6">
-      <h3 className="text-sm font-semibold text-neutral-200 mb-4">Évolution récente</h3>
+      <h3 className="text-sm font-semibold text-neutral-200 mb-1">Évolution récente</h3>
+      <p className="text-[11px] text-neutral-500 mb-4">Synthèse des 30 derniers jours.</p>
       <div className="grid grid-cols-2 gap-3">
         {metrics.map((metric) => (
           <div

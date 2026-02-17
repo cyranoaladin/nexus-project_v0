@@ -31,7 +31,6 @@ async function searchKnowledgeBase(query: string, subject: Subject, limit: numbe
       OR: [
         { title: { contains: query } },
         { content: { contains: query } },
-        { tags: { contains: query } }
       ]
     },
     take: limit,

@@ -5,11 +5,34 @@ import { TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
 import type { NexusIndexResult } from '@/lib/nexus-index';
 
 /**
- * NexusIndexCard — Displays the Nexus Index™ score with pillar breakdown.
+ * NexusIndexCard — Indice de trajectoire.
  *
- * Premium lite design: sober, clear, no gamification.
- * Positioned in the "Vision globale" zone of the dashboard.
+ * Premium lite: strategic indicator, not a school grade.
+ * Accepts optional studentId for parent multi-children scope.
  */
+
+interface NexusIndexCardProps {
+  /** Student ID for scoped fetch (parent multi-children) */
+  studentId?: string | null;
+}
+
+// ─── Pillar labels (micro-copy pack) ─────────────────────────────────────────
+
+const PILLAR_LABELS: Record<string, string> = {
+  assiduite: 'Maîtrise',
+  progression: 'Progression',
+  engagement: 'Engagement',
+  regularite: 'Régularité',
+};
+
+// ─── Score interpretation messages ───────────────────────────────────────────
+
+function getScoreMessage(score: number): string {
+  if (score >= 85) return 'Trajectoire solide et structurée.';
+  if (score >= 70) return 'Progression stable, cap maintenu.';
+  if (score >= 50) return 'Trajectoire à consolider.';
+  return 'Un ajustement stratégique est recommandé.';
+}
 
 const LEVEL_CONFIG = {
   excellent: { label: 'Excellent', color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/30' },
@@ -20,10 +43,13 @@ const LEVEL_CONFIG = {
 } as const;
 
 const TREND_CONFIG = {
-  up: { icon: TrendingUp, label: 'En hausse', color: 'text-emerald-400' },
-  down: { icon: TrendingDown, label: 'En baisse', color: 'text-red-400' },
+  up: { icon: TrendingUp, label: 'En progression', color: 'text-emerald-400' },
+  down: { icon: TrendingDown, label: 'À surveiller', color: 'text-red-400' },
   stable: { icon: Minus, label: 'Stable', color: 'text-neutral-400' },
 } as const;
+
+// Convention: ↗ En progression / → Stable / ↘ À surveiller
+// Icon and label are always coherent — no contradictory combinations.
 
 function PillarBar({ label, score, maxScore = 100 }: { label: string; score: number; maxScore?: number }) {
   const pct = Math.round((score / maxScore) * 100);
@@ -43,7 +69,7 @@ function PillarBar({ label, score, maxScore = 100 }: { label: string; score: num
   );
 }
 
-export function NexusIndexCard() {
+export function NexusIndexCard({ studentId }: NexusIndexCardProps) {
   const [index, setIndex] = useState<NexusIndexResult | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,7 +78,8 @@ export function NexusIndexCard() {
 
     async function fetchIndex() {
       try {
-        const res = await fetch('/api/student/nexus-index');
+        const params = studentId ? `?studentId=${studentId}` : '';
+        const res = await fetch(`/api/student/nexus-index${params}`);
         if (!res.ok) return;
         const data = await res.json();
         if (!cancelled && data.index) {
@@ -67,7 +94,7 @@ export function NexusIndexCard() {
 
     fetchIndex();
     return () => { cancelled = true; };
-  }, []);
+  }, [studentId]);
 
   if (loading) {
     return (
@@ -89,11 +116,10 @@ export function NexusIndexCard() {
       <div className="rounded-xl border border-neutral-800 bg-surface-card p-6">
         <div className="flex items-center gap-2 mb-3">
           <Activity className="h-4 w-4 text-brand-primary" />
-          <h3 className="text-sm font-semibold text-neutral-200">Nexus Index</h3>
+          <h3 className="text-sm font-semibold text-neutral-200">Indice de trajectoire</h3>
         </div>
         <p className="text-xs text-neutral-500">
-          Pas encore assez de données pour calculer votre indice.
-          Complétez quelques séances pour débloquer votre Nexus Index.
+          Aucune donnée disponible pour le moment.
         </p>
       </div>
     );
@@ -106,38 +132,40 @@ export function NexusIndexCard() {
   return (
     <div className={`rounded-xl border border-neutral-800 bg-surface-card p-6 ring-1 ${levelCfg.ring}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-brand-primary" />
-          <h3 className="text-sm font-semibold text-neutral-200">Nexus Index</h3>
+          <h3 className="text-sm font-semibold text-neutral-200">Indice de trajectoire</h3>
         </div>
         <div className={`flex items-center gap-1 text-xs ${trendCfg.color}`}>
           <TrendIcon className="h-3.5 w-3.5" />
           <span>{trendCfg.label}</span>
         </div>
       </div>
+      <p className="text-[11px] text-neutral-500 mb-5">
+        Indicateur synthétique sur 30 jours.
+      </p>
 
       {/* Score central */}
-      <div className="flex items-center justify-center mb-5">
+      <div className="flex items-center justify-center mb-2">
         <div className={`relative flex items-center justify-center w-20 h-20 rounded-full ${levelCfg.bg}`}>
           <span className="text-2xl font-bold text-neutral-100">{index.globalScore}</span>
-          <span className="absolute -bottom-5 text-[10px] font-medium uppercase tracking-wider ${levelCfg.color}">
-            {levelCfg.label}
-          </span>
         </div>
       </div>
+      <p className={`text-center text-xs font-medium mb-5 ${levelCfg.color}`}>
+        {getScoreMessage(index.globalScore)}
+      </p>
 
       {/* Pillar breakdown */}
-      <div className="space-y-3 mt-8">
+      <div className="space-y-3">
         {index.pillars.map((pillar) => (
-          <PillarBar key={pillar.key} label={pillar.label} score={pillar.score} />
+          <PillarBar
+            key={pillar.key}
+            label={PILLAR_LABELS[pillar.key] ?? pillar.label}
+            score={pillar.score}
+          />
         ))}
       </div>
-
-      {/* Footer */}
-      <p className="text-[10px] text-neutral-600 mt-4 text-center">
-        Basé sur {index.dataPoints} points de données
-      </p>
     </div>
   );
 }

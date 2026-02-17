@@ -33,6 +33,12 @@ jest.mock('@/lib/aria-streaming', () => ({
   streamAriaResponse: jest.fn(),
 }));
 
+jest.mock('@/lib/entitlement', () => ({
+  getUserEntitlements: jest.fn().mockResolvedValue([
+    { id: 'ent-1', productCode: 'ARIA_MATHS', label: 'ARIA Maths', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['aria_maths', 'aria_nsi'] },
+  ]),
+}));
+
 const loggerMock = {
   logSecurityEvent: jest.fn(),
   logRequest: jest.fn(),

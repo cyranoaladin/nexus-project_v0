@@ -16,6 +16,8 @@ import SubscriptionChangeDialog from "./subscription-change-dialog"
 import AriaAddonDialog from "./aria-addon-dialog"
 import InvoiceDetailsDialog from "./invoice-details-dialog"
 import SessionBooking from "@/components/ui/session-booking"
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage"
+import { StudentSelector } from "@/components/dashboard/StudentSelector"
 
 interface ParentDashboardData {
   parent: {
@@ -185,89 +187,21 @@ export default function DashboardParent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {activeTab === 'dashboard' && (
           <>
-            {/* Welcome Section avec Sélecteur d'Enfants */}
-            <div className="mb-6 sm:mb-8">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                    Tableau de Bord Parental
-                  </h2>
-                  <p className="text-sm sm:text-base text-neutral-300">
-                    Suivez les progrès et gérez l'accompagnement de vos enfants.
-                  </p>
-                </div>
-
-                {/* Sélecteur Multi-Enfants */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400 flex-shrink-0" />
-                    <span className="text-sm font-medium text-neutral-300">Enfant :</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <Select value={selectedChild} onValueChange={setSelectedChild}>
-                      <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
-                        <SelectValue placeholder="Sélectionner un enfant" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
-                        {dashboardData?.children.map((child) => (
-                          <SelectItem key={child.id} value={child.id}>
-                            {child.firstName} {child.lastName} - {child.grade}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <AddChildDialog onChildAdded={refreshDashboardData} />
-                  </div>
-                </div>
+            {/* Child Selector + Add Child */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+              <div className="flex items-center gap-3">
+                <StudentSelector
+                  selectedId={selectedChild}
+                  onSelect={setSelectedChild}
+                />
+                <AddChildDialog onChildAdded={refreshDashboardData} />
               </div>
+              {(dashboardData?.children.length ?? 0) > 1 && (
+                <p className="text-[11px] text-neutral-500">Chaque trajectoire est pilotée individuellement.</p>
+              )}
             </div>
 
-            {/* Informations Enfant Sélectionné */}
-            <Card className="mb-6 sm:mb-8 bg-surface-card border border-white/10 shadow-premium">
-              <CardHeader>
-                <CardTitle className="flex items-center flex-wrap gap-2">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-brand-accent" />
-                  <span className="text-lg sm:text-xl">
-                    {currentChild?.firstName} {currentChild?.lastName}
-                  </span>
-                  <Badge variant="outline" className="text-xs sm:text-sm border-white/10 text-neutral-300">
-                    {currentChild?.grade}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-brand-accent">
-                      {currentChild?.credits}
-                    </div>
-                    <p className="text-xs sm:text-sm text-neutral-400">Crédits disponibles</p>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-emerald-300">
-                      {currentChild?.subscription}
-                    </div>
-                    <p className="text-xs sm:text-sm text-neutral-400">Formule actuelle</p>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <div className="text-xl sm:text-2xl font-bold text-purple-300">
-                      {currentChild?.progress}%
-                    </div>
-                    <p className="text-xs sm:text-sm text-neutral-400">Progression</p>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <div className="text-xs sm:text-sm font-medium text-neutral-100">
-                      {currentChild?.nextSession ?
-                        `${currentChild?.nextSession.subject} - ${new Date(currentChild?.nextSession.scheduledAt).toLocaleDateString('fr-FR')}` :
-                        'Aucune session'
-                      }
-                    </div>
-                    <p className="text-xs sm:text-sm text-neutral-400">Prochaine session</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+            <DashboardPilotage role="PARENT" studentId={selectedChild}>
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
               {/* Agenda de l'Enfant */}
@@ -417,6 +351,7 @@ export default function DashboardParent() {
                 </div>
               </CardContent>
             </Card>
+            </DashboardPilotage>
           </>
         )}
 
