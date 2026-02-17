@@ -191,7 +191,7 @@ describe('Navigation Role Access', () => {
           expect(item.href).toMatch(/^\/dashboard\//);
           
           expect(item.icon).toBeDefined();
-          expect(typeof item.icon).toMatch(/^(function|object)$/);
+          expect(typeof item.icon).toBe('string');
         });
       });
     });

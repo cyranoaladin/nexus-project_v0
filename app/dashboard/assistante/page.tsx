@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NotificationBell from "@/components/ui/notification-bell";
 import SessionManagement from "@/components/ui/session-management";
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 
 interface AssistantDashboardData {
   stats: {
@@ -288,16 +289,7 @@ export default function DashboardAssistante() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-        {/* Welcome Section */}
-        <div className="mb-6 md:mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-            Bonjour {session?.user?.firstName ?? "Assistante"} !
-          </h2>
-          <p className="text-sm md:text-base text-neutral-300">
-            Votre tableau de bord pour coordonner l'activité de Nexus Réussite.
-          </p>
-        </div>
-
+        <DashboardPilotage role="ASSISTANTE">
         {/* Alertes et Tâches Urgentes */}
         {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 ? (
           <div className="mb-6 md:mb-8">
@@ -373,54 +365,6 @@ export default function DashboardAssistante() {
             </Card>
           </div>
         ) : null}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Élèves Actifs</CardTitle>
-              <Users className="h-4 w-4 text-brand-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-brand-accent">
-                {dashboardData?.stats?.totalStudents || 0}
-              </div>
-              <p className="text-xs text-neutral-400 mt-1">
-                {dashboardData?.stats?.totalCoaches || 0} coachs actifs
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Chiffre d'Affaires</CardTitle>
-              <CreditCard className="h-4 w-4 text-emerald-300" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-emerald-300">
-                {dashboardData?.stats?.totalRevenue?.toLocaleString() || 0} TND
-              </div>
-              <p className="text-xs text-neutral-400 mt-1">
-                Ce mois-ci
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="sm:col-span-2 lg:col-span-1 bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Tâches du Jour</CardTitle>
-              <Calendar className="h-4 w-4 text-purple-300" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-purple-200">
-                {dashboardData?.todaySessions?.length || 0}
-              </div>
-              <p className="text-xs text-neutral-400 mt-1">
-                Sessions aujourd'hui
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Administrative Actions */}
         <div className="mb-6 md:mb-8">
@@ -566,6 +510,7 @@ export default function DashboardAssistante() {
             </CardContent>
           </Card>
         </div>
+        </DashboardPilotage>
       </main>
     </div>
   );

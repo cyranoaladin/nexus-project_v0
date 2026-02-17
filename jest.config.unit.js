@@ -24,7 +24,6 @@ const customJestConfig = {
     '**/__tests__/ui/**/*.(test|spec).(js|ts|tsx)',
     '**/__tests__/stages/**/*.(test|spec).(js|ts|tsx)',
     '**/tests/**/*.(test|spec).(js|ts|tsx)',
-    '**/.zenflow/core/**/*.test.(js|ts|tsx)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -38,8 +37,6 @@ const customJestConfig = {
     '/.next/standalone/',
     '/e2e/',
     '/tests/student-journey.spec.ts',
-    '/.zenflow/tests/integration/',
-    '/.zenflow/tests/performance/',
     '/tests/database/',
   ],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],

@@ -21,35 +21,21 @@ import {
   FileText,
   Shield,
   BarChart3,
+  TrendingUp,
+  CheckCircle,
+  ShieldAlert,
+  UserCog,
+  CalendarCheck,
+  Inbox,
 } from 'lucide-react';
 import type { NextStep, StepPriority } from '@/lib/next-step-engine';
 
 /**
- * NextStepCard — Premium "next action" recommendation card.
+ * NextStepCard — Action prioritaire.
  *
- * Role-agnostic: accepts a structured NextStep object.
- * Positioned at the top of the dashboard ("Prochaine action" zone).
- *
- * Props:
- * - title: Card heading (optional override)
- * - description: Subtitle (optional override)
- * - ctaPrimary: Primary CTA label (optional override)
- * - ctaSecondary: Secondary CTA (optional)
- * - type: Step type for tracking
+ * Micro-copy pack: premium lite, verbes d'action, trajectoire vocabulary.
+ * Role-agnostic: fetches from /api/me/next-step.
  */
-
-interface NextStepCardProps {
-  /** Override the card title */
-  title?: string;
-  /** Override the card description */
-  description?: string;
-  /** Override primary CTA label */
-  ctaPrimary?: string;
-  /** Secondary CTA (optional) */
-  ctaSecondary?: { label: string; href: string };
-  /** Override step type for tracking */
-  type?: string;
-}
 
 const PRIORITY_STYLES: Record<StepPriority, { border: string; accent: string; icon: LucideIcon }> = {
   critical: { border: 'border-red-500/40', accent: 'text-red-400', icon: AlertTriangle },
@@ -73,9 +59,74 @@ const ICON_MAP: Record<string, LucideIcon> = {
   BarChart3,
   Zap,
   ArrowRight,
+  TrendingUp,
+  CheckCircle,
+  ShieldAlert,
+  UserCog,
+  CalendarCheck,
+  Inbox,
 };
 
-export function NextStepCard(props: NextStepCardProps) {
+// ─── Micro-copy: titles per step type ────────────────────────────────────────
+
+const STEP_TITLES: Record<string, string> = {
+  // Parent
+  ADD_CHILD: 'Ajoutez votre enfant',
+  SUBSCRIBE: 'Choisissez une formule',
+  BUY_CREDITS: 'Rechargez vos crédits',
+  BOOK_SESSION: 'Réservez une séance',
+  UPCOMING_SESSION: 'Séance à venir',
+  VIEW_PROGRESS: 'Consultez la progression',
+  // Élève
+  ACTIVATE_ACCOUNT: 'Activez votre compte',
+  WAIT_PARENT: 'Inscription en cours',
+  VIEW_SESSION: 'Prochaine séance',
+  EXPLORE_RESOURCES: 'Ressources disponibles',
+  // Coach
+  COMPLETE_PROFILE: 'Complétez votre profil',
+  SUBMIT_REPORT: 'Finalisez un compte-rendu',
+  TODAY_SESSIONS: 'Séances du jour',
+  SET_AVAILABILITY: 'Planifiez vos créneaux',
+  ALL_GOOD: 'Tout est à jour',
+  // Assistante
+  PROCESS_SUBSCRIPTIONS: 'Demandes en attente',
+  PROCESS_PAYMENTS: 'Paiements à valider',
+  ALL_CLEAR: 'Aucune action urgente',
+  // Admin
+  REVIEW_FAILED_PAYMENTS: 'Paiements à examiner',
+  VIEW_METRICS: 'Vue d\'ensemble',
+};
+
+// ─── Micro-copy: CTA labels per step type ────────────────────────────────────
+
+const CTA_LABELS: Record<string, string> = {
+  // Parent
+  ADD_CHILD: 'Ajouter',
+  SUBSCRIBE: 'Voir les offres',
+  BUY_CREDITS: 'Recharger',
+  BOOK_SESSION: 'Réserver',
+  UPCOMING_SESSION: 'Voir',
+  VIEW_PROGRESS: 'Consulter',
+  // Élève
+  ACTIVATE_ACCOUNT: 'Activer',
+  VIEW_SESSION: 'Accéder',
+  EXPLORE_RESOURCES: 'Découvrir',
+  // Coach
+  COMPLETE_PROFILE: 'Compléter',
+  SUBMIT_REPORT: 'Finaliser',
+  TODAY_SESSIONS: 'Voir',
+  SET_AVAILABILITY: 'Configurer',
+  ALL_GOOD: 'Consulter',
+  // Assistante
+  PROCESS_SUBSCRIPTIONS: 'Traiter',
+  PROCESS_PAYMENTS: 'Valider',
+  ALL_CLEAR: 'Consulter',
+  // Admin
+  REVIEW_FAILED_PAYMENTS: 'Examiner',
+  VIEW_METRICS: 'Consulter',
+};
+
+export function NextStepCard() {
   const [step, setStep] = useState<NextStep | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -122,85 +173,71 @@ export function NextStepCard(props: NextStepCardProps) {
   const style = PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium;
   const StepIcon = (step.icon && ICON_MAP[step.icon]) || style.icon;
 
-  const title = props.title || getTitle(step);
-  const description = props.description || step.message;
-  const ctaLabel = props.ctaPrimary || getCTALabel(step);
+  const title = STEP_TITLES[step.type] || 'Action prioritaire';
+  const description = step.message;
+  const ctaLabel = CTA_LABELS[step.type] || 'Continuer';
+
+  const isHighPriority = priority === 'critical' || priority === 'high';
+
+  /** Fire lightweight analytics event (non-blocking) */
+  function trackClick() {
+    if (!step) return;
+    try {
+      fetch('/api/analytics/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'next_step_click',
+          stepType: step.type,
+          priority,
+        }),
+      }).catch(() => { /* analytics is best-effort */ });
+    } catch {
+      // Never block UX for analytics
+    }
+  }
 
   return (
-    <div className={`rounded-xl border ${style.border} bg-surface-card p-5 transition-colors`}>
-      <div className="flex items-start gap-4">
-        {/* Icon */}
-        <div className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-surface-elevated ${style.accent}`}>
-          <StepIcon className="h-5 w-5" />
+    <div
+      className={`rounded-xl border ${style.border} bg-surface-card px-6 py-6 transition-colors ${isHighPriority ? 'ring-1 ring-brand-primary/20' : ''}`}
+      role="region"
+      aria-label={`Action prioritaire : ${title}`}
+    >
+      <div className="flex items-center gap-5">
+        {/* Icon — larger for dominance */}
+        <div className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-surface-elevated ${style.accent}`}>
+          <StepIcon className="h-6 w-6" aria-hidden="true" />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-neutral-100">{title}</p>
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">Action prioritaire</p>
+            {isHighPriority && (
+              <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
+                Priorité
+              </span>
+            )}
+          </div>
+          <p className="text-base font-semibold text-neutral-100">{title}</p>
           <p className="text-xs text-neutral-400 mt-0.5 line-clamp-2">{description}</p>
         </div>
 
-        {/* CTAs */}
-        <div className="flex-shrink-0 flex items-center gap-2">
-          {props.ctaSecondary && (
-            <Link
-              href={props.ctaSecondary.href}
-              className="text-xs text-neutral-400 hover:text-neutral-200 transition-colors hidden sm:block"
-            >
-              {props.ctaSecondary.label}
-            </Link>
-          )}
+        {/* CTA — large primary button */}
+        <div className="flex-shrink-0">
           {step.link && (
             <Link
               href={step.link}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors"
+              onClick={trackClick}
+              aria-label={`${ctaLabel} — ${title}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg bg-brand-primary text-white hover:bg-brand-primary/90 shadow-sm transition-all"
             >
               {ctaLabel}
-              <ArrowRight className="h-3 w-3" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-/** Map step types to human-readable titles */
-function getTitle(step: NextStep): string {
-  const titles: Record<string, string> = {
-    ADD_CHILD: 'Ajoutez votre enfant',
-    SUBSCRIBE: 'Choisissez un abonnement',
-    BUY_CREDITS: 'Rechargez vos crédits',
-    BOOK_SESSION: 'Réservez une séance',
-    ACTIVATE_ACCOUNT: 'Activez votre compte',
-    COMPLETE_PROFILE: 'Complétez votre profil',
-    SUBMIT_REPORT: 'Rédigez un compte-rendu',
-    TODAY_SESSIONS: 'Séances du jour',
-    SET_AVAILABILITY: 'Définissez vos disponibilités',
-    REVIEW_REQUESTS: 'Demandes en attente',
-    PENDING_PAYMENTS: 'Paiements à valider',
-    UNASSIGNED_SESSIONS: 'Sessions à assigner',
-    PLATFORM_OVERVIEW: 'Vue d\'ensemble',
-  };
-  return titles[step.type] || 'Prochaine étape';
-}
-
-/** Map step types to CTA labels */
-function getCTALabel(step: NextStep): string {
-  const labels: Record<string, string> = {
-    ADD_CHILD: 'Ajouter',
-    SUBSCRIBE: 'Voir les offres',
-    BUY_CREDITS: 'Recharger',
-    BOOK_SESSION: 'Réserver',
-    ACTIVATE_ACCOUNT: 'Activer',
-    COMPLETE_PROFILE: 'Compléter',
-    SUBMIT_REPORT: 'Rédiger',
-    TODAY_SESSIONS: 'Voir',
-    SET_AVAILABILITY: 'Configurer',
-    REVIEW_REQUESTS: 'Traiter',
-    PENDING_PAYMENTS: 'Valider',
-    UNASSIGNED_SESSIONS: 'Assigner',
-    PLATFORM_OVERVIEW: 'Consulter',
-  };
-  return labels[step.type] || 'Continuer';
 }
