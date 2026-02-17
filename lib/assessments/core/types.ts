@@ -15,6 +15,7 @@
 export enum Subject {
   MATHS = 'MATHS',
   NSI = 'NSI',
+  GENERAL = 'GENERAL',
 }
 
 /**
@@ -152,9 +153,36 @@ export interface NsiMetrics {
 }
 
 /**
+ * Generic subject metrics (for non-MATHS/NSI subjects)
+ * 
+ * Used for cross-curricular diagnostic assessments covering
+ * Français, Physique-Chimie, SVT, Histoire-Géo, Philosophie, etc.
+ */
+export interface GenericMetrics {
+  /** Comprehension score (0-100) */
+  comprehension: number;
+  /** Analysis and critical thinking score (0-100) */
+  analyse: number;
+  /** Application and methodology score (0-100) */
+  application: number;
+
+  /** Detailed scores by diagnostic category */
+  categoryScores: {
+    /** Study methodology */
+    methodologie?: number;
+    /** Knowledge and recall */
+    connaissances?: number;
+    /** Reasoning and argumentation */
+    raisonnement?: number;
+    /** Organization and planning */
+    organisation?: number;
+  };
+}
+
+/**
  * Union type for subject-specific metrics
  */
-export type SubjectMetrics = MathsMetrics | NsiMetrics;
+export type SubjectMetrics = MathsMetrics | NsiMetrics | GenericMetrics;
 
 // ─── Scoring Result (Universal Structure) ────────────────────────────────────
 
@@ -341,6 +369,13 @@ export function isNsiMetrics(metrics: SubjectMetrics): metrics is NsiMetrics {
   return 'logique' in metrics && 'syntaxe' in metrics && 'optimisation' in metrics;
 }
 
+/**
+ * Type guard to check if metrics are GenericMetrics
+ */
+export function isGenericMetrics(metrics: SubjectMetrics): metrics is GenericMetrics {
+  return 'comprehension' in metrics && 'analyse' in metrics && 'application' in metrics;
+}
+
 // ─── Utility Types ───────────────────────────────────────────────────────────
 
 /**
@@ -349,6 +384,7 @@ export function isNsiMetrics(metrics: SubjectMetrics): metrics is NsiMetrics {
 export type SubjectMetricsMap = {
   [Subject.MATHS]: MathsMetrics;
   [Subject.NSI]: NsiMetrics;
+  [Subject.GENERAL]: GenericMetrics;
 };
 
 /**

@@ -16,6 +16,7 @@
 import type { Subject, Grade, IScorer, SubjectMetrics } from '../core/types';
 import { MathsScorer } from './maths-scorer';
 import { NsiScorer } from './nsi-scorer';
+import { GenericScorer } from './generic-scorer';
 
 /**
  * Scoring Factory
@@ -55,6 +56,9 @@ export class ScoringFactory {
       case 'NSI':
         return new NsiScorer(grade);
       
+      case 'GENERAL':
+        return new GenericScorer(grade);
+      
       default:
         throw new Error(`Unsupported subject: ${subject}`);
     }
@@ -87,7 +91,7 @@ export class ScoringFactory {
    * @returns True if subject is supported
    */
   static isSupported(subject: string): subject is Subject {
-    return subject === 'MATHS' || subject === 'NSI';
+    return subject === 'MATHS' || subject === 'NSI' || subject === 'GENERAL';
   }
 }
 
@@ -96,6 +100,7 @@ export class ScoringFactory {
 export { BaseScorer, type ScoringStats, type CategoryStats } from './base-scorer';
 export { MathsScorer } from './maths-scorer';
 export { NsiScorer } from './nsi-scorer';
+export { GenericScorer } from './generic-scorer';
 
 // ─── Type Exports ────────────────────────────────────────────────────────────
 
@@ -106,6 +111,7 @@ export type {
   ScoringResult,
   MathsMetrics,
   NsiMetrics,
+  GenericMetrics,
   SubjectMetrics,
   StudentAnswer,
   QuestionMetadata,

@@ -12,15 +12,23 @@ const createTransporter = () => {
     });
   }
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+  const transportConfig: nodemailer.TransportOptions & { host: string; port: number; secure: boolean; ignoreTLS?: boolean; auth?: { user: string; pass: string } } = {
+    host: process.env.SMTP_HOST!,
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: process.env.SMTP_SECURE === 'true',
-    auth: {
+  };
+
+  // Only add auth if credentials are provided (Mailpit doesn't need auth)
+  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    transportConfig.auth = {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
+      pass: process.env.SMTP_PASSWORD,
+    };
+  } else {
+    transportConfig.ignoreTLS = true;
+  }
+
+  return nodemailer.createTransport(transportConfig);
 };
 
 // Template d'email de bienvenue parent
