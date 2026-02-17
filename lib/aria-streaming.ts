@@ -3,7 +3,8 @@ import OpenAI from 'openai';
 import { prisma } from './prisma';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY || 'ollama',
+  baseURL: process.env.OPENAI_BASE_URL || undefined,
 });
 
 const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
