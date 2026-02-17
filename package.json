@@ -22,6 +22,7 @@
     "test:e2e:debug": "SKIP_MIDDLEWARE=true playwright test --debug",
     "test:e2e:headed": "SKIP_MIDDLEWARE=true playwright test --headed",
     "test:e2e:chromium": "SKIP_MIDDLEWARE=true playwright test --project=chromium",
+    "test:e2e:smoke": "SKIP_MIDDLEWARE=true playwright test --config playwright.config.e2e.ts --grep 'Nexus 2.0|Bilan Gratuit|Admin Dashboard|LLM Resilience'",
     "test:e2e:setup": "bash scripts/setup-e2e-db.sh",
     "test:e2e:seed:parent": "tsx scripts/seed-parent-dashboard-e2e.ts",
     "test:e2e:teardown": "bash scripts/teardown-e2e-db.sh",
