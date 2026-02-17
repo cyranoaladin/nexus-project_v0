@@ -44,22 +44,25 @@ function SessionVideoCallContent() {
       return;
     }
 
-    // Simulation de chargement des données de session
-    // En production, ceci serait un appel API réel
-    setTimeout(() => {
-      const mockSessionData: SessionData = {
-        id: sessionId,
-        studentName: session.user.role === 'ELEVE' ? `${session.user.firstName} ${session.user.lastName}` : "Sarah Martin",
-        coachName: session.user.role === 'COACH' ? `${session.user.firstName} ${session.user.lastName}` : "Prof. Ahmed Ben Ali",
-        subject: "Mathématiques - Algèbre",
-        scheduledAt: new Date().toISOString(),
-        duration: 60,
-        status: 'IN_PROGRESS'
-      };
+    const fetchSessionData = async () => {
+      try {
+        const res = await fetch(`/api/sessions/${sessionId}`);
+        if (!res.ok) {
+          setError(`Session introuvable (${res.status})`);
+          setLoading(false);
+          return;
+        }
+        const data: SessionData = await res.json();
+        setSessionData(data);
+      } catch (err) {
+        console.error('[SessionVideo] Failed to fetch session:', err);
+        setError('Impossible de charger les données de la session.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setSessionData(mockSessionData);
-      setLoading(false);
-    }, 1000);
+    fetchSessionData();
   }, [session, status, router, sessionId]);
 
   const handleLeaveSession = () => {
