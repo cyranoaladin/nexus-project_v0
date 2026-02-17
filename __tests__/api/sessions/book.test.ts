@@ -16,6 +16,13 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn()
 }));
 
+// Mock entitlement engine (for access guard)
+jest.mock('@/lib/entitlement', () => ({
+  getUserEntitlements: jest.fn().mockResolvedValue([
+    { id: 'ent-1', productCode: 'PLATFORM', label: 'Platform', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['platform_access'] },
+  ]),
+}));
+
 // Mock prisma
 jest.mock('@/lib/prisma', () => ({
   prisma: {

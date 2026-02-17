@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SessionBooking from "@/components/ui/session-booking";
 import { AriaWidget } from "@/components/ui/aria-widget";
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 
 interface DashboardData {
   student: {
@@ -220,188 +221,83 @@ export default function DashboardEleve() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
-          <>
-            {/* Welcome Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Bonjour {session?.user.firstName} !
-              </h2>
-              <p className="text-neutral-300">
-                Bienvenue dans votre espace personnel Nexus Réussite.
-              </p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {/* Solde de Crédits */}
-              <Card className="bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-neutral-200">Solde de Crédits</CardTitle>
-                  <CreditCard className="h-4 w-4 text-brand-accent" aria-hidden="true" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-brand-accent">
-                    {dashboardData?.credits.balance || 0} crédits
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Disponibles pour vos sessions
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Prochaine Session */}
-              <Card className="bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-neutral-200">Prochaine Session</CardTitle>
-                  <Calendar className="h-4 w-4 text-emerald-300" aria-hidden="true" />
-                </CardHeader>
-                <CardContent>
-                  {dashboardData?.nextSession ? (
-                    <>
-                      <div className="text-xl font-bold text-white">
-                        {new Date(dashboardData.nextSession.scheduledAt).toLocaleDateString('fr-FR', {
-                          day: '2-digit',
-                          month: 'short'
-                        })}
-                      </div>
-                      <p className="text-xs text-neutral-300 mt-1">
-                        {dashboardData.nextSession.subject} • {dashboardData.nextSession.duration}min
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-xl font-bold text-neutral-400">
-                        Aucune
-                      </div>
-                      <p className="text-xs text-neutral-400 mt-1">
-                        Programmez votre prochaine session
-                      </p>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Badge Progress */}
-              <Card className="bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-neutral-200">Progression</CardTitle>
-                  <BookOpen className="h-4 w-4 text-purple-300" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-purple-200">
-                    {dashboardData?.achievements?.earnedBadges || 0} badges
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Obtenus ce mois
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Main Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Sessions Récentes */}
-              <Card className="bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-brand-accent" />
-                    Sessions Récentes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
-                    <div className="space-y-4">
-                      {dashboardData.recentSessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium text-white">{session.title}</h4>
-                            <p className="text-sm text-neutral-300">{session.subject}</p>
-                            <p className="text-sm font-medium text-brand-accent">
-                              {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
-                                ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20'
-                                : 'bg-amber-500/15 text-amber-200 border border-amber-500/20'
-                              }`}>
-                              {session.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Calendar className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-white mb-2">
-                        Aucune session récente
-                      </h3>
-                      <p className="text-neutral-400">
-                        Vos sessions apparaîtront ici une fois programmées.
-                      </p>
-                      <Button
-                        onClick={() => setActiveTab('booking')}
-                        className="btn-primary mt-4"
-                      >
-                        Réserver une session
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Badges et Achievements */}
-              <Card className="bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BookOpen className="w-5 h-5 mr-2 text-purple-300" />
-                    Mes Badges
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <BadgeWidget
-                    studentId={dashboardData?.student.id || ""}
-                    className="h-fit"
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Actions Rapides */}
-            <Card className="mt-8 bg-surface-card border border-white/10 shadow-premium">
+          <DashboardPilotage role="ELEVE">
+            {/* Sessions Récentes */}
+            <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
-                <CardTitle className="text-white">Actions Rapides</CardTitle>
+                <CardTitle className="flex items-center">
+                  <Calendar className="w-5 h-5 mr-2 text-brand-accent" />
+                  Sessions récentes
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button
-                    variant="outline"
-                    className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
-                    onClick={() => setActiveTab('booking')}
-                  >
-                    <Calendar className="w-6 h-6 text-brand-accent" />
-                    <span>Réserver une Session</span>
-                  </Button>
-                  <Link href="/dashboard/eleve/sessions">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                      <Video className="w-6 h-6 text-purple-300" />
-                      <span>Mes Sessions</span>
+                {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
+                  <div className="space-y-4">
+                    {dashboardData.recentSessions.map((session) => (
+                      <div
+                        key={session.id}
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-medium text-white">{session.title}</h4>
+                          <p className="text-sm text-neutral-300">{session.subject}</p>
+                          <p className="text-sm font-medium text-brand-accent">
+                            {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
+                              ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20'
+                              : 'bg-amber-500/15 text-amber-200 border border-amber-500/20'
+                            }`}>
+                            {session.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
+                    <p className="text-neutral-400 text-sm">
+                      Vos sessions apparaîtront ici une fois programmées.
+                    </p>
+                    <Button
+                      onClick={() => setActiveTab('booking')}
+                      className="btn-primary mt-3"
+                      size="sm"
+                    >
+                      Réserver une séance
                     </Button>
-                  </Link>
-                  <Link href="/dashboard/eleve/ressources">
-                    <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                      <BookOpen className="w-6 h-6 text-emerald-300" />
-                      <span>Ressources Pédagogiques</span>
-                    </Button>
-                  </Link>
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </>
+
+            {/* Actions Rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Button
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
+                onClick={() => setActiveTab('booking')}
+              >
+                <Calendar className="w-5 h-5 text-brand-accent" />
+                <span className="text-xs">Réserver une séance</span>
+              </Button>
+              <Link href="/dashboard/eleve/sessions">
+                <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                  <Video className="w-5 h-5 text-purple-300" />
+                  <span className="text-xs">Mes sessions</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/eleve/ressources">
+                <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                  <BookOpen className="w-5 h-5 text-emerald-300" />
+                  <span className="text-xs">Ressources</span>
+                </Button>
+              </Link>
+            </div>
+          </DashboardPilotage>
         )}
 
         {activeTab === 'booking' && dashboardData && (

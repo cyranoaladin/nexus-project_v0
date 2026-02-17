@@ -3,15 +3,19 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { computeNexusIndex } from '@/lib/nexus-index';
-import { NextResponse } from 'next/server';
+import { resolveStudentScope } from '@/lib/scopes';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * GET /api/student/nexus-index
+ * GET /api/student/nexus-index?studentId=...
  *
- * Returns the Nexus Index™ for the authenticated student.
- * Also accessible by PARENT (returns first child's index) and ADMIN/ASSISTANTE.
+ * Returns the Nexus Index™ for the resolved student.
+ * Scope resolution via resolveStudentScope:
+ * - ELEVE: own index
+ * - PARENT: child index (supports ?studentId for multi-children)
+ * - ADMIN/ASSISTANTE: any student (requires ?studentId)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -32,33 +36,30 @@ export async function GET() {
       );
     }
 
-    let targetUserId = userId;
+    // Extract optional studentId from query params
+    const studentId = request.nextUrl.searchParams.get('studentId') || undefined;
 
-    // For parents, compute index for first child
-    if (role === 'PARENT') {
-      const { prisma } = await import('@/lib/prisma');
-      const parentProfile = await prisma.parentProfile.findUnique({
-        where: { userId },
-        select: {
-          children: {
-            select: { userId: true },
-            take: 1,
-          },
-        },
-      });
+    const scope = await resolveStudentScope(
+      { id: userId, role },
+      { studentId }
+    );
 
-      if (!parentProfile?.children[0]) {
+    if (!scope.authorized) {
+      // For parent with no children, return null index gracefully
+      if (role === 'PARENT' && scope.error.includes('enfant')) {
         return NextResponse.json({
           success: true,
           index: null,
-          message: 'Aucun enfant associé',
+          message: scope.error,
         });
       }
-
-      targetUserId = parentProfile.children[0].userId;
+      return NextResponse.json(
+        { error: scope.error },
+        { status: 403 }
+      );
     }
 
-    const index = await computeNexusIndex(targetUserId);
+    const index = await computeNexusIndex(scope.studentUserId);
 
     return NextResponse.json({
       success: true,

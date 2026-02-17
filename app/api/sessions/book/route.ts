@@ -10,6 +10,7 @@ import { parseBody } from '@/lib/api/helpers';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { UserRole } from '@/types/enums';
+import { requireFeatureApi } from '@/lib/access';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -38,6 +39,10 @@ export async function POST(req: NextRequest) {
     // Update logger with user context
     logger = createLogger(req, session);
     logger.info('Booking session');
+
+    // Entitlement guard: check credits_use feature
+    const denied = await requireFeatureApi('credits_use', { id: session.user.id, role: session.user.role });
+    if (denied) return denied;
 
     // Parse and validate input
     const validatedData = await parseBody(req, bookFullSessionSchema);
