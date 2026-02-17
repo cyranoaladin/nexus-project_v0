@@ -13,6 +13,7 @@ import { scoringResultSchema, analysisJsonSchema, safeParse } from '@/lib/assess
 import { computePercentile } from '@/lib/core/statistics/normalize';
 import { computeCohortStats } from '@/lib/core/statistics/cohort';
 import { isCompletedAssessmentStatus, COMPLETED_STATUSES } from '@/lib/core/assessment-status';
+import { getCanonicalDomains } from '@/lib/assessments/core/config';
 
 export async function GET(
   request: NextRequest,
@@ -81,6 +82,14 @@ export async function GET(
       // Table may not exist yet in dev — graceful fallback
     }
 
+    // Backfill canonical domains: ensure all expected domains are present (0 if absent)
+    const canonical = getCanonicalDomains(assessment.subject);
+    const domainMap = new Map(domainScores.map((d) => [d.domain, d.score]));
+    const completeDomainScores = canonical.map((domain) => ({
+      domain,
+      score: domainMap.get(domain) ?? 0,
+    }));
+
     // Fetch skill scores
     let skillScores: { skillTag: string; score: number }[] = [];
     try {
@@ -123,7 +132,7 @@ export async function GET(
       analysisJson: analysisJson ?? assessment.analysisJson,
       // Learning Graph v2 fields
       ssn,
-      domainScores,
+      domainScores: completeDomainScores,
       skillScores,
       percentile,
       // Cohort context (for SimulationPanel)

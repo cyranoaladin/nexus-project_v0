@@ -17,6 +17,21 @@ interface BilanGenerationResult {
   nexusMarkdown: string;
 }
 
+/**
+ * LLM_MODE controls bilan generation behavior:
+ * - 'live'  (default): call Ollama for real LLM generation
+ * - 'stub': generate deterministic short bilans (fast, for tests/staging)
+ * - 'off':  skip generation entirely, set COMPLETED + errorCode=LLM_GENERATION_SKIPPED
+ */
+type LlmMode = 'live' | 'stub' | 'off';
+
+/** Read LLM_MODE from env, default to 'live' */
+function getLlmMode(): LlmMode {
+  const mode = process.env.LLM_MODE?.toLowerCase();
+  if (mode === 'off' || mode === 'stub') return mode;
+  return 'live';
+}
+
 interface BilanPromptContext {
   studentName: string;
   globalScore: number;
@@ -41,7 +56,27 @@ export class BilanGenerator {
    * @throws Error if assessment not found or generation fails
    */
   static async generate(assessmentId: string): Promise<void> {
-    console.log(`[BilanGenerator] Starting generation for ${assessmentId}`);
+    const llmMode = getLlmMode();
+    console.log(`[BilanGenerator] Starting generation for ${assessmentId} (LLM_MODE=${llmMode})`);
+
+    // ─── LLM_MODE=off: skip generation entirely ──────────────────────────
+    if (llmMode === 'off') {
+      try {
+        await prisma.assessment.update({
+          where: { id: assessmentId },
+          data: {
+            status: 'COMPLETED',
+            progress: 100,
+            errorCode: 'LLM_GENERATION_SKIPPED',
+            errorDetails: 'LLM_MODE=off — generation skipped by configuration',
+          },
+        });
+        console.log(`[BilanGenerator] ${assessmentId} set to COMPLETED (LLM_MODE=off)`);
+      } catch (updateError) {
+        console.error(`[BilanGenerator] CRITICAL: Failed to update status for ${assessmentId}:`, updateError);
+      }
+      return;
+    }
 
     try {
       // ─── Step 1: Fetch Assessment ────────────────────────────────────────
@@ -81,14 +116,22 @@ export class BilanGenerator {
         },
       });
 
-      // ─── Step 3: Generate Bilans in Parallel ─────────────────────────────
+      // ─── Step 3: Generate Bilans ───────────────────────────────────────
 
-      const result = await this.generateBilans(
-        assessment.subject as Subject,
-        assessment.grade as Grade,
-        assessment.studentName,
-        scoringResult
-      );
+      let result: BilanGenerationResult;
+
+      if (llmMode === 'stub') {
+        // Deterministic stub bilans for tests/staging
+        result = this.generateStubBilans(assessment.studentName, scoringResult);
+        console.log(`[BilanGenerator] Stub bilans generated (LLM_MODE=stub)`);
+      } else {
+        result = await this.generateBilans(
+          assessment.subject as Subject,
+          assessment.grade as Grade,
+          assessment.studentName,
+          scoringResult
+        );
+      }
 
       console.log(`[BilanGenerator] Bilans generated successfully`);
 
@@ -215,6 +258,24 @@ export class BilanGenerator {
         `Failed to generate ${audience} bilan: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
+  }
+
+  /**
+   * Generate deterministic stub bilans (LLM_MODE=stub).
+   * Fast, no network call, reproducible output for tests.
+   */
+  private static generateStubBilans(
+    studentName: string,
+    scoringResult: ScoringResult
+  ): BilanGenerationResult {
+    const score = scoringResult.globalScore;
+    const level = score >= 70 ? 'bon' : score >= 40 ? 'moyen' : 'faible';
+
+    return {
+      studentMarkdown: `# Bilan Élève (stub)\n\nBonjour ${studentName},\n\nTon score global est de **${score}/100** (niveau ${level}).\n\n*Ce bilan a été généré en mode stub.*`,
+      parentsMarkdown: `# Bilan Parents (stub)\n\nVotre enfant ${studentName} a obtenu un score de **${score}/100** (niveau ${level}).\n\n*Ce bilan a été généré en mode stub.*`,
+      nexusMarkdown: `# Bilan Nexus (stub)\n\nÉlève: ${studentName} — Score: ${score}/100 — Niveau: ${level}\n\n*Bilan stub pour usage interne.*`,
+    };
   }
 
   /**
