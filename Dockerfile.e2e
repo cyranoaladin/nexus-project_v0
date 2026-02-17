@@ -1,0 +1,65 @@
+# =============================================================================
+# Dockerfile.e2e — Next.js app for E2E testing
+# =============================================================================
+# Multi-stage build: deps → builder → runner
+# Includes prisma migrate + seed at startup via entrypoint script
+# =============================================================================
+
+# === Stage 1: Base ===
+FROM node:18-alpine AS base
+RUN apk add --no-cache openssl bash
+
+# === Stage 2: Dependencies ===
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# === Stage 3: Build ===
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY prisma ./prisma/
+RUN npx prisma generate
+COPY . .
+ARG NEXTAUTH_SECRET=e2e-test-secret-do-not-use-in-prod
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+RUN npm run build:base
+
+# === Stage 4: Runner ===
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+
+# Production deps
+COPY --from=builder /app/package.json /app/package-lock.json* ./
+RUN npm ci --omit=dev
+
+# Install prisma CLI + tsx for migrations and seed at runtime
+RUN npm install -g prisma tsx
+
+# Build artifacts
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Prisma client + schema (needed for runtime + migrations)
+COPY --from=builder /app/node_modules/.prisma ./.prisma
+COPY --from=builder /app/prisma ./prisma
+
+# Seed script needs these
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/lib ./lib
+
+# Entrypoint: migrate → seed → start
+COPY scripts/e2e-entrypoint.sh /app/e2e-entrypoint.sh
+RUN chmod +x /app/e2e-entrypoint.sh
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=5s --timeout=5s --retries=12 --start-period=30s \
+  CMD wget -qO- http://127.0.0.1:3000/ || exit 1
+
+ENTRYPOINT ["/app/e2e-entrypoint.sh"]

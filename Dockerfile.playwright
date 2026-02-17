@@ -1,0 +1,26 @@
+# =============================================================================
+# Dockerfile.playwright — Playwright test runner for E2E
+# =============================================================================
+# Installs Playwright + browsers, copies test files, runs tests
+# =============================================================================
+
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
+
+WORKDIR /app
+
+# Copy package files and install deps (for Playwright config resolution)
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy test files and configs
+COPY __tests__/e2e ./__tests__/e2e
+COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
+
+# Copy tsconfig for TypeScript resolution
+COPY tsconfig.json ./tsconfig.json
+
+# Entrypoint: wait for app, then run tests
+COPY scripts/playwright-entrypoint.sh /app/playwright-entrypoint.sh
+RUN chmod +x /app/playwright-entrypoint.sh
+
+ENTRYPOINT ["/app/playwright-entrypoint.sh"]
