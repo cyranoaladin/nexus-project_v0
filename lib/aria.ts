@@ -3,7 +3,8 @@ import OpenAI from 'openai';
 import { prisma } from './prisma';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY || 'ollama',
+  baseURL: process.env.OPENAI_BASE_URL || undefined,
 });
 
 // Système de prompt pour ARIA
