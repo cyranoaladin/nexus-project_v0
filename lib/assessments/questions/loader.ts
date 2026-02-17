@@ -8,6 +8,14 @@
 import type { Subject, Grade } from '../core/types';
 import type { Question, QuestionModule } from './types';
 
+/** Known versioned datasets — maps assessmentVersion to loader */
+const VERSIONED_DATASETS: Record<string, () => Promise<QuestionModule[]>> = {
+  maths_terminale_spe_v1: async () => {
+    const { loadModules } = await import('@/lib/data/assessments/maths_terminale_spe_v1');
+    return loadModules();
+  },
+};
+
 /**
  * Question Bank Loader
  * 
@@ -63,6 +71,52 @@ export class QuestionBank {
   static async loadAll(subject: Subject, grade: Grade): Promise<Question[]> {
     const modules = await this.load(subject, grade);
     return modules.flatMap((module) => module.questions);
+  }
+
+  /**
+   * Load questions by explicit assessmentVersion identifier.
+   * Falls back to default subject/grade loader if version is unknown.
+   *
+   * @param version - Assessment version string (e.g. 'maths_terminale_spe_v1')
+   * @param subject - Fallback subject
+   * @param grade - Fallback grade
+   * @returns { questions, resolvedVersion }
+   */
+  static async loadByVersion(
+    version: string | undefined,
+    subject: Subject,
+    grade: Grade
+  ): Promise<{ questions: Question[]; resolvedVersion: string }> {
+    if (version && VERSIONED_DATASETS[version]) {
+      const modules = await VERSIONED_DATASETS[version]();
+      return {
+        questions: modules.flatMap((m) => m.questions),
+        resolvedVersion: version,
+      };
+    }
+
+    // Fallback: resolve default version from subject+grade
+    const defaultVersion = this.getDefaultVersion(subject, grade);
+    const questions = await this.loadAll(subject, grade);
+    return { questions, resolvedVersion: defaultVersion };
+  }
+
+  /**
+   * Get the default assessmentVersion for a subject/grade combination.
+   */
+  static getDefaultVersion(subject: Subject, grade: Grade): string {
+    const key = `${subject}:${grade}`;
+    const defaults: Record<string, string> = {
+      'MATHS:TERMINALE': 'maths_terminale_spe_v1',
+    };
+    return defaults[key] ?? `${subject.toLowerCase()}_${grade.toLowerCase()}_default`;
+  }
+
+  /**
+   * Check if a version identifier is a known versioned dataset.
+   */
+  static isKnownVersion(version: string): boolean {
+    return version in VERSIONED_DATASETS;
   }
 
   /**
