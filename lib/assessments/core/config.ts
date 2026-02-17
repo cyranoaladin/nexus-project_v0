@@ -101,6 +101,93 @@ export const ASSESSMENT_TYPE_LABELS: Record<AssessmentType, string> = {
   [AssessmentType.BILAN_COMPLET]: 'Bilan Complet',
 };
 
+// ─── Canonical Domain Lists (single source of truth) ────────────────────────
+//
+// Every assessment for a given subject MUST produce exactly these domain keys
+// in domain_scores. Missing domains are backfilled with score=0 at persist time
+// and at API response time. This guarantees:
+//   - UI stability (radar/heatmap always shows the same axes)
+//   - Cohort aggregation reliability (no "holes" in statistics)
+//   - Consistent data shape across assessments
+
+/** Canonical Maths domains (Terminale Spé) */
+export const CANONICAL_DOMAINS_MATHS = [
+  'algebre',
+  'analyse',
+  'geometrie',
+  'combinatoire',
+  'logExp',
+  'probabilites',
+] as const;
+
+/** Canonical NSI domains */
+export const CANONICAL_DOMAINS_NSI = [
+  'python',
+  'poo',
+  'structures',
+  'algorithmique',
+  'sql',
+  'architecture',
+] as const;
+
+/** Canonical General domains */
+export const CANONICAL_DOMAINS_GENERAL = [
+  'methodologie',
+  'connaissances',
+  'raisonnement',
+  'organisation',
+] as const;
+
+/** Union type for all canonical domain keys */
+export type CanonicalDomain = 
+  | typeof CANONICAL_DOMAINS_MATHS[number]
+  | typeof CANONICAL_DOMAINS_NSI[number]
+  | typeof CANONICAL_DOMAINS_GENERAL[number];
+
+/**
+ * Get the canonical domain list for a subject.
+ *
+ * @param subject - Assessment subject (MATHS, NSI, GENERAL)
+ * @returns Readonly array of canonical domain keys
+ */
+export function getCanonicalDomains(subject: string): readonly string[] {
+  switch (subject) {
+    case 'MATHS':
+      return CANONICAL_DOMAINS_MATHS;
+    case 'NSI':
+      return CANONICAL_DOMAINS_NSI;
+    case 'GENERAL':
+      return CANONICAL_DOMAINS_GENERAL;
+    default:
+      return CANONICAL_DOMAINS_MATHS; // safe fallback
+  }
+}
+
+/**
+ * Backfill a partial domain scores map with canonical domains.
+ * Missing domains get score=0.
+ *
+ * @param subject - Assessment subject
+ * @param partial - Partial domain→score map from scorer
+ * @returns Complete domain→score map with all canonical domains
+ */
+export function backfillCanonicalDomains(
+  subject: string,
+  partial: Record<string, number | undefined>
+): Record<string, number> {
+  const canonical = getCanonicalDomains(subject);
+  const result: Record<string, number> = {};
+
+  for (const domain of canonical) {
+    const score = partial[domain];
+    result[domain] = (score !== null && score !== undefined && typeof score === 'number' && !isNaN(score))
+      ? score
+      : 0;
+  }
+
+  return result;
+}
+
 // ─── Category Labels by Subject ──────────────────────────────────────────────
 
 /**

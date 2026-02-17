@@ -22,6 +22,7 @@ import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { incrementRawSqlFailure } from '@/lib/core/raw-sql-monitor';
+import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -173,19 +174,20 @@ export async function POST(request: NextRequest) {
       const metrics = scoringResult.metrics as unknown as Record<string, unknown>;
       const categoryScores = (metrics?.categoryScores ?? {}) as Record<string, number | undefined>;
 
-      for (const [domain, score] of Object.entries(categoryScores)) {
-        if (score !== null && score !== undefined && typeof score === 'number' && !isNaN(score)) {
-          await prisma.$executeRawUnsafe(
-            `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
-             VALUES (gen_random_uuid()::text, $1, $2, $3, NOW())`,
-            assessment.id,
-            domain,
-            score
-          );
-        }
+      // Backfill with canonical domains — guarantees all domains are persisted (0 if absent)
+      const completeDomains = backfillCanonicalDomains(subject, categoryScores);
+
+      for (const [domain, score] of Object.entries(completeDomains)) {
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
+           VALUES (gen_random_uuid()::text, $1, $2, $3, NOW())`,
+          assessment.id,
+          domain,
+          score
+        );
       }
 
-      console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id}`);
+      console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id} (${Object.keys(completeDomains).length} canonical domains)`);
     } catch (domainError) {
       // ┌─────────────────────────────────────────────────────────────────────┐
       // │ TODO [TICKET NEX-43]: Remove this try/catch after migrate deploy  │
