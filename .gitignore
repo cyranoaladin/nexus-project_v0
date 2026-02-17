@@ -59,4 +59,6 @@ prisma/**/node_modules/
 *.sql.gz
 backup_*.sql
 backup_*.sql.gz
+# But keep Prisma migration SQL files
+!prisma/migrations/**/*.sql
 e2e/.credentials.json
