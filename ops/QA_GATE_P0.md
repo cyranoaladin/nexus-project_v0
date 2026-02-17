@@ -1,7 +1,7 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
-> **HEAD**: `21e1f862` (10/10 Premium finalization)
-> **Commit chain**: `de3f38cf` → `ef41fd46` → `4fe349fa` → `079c423c` → `21e1f862`
+> **HEAD**: `a3460f72` (audit final 10/10 premium — STOP-SHIP fixes)
+> **Commit chain**: `de3f38cf` → … → `21e1f862` → `1956d571` → `a3460f72`
 > **Date**: 2026-02-18
 > **Auteur**: Cascade (pair-programming)
 > **Known issues**: **NONE**
@@ -537,3 +537,52 @@ playwright (Dockerfile.playwright: wait app → run tests → exit code)
 - **Cookies** : pas de `__Secure-` en HTTP, `NEXTAUTH_TRUST_HOST` évite les 401/CSRF
 - **LLM_MODE=off** : zéro dépendance Ollama
 - **Exit code** : `--exit-code-from playwright` → CI fail si tests fail
+
+---
+
+## 11. Audit Final "10/10 Premium" — STOP-SHIP Fixes
+
+### 11.1 STOP-SHIP corrigés (3 items)
+
+| Fichier | Problème | Fix |
+|---|---|---|
+| `app/api/bilan-gratuit/route.ts:30-33` | `mockClear()` dans le runtime | Supprimé — test artifact |
+| `app/session/video/page.tsx:50-60` | `mockSessionData` hardcodé (setTimeout + fake data) | Remplacé par `fetch('/api/sessions/${sessionId}')` |
+| `app/programme/maths-1ere/page.tsx:18-24` | `SKIP_APP_AUTH` bypass + `userId='e2e-student'` | Supprimé — auth obligatoire via `getServerSession` |
+
+### 11.2 Scan runtime "0 mock / 0 stub / 0 bypass"
+
+Après corrections, les seules occurrences restantes sont :
+- **Commentaires** : `lib/invoice/pdf.ts` ("No hardcoded"), `lib/diagnostics/score-diagnostic.ts` ("not hardcoded")
+- **RBAC légitime** : `lib/access/rules.ts` (ADMIN bypass entitlement = business logic)
+- **LLM_MODE=stub** : `lib/assessments/generators/index.ts` — mode staging, default=live, jamais activé en prod
+- **Honeypot** : `app/api/bilan-gratuit/route.ts:37` — "fake success" pour bots = anti-spam légitime
+- **Rate limit** : `lib/rate-limit.ts:23` — bypass quand env vars non configurées = dégradation gracieuse
+
+### 11.3 Scan "0 valeur en dur"
+
+- **URLs** : toutes env-first (`OLLAMA_URL`, `RAG_INGESTOR_URL`, `SMTP_HOST`), fallback dev-only (`NODE_ENV !== 'production'`)
+- **Emails business** : `contact@nexusreussite.academy` dans mentions légales et templates = requis par la loi
+- **Secrets** : tous via `process.env` (`NEXTAUTH_SECRET`, `KONNECT_API_KEY`, `TELEGRAM_BOT_TOKEN`)
+- **Ports** : aucun port magique dans le runtime (hors compose/ops)
+
+### 11.4 Raw SQL — Justification
+
+Toutes les requêtes `$executeRawUnsafe` / `$queryRawUnsafe` utilisent des **placeholders paramétrés** (`$1`, `$2`, `$3`).
+Zéro concaténation de chaînes avec des entrées utilisateur.
+
+Raison d'utilisation : colonnes `learning_graph_v2` (`assessmentVersion`, `domain_scores`, `skill_scores`, `ssn`) pas encore dans le client Prisma généré. Migration vers Prisma typé trackée (TODO NEX-42/NEX-43).
+
+### 11.5 Garanties prod-ready
+
+| Garantie | Statut |
+|---|---|
+| 0 mock/stub/bypass dans le runtime | ✅ |
+| 0 URL prod hardcodée | ✅ |
+| 0 secret en clair | ✅ |
+| LLM_MODE default = `live` | ✅ |
+| LLM_MODE=off uniquement CI/E2E | ✅ |
+| RBAC 403 sans session / mauvais rôle | ✅ (135 + 5 tests) |
+| `logExp` casing cohérent 5 couches | ✅ |
+| Ordre stable vérifié par 6 tests | ✅ |
+| Raw SQL paramétré, 0 concat user input | ✅ |
