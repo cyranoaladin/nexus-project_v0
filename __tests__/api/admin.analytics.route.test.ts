@@ -10,7 +10,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     payment: { groupBy: jest.fn() },
     user: { groupBy: jest.fn() },
-    session: { groupBy: jest.fn(), findMany: jest.fn() },
+    sessionBooking: { groupBy: jest.fn(), findMany: jest.fn() },
     subscription: { groupBy: jest.fn() },
     creditTransaction: { groupBy: jest.fn() },
   },
@@ -46,8 +46,8 @@ describe('GET /api/admin/analytics', () => {
     (prisma.user.groupBy as jest.Mock).mockResolvedValue([
       { createdAt: new Date('2025-01-02'), role: 'ELEVE', _count: { id: 3 } },
     ]);
-    (prisma.session.groupBy as jest.Mock).mockResolvedValue([
-      { scheduledAt: new Date('2025-01-03'), status: 'SCHEDULED', _count: { id: 1 } },
+    (prisma.sessionBooking.groupBy as jest.Mock).mockResolvedValue([
+      { scheduledDate: new Date('2025-01-03'), status: 'SCHEDULED', _count: { id: 1 } },
     ]);
     (prisma.subscription.groupBy as jest.Mock).mockResolvedValue([
       { createdAt: new Date('2025-01-04'), status: 'ACTIVE', _count: { id: 1 } },
@@ -55,14 +55,14 @@ describe('GET /api/admin/analytics', () => {
     (prisma.creditTransaction.groupBy as jest.Mock).mockResolvedValue([
       { createdAt: new Date('2025-01-05'), type: 'USAGE', _sum: { amount: -1 }, _count: { id: 1 } },
     ]);
-    (prisma.session.findMany as jest.Mock).mockResolvedValue([
+    (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([
       {
         id: 'session-1',
         subject: 'MATHEMATIQUES',
         createdAt: new Date('2025-01-06'),
         status: 'SCHEDULED',
-        student: { user: { firstName: 'Student', lastName: 'One' } },
-        coach: { pseudonym: 'Coach', user: { firstName: 'Coach', lastName: 'One' } },
+        student: { firstName: 'Student', lastName: 'One' },
+        coach: { coachProfile: { pseudonym: 'Coach' } },
       },
     ]);
 

@@ -11,8 +11,6 @@
 
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-
 // ─── Scenario 1: Bilan Gratuit Complet ──────────────────────────────────────
 
 test.describe('Scenario 1: Bilan Gratuit', () => {
@@ -25,7 +23,7 @@ test.describe('Scenario 1: Bilan Gratuit', () => {
   });
 
   test('submit API returns 201 with valid payload', async ({ request }) => {
-    const response = await request.post(`${BASE_URL}/api/assessments/submit`, {
+    const response = await request.post('/api/assessments/submit', {
       data: {
         subject: 'MATHS',
         grade: 'TERMINALE',
@@ -53,7 +51,7 @@ test.describe('Scenario 1: Bilan Gratuit', () => {
   });
 
   test('submit API returns 400 with invalid payload', async ({ request }) => {
-    const response = await request.post(`${BASE_URL}/api/assessments/submit`, {
+    const response = await request.post('/api/assessments/submit', {
       data: {
         subject: 'INVALID',
         grade: 'TERMINALE',
@@ -77,14 +75,14 @@ test.describe('Scenario 2: Admin Dashboard', () => {
   });
 
   test('directeur/stats returns 403 without auth', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/admin/directeur/stats`);
+    const response = await request.get('/api/admin/directeur/stats');
     expect(response.status()).toBe(403);
     const body = await response.json();
     expect(body.error).toContain('ADMIN');
   });
 
   test('recompute-ssn returns 403 without auth', async ({ request }) => {
-    const response = await request.post(`${BASE_URL}/api/admin/recompute-ssn`, {
+    const response = await request.post('/api/admin/recompute-ssn', {
       data: { type: 'MATHS' },
     });
     expect(response.status()).toBe(403);
@@ -131,7 +129,7 @@ test.describe('Scenario 2: Admin Dashboard', () => {
 test.describe('Scenario 3: LLM Resilience', () => {
   test('result API returns data even with LLM_GENERATION_FAILED', async ({ request }) => {
     // First, submit an assessment
-    const submitResponse = await request.post(`${BASE_URL}/api/assessments/submit`, {
+    const submitResponse = await request.post('/api/assessments/submit', {
       data: {
         subject: 'MATHS',
         grade: 'TERMINALE',
@@ -160,7 +158,7 @@ test.describe('Scenario 3: LLM Resilience', () => {
 
     for (let i = 0; i < maxAttempts; i++) {
       const resultResponse = await request.get(
-        `${BASE_URL}/api/assessments/${assessmentId}/result`
+        `/api/assessments/${assessmentId}/result`
       );
 
       if (resultResponse.status() === 200) {
