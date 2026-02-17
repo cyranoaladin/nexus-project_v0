@@ -1,7 +1,7 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
 > **Base commit**: `de3f38cf` (feat: canonical domains + LLM_MODE + real DB tests)
-> **Fix commit**: `ef41fd46` + `<pending>` (fix: 5 domains, UI labels, LLM_MODE tests, backfill script)
+> **Fix commit**: `ef41fd46` → `4fe349fa` (fix: 5 domains, UI labels, LLM_MODE 23 tests, backfill script)
 > **Date**: 2026-02-17
 > **Auteur**: Cascade (pair-programming)
 
