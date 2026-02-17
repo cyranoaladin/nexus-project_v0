@@ -1,7 +1,12 @@
 /**
- * Assessment Result Page
+ * Assessment Result Page — Premium
  * 
- * Displays the complete assessment results with tabs for different audiences.
+ * Displays the complete assessment results with:
+ * - SSN card with classification and cohort percentile
+ * - Radar chart for domain scores
+ * - Skill heatmap for granular competencies
+ * - Tabs for different audiences (student/parents)
+ * - PDF export and share actions
  */
 
 'use client';
@@ -12,6 +17,10 @@ import { Loader2, AlertCircle, Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReactMarkdown from 'react-markdown';
+import SSNCard from '@/components/assessments/SSNCard';
+import ResultRadar from '@/components/assessments/ResultRadar';
+import SkillHeatmap from '@/components/assessments/SkillHeatmap';
+import SimulationPanel from '@/components/assessments/SimulationPanel';
 
 interface AssessmentResult {
   id: string;
@@ -26,6 +35,26 @@ interface AssessmentResult {
   studentMarkdown: string;
   parentsMarkdown: string;
   createdAt: string;
+  // Learning Graph v2 fields
+  ssn: number | null;
+  domainScores: { domain: string; score: number }[];
+  skillScores: { skillTag: string; score: number }[];
+  percentile: number | null;
+  // Cohort context
+  cohortMean: number;
+  cohortStd: number;
+  cohortN: number;
+  isLowSample: boolean;
+}
+
+/** Map subject codes to French labels */
+function getSubjectLabel(subject: string): string {
+  switch (subject) {
+    case 'MATHS': return 'Mathématiques';
+    case 'NSI': return 'NSI';
+    case 'GENERAL': return 'Transversal';
+    default: return subject;
+  }
 }
 
 export default function AssessmentResultPage({ params }: { params: Promise<{ id: string }> }) {
@@ -91,7 +120,7 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
             <p className="text-lg text-slate-400">{error || 'Résultats introuvables'}</p>
           </div>
           <Button onClick={() => router.push('/')} variant="outline">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Button>
         </div>
       </div>
@@ -101,63 +130,106 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
   // Main result view
   return (
     <div className="min-h-screen py-8 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-4xl font-bold">Votre Bilan d'Excellence</h1>
+              <h1 className="text-4xl font-bold">Bilan d&apos;Excellence Nexus</h1>
               <p className="text-lg text-slate-400 mt-2">
-                {result.subject === 'MATHS' ? 'Mathématiques' : 'NSI'} •{' '}
-                {result.grade === 'PREMIERE' ? 'Première' : 'Terminale'}
+                {getSubjectLabel(result.subject)} •{' '}
+                {result.grade === 'PREMIERE' ? 'Première' : 'Terminale'} •{' '}
+                {result.studentName}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (assessmentId) {
+                    window.open(`/api/assessments/${assessmentId}/export`, '_blank');
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </Button>
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                  }
+                }}
+              >
                 <Share2 className="w-4 h-4 mr-2" />
                 Partager
               </Button>
             </div>
           </div>
+        </div>
 
-          {/* Score cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-6 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg border border-primary/20">
-              <div className="text-sm text-slate-400 mb-1">Score Global</div>
-              <div className="text-4xl font-bold text-primary">{result.globalScore}/100</div>
-              <div className="text-sm text-slate-300 mt-2">
-                {result.globalScore >= 80 && '🎉 Excellent niveau !'}
-                {result.globalScore >= 60 && result.globalScore < 80 && '👍 Bon niveau'}
-                {result.globalScore >= 40 && result.globalScore < 60 && '📚 Niveau moyen'}
-                {result.globalScore < 40 && '💪 Des efforts à fournir'}
-              </div>
+        {/* ─── Score Cards Row ──────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* SSN Card (primary) */}
+          <SSNCard
+            ssn={result.ssn}
+            globalScore={result.globalScore}
+            percentile={result.percentile}
+          />
+          {result.isLowSample && (
+            <div className="col-span-1 md:col-span-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-400 text-center">
+              Cohorte restreinte (n={result.cohortN}) — le SSN et le percentile sont des estimations.
             </div>
+          )}
 
-            <div className="p-6 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-lg border border-blue-500/20">
-              <div className="text-sm text-slate-400 mb-1">Indice de Confiance</div>
-              <div className="text-4xl font-bold text-blue-400">{result.confidenceIndex}/100</div>
-              <div className="text-sm text-slate-300 mt-2">
-                {result.confidenceIndex >= 80 && '✅ Très fiable'}
-                {result.confidenceIndex >= 60 && result.confidenceIndex < 80 && '✓ Fiable'}
-                {result.confidenceIndex < 60 && '⚠️ À confirmer'}
-              </div>
+          {/* Confidence Index Card */}
+          <div className="p-6 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl border border-blue-500/30">
+            <div className="text-sm text-slate-400 mb-1">Indice de Confiance</div>
+            <div className="text-5xl font-bold text-blue-400">
+              {result.confidenceIndex}
+              <span className="text-lg font-normal text-slate-400">/100</span>
+            </div>
+            <div className="text-sm text-slate-300 mt-3">
+              {result.confidenceIndex >= 80 && 'Très fiable — réponses cohérentes et assurées'}
+              {result.confidenceIndex >= 60 && result.confidenceIndex < 80 && 'Fiable — bonne lucidité sur ses compétences'}
+              {result.confidenceIndex < 60 && 'À confirmer — tendance à répondre au hasard'}
             </div>
           </div>
         </div>
 
-        {/* Tabs for different audiences */}
+        {/* ─── Radar + Heatmap Row ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Radar Chart */}
+          <ResultRadar data={result.domainScores} />
+
+          {/* Skill Heatmap */}
+          <SkillHeatmap data={result.skillScores} />
+        </div>
+
+        {/* ─── Simulation Panel ─────────────────────────────────────────────── */}
+        {result.domainScores.length > 0 && (
+          <SimulationPanel
+            domainScores={result.domainScores}
+            currentSSN={result.ssn}
+            currentGlobalScore={result.globalScore}
+            cohortMean={result.cohortMean}
+            cohortStd={result.cohortStd}
+            currentPercentile={result.percentile}
+          />
+        )}
+
+        {/* ─── Bilan Tabs ──────────────────────────────────────────────────── */}
         <Tabs defaultValue="student" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="student">Pour l'Élève</TabsTrigger>
+            <TabsTrigger value="student">Pour l&apos;Élève</TabsTrigger>
             <TabsTrigger value="parents">Pour les Parents</TabsTrigger>
           </TabsList>
 
           <TabsContent value="student" className="space-y-4">
-            <div className="p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
               <div className="prose prose-invert max-w-none">
                 <ReactMarkdown>{result.studentMarkdown}</ReactMarkdown>
               </div>
@@ -165,7 +237,7 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
           </TabsContent>
 
           <TabsContent value="parents" className="space-y-4">
-            <div className="p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
               <div className="prose prose-invert max-w-none">
                 <ReactMarkdown>{result.parentsMarkdown}</ReactMarkdown>
               </div>
@@ -173,8 +245,8 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
           </TabsContent>
         </Tabs>
 
-        {/* Actions */}
-        <div className="flex gap-4 justify-center">
+        {/* ─── Actions ─────────────────────────────────────────────────────── */}
+        <div className="flex gap-4 justify-center flex-wrap">
           <Button size="lg" onClick={() => router.push('/dashboard')}>
             Retour au Dashboard
           </Button>

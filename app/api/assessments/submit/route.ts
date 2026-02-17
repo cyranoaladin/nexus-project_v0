@@ -21,6 +21,7 @@ import type { StudentAnswer } from '@/lib/assessments/core/types';
 import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
+import { incrementRawSqlFailure } from '@/lib/core/raw-sql-monitor';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,9 +49,14 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Assessment Submit] ${subject} ${grade} - ${studentData.email}`);
 
-    // ─── Step 1: Load Questions ──────────────────────────────────────────────
+    // ─── Step 1: Load Questions (version-aware) ─────────────────────────────
 
-    const questions = await QuestionBank.loadAll(subject as Subject, grade as Grade);
+    const requestedVersion = (body as Record<string, unknown>)?.assessmentVersion as string | undefined;
+    const { questions, resolvedVersion } = await QuestionBank.loadByVersion(
+      requestedVersion,
+      subject as Subject,
+      grade as Grade
+    );
 
     if (questions.length === 0) {
       return NextResponse.json(
@@ -61,6 +67,8 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    console.log(`[Assessment Submit] Loaded ${questions.length}Q, version=${resolvedVersion}`);
 
     // ─── Step 2: Convert Answers to StudentAnswer Format ────────────────────
 
@@ -133,7 +141,78 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Assessment Submit] Created assessment ${assessment.id}`);
 
-    // ─── Step 5: Trigger Async Bilan Generation ─────────────────────────────
+    // Persist assessmentVersion + engineVersion (raw SQL — columns may not be in generated client)
+    try {
+      await prisma.$executeRawUnsafe(
+        `UPDATE "assessments" SET "assessmentVersion" = $1, "engineVersion" = $2 WHERE "id" = $3`,
+        resolvedVersion,
+        'scoring_v2',
+        assessment.id
+      );
+    } catch (versionError) {
+      // ┌─────────────────────────────────────────────────────────────────────┐
+      // │ TODO [TICKET NEX-42]: Remove this try/catch after migrate deploy  │
+      // │ on production. Once 20260217_learning_graph_v2 is applied and     │
+      // │ `npx prisma generate` regenerates the client, switch to typed     │
+      // │ Prisma fields: assessment.update({ assessmentVersion, ... })      │
+      // └─────────────────────────────────────────────────────────────────────┘
+      const failCount = incrementRawSqlFailure();
+      const errMsg = versionError instanceof Error ? versionError.message : 'unknown';
+      if (process.env.NODE_ENV === 'production') {
+        console.error(`[Assessment Submit] PROD: assessmentVersion persistence FAILED (count=${failCount}):`, errMsg);
+        // Sentry capture if available
+        try { const Sentry = require('@sentry/nextjs'); Sentry.captureException(versionError); } catch { /* Sentry not installed */ }
+      } else {
+        console.warn(`[Assessment Submit] Version persistence skipped (dev):`, errMsg);
+      }
+    }
+
+    // ─── Step 5: Persist DomainScore rows from categoryScores ───────────────
+
+    try {
+      const metrics = scoringResult.metrics as unknown as Record<string, unknown>;
+      const categoryScores = (metrics?.categoryScores ?? {}) as Record<string, number | undefined>;
+
+      for (const [domain, score] of Object.entries(categoryScores)) {
+        if (score !== null && score !== undefined && typeof score === 'number' && !isNaN(score)) {
+          await prisma.$executeRawUnsafe(
+            `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
+             VALUES (gen_random_uuid()::text, $1, $2, $3, NOW())`,
+            assessment.id,
+            domain,
+            score
+          );
+        }
+      }
+
+      console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id}`);
+    } catch (domainError) {
+      // ┌─────────────────────────────────────────────────────────────────────┐
+      // │ TODO [TICKET NEX-43]: Remove this try/catch after migrate deploy  │
+      // │ on production. Once domain_scores table is guaranteed by          │
+      // │ 20260217_learning_graph_v2, use typed Prisma create().            │
+      // └─────────────────────────────────────────────────────────────────────┘
+      const failCount = incrementRawSqlFailure();
+      const errMsg = domainError instanceof Error ? domainError.message : 'unknown';
+      if (process.env.NODE_ENV === 'production') {
+        console.error(`[Assessment Submit] PROD: DomainScore persistence FAILED for ${assessment.id} (count=${failCount}):`, errMsg);
+        // Sentry capture if available
+        try { const Sentry = require('@sentry/nextjs'); Sentry.captureException(domainError); } catch { /* Sentry not installed */ }
+      } else {
+        console.warn(`[Assessment Submit] DomainScore persistence skipped (dev):`, errMsg);
+      }
+    }
+
+    // ─── Step 6: Compute SSN (non-blocking) ───────────────────────────────────
+
+    // Fire and forget - SSN computation should not block the response
+    import('@/lib/core/ssn/computeSSN').then(({ computeAndPersistSSN }) => {
+      computeAndPersistSSN(assessment.id).catch((error) => {
+        console.error(`[Assessment Submit] SSN computation failed for ${assessment.id}:`, error);
+      });
+    });
+
+    // ─── Step 7: Trigger Async Bilan Generation ─────────────────────────────
 
     // Fire and forget - don't block the response
     BilanGenerator.generate(assessment.id).catch((error) => {
