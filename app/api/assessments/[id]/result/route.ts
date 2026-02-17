@@ -37,6 +37,7 @@ export async function GET(
         studentMarkdown: true,
         parentsMarkdown: true,
         status: true,
+        errorCode: true,
         createdAt: true,
       },
     });
@@ -111,6 +112,11 @@ export async function GET(
       }
     }
 
+    // Determine LLM generation status for UI fallback
+    const llmFailed = assessment.errorCode === 'LLM_GENERATION_FAILED';
+    const hasBilans = !!(assessment.studentMarkdown || assessment.parentsMarkdown);
+    const generationStatus = hasBilans ? 'COMPLETE' : (llmFailed ? 'FAILED' : 'PENDING');
+
     return NextResponse.json({
       ...assessment,
       scoringResult: scoringResult ?? assessment.scoringResult,
@@ -125,6 +131,9 @@ export async function GET(
       cohortStd: Math.round(cohortStats.std * 10) / 10,
       cohortN: cohortStats.n,
       isLowSample: cohortStats.isLowSample,
+      // LLM generation status (P0: LLM failure must not block results)
+      generationStatus,
+      ...(llmFailed && !hasBilans ? { llmUnavailableMessage: 'L\'analyse IA personnalisée est temporairement indisponible. Vos scores et résultats sont disponibles.' } : {}),
     });
   } catch (error) {
     console.error('[Assessment Result] Error:', error);
