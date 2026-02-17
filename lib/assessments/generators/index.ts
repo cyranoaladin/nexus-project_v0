@@ -107,22 +107,30 @@ export class BilanGenerator {
 
       console.log(`[BilanGenerator] Completed for ${assessmentId}`);
     } catch (error) {
-      console.error(`[BilanGenerator] Failed for ${assessmentId}:`, error);
+      console.error(`[BilanGenerator] LLM generation failed for ${assessmentId}:`, error);
 
-      // Update status to FAILED
-      await prisma.assessment.update({
-        where: { id: assessmentId },
-        data: {
-          status: 'FAILED',
-          errorCode: 'GENERATION_ERROR',
-          errorDetails: error instanceof Error ? error.message : 'Unknown error',
-          retryCount: {
-            increment: 1,
+      // P0 Rule: LLM failure must NOT block results.
+      // Scoring + DomainScores + SSN are already persisted — set COMPLETED
+      // so the result API can serve them. Track LLM failure separately.
+      try {
+        await prisma.assessment.update({
+          where: { id: assessmentId },
+          data: {
+            status: 'COMPLETED',
+            progress: 100,
+            errorCode: 'LLM_GENERATION_FAILED',
+            errorDetails: error instanceof Error ? error.message : 'Unknown error',
+            retryCount: {
+              increment: 1,
+            },
           },
-        },
-      });
-
-      throw error;
+        });
+        console.warn(`[BilanGenerator] ${assessmentId} set to COMPLETED despite LLM failure (scoring data preserved)`);
+      } catch (updateError) {
+        // Last resort: if even the status update fails, log but don't crash
+        console.error(`[BilanGenerator] CRITICAL: Failed to update status for ${assessmentId}:`, updateError);
+      }
+      // Do NOT re-throw — the assessment is usable without LLM bilans
     }
   }
 
