@@ -17,6 +17,8 @@ export const SUPPORTED_COMBINATIONS: Array<{ subject: Subject; grade: Grade }> =
   { subject: Subject.MATHS, grade: Grade.TERMINALE },
   { subject: Subject.NSI, grade: Grade.PREMIERE },
   { subject: Subject.NSI, grade: Grade.TERMINALE },
+  { subject: Subject.GENERAL, grade: Grade.PREMIERE },
+  { subject: Subject.GENERAL, grade: Grade.TERMINALE },
 ];
 
 /**
@@ -80,6 +82,7 @@ export function getAssessmentConfig(
 export const SUBJECT_LABELS: Record<Subject, string> = {
   [Subject.MATHS]: 'Mathématiques',
   [Subject.NSI]: 'NSI (Numérique et Sciences Informatiques)',
+  [Subject.GENERAL]: 'Diagnostic Général',
 };
 
 /**
@@ -125,6 +128,16 @@ export const NSI_CATEGORIES = {
 } as const;
 
 /**
+ * General categories (cross-curricular)
+ */
+export const GENERAL_CATEGORIES = {
+  METHODOLOGIE: 'Méthodologie de travail',
+  CONNAISSANCES: 'Connaissances générales',
+  RAISONNEMENT: 'Raisonnement et analyse',
+  ORGANISATION: 'Organisation et gestion du temps',
+} as const;
+
+/**
  * Get category labels for a subject
  */
 export function getCategoryLabels(subject: Subject): Record<string, string> {
@@ -133,6 +146,8 @@ export function getCategoryLabels(subject: Subject): Record<string, string> {
       return MATHS_CATEGORIES;
     case Subject.NSI:
       return NSI_CATEGORIES;
+    case Subject.GENERAL:
+      return GENERAL_CATEGORIES;
     default:
       throw new Error(`Unknown subject: ${subject}`);
   }
@@ -163,6 +178,16 @@ export const NSI_COMPETENCIES = {
 } as const;
 
 /**
+ * General competencies (cross-curricular)
+ */
+export const GENERAL_COMPETENCIES = {
+  COMPREHENSION: 'Compréhension',
+  ANALYSE: 'Analyse et esprit critique',
+  APPLICATION: 'Application et méthodologie',
+  ORGANISATION: 'Organisation et planification',
+} as const;
+
+/**
  * Get competency labels for a subject
  */
 export function getCompetencyLabels(subject: Subject): Record<string, string> {
@@ -171,6 +196,8 @@ export function getCompetencyLabels(subject: Subject): Record<string, string> {
       return MATHS_COMPETENCIES;
     case Subject.NSI:
       return NSI_COMPETENCIES;
+    case Subject.GENERAL:
+      return GENERAL_COMPETENCIES;
     default:
       throw new Error(`Unknown subject: ${subject}`);
   }
