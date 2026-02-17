@@ -1,9 +1,0 @@
-{
-  "id": "b5738f80-70d9-4e56-a527-4e8924e983f9",
-  "worktree_branch": "refs/heads/main",
-  "commit_hash": "",
-  "status": "failure",
-  "started_at": "2026-02-04T11:16:53.661Z",
-  "error": "Sync validation failed: Repository health check failed: Command failed: git fsck --no-progress\n",
-  "completed_at": "2026-02-04T11:18:38.164Z"
-}

@@ -6,6 +6,26 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import type { NavigationItem } from './navigation-config';
 import { Badge } from '@/components/ui/badge';
+import {
+  Home,
+  Calendar,
+  Users,
+  BookOpen,
+  CreditCard,
+  DollarSign,
+  Clock,
+  UserCheck,
+  AlertCircle,
+  BarChart,
+  Activity,
+  TestTube,
+  type LucideIcon
+} from 'lucide-react';
+
+const iconMap: Record<string, LucideIcon> = {
+  Home, Calendar, Users, BookOpen, CreditCard, DollarSign,
+  Clock, UserCheck, AlertCircle, BarChart, Activity, TestTube,
+};
 
 const navigationItemVariants = cva(
   "flex items-center gap-3 px-4 py-3 rounded-micro text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-card",
@@ -33,7 +53,7 @@ export function NavigationItem({ item, className }: NavigationItemProps) {
   const isActive = shouldMatchPrefix
     ? pathname === item.href || pathname.startsWith(`${item.href}/`)
     : pathname === item.href;
-  const Icon = item.icon;
+  const Icon = iconMap[item.icon] ?? Home;
 
   return (
     <Link

@@ -91,7 +91,7 @@ export async function createTrajectory(
       horizon: input.horizon,
       startDate,
       endDate,
-      milestones: milestones as unknown as Record<string, unknown>[],
+      milestones: JSON.parse(JSON.stringify(milestones)),
       createdBy: input.createdBy ?? null,
     },
   });
@@ -148,7 +148,7 @@ export async function completeMilestone(
   const updated = await prisma.trajectory.update({
     where: { id: trajectoryId },
     data: {
-      milestones: milestones as unknown as Record<string, unknown>[],
+      milestones: JSON.parse(JSON.stringify(milestones)),
       status: allCompleted ? 'COMPLETED' : undefined,
     },
   });

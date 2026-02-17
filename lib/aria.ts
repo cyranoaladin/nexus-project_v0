@@ -36,7 +36,6 @@ async function searchKnowledgeBase(query: string, subject: Subject, limit: numbe
       OR: [
         { title: { contains: query } },
         { content: { contains: query } },
-        { tags: { contains: query } } // Changé de hasSome à contains pour JSON string
       ]
     },
     take: limit,

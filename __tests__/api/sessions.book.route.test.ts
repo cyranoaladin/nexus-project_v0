@@ -32,6 +32,12 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
+jest.mock('@/lib/entitlement', () => ({
+  getUserEntitlements: jest.fn().mockResolvedValue([
+    { id: 'ent-1', productCode: 'PLATFORM', label: 'Platform', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['platform_access'] },
+  ]),
+}));
+
 const mockSession = {
   user: {
     id: 'user-1',

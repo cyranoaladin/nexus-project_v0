@@ -72,6 +72,14 @@ interface MathsLabState {
   /** Earned badge IDs */
   badges: string[];
 
+  // ─── Hydration (remote sync) ──────────────────────────────────────────
+  /** Whether the store has been hydrated from remote */
+  isHydrated: boolean;
+  /** Whether the store can write to remote */
+  canWriteRemote: boolean;
+  /** Error message from hydration attempt */
+  hydrationError: string | null;
+
   // ─── SRS (Spaced Repetition System) ───────────────────────────────────
   /** Map of chapterId -> { nextReview: ISO date, interval: days, easeFactor } */
   srsQueue: Record<string, SRSItem>;
@@ -98,6 +106,8 @@ interface MathsLabState {
   evaluateBadges: () => void;
   recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => void;
   resetProgress: () => void;
+  setHydrationStatus: (status: { isHydrated: boolean; canWriteRemote: boolean; hydrationError: string | null }) => void;
+  unlockChapter: (chapId: string) => void;
 }
 
 // ─── SRS Types ──────────────────────────────────────────────────────────────
@@ -263,6 +273,9 @@ export const useMathsLabStore = create<MathsLabState>()(
       exerciseResults: {},
       hintUsage: {},
       badges: [],
+      isHydrated: false,
+      canWriteRemote: false,
+      hydrationError: null,
       srsQueue: {},
 
       // ─── Computed ───────────────────────────────────────────────────────
@@ -460,6 +473,17 @@ export const useMathsLabStore = create<MathsLabState>()(
               ? state.dailyChallenge
               : { ...state.dailyChallenge, completedToday: false },
           };
+        });
+      },
+
+      setHydrationStatus: (status: { isHydrated: boolean; canWriteRemote: boolean; hydrationError: string | null }) => {
+        set(status);
+      },
+
+      unlockChapter: (chapId: string) => {
+        set((state) => {
+          if (state.completedChapters.includes(chapId)) return state;
+          return { completedChapters: [...state.completedChapters, chapId] };
         });
       },
 

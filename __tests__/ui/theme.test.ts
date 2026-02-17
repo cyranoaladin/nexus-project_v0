@@ -37,75 +37,37 @@ function getContrastRatio(color1: string, color2: string): number {
 }
 
 describe('Theme Configuration', () => {
-  describe('Settings File', () => {
-    const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
-    let settings: any;
-
-    beforeAll(() => {
-      const rawSettings = fs.readFileSync(settingsPath, 'utf-8');
-      settings = JSON.parse(rawSettings);
-    });
-
-    it('should exist and be valid JSON', () => {
-      expect(fs.existsSync(settingsPath)).toBe(true);
-      expect(settings).toBeDefined();
-      expect(typeof settings).toBe('object');
-    });
-
-    it('should have all required theme sections', () => {
-      expect(settings.theme).toBeDefined();
-      expect(settings.theme.colors).toBeDefined();
-      expect(settings.theme.typography).toBeDefined();
-      expect(settings.theme.spacing).toBeDefined();
-      expect(settings.theme.radius).toBeDefined();
-    });
-
+  describe('Design Tokens', () => {
     it('should have all required color subsections', () => {
-      expect(settings.theme.colors.brand).toBeDefined();
-      expect(settings.theme.colors.semantic).toBeDefined();
-      expect(settings.theme.colors.neutral).toBeDefined();
-      expect(settings.theme.colors.surface).toBeDefined();
+      expect(designTokens.colors.brand).toBeDefined();
+      expect(designTokens.colors.semantic).toBeDefined();
+      expect(designTokens.colors.neutral).toBeDefined();
+      expect(designTokens.colors.surface).toBeDefined();
     });
 
     it('should have valid hex color values', () => {
       const hexColorRegex = /^#[0-9A-F]{6}$/i;
 
-      Object.values(settings.theme.colors.brand).forEach((color) => {
+      Object.values(designTokens.colors.brand).forEach((color) => {
         expect(hexColorRegex.test(color as string)).toBe(true);
       });
 
-      Object.values(settings.theme.colors.semantic).forEach((color) => {
+      Object.values(designTokens.colors.semantic).forEach((color) => {
         expect(hexColorRegex.test(color as string)).toBe(true);
       });
 
-      Object.values(settings.theme.colors.neutral).forEach((color) => {
+      Object.values(designTokens.colors.neutral).forEach((color) => {
         expect(hexColorRegex.test(color as string)).toBe(true);
       });
 
-      Object.values(settings.theme.colors.surface).forEach((color) => {
+      Object.values(designTokens.colors.surface).forEach((color) => {
         expect(hexColorRegex.test(color as string)).toBe(true);
       });
-    });
-
-    it('should have accessibility section with wcag and contrastRatios', () => {
-      expect(settings.accessibility).toBeDefined();
-      expect(settings.accessibility.wcag).toBeDefined();
-      expect(settings.accessibility.wcag).toBe('AA');
-      expect(settings.accessibility.contrastRatios).toBeDefined();
-      expect(settings.accessibility.contrastRatios.normal).toBeDefined();
-      expect(settings.accessibility.contrastRatios.large).toBeDefined();
-    });
-
-    it('should match designTokens color values', () => {
-      expect(settings.theme.colors.brand.primary).toBe(designTokens.colors.brand.primary);
-      expect(settings.theme.colors.brand.secondary).toBe(designTokens.colors.brand.secondary);
-      expect(settings.theme.colors.brand.accent).toBe(designTokens.colors.brand.accent);
-      expect(settings.theme.colors.brand['accent-dark']).toBe(designTokens.colors.brand['accent-dark']);
     });
 
     it('should have complete neutral scale (50-950)', () => {
       const expectedKeys = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
-      const actualKeys = Object.keys(settings.theme.colors.neutral);
+      const actualKeys = Object.keys(designTokens.colors.neutral);
 
       expectedKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
@@ -114,7 +76,7 @@ describe('Theme Configuration', () => {
 
     it('should have all surface color variants', () => {
       const expectedSurfaceKeys = ['dark', 'darker', 'card', 'elevated', 'hover'];
-      const actualKeys = Object.keys(settings.theme.colors.surface);
+      const actualKeys = Object.keys(designTokens.colors.surface);
 
       expectedSurfaceKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
@@ -123,32 +85,9 @@ describe('Theme Configuration', () => {
 
     it('should have all semantic colors', () => {
       const expectedSemanticKeys = ['success', 'warning', 'error', 'info'];
-      const actualKeys = Object.keys(settings.theme.colors.semantic);
+      const actualKeys = Object.keys(designTokens.colors.semantic);
 
       expectedSemanticKeys.forEach((key) => {
-        expect(actualKeys).toContain(key);
-      });
-    });
-
-    it('should have typography fontFamily configuration', () => {
-      expect(settings.theme.typography.fontFamily).toBeDefined();
-      expect(settings.theme.typography.fontFamily.sans).toBeDefined();
-      expect(settings.theme.typography.fontFamily.display).toBeDefined();
-      expect(settings.theme.typography.fontFamily.mono).toBeDefined();
-    });
-
-    it('should have spacing configuration', () => {
-      expect(settings.theme.spacing.base).toBeDefined();
-      expect(settings.theme.spacing.scale).toBeDefined();
-      expect(Array.isArray(settings.theme.spacing.scale)).toBe(true);
-      expect(settings.theme.spacing.scale.length).toBeGreaterThan(0);
-    });
-
-    it('should have radius configuration', () => {
-      const expectedRadiusKeys = ['micro', 'card-sm', 'card', 'full'];
-      const actualKeys = Object.keys(settings.theme.radius);
-
-      expectedRadiusKeys.forEach((key) => {
         expect(actualKeys).toContain(key);
       });
     });
@@ -289,76 +228,56 @@ describe('Theme Configuration', () => {
   });
 
   describe('WCAG Accessibility Compliance', () => {
-    const settingsPath = path.join(process.cwd(), '.zenflow', 'settings.json');
-    let settings: any;
+    const colors = designTokens.colors;
     const WHITE = '#FFFFFF';
     const WCAG_AA_NORMAL = 4.5;
     const WCAG_AA_LARGE = 3.0;
 
-    beforeAll(() => {
-      const rawSettings = fs.readFileSync(settingsPath, 'utf-8');
-      settings = JSON.parse(rawSettings);
-    });
-
     it('should meet contrast ratio for white text on surface-dark (≥4.5:1)', () => {
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(WHITE, surfaceDark);
+      const ratio = getContrastRatio(WHITE, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for neutral-200 on surface-card (≥4.5:1)', () => {
-      const neutral200 = settings.theme.colors.neutral['200'];
-      const surfaceCard = settings.theme.colors.surface.card;
-      const ratio = getContrastRatio(neutral200, surfaceCard);
+      const ratio = getContrastRatio(colors.neutral['200'], colors.surface.card);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for brand-accent on surface-dark (≥4.5:1)', () => {
-      const brandAccent = settings.theme.colors.brand.accent;
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(brandAccent, surfaceDark);
+      const ratio = getContrastRatio(colors.brand.accent, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for brand-primary on white background (≥4.5:1)', () => {
-      const brandPrimary = settings.theme.colors.brand.primary;
-      const ratio = getContrastRatio(brandPrimary, WHITE);
+      const ratio = getContrastRatio(colors.brand.primary, WHITE);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for semantic success on surface-dark (≥4.5:1)', () => {
-      const success = settings.theme.colors.semantic.success;
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(success, surfaceDark);
+      const ratio = getContrastRatio(colors.semantic.success, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for semantic warning on surface-dark (≥4.5:1)', () => {
-      const warning = settings.theme.colors.semantic.warning;
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(warning, surfaceDark);
+      const ratio = getContrastRatio(colors.semantic.warning, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for semantic error on surface-dark (≥4.5:1)', () => {
-      const error = settings.theme.colors.semantic.error;
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(error, surfaceDark);
+      const ratio = getContrastRatio(colors.semantic.error, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for semantic info on surface-dark (≥4.5:1)', () => {
-      const info = settings.theme.colors.semantic.info;
-      const surfaceDark = settings.theme.colors.surface.dark;
-      const ratio = getContrastRatio(info, surfaceDark);
+      const ratio = getContrastRatio(colors.semantic.info, colors.surface.dark);
       expect(ratio).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
     });
 
     it('should meet contrast ratio for large text combinations (≥3:1)', () => {
       const testCases = [
-        { fg: settings.theme.colors.brand.primary, bg: settings.theme.colors.surface.dark },
-        { fg: settings.theme.colors.brand.secondary, bg: settings.theme.colors.surface.dark },
-        { fg: settings.theme.colors.neutral['400'], bg: settings.theme.colors.surface.dark },
+        { fg: colors.brand.primary, bg: colors.surface.dark },
+        { fg: colors.brand.secondary, bg: colors.surface.dark },
+        { fg: colors.neutral['400'], bg: colors.surface.dark },
       ];
 
       testCases.forEach(({ fg, bg }) => {

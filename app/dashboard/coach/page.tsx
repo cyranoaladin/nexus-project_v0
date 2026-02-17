@@ -13,6 +13,7 @@ import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { SessionReportDialog } from "@/components/ui/session-report-dialog"
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage"
 
 interface CoachDashboardData {
   coach: {
@@ -187,107 +188,7 @@ export default function DashboardCoach() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
-          <>
-            {/* Welcome Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Bonjour {dashboardData?.coach.pseudonym} !
-              </h2>
-              <p className="text-neutral-300">
-                Voici votre tableau de bord pour gérer vos sessions et suivre vos élèves.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {dashboardData?.coach.specialties?.map((specialty: string, index: number) => (
-                  <Badge key={index} variant="outline" className="border-white/10 text-neutral-300">
-                    {specialty}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Dialog open={isWeekDialogOpen} onOpenChange={setIsWeekDialogOpen}>
-            <DialogTrigger asChild>
-              <Card className="cursor-pointer bg-surface-card border border-white/10 shadow-premium">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-neutral-200">Sessions Cette Semaine</CardTitle>
-                  <Calendar className="h-4 w-4 text-brand-accent" aria-hidden="true" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-brand-accent">
-                    {dashboardData?.weekStats?.totalSessions || 0}
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    {dashboardData?.weekStats?.completedSessions || 0} terminées, {dashboardData?.weekStats?.upcomingSessions || 0} à venir
-                  </p>
-                </CardContent>
-              </Card>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl bg-surface-card border border-white/10 text-neutral-100">
-              <DialogHeader>
-                <DialogTitle className="text-white">Sessions de la semaine</DialogTitle>
-              </DialogHeader>
-              {dashboardData?.weekSessions && dashboardData.weekSessions.length > 0 ? (
-                <div className="space-y-3 max-h-[70vh] overflow-y-auto">
-                  {dashboardData.weekSessions.map((s) => (
-                    <div key={s.id} className="p-4 border border-white/10 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between bg-white/5">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium text-white">{s.title || s.subject}</h4>
-                          <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">{s.type}</Badge>
-                          <Badge variant="default" className="text-xs">{s.modality}</Badge>
-                        </div>
-                        <p className="text-sm text-neutral-300 mt-1">Avec {s.studentName}</p>
-                        <p className="text-sm text-brand-accent font-medium">{new Date(s.date).toLocaleDateString('fr-FR')} • {s.startTime} - {s.endTime} • {s.duration} min</p>
-                        {s.description && (
-                          <p className="text-xs text-neutral-400 mt-1">{s.description}</p>
-                        )}
-                      </div>
-                      <div className="mt-3 md:mt-0 flex items-center gap-2">
-                        <Badge className="text-xs">{s.status.toLowerCase()}</Badge>
-                        <Badge variant="outline" className="text-xs border-white/10 text-neutral-300">{s.creditsUsed} crédit(s)</Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-neutral-400 text-sm">Aucune session planifiée cette semaine.</div>
-              )}
-            </DialogContent>
-          </Dialog>
-
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-200">Aujourd'hui</CardTitle>
-              <Clock className="h-4 w-4 text-emerald-300" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">
-                {dashboardData?.todaySessions?.length || 0}
-              </div>
-              <p className="text-xs text-neutral-400 mt-1">
-                Sessions programmées
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-200">Mes Élèves</CardTitle>
-              <Users className="h-4 w-4 text-purple-300" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">
-                {dashboardData?.uniqueStudentsCount || 0}
-              </div>
-              <p className="text-xs text-neutral-400 mt-1">
-                Élèves suivis ce mois
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
+          <DashboardPilotage role="COACH">
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Planning du Jour */}
@@ -417,32 +318,25 @@ export default function DashboardCoach() {
         </div>
 
             {/* Actions Rapides */}
-            <Card className="mt-8 bg-surface-card border border-white/10 shadow-premium">
-              <CardHeader>
-                <CardTitle className="text-white">Actions Rapides</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button
-                    variant="outline"
-                    className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
-                    onClick={() => setActiveTab('availability')}
-                  >
-                    <Calendar className="w-6 h-6 text-brand-accent" aria-hidden="true" />
-                    <span>Gérer mon Planning</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                    <MessageCircle className="w-6 h-6 text-purple-300" aria-hidden="true" />
-                    <span>Messages Élèves</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                    <BookOpen className="w-6 h-6 text-emerald-300" aria-hidden="true" />
-                    <span>Rédiger un Rapport</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
+              <Button
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
+                onClick={() => setActiveTab('availability')}
+              >
+                <Calendar className="w-5 h-5 text-brand-accent" aria-hidden="true" />
+                <span className="text-xs">Gérer mon planning</span>
+              </Button>
+              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                <MessageCircle className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                <span className="text-xs">Messages élèves</span>
+              </Button>
+              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
+                <BookOpen className="w-5 h-5 text-emerald-300" aria-hidden="true" />
+                <span className="text-xs">Rédiger un rapport</span>
+              </Button>
+            </div>
+          </DashboardPilotage>
         )}
 
         {activeTab === 'availability' && session?.user?.id && (

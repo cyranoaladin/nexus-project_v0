@@ -49,6 +49,21 @@ const nextConfig = {
         destination: '/accompagnement-scolaire',
         permanent: true, // 301 redirect (consolidation)
       },
+      {
+        source: '/inscription',
+        destination: '/bilan-gratuit',
+        permanent: false, // 307 — UX redirect for parents
+      },
+      {
+        source: '/questionnaire',
+        destination: '/bilan-gratuit',
+        permanent: false, // 307 — questionnaire is part of bilan-gratuit
+      },
+      {
+        source: '/tarifs',
+        destination: '/offres',
+        permanent: false, // 307 — pricing page alias
+      },
     ];
   },
 };

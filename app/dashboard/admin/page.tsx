@@ -20,6 +20,7 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { DashboardPilotage } from '@/components/dashboard/DashboardPilotage';
 
 interface AdminDashboardData {
   stats: {
@@ -159,16 +160,7 @@ export default function DashboardAdmin() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-        {/* Welcome Section */}
-        <div className="mb-6 md:mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-            Tableau de Bord Administrateur
-          </h2>
-          <p className="text-sm md:text-base text-neutral-300">
-            Vue d'ensemble complète et contrôle de la plateforme Nexus Réussite.
-          </p>
-        </div>
-
+        <DashboardPilotage role="ADMIN">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* User Counts Section */}
@@ -439,6 +431,7 @@ export default function DashboardAdmin() {
             </CardContent>
           </Card>
         </div>
+        </DashboardPilotage>
       </main>
       <CorporateFooter />
     </div>
