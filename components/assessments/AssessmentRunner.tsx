@@ -164,7 +164,7 @@ export function AssessmentRunner({
       setState('ERROR');
       toast.error('Erreur lors de la soumission');
     }
-  }, [apiEndpoint, grade, onComplete, router, selectedOptions, startTime, studentData, studentId, subject]);
+  }, [apiEndpoint, grade, onComplete, router, selectedOptions, startTime, studentData, subject]);
 
   // Validate answer
   const handleValidate = useCallback(() => {
@@ -209,7 +209,7 @@ export function AssessmentRunner({
       // All questions answered
       submitAssessment(newAnswers);
     }
-  }, [answers, currentIndex, currentQuestion, isNSP, questions, submitAssessment, totalQuestions]);
+  }, [answers, currentIndex, currentQuestion, isNSP, questions, selectedOption, submitAssessment, totalQuestions]);
 
   // Keyboard shortcuts
   useEffect(() => {
