@@ -163,7 +163,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexus_test
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -244,7 +244,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     continue-on-error: true
     needs: [lint, typecheck]
 
@@ -256,7 +256,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexus_e2e
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -326,6 +326,7 @@ jobs:
           exit 1
 
       - name: Run Playwright E2E tests
+        timeout-minutes: 12
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
