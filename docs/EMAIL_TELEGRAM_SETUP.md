@@ -13,6 +13,7 @@
 | `SMTP_PASS` | *(secret)* | Mot de passe boîte mail (`SMTP_PASSWORD` aussi accepté) |
 | `MAIL_FROM` | `Nexus Réussite <no-reply@nexusreussite.academy>` | Adresse expéditeur (fallback: `EMAIL_FROM`, `SMTP_FROM`) |
 | `MAIL_REPLY_TO` | `support@nexusreussite.academy` | Adresse de réponse (optionnel) |
+| `INTERNAL_NOTIFICATION_EMAIL` | `support@nexusreussite.academy` | Destinataire des notifications internes (optionnel, fallback: `MAIL_REPLY_TO`) |
 | `MAIL_DISABLED` | `true` / `false` | Désactive l'envoi (défaut: `true` en `NODE_ENV=test`) |
 
 ### Architecture
@@ -23,19 +24,26 @@ lib/email/templates.ts   ← Templates HTML + texte (fonctions pures)
 app/api/notify/email/     ← API route POST (validation zod, rate limit)
 ```
 
-### Fichiers existants (non modifiés)
+### Fichiers existants (code non modifié)
 
-Les fichiers suivants continuent de fonctionner indépendamment :
+Les fichiers suivants continuent de fonctionner avec leur code actuel (aucune modification appliquée) :
 
 - `lib/email-service.ts` — Emails session (welcome, confirmation, reminder, report)
 - `lib/email.ts` — Emails parent (welcome, credit expiration, password reset, stage)
 - `lib/invoice/send-email.ts` — Emails facture
+
+> ⚠️ **Comportement runtime** : ces fichiers lisent les variables d'environnement SMTP (`SMTP_HOST`, `SMTP_PORT`, etc.).
+> Si vous mettez à jour vos variables pour suivre le tableau ci-dessus (port 587, nouvelles adresses), leur comportement s'alignera automatiquement.
+> Pour conserver un comportement rétrocompatible, gardez vos anciennes valeurs (port 465, anciens emails).
 
 > **Migration recommandée** : à terme, migrer ces fichiers vers `lib/email/mailer.ts` pour éliminer la duplication du transport.
 
 ### Sécurité
 
 - **Aucun envoi en CI/test** : `MAIL_DISABLED` est `true` par défaut quand `NODE_ENV=test`.
+- **CSRF** : `POST /api/notify/email` est protégé par `checkCsrf` (same-origin uniquement en production).
+- **Rate limit** : Upstash Redis distribué via `checkRateLimit` (100 req/min/IP).
+- **Body size** : payloads > 64KB rejetés via `checkBodySize`.
 - **Logs** : seul le `messageId` est loggé, jamais l'adresse email ni le contenu.
 - **Secrets** : ne jamais commiter `SMTP_PASS` / `SMTP_PASSWORD`.
 
