@@ -16,6 +16,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   timeout: process.env.CI ? 60_000 : 90_000,
+  globalTimeout: process.env.CI ? 11 * 60_000 : 0, // 11 min in CI (1 min below step timeout for graceful report), unlimited locally
   use: {
     baseURL,
     trace: 'on-first-retry',
