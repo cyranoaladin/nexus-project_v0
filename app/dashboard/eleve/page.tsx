@@ -1,10 +1,10 @@
 "use client";
 
-import { BadgeWidget } from "@/components/ui/badge-widget";
+// BadgeWidget reserved for gamification phase
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, CreditCard, Loader2, LogOut, User, Video, AlertCircle } from "lucide-react";
+import { BookOpen, Calendar, Loader2, LogOut, User, Video, AlertCircle } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

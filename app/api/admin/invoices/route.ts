@@ -21,7 +21,7 @@ import {
   assertMillimes,
   MillimesValidationError,
 } from '@/lib/invoice';
-import type { CreateInvoiceRequest, InvoiceData, TaxRegime, InvoiceEvent } from '@/lib/invoice';
+import type { CreateInvoiceRequest, InvoiceData, TaxRegime } from '@/lib/invoice';
 
 // ─── Default issuer (can be overridden per request) ─────────────────────────
 
