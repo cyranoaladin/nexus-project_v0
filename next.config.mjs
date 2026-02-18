@@ -4,6 +4,9 @@ const nextConfig = {
   // Activer l'output standalone pour la compatibilité avec Docker
   output: 'standalone',
 
+  // Enable instrumentation hook (lib/env-validation.ts runs at server startup)
+  instrumentationHook: true,
+
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),
 
