@@ -161,8 +161,6 @@ export async function POST(request: NextRequest) {
       const errMsg = versionError instanceof Error ? versionError.message : 'unknown';
       if (process.env.NODE_ENV === 'production') {
         console.error(`[Assessment Submit] PROD: assessmentVersion persistence FAILED (count=${failCount}):`, errMsg);
-        // Sentry capture if available
-        try { const Sentry = await import('@sentry/nextjs'); Sentry.captureException(versionError); } catch { /* Sentry not installed */ }
       } else {
         console.warn(`[Assessment Submit] Version persistence skipped (dev):`, errMsg);
       }
@@ -198,8 +196,6 @@ export async function POST(request: NextRequest) {
       const errMsg = domainError instanceof Error ? domainError.message : 'unknown';
       if (process.env.NODE_ENV === 'production') {
         console.error(`[Assessment Submit] PROD: DomainScore persistence FAILED for ${assessment.id} (count=${failCount}):`, errMsg);
-        // Sentry capture if available
-        try { const Sentry = await import('@sentry/nextjs'); Sentry.captureException(domainError); } catch { /* Sentry not installed */ }
       } else {
         console.warn(`[Assessment Submit] DomainScore persistence skipped (dev):`, errMsg);
       }
