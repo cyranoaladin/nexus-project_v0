@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Phone, ChevronDown } from "lucide-react";
@@ -12,6 +12,35 @@ export function CorporateNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
   const desktopMenuRef = useRef<HTMLDivElement | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openGroup = useCallback((group: string) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setOpenDesktopGroup(group);
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    closeTimerRef.current = setTimeout(() => {
+      setOpenDesktopGroup(null);
+      closeTimerRef.current = null;
+    }, 300);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
@@ -80,25 +109,25 @@ export function CorporateNavbar() {
     {
       title: 'Essentiel',
       items: [
-        { label: 'Accueil', href: '/', isPage: true },
-        { label: 'Offres', href: '/offres', isPage: true },
-        { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
-        { label: 'Contact', href: '/contact', isPage: true },
+        { label: 'Accueil', href: '/', desc: 'Page principale', isPage: true },
+        { label: 'Offres', href: '/offres', desc: 'Nos formules', isPage: true },
+        { label: 'Bilan Gratuit', href: '/bilan-gratuit', desc: 'Évaluation en ligne', isPage: true },
+        { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
       ]
     },
     {
       title: 'Programmes',
       items: [
-        { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
-        { label: 'Stages', href: '/stages', isPage: true },
-        { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
+        { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
+        { label: 'Stages', href: '/stages', desc: 'Stages intensifs', isPage: true },
+        { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'IA pédagogique', isPage: true },
       ]
     },
     {
       title: 'À propos',
       items: [
-        { label: 'Notre Équipe', href: '/equipe', isPage: true },
-        { label: 'Notre Centre', href: '/notre-centre', isPage: true },
+        { label: 'Notre Équipe', href: '/equipe', desc: 'Coachs & experts', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', desc: 'Centre Urbain Nord', isPage: true },
       ]
     },
   ];
@@ -134,7 +163,7 @@ export function CorporateNavbar() {
           </Link>
 
           {/* Desktop Rubriques + Sous-rubriques */}
-          <div ref={desktopMenuRef} className="hidden md:flex items-center gap-3">
+          <div ref={desktopMenuRef} className="hidden md:flex items-center gap-1">
             {menuGroups.map((group) => {
               const isGroupActive = group.items.some((item) => item.href === pathname);
               const isOpenGroup = openDesktopGroup === group.title;
@@ -143,14 +172,20 @@ export function CorporateNavbar() {
                 <div
                   key={group.title}
                   className="relative"
-                  onMouseEnter={() => setOpenDesktopGroup(group.title)}
-                  onMouseLeave={() => setOpenDesktopGroup((current) => (current === group.title ? null : current))}
+                  onMouseEnter={() => openGroup(group.title)}
+                  onMouseLeave={scheduleClose}
                 >
                   <button
                     type="button"
-                    onClick={() => setOpenDesktopGroup(isOpenGroup ? null : group.title)}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
-                      isGroupActive
+                    onClick={() => {
+                      if (isOpenGroup) {
+                        setOpenDesktopGroup(null);
+                      } else {
+                        openGroup(group.title);
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
+                      isGroupActive || isOpenGroup
                         ? "text-white border-brand-accent/50 bg-white/10"
                         : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
                     }`}
@@ -159,26 +194,39 @@ export function CorporateNavbar() {
                   >
                     <span>{group.title}</span>
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${isOpenGroup ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 transition-transform duration-200 ${isOpenGroup ? "rotate-180" : ""}`}
                       aria-hidden="true"
                     />
                   </button>
 
+                  {/* Invisible bridge — prevents gap between trigger and panel from closing the menu */}
                   {isOpenGroup && (
-                    <div className="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-white/10 bg-surface-darker/95 backdrop-blur-xl shadow-2xl p-2 z-[60]">
+                    <div className="absolute left-0 top-full w-full h-3" aria-hidden="true" />
+                  )}
+
+                  {isOpenGroup && (
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-surface-darker/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
+                      role="menu"
+                      onMouseEnter={cancelClose}
+                      onMouseLeave={scheduleClose}
+                    >
                       {group.items.map((item) => (
                         <Link
                           key={item.href}
                           href={item.href}
                           onClick={() => setOpenDesktopGroup(null)}
-                          className={`block rounded-xl px-4 py-3 text-sm transition-colors ${
+                          className={`group/item flex flex-col rounded-xl px-4 py-3.5 transition-colors ${
                             pathname === item.href
-                              ? "bg-white/10 text-white"
+                              ? "bg-brand-accent/10 text-white"
                               : "text-neutral-300 hover:bg-white/10 hover:text-white"
                           }`}
                           role="menuitem"
                         >
-                          {item.label}
+                          <span className="text-sm font-medium">{item.label}</span>
+                          <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
+                            {item.desc}
+                          </span>
                         </Link>
                       ))}
                     </div>
