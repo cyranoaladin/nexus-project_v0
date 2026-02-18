@@ -9,17 +9,34 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
-    update: {},
+    update: { activatedAt: new Date() },
     create: {
       email: 'admin@nexus-reussite.com',
       password: hashedPassword,
       firstName: 'Admin',
       lastName: 'Nexus',
       role: 'ADMIN',
+      activatedAt: new Date(),
     },
   });
 
-  console.log('Utilisateur admin créé:', admin);
+  console.log('Utilisateur admin créé:', admin.email);
+
+  // Créer une assistante
+  const assistante = await prisma.user.upsert({
+    where: { email: 'assistante@nexus-reussite.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'assistante@nexus-reussite.com',
+      password: hashedPassword,
+      firstName: 'Sophia',
+      lastName: 'Assistante',
+      role: 'ASSISTANTE',
+      activatedAt: new Date(),
+    },
+  });
+
+  console.log('Utilisateur assistante créé:', assistante.email);
 
   // Créer des coachs avec leurs profils
   const coaches = [
@@ -84,13 +101,14 @@ async function main() {
     // Créer l'utilisateur coach
     const coachUser = await prisma.user.upsert({
       where: { email: coachData.email },
-      update: {},
+      update: { activatedAt: new Date() },
       create: {
         email: coachData.email,
         password: hashedPassword,
         firstName: coachData.firstName,
         lastName: coachData.lastName,
         role: 'COACH',
+        activatedAt: new Date(),
       },
     });
 
@@ -174,13 +192,14 @@ async function main() {
   // Créer des parents et étudiants de test
   const parentUser = await prisma.user.upsert({
     where: { email: 'parent@example.com' },
-    update: {},
+    update: { activatedAt: new Date() },
     create: {
       email: 'parent@example.com',
       password: hashedPassword,
       firstName: 'Parent',
       lastName: 'Test',
       role: 'PARENT',
+      activatedAt: new Date(),
     },
   });
 
@@ -222,8 +241,22 @@ async function main() {
     },
   });
 
-  console.log('Utilisateur test créé:', testUser);
-  console.log('Parent et étudiant créés:', { parent: parentProfile, student: student });
+  console.log('Utilisateur test créé:', testUser.email);
+  console.log('Parent et étudiant créés:', { parent: parentProfile.id, student: student.id });
+
+  // Activer aussi test@example.com
+  await prisma.user.update({
+    where: { email: 'test@example.com' },
+    data: { activatedAt: new Date() },
+  });
+
+  console.log('\n=== SEED TERMINÉ ===');
+  console.log('Comptes disponibles (mot de passe: admin123):');
+  console.log('  ADMIN:      admin@nexus-reussite.com');
+  console.log('  ASSISTANTE: assistante@nexus-reussite.com');
+  console.log('  COACH:      helios/zenon/athena/hermes/clio@nexus-reussite.com');
+  console.log('  PARENT:     parent@example.com');
+  console.log('  ELEVE:      student@example.com, test@example.com');
 }
 
 main()
