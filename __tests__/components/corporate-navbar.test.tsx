@@ -33,8 +33,8 @@ describe('CorporateNavbar', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Prochaine étape')).toBeInTheDocument();
-      expect(screen.getAllByRole('link', { name: /bilan gratuit/i }).length).toBeGreaterThan(0);
-      expect(screen.getAllByRole('link', { name: /parler à un expert/i }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('link', { name: /se connecter/i }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('link', { name: /s'inscrire/i }).length).toBeGreaterThan(0);
     });
   });
 });
