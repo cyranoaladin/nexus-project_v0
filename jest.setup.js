@@ -35,6 +35,7 @@ jest.mock('./lib/prisma', () => ({
     },
     parentProfile: {
       create: jest.fn(),
+      findUnique: jest.fn(),
     },
     studentProfile: {
       create: jest.fn(),
@@ -46,6 +47,24 @@ jest.mock('./lib/prisma', () => ({
     // Add SessionBooking for refund flow tests
     sessionBooking: {
       findUnique: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
+    sessionReport: {
+      findMany: jest.fn(),
+    },
+    ariaConversation: {
+      count: jest.fn(),
+      create: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    ariaMessage: {
+      count: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    pedagogicalContent: {
+      findMany: jest.fn(),
     },
     creditTransaction: {
       create: jest.fn(),
@@ -60,6 +79,21 @@ jest.mock('./lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    trajectory: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+    diagnostic: {
+      count: jest.fn(),
+    },
+    invoiceAccessToken: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      updateMany: jest.fn(),
+    },
+    $queryRaw: jest.fn(),
     $transaction: jest.fn(),
   },
 }));

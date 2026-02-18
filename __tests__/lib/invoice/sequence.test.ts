@@ -6,7 +6,11 @@
  * formatting logic.
  */
 
-import { formatYearMonth } from '@/lib/invoice/sequence';
+import { formatYearMonth, generateInvoiceNumber } from '@/lib/invoice/sequence';
+
+const { prisma } = jest.requireMock('@/lib/prisma') as {
+  prisma: { $queryRaw: jest.Mock };
+};
 
 describe('formatYearMonth', () => {
   it('formats a standard yearMonth', () => {
@@ -69,5 +73,52 @@ describe('Invoice number format', () => {
     const date = new Date('2026-12-15T12:00:00Z');
     const yearMonth = date.getFullYear() * 100 + (date.getMonth() + 1);
     expect(yearMonth).toBe(202612);
+  });
+});
+
+describe('generateInvoiceNumber', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('generates invoice number with correct format', async () => {
+    prisma.$queryRaw.mockResolvedValue([{ current: 1 }]);
+
+    const result = await generateInvoiceNumber(new Date('2026-02-18'));
+
+    expect(result).toBe('202602-0001');
+    expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it('pads sequence number to 4 digits', async () => {
+    prisma.$queryRaw.mockResolvedValue([{ current: 42 }]);
+
+    const result = await generateInvoiceNumber(new Date('2026-03-01'));
+
+    expect(result).toBe('202603-0042');
+  });
+
+  it('handles high sequence numbers', async () => {
+    prisma.$queryRaw.mockResolvedValue([{ current: 9999 }]);
+
+    const result = await generateInvoiceNumber(new Date('2026-12-31'));
+
+    expect(result).toBe('202612-9999');
+  });
+
+  it('defaults to 1 when result is empty', async () => {
+    prisma.$queryRaw.mockResolvedValue([]);
+
+    const result = await generateInvoiceNumber(new Date('2026-01-15'));
+
+    expect(result).toBe('202601-0001');
+  });
+
+  it('uses current date when no date provided', async () => {
+    prisma.$queryRaw.mockResolvedValue([{ current: 5 }]);
+
+    const result = await generateInvoiceNumber();
+
+    const now = new Date();
+    const expectedYearMonth = now.getFullYear() * 100 + (now.getMonth() + 1);
+    expect(result).toBe(`${expectedYearMonth}-0005`);
   });
 });

@@ -244,6 +244,87 @@ describe('Analytics Tracking System', () => {
         { page: '/offres', depth: 75 }
       );
     });
+
+    it('track.bilanSubmit sends bilan_submit event', () => {
+      track.bilanSubmit(['MATHEMATIQUES', 'NSI'], 'TERMINALE', 'hybride');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('bilan_submit'),
+        expect.any(String),
+        { subjects: ['MATHEMATIQUES', 'NSI'], grade: 'TERMINALE', modality: 'hybride' }
+      );
+    });
+
+    it('track.contactSubmit sends contact_submit event', () => {
+      track.contactSubmit('parent', 'bilan', 'urgent', 'offres');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('contact_submit'),
+        expect.any(String),
+        { profile: 'parent', interest: 'bilan', urgency: 'urgent', source: 'offres' }
+      );
+    });
+
+    it('track.sessionCancel sends session_cancel event', () => {
+      track.sessionCancel('sess-123', 'schedule_conflict');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('session_cancel'),
+        expect.any(String),
+        { session_id: 'sess-123', reason: 'schedule_conflict' }
+      );
+    });
+
+    it('track.paymentSuccess sends payment_success event', () => {
+      track.paymentSuccess('konnect', 450);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('payment_success'),
+        expect.any(String),
+        { method: 'konnect', amount: 450 }
+      );
+    });
+
+    it('track.paymentError sends payment_error event', () => {
+      track.paymentError('konnect', 'card_declined');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('payment_error'),
+        expect.any(String),
+        { method: 'konnect', error_type: 'card_declined' }
+      );
+    });
+
+    it('track.bilanPallier2Start sends bilan_pallier2_start event', () => {
+      track.bilanPallier2Start('dashboard');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('bilan_pallier2_start'),
+        expect.any(String),
+        { source: 'dashboard' }
+      );
+    });
+
+    it('track.bilanPallier2Step sends bilan_pallier2_step event', () => {
+      track.bilanPallier2Step(3, 'questions_maths');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('bilan_pallier2_step'),
+        expect.any(String),
+        { step_number: 3, step_name: 'questions_maths' }
+      );
+    });
+
+    it('track.bilanPallier2Success sends bilan_pallier2_success event', () => {
+      track.bilanPallier2Success('student-456');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('bilan_pallier2_success'),
+        expect.any(String),
+        { student_id: 'student-456' }
+      );
+    });
+
+    it('track.bilanPallier2Error sends bilan_pallier2_error event', () => {
+      track.bilanPallier2Error('timeout');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('bilan_pallier2_error'),
+        expect.any(String),
+        { error_type: 'timeout' }
+      );
+    });
   });
 
   describe('edge cases', () => {
