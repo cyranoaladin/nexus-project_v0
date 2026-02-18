@@ -49,12 +49,11 @@ function getIngestorUrl(): string {
  */
 export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
   const baseUrl = getIngestorUrl();
-  const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT || '10000', 10);
+  const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
     const response = await fetch(`${baseUrl}/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -67,8 +66,6 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
       }),
       signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error(`RAG search failed: ${response.status} ${response.statusText}`);
@@ -84,6 +81,8 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
       console.error('RAG search error:', error);
     }
     return [];
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -92,13 +91,22 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
  */
 export async function ragHealthCheck(): Promise<boolean> {
   const baseUrl = getIngestorUrl();
+  const HEALTH_TIMEOUT_MS = 5000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
+
   try {
-    const response = await fetch(`${baseUrl}/health`, { method: 'GET' });
+    const response = await fetch(`${baseUrl}/health`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
     if (!response.ok) return false;
     const data = (await response.json()) as { status: string };
     return data.status === 'healthy';
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
