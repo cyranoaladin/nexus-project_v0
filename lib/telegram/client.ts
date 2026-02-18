@@ -29,6 +29,7 @@ export interface TelegramSendResult {
   ok: boolean;
   skipped?: boolean;
   messageId?: number;
+  error?: string;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -136,7 +137,7 @@ export async function telegramSendMessage(
   const resolvedChatId = chatId || process.env.TELEGRAM_CHAT_ID;
   if (!resolvedChatId) {
     console.error('[telegram] No chat_id provided and TELEGRAM_CHAT_ID not set');
-    return { ok: false };
+    return { ok: false, error: 'No chat_id provided and TELEGRAM_CHAT_ID not set' };
   }
 
   try {
@@ -150,7 +151,8 @@ export async function telegramSendMessage(
     console.log(`[telegram] Sent: message_id=${result.message_id}`);
     return { ok: true, messageId: result.message_id };
   } catch (error) {
-    console.error('[telegram] Send failed:', error instanceof Error ? error.message : 'unknown');
-    return { ok: false };
+    const errorMsg = error instanceof Error ? error.message : 'unknown';
+    console.error('[telegram] Send failed:', errorMsg);
+    return { ok: false, error: errorMsg };
   }
 }
