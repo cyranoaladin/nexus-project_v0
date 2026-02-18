@@ -210,12 +210,14 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: npx prisma migrate deploy
 
-      - name: Verify database connection
+      - name: Verify database tables
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
-          SELECT 1 as smoke_test;
+          SELECT table_name FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+          ORDER BY table_name;
           SQL
 
       - name: Run integration tests
