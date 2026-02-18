@@ -1,8 +1,9 @@
 # QA Gate P0 — Nexus 2.0 Release Candidate
 
-> **HEAD**: `380b6c3b` (docs: fix HEAD SHA in QA gate)
+> **HEAD**: `987a175e` (feat(P0): env validation at boot + centralized db-raw helper + QA gate update)
 > **Fix commit**: `e63c3f23` (fix(stop-ship): remove 3 runtime mocks/bypasses + audit final 10/10)
-> **Commit chain**: `de3f38cf` → … → `21e1f862` → `1956d571` → `e63c3f23` → `380b6c3b`
+> **Hardening commit**: `987a175e` (env validation + db-raw + instrumentation hook)
+> **Commit chain**: `de3f38cf` → … → `e63c3f23` → `380b6c3b` → `987a175e`
 > **Date**: 2026-02-18
 > **Auteur**: Cascade (pair-programming)
 > **Known issues**: **NONE**
@@ -574,16 +575,45 @@ Zéro concaténation de chaînes avec des entrées utilisateur.
 
 Raison d'utilisation : colonnes `learning_graph_v2` (`assessmentVersion`, `domain_scores`, `skill_scores`, `ssn`) pas encore dans le client Prisma généré. Migration vers Prisma typé trackée (TODO NEX-42/NEX-43).
 
-### 11.5 Garanties prod-ready
+### 11.5 ENV validation au boot (NEW — `987a175e`)
+
+`lib/env-validation.ts` + `instrumentation.ts` (Next.js instrumentation hook).
+
+| Variable | Level | Comportement prod si manquant |
+|---|---|---|
+| `DATABASE_URL` | REQUIRED | ❌ FATAL crash |
+| `NEXTAUTH_SECRET` | REQUIRED (prodOnly) | ❌ FATAL crash |
+| `NEXTAUTH_URL` | REQUIRED (prodOnly) | ❌ FATAL crash |
+| `OLLAMA_URL` | RECOMMENDED | ⚠️ Warning (fallback Docker) |
+| `RAG_INGESTOR_URL` | RECOMMENDED | ⚠️ Warning (fallback Docker) |
+| `SMTP_HOST` | RECOMMENDED | ⚠️ Warning (emails disabled) |
+| `KONNECT_API_KEY` | RECOMMENDED | ⚠️ Warning (payments disabled) |
+| `LLM_MODE` | OPTIONAL | Silent (default=live) |
+
+Tests: 9/9 (`__tests__/lib/env-validation.test.ts`)
+
+### 11.6 Raw SQL helper centralisé (NEW — `987a175e`)
+
+`lib/db-raw.ts` : `dbExecute()` / `dbQuery()` avec garde anti-interpolation.
+Tests: 5/5 (`__tests__/lib/db-raw.test.ts`)
+
+### 11.7 Garanties prod-ready (final)
 
 | Garantie | Statut |
 |---|---|
-| 0 mock/stub/bypass dans le runtime | ✅ |
+| 0 mock/stub/bypass dans le runtime | ✅ (3 corrigés, 0 restant) |
 | 0 URL prod hardcodée | ✅ |
 | 0 secret en clair | ✅ |
+| ENV validation fail-fast au boot | ✅ (9 tests) |
 | LLM_MODE default = `live` | ✅ |
 | LLM_MODE=off uniquement CI/E2E | ✅ |
-| RBAC 403 sans session / mauvais rôle | ✅ (135 + 5 tests) |
+| LLM résilience (scoring si LLM down) | ✅ (23 tests) |
+| RBAC 401/403 tous endpoints | ✅ (78 + 34 matrix tests) |
 | `logExp` casing cohérent 5 couches | ✅ |
 | Ordre stable vérifié par 6 tests | ✅ |
 | Raw SQL paramétré, 0 concat user input | ✅ |
+| Raw SQL helper centralisé | ✅ (5 tests) |
+| Unit tests | ✅ 2049/2049 |
+| Integration tests | ✅ 502/502 |
+| DB tests | ✅ 8/8 |
+| **Total** | ✅ **2559/2559, 0 failed** |
