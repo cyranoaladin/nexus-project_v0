@@ -161,7 +161,7 @@ async function computeParentStep(user: ParentUser): Promise<NextStep | null> {
   // Step 4: No sessions completed yet → do first bilan
   if (firstChild.completedSessions === 0) {
     // Check if a bilan exists
-    const bilanCount = await prisma.diagnostic.count({
+    const _bilanCount = await prisma.diagnostic.count({
       where: {
         // Diagnostics are linked via student email or parent context
         // For now, check if any upcoming session exists
