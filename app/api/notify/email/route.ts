@@ -2,40 +2,30 @@
  * POST /api/notify/email
  *
  * Server-side email notification endpoint.
- * Validates payload with zod, applies basic rate limiting, sends via centralized mailer.
+ * Protected by CSRF validation (same-origin only) and distributed rate limiting.
+ * Validates payload with zod, sends via centralized mailer.
  *
  * Supported types: 'bilan_ack' (accusé réception), 'internal' (notification support).
+ *
+ * Security:
+ * - CSRF: checkCsrf rejects cross-origin requests in production.
+ * - Rate limit: Upstash Redis (distributed) via checkRateLimit, falls back to open in dev.
+ * - Body size: checkBodySize rejects payloads > 64KB.
+ * - Internal emails: sent only to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { checkCsrf, checkBodySize } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
-
-// ─── Rate Limiting (in-memory, per-IP, 5 req/min) ──────────────────────────
-
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 5;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
 const bilanAckSchema = z.object({
   type: z.literal('bilan_ack'),
-  to: z.string().email(),
+  to: z.string().email().max(320),
   parentName: z.string().min(1).max(200),
   studentName: z.string().min(1).max(200),
   formType: z.string().min(1).max(100).default('Bilan gratuit'),
@@ -52,16 +42,19 @@ const payloadSchema = z.discriminatedUnion('type', [bilanAckSchema, internalSche
 // ─── Handler ────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-  // Rate limit
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  if (isRateLimited(ip)) {
-    return NextResponse.json(
-      { ok: false, error: 'Too many requests' },
-      { status: 429 }
-    );
-  }
+  // 1. CSRF protection — reject cross-origin requests
+  const csrfResponse = checkCsrf(request);
+  if (csrfResponse) return csrfResponse;
 
-  // Parse & validate
+  // 2. Body size guard (64KB max)
+  const sizeResponse = checkBodySize(request, 64 * 1024);
+  if (sizeResponse) return sizeResponse;
+
+  // 3. Distributed rate limiting (Upstash Redis, falls back to open in dev)
+  const rateLimitResponse = await checkRateLimit(request, 'api');
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // 4. Parse & validate
   let body: unknown;
   try {
     body = await request.json();
@@ -83,6 +76,7 @@ export async function POST(request: NextRequest) {
   const data = parsed.data;
 
   try {
+    // 5a. Bilan acknowledgement — sends to the caller-provided email
     if (data.type === 'bilan_ack') {
       const template = bilanAcknowledgement({
         parentName: data.parentName,
@@ -100,15 +94,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, skipped: result.skipped ?? false }, { status: 200 });
     }
 
+    // 5b. Internal notification — always sent to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled)
     if (data.type === 'internal') {
-      const supportEmail = process.env.MAIL_REPLY_TO || process.env.EMAIL_REPLY_TO || 'contact@nexusreussite.academy';
+      const internalRecipient =
+        process.env.INTERNAL_NOTIFICATION_EMAIL ||
+        process.env.MAIL_REPLY_TO ||
+        process.env.EMAIL_REPLY_TO ||
+        'contact@nexusreussite.academy';
+
       const template = internalNotification({
         eventType: data.eventType,
         fields: data.fields,
       });
 
       const result = await sendMail({
-        to: supportEmail,
+        to: internalRecipient,
         subject: template.subject,
         html: template.html,
         text: template.text,

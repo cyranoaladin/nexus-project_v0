@@ -24,7 +24,11 @@
  */
 
 import { config } from 'dotenv';
-config(); // Load .env
+const dotenvResult = config(); // Load .env
+
+if (dotenvResult.error && !process.env.TELEGRAM_BOT_TOKEN) {
+  console.warn('⚠️  Could not load .env file:', dotenvResult.error.message);
+}
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_CHAT_ID;
