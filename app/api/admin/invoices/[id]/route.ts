@@ -134,7 +134,7 @@ export async function PATCH(
     }
 
     if (action === 'MARK_PAID') {
-      const paidMeta = meta as MarkPaidMeta['payment'] extends infer P ? { payment: P } : never;
+      const _paidMeta = meta as MarkPaidMeta['payment'] extends infer P ? { payment: P } : never;
       const payment = (body.meta as MarkPaidMeta).payment;
 
       updateData.paidAt = payment.paidAt ? new Date(payment.paidAt) : new Date();
