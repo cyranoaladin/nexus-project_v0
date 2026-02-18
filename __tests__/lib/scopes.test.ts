@@ -4,7 +4,7 @@
  * Mocks prisma to test authorization rules without DB.
  */
 
-import { resolveStudentScope, type SessionUser } from '@/lib/scopes';
+import { resolveStudentScope, getParentChildren, type SessionUser } from '@/lib/scopes';
 
 // ─── Mock Prisma ─────────────────────────────────────────────────────────────
 
@@ -234,5 +234,57 @@ describe('resolveStudentScope — edge cases', () => {
     const result = await resolveStudentScope(eleveUser, { studentId: undefined });
 
     expect(result.authorized).toBe(true);
+  });
+});
+
+// ─── getParentChildren ──────────────────────────────────────────────────────
+
+describe('getParentChildren', () => {
+  it('returns children for a parent user', async () => {
+    mockParentProfileFindUnique.mockResolvedValue({
+      children: [
+        { id: 'child-1', userId: 'user-child-1', user: { firstName: 'Karim', lastName: 'Ben Ali' }, grade: 'TERMINALE' },
+        { id: 'child-2', userId: 'user-child-2', user: { firstName: 'Sara', lastName: 'Ben Ali' }, grade: 'PREMIERE' },
+      ],
+    });
+
+    const result = await getParentChildren('user-parent-1');
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({
+      id: 'child-1',
+      userId: 'user-child-1',
+      firstName: 'Karim',
+      lastName: 'Ben Ali',
+      grade: 'TERMINALE',
+    });
+    expect(result[1].firstName).toBe('Sara');
+  });
+
+  it('returns empty array when parent profile not found', async () => {
+    mockParentProfileFindUnique.mockResolvedValue(null);
+
+    const result = await getParentChildren('nonexistent');
+    expect(result).toEqual([]);
+  });
+
+  it('returns empty array when parent has no children', async () => {
+    mockParentProfileFindUnique.mockResolvedValue({ children: [] });
+
+    const result = await getParentChildren('user-parent-1');
+    expect(result).toEqual([]);
+  });
+
+  it('handles null firstName/lastName gracefully', async () => {
+    mockParentProfileFindUnique.mockResolvedValue({
+      children: [
+        { id: 'child-1', userId: 'user-child-1', user: { firstName: null, lastName: null }, grade: null },
+      ],
+    });
+
+    const result = await getParentChildren('user-parent-1');
+    expect(result[0].firstName).toBe('');
+    expect(result[0].lastName).toBe('');
+    expect(result[0].grade).toBeNull();
   });
 });
