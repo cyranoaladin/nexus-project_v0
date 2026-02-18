@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Phone, ChevronDown } from "lucide-react";
+import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export function CorporateNavbar() {
@@ -11,8 +11,33 @@ export function CorporateNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
+  const [isConnexionOpen, setIsConnexionOpen] = useState(false);
   const desktopMenuRef = useRef<HTMLDivElement | null>(null);
+  const connexionRef = useRef<HTMLDivElement | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connexionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openConnexion = useCallback(() => {
+    if (connexionTimerRef.current) {
+      clearTimeout(connexionTimerRef.current);
+      connexionTimerRef.current = null;
+    }
+    setIsConnexionOpen(true);
+  }, []);
+
+  const scheduleConnexionClose = useCallback(() => {
+    connexionTimerRef.current = setTimeout(() => {
+      setIsConnexionOpen(false);
+      connexionTimerRef.current = null;
+    }, 300);
+  }, []);
+
+  const cancelConnexionClose = useCallback(() => {
+    if (connexionTimerRef.current) {
+      clearTimeout(connexionTimerRef.current);
+      connexionTimerRef.current = null;
+    }
+  }, []);
 
   const openGroup = useCallback((group: string) => {
     if (closeTimerRef.current) {
@@ -39,6 +64,7 @@ export function CorporateNavbar() {
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+      if (connexionTimerRef.current) clearTimeout(connexionTimerRef.current);
     };
   }, []);
 
@@ -80,19 +106,23 @@ export function CorporateNavbar() {
 
   useEffect(() => {
     setOpenDesktopGroup(null);
+    setIsConnexionOpen(false);
   }, [pathname]);
 
   useEffect(() => {
     const onMouseDown = (event: MouseEvent) => {
-      if (!desktopMenuRef.current) return;
-      if (!desktopMenuRef.current.contains(event.target as Node)) {
+      if (desktopMenuRef.current && !desktopMenuRef.current.contains(event.target as Node)) {
         setOpenDesktopGroup(null);
+      }
+      if (connexionRef.current && !connexionRef.current.contains(event.target as Node)) {
+        setIsConnexionOpen(false);
       }
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpenDesktopGroup(null);
+        setIsConnexionOpen(false);
       }
     };
 
@@ -237,8 +267,78 @@ export function CorporateNavbar() {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-4">
-          {/* CTA Button - Desktop */}
+          <div className="flex items-center gap-3">
+            {/* Connexion Dropdown - Desktop */}
+            <div
+              ref={connexionRef}
+              className="relative hidden md:block"
+              onMouseEnter={openConnexion}
+              onMouseLeave={scheduleConnexionClose}
+            >
+              <button
+                type="button"
+                onClick={() => setIsConnexionOpen((prev) => !prev)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
+                  isConnexionOpen
+                    ? "text-white border-brand-accent/50 bg-white/10"
+                    : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
+                }`}
+                aria-expanded={isConnexionOpen}
+                aria-haspopup="menu"
+              >
+                <LogIn className="w-4 h-4" aria-hidden="true" />
+                <span>Connexion</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${isConnexionOpen ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {/* Invisible bridge */}
+              {isConnexionOpen && (
+                <div className="absolute left-0 top-full w-full h-3" aria-hidden="true" />
+              )}
+
+              {isConnexionOpen && (
+                <div
+                  className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-surface-darker/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
+                  role="menu"
+                  onMouseEnter={cancelConnexionClose}
+                  onMouseLeave={scheduleConnexionClose}
+                >
+                  <Link
+                    href="/auth/signin"
+                    onClick={() => setIsConnexionOpen(false)}
+                    className="group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white"
+                    role="menuitem"
+                  >
+                    <LogIn className="w-5 h-5 mt-0.5 text-brand-accent flex-shrink-0" aria-hidden="true" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">Se connecter</span>
+                      <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
+                        Admin, coach, parent, élève…
+                      </span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/bilan-gratuit"
+                    onClick={() => setIsConnexionOpen(false)}
+                    className="group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white"
+                    role="menuitem"
+                  >
+                    <UserPlus className="w-5 h-5 mt-0.5 text-emerald-400 flex-shrink-0" aria-hidden="true" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">S'inscrire</span>
+                      <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
+                        Nouveau parent ou élève
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* CTA Button - Desktop */}
             <Link
               href="/bilan-gratuit"
               className="hidden md:flex items-center gap-2 btn-primary shadow-[0_12px_30px_rgba(79,209,233,0.2)] hover:shadow-[0_16px_40px_rgba(79,209,233,0.25)]"
@@ -248,7 +348,7 @@ export function CorporateNavbar() {
               <span>Bilan gratuit</span>
             </Link>
 
-            {/* Menu Button */}
+            {/* Menu Button - Mobile */}
             <button
               onClick={() => setIsOpen(true)}
               className="md:hidden flex items-center gap-2 text-white hover:text-brand-accent
@@ -369,18 +469,20 @@ export function CorporateNavbar() {
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Link
-                      href="/bilan-gratuit"
+                      href="/auth/signin"
                       onClick={() => setIsOpen(false)}
-                      className="btn-primary"
+                      className="btn-primary flex items-center gap-2"
                     >
-                      Bilan gratuit
+                      <LogIn className="w-4 h-4" aria-hidden="true" />
+                      Se connecter
                     </Link>
                     <Link
-                      href="/contact"
+                      href="/bilan-gratuit"
                       onClick={() => setIsOpen(false)}
-                      className="btn-outline"
+                      className="btn-outline flex items-center gap-2"
                     >
-                      Parler à un expert
+                      <UserPlus className="w-4 h-4" aria-hidden="true" />
+                      S'inscrire
                     </Link>
                   </div>
                 </div>
