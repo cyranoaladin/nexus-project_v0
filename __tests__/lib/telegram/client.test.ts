@@ -194,7 +194,8 @@ describe('telegramSendMessage', () => {
 
     const result = await telegramSendMessage(undefined, 'Hello');
 
-    expect(result).toEqual({ ok: false });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('No chat_id');
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -204,7 +205,8 @@ describe('telegramSendMessage', () => {
 
     const result = await telegramSendMessage('-100', 'Hello');
 
-    expect(result).toEqual({ ok: false });
+    expect(result.ok).toBe(false);
+    expect(result.error).toBeDefined();
   });
 
   it('respects custom parseMode and disableNotification', async () => {

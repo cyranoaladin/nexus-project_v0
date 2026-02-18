@@ -98,7 +98,7 @@ export function bilanAcknowledgement(data: BilanAckData): EmailTemplate {
     'Prochaines étapes :',
     `1. Notre équipe analyse le profil de ${studentName} sous 24h`,
     '2. Un conseiller vous contacte pour un échange découverte',
-    '3. Nous vous proposons un plan d\'accompagnement personnalisé',
+    `3. Nous vous proposons un plan d'accompagnement personnalisé`,
     '',
     'Une question ? contact@nexusreussite.academy ou +216 99 19 28 29',
     '',
