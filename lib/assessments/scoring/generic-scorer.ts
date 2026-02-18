@@ -26,7 +26,7 @@ const GENERIC_WEAKNESS_THRESHOLD = 40;
 /**
  * Generic competency weights
  */
-const GENERIC_COMPETENCY_WEIGHTS = {
+const _GENERIC_COMPETENCY_WEIGHTS = {
   comprehension: 0.35,
   analyse: 0.35,
   application: 0.30,
@@ -35,7 +35,7 @@ const GENERIC_COMPETENCY_WEIGHTS = {
 /**
  * Map question categories to competency dimensions
  */
-const CATEGORY_TO_COMPETENCY: Record<string, keyof typeof GENERIC_COMPETENCY_WEIGHTS> = {
+const _CATEGORY_TO_COMPETENCY: Record<string, keyof typeof _GENERIC_COMPETENCY_WEIGHTS> = {
   'Connaissances': 'comprehension',
   'Methodologie': 'application',
   'Raisonnement': 'analyse',
