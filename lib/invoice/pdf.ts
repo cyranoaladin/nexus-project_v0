@@ -15,7 +15,6 @@ import PDFDocument from 'pdfkit';
 import { existsSync } from 'fs';
 import type {
   InvoiceData,
-  InvoiceItemData,
   TaxRegime,
 } from './types';
 import {
