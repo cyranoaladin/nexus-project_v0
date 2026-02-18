@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { AssessmentPDFDocument, type AssessmentPDFData } from '@/lib/pdf/assessment-template';
-import { classifySSN, getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
+import { getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
 import React from 'react';
 
 export async function GET(

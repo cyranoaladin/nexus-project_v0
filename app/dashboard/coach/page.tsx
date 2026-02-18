@@ -8,10 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, Clock, CheckCircle, AlertCircle, FileText } from "lucide-react"
+import { Calendar, Users, BookOpen, MessageCircle, LogOut, Loader2, CheckCircle, AlertCircle, FileText } from "lucide-react"
 import { signOut } from "next-auth/react"
 import CoachAvailability from "@/components/ui/coach-availability"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+// Dialog components reserved for weekly schedule feature
 import { SessionReportDialog } from "@/components/ui/session-report-dialog"
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage"
 
@@ -74,7 +74,7 @@ export default function DashboardCoach() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard')
-  const [isWeekDialogOpen, setIsWeekDialogOpen] = useState(false)
+  const [_isWeekDialogOpen, _setIsWeekDialogOpen] = useState(false)
 
 
 
