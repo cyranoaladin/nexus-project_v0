@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-02-18T06:48:11.570Z",
+  "source": "scripts/docs/route_inventory.js",
+  "adminSensitive": {
+    "total": 13,
+    "covered": 10,
+    "missing": 3,
+    "missingTests": [
+      {
+        "route": "/api/admin/invoices",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "rolesDetected": [],
+        "tests": [],
+        "testCoverage": "missing",
+        "file": "app/api/admin/invoices/route.ts"
+      },
+      {
+        "route": "/api/admin/invoices/[id]",
+        "methods": [
+          "PATCH"
+        ],
+        "rolesDetected": [],
+        "tests": [],
+        "testCoverage": "missing",
+        "file": "app/api/admin/invoices/[id]/route.ts"
+      },
+      {
+        "route": "/api/admin/invoices/[id]/send",
+        "methods": [
+          "POST"
+        ],
+        "rolesDetected": [],
+        "tests": [],
+        "testCoverage": "missing",
+        "file": "app/api/admin/invoices/[id]/send/route.ts"
+      }
+    ]
+  },
+  "allApi": {
+    "total": 74,
+    "covered": 57,
+    "missing": 17
+  }
+}
