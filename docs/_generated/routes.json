@@ -1,0 +1,2070 @@
+{
+  "generatedAt": "2026-02-18T06:48:11.570Z",
+  "source": "scripts/docs/route_inventory.js",
+  "counts": {
+    "pages": 69,
+    "apiRoutes": 74,
+    "publicPages": 32,
+    "dashboardPages": 31,
+    "adminApi": 13
+  },
+  "pages": [
+    {
+      "route": "/",
+      "file": "app/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/academies-hiver",
+      "file": "app/academies-hiver/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/academy",
+      "file": "app/academy/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/access-required",
+      "file": "app/access-required/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/accompagnement-scolaire",
+      "file": "app/accompagnement-scolaire/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/admin/directeur",
+      "file": "app/admin/directeur/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": []
+    },
+    {
+      "route": "/admin/stages/fevrier-2026",
+      "file": "app/admin/stages/fevrier-2026/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": []
+    },
+    {
+      "route": "/assessments/[id]/processing",
+      "file": "app/assessments/[id]/processing/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/assessments/[id]/result",
+      "file": "app/assessments/[id]/result/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/auth/activate",
+      "file": "app/auth/activate/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": []
+    },
+    {
+      "route": "/auth/mot-de-passe-oublie",
+      "file": "app/auth/mot-de-passe-oublie/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": []
+    },
+    {
+      "route": "/auth/reset-password",
+      "file": "app/auth/reset-password/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": []
+    },
+    {
+      "route": "/auth/signin",
+      "file": "app/auth/signin/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-gratuit",
+      "file": "app/bilan-gratuit/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-gratuit/assessment",
+      "file": "app/bilan-gratuit/assessment/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-gratuit/confirmation",
+      "file": "app/bilan-gratuit/confirmation/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-pallier2-maths",
+      "file": "app/bilan-pallier2-maths/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-pallier2-maths/confirmation",
+      "file": "app/bilan-pallier2-maths/confirmation/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-pallier2-maths/dashboard",
+      "file": "app/bilan-pallier2-maths/dashboard/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/bilan-pallier2-maths/resultat/[id]",
+      "file": "app/bilan-pallier2-maths/resultat/[id]/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/conditions",
+      "file": "app/conditions/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/consulting",
+      "file": "app/consulting/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/contact",
+      "file": "app/contact/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/dashboard",
+      "file": "app/dashboard/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": []
+    },
+    {
+      "route": "/dashboard/admin",
+      "file": "app/dashboard/admin/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/admin/activities",
+      "file": "app/dashboard/admin/activities/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/admin/analytics",
+      "file": "app/dashboard/admin/analytics/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/admin/facturation",
+      "file": "app/dashboard/admin/facturation/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": []
+    },
+    {
+      "route": "/dashboard/admin/subscriptions",
+      "file": "app/dashboard/admin/subscriptions/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/admin/tests",
+      "file": "app/dashboard/admin/tests/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": []
+    },
+    {
+      "route": "/dashboard/admin/users",
+      "file": "app/dashboard/admin/users/page.tsx",
+      "segmentType": "admin",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante",
+      "file": "app/dashboard/assistante/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/coaches",
+      "file": "app/dashboard/assistante/coaches/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/credit-requests",
+      "file": "app/dashboard/assistante/credit-requests/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/credits",
+      "file": "app/dashboard/assistante/credits/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/docs",
+      "file": "app/dashboard/assistante/docs/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "getServerSession"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/paiements",
+      "file": "app/dashboard/assistante/paiements/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/students",
+      "file": "app/dashboard/assistante/students/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/subscription-requests",
+      "file": "app/dashboard/assistante/subscription-requests/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/assistante/subscriptions",
+      "file": "app/dashboard/assistante/subscriptions/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/coach",
+      "file": "app/dashboard/coach/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/eleve",
+      "file": "app/dashboard/eleve/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/eleve/mes-sessions",
+      "file": "app/dashboard/eleve/mes-sessions/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/eleve/ressources",
+      "file": "app/dashboard/eleve/ressources/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/eleve/sessions",
+      "file": "app/dashboard/eleve/sessions/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent",
+      "file": "app/dashboard/parent/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent/abonnements",
+      "file": "app/dashboard/parent/abonnements/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent/children",
+      "file": "app/dashboard/parent/children/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent/paiement",
+      "file": "app/dashboard/parent/paiement/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent/paiement/confirmation",
+      "file": "app/dashboard/parent/paiement/confirmation/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": []
+    },
+    {
+      "route": "/dashboard/parent/paiement/konnect-demo",
+      "file": "app/dashboard/parent/paiement/konnect-demo/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/dashboard/parent/paiement/wise",
+      "file": "app/dashboard/parent/paiement/wise/page.tsx",
+      "segmentType": "dashboard",
+      "guardsDetected": [
+        "session.user.role check"
+      ]
+    },
+    {
+      "route": "/education",
+      "file": "app/education/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/equipe",
+      "file": "app/equipe/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/famille",
+      "file": "app/famille/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/maths-1ere",
+      "file": "app/maths-1ere/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/mentions-legales",
+      "file": "app/mentions-legales/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/notre-centre",
+      "file": "app/notre-centre/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/offres",
+      "file": "app/offres/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/plateforme-aria",
+      "file": "app/plateforme-aria/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/programme/maths-1ere",
+      "file": "app/programme/maths-1ere/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": [
+        "getServerSession"
+      ]
+    },
+    {
+      "route": "/session/video",
+      "file": "app/session/video/page.tsx",
+      "segmentType": "auth",
+      "guardsDetected": []
+    },
+    {
+      "route": "/stages",
+      "file": "app/stages/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/stages/dashboard-excellence",
+      "file": "app/stages/dashboard-excellence/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/stages/fevrier-2026",
+      "file": "app/stages/fevrier-2026/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/stages/fevrier-2026/bilan/[reservationId]",
+      "file": "app/stages/fevrier-2026/bilan/[reservationId]/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/stages/fevrier-2026/diagnostic",
+      "file": "app/stages/fevrier-2026/diagnostic/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/studio",
+      "file": "app/studio/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    },
+    {
+      "route": "/test",
+      "file": "app/test/page.tsx",
+      "segmentType": "public",
+      "guardsDetected": []
+    }
+  ],
+  "apiRoutes": [
+    {
+      "route": "/api/admin/activities",
+      "file": "app/api/admin/activities/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.activities.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/analytics",
+      "file": "app/api/admin/analytics/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.analytics.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/dashboard",
+      "file": "app/api/admin/dashboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireRole"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.dashboard.route.test.ts",
+        "__tests__/api/rbac-admin.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/directeur/stats",
+      "file": "app/api/admin/directeur/stats/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assessments-rbac.test.ts",
+        "__tests__/e2e/nexus-2-0-smoke.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/invoices",
+      "file": "app/api/admin/invoices/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/admin/invoices/[id]",
+      "file": "app/api/admin/invoices/[id]/route.ts",
+      "methods": [
+        "PATCH"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/admin/invoices/[id]/send",
+      "file": "app/api/admin/invoices/[id]/send/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/admin/recompute-ssn",
+      "file": "app/api/admin/recompute-ssn/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assessments-rbac.test.ts",
+        "__tests__/e2e/nexus-2-0-smoke.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/subscriptions",
+      "file": "app/api/admin/subscriptions/route.ts",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.subscriptions.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/test-email",
+      "file": "app/api/admin/test-email/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.test-email.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/test-payments",
+      "file": "app/api/admin/test-payments/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin.test-payments.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/admin/users",
+      "file": "app/api/admin/users/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireRole"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/admin-users.test.ts"
+      ]
+    },
+    {
+      "route": "/api/aria/chat",
+      "file": "app/api/aria/chat/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "requireFeatureApi",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/aria.chat.route.test.ts",
+        "__tests__/middleware/pino-logger.test.ts",
+        "__tests__/middleware/rate-limit-integration.test.ts"
+      ]
+    },
+    {
+      "route": "/api/aria/conversations",
+      "file": "app/api/aria/conversations/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/aria.conversations.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/aria/feedback",
+      "file": "app/api/aria/feedback/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/aria.feedback.route.test.ts",
+        "__tests__/middleware/rate-limit-integration.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assessments/[id]/export",
+      "file": "app/api/assessments/[id]/export/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assessments/[id]/result",
+      "file": "app/api/assessments/[id]/result/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assessments/[id]/status",
+      "file": "app/api/assessments/[id]/status/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assessments/predict",
+      "file": "app/api/assessments/predict/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assessments/submit",
+      "file": "app/api/assessments/submit/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assessments-submit.test.ts",
+        "__tests__/e2e/nexus-2-0-smoke.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/assessments/test",
+      "file": "app/api/assessments/test/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assistant/activate-student",
+      "file": "app/api/assistant/activate-student/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/assistant/coaches",
+      "file": "app/api/assistant/coaches/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.coaches.id.route.test.ts",
+        "__tests__/api/assistant.coaches.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/coaches/[id]",
+      "file": "app/api/assistant/coaches/[id]/route.ts",
+      "methods": [
+        "DELETE",
+        "PUT"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.coaches.id.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/credit-requests",
+      "file": "app/api/assistant/credit-requests/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.credit-requests.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/dashboard",
+      "file": "app/api/assistant/dashboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.dashboard.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/students/credits",
+      "file": "app/api/assistant/students/credits/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.students.credits.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/subscription-requests",
+      "file": "app/api/assistant/subscription-requests/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.subscription-requests.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/assistant/subscriptions",
+      "file": "app/api/assistant/subscriptions/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/assistant.subscriptions.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/auth/[...nextauth]",
+      "file": "app/api/auth/[...nextauth]/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/auth.nextauth.route.test.ts",
+        "__tests__/api/auth.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/auth/reset-password",
+      "file": "app/api/auth/reset-password/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/auth-workflows.test.ts"
+      ]
+    },
+    {
+      "route": "/api/bilan-gratuit",
+      "file": "app/api/bilan-gratuit/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [
+        "PARENT",
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/bilan-gratuit.test.ts"
+      ]
+    },
+    {
+      "route": "/api/bilan-pallier2-maths",
+      "file": "app/api/bilan-pallier2-maths/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireAnyRole"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/bilan-pallier2-maths.route.test.ts",
+        "__tests__/e2e/diagnostic-flows.spec.ts",
+        "__tests__/lib/diagnostics/api-integration.test.ts",
+        "e2e/diagnostic-flows.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/bilan-pallier2-maths/retry",
+      "file": "app/api/bilan-pallier2-maths/retry/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireAnyRole"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/coach/dashboard",
+      "file": "app/api/coach/dashboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "COACH"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/coach.dashboard.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/coach/sessions/[sessionId]/report",
+      "file": "app/api/coach/sessions/[sessionId]/report/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "COACH",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/coach.session-report.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/coaches/availability",
+      "file": "app/api/coaches/availability/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "COACH"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/coaches.availability.route.test.ts",
+        "e2e/auth-and-booking.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/coaches/available",
+      "file": "app/api/coaches/available/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE",
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/coaches.available.route.test.ts",
+        "e2e/auth-and-booking.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/contact",
+      "file": "app/api/contact/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/auth-workflows.test.ts",
+        "__tests__/api/contact.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/diagnostics/definitions",
+      "file": "app/api/diagnostics/definitions/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/e2e/diagnostic-flows.spec.ts",
+        "__tests__/lib/diagnostics/api-integration.test.ts",
+        "e2e/diagnostic-flows.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/health",
+      "file": "app/api/health/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/health.route.test.ts",
+        "__tests__/api/health.test.ts"
+      ]
+    },
+    {
+      "route": "/api/invoices/[id]/pdf",
+      "file": "app/api/invoices/[id]/pdf/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/lib/invoice/rbac.test.ts"
+      ]
+    },
+    {
+      "route": "/api/invoices/[id]/receipt/pdf",
+      "file": "app/api/invoices/[id]/receipt/pdf/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/me/next-step",
+      "file": "app/api/me/next-step/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/messages/conversations",
+      "file": "app/api/messages/conversations/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/messages.conversations.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/messages/send",
+      "file": "app/api/messages/send/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/messages.send.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/notifications",
+      "file": "app/api/notifications/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/notifications.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/parent/children",
+      "file": "app/api/parent/children/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/parent.children.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/parent/credit-request",
+      "file": "app/api/parent/credit-request/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/parent.credit-request.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/parent/dashboard",
+      "file": "app/api/parent/dashboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/parent/dashboard.test.ts",
+        "e2e/auth-and-booking.spec.ts",
+        "e2e/parent-dashboard-api-test.spec.ts",
+        "e2e/parent-dashboard.spec.ts",
+        "e2e/qa-auth-workflows.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/parent/subscription-requests",
+      "file": "app/api/parent/subscription-requests/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/parent.subscription-requests.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/parent/subscriptions",
+      "file": "app/api/parent/subscriptions/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/parent.subscriptions.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/payments/konnect",
+      "file": "app/api/payments/konnect/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireRole"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/payments-konnect.test.ts"
+      ]
+    },
+    {
+      "route": "/api/payments/validate",
+      "file": "app/api/payments/validate/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/payments.validate.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/payments/wise",
+      "file": "app/api/payments/wise/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/payments.wise.confirm.route.test.ts",
+        "__tests__/api/payments.wise.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/payments/wise/confirm",
+      "file": "app/api/payments/wise/confirm/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/payments.wise.confirm.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/programme/maths-1ere/progress",
+      "file": "app/api/programme/maths-1ere/progress/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/reservation",
+      "file": "app/api/reservation/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/reservation.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/reservation/verify",
+      "file": "app/api/reservation/verify/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/sessions/book",
+      "file": "app/api/sessions/book/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireAnyRole",
+        "requireFeatureApi",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT",
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [
+        "credits_use"
+      ],
+      "tests": [
+        "__tests__/api/error-logging.test.ts",
+        "__tests__/api/rbac-matrix.test.ts",
+        "__tests__/api/sessions/book.simplified.test.ts",
+        "__tests__/api/sessions/book.test.ts",
+        "__tests__/api/sessions.book.route.test.ts",
+        "__tests__/lib/logger.test.ts",
+        "e2e/auth-and-booking.spec.ts"
+      ]
+    },
+    {
+      "route": "/api/sessions/cancel",
+      "file": "app/api/sessions/cancel/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireAnyRole",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE",
+        "COACH",
+        "ASSISTANTE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/sessions.cancel.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/sessions/video",
+      "file": "app/api/sessions/video/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "COACH"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/sessions.video.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/stages/submit-diagnostic",
+      "file": "app/api/stages/submit-diagnostic/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/student/activate",
+      "file": "app/api/student/activate/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/auth-workflows.test.ts"
+      ]
+    },
+    {
+      "route": "/api/student/credits",
+      "file": "app/api/student/credits/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireRole"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/student.credits.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/student/dashboard",
+      "file": "app/api/student/dashboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/student.dashboard.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/student/nexus-index",
+      "file": "app/api/student/nexus-index/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/student/resources",
+      "file": "app/api/student/resources/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/student.resources.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/student/sessions",
+      "file": "app/api/student/sessions/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "requireRole"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/student.sessions.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/student/trajectory",
+      "file": "app/api/student/trajectory/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession"
+      ],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": []
+    },
+    {
+      "route": "/api/students/[studentId]/badges",
+      "file": "app/api/students/[studentId]/badges/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "ELEVE"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/student-badges.test.ts"
+      ]
+    },
+    {
+      "route": "/api/subscriptions/aria-addon",
+      "file": "app/api/subscriptions/aria-addon/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/subscriptions.aria-addon.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/subscriptions/change",
+      "file": "app/api/subscriptions/change/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": true,
+      "guardSymbols": [
+        "getServerSession",
+        "session.user.role check"
+      ],
+      "rolesDetected": [
+        "PARENT"
+      ],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/subscriptions.change.route.test.ts"
+      ]
+    },
+    {
+      "route": "/api/webhooks/konnect",
+      "file": "app/api/webhooks/konnect/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "authDetected": false,
+      "guardSymbols": [],
+      "rolesDetected": [],
+      "policyKeys": [],
+      "featuresDetected": [],
+      "tests": [
+        "__tests__/api/webhooks.konnect.route.test.ts"
+      ]
+    }
+  ],
+  "dashboardsByRole": {
+    "ELEVE": [
+      "/dashboard/eleve",
+      "/dashboard/eleve/mes-sessions",
+      "/dashboard/eleve/ressources",
+      "/dashboard/eleve/sessions"
+    ],
+    "PARENT": [
+      "/dashboard/parent",
+      "/dashboard/parent/abonnements",
+      "/dashboard/parent/children",
+      "/dashboard/parent/paiement",
+      "/dashboard/parent/paiement/confirmation",
+      "/dashboard/parent/paiement/konnect-demo",
+      "/dashboard/parent/paiement/wise"
+    ],
+    "COACH": [
+      "/dashboard/coach"
+    ],
+    "ASSISTANTE": [
+      "/dashboard/assistante",
+      "/dashboard/assistante/coaches",
+      "/dashboard/assistante/credit-requests",
+      "/dashboard/assistante/credits",
+      "/dashboard/assistante/docs",
+      "/dashboard/assistante/paiements",
+      "/dashboard/assistante/students",
+      "/dashboard/assistante/subscription-requests",
+      "/dashboard/assistante/subscriptions"
+    ],
+    "ADMIN": [
+      "/dashboard/admin",
+      "/dashboard/admin/activities",
+      "/dashboard/admin/analytics",
+      "/dashboard/admin/facturation",
+      "/dashboard/admin/subscriptions",
+      "/dashboard/admin/tests",
+      "/dashboard/admin/users"
+    ]
+  },
+  "sensitiveAdminApi": [
+    {
+      "route": "/api/admin/activities",
+      "methods": [
+        "GET"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "tests": [
+        "__tests__/api/admin.activities.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/activities/route.ts"
+    },
+    {
+      "route": "/api/admin/analytics",
+      "methods": [
+        "GET"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "tests": [
+        "__tests__/api/admin.analytics.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/analytics/route.ts"
+    },
+    {
+      "route": "/api/admin/dashboard",
+      "methods": [
+        "GET"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "tests": [
+        "__tests__/api/admin.dashboard.route.test.ts",
+        "__tests__/api/rbac-admin.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/dashboard/route.ts"
+    },
+    {
+      "route": "/api/admin/directeur/stats",
+      "methods": [
+        "GET"
+      ],
+      "rolesDetected": [],
+      "tests": [
+        "__tests__/api/assessments-rbac.test.ts",
+        "__tests__/e2e/nexus-2-0-smoke.spec.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/directeur/stats/route.ts"
+    },
+    {
+      "route": "/api/admin/invoices",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "rolesDetected": [],
+      "tests": [],
+      "testCoverage": "missing",
+      "file": "app/api/admin/invoices/route.ts"
+    },
+    {
+      "route": "/api/admin/invoices/[id]",
+      "methods": [
+        "PATCH"
+      ],
+      "rolesDetected": [],
+      "tests": [],
+      "testCoverage": "missing",
+      "file": "app/api/admin/invoices/[id]/route.ts"
+    },
+    {
+      "route": "/api/admin/invoices/[id]/send",
+      "methods": [
+        "POST"
+      ],
+      "rolesDetected": [],
+      "tests": [],
+      "testCoverage": "missing",
+      "file": "app/api/admin/invoices/[id]/send/route.ts"
+    },
+    {
+      "route": "/api/admin/recompute-ssn",
+      "methods": [
+        "POST"
+      ],
+      "rolesDetected": [],
+      "tests": [
+        "__tests__/api/assessments-rbac.test.ts",
+        "__tests__/e2e/nexus-2-0-smoke.spec.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/recompute-ssn/route.ts"
+    },
+    {
+      "route": "/api/admin/subscriptions",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "tests": [
+        "__tests__/api/admin.subscriptions.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/subscriptions/route.ts"
+    },
+    {
+      "route": "/api/admin/test-email",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "rolesDetected": [],
+      "tests": [
+        "__tests__/api/admin.test-email.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/test-email/route.ts"
+    },
+    {
+      "route": "/api/admin/test-payments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "rolesDetected": [],
+      "tests": [
+        "__tests__/api/admin.test-payments.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/test-payments/route.ts"
+    },
+    {
+      "route": "/api/admin/users",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "rolesDetected": [
+        "ADMIN"
+      ],
+      "tests": [
+        "__tests__/api/admin-users.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/admin/users/route.ts"
+    },
+    {
+      "route": "/api/coach/sessions/[sessionId]/report",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "rolesDetected": [
+        "COACH",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "tests": [
+        "__tests__/api/coach.session-report.route.test.ts"
+      ],
+      "testCoverage": "covered",
+      "file": "app/api/coach/sessions/[sessionId]/report/route.ts"
+    }
+  ]
+}

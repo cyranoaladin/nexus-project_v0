@@ -1,0 +1,295 @@
+{
+  "generatedAt": "2026-02-18T06:48:11.571Z",
+  "source": "lib/rbac.ts",
+  "policyCount": 36,
+  "policies": [
+    {
+      "key": "admin.activities",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Recent platform activities"
+    },
+    {
+      "key": "admin.analytics",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Analytics data (revenue, users, sessions)"
+    },
+    {
+      "key": "admin.dashboard",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Admin dashboard with KPIs and system health"
+    },
+    {
+      "key": "admin.subscriptions",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Manage all subscriptions"
+    },
+    {
+      "key": "admin.test-email",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Send test emails (dev/staging only)"
+    },
+    {
+      "key": "admin.test-payments",
+      "allowedRoles": [
+        "ADMIN"
+      ],
+      "description": "Simulate payments (dev/staging only)"
+    },
+    {
+      "key": "aria.chat",
+      "allowedRoles": [
+        "ELEVE",
+        "COACH",
+        "PARENT"
+      ],
+      "description": "Chat with ARIA AI assistant"
+    },
+    {
+      "key": "aria.conversations",
+      "allowedRoles": [
+        "ELEVE",
+        "COACH",
+        "PARENT"
+      ],
+      "description": "List ARIA conversations"
+    },
+    {
+      "key": "aria.feedback",
+      "allowedRoles": [
+        "ELEVE",
+        "COACH",
+        "PARENT"
+      ],
+      "description": "Submit ARIA feedback"
+    },
+    {
+      "key": "assistant.activate-student",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE",
+        "PARENT"
+      ],
+      "description": "Initiate student account activation (Modèle B)"
+    },
+    {
+      "key": "assistant.coaches",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Manage coach profiles"
+    },
+    {
+      "key": "assistant.credit-requests",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Process credit purchase requests"
+    },
+    {
+      "key": "assistant.dashboard",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Assistante dashboard with pending tasks"
+    },
+    {
+      "key": "assistant.students.credits",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Manage student credits"
+    },
+    {
+      "key": "assistant.subscription-requests",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Process subscription requests"
+    },
+    {
+      "key": "assistant.subscriptions",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Manage subscriptions"
+    },
+    {
+      "key": "coach.dashboard",
+      "allowedRoles": [
+        "COACH"
+      ],
+      "description": "Coach dashboard with schedule and students"
+    },
+    {
+      "key": "coach.sessions.report",
+      "allowedRoles": [
+        "COACH"
+      ],
+      "description": "Submit session report (coach who conducted the session)"
+    },
+    {
+      "key": "coaches.availability",
+      "allowedRoles": [
+        "COACH",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Manage coach availability slots"
+    },
+    {
+      "key": "coaches.available",
+      "allowedRoles": [
+        "PARENT",
+        "ELEVE",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "List available coaches for booking"
+    },
+    {
+      "key": "messages.send",
+      "allowedRoles": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH",
+        "PARENT",
+        "ELEVE"
+      ],
+      "description": "Send a message (all authenticated users)"
+    },
+    {
+      "key": "parent.children",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "View/manage own children"
+    },
+    {
+      "key": "parent.credit-request",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "Request credit purchase"
+    },
+    {
+      "key": "parent.dashboard",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "Parent dashboard with children overview"
+    },
+    {
+      "key": "parent.subscription-requests",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "Request new subscription"
+    },
+    {
+      "key": "parent.subscriptions",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "View own subscriptions"
+    },
+    {
+      "key": "payments.validate",
+      "allowedRoles": [
+        "PARENT",
+        "ADMIN"
+      ],
+      "description": "Validate payment"
+    },
+    {
+      "key": "payments.wise",
+      "allowedRoles": [
+        "PARENT"
+      ],
+      "description": "Initiate Wise payment"
+    },
+    {
+      "key": "sessions.book",
+      "allowedRoles": [
+        "PARENT",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Book a coaching session"
+    },
+    {
+      "key": "sessions.cancel",
+      "allowedRoles": [
+        "PARENT",
+        "COACH",
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "description": "Cancel a session (owner or staff)"
+    },
+    {
+      "key": "sessions.video",
+      "allowedRoles": [
+        "COACH",
+        "ELEVE",
+        "PARENT"
+      ],
+      "description": "Access video session link"
+    },
+    {
+      "key": "student.badges",
+      "allowedRoles": [
+        "ELEVE",
+        "PARENT",
+        "ADMIN"
+      ],
+      "description": "View student badges"
+    },
+    {
+      "key": "student.dashboard",
+      "allowedRoles": [
+        "ELEVE"
+      ],
+      "description": "Student dashboard with progress"
+    },
+    {
+      "key": "student.resources",
+      "allowedRoles": [
+        "ELEVE"
+      ],
+      "description": "Student learning resources"
+    },
+    {
+      "key": "subscriptions.aria-addon",
+      "allowedRoles": [
+        "PARENT",
+        "ADMIN"
+      ],
+      "description": "Add/remove ARIA AI addon"
+    },
+    {
+      "key": "subscriptions.change",
+      "allowedRoles": [
+        "PARENT",
+        "ADMIN"
+      ],
+      "description": "Change subscription plan"
+    }
+  ],
+  "apiPolicyUsages": []
+}

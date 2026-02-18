@@ -212,6 +212,12 @@ export default function DashboardAssistante() {
                   )}
                 </Button>
               </Link>
+              <Link href="/dashboard/assistante/docs">
+                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Docs internes
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -272,6 +278,12 @@ export default function DashboardAssistante() {
                         : dashboardData?.stats?.pendingCreditRequests ?? 0}
                     </Badge>
                   )}
+                </Button>
+              </Link>
+              <Link href="/dashboard/assistante/docs">
+                <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Docs internes
                 </Button>
               </Link>
               <Button

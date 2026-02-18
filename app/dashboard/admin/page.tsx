@@ -349,6 +349,18 @@ export default function DashboardAdmin() {
                 </Button>
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
+                  <Link href="/dashboard/assistante/docs">
+                    <div className="flex items-center space-x-3">
+                      <Settings className="w-4 h-4 md:w-5 md:h-5 text-indigo-300" aria-hidden="true" />
+                      <div className="text-left">
+                        <p className="font-medium text-sm md:text-base">Docs internes</p>
+                        <p className="text-xs md:text-sm text-neutral-400">Référentiel read-only</p>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+
+                <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
                   <Link href="/bilan-pallier2-maths/dashboard">
                     <div className="flex items-center space-x-3">
                       <Activity className="w-4 h-4 md:w-5 md:h-5 text-brand-accent" aria-hidden="true" />
