@@ -29,6 +29,15 @@ jest.mock('@/lib/middleware/logger', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: jest.fn(),
+    user: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    sessionNotification: {
+      createMany: jest.fn().mockResolvedValue({ count: 1 }),
+    },
+    sessionReminder: {
+      createMany: jest.fn().mockResolvedValue({ count: 3 }),
+    },
   },
 }));
 
@@ -79,6 +88,7 @@ function buildPayload(overrides: Partial<Record<string, any>> = {}) {
 function mockLogger() {
   return {
     info: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
     logRequest: jest.fn(),
   };
@@ -88,6 +98,7 @@ function makeTransactionMocks(overrides: Partial<Record<string, any>> = {}) {
   return {
     coachProfile: {
       findFirst: jest.fn().mockResolvedValue({
+        subjects: ['MATHEMATIQUES'],
         user: { id: 'coach-1', firstName: 'Coach', lastName: 'One', role: 'COACH' },
       }),
     },
@@ -212,7 +223,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_CONFLICT');
   });
 
   it('returns 409 for unique constraint on duplicate booking', async () => {
@@ -222,7 +233,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_DUPLICATE');
   });
 
   it('returns 409 for serialization conflicts', async () => {
@@ -232,7 +243,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_SERIALIZATION');
   });
 
   it('creates booking and side effects on success', async () => {
@@ -258,7 +269,48 @@ describe('POST /api/sessions/book', () => {
         }),
       })
     );
-    expect(tx.sessionNotification.createMany).toHaveBeenCalled();
-    expect(tx.sessionReminder.createMany).toHaveBeenCalled();
+    // Side-effects are now post-commit on prisma (not tx)
+    expect(prisma.sessionNotification.createMany).toHaveBeenCalled();
+    expect(prisma.sessionReminder.createMany).toHaveBeenCalled();
+  });
+
+  it('returns 201 even if notification side-effect fails (post-commit resilience)', async () => {
+    const tx = makeTransactionMocks();
+
+    (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => {
+      return callback(tx);
+    });
+    // Simulate FK violation on notifications — must NOT affect booking
+    (prisma.sessionNotification.createMany as jest.Mock).mockRejectedValue(
+      Object.assign(new Error('FK violation'), { code: 'P2003' })
+    );
+
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.success).toBe(true);
+    expect(body.sessionId).toBe('session-1');
+    expect(tx.sessionBooking.create).toHaveBeenCalled();
+  });
+
+  it('returns 201 even if reminder side-effect fails (post-commit resilience)', async () => {
+    const tx = makeTransactionMocks();
+
+    (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => {
+      return callback(tx);
+    });
+    // Simulate constraint violation on reminders — must NOT affect booking
+    (prisma.sessionReminder.createMany as jest.Mock).mockRejectedValue(
+      Object.assign(new Error('Unique constraint'), { code: 'P2002' })
+    );
+
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.success).toBe(true);
+    expect(body.sessionId).toBe('session-1');
+    expect(tx.sessionBooking.create).toHaveBeenCalled();
   });
 });

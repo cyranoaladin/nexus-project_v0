@@ -247,7 +247,6 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: true
     needs: [lint, typecheck]
 
     services:
@@ -311,6 +310,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          RATE_LIMIT_DISABLE: '1'
         run: |
           npm run start &
           echo $! > .next-server.pid
@@ -534,18 +534,19 @@ jobs:
     steps:
       - name: Check all jobs status
         run: |
-          # E2E and Security are allowed to fail (continue-on-error)
+          # Security scan is allowed to fail (continue-on-error)
           if [ "${{ needs.lint.result }}" != "success" ] || \
              [ "${{ needs.typecheck.result }}" != "success" ] || \
              [ "${{ needs.unit.result }}" != "success" ] || \
              [ "${{ needs.integration.result }}" != "success" ] || \
+             [ "${{ needs.e2e.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ]; then
             echo "❌ CI Pipeline Failed"
             echo "Lint: ${{ needs.lint.result }}"
             echo "TypeCheck: ${{ needs.typecheck.result }}"
             echo "Unit: ${{ needs.unit.result }}"
             echo "Integration: ${{ needs.integration.result }}"
-            echo "E2E: ${{ needs.e2e.result }} (allowed to fail)"
+            echo "E2E: ${{ needs.e2e.result }}"
             echo "Security: ${{ needs.security.result }} (allowed to fail)"
             echo "Build: ${{ needs.build.result }}"
             exit 1

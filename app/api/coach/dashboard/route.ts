@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { parseSubjects } from '@/lib/utils/subjects';
 
 export async function GET(request: NextRequest) {
   try {
@@ -122,8 +123,8 @@ export async function GET(request: NextRequest) {
       distinct: ['studentId']
     });
 
-    // Subjects is now a native Json field — Prisma returns it as JsonValue
-    const specialties: string[] = Array.isArray(coach.subjects) ? (coach.subjects as string[]) : [];
+    // Subjects is a Json field — parse safely via shared utility
+    const specialties: string[] = parseSubjects(coach.subjects);
 
     // Recent students (last 30 days) — single query with includes to avoid N+1
     const recentBookings = await prisma.sessionBooking.findMany({

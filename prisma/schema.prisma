@@ -665,6 +665,7 @@ model SessionNotification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([sessionId, userId, type, method])
   @@index([userId, status])
   @@index([sessionId])
 }
@@ -688,6 +689,7 @@ model SessionReminder {
 
   createdAt DateTime @default(now())
 
+  @@unique([sessionId, reminderType])
   @@index([scheduledFor, sent])
   @@index([sessionId])
 }

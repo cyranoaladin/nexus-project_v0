@@ -42,8 +42,11 @@ Les fichiers suivants continuent de fonctionner avec leur code actuel (aucune mo
 
 - **Aucun envoi en CI/test** : `MAIL_DISABLED` est `true` par défaut quand `NODE_ENV=test`.
 - **CSRF** : `POST /api/notify/email` est protégé par `checkCsrf` (same-origin uniquement en production).
-- **Rate limit** : Upstash Redis distribué via `checkRateLimit` (100 req/min/IP).
-- **Body size** : payloads > 64KB rejetés via `checkBodySize`.
+- **Rate limit** : bucket dédié `notifyEmail` — **5 req/min/IP** via Upstash Redis distribué.
+  - **Fail-closed en production** : si `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` ne sont pas configurés, l'endpoint renvoie **503** (jamais de bypass silencieux).
+  - En dev/test sans Redis : rate limiting désactivé avec warning.
+- **Body size** : limité à 64KB via lecture stream (pas seulement `Content-Length`). Protège contre le bypass chunked-encoding.
+  - **Recommandation proxy** : configurer aussi `client_max_body_size 64k;` (nginx) ou équivalent.
 - **Logs** : seul le `messageId` est loggé, jamais l'adresse email ni le contenu.
 - **Secrets** : ne jamais commiter `SMTP_PASS` / `SMTP_PASSWORD`.
 
@@ -153,6 +156,9 @@ npm run test:unit
 |---|---|---|
 | `200` | `{ "ok": true, "skipped": false }` | Email envoyé |
 | `200` | `{ "ok": true, "skipped": true }` | MAIL_DISABLED (CI/test) |
-| `400` | `{ "ok": false, "error": "Validation failed" }` | Payload invalide |
-| `429` | `{ "ok": false, "error": "Too many requests" }` | Rate limit (5 req/min/IP) |
-| `500` | `{ "ok": false, "error": "Internal server error" }` | Erreur SMTP |
+| `400` | `{ "ok": false, "error": { "code": "INVALID_JSON", "message": "..." } }` | Body non-JSON |
+| `400` | `{ "ok": false, "error": { "code": "VALIDATION_FAILED", "message": "..." } }` | Payload invalide |
+| `413` | `{ "ok": false, "error": { "code": "PAYLOAD_TOO_LARGE", "message": "..." } }` | Body > 64KB |
+| `429` | `{ "ok": false, "error": { "code": "RATE_LIMIT_EXCEEDED", "message": "..." } }` | Rate limit (5 req/min/IP) |
+| `503` | `{ "ok": false, "error": { "code": "RATELIMIT_NOT_CONFIGURED", "message": "..." } }` | Redis absent en prod |
+| `500` | `{ "ok": false, "error": { "code": "INTERNAL_ERROR", "message": "..." } }` | Erreur SMTP |

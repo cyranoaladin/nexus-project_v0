@@ -124,6 +124,9 @@ export function rateLimit(config: RateLimitConfig) {
   } = config;
 
   return (request: NextRequest, keyPrefix?: string): NextResponse | null => {
+    // Explicit CI/E2E bypass — never set in production
+    if (process.env.RATE_LIMIT_DISABLE === '1') return null;
+
     const key = getRateLimitKey(request, keyPrefix);
     const result = checkRateLimit(key, { windowMs, maxRequests });
 

@@ -1,6 +1,7 @@
 
 import { test, expect } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
 
 test('Parent Dashboard - Manual Login Flow', async ({ page }) => {
   console.log('Logging in via API session...');
@@ -15,8 +16,8 @@ test('Parent Dashboard - Manual Login Flow', async ({ page }) => {
 
     // If redirected to signin, perform UI login fallback
     if (page.url().includes('/auth/signin')) {
-      await page.getByLabel(/Adresse Email/i).fill('parent.dashboard@test.com');
-      await page.getByRole('textbox', { name: 'Mot de Passe' }).fill('password123');
+      await page.getByLabel(/Adresse Email/i).fill(CREDS.parent.email);
+      await page.getByRole('textbox', { name: 'Mot de Passe' }).fill(CREDS.parent.password);
       await page.getByRole('button', { name: /Accéder à Mon Espace/i }).click();
       await expect(
         page.getByText(/Tableau de Bord|Espace Parent|Marie Dupont/i).first()
