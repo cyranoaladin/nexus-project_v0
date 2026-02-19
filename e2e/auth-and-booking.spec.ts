@@ -108,7 +108,7 @@ test.describe('Authentication & Booking Flow', () => {
 
       await page.getByLabel(/email/i).fill('invalid@test.com');
       await page.getByPlaceholder('Votre mot de passe').fill('wrongpassword');
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Wait for error message
       await expect(
@@ -123,7 +123,7 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'networkidle' });
 
       // Try to submit without filling fields
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Should show validation errors
       const emailInput = page.getByLabel(/email/i);
@@ -454,7 +454,7 @@ test.describe('Authentication & Booking Flow', () => {
       await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
 
       // Click submit
-      const submitButton = page.getByRole('button', { name: /accéder|sign in|connexion/i });
+      const submitButton = page.locator('button[type="submit"]');
       await submitButton.click();
 
       // Check for loading state (button disabled or loading indicator)
@@ -477,7 +477,7 @@ test.describe('Authentication & Booking Flow', () => {
       // Fill invalid email
       await page.getByLabel(/email/i).fill('invalid-email');
       await page.getByPlaceholder('Votre mot de passe').fill('short');
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Should stay on signin page (validation prevents navigation)
       await page.waitForTimeout(1000);
@@ -516,7 +516,7 @@ test.describe('Authentication & Booking Flow', () => {
 
       await page.getByLabel(/email/i).fill(CREDS.parent.email);
       await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Should stay on signin page (login fails due to network error)
       await page.waitForTimeout(3000);
