@@ -81,19 +81,26 @@ test.describe('Parent Dashboard', () => {
   // =============================================================================
 
   test.describe('Dashboard Load & Data Visibility', () => {
-    test.fixme('Parent can login and dashboard loads successfully', async ({ page }) => {
-      // FIXME: Parent login + dashboard SSR/hydration timing unreliable in CI.
+    test('Parent can login and dashboard loads successfully', async ({ page }) => {
       const startTime = Date.now();
       
       await login(page);
 
+      // Wait for auth session to be established
+      await page.waitForResponse(
+        (r) => r.url().includes('/api/auth/session') && r.status() === 200,
+        { timeout: 30_000 }
+      ).catch(() => {
+        // Session may already be cached — continue to UI assertions
+      });
+
       // Verify parent dashboard URL
       await expect(page).toHaveURL(/\/dashboard\/parent/);
 
-      // Verify main dashboard heading
+      // Wait for dashboard to render (stable marker)
       await expect(
-        page.getByRole('heading', { name: /dashboard|tableau de bord/i })
-      ).toBeVisible({ timeout: NETWORK_TIMEOUT });
+        page.getByText(/Espace Parent/i).first()
+      ).toBeVisible({ timeout: 30_000 });
 
       // Measure load time
       const loadTime = Date.now() - startTime;

@@ -1,27 +1,21 @@
 # E2E Flaky Tests — Decision Record
 
 **Date**: 2026-02-19
+**Updated**: 2026-02-19
 **Status**: Active
 
 ## Context
 
-14 E2E tests were failing consistently in CI (headless Chromium on GitHub Actions)
-while passing locally. Root causes:
+Some E2E tests fail consistently in CI (headless Chromium on GitHub Actions)
+while passing locally, due to client-side SPA hydration timing.
 
-1. **Maths Lab SPA hydration** — The `/programme/maths-1ere` page is a heavy
-   client-side SPA (Zustand store + MathJax rendering + localStorage persistence).
-   Hydration timing is non-deterministic in CI headless Chrome, causing
-   `toBeVisible()` and `toHaveTitle()` assertions to timeout.
-
-2. **Dashboard SSR/hydration timing** — Student, parent, and coach dashboard pages
-   depend on server-side data fetching + client hydration. In CI, the combination
-   of cold DB + headless Chrome + production build makes rendering timing
-   unpredictable.
+**Core business flows** (login, booking, dashboards) are **never** marked as
+`test.fixme()` — they must be stabilized with proper waiters and selectors.
 
 ## Decision
 
-Mark the 14 consistently-flaky tests with `test.fixme()` so they are **skipped
-but tracked** by Playwright. This is preferable to:
+Mark **11** non-core, hydration-dependent tests with `test.fixme()` so they are
+**skipped but tracked** by Playwright. This is preferable to:
 
 - `test.skip()` — which hides them from reports
 - Deleting them — which loses test coverage intent
@@ -43,34 +37,29 @@ but tracked** by Playwright. This is preferable to:
 | `e2e/student-journey.spec.ts` | Navigation interne sans 404 | SPA hydration |
 | `e2e/student-journey.spec.ts` | Résilience offline | SPA hydration |
 
-### Dashboard Timing (4 tests)
+### Non-Core Dashboard Timing (2 tests)
 
 | File | Test | Reason |
 |------|------|--------|
-| `e2e/auth-and-booking.spec.ts` | Parent can login and access parent dashboard | Dashboard SSR timing |
-| `e2e/parent-dashboard.spec.ts` | Parent can login and dashboard loads successfully | Dashboard SSR timing |
-| `e2e/student-dashboard.spec.ts` | Dashboard loads correctly | Dashboard SSR timing |
-| `e2e/student-aria.spec.ts` | Student can access dashboard and see ARIA section | Dashboard SSR timing |
+| `e2e/student-dashboard.spec.ts` | Dashboard loads correctly | Student dashboard SSR timing |
+| `e2e/student-aria.spec.ts` | Student can access dashboard and see ARIA section | Student dashboard SSR timing |
 
-### Booking Flow (2 tests)
+### Excluded from fixme (core flows — must be stabilized)
 
-| File | Test | Reason |
-|------|------|--------|
-| `e2e/auth-and-booking.spec.ts` | Parent can book a session for student | Booking API 500 — complex transaction + seeded data |
-| `e2e/auth-and-booking.spec.ts` | Coach cannot book their own sessions | Coach dashboard networkidle timeout |
+The following tests are **never** skipped. They use stable waiters instead:
+
+- `e2e/auth-and-booking.spec.ts`: Parent login/dashboard, booking, coach dashboard
+- `e2e/parent-dashboard.spec.ts`: Parent dashboard load
 
 ## Remediation Plan
 
-To un-fixme these tests, the following improvements are needed:
+To un-fixme the remaining tests:
 
 1. **Maths Lab**: Add a `data-hydrated` attribute to the root element after
    Zustand store rehydration completes, then wait for it in tests instead of
    relying on text visibility.
 
-2. **Dashboards**: Add `data-testid="dashboard-loaded"` markers that appear only
-   after the initial data fetch completes, replacing fragile text-based assertions.
-
-3. **MathJax**: Use `page.waitForFunction(() => window.MathJax?.startup?.promise)`
+2. **MathJax**: Use `page.waitForFunction(() => window.MathJax?.startup?.promise)`
    instead of fixed timeouts.
 
 ## Rate Limiting in CI

@@ -40,7 +40,7 @@ function loadCredentials(): CredentialsMap {
   const parsed = JSON.parse(raw) as Record<string, Credential>;
 
   // Validate required roles exist
-  const required: CredRole[] = ['parent', 'student', 'coach', 'admin'];
+  const required: CredRole[] = ['parent', 'student', 'coach', 'admin', 'zenon'];
   for (const role of required) {
     if (!parsed[role]?.email || !parsed[role]?.password) {
       throw new Error(
