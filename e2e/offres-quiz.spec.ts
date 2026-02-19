@@ -10,8 +10,8 @@ test.describe('Offres quiz flow', () => {
     await expect(page.getByRole('heading', { name: /Recommandation rapide/i })).toBeVisible();
 
     // Profile buttons are visible
-    await expect(page.getByRole('button', { name: /Lycée français/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Candidat libre/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Lyc\u00e9e fran\u00e7ais/i }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /Candidat libre/i }).first()).toBeVisible();
 
     // CTA links work
     await expect(page.getByRole('link', { name: /Démarrer un bilan gratuit/i }).first()).toBeVisible();

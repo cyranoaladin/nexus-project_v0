@@ -177,12 +177,12 @@ export const RateLimitPresets = {
   }),
 
   /**
-   * Strict rate limit for expensive operations
-   * 10 requests per minute
+   * Rate limit for expensive operations
+   * 30 requests per minute (allows burst patterns while still protective)
    */
   expensive: rateLimit({
     windowMs: 60 * 1000,
-    maxRequests: 10,
+    maxRequests: 30,
     message: 'Rate limit exceeded for this operation'
   }),
 
