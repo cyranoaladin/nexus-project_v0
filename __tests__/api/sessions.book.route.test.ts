@@ -29,6 +29,15 @@ jest.mock('@/lib/middleware/logger', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: jest.fn(),
+    user: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    sessionNotification: {
+      createMany: jest.fn().mockResolvedValue({ count: 1 }),
+    },
+    sessionReminder: {
+      createMany: jest.fn().mockResolvedValue({ count: 3 }),
+    },
   },
 }));
 
@@ -260,7 +269,8 @@ describe('POST /api/sessions/book', () => {
         }),
       })
     );
-    expect(tx.sessionNotification.createMany).toHaveBeenCalled();
-    expect(tx.sessionReminder.createMany).toHaveBeenCalled();
+    // Side-effects are now post-commit on prisma (not tx)
+    expect(prisma.sessionNotification.createMany).toHaveBeenCalled();
+    expect(prisma.sessionReminder.createMany).toHaveBeenCalled();
   });
 });

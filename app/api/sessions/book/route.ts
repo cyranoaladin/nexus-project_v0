@@ -316,88 +316,95 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // 10. Create notifications (side-effect — must not crash the booking)
-      try {
-        const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
-
-        notifications.push({
-          sessionId: sessionBooking.id,
-          userId: coachProfile.user.id,
-          type: 'SESSION_BOOKED',
-          title: 'Nouvelle session réservée',
-          message: `${student.firstName} ${student.lastName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'EMAIL'
-        });
-
-        const assistants = await tx.user.findMany({
-          where: { role: 'ASSISTANTE' }
-        });
-
-        for (const assistant of assistants) {
-          notifications.push({
-            sessionId: sessionBooking.id,
-            userId: assistant.id,
-            type: 'SESSION_BOOKED',
-            title: 'Nouvelle session planifiée',
-            message: `Session ${validatedData.subject} entre ${coachProfile.user.firstName} ${coachProfile.user.lastName} et ${student.firstName} ${student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-            method: 'IN_APP'
-          });
-        }
-
-        if (parentId && parentId !== session.user.id) {
-          notifications.push({
-            sessionId: sessionBooking.id,
-            userId: parentId,
-            type: 'SESSION_BOOKED',
-            title: 'Session réservée pour votre enfant',
-            message: `Session de ${validatedData.subject} avec ${coachProfile.user.firstName} ${coachProfile.user.lastName} programmée pour ${student.firstName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-            method: 'EMAIL'
-          });
-        }
-
-        await tx.sessionNotification.createMany({ data: notifications });
-      } catch (notifError) {
-        logger.warn('Notification side-effect failed (non-fatal)', { requestId, error: notifError instanceof Error ? notifError.message : 'unknown' });
-      }
-
-      // 11. Create reminders (side-effect — must not crash the booking)
-      try {
-        const reminders: Prisma.SessionReminderCreateManyInput[] = [];
-        const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
-
-        reminders.push({
-          sessionId: sessionBooking.id,
-          reminderType: 'ONE_DAY_BEFORE',
-          scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
-        });
-        reminders.push({
-          sessionId: sessionBooking.id,
-          reminderType: 'TWO_HOURS_BEFORE',
-          scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
-        });
-        reminders.push({
-          sessionId: sessionBooking.id,
-          reminderType: 'THIRTY_MINUTES_BEFORE',
-          scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
-        });
-
-        await tx.sessionReminder.createMany({ data: reminders });
-      } catch (reminderError) {
-        logger.warn('Reminder side-effect failed (non-fatal)', { requestId, error: reminderError instanceof Error ? reminderError.message : 'unknown' });
-      }
-
-      return sessionBooking;
+      // Return post-commit context for side-effects (notifications, reminders)
+      return {
+        booking: sessionBooking,
+        coachUser: coachProfile.user,
+        studentName: `${student.firstName} ${student.lastName}`,
+        parentId,
+      };
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       timeout: 15000  // 15 seconds timeout for complex booking logic
     });
 
-    // Send immediate notifications (implement email service)
-    // await sendSessionBookingNotifications(result.id);
+    // =========================================================================
+    // POST-COMMIT SIDE-EFFECTS (best-effort — never rollback the booking)
+    // =========================================================================
+
+    // 10. Create notifications (post-commit, non-fatal)
+    try {
+      const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
+
+      notifications.push({
+        sessionId: result.booking.id,
+        userId: result.coachUser.id,
+        type: 'SESSION_BOOKED',
+        title: 'Nouvelle session réservée',
+        message: `${result.studentName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+        method: 'EMAIL'
+      });
+
+      const assistants = await prisma.user.findMany({
+        where: { role: 'ASSISTANTE' }
+      });
+
+      for (const assistant of assistants) {
+        notifications.push({
+          sessionId: result.booking.id,
+          userId: assistant.id,
+          type: 'SESSION_BOOKED',
+          title: 'Nouvelle session planifiée',
+          message: `Session ${validatedData.subject} entre ${result.coachUser.firstName} ${result.coachUser.lastName} et ${result.studentName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+          method: 'IN_APP'
+        });
+      }
+
+      if (result.parentId && result.parentId !== session.user.id) {
+        notifications.push({
+          sessionId: result.booking.id,
+          userId: result.parentId,
+          type: 'SESSION_BOOKED',
+          title: 'Session réservée pour votre enfant',
+          message: `Session de ${validatedData.subject} avec ${result.coachUser.firstName} ${result.coachUser.lastName} programmée pour ${result.studentName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+          method: 'EMAIL'
+        });
+      }
+
+      await prisma.sessionNotification.createMany({ data: notifications, skipDuplicates: true });
+    } catch (notifError) {
+      logger.warn('Notification side-effect failed (non-fatal)', { requestId, error: notifError instanceof Error ? notifError.message : 'unknown' });
+    }
+
+    // 11. Create reminders (post-commit, non-fatal)
+    try {
+      const reminders: Prisma.SessionReminderCreateManyInput[] = [];
+      const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
+
+      reminders.push({
+        sessionId: result.booking.id,
+        reminderType: 'ONE_DAY_BEFORE',
+        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
+      });
+      reminders.push({
+        sessionId: result.booking.id,
+        reminderType: 'TWO_HOURS_BEFORE',
+        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
+      });
+      reminders.push({
+        sessionId: result.booking.id,
+        reminderType: 'THIRTY_MINUTES_BEFORE',
+        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
+      });
+
+      await prisma.sessionReminder.createMany({ data: reminders, skipDuplicates: true });
+    } catch (reminderError) {
+      logger.warn('Reminder side-effect failed (non-fatal)', { requestId, error: reminderError instanceof Error ? reminderError.message : 'unknown' });
+    }
 
     logger.logRequest(HttpStatus.CREATED, {
       requestId,
-      sessionId: result.id,
+      sessionId: result.booking.id,
       coachId: validatedData.coachId,
       studentId: validatedData.studentId,
       subject: validatedData.subject
@@ -405,9 +412,9 @@ export async function POST(req: NextRequest) {
 
     return successResponse({
       success: true,
-      sessionId: result.id,
+      sessionId: result.booking.id,
       message: 'Session booked successfully',
-      session: result
+      session: result.booking
     }, HttpStatus.CREATED);
 
   } catch (error) {
@@ -428,11 +435,10 @@ export async function POST(req: NextRequest) {
       const dbError = error as { code: string; meta?: Record<string, unknown> };
       const prismaCode = dbError.code;
 
-      logger.error('Booking DB error', {
+      logger.error('Booking DB error', error instanceof Error ? error : undefined, {
         requestId,
         prismaCode,
         meta: dbError.meta,
-        stack: error instanceof Error ? error.stack : undefined,
       });
 
       if (prismaCode === '23P01') {
@@ -447,10 +453,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Truly unexpected error — log full context for CI diagnostics
-    logger.error('Booking unexpected error', {
+    logger.error('Booking unexpected error', error instanceof Error ? error : undefined, {
       requestId,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
     });
 
     return errorResponse(

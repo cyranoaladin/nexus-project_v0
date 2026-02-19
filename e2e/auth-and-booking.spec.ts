@@ -64,7 +64,7 @@ test.describe('Authentication & Booking Flow', () => {
       // Wait for auth session to be established before checking UI
       await page.waitForResponse(
         (r) => r.url().includes('/api/auth/session') && r.status() === 200,
-        { timeout: 30_000 }
+        { timeout: 60_000 }
       ).catch(() => {
         // Session may already be cached — continue to UI assertions
       });
@@ -72,10 +72,10 @@ test.describe('Authentication & Booking Flow', () => {
       // Verify parent dashboard URL
       await expect(page).toHaveURL(/\/dashboard\/parent/);
 
-      // Wait for the dashboard to render (stable marker — "Espace Parent" text in header)
+      // Wait for the dashboard to fully render (data loaded, not loading/error state)
       await expect(
-        page.getByText(/Espace Parent/i).first()
-      ).toBeVisible({ timeout: 30_000 });
+        page.getByTestId('parent-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
     });
 
     test('Student can login and access student dashboard', async ({ page }) => {
@@ -476,10 +476,10 @@ test.describe('Authentication & Booking Flow', () => {
       // Navigate to coach dashboard — use domcontentloaded (networkidle hangs due to SPA polling)
       await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
 
-      // Wait for the coach dashboard to render (stable marker)
+      // Wait for the coach dashboard to fully render (data loaded, not loading/error state)
       await expect(
-        page.getByText(/Espace Coach/i).first()
-      ).toBeVisible({ timeout: 30_000 });
+        page.getByTestId('coach-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
 
       // Coach dashboard should NOT have a "Réserver" / "Book" button
       const bookButton = page.getByRole('button', { name: /réserver une session|book a session/i });

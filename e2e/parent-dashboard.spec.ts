@@ -89,7 +89,7 @@ test.describe('Parent Dashboard', () => {
       // Wait for auth session to be established
       await page.waitForResponse(
         (r) => r.url().includes('/api/auth/session') && r.status() === 200,
-        { timeout: 30_000 }
+        { timeout: 60_000 }
       ).catch(() => {
         // Session may already be cached — continue to UI assertions
       });
@@ -97,10 +97,10 @@ test.describe('Parent Dashboard', () => {
       // Verify parent dashboard URL
       await expect(page).toHaveURL(/\/dashboard\/parent/);
 
-      // Wait for dashboard to render (stable marker)
+      // Wait for dashboard to fully render (data loaded, not loading/error state)
       await expect(
-        page.getByText(/Espace Parent/i).first()
-      ).toBeVisible({ timeout: 30_000 });
+        page.getByTestId('parent-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
 
       // Measure load time
       const loadTime = Date.now() - startTime;

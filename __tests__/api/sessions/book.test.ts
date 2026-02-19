@@ -49,6 +49,9 @@ jest.mock('@/lib/prisma', () => ({
     sessionNotification: {
       createMany: jest.fn()
     },
+    sessionReminder: {
+      createMany: jest.fn()
+    },
     $transaction: jest.fn()
   }
 }));
