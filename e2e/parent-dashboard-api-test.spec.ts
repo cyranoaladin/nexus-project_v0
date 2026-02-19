@@ -1,6 +1,7 @@
 
 import { test, expect } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
 
 test('Parent Dashboard - API Test', async ({ page, context }) => {
     console.log('Logging in...');
@@ -25,8 +26,8 @@ test('Parent Dashboard - API Test', async ({ page, context }) => {
         // Allow redirects/interrupted navigation
     });
     if (page.url().includes('/auth/signin')) {
-        await page.getByLabel('Adresse Email').fill('parent.dashboard@test.com');
-        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill('password123');
+        await page.getByLabel('Adresse Email').fill(CREDS.parent.email);
+        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill(CREDS.parent.password);
         await page.getByRole('button', { name: /Accéder à Mon Espace/i }).click();
         await page.waitForURL(/\/dashboard\/parent/, { timeout: 15000 });
     }

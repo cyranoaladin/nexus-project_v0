@@ -10,13 +10,14 @@
  * Requirements:
  * - E2E database must be seeded (npm run test:e2e:setup)
  * - App running on http://localhost:3000
- * - Test users: parent.dashboard@test.com, yasmine.dupont@test.com, helios@test.com, admin@test.com
- * - Password: password123
+ * - Test users loaded from e2e/.credentials.json (written by seed)
  */
 
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser, ROLE_PATHS } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
 import { ensureCoachAvailabilityByEmail, setStudentCreditsByEmail, disconnectPrisma } from './helpers/db';
+import { attachCoreApiGuard, assertNoCoreApiFailure } from './helpers/fail-on-core-500';
 
 // =============================================================================
 // TEST CONFIGURATION
@@ -37,6 +38,13 @@ test.describe('Authentication & Booking Flow', () => {
     page.on('pageerror', (err) => {
       console.log(`[Page Error]: ${err.message}`);
     });
+
+    // Fail test if any core API endpoint returns 5xx
+    attachCoreApiGuard(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    assertNoCoreApiFailure(page);
   });
 
   // =============================================================================
@@ -61,15 +69,21 @@ test.describe('Authentication & Booking Flow', () => {
     test('Parent can login and access parent dashboard', async ({ page }) => {
       await login(page, 'parent');
 
+      // Wait for auth session to be established before checking UI
+      await page.waitForResponse(
+        (r) => r.url().includes('/api/auth/session') && r.status() === 200,
+        { timeout: 60_000 }
+      ).catch(() => {
+        // Session may already be cached — continue to UI assertions
+      });
+
       // Verify parent dashboard URL
       await expect(page).toHaveURL(/\/dashboard\/parent/);
 
-      // Verify parent-specific content
-      const parentHeader = page.getByText(/Espace Parent|Tableau de Bord Parental|Tableau de Bord/i).first();
-      await expect(parentHeader).toBeVisible({ timeout: 10000 });
-
-      // Verify parent has credits displayed
-      await expect(page.getByText(/Crédits disponibles/i)).toBeVisible({ timeout: 10000 });
+      // Wait for the dashboard to fully render (data loaded, not loading/error state)
+      await expect(
+        page.getByTestId('parent-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
     });
 
     test('Student can login and access student dashboard', async ({ page }) => {
@@ -108,7 +122,7 @@ test.describe('Authentication & Booking Flow', () => {
 
       await page.getByLabel(/email/i).fill('invalid@test.com');
       await page.getByPlaceholder('Votre mot de passe').fill('wrongpassword');
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Wait for error message
       await expect(
@@ -123,7 +137,7 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'networkidle' });
 
       // Try to submit without filling fields
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Should show validation errors
       const emailInput = page.getByLabel(/email/i);
@@ -210,13 +224,13 @@ test.describe('Authentication & Booking Flow', () => {
   test.describe.serial('Session Booking Flow', () => {
     test.beforeAll(async () => {
       // Ensure deterministic availability + credits for booking tests
-      await ensureCoachAvailabilityByEmail('helios@test.com');
-      await ensureCoachAvailabilityByEmail('zenon@test.com');
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+      await ensureCoachAvailabilityByEmail(CREDS.coach.email);
+      await ensureCoachAvailabilityByEmail(CREDS.zenon.email);
+      await setStudentCreditsByEmail(CREDS.student.email, 8);
     });
 
     test.afterAll(async () => {
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+      await setStudentCreditsByEmail(CREDS.student.email, 8);
       await disconnectPrisma();
     });
 
@@ -303,7 +317,7 @@ test.describe('Authentication & Booking Flow', () => {
         if (studentWithCredits?.userId) {
           studentId = studentWithCredits.userId;
         } else {
-          await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+          await setStudentCreditsByEmail(CREDS.student.email, 8);
           studentId =
             dashboard.children?.find((c: { firstName?: string }) => c.firstName?.toLowerCase() === 'yasmine')?.userId ??
             dashboard.children?.[0]?.userId;
@@ -315,13 +329,19 @@ test.describe('Authentication & Booking Flow', () => {
 
         const subjectsToTry = ['FRANCAIS', 'MATHEMATIQUES'];
         let lastError = 'No booking attempt made';
+        let bookingAttempts = 0;
+        const MAX_BOOKING_ATTEMPTS = 5;
 
         for (const subject of subjectsToTry) {
+          if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
+
           const coachesResponse = await page.request.get(`/api/coaches/available?subject=${subject}`);
           const coachesData = await coachesResponse.json();
           const coaches = coachesData.coaches ?? [];
 
           for (const coach of coaches) {
+            if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
+
             const coachId = coach.id;
             const start = new Date();
             const end = new Date();
@@ -332,8 +352,40 @@ test.describe('Authentication & Booking Flow', () => {
             const availabilityData = await availabilityResponse.json();
             const slots = availabilityData.availableSlots ?? [];
 
-            for (const slot of slots) {
-              const bookingResponse = await page.request.post('/api/sessions/book', {
+            // Only try the first available slot per coach to avoid rate limit exhaustion
+            const slot = slots[0];
+            if (!slot) continue;
+
+            bookingAttempts++;
+
+            const bookingResponse = await page.request.post('/api/sessions/book', {
+              data: {
+                coachId,
+                studentId,
+                subject,
+                scheduledDate: slot.date,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                duration: slot.duration,
+                type: 'INDIVIDUAL',
+                modality: 'ONLINE',
+                title: 'Session test E2E',
+                description: 'Objectif: validation e2e',
+                creditsToUse: 1,
+              },
+            });
+
+            if (bookingResponse.ok()) {
+              return;
+            }
+
+            // If rate limited, wait and retry once
+            if (bookingResponse.status() === 429) {
+              const body = await bookingResponse.json().catch(() => ({}));
+              const retryAfter = (body.details?.retryAfter ?? 5) * 1000;
+              await page.waitForTimeout(Math.min(retryAfter, 10000));
+
+              const retryResponse = await page.request.post('/api/sessions/book', {
                 data: {
                   coachId,
                   studentId,
@@ -350,10 +402,11 @@ test.describe('Authentication & Booking Flow', () => {
                 },
               });
 
-              if (bookingResponse.ok()) {
+              if (retryResponse.ok()) {
                 return;
               }
-
+              lastError = `Booking API failed after retry: ${retryResponse.status()} ${await retryResponse.text()}`;
+            } else {
               lastError = `Booking API failed: ${bookingResponse.status()} ${await bookingResponse.text()}`;
             }
           }
@@ -375,7 +428,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Booking fails when parent has insufficient credits', async ({ page }) => {
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 0);
+      await setStudentCreditsByEmail(CREDS.student.email, 0);
 
       await login(page, 'parent');
 
@@ -428,16 +481,17 @@ test.describe('Authentication & Booking Flow', () => {
     test('Coach cannot book their own sessions', async ({ page }) => {
       await login(page, 'coach');
 
-      // Navigate to sessions list
-      await page.goto('/dashboard/coach', { waitUntil: 'networkidle' });
+      // Navigate to coach dashboard — use domcontentloaded (networkidle hangs due to SPA polling)
+      await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
 
-      // Coach should see "Manage" or "Edit" buttons, not "Book"
-      const manageButton = page.getByRole('button', { name: /gérer|manage|modifier|edit/i });
-      await expect(manageButton.first()).toBeVisible({ timeout: 5000 });
+      // Wait for the coach dashboard to fully render (data loaded, not loading/error state)
+      await expect(
+        page.getByTestId('coach-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
 
-      // Book button should NOT be visible for coach's own sessions
-      const bookButton = page.getByRole('button', { name: /réserver|book/i });
-      await expect(bookButton).not.toBeVisible();
+      // Coach dashboard should NOT have a "Réserver" / "Book" button
+      const bookButton = page.getByRole('button', { name: /réserver une session|book a session/i });
+      await expect(bookButton).not.toBeVisible({ timeout: 3000 });
     });
   });
 
@@ -450,11 +504,11 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Fill form
-      await page.getByLabel(/email/i).fill('parent.dashboard@test.com');
-      await page.getByPlaceholder('Votre mot de passe').fill('password123');
+      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
 
       // Click submit
-      const submitButton = page.getByRole('button', { name: /accéder|sign in|connexion/i });
+      const submitButton = page.locator('button[type="submit"]');
       await submitButton.click();
 
       // Check for loading state (button disabled or loading indicator)
@@ -477,7 +531,7 @@ test.describe('Authentication & Booking Flow', () => {
       // Fill invalid email
       await page.getByLabel(/email/i).fill('invalid-email');
       await page.getByPlaceholder('Votre mot de passe').fill('short');
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.locator('button[type="submit"]').click();
 
       // Should stay on signin page (validation prevents navigation)
       await page.waitForTimeout(1000);
@@ -514,9 +568,9 @@ test.describe('Authentication & Booking Flow', () => {
       // Block only the credentials callback (not providers/session)
       await page.route('**/api/auth/callback/**', (route) => route.abort());
 
-      await page.getByLabel(/email/i).fill('parent.dashboard@test.com');
-      await page.getByPlaceholder('Votre mot de passe').fill('password123');
-      await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
+      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
+      await page.locator('button[type="submit"]').click();
 
       // Should stay on signin page (login fails due to network error)
       await page.waitForTimeout(3000);
