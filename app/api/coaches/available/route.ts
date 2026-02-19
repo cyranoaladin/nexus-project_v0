@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import type { Prisma } from '@prisma/client';
+import { parseSubjects } from '@/lib/utils/subjects';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,17 +21,8 @@ export async function GET(request: NextRequest) {
     const subject = searchParams.get('subject');
     const date = searchParams.get('date');
 
-    // Build where clause for coaches
-    const whereClause: Prisma.CoachProfileWhereInput = {};
-
-    if (subject) {
-      whereClause.subjects = {
-        array_contains: [subject]
-      };
-    }
-
+    // Fetch all coaches (subject filtering done in JS to avoid @> on Json column)
     const coaches = await prisma.coachProfile.findMany({
-      where: whereClause,
       include: {
         user: {
           include: {
@@ -48,16 +39,22 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const formattedCoaches = coaches.map((coach) => ({
-      id: coach.userId, // Use userId as the coach ID for consistency
-      firstName: coach.user.firstName,
-      lastName: coach.user.lastName,
-      coachSubjects: (coach.subjects as unknown as string[] ?? []),
-      availability: coach.user.coachAvailabilities,
-      bio: coach.description,
-      philosophy: coach.philosophy,
-      expertise: coach.expertise
-    }));
+    const formattedCoaches = coaches
+      .filter((coach) => {
+        if (!subject) return true;
+        const subs = parseSubjects(coach.subjects);
+        return subs.includes(subject);
+      })
+      .map((coach) => ({
+        id: coach.userId, // Use userId as the coach ID for consistency
+        firstName: coach.user.firstName,
+        lastName: coach.user.lastName,
+        coachSubjects: parseSubjects(coach.subjects),
+        availability: coach.user.coachAvailabilities,
+        bio: coach.description,
+        philosophy: coach.philosophy,
+        expertise: coach.expertise
+      }));
 
     return NextResponse.json({
       success: true,

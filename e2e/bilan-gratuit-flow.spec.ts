@@ -9,7 +9,7 @@ test.describe('Bilan gratuit multi-step', () => {
     // Fill step 1
     await page.getByLabel(/Prénom \*/i).fill('Parent');
     await page.getByLabel('Nom *', { exact: true }).fill('Test');
-    await page.getByLabel(/Email \*/i).fill('parent@example.com');
+    await page.getByLabel(/Email \*/i).fill(`e2e-bilan-${Date.now()}@test.com`);
     await page.getByLabel(/Téléphone \*/i).fill('+216 99 11 22 33');
     await page.getByLabel(/Mot de passe \*/i).fill('Test1234!');
 

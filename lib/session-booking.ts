@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { parseSubjects } from '@/lib/utils/subjects';
 import type {
   Prisma,
   SessionBooking,
@@ -192,11 +193,6 @@ export class SessionBookingService {
     endDate: Date
   ): Promise<AvailableCoach[]> {
     const coaches = await prisma.coachProfile.findMany({
-      where: {
-        subjects: {
-          array_contains: [subject]
-        }
-      },
       include: {
         user: {
           select: {
@@ -209,15 +205,15 @@ export class SessionBookingService {
       }
     });
 
-    // Filter coaches who have actual availability and format response
+    // Filter coaches who teach the requested subject and format response
     return coaches
-      // Keep coaches; availability is derived via getAvailableSlots
+      .filter((coach) => parseSubjects(coach.subjects).includes(subject))
       .map((coach) => ({
         id: coach.user.id,
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
         email: coach.user.email,
-        coachSubjects: (coach.subjects as unknown as string[] ?? []),
+        coachSubjects: parseSubjects(coach.subjects),
         coachAvailabilities: []
       }));
   }

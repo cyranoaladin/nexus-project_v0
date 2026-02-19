@@ -125,6 +125,19 @@ const student = await prisma.user.create({
 
   console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
 
+  // Entitlement for parent — required by credits_use feature gate (needs platform_access)
+  await prisma.entitlement.create({
+    data: {
+      userId: parent.id,
+      productCode: 'ABONNEMENT_HYBRIDE',
+      label: 'Abonnement Hybride E2E',
+      status: 'ACTIVE',
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+  });
+  console.log(`  ✓ Entitlement: platform_access for ${parent.email}`);
+
   const coach = await prisma.user.create({
     data: {
       email: coachEmail, // helios@test.com for E2E tests
@@ -139,7 +152,7 @@ const student = await prisma.user.create({
           tag: '🎓 Agrégé',
           description: 'Expert en mathématiques et physique',
           philosophy: "L'apprentissage par la compréhension profonde",
-          subjects: '["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI"]'
+          subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI']
         }
       }
     },
@@ -200,7 +213,7 @@ const student = await prisma.user.create({
           tag: '🎯 Stratège',
           description: 'Spécialiste français et philosophie',
           philosophy: 'La réflexion critique avant tout',
-          subjects: '["FRANCAIS", "PHILOSOPHIE", "HISTOIRE_GEO"]'
+          subjects: ['FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO']
         }
       }
     },
@@ -224,7 +237,7 @@ const student = await prisma.user.create({
           tag: '🧠 Expert NSI/Maths',
           description: 'Expert NSI et Mathématiques pour tests E2E',
           philosophy: 'Excellence par la pratique',
-          subjects: '["NSI", "MATHEMATIQUES"]'
+          subjects: ['NSI', 'MATHEMATIQUES']
         }
       }
     },
