@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { parseSubjects } from '@/lib/utils/subjects';
 import type {
   Prisma,
   SessionBooking,
@@ -203,18 +204,6 @@ export class SessionBookingService {
         }
       }
     });
-
-    /**
-     * Parse the subjects Json field safely.
-     * It may be stored as a real JSON array or a string-encoded JSON array.
-     */
-    function parseSubjects(raw: unknown): string[] {
-      if (Array.isArray(raw)) return raw as string[];
-      if (typeof raw === 'string') {
-        try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed : []; } catch { return []; }
-      }
-      return [];
-    }
 
     // Filter coaches who teach the requested subject and format response
     return coaches

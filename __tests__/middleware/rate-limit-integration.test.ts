@@ -28,7 +28,7 @@ describe('Rate Limiting Integration Tests', () => {
     jest.clearAllMocks();
   });
 
-  describe('ARIA Chat Endpoint - Expensive Preset (30/min)', () => {
+  describe('ARIA Chat Endpoint - Expensive Preset (10/min)', () => {
     const testPath = '/api/aria/chat';
     const testIP = '192.168.1.100';
 
@@ -37,7 +37,7 @@ describe('Rate Limiting Integration Tests', () => {
       clearRateLimit(cleanupRequest, 'aria:chat');
     });
 
-    it('should allow requests within rate limit (30/min)', () => {
+    it('should allow requests within rate limit (10/min)', () => {
       const request = createMockRequest(testPath, testIP);
       
       // First request should be allowed
@@ -49,13 +49,13 @@ describe('Rate Limiting Integration Tests', () => {
     it('should return 429 when exceeding rate limit', () => {
       const request = createMockRequest(testPath, testIP);
       
-      // Make 30 requests (the limit)
-      for (let i = 0; i < 30; i++) {
+      // Make 10 requests (the limit)
+      for (let i = 0; i < 10; i++) {
         const result = RateLimitPresets.expensive(request, 'aria:chat');
         expect(result).toBeNull(); // All should be allowed
       }
       
-      // 31st request should be rate limited
+      // 11th request should be rate limited
       const result = RateLimitPresets.expensive(request, 'aria:chat');
       
       expect(result).not.toBeNull();
@@ -65,12 +65,12 @@ describe('Rate Limiting Integration Tests', () => {
     it('should include rate limit headers in response', async () => {
       const request = createMockRequest(testPath, testIP);
       
-      // Make 30 requests to reach limit
-      for (let i = 0; i < 30; i++) {
+      // Make 10 requests to reach limit
+      for (let i = 0; i < 10; i++) {
         RateLimitPresets.expensive(request, 'aria:chat');
       }
       
-      // 31st request should be rate limited with headers
+      // 11th request should be rate limited with headers
       const result = RateLimitPresets.expensive(request, 'aria:chat');
       
       expect(result).not.toBeNull();
@@ -80,7 +80,7 @@ describe('Rate Limiting Integration Tests', () => {
       const resetHeader = result?.headers.get('X-RateLimit-Reset');
       const retryAfterHeader = result?.headers.get('Retry-After');
       
-      expect(limitHeader).toBe('30');
+      expect(limitHeader).toBe('10');
       expect(remainingHeader).toBe('0');
       expect(resetHeader).toBeDefined();
       expect(retryAfterHeader).toBeDefined();
@@ -95,7 +95,7 @@ describe('Rate Limiting Integration Tests', () => {
       const request = createMockRequest(testPath, testIP);
       
       // Exhaust rate limit
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 10; i++) {
         RateLimitPresets.expensive(request, 'aria:chat');
       }
       
@@ -119,7 +119,7 @@ describe('Rate Limiting Integration Tests', () => {
       const request2 = createMockRequest(testPath, ip2);
       
       // Exhaust limit for IP1
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 10; i++) {
         const result = RateLimitPresets.expensive(request1, 'aria:chat');
         expect(result).toBeNull();
       }

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { parseSubjects } from '@/lib/utils/subjects';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,18 +38,6 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc'
       }
     });
-
-    /**
-     * Parse the subjects Json field safely.
-     * It may be stored as a real JSON array or a string-encoded JSON array.
-     */
-    function parseSubjects(raw: unknown): string[] {
-      if (Array.isArray(raw)) return raw as string[];
-      if (typeof raw === 'string') {
-        try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed : []; } catch { return []; }
-      }
-      return [];
-    }
 
     const formattedCoaches = coaches
       .filter((coach) => {
