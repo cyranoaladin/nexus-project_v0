@@ -315,13 +315,19 @@ test.describe('Authentication & Booking Flow', () => {
 
         const subjectsToTry = ['FRANCAIS', 'MATHEMATIQUES'];
         let lastError = 'No booking attempt made';
+        let bookingAttempts = 0;
+        const MAX_BOOKING_ATTEMPTS = 5;
 
         for (const subject of subjectsToTry) {
+          if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
+
           const coachesResponse = await page.request.get(`/api/coaches/available?subject=${subject}`);
           const coachesData = await coachesResponse.json();
           const coaches = coachesData.coaches ?? [];
 
           for (const coach of coaches) {
+            if (bookingAttempts >= MAX_BOOKING_ATTEMPTS) break;
+
             const coachId = coach.id;
             const start = new Date();
             const end = new Date();
@@ -332,8 +338,40 @@ test.describe('Authentication & Booking Flow', () => {
             const availabilityData = await availabilityResponse.json();
             const slots = availabilityData.availableSlots ?? [];
 
-            for (const slot of slots) {
-              const bookingResponse = await page.request.post('/api/sessions/book', {
+            // Only try the first available slot per coach to avoid rate limit exhaustion
+            const slot = slots[0];
+            if (!slot) continue;
+
+            bookingAttempts++;
+
+            const bookingResponse = await page.request.post('/api/sessions/book', {
+              data: {
+                coachId,
+                studentId,
+                subject,
+                scheduledDate: slot.date,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                duration: slot.duration,
+                type: 'INDIVIDUAL',
+                modality: 'ONLINE',
+                title: 'Session test E2E',
+                description: 'Objectif: validation e2e',
+                creditsToUse: 1,
+              },
+            });
+
+            if (bookingResponse.ok()) {
+              return;
+            }
+
+            // If rate limited, wait and retry once
+            if (bookingResponse.status() === 429) {
+              const body = await bookingResponse.json().catch(() => ({}));
+              const retryAfter = (body.details?.retryAfter ?? 5) * 1000;
+              await page.waitForTimeout(Math.min(retryAfter, 10000));
+
+              const retryResponse = await page.request.post('/api/sessions/book', {
                 data: {
                   coachId,
                   studentId,
@@ -350,10 +388,11 @@ test.describe('Authentication & Booking Flow', () => {
                 },
               });
 
-              if (bookingResponse.ok()) {
+              if (retryResponse.ok()) {
                 return;
               }
-
+              lastError = `Booking API failed after retry: ${retryResponse.status()} ${await retryResponse.text()}`;
+            } else {
               lastError = `Booking API failed: ${bookingResponse.status()} ${await bookingResponse.text()}`;
             }
           }
