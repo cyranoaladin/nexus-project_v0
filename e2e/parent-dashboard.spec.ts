@@ -11,21 +11,19 @@
  * - Error handling
  *
  * Requirements:
- * - E2E database must be seeded (npm run test:e2e:setup && npm run test:e2e:seed:parent)
+ * - E2E database must be seeded (npm run test:e2e:setup)
  * - App running on http://localhost:3000
- * - Test user: parent.dashboard@test.com
- * - Password: password123
+ * - Test users loaded from e2e/.credentials.json (written by seed)
  */
 
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
 
 // =============================================================================
 // TEST CONFIGURATION
 // =============================================================================
 
-const PARENT_EMAIL = 'parent.dashboard@test.com';
-const PARENT_PASSWORD = 'password123';
 const DASHBOARD_LOAD_TIMEOUT = 20000;
 const NETWORK_TIMEOUT = 10000;
 
@@ -741,8 +739,8 @@ test.describe('Parent Dashboard', () => {
 
       // If redirected to signin, perform UI login fallback (webkit flakiness)
       if (page.url().includes('/auth/signin')) {
-        await page.getByLabel(/Adresse Email/i).fill('parent.dashboard@test.com');
-        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill('password123');
+        await page.getByLabel(/Adresse Email/i).fill(CREDS.parent.email);
+        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill(CREDS.parent.password);
         await page.getByRole('button', { name: /Accéder à Mon Espace/i }).click();
         await page.waitForURL(/\/dashboard\/parent/, { timeout: 15000 });
       }

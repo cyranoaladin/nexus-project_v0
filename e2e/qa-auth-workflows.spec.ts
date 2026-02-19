@@ -14,11 +14,13 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { CREDS } from './helpers/credentials';
 
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3000';
 
 // Override Playwright config baseURL so page.goto and page.request use port 3000
 test.use({ baseURL: BASE_URL });
+
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -159,7 +161,7 @@ test.describe('Dashboard auth guards', () => {
 
 test.describe('Login flows', () => {
   test('parent login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, 'parent@example.com', 'admin123');
+    const success = await apiLogin(page, CREDS.parent.email, CREDS.parent.password);
     expect(success).toBe(true);
 
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
@@ -168,7 +170,7 @@ test.describe('Login flows', () => {
   });
 
   test('student login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, 'student@example.com', 'admin123');
+    const success = await apiLogin(page, CREDS.student.email, CREDS.student.password);
     expect(success).toBe(true);
 
     await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
@@ -176,7 +178,7 @@ test.describe('Login flows', () => {
   });
 
   test('admin login → dashboard → session valid', async ({ page }) => {
-    const success = await apiLogin(page, 'admin@nexus-reussite.com', 'admin123');
+    const success = await apiLogin(page, CREDS.admin.email, CREDS.admin.password);
     expect(success).toBe(true);
 
     await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
@@ -184,19 +186,19 @@ test.describe('Login flows', () => {
   });
 
   test('wrong password → login fails', async ({ page }) => {
-    const success = await apiLogin(page, 'parent@example.com', 'wrongpassword');
+    const success = await apiLogin(page, CREDS.parent.email, 'wrongpassword');
     expect(success).toBe(false);
   });
 
   test('nonexistent user → login fails', async ({ page }) => {
-    const success = await apiLogin(page, 'nobody@nowhere.com', 'admin123');
+    const success = await apiLogin(page, 'nobody@nowhere.com', CREDS.parent.password);
     expect(success).toBe(false);
   });
 
   test('inactive student → login fails', async ({ page }) => {
     // qa-inactive was activated in smoke tests, use a fresh check
     // The key behavior: students without activatedAt cannot login
-    const success = await apiLogin(page, 'nonexistent-inactive@test.local', 'admin123');
+    const success = await apiLogin(page, 'nonexistent-inactive@test.local', CREDS.student.password);
     expect(success).toBe(false);
   });
 });
@@ -205,21 +207,21 @@ test.describe('Login flows', () => {
 
 test.describe('Role-based access control', () => {
   test('parent cannot access admin dashboard', async ({ page }) => {
-    await apiLogin(page, 'parent@example.com', 'admin123');
+    await apiLogin(page, CREDS.parent.email, CREDS.parent.password);
     await page.goto('/dashboard/admin', { waitUntil: 'domcontentloaded' });
     // Should be redirected to parent dashboard
     await expect(page).toHaveURL(/\/dashboard\/parent/, { timeout: 15000 });
   });
 
   test('student cannot access parent dashboard', async ({ page }) => {
-    await apiLogin(page, 'student@example.com', 'admin123');
+    await apiLogin(page, CREDS.student.email, CREDS.student.password);
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     // Should be redirected to student dashboard
     await expect(page).toHaveURL(/\/dashboard\/eleve/, { timeout: 15000 });
   });
 
   test('admin can access parent dashboard (admin override)', async ({ page }) => {
-    await apiLogin(page, 'admin@nexus-reussite.com', 'admin123');
+    await apiLogin(page, CREDS.admin.email, CREDS.admin.password);
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     // Admin should stay on parent dashboard
     await expect(page).toHaveURL(/\/dashboard\/parent/, { timeout: 15000 });
@@ -233,7 +235,7 @@ test.describe('Signin page UI', () => {
     await page.goto('/auth/signin', { waitUntil: 'networkidle' });
     // Verify the form rendered (client-side React)
     // Fill form and submit
-    await page.fill('#email', 'parent@example.com');
+    await page.fill('#email', CREDS.parent.email);
     await page.fill('#password', 'wrongpassword');
     // Check if React client JS is working (button text changes on submit)
     const submitBtn = page.locator('button[type="submit"]');
@@ -250,8 +252,8 @@ test.describe('Signin page UI', () => {
 
   test('submit button shows loading state', async ({ page }) => {
     await page.goto('/auth/signin');
-    await page.fill('#email', 'parent@example.com');
-    await page.fill('#password', 'admin123');
+    await page.fill('#email', CREDS.parent.email);
+    await page.fill('#password', CREDS.parent.password);
 
     // Click and check loading state appears
     await page.click('button[type="submit"]');
@@ -287,7 +289,7 @@ test.describe('Forgot password page', () => {
       expect(resp.status()).toBe(200);
       return;
     }
-    await emailInput.fill('parent@example.com');
+    await emailInput.fill(CREDS.parent.email);
     // Try clicking submit — button may be disabled if React state isn't working
     const submitBtn = page.locator('button[type="submit"]');
     const isEnabled = await submitBtn.isEnabled({ timeout: 3000 }).catch(() => false);
@@ -304,7 +306,7 @@ test.describe('Forgot password page', () => {
 
   test('has back to login link', async ({ page }) => {
     await page.goto('/auth/mot-de-passe-oublie');
-    const link = page.locator('a[href="/auth/signin"]');
+    const link = page.getByRole('link', { name: /Retour à la connexion/i }).first();
     await expect(link).toBeVisible();
   });
 });

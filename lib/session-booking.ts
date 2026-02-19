@@ -192,11 +192,6 @@ export class SessionBookingService {
     endDate: Date
   ): Promise<AvailableCoach[]> {
     const coaches = await prisma.coachProfile.findMany({
-      where: {
-        subjects: {
-          array_contains: [subject]
-        }
-      },
       include: {
         user: {
           select: {
@@ -209,15 +204,27 @@ export class SessionBookingService {
       }
     });
 
-    // Filter coaches who have actual availability and format response
+    /**
+     * Parse the subjects Json field safely.
+     * It may be stored as a real JSON array or a string-encoded JSON array.
+     */
+    function parseSubjects(raw: unknown): string[] {
+      if (Array.isArray(raw)) return raw as string[];
+      if (typeof raw === 'string') {
+        try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed : []; } catch { return []; }
+      }
+      return [];
+    }
+
+    // Filter coaches who teach the requested subject and format response
     return coaches
-      // Keep coaches; availability is derived via getAvailableSlots
+      .filter((coach) => parseSubjects(coach.subjects).includes(subject))
       .map((coach) => ({
         id: coach.user.id,
         firstName: coach.user.firstName,
         lastName: coach.user.lastName,
         email: coach.user.email,
-        coachSubjects: (coach.subjects as unknown as string[] ?? []),
+        coachSubjects: parseSubjects(coach.subjects),
         coachAvailabilities: []
       }));
   }
