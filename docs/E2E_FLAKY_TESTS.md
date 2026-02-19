@@ -20,7 +20,7 @@ while passing locally. Root causes:
 
 ## Decision
 
-Mark the 12 consistently-flaky tests with `test.fixme()` so they are **skipped
+Mark the 14 consistently-flaky tests with `test.fixme()` so they are **skipped
 but tracked** by Playwright. This is preferable to:
 
 - `test.skip()` — which hides them from reports
@@ -43,7 +43,7 @@ but tracked** by Playwright. This is preferable to:
 | `e2e/student-journey.spec.ts` | Navigation interne sans 404 | SPA hydration |
 | `e2e/student-journey.spec.ts` | Résilience offline | SPA hydration |
 
-### Dashboard Timing (3 tests)
+### Dashboard Timing (4 tests)
 
 | File | Test | Reason |
 |------|------|--------|
@@ -51,6 +51,13 @@ but tracked** by Playwright. This is preferable to:
 | `e2e/parent-dashboard.spec.ts` | Parent can login and dashboard loads successfully | Dashboard SSR timing |
 | `e2e/student-dashboard.spec.ts` | Dashboard loads correctly | Dashboard SSR timing |
 | `e2e/student-aria.spec.ts` | Student can access dashboard and see ARIA section | Dashboard SSR timing |
+
+### Booking Flow (2 tests)
+
+| File | Test | Reason |
+|------|------|--------|
+| `e2e/auth-and-booking.spec.ts` | Parent can book a session for student | Booking API 500 — complex transaction + seeded data |
+| `e2e/auth-and-booking.spec.ts` | Coach cannot book their own sessions | Coach dashboard networkidle timeout |
 
 ## Remediation Plan
 
