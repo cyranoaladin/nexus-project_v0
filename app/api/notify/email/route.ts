@@ -9,17 +9,69 @@
  *
  * Security:
  * - CSRF: checkCsrf rejects cross-origin requests in production.
- * - Rate limit: Upstash Redis (distributed) via checkRateLimit, falls back to open in dev.
- * - Body size: checkBodySize rejects payloads > 64KB.
+ * - Rate limit: dedicated 'notifyEmail' bucket (5 req/min/IP via Upstash Redis).
+ *   Fail-closed in production if Redis is not configured (503).
+ * - Body size: enforced via stream reading (64KB max), not just Content-Length.
  * - Internal emails: sent only to INTERNAL_NOTIFICATION_EMAIL (never caller-controlled).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { checkCsrf, checkBodySize } from '@/lib/csrf';
+import { checkCsrf } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const MAX_BODY_BYTES = 64 * 1024; // 64KB
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Normalized error response — all errors from this route use this shape.
+ */
+function fail(status: number, code: string, message: string) {
+  return NextResponse.json({ ok: false, error: { code, message } }, { status });
+}
+
+/**
+ * Read and parse JSON body with a hard byte limit enforced via stream reading.
+ * Protects against chunked-encoding bypass of Content-Length checks.
+ */
+async function readJsonWithLimit(request: NextRequest, maxBytes: number): Promise<unknown> {
+  // Short-circuit: reject if Content-Length already exceeds limit
+  const cl = request.headers.get('content-length');
+  if (cl && parseInt(cl, 10) > maxBytes) {
+    throw new PayloadTooLargeError();
+  }
+
+  const body = request.body;
+  if (!body) throw new InvalidJsonError();
+
+  const reader = body.getReader();
+  let total = 0;
+  const chunks: Uint8Array[] = [];
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) throw new PayloadTooLargeError();
+    chunks.push(value);
+  }
+
+  const buf = Buffer.concat(chunks.map((c) => Buffer.from(c)));
+  try {
+    return JSON.parse(buf.toString('utf-8'));
+  } catch {
+    throw new InvalidJsonError();
+  }
+}
+
+class PayloadTooLargeError extends Error { constructor() { super('PAYLOAD_TOO_LARGE'); } }
+class InvalidJsonError extends Error { constructor() { super('INVALID_JSON'); } }
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -46,31 +98,25 @@ export async function POST(request: NextRequest) {
   const csrfResponse = checkCsrf(request);
   if (csrfResponse) return csrfResponse;
 
-  // 2. Body size guard (64KB max)
-  const sizeResponse = checkBodySize(request, 64 * 1024);
-  if (sizeResponse) return sizeResponse;
-
-  // 3. Distributed rate limiting (Upstash Redis, falls back to open in dev)
-  const rateLimitResponse = await checkRateLimit(request, 'api');
+  // 2. Dedicated rate limiting — 5 req/min/IP (fail-closed in prod if Redis absent)
+  const rateLimitResponse = await checkRateLimit(request, 'notifyEmail');
   if (rateLimitResponse) return rateLimitResponse;
 
-  // 4. Parse & validate
+  // 3. Read & parse body with stream-enforced size limit (64KB)
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { ok: false, error: 'Invalid JSON' },
-      { status: 400 }
-    );
+    body = await readJsonWithLimit(request, MAX_BODY_BYTES);
+  } catch (e) {
+    if (e instanceof PayloadTooLargeError) {
+      return fail(413, 'PAYLOAD_TOO_LARGE', `Request body exceeds ${MAX_BODY_BYTES} bytes`);
+    }
+    return fail(400, 'INVALID_JSON', 'Request body is not valid JSON');
   }
 
+  // 4. Validate payload schema
   const parsed = payloadSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
-      { status: 400 }
-    );
+    return fail(400, 'VALIDATION_FAILED', 'Payload validation failed');
   }
 
   const data = parsed.data;
@@ -118,12 +164,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Exhaustive check — should never reach here
-    return NextResponse.json({ ok: false, error: 'Unknown type' }, { status: 400 });
+    return fail(400, 'UNKNOWN_TYPE', 'Unsupported notification type');
   } catch (error) {
     console.error('[notify/email] Error:', error instanceof Error ? error.message : 'unknown');
-    return NextResponse.json(
-      { ok: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return fail(500, 'INTERNAL_ERROR', 'Internal server error');
   }
 }

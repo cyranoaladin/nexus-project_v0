@@ -144,7 +144,7 @@ export default function DashboardCoach() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker text-neutral-100" data-testid="coach-dashboard-ready">
       {/* Header */}
       <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

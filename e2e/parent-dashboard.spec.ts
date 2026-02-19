@@ -11,21 +11,20 @@
  * - Error handling
  *
  * Requirements:
- * - E2E database must be seeded (npm run test:e2e:setup && npm run test:e2e:seed:parent)
+ * - E2E database must be seeded (npm run test:e2e:setup)
  * - App running on http://localhost:3000
- * - Test user: parent.dashboard@test.com
- * - Password: password123
+ * - Test users loaded from e2e/.credentials.json (written by seed)
  */
 
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
+import { attachCoreApiGuard, assertNoCoreApiFailure, suppressCoreGuard } from './helpers/fail-on-core-500';
 
 // =============================================================================
 // TEST CONFIGURATION
 // =============================================================================
 
-const PARENT_EMAIL = 'parent.dashboard@test.com';
-const PARENT_PASSWORD = 'password123';
 const DASHBOARD_LOAD_TIMEOUT = 20000;
 const NETWORK_TIMEOUT = 10000;
 
@@ -44,6 +43,13 @@ test.describe('Parent Dashboard', () => {
     page.on('pageerror', (err) => {
       console.log(`[Page Error]: ${err.message}`);
     });
+
+    // Fail test if any core API endpoint returns 5xx
+    attachCoreApiGuard(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    assertNoCoreApiFailure(page);
   });
 
   // =============================================================================
@@ -88,13 +94,21 @@ test.describe('Parent Dashboard', () => {
       
       await login(page);
 
+      // Wait for auth session to be established
+      await page.waitForResponse(
+        (r) => r.url().includes('/api/auth/session') && r.status() === 200,
+        { timeout: 60_000 }
+      ).catch(() => {
+        // Session may already be cached — continue to UI assertions
+      });
+
       // Verify parent dashboard URL
       await expect(page).toHaveURL(/\/dashboard\/parent/);
 
-      // Verify main dashboard heading
+      // Wait for dashboard to fully render (data loaded, not loading/error state)
       await expect(
-        page.getByRole('heading', { name: /dashboard|tableau de bord/i })
-      ).toBeVisible({ timeout: NETWORK_TIMEOUT });
+        page.getByTestId('parent-dashboard-ready')
+      ).toBeVisible({ timeout: 60_000 });
 
       // Measure load time
       const loadTime = Date.now() - startTime;
@@ -741,8 +755,8 @@ test.describe('Parent Dashboard', () => {
 
       // If redirected to signin, perform UI login fallback (webkit flakiness)
       if (page.url().includes('/auth/signin')) {
-        await page.getByLabel(/Adresse Email/i).fill('parent.dashboard@test.com');
-        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill('password123');
+        await page.getByLabel(/Adresse Email/i).fill(CREDS.parent.email);
+        await page.getByRole('textbox', { name: 'Mot de Passe' }).fill(CREDS.parent.password);
         await page.getByRole('button', { name: /Accéder à Mon Espace/i }).click();
         await page.waitForURL(/\/dashboard\/parent/, { timeout: 15000 });
       }
@@ -831,6 +845,9 @@ test.describe('Parent Dashboard', () => {
     test('Invalid API responses show user-friendly error', async ({ page }) => {
       await login(page);
       await waitForLoadingToComplete(page);
+
+      // This test deliberately mocks a 500 — suppress the core-500 guard
+      suppressCoreGuard(page);
 
       // Mock invalid API response
       await page.route('**/api/parent/dashboard**', (route) => {
