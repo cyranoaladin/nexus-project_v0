@@ -125,6 +125,19 @@ const student = await prisma.user.create({
 
   console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
 
+  // Entitlement for parent — required by credits_use feature gate (needs platform_access)
+  await prisma.entitlement.create({
+    data: {
+      userId: parent.id,
+      productCode: 'ABONNEMENT_HYBRIDE',
+      label: 'Abonnement Hybride E2E',
+      status: 'ACTIVE',
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+  });
+  console.log(`  ✓ Entitlement: platform_access for ${parent.email}`);
+
   const coach = await prisma.user.create({
     data: {
       email: coachEmail, // helios@test.com for E2E tests

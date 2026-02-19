@@ -11,6 +11,7 @@ import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import { UserRole } from '@/types/enums';
 import { requireFeatureApi } from '@/lib/access';
+import { parseSubjects } from '@/lib/utils/subjects';
 
 function normalizeTime(time: string): string {
   const [h, m] = time.split(':').map((v) => parseInt(v, 10));
@@ -100,12 +101,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Validate subject match (Json field — may be array or string-encoded array)
-      const rawSubjects = coachProfile.subjects;
-      const coachSubjects: string[] = Array.isArray(rawSubjects)
-        ? rawSubjects as string[]
-        : typeof rawSubjects === 'string'
-          ? (() => { try { const p = JSON.parse(rawSubjects); return Array.isArray(p) ? p : []; } catch { return []; } })()
-          : [];
+      const coachSubjects = parseSubjects(coachProfile.subjects);
       if (!coachSubjects.includes(validatedData.subject)) {
         throw new Error('Coach not found or does not teach this subject');
       }

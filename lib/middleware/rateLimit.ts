@@ -124,6 +124,9 @@ export function rateLimit(config: RateLimitConfig) {
   } = config;
 
   return (request: NextRequest, keyPrefix?: string): NextResponse | null => {
+    // Explicit CI/E2E bypass — never set in production
+    if (process.env.RATE_LIMIT_DISABLE === '1') return null;
+
     const key = getRateLimitKey(request, keyPrefix);
     const result = checkRateLimit(key, { windowMs, maxRequests });
 
@@ -177,12 +180,12 @@ export const RateLimitPresets = {
   }),
 
   /**
-   * Rate limit for expensive operations
-   * 30 requests per minute (allows burst patterns while still protective)
+   * Strict rate limit for expensive operations
+   * 10 requests per minute
    */
   expensive: rateLimit({
     windowMs: 60 * 1000,
-    maxRequests: 30,
+    maxRequests: 10,
     message: 'Rate limit exceeded for this operation'
   }),
 
