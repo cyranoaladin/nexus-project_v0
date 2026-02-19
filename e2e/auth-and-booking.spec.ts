@@ -17,6 +17,7 @@ import { test, expect, Page } from '@playwright/test';
 import { loginAsUser, ROLE_PATHS } from './helpers/auth';
 import { CREDS } from './helpers/credentials';
 import { ensureCoachAvailabilityByEmail, setStudentCreditsByEmail, disconnectPrisma } from './helpers/db';
+import { attachCoreApiGuard, assertNoCoreApiFailure } from './helpers/fail-on-core-500';
 
 // =============================================================================
 // TEST CONFIGURATION
@@ -37,6 +38,13 @@ test.describe('Authentication & Booking Flow', () => {
     page.on('pageerror', (err) => {
       console.log(`[Page Error]: ${err.message}`);
     });
+
+    // Fail test if any core API endpoint returns 5xx
+    attachCoreApiGuard(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    assertNoCoreApiFailure(page);
   });
 
   // =============================================================================

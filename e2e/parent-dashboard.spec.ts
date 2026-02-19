@@ -19,6 +19,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
 import { CREDS } from './helpers/credentials';
+import { attachCoreApiGuard, assertNoCoreApiFailure } from './helpers/fail-on-core-500';
 
 // =============================================================================
 // TEST CONFIGURATION
@@ -42,6 +43,13 @@ test.describe('Parent Dashboard', () => {
     page.on('pageerror', (err) => {
       console.log(`[Page Error]: ${err.message}`);
     });
+
+    // Fail test if any core API endpoint returns 5xx
+    attachCoreApiGuard(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    assertNoCoreApiFailure(page);
   });
 
   // =============================================================================
