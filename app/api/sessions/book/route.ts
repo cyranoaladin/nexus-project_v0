@@ -357,7 +357,7 @@ export async function POST(req: NextRequest) {
 
         await tx.sessionNotification.createMany({ data: notifications });
       } catch (notifError) {
-        logger.warn({ requestId, error: notifError instanceof Error ? notifError.message : 'unknown' }, 'Notification side-effect failed (non-fatal)');
+        logger.warn('Notification side-effect failed (non-fatal)', { requestId, error: notifError instanceof Error ? notifError.message : 'unknown' });
       }
 
       // 11. Create reminders (side-effect — must not crash the booking)
@@ -383,7 +383,7 @@ export async function POST(req: NextRequest) {
 
         await tx.sessionReminder.createMany({ data: reminders });
       } catch (reminderError) {
-        logger.warn({ requestId, error: reminderError instanceof Error ? reminderError.message : 'unknown' }, 'Reminder side-effect failed (non-fatal)');
+        logger.warn('Reminder side-effect failed (non-fatal)', { requestId, error: reminderError instanceof Error ? reminderError.message : 'unknown' });
       }
 
       return sessionBooking;
@@ -413,13 +413,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     // ApiError instances are business-logic errors — return them directly
     if (error instanceof ApiError) {
-      logger.warn({ requestId, code: error.code, message: error.message }, 'Booking rejected');
+      logger.warn('Booking rejected', { requestId, code: error.code, message: error.message });
       return error.toResponse();
     }
 
     // Zod validation errors from parseBody — return 422
     if (error instanceof ZodError) {
-      logger.warn({ requestId, validationErrors: error.errors.length }, 'Booking validation failed');
+      logger.warn('Booking validation failed', { requestId, validationErrors: error.errors.length });
       return handleZodError(error);
     }
 
@@ -428,12 +428,12 @@ export async function POST(req: NextRequest) {
       const dbError = error as { code: string; meta?: Record<string, unknown> };
       const prismaCode = dbError.code;
 
-      logger.error({
+      logger.error('Booking DB error', {
         requestId,
         prismaCode,
         meta: dbError.meta,
         stack: error instanceof Error ? error.stack : undefined,
-      }, 'Booking DB error');
+      });
 
       if (prismaCode === '23P01') {
         return errorResponse(HttpStatus.CONFLICT, 'BOOKING_CONFLICT', 'Coach already has a session at this time.', { requestId });
@@ -447,11 +447,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Truly unexpected error — log full context for CI diagnostics
-    logger.error({
+    logger.error('Booking unexpected error', {
       requestId,
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
-    }, 'Booking unexpected error');
+    });
 
     return errorResponse(
       HttpStatus.INTERNAL_SERVER_ERROR,
