@@ -62,6 +62,20 @@ To un-fixme the remaining tests:
 2. **MathJax**: Use `page.waitForFunction(() => window.MathJax?.startup?.promise)`
    instead of fixed timeouts.
 
+## E2E Credentials Setup
+
+E2E tests require `e2e/.credentials.json` (gitignored). To create it:
+
+```bash
+DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
+```
+
+The seed writes the file automatically. See `e2e/.credentials.example.json` for
+the expected format. Required roles: `parent`, `student`, `coach`, `admin`, `zenon`.
+
+If a required role is missing, the test suite fails fast with a clear message
+(see `e2e/helpers/credentials.ts`).
+
 ## Rate Limiting in CI
 
 The in-memory rate limiter (`lib/middleware/rateLimit.ts`) is bypassed in CI via
