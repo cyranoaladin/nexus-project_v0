@@ -19,7 +19,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
 import { CREDS } from './helpers/credentials';
-import { attachCoreApiGuard, assertNoCoreApiFailure } from './helpers/fail-on-core-500';
+import { attachCoreApiGuard, assertNoCoreApiFailure, suppressCoreGuard } from './helpers/fail-on-core-500';
 
 // =============================================================================
 // TEST CONFIGURATION
@@ -845,6 +845,9 @@ test.describe('Parent Dashboard', () => {
     test('Invalid API responses show user-friendly error', async ({ page }) => {
       await login(page);
       await waitForLoadingToComplete(page);
+
+      // This test deliberately mocks a 500 — suppress the core-500 guard
+      suppressCoreGuard(page);
 
       // Mock invalid API response
       await page.route('**/api/parent/dashboard**', (route) => {
