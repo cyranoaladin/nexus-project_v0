@@ -28,6 +28,9 @@ export function attachCoreApiGuard(page: Page): void {
     if (!url.includes('/api/')) return;
     if (response.status() < 500) return;
 
+    // Skip if the test has deliberately suppressed the guard (e.g. mocking a 500)
+    if ((page as any).__core500Suppressed) return;
+
     const isCore = CORE_API_PATTERNS.some((pattern) => url.includes(pattern));
 
     if (isCore) {
@@ -57,10 +60,26 @@ export function attachCoreApiGuard(page: Page): void {
  *   test.afterEach(async ({ page }) => { assertNoCoreApiFailure(page); });
  */
 export function assertNoCoreApiFailure(page: Page): void {
+  // Reset suppression flag for next test
+  (page as any).__core500Suppressed = false;
+
   const error = (page as any).__core500Error;
   if (error) {
-    // Reset for next test
     (page as any).__core500Error = undefined;
     throw new Error(error);
   }
+}
+
+/**
+ * Suppress the core-500 guard for the current test. Call this BEFORE
+ * deliberately mocking a 500 on a core endpoint (e.g. error handling tests).
+ *
+ * @example
+ * ```ts
+ * suppressCoreGuard(page);
+ * await page.route('** /api/parent/dashboard**', route => route.fulfill({ status: 500 }));
+ * ```
+ */
+export function suppressCoreGuard(page: Page): void {
+  (page as any).__core500Suppressed = true;
 }
