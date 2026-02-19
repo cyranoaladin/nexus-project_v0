@@ -1,25 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
+import { CREDS } from './credentials';
 
 const DATABASE_URL =
   process.env.DATABASE_URL ??
   'postgresql://postgres:postgres@localhost:5432/nexus_e2e?schema=public';
-
-// Load credentials from file if it exists (written by seed-e2e-db.ts)
-function loadCredentials() {
-  const credentialsPath = path.resolve(process.cwd(), 'e2e/.credentials.json');
-  if (fs.existsSync(credentialsPath)) {
-    return JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
-  }
-  // Fallback to default test credentials (specific E2E test emails)
-  return {
-    student: { email: 'yasmine.dupont@test.com' },
-    coach: { email: 'helios@test.com' },
-  };
-}
-
-const credentials = loadCredentials();
 
 let prisma: PrismaClient | null = null;
 

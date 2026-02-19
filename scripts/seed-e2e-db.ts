@@ -139,7 +139,7 @@ const student = await prisma.user.create({
           tag: '🎓 Agrégé',
           description: 'Expert en mathématiques et physique',
           philosophy: "L'apprentissage par la compréhension profonde",
-          subjects: '["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI"]'
+          subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI']
         }
       }
     },
@@ -200,7 +200,7 @@ const student = await prisma.user.create({
           tag: '🎯 Stratège',
           description: 'Spécialiste français et philosophie',
           philosophy: 'La réflexion critique avant tout',
-          subjects: '["FRANCAIS", "PHILOSOPHIE", "HISTOIRE_GEO"]'
+          subjects: ['FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO']
         }
       }
     },
@@ -224,7 +224,7 @@ const student = await prisma.user.create({
           tag: '🧠 Expert NSI/Maths',
           description: 'Expert NSI et Mathématiques pour tests E2E',
           philosophy: 'Excellence par la pratique',
-          subjects: '["NSI", "MATHEMATIQUES"]'
+          subjects: ['NSI', 'MATHEMATIQUES']
         }
       }
     },

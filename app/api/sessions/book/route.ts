@@ -82,9 +82,6 @@ export async function POST(req: NextRequest) {
       const coachProfile = await tx.coachProfile.findFirst({
         where: {
           userId: validatedData.coachId,
-          subjects: {
-            array_contains: [validatedData.subject]
-          }
         },
         include: {
           user: {
@@ -99,6 +96,17 @@ export async function POST(req: NextRequest) {
       });
 
       if (!coachProfile || coachProfile.user.role !== 'COACH') {
+        throw new Error('Coach not found or does not teach this subject');
+      }
+
+      // Validate subject match (Json field — may be array or string-encoded array)
+      const rawSubjects = coachProfile.subjects;
+      const coachSubjects: string[] = Array.isArray(rawSubjects)
+        ? rawSubjects as string[]
+        : typeof rawSubjects === 'string'
+          ? (() => { try { const p = JSON.parse(rawSubjects); return Array.isArray(p) ? p : []; } catch { return []; } })()
+          : [];
+      if (!coachSubjects.includes(validatedData.subject)) {
         throw new Error('Coach not found or does not teach this subject');
       }
 

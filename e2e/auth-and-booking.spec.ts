@@ -10,12 +10,12 @@
  * Requirements:
  * - E2E database must be seeded (npm run test:e2e:setup)
  * - App running on http://localhost:3000
- * - Test users: parent.dashboard@test.com, yasmine.dupont@test.com, helios@test.com, admin@test.com
- * - Password: password123
+ * - Test users loaded from e2e/.credentials.json (written by seed)
  */
 
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser, ROLE_PATHS } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
 import { ensureCoachAvailabilityByEmail, setStudentCreditsByEmail, disconnectPrisma } from './helpers/db';
 
 // =============================================================================
@@ -210,13 +210,13 @@ test.describe('Authentication & Booking Flow', () => {
   test.describe.serial('Session Booking Flow', () => {
     test.beforeAll(async () => {
       // Ensure deterministic availability + credits for booking tests
-      await ensureCoachAvailabilityByEmail('helios@test.com');
-      await ensureCoachAvailabilityByEmail('zenon@test.com');
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+      await ensureCoachAvailabilityByEmail(CREDS.coach.email);
+      await ensureCoachAvailabilityByEmail(CREDS.zenon.email);
+      await setStudentCreditsByEmail(CREDS.student.email, 8);
     });
 
     test.afterAll(async () => {
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+      await setStudentCreditsByEmail(CREDS.student.email, 8);
       await disconnectPrisma();
     });
 
@@ -303,7 +303,7 @@ test.describe('Authentication & Booking Flow', () => {
         if (studentWithCredits?.userId) {
           studentId = studentWithCredits.userId;
         } else {
-          await setStudentCreditsByEmail('yasmine.dupont@test.com', 8);
+          await setStudentCreditsByEmail(CREDS.student.email, 8);
           studentId =
             dashboard.children?.find((c: { firstName?: string }) => c.firstName?.toLowerCase() === 'yasmine')?.userId ??
             dashboard.children?.[0]?.userId;
@@ -375,7 +375,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Booking fails when parent has insufficient credits', async ({ page }) => {
-      await setStudentCreditsByEmail('yasmine.dupont@test.com', 0);
+      await setStudentCreditsByEmail(CREDS.student.email, 0);
 
       await login(page, 'parent');
 
@@ -450,8 +450,8 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Fill form
-      await page.getByLabel(/email/i).fill('parent.dashboard@test.com');
-      await page.getByPlaceholder('Votre mot de passe').fill('password123');
+      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
 
       // Click submit
       const submitButton = page.getByRole('button', { name: /accéder|sign in|connexion/i });
@@ -514,8 +514,8 @@ test.describe('Authentication & Booking Flow', () => {
       // Block only the credentials callback (not providers/session)
       await page.route('**/api/auth/callback/**', (route) => route.abort());
 
-      await page.getByLabel(/email/i).fill('parent.dashboard@test.com');
-      await page.getByPlaceholder('Votre mot de passe').fill('password123');
+      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
       await page.getByRole('button', { name: /accéder|sign in|connexion/i }).click();
 
       // Should stay on signin page (login fails due to network error)
