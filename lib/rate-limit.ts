@@ -55,6 +55,16 @@ export const rateLimiters = {
             prefix: 'ratelimit:api',
         })
         : null,
+
+    // Strict rate limit for email notification endpoint (prevents spam/abuse)
+    notifyEmail: redis
+        ? new Ratelimit({
+            redis,
+            limiter: Ratelimit.slidingWindow(5, '1 m'), // 5 requests per minute per IP
+            analytics: true,
+            prefix: 'ratelimit:notify-email',
+        })
+        : null,
 };
 
 /**
@@ -64,9 +74,14 @@ export async function applyRateLimit(
     request: NextRequest,
     limiter: Ratelimit | null,
     identifier?: string
-): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number }> {
+): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number; reason?: string }> {
     if (!limiter) {
-        // No rate limiting in development without Redis
+        // SECURITY: Fail-closed in production — never allow unprotected requests
+        if (process.env.NODE_ENV === 'production') {
+            logger.error('Rate limiting NOT configured in production — failing closed (503)');
+            return { success: false, reason: 'RATELIMIT_NOT_CONFIGURED' };
+        }
+        // Dev/test: allow through with warning
         logger.warn('Rate limiting disabled - Redis not configured');
         return { success: true };
     }
@@ -102,7 +117,7 @@ export async function applyRateLimit(
 }
 
 /**
- * Create rate limit response
+ * Create rate limit response — normalized { ok, error } contract
  */
 export function createRateLimitResponse(
     limit?: number,
@@ -111,11 +126,10 @@ export function createRateLimitResponse(
 ): NextResponse {
     const response = NextResponse.json(
         {
-            success: false,
+            ok: false,
             error: {
                 code: 'RATE_LIMIT_EXCEEDED',
                 message: 'Trop de requêtes. Veuillez réessayer plus tard.',
-                timestamp: new Date().toISOString(),
             },
         },
         { status: 429 }
@@ -135,17 +149,37 @@ export function createRateLimitResponse(
 }
 
 /**
+ * Create 503 response when rate limiting is not configured in production
+ */
+function createRateLimitUnavailableResponse(): NextResponse {
+    return NextResponse.json(
+        {
+            ok: false,
+            error: {
+                code: 'RATELIMIT_NOT_CONFIGURED',
+                message: 'Service temporarily unavailable. Please try again later.',
+            },
+        },
+        { status: 503 }
+    );
+}
+
+/**
  * Middleware helper to check rate limits
  */
 export async function checkRateLimit(
     request: NextRequest,
-    type: 'auth' | 'ai' | 'api' = 'api'
+    type: 'auth' | 'ai' | 'api' | 'notifyEmail' = 'api'
 ): Promise<NextResponse | null> {
     const limiter = rateLimiters[type];
-    const { success, limit, remaining, reset } = await applyRateLimit(request, limiter);
+    const result = await applyRateLimit(request, limiter);
 
-    if (!success) {
-        return createRateLimitResponse(limit, remaining, reset);
+    if (!result.success) {
+        // Distinguish between "not configured" (503) and "limit exceeded" (429)
+        if (result.reason === 'RATELIMIT_NOT_CONFIGURED') {
+            return createRateLimitUnavailableResponse();
+        }
+        return createRateLimitResponse(result.limit, result.remaining, result.reset);
     }
 
     return null;

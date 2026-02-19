@@ -88,6 +88,7 @@ function makeTransactionMocks(overrides: Partial<Record<string, any>> = {}) {
   return {
     coachProfile: {
       findFirst: jest.fn().mockResolvedValue({
+        subjects: ['MATHEMATIQUES'],
         user: { id: 'coach-1', firstName: 'Coach', lastName: 'One', role: 'COACH' },
       }),
     },
