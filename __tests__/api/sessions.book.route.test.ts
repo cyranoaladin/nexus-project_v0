@@ -79,6 +79,7 @@ function buildPayload(overrides: Partial<Record<string, any>> = {}) {
 function mockLogger() {
   return {
     info: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
     logRequest: jest.fn(),
   };
@@ -213,7 +214,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_CONFLICT');
   });
 
   it('returns 409 for unique constraint on duplicate booking', async () => {
@@ -223,7 +224,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_DUPLICATE');
   });
 
   it('returns 409 for serialization conflicts', async () => {
@@ -233,7 +234,7 @@ describe('POST /api/sessions/book', () => {
     const body = await response.json();
 
     expect(response.status).toBe(409);
-    expect(body.error).toBe('CONFLICT');
+    expect(body.error).toBe('BOOKING_SERIALIZATION');
   });
 
   it('creates booking and side effects on success', async () => {

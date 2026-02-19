@@ -415,11 +415,11 @@ describe('POST /api/sessions/book', () => {
   });
 
   // ========================================
-  // NOT FOUND TESTS (404/500)
+  // NOT FOUND TESTS (400)
   // ========================================
 
   describe('Not Found', () => {
-    it('should return 500 when coach not found', async () => {
+    it('should return 400 when coach not found', async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -437,12 +437,11 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('INTERNAL_ERROR');
-      expect(data.message).toBe('An unexpected error occurred');
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('VALIDATION_ERROR');
     });
 
-    it('should return 500 when coach does not teach subject', async () => {
+    it('should return 400 when coach does not teach subject', async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -460,11 +459,11 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('INTERNAL_ERROR');
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('VALIDATION_ERROR');
     });
 
-    it('should return 500 when student not found', async () => {
+    it('should return 400 when student not found', async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -494,17 +493,17 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('INTERNAL_ERROR');
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('VALIDATION_ERROR');
     });
   });
 
   // ========================================
-  // CONFLICT TESTS (409/500)
+  // CONFLICT TESTS (409)
   // ========================================
 
   describe('Conflicts', () => {
-    it('should return 500 when coach has conflicting session', async () => {
+    it('should return 409 when coach has conflicting session', async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -528,6 +527,19 @@ describe('POST /api/sessions/book', () => {
             findMany: jest.fn().mockResolvedValue([
               { id: 'student-456', studentProfile: { parentId: 'parent-123' } }
             ])
+          },
+          parentProfile: {
+            findFirst: jest.fn().mockResolvedValue({
+              id: 'parent-profile-123',
+              userId: 'cm4parent123def456ghi789jkl'
+            })
+          },
+          student: {
+            findFirst: jest.fn().mockResolvedValue({
+              id: 'student-record-456',
+              userId: 'cm4stud456def789ghi012jklmn',
+              parentId: 'parent-profile-123'
+            })
           },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
@@ -554,11 +566,11 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('INTERNAL_ERROR');
+      expect(response.status).toBe(409);
+      expect(data.error).toBe('CONFLICT');
     });
 
-    it('should return 500 when student has insufficient credits', async () => {
+    it('should return 400 when student has insufficient credits', async () => {
       (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
         const mockTx = {
           coachProfile: {
@@ -583,6 +595,12 @@ describe('POST /api/sessions/book', () => {
               { id: 'student-456', studentProfile: { parentId: 'parent-123' } }
             ])
           },
+          parentProfile: {
+            findFirst: jest.fn().mockResolvedValue({
+              id: 'parent-profile-123',
+              userId: 'cm4parent123def456ghi789jkl'
+            })
+          },
           coachAvailability: {
             findFirst: jest.fn().mockResolvedValue({
               isRecurring: true,
@@ -594,9 +612,9 @@ describe('POST /api/sessions/book', () => {
             findFirst: jest.fn().mockResolvedValue(null)
           },
           student: {
-            findFirst: jest.fn().mockResolvedValue({
-              id: 'student-record-456'
-            })
+            findFirst: jest.fn()
+              .mockResolvedValueOnce({ id: 'student-record-456', userId: 'cm4stud456def789ghi012jklmn', parentId: 'parent-profile-123' })
+              .mockResolvedValueOnce({ id: 'student-record-456' })
           },
           creditTransaction: {
             findMany: jest.fn().mockResolvedValue([]) // No credits
@@ -613,8 +631,8 @@ describe('POST /api/sessions/book', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('INTERNAL_ERROR');
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('VALIDATION_ERROR');
     });
   });
 

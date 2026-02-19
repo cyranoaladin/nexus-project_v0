@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic';
 
+import { randomUUID } from 'crypto';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma, type CreditTransaction } from '@prisma/client';
+import { ZodError } from 'zod';
 import { bookFullSessionSchema } from '@/lib/validation';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import { ApiError, successResponse, handleApiError, HttpStatus } from '@/lib/api/errors';
+import { ApiError, successResponse, handleZodError, HttpStatus, errorResponse } from '@/lib/api/errors';
 import { parseBody } from '@/lib/api/helpers';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
@@ -26,6 +28,7 @@ function parseLocalDate(dateStr: string): Date {
 }
 
 export async function POST(req: NextRequest) {
+  const requestId = randomUUID();
   let logger = createLogger(req);
 
   try {
@@ -97,13 +100,13 @@ export async function POST(req: NextRequest) {
       });
 
       if (!coachProfile || coachProfile.user.role !== 'COACH') {
-        throw new Error('Coach not found or does not teach this subject');
+        throw ApiError.badRequest('Coach not found or does not teach this subject');
       }
 
       // Validate subject match (Json field — may be array or string-encoded array)
       const coachSubjects = parseSubjects(coachProfile.subjects);
       if (!coachSubjects.includes(validatedData.subject)) {
-        throw new Error('Coach not found or does not teach this subject');
+        throw ApiError.badRequest('Coach not found or does not teach this subject');
       }
 
       // 2. Validate student exists
@@ -115,7 +118,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!student) {
-        throw new Error('Student not found');
+        throw ApiError.badRequest('Student not found');
       }
 
       // 3. Get parent ID if current user is parent
@@ -129,7 +132,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!parentProfile) {
-          throw new Error('Parent profile not found');
+          throw ApiError.badRequest('Parent profile not found');
         }
 
         // Check if student is in parent's children list (via Student relation)
@@ -141,7 +144,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!studentExists) {
-          throw new Error('You can only book sessions for your children');
+          throw ApiError.forbidden('You can only book sessions for your children');
         }
       }
 
@@ -179,7 +182,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!availability) {
-        throw new Error('Coach is not available at the requested time');
+        throw ApiError.badRequest('Coach is not available at the requested time');
       }
 
       // 5. Enhanced conflict checking
@@ -215,7 +218,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (conflictingSession) {
-        throw new Error('Coach already has a session at this time');
+        throw ApiError.conflict('Coach already has a session at this time');
       }
 
       // 6. Check student credits with enhanced validation
@@ -224,7 +227,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!studentRecord) {
-        throw new Error('Student not found');
+        throw ApiError.badRequest('Student record not found');
       }
 
       // Calculate current credits from transactions
@@ -237,7 +240,7 @@ export async function POST(req: NextRequest) {
       }, 0);
 
       if (currentCredits < validatedData.creditsToUse) {
-        throw new Error(`Insufficient credits. Available: ${currentCredits}, Required: ${validatedData.creditsToUse}`);
+        throw ApiError.badRequest(`Insufficient credits. Available: ${currentCredits}, Required: ${validatedData.creditsToUse}`);
       }
 
       // 7. Check if student already has a session at this time
@@ -264,7 +267,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (studentConflict) {
-        throw new Error('You already have a session scheduled at this time');
+        throw ApiError.conflict('You already have a session scheduled at this time');
       }
 
       // 8. Create the session
@@ -313,80 +316,75 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // 10. Create notifications
-      const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
+      // 10. Create notifications (side-effect — must not crash the booking)
+      try {
+        const notifications: Prisma.SessionNotificationCreateManyInput[] = [];
 
-      // Notify coach
-      notifications.push({
-        sessionId: sessionBooking.id,
-        userId: coachProfile.user.id,
-        type: 'SESSION_BOOKED',
-        title: 'Nouvelle session réservée',
-        message: `${student.firstName} ${student.lastName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-        method: 'EMAIL'
-      });
-
-      // Notify assistant
-      const assistants = await tx.user.findMany({
-        where: { role: 'ASSISTANTE' }
-      });
-
-      for (const assistant of assistants) {
         notifications.push({
           sessionId: sessionBooking.id,
-          userId: assistant.id,
+          userId: coachProfile.user.id,
           type: 'SESSION_BOOKED',
-          title: 'Nouvelle session planifiée',
-          message: `Session ${validatedData.subject} entre ${coachProfile.user.firstName} ${coachProfile.user.lastName} et ${student.firstName} ${student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
-          method: 'IN_APP'
-        });
-      }
-
-      // Notify parent if different from booking user
-      if (parentId && parentId !== session.user.id) {
-        notifications.push({
-          sessionId: sessionBooking.id,
-          userId: parentId,
-          type: 'SESSION_BOOKED',
-          title: 'Session réservée pour votre enfant',
-          message: `Session de ${validatedData.subject} avec ${coachProfile.user.firstName} ${coachProfile.user.lastName} programmée pour ${student.firstName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+          title: 'Nouvelle session réservée',
+          message: `${student.firstName} ${student.lastName} a réservé une session de ${validatedData.subject} pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
           method: 'EMAIL'
         });
+
+        const assistants = await tx.user.findMany({
+          where: { role: 'ASSISTANTE' }
+        });
+
+        for (const assistant of assistants) {
+          notifications.push({
+            sessionId: sessionBooking.id,
+            userId: assistant.id,
+            type: 'SESSION_BOOKED',
+            title: 'Nouvelle session planifiée',
+            message: `Session ${validatedData.subject} entre ${coachProfile.user.firstName} ${coachProfile.user.lastName} et ${student.firstName} ${student.lastName} programmée pour le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+            method: 'IN_APP'
+          });
+        }
+
+        if (parentId && parentId !== session.user.id) {
+          notifications.push({
+            sessionId: sessionBooking.id,
+            userId: parentId,
+            type: 'SESSION_BOOKED',
+            title: 'Session réservée pour votre enfant',
+            message: `Session de ${validatedData.subject} avec ${coachProfile.user.firstName} ${coachProfile.user.lastName} programmée pour ${student.firstName} le ${scheduledDate.toLocaleDateString('fr-FR')} à ${validatedData.startTime}`,
+            method: 'EMAIL'
+          });
+        }
+
+        await tx.sessionNotification.createMany({ data: notifications });
+      } catch (notifError) {
+        logger.warn({ requestId, error: notifError instanceof Error ? notifError.message : 'unknown' }, 'Notification side-effect failed (non-fatal)');
       }
 
-      // Create all notifications
-      await tx.sessionNotification.createMany({
-        data: notifications
-      });
+      // 11. Create reminders (side-effect — must not crash the booking)
+      try {
+        const reminders: Prisma.SessionReminderCreateManyInput[] = [];
+        const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
 
-      // 11. Create reminders
-      const reminders: Prisma.SessionReminderCreateManyInput[] = [];
-      const sessionDateTime = new Date(`${validatedData.scheduledDate}T${validatedData.startTime}`);
+        reminders.push({
+          sessionId: sessionBooking.id,
+          reminderType: 'ONE_DAY_BEFORE',
+          scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
+        });
+        reminders.push({
+          sessionId: sessionBooking.id,
+          reminderType: 'TWO_HOURS_BEFORE',
+          scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
+        });
+        reminders.push({
+          sessionId: sessionBooking.id,
+          reminderType: 'THIRTY_MINUTES_BEFORE',
+          scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
+        });
 
-      // 1 day before
-      reminders.push({
-        sessionId: sessionBooking.id,
-        reminderType: 'ONE_DAY_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 24 * 60 * 60 * 1000)
-      });
-
-      // 2 hours before
-      reminders.push({
-        sessionId: sessionBooking.id,
-        reminderType: 'TWO_HOURS_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 2 * 60 * 60 * 1000)
-      });
-
-      // 30 minutes before
-      reminders.push({
-        sessionId: sessionBooking.id,
-        reminderType: 'THIRTY_MINUTES_BEFORE',
-        scheduledFor: new Date(sessionDateTime.getTime() - 30 * 60 * 1000)
-      });
-
-      await tx.sessionReminder.createMany({
-        data: reminders
-      });
+        await tx.sessionReminder.createMany({ data: reminders });
+      } catch (reminderError) {
+        logger.warn({ requestId, error: reminderError instanceof Error ? reminderError.message : 'unknown' }, 'Reminder side-effect failed (non-fatal)');
+      }
 
       return sessionBooking;
     }, {
@@ -398,6 +396,7 @@ export async function POST(req: NextRequest) {
     // await sendSessionBookingNotifications(result.id);
 
     logger.logRequest(HttpStatus.CREATED, {
+      requestId,
       sessionId: result.id,
       coachId: validatedData.coachId,
       studentId: validatedData.studentId,
@@ -412,32 +411,53 @@ export async function POST(req: NextRequest) {
     }, HttpStatus.CREATED);
 
   } catch (error) {
-    logger.error('Failed to book session', error);
+    // ApiError instances are business-logic errors — return them directly
+    if (error instanceof ApiError) {
+      logger.warn({ requestId, code: error.code, message: error.message }, 'Booking rejected');
+      return error.toResponse();
+    }
 
-    // Handle database constraint violations and transaction errors
+    // Zod validation errors from parseBody — return 422
+    if (error instanceof ZodError) {
+      logger.warn({ requestId, validationErrors: error.errors.length }, 'Booking validation failed');
+      return handleZodError(error);
+    }
+
+    // Prisma / DB constraint errors
     if (error && typeof error === 'object' && 'code' in error) {
       const dbError = error as { code: string; meta?: Record<string, unknown> };
+      const prismaCode = dbError.code;
 
-      // 23P01: Exclusion constraint violation (overlapping sessions)
-      if (dbError.code === '23P01') {
-        logger.logRequest(HttpStatus.CONFLICT);
-        return ApiError.conflict('Coach already has a session at this time. Please choose a different time slot.').toResponse();
+      logger.error({
+        requestId,
+        prismaCode,
+        meta: dbError.meta,
+        stack: error instanceof Error ? error.stack : undefined,
+      }, 'Booking DB error');
+
+      if (prismaCode === '23P01') {
+        return errorResponse(HttpStatus.CONFLICT, 'BOOKING_CONFLICT', 'Coach already has a session at this time.', { requestId });
       }
-
-      // P2002: Unique constraint violation (duplicate transaction attempt)
-      if (dbError.code === 'P2002') {
-        logger.logRequest(HttpStatus.CONFLICT);
-        return ApiError.conflict('This session has already been booked. Please refresh and try again.').toResponse();
+      if (prismaCode === 'P2002') {
+        return errorResponse(HttpStatus.CONFLICT, 'BOOKING_DUPLICATE', 'This session has already been booked.', { requestId });
       }
-
-      // P2034: Transaction failed due to serialization conflict
-      if (dbError.code === 'P2034') {
-        logger.logRequest(HttpStatus.CONFLICT);
-        return ApiError.conflict('Booking conflict detected. Please try again.').toResponse();
+      if (prismaCode === 'P2034') {
+        return errorResponse(HttpStatus.CONFLICT, 'BOOKING_SERIALIZATION', 'Booking conflict detected. Please try again.', { requestId });
       }
     }
 
-    logger.logRequest(HttpStatus.INTERNAL_SERVER_ERROR);
-    return await handleApiError(error, 'POST /api/sessions/book');
+    // Truly unexpected error — log full context for CI diagnostics
+    logger.error({
+      requestId,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    }, 'Booking unexpected error');
+
+    return errorResponse(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      'BOOKING_FAILED',
+      'Booking failed',
+      { requestId }
+    );
   }
 }
