@@ -6,6 +6,21 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('@/lib/utils', () => ({
+  mergePaymentMetadata: jest.fn((existing: any, extra: any) => ({ value: { ...existing, ...extra } })),
+  parsePaymentMetadata: jest.fn((m: any) => m),
+}));
+
+jest.mock('@/lib/invoice', () => ({
+  renderInvoicePDF: jest.fn().mockResolvedValue(Buffer.from('pdf')),
+  generateInvoiceNumber: jest.fn().mockResolvedValue('INV-001'),
+  storeInvoicePDF: jest.fn().mockResolvedValue('/tmp/invoice.pdf'),
+  getInvoiceUrl: jest.fn().mockReturnValue('/api/invoices/1'),
+  createInvoiceEvent: jest.fn().mockReturnValue({}),
+  appendInvoiceEvent: jest.fn().mockReturnValue([]),
+  tndToMillimes: jest.fn((v: number) => v * 1000),
+}));
+
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     payment: { findUnique: jest.fn(), update: jest.fn() },
@@ -68,6 +83,7 @@ describe('POST /api/payments/validate', () => {
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-1',
+      status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
       user: { parentProfile: { children: [] } },
@@ -95,6 +111,7 @@ describe('POST /api/payments/validate', () => {
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-2',
+      status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
       user: { parentProfile: { children: [] } },
@@ -133,6 +150,7 @@ describe('POST /api/payments/validate', () => {
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-3',
+      status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1' },
       user: { parentProfile: { children: [] } },
@@ -159,11 +177,14 @@ describe('POST /api/payments/validate', () => {
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-4',
+      status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
       user: { parentProfile: { children: [] } },
     });
-    (prisma.$transaction as jest.Mock).mockRejectedValue({ code: 'P2034' });
+    const prismaError = new Error('Transaction conflict');
+    (prismaError as any).code = 'P2034';
+    (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
 
     const response = await POST(makeRequest({ paymentId: 'pay-4', action: 'approve' }));
     const body = await response.json();
@@ -178,11 +199,14 @@ describe('POST /api/payments/validate', () => {
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-5',
+      status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
       user: { parentProfile: { children: [] } },
     });
-    (prisma.$transaction as jest.Mock).mockRejectedValue({ code: 'P2025' });
+    const prismaError = new Error('Record not found');
+    (prismaError as any).code = 'P2025';
+    (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
 
     const response = await POST(makeRequest({ paymentId: 'pay-5', action: 'approve' }));
     const body = await response.json();

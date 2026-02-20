@@ -56,13 +56,14 @@ describe('Navigation Role Access', () => {
     it('should have correct links for ADMIN role', () => {
       const adminNavItems = navigationConfig[UserRole.ADMIN];
       
-      expect(adminNavItems).toHaveLength(6);
+      expect(adminNavItems).toHaveLength(7);
       expect(adminNavItems[0].href).toBe('/dashboard/admin');
       expect(adminNavItems[1].href).toBe('/dashboard/admin/users');
       expect(adminNavItems[2].href).toBe('/dashboard/admin/analytics');
       expect(adminNavItems[3].href).toBe('/dashboard/admin/subscriptions');
       expect(adminNavItems[4].href).toBe('/dashboard/admin/activities');
       expect(adminNavItems[5].href).toBe('/dashboard/admin/tests');
+      expect(adminNavItems[6].href).toBe('/dashboard/admin/documents');
     });
   });
 
@@ -75,7 +76,7 @@ describe('Navigation Role Access', () => {
       expect(parentHrefs).toContain('/dashboard/parent/children');
       expect(parentHrefs).toContain('/dashboard/parent/abonnements');
       expect(parentHrefs).toContain('/dashboard/parent/paiement');
-      expect(parentNavItems).toHaveLength(4);
+      expect(parentNavItems).toHaveLength(5);
     });
 
     it('should not have Admin links', () => {
