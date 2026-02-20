@@ -56,7 +56,7 @@ export async function requireAuth(): Promise<AuthSession | NextResponse> {
 export async function requireRole(requiredRole: UserRole): Promise<AuthSession | NextResponse> {
   const result = await requireAuth();
 
-  if (result instanceof NextResponse) {
+  if (isErrorResponse(result)) {
     return result;
   }
 
@@ -87,7 +87,7 @@ export async function requireRole(requiredRole: UserRole): Promise<AuthSession |
 export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSession | NextResponse> {
   const result = await requireAuth();
 
-  if (result instanceof NextResponse) {
+  if (isErrorResponse(result)) {
     return result;
   }
 
@@ -128,5 +128,5 @@ export function isStaff(session: AuthSession): boolean {
 
 // Helper to check if result is an error response (Exported for consumers)
 export function isErrorResponse(result: any): result is NextResponse {
-    return result instanceof NextResponse || (result && typeof result.json === 'function' && 'status' in result);
+    return typeof result?.json === 'function' && 'status' in result;
 }
