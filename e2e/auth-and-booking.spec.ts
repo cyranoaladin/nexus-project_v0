@@ -195,8 +195,13 @@ test.describe('Authentication & Booking Flow', () => {
         // Some browsers interrupt navigation due to redirects; continue to assertions
       });
 
-      // Should redirect or show 403
-      await page.waitForLoadState('domcontentloaded');
+      // Coach dashboard uses a client-side role guard (useSession + router.push).
+      // Wait for the client-side redirect to complete (up to 15s).
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/dashboard/coach'), { timeout: 15000 });
+      } catch {
+        // If no redirect happened, check for 403 text on the page
+      }
 
       const url = new URL(page.url());
       const pathname = url.pathname;
