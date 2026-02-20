@@ -14,10 +14,9 @@ describe('Middleware Security Rules', () => {
   const originalResponse = global.Response;
   
   beforeAll(() => {
-    // @ts-ignore
     global.Response = {
-        redirect: jest.fn((url) => ({ status: 307, url: url.toString() }))
-    };
+        redirect: jest.fn((url: string | URL) => ({ status: 307, url: url.toString() }))
+    } as any;
   });
 
   afterAll(() => {

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 /**
  * RBAC Matrix Tests
  *
@@ -30,7 +31,7 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-const mockedGetServerSession = auth as jest.MockedFunction<typeof auth>;
+const mockedGetServerSession = auth as unknown as jest.Mock;
 
 describe('RBAC Matrix', () => {
   let testUsers: Record<string, any> = {};

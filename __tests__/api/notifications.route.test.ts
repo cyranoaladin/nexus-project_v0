@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET, PATCH } from '@/app/api/notifications/route';
 import { prisma } from '@/lib/prisma';
 

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));

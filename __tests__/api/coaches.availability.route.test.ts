@@ -1,7 +1,8 @@
 import { GET, POST, DELETE } from '@/app/api/coaches/availability/route';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 
-jest.mock('next-auth/next', () => ({
+jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET } from '@/app/api/student/resources/route';
 
 jest.mock('@/auth', () => ({

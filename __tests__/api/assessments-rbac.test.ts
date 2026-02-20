@@ -7,10 +7,15 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
+
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+}));
 
 // ─── Mock auth ───────────────────────────────────────────────────
 
-const mockGetServerSession = auth as jest.Mock;
+const mockGetServerSession = auth as unknown as jest.Mock;
 
 // ─── directeur/stats ─────────────────────────────────────────────────────────
 

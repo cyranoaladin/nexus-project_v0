@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 /**
  * Unit Tests - Auth Guards
  *
@@ -28,10 +29,6 @@ jest.mock('@/auth', () => ({
   auth: jest.fn()
 }));
 
-// Mock authOptions
-jest.mock('@/lib/auth', () => ({
-  authOptions: {}
-}));
 
 describe('Auth Guards', () => {
   beforeEach(() => {
@@ -190,7 +187,8 @@ describe('Auth Guards', () => {
         id: 'user-123',
         email: 'test@example.com',
         role: 'ELEVE' as UserRole
-      }
+      },
+      expires: '2099-01-01T00:00:00.000Z'
     };
 
     it('should return true when session user matches userId', () => {
@@ -205,21 +203,24 @@ describe('Auth Guards', () => {
   describe('isStaff()', () => {
     it('should return true for ADMIN role', () => {
       const adminSession: AuthSession = {
-        user: { id: '1', email: 'admin@test.com', role: 'ADMIN' as UserRole }
+        user: { id: '1', email: 'admin@test.com', role: 'ADMIN' as UserRole },
+        expires: '2099-01-01T00:00:00.000Z'
       };
       expect(isStaff(adminSession)).toBe(true);
     });
 
     it('should return true for ASSISTANTE role', () => {
       const assistSession: AuthSession = {
-        user: { id: '1', email: 'assist@test.com', role: 'ASSISTANTE' as UserRole }
+        user: { id: '1', email: 'assist@test.com', role: 'ASSISTANTE' as UserRole },
+        expires: '2099-01-01T00:00:00.000Z'
       };
       expect(isStaff(assistSession)).toBe(true);
     });
 
     it('should return false for other roles', () => {
       const userSession: AuthSession = {
-        user: { id: '1', email: 'user@test.com', role: 'ELEVE' as UserRole }
+        user: { id: '1', email: 'user@test.com', role: 'ELEVE' as UserRole },
+        expires: '2099-01-01T00:00:00.000Z'
       };
       expect(isStaff(userSession)).toBe(false);
     });

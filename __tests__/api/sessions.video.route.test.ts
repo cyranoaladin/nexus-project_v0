@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { POST } from '@/app/api/sessions/video/route';
 import { prisma } from '@/lib/prisma';
 import { SessionStatus } from '@prisma/client';

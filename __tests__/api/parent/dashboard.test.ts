@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 /**
  * Integration Tests - Parent Dashboard API
  *
@@ -17,7 +18,7 @@ import { NextRequest } from 'next/server';
 jest.mock('@/auth');
 jest.mock('@/lib/prisma');
 
-const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
+const mockGetServerSession = auth as unknown as jest.Mock;
 
 describe('GET /api/parent/dashboard', () => {
   beforeEach(() => {

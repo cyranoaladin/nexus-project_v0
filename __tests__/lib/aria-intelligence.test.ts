@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import OpenAI from 'openai';
+import { Subject } from '@/types/enums';
 
 // Mock OpenAI
 jest.mock('openai', () => {
@@ -57,7 +58,7 @@ describe('ARIA Intelligence Vector Check', () => {
       { id: '1', title: "Taux d'accroissement", content: 'Contenu pertinent', similarity: 0.95 }
     ]);
 
-    const response = await generateAriaResponse('student-1', 'MATHEMATIQUES', 'calculer la pente');
+    const response = await generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente');
 
     // Verify vector search was called
     expect(prisma.$queryRaw).toHaveBeenCalled();
@@ -76,7 +77,7 @@ describe('ARIA Intelligence Vector Check', () => {
         { id: '2', title: 'Derivee', content: 'Contenu fallback' }
     ]);
 
-    const response = await generateAriaResponse('student-1', 'MATHEMATIQUES', 'calculer la pente');
+    const response = await generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente');
 
     // Verify fallback was called
     expect(prisma.pedagogicalContent.findMany).toHaveBeenCalled();

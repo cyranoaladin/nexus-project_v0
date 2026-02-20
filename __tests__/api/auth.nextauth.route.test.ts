@@ -1,14 +1,15 @@
 /**
  * Unit Tests - NextAuth API Route
+ *
+ * The route re-exports { GET, POST } from @/auth handlers.
  */
 
 jest.mock('@/auth', () => ({
-  __esModule: true,
-  default: jest.fn(() => 'handler'),
-}));
-
-jest.mock('@/lib/auth', () => ({
-  authOptions: { providers: ['credentials'] },
+  handlers: {
+    GET: jest.fn(),
+    POST: jest.fn(),
+  },
+  auth: jest.fn(),
 }));
 
 describe('/api/auth/[...nextauth]', () => {
@@ -17,18 +18,9 @@ describe('/api/auth/[...nextauth]', () => {
     jest.resetModules();
   });
 
-  it('exports dynamic metadata', async () => {
+  it('exports GET and POST handlers from @/auth', async () => {
     const route = await import('@/app/api/auth/[...nextauth]/route');
-    expect(route.dynamic).toBe('force-dynamic');
-  });
-
-  it('wires NextAuth with authOptions and exports handler for GET/POST', async () => {
-    const { authOptions } = await import('@/lib/auth');
-    const { default: NextAuth } = await import('next-auth');
-    const route = await import('@/app/api/auth/[...nextauth]/route');
-
-    expect(NextAuth).toHaveBeenCalledWith(authOptions);
-    expect(route.GET).toBe('handler');
-    expect(route.POST).toBe('handler');
+    expect(route.GET).toBeDefined();
+    expect(route.POST).toBeDefined();
   });
 });
