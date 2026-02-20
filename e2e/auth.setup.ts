@@ -9,7 +9,7 @@ setup('authenticate as student', async ({ page }) => {
   await loginAsUser(page, 'student');
 
   const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((cookie) => cookie.name.includes('next-auth.session-token'));
+  const sessionCookie = cookies.find((cookie) => cookie.name.includes('session-token'));
   expect(sessionCookie).toBeTruthy();
 
   await expect(page.getByText(/solde de crédits/i)).toBeVisible({ timeout: 15000 });
