@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     stageReservation: {
@@ -24,10 +25,6 @@ jest.mock('@/lib/csrf', () => ({
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
-}));
-
-jest.mock('@/lib/auth', () => ({
-  authOptions: {},
 }));
 
 import { POST } from '@/app/api/reservation/route';

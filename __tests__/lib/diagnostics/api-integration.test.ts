@@ -20,11 +20,6 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { verifyBilanToken } from '@/lib/diagnostics/signed-token';
 import { NextRequest } from 'next/server';
 
-// Mock auth to prevent @auth/prisma-adapter ESM import chain
-jest.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
 // Mock guards (fully — no requireActual to avoid ESM chain)
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { POST } from '@/app/api/payments/validate/route';
 import { prisma } from '@/lib/prisma';
 

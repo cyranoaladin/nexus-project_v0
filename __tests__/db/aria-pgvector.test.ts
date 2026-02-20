@@ -1,5 +1,6 @@
 import { generateAriaResponse } from '@/lib/aria';
 import { prisma } from '@/lib/prisma';
+import { Subject } from '@/types/enums';
 
 // Mock OpenAI to simulate embedding generation
 jest.mock('openai', () => {
@@ -48,7 +49,7 @@ describe('ARIA Stress Test (Real DB + PGVector)', () => {
         const start = Date.now();
         const promises = [];
         for(let i=0; i<10; i++) {
-            promises.push(generateAriaResponse('student-stress', 'MATHEMATIQUES', 'Question ?'));
+            promises.push(generateAriaResponse('student-stress', Subject.MATHEMATIQUES, 'Question ?'));
         }
         
         const results = await Promise.all(promises);

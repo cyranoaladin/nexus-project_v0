@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 /**
  * Access Guard — Light integration tests.
  *
@@ -38,15 +39,10 @@ jest.mock('@/lib/entitlement', () => ({
   getUserEntitlements: jest.fn(),
 }));
 
-// Mock auth options
-jest.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
 import { getUserEntitlements } from '@/lib/entitlement';
 import { requireFeature, requireFeatureApi } from '@/lib/access/guard';
 
-const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
+const mockGetServerSession = auth as unknown as jest.Mock;
 const mockGetUserEntitlements = getUserEntitlements as jest.MockedFunction<typeof getUserEntitlements>;
 
 beforeEach(() => {

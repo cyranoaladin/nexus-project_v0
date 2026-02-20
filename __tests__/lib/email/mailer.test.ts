@@ -139,7 +139,7 @@ describe('lib/email/mailer', () => {
 
     it('skips by default in NODE_ENV=test', async () => {
       delete process.env.MAIL_DISABLED;
-      process.env.NODE_ENV = 'test';
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'test', writable: true, configurable: true });
       const result = await sendMail({
         to: 'user@test.com',
         subject: 'Test',

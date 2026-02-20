@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { NavigationItem } from '@/components/navigation/NavigationItem';
-import { Home } from 'lucide-react';
 
 const usePathnameMock = jest.fn();
 
@@ -13,7 +12,7 @@ describe('NavigationItem', () => {
     usePathnameMock.mockReturnValue('/dashboard/parent');
     render(
       <NavigationItem
-        item={{ label: 'Dashboard', href: '/dashboard/parent', icon: Home, match: 'exact' }}
+        item={{ label: 'Dashboard', href: '/dashboard/parent', icon: 'Home', match: 'exact' }}
       />
     );
 
@@ -25,7 +24,7 @@ describe('NavigationItem', () => {
     usePathnameMock.mockReturnValue('/dashboard/parent/paiement/wise');
     render(
       <NavigationItem
-        item={{ label: 'Paiements', href: '/dashboard/parent/paiement', icon: Home, match: 'prefix' }}
+        item={{ label: 'Paiements', href: '/dashboard/parent/paiement', icon: 'Home', match: 'prefix' }}
       />
     );
 
@@ -37,7 +36,7 @@ describe('NavigationItem', () => {
     usePathnameMock.mockReturnValue('/dashboard/parent');
     render(
       <NavigationItem
-        item={{ label: 'Paiements', href: '/dashboard/parent/paiement', icon: Home, match: 'prefix' }}
+        item={{ label: 'Paiements', href: '/dashboard/parent/paiement', icon: 'Home', match: 'prefix' }}
       />
     );
 

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/assistant/credit-requests/route';
 import { prisma } from '@/lib/prisma';
 
