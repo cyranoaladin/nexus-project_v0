@@ -12,6 +12,35 @@
 
 import { NextRequest } from 'next/server';
 
+// ─── Mocks ──────────────────────────────────────────────────────────────────
+
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      update: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+}));
+
+jest.mock('@/lib/csrf', () => ({
+  checkCsrf: jest.fn().mockReturnValue(null),
+  checkBodySize: jest.fn().mockReturnValue(null),
+}));
+
+jest.mock('@/lib/password-reset-token', () => ({
+  generateResetToken: jest.fn().mockReturnValue('mock-token'),
+  verifyResetToken: jest.fn().mockReturnValue(null),
+}));
+
+jest.mock('@/lib/email', () => ({
+  sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Build a NextRequest with JSON body and required headers */

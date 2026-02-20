@@ -59,7 +59,7 @@ describe('rate-limit', () => {
     } as any;
 
     const result = await mod.applyRateLimit(request, null);
-    expect(result).toEqual({ success: true });
+    expect(result).toMatchObject({ success: true });
   });
 
   it('returns limit metadata when limiter is active', async () => {

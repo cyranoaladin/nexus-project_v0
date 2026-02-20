@@ -6,13 +6,26 @@
  */
 import { authConfig } from '@/auth.config';
 
+// Mock ESM modules that Jest can't parse
+jest.mock('next-auth/providers/credentials', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ id: 'credentials', name: 'Credentials', type: 'credentials' })),
+}));
+jest.mock('next-auth', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    auth: jest.fn(),
+    handlers: { GET: jest.fn(), POST: jest.fn() },
+    signIn: jest.fn(),
+    signOut: jest.fn(),
+  })),
+}));
+jest.mock('@/lib/prisma', () => ({ prisma: {} }));
+jest.mock('@auth/prisma-adapter', () => ({ PrismaAdapter: jest.fn(() => ({})) }));
+jest.mock('bcryptjs', () => ({ compare: jest.fn() }));
+
 describe('auth module', () => {
   it('exports auth, handlers, signIn, signOut from @/auth', async () => {
-    // Dynamic import to avoid triggering DB connections in unit tests
-    jest.mock('@/lib/prisma', () => ({ prisma: {} }));
-    jest.mock('@auth/prisma-adapter', () => ({ PrismaAdapter: jest.fn(() => ({})) }));
-    jest.mock('bcryptjs', () => ({ compare: jest.fn() }));
-
     const authModule = await import('@/auth');
     expect(authModule.auth).toBeDefined();
     expect(authModule.handlers).toBeDefined();

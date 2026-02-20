@@ -38,9 +38,16 @@ export async function requireAuth(): Promise<AuthSession | NextResponse> {
     );
   }
 
-  // Validate session structure (auth v5 guarantees basic user info if session exists)
+  // Validate session structure
+  if (!session.user.id || !session.user.role) {
+      console.error('Invalid session structure', { userId: session.user.id });
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid session' },
+        { status: 401 }
+      );
+  }
+
   if (!session.user.email) {
-      // Should not happen with auth v5 if configured correctly
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid session state' },
         { status: 401 }
