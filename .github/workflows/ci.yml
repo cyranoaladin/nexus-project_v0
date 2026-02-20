@@ -314,7 +314,11 @@ jobs:
           NODE_ENV: production
           RATE_LIMIT_DISABLE: '1'
         run: |
-          npm run start &
+          # Copy static assets for standalone mode
+          cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
+          cp -r public .next/standalone/public 2>/dev/null || true
+          # Use standalone server (next start doesn't work with output:standalone)
+          node .next/standalone/server.js &
           echo $! > .next-server.pid
           # Wait for server to be ready
           for i in {1..30}; do

@@ -24,10 +24,10 @@ export const authConfig = {
         let redirectPath = '/dashboard';
         
         switch (role) {
-            case 'ADMIN': redirectPath = '/admin/dashboard'; break;
-            case 'COACH': redirectPath = '/coach/dashboard'; break;
-            case 'PARENT': redirectPath = '/parent/dashboard'; break;
-            case 'ELEVE': redirectPath = '/student/dashboard'; break;
+            case 'ADMIN': redirectPath = '/dashboard/admin'; break;
+            case 'COACH': redirectPath = '/dashboard/coach'; break;
+            case 'PARENT': redirectPath = '/dashboard/parent'; break;
+            case 'ELEVE': redirectPath = '/dashboard/eleve'; break;
         }
 
         return Response.redirect(new URL(redirectPath, nextUrl));
