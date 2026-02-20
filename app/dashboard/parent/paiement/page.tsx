@@ -3,15 +3,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
-import { ArrowLeft, Check, CreditCard, Globe, MapPin } from "lucide-react";
+import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface OrderDetails {
   type: "subscription" | "addon" | "pack";
@@ -23,13 +30,17 @@ interface OrderDetails {
   studentId?: string | null;
 }
 
+const IBAN = "TN59 25 079 000 0001569084 04";
+
 function PaiementContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [paymentMethod, setPaymentMethod] = useState("konnect");
-  const [loading, setLoading] = useState(false);
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [virementModalOpen, setVirementModalOpen] = useState(false);
+  const [confirmingVirement, setConfirmingVirement] = useState(false);
+  const [hasPendingPayment, setHasPendingPayment] = useState(false);
+  const [pendingCheckDone, setPendingCheckDone] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -81,57 +92,64 @@ function PaiementContent() {
 
     if (details) {
       setOrderDetails({ ...details, studentId: student });
+
+      // Check for existing PENDING payment (anti-double)
+      fetch(`/api/payments/check-pending?description=${encodeURIComponent(details.description)}&amount=${details.price}`)
+        .then((res) => res.json())
+        .then((data) => { setHasPendingPayment(!!data.hasPending); })
+        .catch(() => {})
+        .finally(() => setPendingCheckDone(true));
     } else {
       router.push('/dashboard/parent/abonnements');
     }
   }, [session, status, router, searchParams]);
 
-  const handlePayment = async () => {
-    if (!orderDetails) return;
+  const handleCopyIban = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(IBAN);
+      toast.success("IBAN copié dans le presse-papier");
+    } catch {
+      toast.error("Impossible de copier l'IBAN");
+    }
+  }, []);
 
-    setLoading(true);
+  const handleConfirmVirement = useCallback(async () => {
+    if (!orderDetails) return;
+    setConfirmingVirement(true);
 
     try {
-      if (paymentMethod === 'konnect') {
-        // Paiement Konnect (Tunisie)
-        const response = await fetch('/api/payments/konnect', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: orderDetails.type,
-            key: orderDetails.key,
-            studentId: orderDetails.studentId,
-            amount: orderDetails.price,
-            description: orderDetails.description
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.payUrl) {
-          // Rediriger vers la page de paiement Konnect
-          window.location.href = result.payUrl;
-        } else {
-          throw new Error(result.error || 'Erreur lors de la création du paiement');
-        }
-      } else if (paymentMethod === 'wise') {
-        // Paiement Wise (International)
-        router.push(`/dashboard/parent/paiement/wise?${new URLSearchParams({
+      const response = await fetch('/api/payments/bank-transfer/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           type: orderDetails.type,
           key: orderDetails.key,
-          studentId: orderDetails.studentId || '',
-          amount: orderDetails.price.toString(),
-          description: orderDetails.description
-        })}`);
+          studentId: orderDetails.studentId,
+          amount: orderDetails.price,
+          description: orderDetails.description,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        if (result.alreadyExists) {
+          toast.info("Un virement est déjà en attente de validation pour cette commande.");
+        } else {
+          toast.success("Votre déclaration de virement a été transmise. Elle sera validée sous 24/48h.");
+        }
+        setVirementModalOpen(false);
+        router.refresh();
+        router.push('/dashboard/parent/abonnements');
+      } else {
+        toast.error(result.error || "Erreur lors de l'enregistrement du virement.");
       }
     } catch {
-      alert('Une erreur est survenue lors du traitement du paiement. Veuillez réessayer.');
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
-      setLoading(false);
+      setConfirmingVirement(false);
     }
-  };
+  }, [orderDetails, router]);
 
   if (status === "loading" || !orderDetails) {
     return <PaiementPageLoading />;
@@ -201,66 +219,74 @@ function PaiementContent() {
             <CardHeader>
               <CardTitle>Méthode de Paiement</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                {/* Konnect (Tunisie) */}
-                <div className="flex items-start space-x-3 p-4 border border-white/10 rounded-lg bg-white/5">
-                  <RadioGroupItem value="konnect" id="konnect" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="konnect" className="flex items-center gap-2 font-medium cursor-pointer">
-                      <MapPin className="w-4 h-4" />
-                      Konnect (Tunisie)
-                    </Label>
-                    <p className="text-sm text-neutral-300 mt-1">
-                      Paiement sécurisé par carte bancaire tunisienne
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-emerald-300" />
-                      <span className="text-sm text-emerald-200">Instantané</span>
+            <CardContent className="space-y-4">
+              {/* Bandeau anti-double paiement */}
+              {pendingCheckDone && hasPendingPayment && (
+                <div className="p-4 border border-amber-500/30 rounded-lg bg-amber-500/10">
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-amber-200">
+                        Votre déclaration de virement est en cours d&apos;analyse par notre équipe.
+                      </p>
+                      <p className="text-sm text-amber-300/80 mt-1">
+                        Merci de patienter. Vous serez notifié dès que votre paiement sera validé (sous 24-48h).
+                      </p>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Wise (International) */}
-                <div className="flex items-start space-x-3 p-4 border border-white/10 rounded-lg bg-white/5">
-                  <RadioGroupItem value="wise" id="wise" className="mt-1" />
+              {/* Carte Bancaire — désactivée */}
+              <div className="p-4 border border-white/10 rounded-lg bg-white/5 opacity-50 cursor-not-allowed">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="w-5 h-5 text-neutral-400" />
                   <div className="flex-1">
-                    <Label htmlFor="wise" className="flex items-center gap-2 font-medium cursor-pointer">
-                      <Globe className="w-4 h-4" />
-                      Wise (International)
-                    </Label>
-                    <p className="text-sm text-neutral-300 mt-1">
-                      Virement bancaire international sécurisé
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Check className="w-4 h-4 text-brand-primary" />
-                      <span className="text-sm text-brand-primary">1-3 jours ouvrés</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-neutral-400">Paiement par Carte Bancaire</span>
+                      <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full ml-2">
+                        Bientôt disponible
+                      </span>
                     </div>
+                    <p className="text-sm text-neutral-500 mt-1">
+                      ClicToPay — Banque Zitouna (en cours de configuration)
+                    </p>
                   </div>
                 </div>
-              </RadioGroup>
+              </div>
 
-              <Button
-                onClick={handlePayment}
-                disabled={loading || !orderDetails}
-                className="w-full"
-                size="lg"
+              {/* Virement Bancaire — actif (désactivé si PENDING existe) */}
+              <button
+                type="button"
+                onClick={() => setVirementModalOpen(true)}
+                disabled={hasPendingPayment}
+                className={`w-full text-left p-4 border rounded-lg transition-colors ${
+                  hasPendingPayment
+                    ? 'border-white/10 bg-white/5 opacity-50 cursor-not-allowed'
+                    : 'border-brand-primary/40 bg-brand-primary/5 hover:bg-brand-primary/10 cursor-pointer'
+                }`}
               >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Traitement...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    Procéder au Paiement
-                  </>
-                )}
-              </Button>
+                <div className="flex items-center gap-3">
+                  <Landmark className={`w-5 h-5 ${hasPendingPayment ? 'text-neutral-400' : 'text-brand-primary'}`} />
+                  <div className="flex-1">
+                    <span className={`font-medium ${hasPendingPayment ? 'text-neutral-400' : 'text-white'}`}>
+                      Paiement par virement bancaire
+                    </span>
+                    <p className="text-sm text-neutral-300 mt-1">
+                      Virement sur le compte Banque Zitouna
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Check className={`w-4 h-4 ${hasPendingPayment ? 'text-neutral-500' : 'text-brand-primary'}`} />
+                      <span className={`text-sm ${hasPendingPayment ? 'text-neutral-500' : 'text-brand-primary'}`}>
+                        Validation sous 24-48h
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
 
               <p className="text-xs text-neutral-400 text-center">
-                En cliquant sur "Procéder au Paiement", vous acceptez nos{' '}
+                En procédant au paiement, vous acceptez nos{' '}
                 <Link href="/conditions" className="text-brand-primary hover:underline">
                   conditions générales de vente
                 </Link>
@@ -303,7 +329,7 @@ function PaiementContent() {
 
                 <div className="space-y-3">
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                    <Globe className="w-8 h-8 text-green-600" />
+                    <Landmark className="w-8 h-8 text-green-600" />
                   </div>
                   <h3 className="font-semibold text-white">Support 24/7</h3>
                   <p className="text-sm text-neutral-300">
@@ -317,23 +343,115 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold text-white">Satisfaction Garantie</h3>
                   <p className="text-sm text-neutral-300">
-                    Remboursement intégral si vous n'êtes pas satisfait sous 14 jours
+                    Remboursement intégral si vous n&apos;êtes pas satisfait sous 14 jours
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/10">
                 <p className="text-center text-neutral-200 font-medium">
-                  🏆 Plus de <span className="text-brand-primary font-bold">10,000 familles</span> nous font confiance
+                  Plus de <span className="text-brand-primary font-bold">10,000 familles</span> nous font confiance
                 </p>
                 <p className="text-center text-sm text-neutral-400 mt-2">
-                  Rejoignez notre communauté d'excellence éducative
+                  Rejoignez notre communauté d&apos;excellence éducative
                 </p>
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modale Virement Bancaire */}
+      <Dialog open={virementModalOpen} onOpenChange={setVirementModalOpen}>
+        <DialogContent size="lg" className="bg-neutral-900 border-white/10 text-white max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-white flex items-center gap-2">
+              <Landmark className="w-5 h-5 text-brand-primary" />
+              Coordonnées Bancaires
+            </DialogTitle>
+            <DialogDescription className="text-neutral-300">
+              Veuillez effectuer votre virement sur le compte suivant.{' '}
+              <strong className="text-amber-300">Important : Indiquez le nom et prénom de l&apos;élève dans le motif du virement.</strong>
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Montant */}
+          <div className="bg-brand-primary/10 border border-brand-primary/30 rounded-lg p-4 text-center">
+            <p className="text-sm text-neutral-300">Montant à virer</p>
+            <p className="text-3xl font-bold text-brand-primary">{orderDetails?.price} TND</p>
+            <p className="text-sm text-neutral-400 mt-1">{orderDetails?.description}</p>
+          </div>
+
+          {/* Coordonnées bancaires */}
+          <div className="bg-neutral-800/50 border border-white/10 rounded-lg p-5 space-y-3 select-text">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs text-neutral-400 uppercase tracking-wider">Bénéficiaire</p>
+                <p className="font-semibold text-white mt-0.5">STE M&amp;M ACADEMY SUARL</p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs text-neutral-400 uppercase tracking-wider">Banque</p>
+              <p className="font-semibold text-white mt-0.5">Banque Zitouna</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-neutral-400 uppercase tracking-wider">Compte</p>
+              <p className="font-mono text-white mt-0.5">25 079 000 0001569084 04</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-neutral-400 uppercase tracking-wider">IBAN</p>
+                <p className="font-mono text-white mt-0.5">{IBAN}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyIban}
+                className="border-white/20 text-neutral-200 hover:text-white hover:bg-white/10 shrink-0 ml-3"
+              >
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
+                Copier l&apos;IBAN
+              </Button>
+            </div>
+
+            <div>
+              <p className="text-xs text-neutral-400 uppercase tracking-wider">SWIFT</p>
+              <p className="font-mono text-white mt-0.5">BZITTNTTXXX</p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-col gap-3">
+            <Button
+              onClick={handleConfirmVirement}
+              disabled={confirmingVirement}
+              className="w-full"
+              size="lg"
+            >
+              {confirmingVirement ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  J&apos;ai effectué le virement
+                </>
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setVirementModalOpen(false)}
+              className="w-full text-neutral-400 hover:text-white"
+            >
+              Annuler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

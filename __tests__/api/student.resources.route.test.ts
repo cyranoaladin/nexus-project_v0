@@ -1,8 +1,7 @@
 import { GET } from '@/app/api/student/resources/route';
-import { getServerSession } from 'next-auth';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 function makeRequest() {
@@ -15,7 +14,7 @@ describe('GET /api/student/resources', () => {
   });
 
   it('returns 401 when not student', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -25,7 +24,7 @@ describe('GET /api/student/resources', () => {
   });
 
   it('returns empty resources list for student', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-1', role: 'ELEVE' },
     });
 

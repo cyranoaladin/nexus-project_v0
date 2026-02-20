@@ -228,11 +228,11 @@ describe('Analytics Tracking System', () => {
     });
 
     it('track.paymentStart sends payment_start event', () => {
-      track.paymentStart('konnect', 450);
+      track.paymentStart('clictopay', 450);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('payment_start'),
         expect.any(String),
-        { method: 'konnect', amount: 450 }
+        { method: 'clictopay', amount: 450 }
       );
     });
 
@@ -273,20 +273,20 @@ describe('Analytics Tracking System', () => {
     });
 
     it('track.paymentSuccess sends payment_success event', () => {
-      track.paymentSuccess('konnect', 450);
+      track.paymentSuccess('clictopay', 450);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('payment_success'),
         expect.any(String),
-        { method: 'konnect', amount: 450 }
+        { method: 'clictopay', amount: 450 }
       );
     });
 
     it('track.paymentError sends payment_error event', () => {
-      track.paymentError('konnect', 'card_declined');
+      track.paymentError('clictopay', 'card_declined');
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('payment_error'),
         expect.any(String),
-        { method: 'konnect', error_type: 'card_declined' }
+        { method: 'clictopay', error_type: 'card_declined' }
       );
     });
 

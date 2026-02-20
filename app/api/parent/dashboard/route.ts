@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import type { Prisma } from '@prisma/client';
 
 type StudentBadge = Prisma.StudentBadgeGetPayload<{
@@ -14,7 +13,7 @@ type StudentBadge = Prisma.StudentBadgeGetPayload<{
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

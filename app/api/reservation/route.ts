@@ -3,8 +3,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
 import { sendStageDiagnosticInvitation } from '@/lib/email';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { NextRequest, NextResponse } from 'next/server';
@@ -251,7 +250,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // RBAC Guard: Check session and role
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userRole = session?.user?.role;
     
     if (!session || (userRole !== 'ADMIN' && userRole !== 'ASSISTANTE')) {

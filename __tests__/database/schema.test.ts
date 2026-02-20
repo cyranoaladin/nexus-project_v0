@@ -380,7 +380,7 @@ describe('Schema Integrity Tests', () => {
             amount: 99.99,
             description: 'Credit pack purchase',
             status: 'COMPLETED',
-            method: 'konnect'
+            method: 'clictopay'
           }
         });
 
@@ -698,7 +698,7 @@ describe('Schema Integrity Tests', () => {
             amount: 99.99,
             description: 'Test payment',
             status: 'COMPLETED',
-            method: 'konnect',
+            method: 'clictopay',
             externalId
           }
         });
@@ -711,7 +711,7 @@ describe('Schema Integrity Tests', () => {
               amount: 99.99,
               description: 'Duplicate payment',
               status: 'COMPLETED',
-              method: 'konnect',
+              method: 'clictopay',
               externalId
             }
           })

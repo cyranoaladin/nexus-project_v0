@@ -1,5 +1,5 @@
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/middleware/logger', () => ({
@@ -24,7 +24,6 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 import { GET } from '@/app/api/aria/conversations/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
 describe('aria conversations route', () => {
@@ -33,14 +32,14 @@ describe('aria conversations route', () => {
   });
 
   it('returns 401 when unauthorized', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce(null);
+    (auth as jest.Mock).mockResolvedValueOnce(null);
     const req = new Request('http://localhost/api/aria/conversations') as any;
     const res = await GET(req);
     expect(res.status).toBe(401);
   });
 
   it('returns 404 when student not found', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (auth as jest.Mock).mockResolvedValueOnce({
       user: { role: 'ELEVE', id: 'user-1' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -50,7 +49,7 @@ describe('aria conversations route', () => {
   });
 
   it('returns conversations list', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (auth as jest.Mock).mockResolvedValueOnce({
       user: { role: 'ELEVE', id: 'user-1' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'student-1' });

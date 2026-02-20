@@ -1,10 +1,9 @@
 import { GET, POST } from '@/app/api/assistant/coaches/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('bcryptjs', () => ({
@@ -31,7 +30,7 @@ describe('assistant coaches', () => {
   });
 
   it('GET returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -41,7 +40,7 @@ describe('assistant coaches', () => {
   });
 
   it('GET returns formatted coaches', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
@@ -71,7 +70,7 @@ describe('assistant coaches', () => {
   });
 
   it('POST validates required fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 
@@ -83,7 +82,7 @@ describe('assistant coaches', () => {
   });
 
   it('POST rejects existing email', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
@@ -98,7 +97,7 @@ describe('assistant coaches', () => {
   });
 
   it('POST creates coach via transaction', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);

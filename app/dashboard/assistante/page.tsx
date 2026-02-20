@@ -329,7 +329,7 @@ export default function DashboardAssistante() {
                     <div className="flex items-center justify-between p-3 bg-surface-card rounded-lg border border-white/10">
                       <div>
                         <p className="font-medium text-white text-sm md:text-base">Paiements à valider</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Virements Wise</p>
+                        <p className="text-xs md:text-sm text-neutral-400">Virements bancaires</p>
                       </div>
                       <Badge variant="destructive">
                         {dashboardData?.stats?.pendingPayments || 0}
@@ -497,7 +497,7 @@ export default function DashboardAssistante() {
                       <Link href="/dashboard/assistante/paiements" className="font-medium text-sm md:text-base text-neutral-100">
                         Validation Paiements
                       </Link>
-                      <p className="text-xs md:text-sm text-neutral-400">Virements Wise manuels</p>
+                      <p className="text-xs md:text-sm text-neutral-400">Virements bancaires</p>
                     </div>
                   </div>
                 </Button>

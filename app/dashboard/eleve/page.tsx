@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, Loader2, LogOut, User, Video, AlertCircle } from "lucide-react";
+import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -88,19 +88,25 @@ export default function DashboardEleve() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
   const [isAriaOpen, setIsAriaOpen] = useState(false);
+  const [ariaSubject, setAriaSubject] = useState<string | undefined>(undefined);
+
+  const openAriaWithSubject = (subject?: string) => {
+    setAriaSubject(subject);
+    setIsAriaOpen(true);
+  };
 
   const ariaControls = (
     <>
       <Button
         type="button"
-        className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-brand-accent text-white shadow-lg hover:bg-brand-accent/90"
-        onClick={() => setIsAriaOpen(true)}
+        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-brand-accent text-white shadow-lg hover:bg-brand-accent/90 flex items-center justify-center"
+        onClick={() => openAriaWithSubject()}
         data-testid="aria-chat-trigger"
         aria-label="Ouvrir ARIA"
       >
-        ARIA
+        <Sparkles className="w-5 h-5" />
       </Button>
-      <AriaWidget isOpen={isAriaOpen} onClose={() => setIsAriaOpen(false)} />
+      <AriaWidget isOpen={isAriaOpen} onClose={() => setIsAriaOpen(false)} defaultSubject={ariaSubject} />
     </>
   );
 
@@ -198,10 +204,11 @@ export default function DashboardEleve() {
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                onClick={() => setIsAriaOpen(true)}
-                className="border-white/10 text-neutral-200 hover:text-white"
+                onClick={() => openAriaWithSubject()}
+                className="border-brand-accent/30 text-brand-accent hover:text-white hover:bg-brand-accent/10"
                 aria-label="Ouvrir ARIA"
               >
+                <Sparkles className="w-4 h-4 mr-2" />
                 ARIA
               </Button>
               <Button
@@ -274,28 +281,105 @@ export default function DashboardEleve() {
               </CardContent>
             </Card>
 
-            {/* Actions Rapides */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white"
-                onClick={() => setActiveTab('booking')}
-              >
-                <Calendar className="w-5 h-5 text-brand-accent" />
-                <span className="text-xs">Réserver une séance</span>
-              </Button>
-              <Link href="/dashboard/eleve/sessions">
-                <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                  <Video className="w-5 h-5 text-purple-300" />
-                  <span className="text-xs">Mes sessions</span>
+            {/* Mes Matières — ARIA contextuel */}
+            <Card className="bg-surface-card border border-white/10 shadow-premium">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <BookOpen className="w-5 h-5 mr-2 text-brand-accent" />
+                    Mes Matières
+                  </span>
+                  <span className="text-xs font-normal text-neutral-500">
+                    Clique sur une matière pour poser une question à ARIA
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { value: 'MATHEMATIQUES', label: 'Maths', icon: '📐', color: 'text-sky-300' },
+                    { value: 'NSI', label: 'NSI', icon: '💻', color: 'text-violet-300' },
+                    { value: 'FRANCAIS', label: 'Français', icon: '📖', color: 'text-amber-300' },
+                    { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', icon: '🔬', color: 'text-emerald-300' },
+                    { value: 'PHILOSOPHIE', label: 'Philosophie', icon: '🧠', color: 'text-rose-300' },
+                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', icon: '🌍', color: 'text-orange-300' },
+                  ].map((subject) => (
+                    <button
+                      key={subject.value}
+                      onClick={() => openAriaWithSubject(subject.value)}
+                      className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
+                    >
+                      <span className="text-lg">{subject.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
+                          {subject.label}
+                        </span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Sparkles className="w-3 h-3 text-brand-accent/50" />
+                          <span className="text-[10px] text-neutral-500">ARIA</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ARIA Stats + Actions Rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* ARIA Stats */}
+              <Card className="bg-gradient-to-br from-brand-accent/10 to-brand-primary/5 border border-brand-accent/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-neutral-400 mb-1">ARIA — IA Pédagogique</p>
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-2xl font-bold text-brand-accent">
+                          {dashboardData?.ariaStats.totalConversations ?? 0}
+                        </span>
+                        <span className="text-xs text-neutral-400">conversations</span>
+                      </div>
+                      {(dashboardData?.ariaStats.messagesToday ?? 0) > 0 && (
+                        <p className="text-xs text-emerald-400 mt-1">
+                          {dashboardData?.ariaStats.messagesToday} message{(dashboardData?.ariaStats.messagesToday ?? 0) > 1 ? 's' : ''} aujourd&apos;hui
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => openAriaWithSubject()}
+                      className="bg-brand-accent hover:bg-brand-accent/90"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-1" />
+                      Ouvrir ARIA
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Actions Rapides */}
+              <div className="grid grid-cols-3 gap-3">
+                <Button
+                  variant="outline"
+                  className="h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white"
+                  onClick={() => setActiveTab('booking')}
+                >
+                  <Calendar className="w-5 h-5 text-brand-accent" />
+                  <span className="text-[10px]">Réserver</span>
                 </Button>
-              </Link>
-              <Link href="/dashboard/eleve/ressources">
-                <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                  <BookOpen className="w-5 h-5 text-emerald-300" />
-                  <span className="text-xs">Ressources</span>
-                </Button>
-              </Link>
+                <Link href="/dashboard/eleve/mes-sessions">
+                  <Button variant="outline" className="w-full h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white">
+                    <Video className="w-5 h-5 text-purple-300" />
+                    <span className="text-[10px]">Sessions</span>
+                  </Button>
+                </Link>
+                <Link href="/dashboard/eleve/ressources">
+                  <Button variant="outline" className="w-full h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white">
+                    <HardDrive className="w-5 h-5 text-emerald-300" />
+                    <span className="text-[10px]">Ressources</span>
+                  </Button>
+                </Link>
+              </div>
             </div>
           </DashboardPilotage>
         )}

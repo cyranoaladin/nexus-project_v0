@@ -3,13 +3,12 @@
  */
 
 import { GET } from '@/app/api/students/[studentId]/badges/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth');
+jest.mock('@/auth');
 jest.mock('@/lib/prisma');
 
-const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
+const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
 
 describe('GET /api/students/:studentId/badges', () => {
   beforeEach(() => {

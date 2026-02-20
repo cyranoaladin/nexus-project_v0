@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "sonner";
 
 const SUBJECTS_OPTIONS = [
   { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
@@ -113,13 +114,13 @@ export default function SessionsPage() {
       const result = await response.json();
 
       if (response.ok) {
-        alert('Session réservée avec succès !');
+        toast.success('Session réservée avec succès !');
         router.push('/dashboard/eleve');
       } else {
-        alert(result.error || 'Erreur lors de la réservation');
+        toast.error(result.error || 'Erreur lors de la réservation');
       }
     } catch {
-      alert('Une erreur est survenue');
+      toast.error('Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }

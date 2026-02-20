@@ -14,7 +14,7 @@ describe('analytics extra', () => {
     (globalThis as any).window.plausible = plausible;
 
     track.pageView('/home');
-    track.paymentStart('konnect', 100);
+    track.paymentStart('clictopay', 100);
 
     expect(gtag).toHaveBeenCalled();
     expect(plausible).toHaveBeenCalled();

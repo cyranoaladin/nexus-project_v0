@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { SUBSCRIPTION_PLANS } from '@/lib/constants';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -14,7 +13,7 @@ const changeSubscriptionSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session || session.user.role !== 'PARENT') {
       return NextResponse.json(

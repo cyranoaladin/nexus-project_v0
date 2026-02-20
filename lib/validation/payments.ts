@@ -10,7 +10,7 @@ import { idSchema, amountSchema } from './common';
 /**
  * Payment method enum
  */
-export const paymentMethodSchema = z.enum(['konnect', 'cash', 'bank_transfer', 'check']);
+export const paymentMethodSchema = z.enum(['clictopay', 'cash', 'bank_transfer', 'check']);
 
 /**
  * Payment type enum
@@ -21,19 +21,6 @@ export const paymentTypeSchema = z.enum(['subscription', 'addon', 'pack']);
  * Currency enum (support TND for Tunisia)
  */
 export const currencySchema = z.enum(['TND', 'USD', 'EUR']).default('TND');
-
-/**
- * Konnect payment creation schema (POST /api/payments/konnect)
- */
-export const createKonnectPaymentSchema = z.object({
-  type: paymentTypeSchema,
-  key: z.string().trim().min(1, 'Payment key is required'),
-  studentId: idSchema,
-  amount: amountSchema,
-  description: z.string().trim().min(1).max(500),
-});
-
-export type CreateKonnectPaymentInput = z.infer<typeof createKonnectPaymentSchema>;
 
 /**
  * Generic payment creation schema (POST /api/admin/payments)
@@ -50,19 +37,6 @@ export const createPaymentSchema = z.object({
 });
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
-
-/**
- * Payment webhook validation (POST /api/webhooks/konnect)
- */
-export const konnectWebhookSchema = z.object({
-  payment_ref: z.string(),
-  order_id: z.string(),
-  status: z.enum(['completed', 'failed', 'pending']),
-  amount: z.number(),
-  signature: z.string(),
-});
-
-export type KonnectWebhookPayload = z.infer<typeof konnectWebhookSchema>;
 
 /**
  * Payment list filters (GET /api/payments)
