@@ -1,8 +1,9 @@
 import { PUT, DELETE } from '@/app/api/assistant/coaches/[id]/route';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
 
-jest.mock('next-auth/next', () => ({
+jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/admin/test-email/route';
 import { sendWelcomeEmail, testEmailConfiguration } from '@/lib/email-service';
 

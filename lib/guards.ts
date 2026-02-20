@@ -112,6 +112,20 @@ export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSess
   return session;
 }
 
+/**
+ * Check if the authenticated user owns the resource
+ */
+export function isOwner(session: AuthSession, userId: string): boolean {
+  return session.user.id === userId;
+}
+
+/**
+ * Check if the authenticated user is staff (ADMIN or ASSISTANTE)
+ */
+export function isStaff(session: AuthSession): boolean {
+  return ['ADMIN', 'ASSISTANTE'].includes(session.user.role);
+}
+
 // Helper to check if result is an error response (Exported for consumers)
 export function isErrorResponse(result: any): result is NextResponse {
     return result instanceof NextResponse || (result && typeof result.json === 'function' && 'status' in result);

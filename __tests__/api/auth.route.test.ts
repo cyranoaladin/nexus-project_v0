@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/auth/[...nextauth]/route';
 
 // Mock handlers from @/auth

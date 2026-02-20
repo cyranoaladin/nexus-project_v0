@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET } from '@/app/api/coach/dashboard/route';
 import { prisma } from '@/lib/prisma';
 

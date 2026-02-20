@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET } from '@/app/api/messages/conversations/route';
 import { prisma } from '@/lib/prisma';
 

@@ -63,6 +63,7 @@ function createMockSession(userId: string = 'user-123', role: UserRole = UserRol
       firstName: 'Test',
       lastName: 'User',
     },
+    expires: '2099-01-01T00:00:00.000Z',
   };
 }
 

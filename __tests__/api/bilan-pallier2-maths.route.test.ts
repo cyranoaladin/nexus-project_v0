@@ -9,9 +9,14 @@
  * B5. GET single diagnostic by id (staff-only)
  */
 
+import { auth } from '@/auth';
+
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+}));
 
 // Type the mock
-const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
+const mockGetServerSession = auth as unknown as jest.Mock;
 
 // Mock diagnostic-specific modules
 jest.mock('@/lib/diagnostics/signed-token', () => ({

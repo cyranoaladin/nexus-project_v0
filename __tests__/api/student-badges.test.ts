@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 /**
  * Integration Tests - Student Badges API
  */
@@ -8,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 jest.mock('@/auth');
 jest.mock('@/lib/prisma');
 
-const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
+const mockGetServerSession = auth as unknown as jest.Mock;
 
 describe('GET /api/students/:studentId/badges', () => {
   beforeEach(() => {

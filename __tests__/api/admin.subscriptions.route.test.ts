@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import { GET, PUT } from '@/app/api/admin/subscriptions/route';
 import { prisma } from '@/lib/prisma';
 
