@@ -308,7 +308,7 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
     allowedRoles: [UserRole.PARENT, UserRole.ADMIN],
     description: 'Validate payment',
   },
-  'payments.bank_transfer': {
+  'payments.bank-transfer': {
     allowedRoles: [UserRole.PARENT],
     description: 'Initiate bank transfer payment',
   },
