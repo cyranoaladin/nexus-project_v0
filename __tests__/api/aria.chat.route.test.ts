@@ -1,12 +1,11 @@
 import { POST } from '@/app/api/aria/chat/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { generateAriaResponse, saveAriaConversation } from '@/lib/aria';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -60,7 +59,7 @@ describe('POST /api/aria/chat', () => {
   });
 
   it('returns 401 when not authenticated as student', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({ subject: 'MATHEMATIQUES', content: 'Salut' }));
     const body = await response.json();
@@ -70,7 +69,7 @@ describe('POST /api/aria/chat', () => {
   });
 
   it('returns 404 when student profile missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-1', role: 'ELEVE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
@@ -83,7 +82,7 @@ describe('POST /api/aria/chat', () => {
   });
 
   it('returns 403 when subject not included in subscription', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-1', role: 'ELEVE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
@@ -103,7 +102,7 @@ describe('POST /api/aria/chat', () => {
   });
 
   it('returns 200 with conversation and message on success', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'student-1', role: 'ELEVE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({

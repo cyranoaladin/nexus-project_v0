@@ -1,9 +1,8 @@
 import { GET } from '@/app/api/coach/dashboard/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -25,7 +24,7 @@ describe('GET /api/coach/dashboard', () => {
   });
 
   it('returns 401 when not coach', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -35,7 +34,7 @@ describe('GET /api/coach/dashboard', () => {
   });
 
   it('returns 404 when coach profile missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
@@ -48,7 +47,7 @@ describe('GET /api/coach/dashboard', () => {
   });
 
   it('returns dashboard data for coach', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({

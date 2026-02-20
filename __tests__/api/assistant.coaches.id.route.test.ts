@@ -1,10 +1,9 @@
 import { PUT, DELETE } from '@/app/api/assistant/coaches/[id]/route';
-import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 jest.mock('next-auth/next', () => ({
-  getServerSession: jest.fn(),
+  auth: jest.fn(),
 }));
 
 jest.mock('bcryptjs', () => ({
@@ -47,7 +46,7 @@ describe('assistant coaches id', () => {
   });
 
   it('PUT returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await PUT(makeRequest(validPayload), { params: Promise.resolve({ id: 'coach-1' }) });
     const body = await response.json();
@@ -57,7 +56,7 @@ describe('assistant coaches id', () => {
   });
 
   it('PUT updates coach when valid', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
@@ -84,7 +83,7 @@ describe('assistant coaches id', () => {
   });
 
   it('DELETE returns 404 when coach missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
@@ -97,7 +96,7 @@ describe('assistant coaches id', () => {
   });
 
   it('DELETE blocks when coach has sessions', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
@@ -114,7 +113,7 @@ describe('assistant coaches id', () => {
   });
 
   it('DELETE removes coach when no sessions', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({

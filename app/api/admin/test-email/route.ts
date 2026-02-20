@@ -1,13 +1,12 @@
 export const dynamic = 'force-dynamic';
 
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { sendWelcomeEmail, testEmailConfiguration } from '@/lib/email-service';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     // Vérifier que l'utilisateur est admin ou assistante
     if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

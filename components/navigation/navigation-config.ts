@@ -59,6 +59,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/parent/paiement',
       icon: 'DollarSign',
       match: 'prefix'
+    },
+    {
+      label: 'Mes Ressources',
+      href: '/dashboard/parent/ressources',
+      icon: 'FileText',
+      match: 'prefix'
     }
   ],
   [UserRole.COACH]: [
@@ -160,6 +166,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Tests Système',
       href: '/dashboard/admin/tests',
       icon: 'TestTube',
+      match: 'prefix'
+    },
+    {
+      label: 'Documents',
+      href: '/dashboard/admin/documents',
+      icon: 'FileText',
       match: 'prefix'
     }
   ]

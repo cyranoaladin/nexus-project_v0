@@ -9,8 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { recomputeSSNBatch } from '@/lib/core/ssn/computeSSN';
 import { computeCohortStatsWithAudit } from '@/lib/core/statistics/cohort';
 
@@ -19,7 +18,7 @@ const VALID_TYPES = ['MATHS', 'NSI', 'GENERAL'];
 export async function POST(request: NextRequest) {
   try {
     // RBAC Guard: ADMIN only
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session || userRole !== 'ADMIN') {

@@ -1,5 +1,5 @@
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/middleware/logger', () => ({
@@ -32,7 +32,6 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 import { POST } from '@/app/api/aria/feedback/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
 describe('aria feedback route', () => {
@@ -41,7 +40,7 @@ describe('aria feedback route', () => {
   });
 
   it('returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce(null);
+    (auth as jest.Mock).mockResolvedValueOnce(null);
     const req = new Request('http://localhost/api/aria/feedback', {
       method: 'POST',
       body: JSON.stringify({ messageId: 'msg-1', feedback: true }),
@@ -52,7 +51,7 @@ describe('aria feedback route', () => {
   });
 
   it('returns 404 when message not found', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (auth as jest.Mock).mockResolvedValueOnce({
       user: { role: 'ELEVE', id: 'user-1' },
     });
     (prisma.ariaMessage.findFirst as jest.Mock).mockResolvedValueOnce(null);

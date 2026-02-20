@@ -998,7 +998,7 @@ export default function OffresPage() {
                 },
                 {
                   q: "Quels modes de paiement acceptez-vous ?",
-                  a: "Paiement en ligne par carte bancaire via Konnect (TND). Virement international via Wise (EUR/USD). Paiement sur place au centre est également possible."
+                  a: "Paiement en ligne par carte bancaire via ClicToPay (TND, bientôt disponible). Virement bancaire (Banque Zitouna). Paiement sur place au centre est également possible."
                 },
               ].map((item) => (
                 <details key={item.q} className="group rounded-2xl border border-white/10 bg-white/5 p-5">

@@ -11,14 +11,13 @@
  */
 
 import { GET } from '@/app/api/parent/dashboard/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 
-jest.mock('next-auth');
+jest.mock('@/auth');
 jest.mock('@/lib/prisma');
 
-const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
+const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
 
 describe('GET /api/parent/dashboard', () => {
   beforeEach(() => {

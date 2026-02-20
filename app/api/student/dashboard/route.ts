@@ -2,15 +2,19 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get the current session
-    const session = await getServerSession(authOptions);
+    // Get the current session (wrapped: auth() can throw UntrustedHost in standalone)
+    let session: any = null;
+    try {
+      session = await auth();
+    } catch {
+      // treat auth infra failure as unauthenticated
+    }
 
-    if (!session || session.user.role !== 'ELEVE') {
+    if (!session?.user || session.user.role !== 'ELEVE') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

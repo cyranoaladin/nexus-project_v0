@@ -2,12 +2,14 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 // Énumération des rôles utilisateur
@@ -100,6 +102,10 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
+  
+  // Documents
+  documents        UserDocument[] @relation("UserDocuments")
+  uploadedDocuments UserDocument[] @relation("DocumentUploader")
 
   // Coach specific relations
   coachAvailabilities CoachAvailability[] @relation("CoachAvailability")
@@ -116,6 +122,9 @@ model User {
 
   // Entitlements (product access rights)
   entitlements Entitlement[]
+
+  // ClicToPay transactions
+  clicToPayTransactions ClicToPayTransaction[]
 
   @@index([role])
   @@map("users")
@@ -397,8 +406,8 @@ model StudentReport {
 // Modèle Paiement
 model Payment {
   id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // Changed to Cascade for test compatibility
+  userId String? // Optional to allow keeping payment record if user is deleted
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull) // Preserve history
 
   // Détails du paiement
   type        PaymentType
@@ -408,7 +417,7 @@ model Payment {
 
   // Statut et méthode
   status PaymentStatus @default(PENDING)
-  method String? // "konnect", "wise", "manual"
+  method String? // "clictopay", "bank_transfer", "cash", "check"
 
   // Métadonnées
   externalId String? // ID de transaction externe
@@ -417,9 +426,31 @@ model Payment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  clicToPayTransaction ClicToPayTransaction?
+
   // Ensure payment idempotency: prevent duplicate payments from webhook retries
   @@unique([externalId, method], name: "payments_externalId_method_key")
   @@map("payments")
+}
+
+// Modèle Transaction ClicToPay (Banque Zitouna)
+model ClicToPayTransaction {
+  id            String   @id @default(cuid())
+  orderId       String   @unique // Identifiant unique envoyé à ClicToPay
+  amount        Float
+  currency      String   @default("TND")
+  status        String   @default("PENDING") // PENDING, SUCCESS, FAILED
+  bankReference String?  // Numéro d'autorisation renvoyé par la banque
+  paymentId     String?  @unique
+  payment       Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("clictopay_transactions")
 }
 
 // Modèle Message (Chat)
@@ -451,8 +482,9 @@ model PedagogicalContent {
   grade   String? // Niveau scolaire
 
   // Métadonnées pour la recherche vectorielle
-  embedding Json @default("[]") // Vecteur d'embedding pour RAG
-  tags      Json @default("[]") // Tags de catégorisation
+  embedding        Json                    @default("[]") // Legacy: kept for compatibility
+  embedding_vector Unsupported("vector")? // New: pgvector support (1536 dimensions)
+  tags             Json                    @default("[]") // Tags de catégorisation
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1028,7 +1060,7 @@ enum InvoicePaymentMethod {
   BANK_TRANSFER
   CHEQUE
   CARD
-  KONNECT
+  CLICTOPAY
 }
 
 enum EntitlementStatus {
@@ -1224,4 +1256,31 @@ model InvoiceAccessToken {
 
   @@index([invoiceId])
   @@map("invoice_access_tokens")
+}
+
+// ─── Document Management (Souveraineté des Données) ──────────────────────────
+
+model UserDocument {
+  id           String   @id @default(cuid())
+  title        String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  
+  // Chemin physique sécurisé (Hors dossier public)
+  // Ex: /app/storage/documents/cl9...xyz.pdf
+  localPath    String   @unique
+
+  createdAt    DateTime @default(now())
+
+  // Relations
+  userId       String
+  user         User     @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+
+  uploadedById String?
+  uploadedBy   User?    @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([uploadedById])
+  @@map("user_documents")
 }

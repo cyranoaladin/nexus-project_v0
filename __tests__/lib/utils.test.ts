@@ -37,10 +37,10 @@ describe('Utils', () => {
     });
 
     it('parses valid JSON string', () => {
-      const json = '{"orderId":"123","provider":"konnect"}';
+      const json = '{"orderId":"123","provider":"clictopay"}';
       expect(parsePaymentMetadata(json)).toEqual({
         orderId: '123',
-        provider: 'konnect'
+        provider: 'clictopay'
       });
     });
 
@@ -58,7 +58,7 @@ describe('Utils', () => {
     });
 
     it('accepts valid object directly', () => {
-      const obj = { orderId: '123', provider: 'konnect' };
+      const obj = { orderId: '123', provider: 'clictopay' };
       expect(parsePaymentMetadata(obj)).toEqual(obj);
     });
 
@@ -82,20 +82,20 @@ describe('Utils', () => {
 
     it('merges with existing object metadata', () => {
       const existing = { orderId: '123' };
-      const additions = { provider: 'konnect' };
+      const additions = { provider: 'clictopay' };
       const result = mergePaymentMetadata(existing, additions);
       expect(result.value).toEqual({
         orderId: '123',
-        provider: 'konnect'
+        provider: 'clictopay'
       });
       expect(result.shouldStringify).toBe(false);
     });
 
     it('merges with existing string metadata and stringifies result', () => {
       const existing = '{"orderId":"123"}';
-      const additions = { provider: 'konnect' };
+      const additions = { provider: 'clictopay' };
       const result = mergePaymentMetadata(existing, additions);
-      expect(result.value).toBe('{"orderId":"123","provider":"konnect"}');
+      expect(result.value).toBe('{"orderId":"123","provider":"clictopay"}');
       expect(result.shouldStringify).toBe(true);
     });
 

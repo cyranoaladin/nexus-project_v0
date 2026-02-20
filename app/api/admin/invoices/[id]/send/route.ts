@@ -11,9 +11,8 @@
 
 export const dynamic = 'force-dynamic';
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import {
   canPerformStatusAction,
@@ -49,7 +48,7 @@ export async function POST(
 ) {
   try {
     // ─── Auth ─────────────────────────────────────────────────────────
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id || !session.user.role) {
       return NextResponse.json(NOT_FOUND, { status: 404 });
     }

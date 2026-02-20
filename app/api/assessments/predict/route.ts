@@ -8,14 +8,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { predictSSNForStudent } from '@/lib/core/ml/predictSSN';
 
 export async function POST(request: NextRequest) {
   try {
     // Auth guard: must be logged in
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) {
       return NextResponse.json(
         { success: false, error: 'Authentification requise.' },

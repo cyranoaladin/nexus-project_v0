@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/assistant/credit-requests/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -30,7 +29,7 @@ describe('assistant credit-requests', () => {
   });
 
   it('GET returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -40,7 +39,7 @@ describe('assistant credit-requests', () => {
   });
 
   it('GET returns formatted credit requests', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.creditTransaction.findMany as jest.Mock).mockResolvedValue([
@@ -67,7 +66,7 @@ describe('assistant credit-requests', () => {
   });
 
   it('POST validates required fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
 
@@ -79,7 +78,7 @@ describe('assistant credit-requests', () => {
   });
 
   it('POST approves credit request', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.creditTransaction.findUnique as jest.Mock).mockResolvedValue({
@@ -106,7 +105,7 @@ describe('assistant credit-requests', () => {
   });
 
   it('POST rejects credit request', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.creditTransaction.findUnique as jest.Mock).mockResolvedValue({

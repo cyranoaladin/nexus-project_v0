@@ -63,7 +63,7 @@ export type InvoicePaymentMethodType =
   | 'BANK_TRANSFER'
   | 'CHEQUE'
   | 'CARD'
-  | 'KONNECT';
+  | 'CLICTOPAY';
 
 /** Label mapping for UI display. */
 export const PAYMENT_METHOD_LABELS: Record<InvoicePaymentMethodType, string> = {
@@ -71,7 +71,7 @@ export const PAYMENT_METHOD_LABELS: Record<InvoicePaymentMethodType, string> = {
   BANK_TRANSFER: 'Virement bancaire',
   CHEQUE: 'Chèque',
   CARD: 'Carte bancaire',
-  KONNECT: 'Konnect',
+  CLICTOPAY: 'ClicToPay',
 };
 
 export type TaxRegime = 'TVA_INCLUSE' | 'TVA_NON_APPLICABLE' | 'EXONERATION';

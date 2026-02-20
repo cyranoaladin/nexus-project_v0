@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { createClient } from '@supabase/supabase-js';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 
 interface ProgressPayload {
   completed_chapters: string[];
@@ -41,7 +40,7 @@ function parsePayload(raw: unknown): ProgressPayload | null {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as { id?: string } | undefined;
   if (!user?.id) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

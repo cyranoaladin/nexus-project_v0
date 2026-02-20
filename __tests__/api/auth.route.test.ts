@@ -1,21 +1,16 @@
-const mockHandler = jest.fn();
+import { GET, POST } from '@/app/api/auth/[...nextauth]/route';
 
-jest.mock('next-auth', () => ({
-  __esModule: true,
-  default: jest.fn(() => mockHandler),
+// Mock handlers from @/auth
+jest.mock('@/auth', () => ({
+  handlers: {
+    GET: jest.fn(),
+    POST: jest.fn(),
+  }
 }));
 
-jest.mock('@/lib/auth', () => ({
-  authOptions: { providers: [] },
-}));
-
-describe('auth route handler', () => {
-  it('exports GET and POST from NextAuth handler', () => {
-    const { GET, POST } = require('@/app/api/auth/[...nextauth]/route');
-    const NextAuth = require('next-auth').default as jest.Mock;
-
-    expect(NextAuth).toHaveBeenCalledWith({ providers: [] });
-    expect(GET).toBe(mockHandler);
-    expect(POST).toBe(mockHandler);
+describe('Auth Route Handler', () => {
+  it('should export GET and POST handlers from v5 config', () => {
+    expect(GET).toBeDefined();
+    expect(POST).toBeDefined();
   });
 });

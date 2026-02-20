@@ -1,10 +1,9 @@
 import { POST } from '@/app/api/sessions/video/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { SessionStatus } from '@prisma/client';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -51,7 +50,7 @@ describe('POST /api/sessions/video', () => {
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date(2025, 0, 2, 10, 0, 0));
     jest.clearAllMocks();
-    (getServerSession as jest.Mock).mockResolvedValue(baseSession);
+    (auth as jest.Mock).mockResolvedValue(baseSession);
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
   });
 
@@ -60,7 +59,7 @@ describe('POST /api/sessions/video', () => {
   });
 
   it('returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({ sessionId: 'session-1', action: 'JOIN' }) as any);
 
@@ -108,7 +107,7 @@ describe('POST /api/sessions/video', () => {
   });
 
   it('marks coach as host when joining', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: {
         id: 'coach-1',
         role: 'COACH',

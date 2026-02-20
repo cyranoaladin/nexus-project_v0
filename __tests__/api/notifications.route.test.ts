@@ -1,9 +1,8 @@
 import { GET, PATCH } from '@/app/api/notifications/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -25,7 +24,7 @@ describe('notifications route', () => {
   });
 
   it('GET returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest(undefined, 'http://localhost:3000/api/notifications'));
     const body = await response.json();
@@ -35,7 +34,7 @@ describe('notifications route', () => {
   });
 
   it('GET returns notifications and unread count', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
     (prisma.notification.findMany as jest.Mock).mockResolvedValue([{ id: 'n1' }]);
@@ -50,7 +49,7 @@ describe('notifications route', () => {
   });
 
   it('GET filters unread notifications and applies limit', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
     (prisma.notification.findMany as jest.Mock).mockResolvedValue([]);
@@ -67,7 +66,7 @@ describe('notifications route', () => {
   });
 
   it('PATCH marks notification as read', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
 
@@ -79,7 +78,7 @@ describe('notifications route', () => {
   });
 
   it('PATCH marks all notifications as read', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
 
@@ -97,7 +96,7 @@ describe('notifications route', () => {
   });
 
   it('PATCH returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await PATCH(makeRequest({ notificationId: 'n1', action: 'markAsRead' }));
     const body = await response.json();
@@ -107,7 +106,7 @@ describe('notifications route', () => {
   });
 
   it('PATCH returns 400 for missing fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
 

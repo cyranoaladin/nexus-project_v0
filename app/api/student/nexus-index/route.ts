@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { computeNexusIndex } from '@/lib/nexus-index';
 import { resolveStudentScope } from '@/lib/scopes';
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json(

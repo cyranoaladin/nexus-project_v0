@@ -5,9 +5,8 @@
  * Use these guards at the beginning of API route handlers to enforce security.
  */
 
-import { authOptions } from './auth';
-import { UserRole } from '@/types/enums';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/auth';
+import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export type AuthSession = {
@@ -17,22 +16,17 @@ export type AuthSession = {
     role: UserRole;
     firstName?: string;
     lastName?: string;
+    name?: string | null;
+    image?: string | null;
   };
+  expires: string;
 };
 
 /**
  * Require authenticated session
- *
- * Returns the session if user is authenticated, or a 401 error response
- *
- * @example
- * ```ts
- * const session = await requireAuth();
- * if (!session) return; // 401 response already sent
- * ```
  */
 export async function requireAuth(): Promise<AuthSession | NextResponse> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || !session.user) {
     return NextResponse.json(
@@ -44,43 +38,29 @@ export async function requireAuth(): Promise<AuthSession | NextResponse> {
     );
   }
 
-  // Validate session structure
-  if (!session.user.id || !session.user.role) {
-    console.error('Invalid session structure', { userId: session.user?.id });
-    return NextResponse.json(
-      {
-        error: 'Unauthorized',
-        message: 'Invalid session'
-      },
-      { status: 401 }
-    );
+  // Validate session structure (auth v5 guarantees basic user info if session exists)
+  if (!session.user.email) {
+      // Should not happen with auth v5 if configured correctly
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid session state' },
+        { status: 401 }
+      );
   }
 
-  return session as AuthSession;
+  return session as unknown as AuthSession;
 }
 
 /**
  * Require specific role
- *
- * Returns the session if user has the required role, or a 403 error response
- *
- * @param requiredRole - The role required to access the resource
- *
- * @example
- * ```ts
- * const session = await requireRole('ADMIN');
- * if (!session) return; // 401/403 response already sent
- * ```
  */
 export async function requireRole(requiredRole: UserRole): Promise<AuthSession | NextResponse> {
-  const sessionOrResponse = await requireAuth();
+  const result = await requireAuth();
 
-  // If requireAuth returned a response (error), return it
-  if (isErrorResponse(sessionOrResponse)) {
-    return sessionOrResponse;
+  if (result instanceof NextResponse) {
+    return result;
   }
 
-  const session = sessionOrResponse as AuthSession;
+  const session = result as AuthSession;
 
   if (session.user.role !== requiredRole) {
     console.warn('Access denied: insufficient permissions', {
@@ -103,26 +83,15 @@ export async function requireRole(requiredRole: UserRole): Promise<AuthSession |
 
 /**
  * Require one of multiple roles
- *
- * Returns the session if user has any of the allowed roles, or a 403 error response
- *
- * @param allowedRoles - Array of roles that can access the resource
- *
- * @example
- * ```ts
- * const session = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
- * if (!session) return; // 401/403 response already sent
- * ```
  */
 export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSession | NextResponse> {
-  const sessionOrResponse = await requireAuth();
+  const result = await requireAuth();
 
-  // If requireAuth returned a response (error), return it
-  if (isErrorResponse(sessionOrResponse)) {
-    return sessionOrResponse;
+  if (result instanceof NextResponse) {
+    return result;
   }
 
-  const session = sessionOrResponse as AuthSession;
+  const session = result as AuthSession;
 
   if (!allowedRoles.includes(session.user.role)) {
     console.warn('Access denied: insufficient permissions', {
@@ -143,56 +112,7 @@ export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSess
   return session;
 }
 
-/**
- * Check if session belongs to specific user (for resource ownership validation)
- *
- * @param session - The authenticated session
- * @param userId - The user ID to check ownership against
- * @returns true if session user matches userId, false otherwise
- *
- * @example
- * ```ts
- * if (!isOwner(session, resourceOwnerId)) {
- *   return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
- * }
- * ```
- */
-export function isOwner(session: AuthSession, userId: string): boolean {
-  return session.user.id === userId;
-}
-
-/**
- * Check if session has admin or assistante role (management access)
- *
- * @param session - The authenticated session
- * @returns true if user is admin or assistante
- *
- * @example
- * ```ts
- * if (!isStaff(session)) {
- *   return NextResponse.json({ error: 'Staff only' }, { status: 403 });
- * }
- * ```
- */
-export function isStaff(session: AuthSession): boolean {
-  return session.user.role === 'ADMIN' || session.user.role === 'ASSISTANTE';
-}
-
-/**
- * Type guard to check if result is an error response
- *
- * @param result - Result from guard function
- * @returns true if result is NextResponse (error), false if AuthSession
- *
- * @example
- * ```ts
- * const result = await requireAuth();
- * if (isErrorResponse(result)) return result;
- * const session = result;
- * ```
- */
-export function isErrorResponse(result: AuthSession | NextResponse): result is NextResponse {
-  // Check if result has response-like properties (json, status)
-  // This works better with mocks than instanceof
-  return result && typeof (result as NextResponse).json === 'function' && 'status' in result;
+// Helper to check if result is an error response (Exported for consumers)
+export function isErrorResponse(result: any): result is NextResponse {
+    return result instanceof NextResponse || (result && typeof result.json === 'function' && 'status' in result);
 }

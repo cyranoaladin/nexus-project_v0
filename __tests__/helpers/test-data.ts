@@ -93,7 +93,7 @@ export function createUniqueUserData(role: 'STUDENT' | 'PARENT' | 'COACH' | 'ADM
  * Create unique payment data for tests
  * Uses UUID for externalId to guarantee uniqueness
  */
-export function createUniquePaymentData(userId: string, method: string = 'konnect') {
+export function createUniquePaymentData(userId: string, method: string = 'clictopay') {
   const uuid = randomUUID();
   return {
     userId,

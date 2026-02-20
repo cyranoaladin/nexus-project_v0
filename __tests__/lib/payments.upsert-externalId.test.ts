@@ -8,10 +8,10 @@ describe('upsertPaymentByExternalId', () => {
 
   it('creates when none exists', async () => {
     (prisma.payment.findFirst as jest.Mock).mockResolvedValue(null);
-    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'p1', externalId: 'ext1', method: 'konnect' });
+    (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'p1', externalId: 'ext1', method: 'clictopay' });
 
     const res = await upsertPaymentByExternalId({
-      externalId: 'ext1', method: 'konnect', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
+      externalId: 'ext1', method: 'clictopay', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
     });
 
     expect(res.created).toBe(true);
@@ -19,10 +19,10 @@ describe('upsertPaymentByExternalId', () => {
   });
 
   it('returns existing when found', async () => {
-    (prisma.payment.findFirst as jest.Mock).mockResolvedValue({ id: 'p2', externalId: 'ext2', method: 'konnect' });
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValue({ id: 'p2', externalId: 'ext2', method: 'clictopay' });
 
     const res = await upsertPaymentByExternalId({
-      externalId: 'ext2', method: 'konnect', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
+      externalId: 'ext2', method: 'clictopay', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
     });
 
     expect(res.created).toBe(false);
@@ -32,14 +32,14 @@ describe('upsertPaymentByExternalId', () => {
   it('handles unique violation by returning existing', async () => {
     (prisma.payment.findFirst as jest.Mock)
       .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({ id: 'p3', externalId: 'ext3', method: 'konnect' });
+      .mockResolvedValueOnce({ id: 'p3', externalId: 'ext3', method: 'clictopay' });
 
     const err: any = new Error('Unique constraint failed');
     err.code = 'P2002';
     (prisma.payment.create as jest.Mock).mockRejectedValueOnce(err);
 
     const res = await upsertPaymentByExternalId({
-      externalId: 'ext3', method: 'konnect', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
+      externalId: 'ext3', method: 'clictopay', type: 'CREDIT_PACK', userId: 'u1', amount: 10, description: 'desc'
     });
 
     expect(res.created).toBe(false);
@@ -77,7 +77,7 @@ describe('upsertPaymentByExternalId', () => {
     await expect(
       upsertPaymentByExternalId({
         externalId: 'ext5',
-        method: 'konnect',
+        method: 'clictopay',
         type: 'CREDIT_PACK',
         userId: 'u3',
         amount: 10,

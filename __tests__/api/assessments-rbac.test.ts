@@ -6,12 +6,11 @@
  * - POST /api/admin/recompute-ssn → 403 without session, 200 with ADMIN
  */
 
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-// ─── Mock getServerSession ───────────────────────────────────────────────────
+// ─── Mock auth ───────────────────────────────────────────────────
 
-const mockGetServerSession = getServerSession as jest.Mock;
+const mockGetServerSession = auth as jest.Mock;
 
 // ─── directeur/stats ─────────────────────────────────────────────────────────
 

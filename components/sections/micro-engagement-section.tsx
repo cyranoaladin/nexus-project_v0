@@ -79,7 +79,7 @@ export function MicroEngagementSection() {
       <AriaWidget
         isOpen={showAriaWidget}
         onClose={() => setShowAriaWidget(false)}
-        initialPrompt="Quel est mon profil d'apprenant ?"
+        defaultSubject="MATHEMATIQUES"
       />
     </>
   );

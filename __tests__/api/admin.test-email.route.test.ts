@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/admin/test-email/route';
-import { getServerSession } from 'next-auth';
 import { sendWelcomeEmail, testEmailConfiguration } from '@/lib/email-service';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/email-service', () => ({
@@ -23,7 +22,7 @@ describe('admin test email', () => {
   });
 
   it('blocks non admin/assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({ action: 'test_config' }));
 
@@ -31,7 +30,7 @@ describe('admin test email', () => {
   });
 
   it('returns config status on GET', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
@@ -44,7 +43,7 @@ describe('admin test email', () => {
   });
 
   it('tests SMTP config via POST', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (testEmailConfiguration as jest.Mock).mockResolvedValue({ success: true });
@@ -58,7 +57,7 @@ describe('admin test email', () => {
   });
 
   it('requires testEmail for send_test', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 
@@ -70,7 +69,7 @@ describe('admin test email', () => {
   });
 
   it('sends test email', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 

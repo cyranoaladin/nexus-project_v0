@@ -1,9 +1,8 @@
 import { GET } from '@/app/api/messages/conversations/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -22,7 +21,7 @@ describe('GET /api/messages/conversations', () => {
   });
 
   it('returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -32,7 +31,7 @@ describe('GET /api/messages/conversations', () => {
   });
 
   it('returns grouped conversations', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
     (prisma.message.findMany as jest.Mock).mockResolvedValue([
@@ -55,7 +54,7 @@ describe('GET /api/messages/conversations', () => {
   });
 
   it('tracks unread counts and last message', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1' },
     });
     const newer = new Date('2024-01-02T10:00:00.000Z');

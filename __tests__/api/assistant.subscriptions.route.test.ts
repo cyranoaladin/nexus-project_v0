@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/assistant/subscriptions/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -25,7 +24,7 @@ describe('assistant subscriptions', () => {
   });
 
   it('GET returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -35,7 +34,7 @@ describe('assistant subscriptions', () => {
   });
 
   it('GET returns pending and all subscriptions', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.subscription.findMany as jest.Mock)
@@ -51,7 +50,7 @@ describe('assistant subscriptions', () => {
   });
 
   it('POST validates required fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 
@@ -63,7 +62,7 @@ describe('assistant subscriptions', () => {
   });
 
   it('POST returns 404 when subscription missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.subscription.findUnique as jest.Mock).mockResolvedValue(null);
@@ -76,7 +75,7 @@ describe('assistant subscriptions', () => {
   });
 
   it('POST approves subscription and adds credits', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.subscription.findUnique as jest.Mock).mockResolvedValue({

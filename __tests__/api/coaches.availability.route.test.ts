@@ -1,9 +1,8 @@
 import { GET, POST, DELETE } from '@/app/api/coaches/availability/route';
-import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
 
 jest.mock('next-auth/next', () => ({
-  getServerSession: jest.fn(),
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -26,7 +25,7 @@ describe('coaches availability', () => {
   });
 
   it('POST returns 403 when not coach', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
 
@@ -38,7 +37,7 @@ describe('coaches availability', () => {
   });
 
   it('POST weekly creates slots', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.coachAvailability.createMany as jest.Mock).mockResolvedValue({});
@@ -54,7 +53,7 @@ describe('coaches availability', () => {
   });
 
   it('GET returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest(undefined, 'http://localhost:3000/api/coaches/availability'));
     const body = await response.json();
@@ -64,7 +63,7 @@ describe('coaches availability', () => {
   });
 
   it('DELETE returns 400 when missing id', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
 

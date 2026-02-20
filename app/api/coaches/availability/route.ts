@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import type { CoachAvailability, Prisma } from '@prisma/client';
@@ -56,7 +55,7 @@ function isEndAfterStart(startTime: string, endTime: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user || session.user.role !== 'COACH') {
       return NextResponse.json(
@@ -237,7 +236,7 @@ export async function POST(req: NextRequest) {
 // GET - Get coach availability
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user) {
       return NextResponse.json(
@@ -432,7 +431,7 @@ function calculateDuration(startTime: string, endTime: string): number {
 // DELETE - Remove specific availability slot
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user || session.user.role !== 'COACH') {
       return NextResponse.json(

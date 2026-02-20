@@ -147,17 +147,6 @@ export default function MesSessions() {
   const upcomingSessions = sessions.filter(s => s.status === 'SCHEDULED');
   const completedSessions = sessions.filter(s => s.status === 'COMPLETED');
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent">⏳</div>
-          <p className="text-neutral-300">Chargement de vos sessions...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">

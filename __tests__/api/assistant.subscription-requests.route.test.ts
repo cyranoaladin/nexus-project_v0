@@ -1,9 +1,8 @@
 import { GET, PATCH } from '@/app/api/assistant/subscription-requests/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -26,7 +25,7 @@ describe('assistant subscription-requests', () => {
   });
 
   it('GET returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest());
     const body = await response.json();
@@ -36,7 +35,7 @@ describe('assistant subscription-requests', () => {
   });
 
   it('GET returns paginated requests', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.subscriptionRequest.findMany as jest.Mock).mockResolvedValue([{ id: 'req-1' }]);
@@ -51,7 +50,7 @@ describe('assistant subscription-requests', () => {
   });
 
   it('PATCH validates action', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 
@@ -63,7 +62,7 @@ describe('assistant subscription-requests', () => {
   });
 
   it('PATCH approves request and updates subscription', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.subscriptionRequest.findUnique as jest.Mock).mockResolvedValue({

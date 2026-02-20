@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/coach/sessions/[sessionId]/report/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -43,7 +42,7 @@ describe('coach session report', () => {
   });
 
   it('POST returns 401 when not coach', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest(validReport), { params: Promise.resolve({ sessionId: 's1' }) });
     const body = await response.json();
@@ -53,7 +52,7 @@ describe('coach session report', () => {
   });
 
   it('POST returns 400 on invalid input', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
 
@@ -65,7 +64,7 @@ describe('coach session report', () => {
   });
 
   it('POST returns 403 when not session coach', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({
@@ -82,7 +81,7 @@ describe('coach session report', () => {
   });
 
   it('POST creates report for valid session', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({
@@ -118,7 +117,7 @@ describe('coach session report', () => {
   });
 
   it('GET returns report when authorized', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'coach-1', role: 'COACH' },
     });
     (prisma.sessionReport.findUnique as jest.Mock).mockResolvedValue({ id: 'report-1' });

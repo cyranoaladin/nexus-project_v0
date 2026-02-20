@@ -97,12 +97,12 @@ jest.mock('next-auth', () => ({
   getServerSession: jest.fn()
 }));
 
-// Mock auth module completely to avoid ES6 issues
-jest.mock('./lib/auth', () => ({
-  authOptions: {
-    adapter: {},
-    providers: []
-  }
+// Mock auth module
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+  handlers: { GET: jest.fn(), POST: jest.fn() },
+  signIn: jest.fn(),
+  signOut: jest.fn(),
 }));
 
 // Mock Prisma for integration tests

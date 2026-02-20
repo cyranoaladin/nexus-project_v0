@@ -23,6 +23,13 @@ venv/
 
 # Storage / reports
 storage/
+data/invoices/
+
+# Screenshots (runtime artifacts)
+screenshots/
+
+# Backup files
+*.bak
 
 # Test artifacts
 test-results/

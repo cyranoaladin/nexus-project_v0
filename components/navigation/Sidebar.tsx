@@ -1,13 +1,12 @@
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { navigationConfig } from './navigation-config';
 import { NavigationItem } from './NavigationItem';
 import UserProfile from './UserProfile';
 import { LogoutButton } from './LogoutButton';
 
 export async function Sidebar() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     redirect('/auth/signin');

@@ -10,7 +10,7 @@
  *   if (isErrorResponse(session)) return session;
  */
 
-import { UserRole } from '@/types/enums';
+import { UserRole } from '@prisma/client';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SECTION 1: Resource/Action Permission Matrix (fine-grained RBAC)
@@ -308,9 +308,9 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
     allowedRoles: [UserRole.PARENT, UserRole.ADMIN],
     description: 'Validate payment',
   },
-  'payments.wise': {
+  'payments.bank_transfer': {
     allowedRoles: [UserRole.PARENT],
-    description: 'Initiate Wise payment',
+    description: 'Initiate bank transfer payment',
   },
 
   // ─── Subscriptions ───────────────────────────────────────────────────────

@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { AriaMessage } from '@prisma/client'
 import { z } from 'zod'
@@ -26,9 +25,14 @@ export async function POST(request: NextRequest) {
   const isStreamingRequest = acceptHeader.includes('text/event-stream')
   
   try {
-    const session = await getServerSession(authOptions)
+    let session: any = null
+    try {
+      session = await auth()
+    } catch {
+      // auth() can throw UntrustedHost in standalone mode — treat as unauthenticated
+    }
     
-    if (!session || session.user.role !== 'ELEVE') {
+    if (!session?.user || session.user.role !== 'ELEVE') {
       const forwarded = request.headers.get('x-forwarded-for')
       const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
       
