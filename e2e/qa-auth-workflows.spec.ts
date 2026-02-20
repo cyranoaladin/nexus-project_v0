@@ -16,7 +16,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { CREDS } from './helpers/credentials';
 
-const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 // Override Playwright config baseURL so page.goto and page.request use port 3000
 test.use({ baseURL: BASE_URL });
@@ -376,8 +376,13 @@ test.describe('API health checks', () => {
   test('/api/auth/session returns empty when not logged in', async ({ page }) => {
     const resp = await page.request.get(`${BASE_URL}/api/auth/session`);
     expect(resp.status()).toBe(200);
-    const data = await resp.json() as Record<string, unknown>;
-    expect(data.user).toBeUndefined();
+    const data = await resp.json() as Record<string, unknown> | null;
+    // NextAuth v5 returns null or {} when no session exists
+    if (data === null) {
+      expect(data).toBeNull();
+    } else {
+      expect(data.user).toBeUndefined();
+    }
   });
 
   test('/api/parent/dashboard returns 401 without auth', async ({ page }) => {
