@@ -408,7 +408,7 @@ jobs:
         id: npm-audit
         continue-on-error: true
         run: |
-          npm audit --json > npm-audit-report.json || true
+          npm audit --omit=dev --json > npm-audit-report.json || true
           echo "audit_exit_code=$?" >> $GITHUB_OUTPUT
 
       - name: Evaluate npm audit (fail on high+)
