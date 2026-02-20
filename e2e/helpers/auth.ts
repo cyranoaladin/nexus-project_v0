@@ -92,7 +92,7 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
 
             const callbackCookies = parseSetCookie(getSetCookieHeaders(callbackResponse));
             const hasSession = callbackCookies.some((cookie) =>
-                cookie.name.includes('next-auth.session-token')
+                cookie.name.includes('session-token')
             );
 
             if (!callbackResponse.ok() || !hasSession) {
