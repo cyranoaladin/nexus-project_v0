@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Subject } from '@/types/enums'
 import { createLogger } from '@/lib/middleware/logger'
@@ -11,7 +10,7 @@ export async function GET(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session || session.user.role !== 'ELEVE') {
       const forwarded = request.headers.get('x-forwarded-for')

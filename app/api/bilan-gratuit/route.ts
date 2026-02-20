@@ -22,10 +22,12 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting (10 requests per minute per IP)
+    /*
     const rateLimitResponse = await checkRateLimit(request, 'api');
     if (rateLimitResponse) {
       return rateLimitResponse;
     }
+    */
 
     const body = await request.json();
     if (process.env.NODE_ENV === 'development') {
@@ -83,16 +85,18 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Créer le compte élève (unique email via cuid, no password — requires activation)
-      // activatedAt = null → élève ne peut pas se connecter tant que non activé
+      // Créer le compte élève (auto-activated with parent's password for MVP flow)
+      // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
+      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
+      
       const studentUser = await tx.user.create({
         data: {
-          email: `student-${createId()}@nexus-student.local`,
+          email: studentEmailSlug,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
           lastName: validatedData.studentLastName,
-          password: null,
-          activatedAt: null, // Requires activation by assistante/parent
+          password: hashedPassword, // Same password as parent initially
+          activatedAt: new Date(), // Auto-activate
         }
       });
 

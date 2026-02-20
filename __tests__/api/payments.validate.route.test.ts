@@ -1,9 +1,8 @@
 import { POST } from '@/app/api/payments/validate/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -28,7 +27,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({}));
     const body = await response.json();
@@ -38,7 +37,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('returns 404 when payment not found', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(null);
@@ -51,7 +50,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('returns 400 on invalid payload', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
 
@@ -63,7 +62,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('approves payment via transaction', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
@@ -90,7 +89,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('allocates credits when subscription has credits', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
@@ -128,7 +127,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('rejects payment and updates status', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
@@ -154,7 +153,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('returns 409 on transaction conflict', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
@@ -173,7 +172,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it('returns 404 on transaction P2025', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({

@@ -9,10 +9,9 @@
  * - No PII in logs, no entitlement details leaked
  */
 
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { getUserEntitlements } from '@/lib/entitlement';
 import { resolveAccess } from './rules';
 import type { FeatureKey } from './features';
@@ -62,7 +61,7 @@ export async function requireFeature(
     userId = preResolved?.id ?? null;
     role = preResolved?.role ?? null;
   } else {
-    const sess = await getServerSession(authOptions);
+    const sess = await auth();
     userId = sess?.user?.id ?? null;
     role = (sess?.user as { role?: string } | undefined)?.role ?? null;
   }

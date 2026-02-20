@@ -22,8 +22,8 @@ jest.mock('@/lib/csrf', () => ({
   checkBodySize: jest.fn().mockReturnValue(null),
 }));
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/auth', () => ({

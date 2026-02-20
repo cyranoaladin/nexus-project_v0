@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/parent/children/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -28,7 +27,7 @@ describe('parent children routes', () => {
 
   describe('GET /api/parent/children', () => {
     it('returns 401 when not parent', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(null);
+      (auth as jest.Mock).mockResolvedValue(null);
 
       const response = await GET(makeRequest());
       const body = await response.json();
@@ -38,7 +37,7 @@ describe('parent children routes', () => {
     });
 
     it('returns 404 when parent profile missing', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
@@ -51,7 +50,7 @@ describe('parent children routes', () => {
     });
 
     it('returns formatted children', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
@@ -79,7 +78,7 @@ describe('parent children routes', () => {
 
   describe('POST /api/parent/children', () => {
     it('returns 401 when not parent', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue(null);
+      (auth as jest.Mock).mockResolvedValue(null);
 
       const response = await POST(makeRequest({}));
       const body = await response.json();
@@ -89,7 +88,7 @@ describe('parent children routes', () => {
     });
 
     it('validates required fields', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
 
@@ -101,7 +100,7 @@ describe('parent children routes', () => {
     });
 
     it('rejects existing child email', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
@@ -116,7 +115,7 @@ describe('parent children routes', () => {
     });
 
     it('returns 404 when parent profile missing', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
@@ -132,7 +131,7 @@ describe('parent children routes', () => {
     });
 
     it('returns 404 when parent password missing', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -149,7 +148,7 @@ describe('parent children routes', () => {
     });
 
     it('creates child via transaction', async () => {
-      (getServerSession as jest.Mock).mockResolvedValue({
+      (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);

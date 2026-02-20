@@ -1,9 +1,8 @@
 import { GET, POST } from '@/app/api/assistant/students/credits/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -26,7 +25,7 @@ describe('assistant students credits', () => {
   });
 
   it('GET returns 401 when not assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest(undefined, 'http://localhost:3000/api/assistant/students/credits'));
     const body = await response.json();
@@ -36,7 +35,7 @@ describe('assistant students credits', () => {
   });
 
   it('GET returns student credits when studentId provided', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
@@ -55,7 +54,7 @@ describe('assistant students credits', () => {
   });
 
   it('GET returns list when no studentId', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
     (prisma.student.findMany as jest.Mock).mockResolvedValue([
@@ -77,7 +76,7 @@ describe('assistant students credits', () => {
   });
 
   it('POST validates required fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
 
@@ -89,7 +88,7 @@ describe('assistant students credits', () => {
   });
 
   it('POST returns 404 when student missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
@@ -102,7 +101,7 @@ describe('assistant students credits', () => {
   });
 
   it('POST creates credit transaction', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1' });

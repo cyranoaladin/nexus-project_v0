@@ -20,18 +20,17 @@
 
 import { UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { getServerSession } from 'next-auth';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { testPrisma, canConnectToTestDb } from '../setup/test-database';
 
 const prisma = testPrisma;
 
-// Mock getServerSession for role-based testing
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+// Mock auth for role-based testing
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
-const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
+const mockedGetServerSession = auth as jest.MockedFunction<typeof auth>;
 
 describe('RBAC Matrix', () => {
   let testUsers: Record<string, any> = {};

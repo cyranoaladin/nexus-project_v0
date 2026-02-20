@@ -1,9 +1,8 @@
 import { GET } from '@/app/api/coaches/available/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -22,7 +21,7 @@ describe('GET /api/coaches/available', () => {
   });
 
   it('returns 401 when not allowed', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest('http://localhost:3000/api/coaches/available'));
     const body = await response.json();
@@ -32,7 +31,7 @@ describe('GET /api/coaches/available', () => {
   });
 
   it('returns coaches list', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
     (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
