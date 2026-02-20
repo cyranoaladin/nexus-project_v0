@@ -1,9 +1,8 @@
 import { GET } from '@/app/api/admin/analytics/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -26,7 +25,7 @@ describe('GET /api/admin/analytics', () => {
   });
 
   it('returns 401 when not admin', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest('http://localhost:3000/api/admin/analytics'));
     const body = await response.json();
@@ -36,7 +35,7 @@ describe('GET /api/admin/analytics', () => {
   });
 
   it('returns analytics data for admin', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 

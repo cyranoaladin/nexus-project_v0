@@ -27,7 +27,7 @@ interface EnvVar {
  *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
  *
  * RECOMMENDED (graceful degradation):
- *   OLLAMA_URL, RAG_INGESTOR_URL, SMTP_HOST, KONNECT_API_KEY
+ *   OLLAMA_URL, RAG_INGESTOR_URL, SMTP_HOST, CLICTOPAY_API_KEY
  *
  * OPTIONAL:
  *   LLM_MODE, OLLAMA_MODEL, OLLAMA_TIMEOUT, SENTRY_DSN
@@ -43,7 +43,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RAG_INGESTOR_URL', level: 'RECOMMENDED', description: 'RAG Ingestor service URL (fallback: Docker service name in prod)' },
   { name: 'SMTP_HOST', level: 'RECOMMENDED', description: 'SMTP server for transactional emails' },
   { name: 'SMTP_FROM', level: 'RECOMMENDED', description: 'Sender email address for transactional emails' },
-  { name: 'KONNECT_API_KEY', level: 'RECOMMENDED', description: 'Konnect payment gateway API key' },
+  { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
   { name: 'TELEGRAM_BOT_TOKEN', level: 'RECOMMENDED', description: 'Telegram bot token for notifications' },
 
   // ─── OPTIONAL (silent if missing) ──────────────────────────────────

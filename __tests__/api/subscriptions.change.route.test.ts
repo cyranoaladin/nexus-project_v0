@@ -1,9 +1,8 @@
 import { POST } from '@/app/api/subscriptions/change/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -25,7 +24,7 @@ describe('POST /api/subscriptions/change', () => {
   });
 
   it('returns 401 when not parent', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({}));
     const body = await response.json();
@@ -35,7 +34,7 @@ describe('POST /api/subscriptions/change', () => {
   });
 
   it('returns 400 when plan invalid', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
 
@@ -47,7 +46,7 @@ describe('POST /api/subscriptions/change', () => {
   });
 
   it('returns 400 when payload invalid', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
 
@@ -59,7 +58,7 @@ describe('POST /api/subscriptions/change', () => {
   });
 
   it('returns 404 when student not found', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
     (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
@@ -72,7 +71,7 @@ describe('POST /api/subscriptions/change', () => {
   });
 
   it('creates a pending subscription when valid', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
     (prisma.student.findFirst as jest.Mock).mockResolvedValue({

@@ -110,7 +110,7 @@ const PAYMENT_METHODS: Array<{ value: string; label: string }> = [
   { value: 'BANK_TRANSFER', label: 'Virement bancaire' },
   { value: 'CHEQUE', label: 'Chèque' },
   { value: 'CARD', label: 'Carte bancaire' },
-  { value: 'KONNECT', label: 'Konnect' },
+  { value: 'CLICTOPAY', label: 'ClicToPay' },
 ];
 
 // ─── Nexus Product Presets ──────────────────────────────────────────────────
@@ -747,8 +747,7 @@ export default function FacturationPage() {
                     <option value="">Non spécifié</option>
                     <option value="CASH">Espèces</option>
                     <option value="BANK_TRANSFER">Virement bancaire</option>
-                    <option value="KONNECT">Konnect</option>
-                    <option value="WISE">Wise</option>
+                    <option value="CLICTOPAY">ClicToPay</option>
                     <option value="CHECK">Chèque</option>
                     <option value="OTHER">Autre</option>
                   </select>

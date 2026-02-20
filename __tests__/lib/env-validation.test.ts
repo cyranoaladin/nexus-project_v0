@@ -147,7 +147,7 @@ describe('validateEnv', () => {
       process.env.RAG_INGESTOR_URL = 'http://ingestor:8001';
       process.env.SMTP_HOST = 'smtp.example.com';
       process.env.SMTP_FROM = 'noreply@example.com';
-      process.env.KONNECT_API_KEY = 'key';
+      process.env.CLICTOPAY_API_KEY = 'key';
       process.env.TELEGRAM_BOT_TOKEN = 'token';
       delete process.env.LLM_MODE;
       delete process.env.SENTRY_DSN;

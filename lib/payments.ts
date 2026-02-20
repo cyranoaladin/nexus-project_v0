@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 
 export type UpsertPaymentParams = {
   externalId: string;
-  method: string; // e.g., 'konnect' | 'wise' | 'manual'
+  method: string; // e.g., 'clictopay' | 'bank_transfer' | 'cash' | 'check'
   type: 'SUBSCRIPTION' | 'CREDIT_PACK' | 'SPECIAL_PACK';
   userId: string;
   amount: number;

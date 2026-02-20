@@ -1,122 +1,88 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BookOpen, ArrowLeft, Search, Filter, Download, Eye, Clock } from "lucide-react"
-import Link from "next/link"
-import { Subject } from "@/types/enums"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Calendar, Download, File, FileText, HardDrive, Image as ImageIcon, Loader2, Sparkles } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-const SUBJECTS_OPTIONS = [
-  { value: "all", label: "Toutes les matières" },
-  { value: Subject.MATHEMATIQUES, label: "Mathématiques" },
-  { value: Subject.NSI, label: "NSI" },
-  { value: Subject.FRANCAIS, label: "Français" },
-  { value: Subject.PHILOSOPHIE, label: "Philosophie" },
-  { value: Subject.HISTOIRE_GEO, label: "Histoire-Géographie" },
-  { value: Subject.ANGLAIS, label: "Anglais" },
-  { value: Subject.ESPAGNOL, label: "Espagnol" },
-  { value: Subject.PHYSIQUE_CHIMIE, label: "Physique-Chimie" },
-  { value: Subject.SVT, label: "SVT" },
-  { value: Subject.SES, label: "SES" }
-]
-
-
-interface Resource {
+interface UserDoc {
   id: string;
   title: string;
-  description: string;
-  subject: string;
-  type: string;
-  fileUrl: string;
-  thumbnailUrl?: string;
-  downloads: number;
-  lastUpdated: string;
-  isDownloaded: boolean;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
 }
 
-export default function RessourcesPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedSubject, setSelectedSubject] = useState("all")
-  const [selectedType, setSelectedType] = useState("all")
-  const [resources, setResources] = useState<Resource[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+function getFileIcon(mimeType: string) {
+  if (mimeType.includes('pdf')) return <FileText className="w-8 h-8 text-rose-400" />;
+  if (mimeType.includes('image')) return <ImageIcon className="w-8 h-8 text-emerald-400" />;
+  if (mimeType.includes('word') || mimeType.includes('document')) return <FileText className="w-8 h-8 text-sky-400" />;
+  if (mimeType.includes('sheet') || mimeType.includes('excel')) return <FileText className="w-8 h-8 text-emerald-400" />;
+  return <File className="w-8 h-8 text-neutral-400" />;
+}
+
+function formatSize(bytes: number) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function formatDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return iso;
+  }
+}
+
+export default function StudentResourcesPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [documents, setDocuments] = useState<UserDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "loading") return
+    if (status === "loading") return;
 
     if (!session || session.user.role !== 'ELEVE') {
-      router.push("/auth/signin")
-      return
+      router.push("/auth/signin");
+      return;
     }
 
-    const fetchResources = async () => {
+    const fetchDocuments = async () => {
       try {
-        setLoading(true)
-        setError(null)
-        
-        const response = await fetch('/api/student/resources')
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch resources')
-        }
-        
-        const data = await response.json()
-        setResources(data)
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/student/documents');
+        if (!response.ok) throw new Error('Impossible de charger vos ressources');
+        const data = await response.json();
+        setDocuments(data.documents ?? data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchResources()
-  }, [session, status, router])
+    fetchDocuments();
+  }, [session, status, router]);
 
-  const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesSubject = selectedSubject === "all" || resource.subject === selectedSubject
-    const matchesType = selectedType === "all" || resource.type === selectedType
-    
-    return matchesSearch && matchesSubject && matchesType
-  })
-
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent">⏳</div>
-          <p className="text-neutral-300">Chargement des ressources...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
+          <p className="text-neutral-400">Chargement de vos ressources...</p>
         </div>
       </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
-          <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
-          <p className="text-neutral-400 text-sm">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="btn-primary mt-4"
-          >
-            Réessayer
-          </Button>
-        </div>
-      </div>
-    )
+    );
   }
 
   return (
@@ -132,134 +98,91 @@ export default function RessourcesPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold text-white">Mes Ressources</h1>
-              <p className="text-sm text-neutral-400">Fiches, exercices et contenus pédagogiques</p>
+              <h1 className="font-semibold text-white flex items-center gap-2">
+                <HardDrive className="w-5 h-5 text-brand-accent" />
+                Mes Ressources
+              </h1>
+              <p className="text-sm text-neutral-400">Documents pédagogiques et administratifs</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filtres et recherche */}
-        <Card className="mb-8 bg-white/5 border border-white/10">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Filter className="w-5 h-5 mr-2 text-brand-accent" />
-              Recherche et Filtres
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-                  <Input
-                    placeholder="Rechercher une ressource..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-rose-200 mb-4">Erreur : {error}</p>
+            <Button onClick={() => window.location.reload()} className="btn-primary">
+              Réessayer
+            </Button>
+          </div>
+        )}
+
+        {!error && documents.length === 0 && (
+          <Card className="bg-white/5 border border-white/10">
+            <CardContent className="text-center py-16">
+              <div className="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                <File className="w-8 h-8 text-neutral-500" />
               </div>
-              
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Matière" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUBJECTS_OPTIONS.map((subject) => (
-                    <SelectItem key={subject.value} value={subject.value}>
-                      {subject.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <h3 className="text-lg font-medium text-white mb-2">Aucun document disponible</h3>
+              <p className="text-neutral-400 text-sm mb-6">
+                Vos ressources apparaîtront ici dès qu&apos;elles seront partagées par l&apos;équipe Nexus.
+              </p>
+              <p className="text-neutral-500 text-xs flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 text-brand-accent" />
+                Bilans, corrections, factures — tout au même endroit.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les types</SelectItem>
-                  <SelectItem value="Fiche">Fiches</SelectItem>
-                  <SelectItem value="Exercices">Exercices</SelectItem>
-                  <SelectItem value="Méthode">Méthodologie</SelectItem>
-                  <SelectItem value="Quiz">Quiz</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Liste des ressources */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredResources.length === 0 ? (
-            <div className="col-span-full">
-              <Card className="bg-white/5 border border-white/10">
-                <CardContent className="text-center py-12">
-                  <BookOpen className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">
-                    Aucune ressource trouvée
-                  </h3>
-                  <p className="text-neutral-400">
-                    Essayez de modifier vos critères de recherche.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          ) : (
-            filteredResources.map((resource) => (
-              <Card key={resource.id} className="bg-white/5 border border-white/10 hover:border-brand-accent/50 hover:shadow-premium transition">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <Badge variant="outline" className="mb-2 border-white/10 bg-white/5 text-neutral-200">
-                      {resource.subject}
-                    </Badge>
-                    <div className="flex space-x-1">
-                      <Badge variant="default" className="bg-white/10 text-white border border-white/10">
-                        {resource.type}
-                      </Badge>
-                      {resource.isDownloaded && (
-                        <Badge variant="default" className="bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
-                          Téléchargé
-                        </Badge>
-                      )}
+        {!error && documents.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {documents.map((doc) => (
+              <Card
+                key={doc.id}
+                className="bg-white/5 border border-white/10 hover:border-brand-accent/30 hover:shadow-premium transition-all duration-200 group"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-white/5 rounded-lg group-hover:bg-brand-accent/10 transition-colors">
+                      {getFileIcon(doc.mimeType)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-white truncate" title={doc.title}>
+                        {doc.title}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-neutral-400">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {formatDate(doc.createdAt)}
+                        </span>
+                        <span className="w-1 h-1 bg-neutral-600 rounded-full" />
+                        <span>{formatSize(doc.sizeBytes)}</span>
+                      </div>
                     </div>
                   </div>
-                  <CardTitle className="text-lg leading-tight">
-                    {resource.title}
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <p className="text-neutral-300 text-sm">
-                    {resource.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-xs text-neutral-400">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{new Date(resource.lastUpdated).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                    <span>{resource.downloads} téléchargements</span>
-                  </div>
 
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1 border-white/10 bg-white/5 text-neutral-200">
-                      <Eye className="w-4 h-4 mr-1" />
-                      Voir
-                    </Button>
-                    <Button size="sm" className="flex-1">
-                      <Download className="w-4 h-4 mr-1" />
+                  <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+                    <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      {doc.originalName.split('.').pop()?.toUpperCase() || 'FILE'}
+                    </span>
+                    <a
+                      href={`/api/documents/${doc.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-accent hover:text-brand-accent/80 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
                       Télécharger
-                    </Button>
+                    </a>
                   </div>
                 </CardContent>
               </Card>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
-  )
+  );
 }

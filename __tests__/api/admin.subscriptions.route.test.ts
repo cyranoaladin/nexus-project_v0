@@ -1,9 +1,8 @@
 import { GET, PUT } from '@/app/api/admin/subscriptions/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -29,7 +28,7 @@ describe('GET /api/admin/subscriptions', () => {
   });
 
   it('returns 401 when not admin', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await GET(makeRequest('http://localhost:3000/api/admin/subscriptions'));
     const body = await response.json();
@@ -39,7 +38,7 @@ describe('GET /api/admin/subscriptions', () => {
   });
 
   it('returns subscriptions with pagination', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
@@ -78,7 +77,7 @@ describe('PUT /api/admin/subscriptions', () => {
   });
 
   it('returns 401 when not admin', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await PUT(makeRequest('http://localhost:3000/api/admin/subscriptions', {}));
 
@@ -86,7 +85,7 @@ describe('PUT /api/admin/subscriptions', () => {
   });
 
   it('returns 400 for invalid status', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
@@ -103,7 +102,7 @@ describe('PUT /api/admin/subscriptions', () => {
   });
 
   it('returns 400 for missing subscriptionId', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 
@@ -119,7 +118,7 @@ describe('PUT /api/admin/subscriptions', () => {
   });
 
   it('updates subscription for valid payload', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
     });
 

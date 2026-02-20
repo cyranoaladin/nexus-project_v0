@@ -2,7 +2,7 @@
 
 services:
   postgres-db:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: nexus-postgres-db
     restart: always
     environment:
@@ -43,6 +43,8 @@ services:
       RAG_SEARCH_TIMEOUT: "10000"
     ports:
       - "3001:3000"
+    volumes:
+      - ./storage:/app/storage
     networks:
       - nexus-network
       - infra_rag_net

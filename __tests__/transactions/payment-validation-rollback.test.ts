@@ -66,7 +66,7 @@ describe('Payment Validation Transaction Rollback', () => {
         currency: 'TND',
         description: 'Test subscription payment',
         status: 'PENDING',
-        method: 'konnect',
+        method: 'clictopay',
         externalId: `test_rollback_payment_${runId}`,
         metadata: {
           studentId: studentRecordId,

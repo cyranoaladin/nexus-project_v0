@@ -8,8 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 interface KPIData {
@@ -40,7 +39,7 @@ interface AlertEntry {
 export async function GET(request: NextRequest) {
   try {
     // RBAC Guard: ADMIN only
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session || userRole !== 'ADMIN') {

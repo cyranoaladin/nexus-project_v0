@@ -1,13 +1,26 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { createId } from '@paralleldrive/cuid2';
 
 const prisma = new PrismaClient();
 
+// Helper to generate random vector
+function generateVector(dim: number = 1536): number[] {
+  return Array.from({ length: dim }, () => Math.random() * 2 - 1); // Random float between -1 and 1
+}
+
+// Helper to pick random item
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
 async function main() {
-  // Créer un utilisateur admin par défaut
+  console.log('🌱 Starting Massive Seeding...');
+
+  // 1. Admin & Staff
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'admin@nexus-reussite.com' },
     update: { activatedAt: new Date() },
     create: {
@@ -20,243 +33,136 @@ async function main() {
     },
   });
 
-  console.log('Utilisateur admin créé:', admin.email);
-
-  // Créer une assistante
-  const assistante = await prisma.user.upsert({
-    where: { email: 'assistante@nexus-reussite.com' },
-    update: { activatedAt: new Date() },
-    create: {
-      email: 'assistante@nexus-reussite.com',
-      password: hashedPassword,
-      firstName: 'Sophia',
-      lastName: 'Assistante',
-      role: 'ASSISTANTE',
-      activatedAt: new Date(),
-    },
-  });
-
-  console.log('Utilisateur assistante créé:', assistante.email);
-
-  // Créer des coachs avec leurs profils
-  const coaches = [
-    {
-      email: 'helios@nexus-reussite.com',
-      firstName: 'Hélios',
-      lastName: 'Lumière',
-      pseudonym: 'Hélios',
-      tag: '🎓 Agrégé',
-      subjects: ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
-      description: 'Agrégé en mathématiques avec 15 ans d\'expérience dans l\'enseignement supérieur.',
-      philosophy: 'Les mathématiques sont un langage universel qui ouvre les portes de la logique et de la créativité.',
-      expertise: 'Préparation aux concours, remise à niveau, approfondissement'
-    },
-    {
-      email: 'zenon@nexus-reussite.com',
-      firstName: 'Zénon',
-      lastName: 'Stratège',
-      pseudonym: 'Zénon',
-      tag: '🎯 Stratège',
-      subjects: ['NSI', 'MATHEMATIQUES'],
-      description: 'Expert en informatique et algorithmique, spécialisé dans la préparation aux concours d\'ingénieur.',
-      philosophy: 'L\'informatique moderne nécessite une approche structurée et créative.',
-      expertise: 'Programmation, algorithmes, préparation aux concours d\'ingénieur'
-    },
-    {
-      email: 'athena@nexus-reussite.com',
-      firstName: 'Athéna',
-      lastName: 'Sagesse',
-      pseudonym: 'Athéna',
-      tag: '📚 Philosophe',
-      subjects: ['PHILOSOPHIE', 'FRANCAIS'],
-      description: 'Docteur en philosophie, spécialisée dans la méthodologie et l\'argumentation.',
-      philosophy: 'La philosophie développe l\'esprit critique et la capacité d\'argumentation.',
-      expertise: 'Méthodologie, dissertation, culture générale'
-    },
-    {
-      email: 'hermes@nexus-reussite.com',
-      firstName: 'Hermès',
-      lastName: 'Messager',
-      pseudonym: 'Hermès',
-      tag: '🌍 Linguiste',
-      subjects: ['ANGLAIS', 'ESPAGNOL'],
-      description: 'Professeur de langues vivantes, spécialisé dans la préparation aux examens internationaux.',
-      philosophy: 'Les langues sont des ponts vers d\'autres cultures et perspectives.',
-      expertise: 'Préparation TOEFL, IELTS, DELE, conversation'
-    },
-    {
-      email: 'clio@nexus-reussite.com',
-      firstName: 'Clio',
-      lastName: 'Mémoire',
-      pseudonym: 'Clio',
-      tag: '🏛️ Historienne',
-      subjects: ['HISTOIRE_GEO', 'SES'],
-      description: 'Agrégée d\'histoire-géographie, spécialisée dans la méthodologie et l\'analyse documentaire.',
-      philosophy: 'L\'histoire nous éclaire sur le présent et nous guide vers l\'avenir.',
-      expertise: 'Méthodologie, analyse documentaire, géopolitique'
-    }
-  ];
-
-  for (const coachData of coaches) {
-    // Créer l'utilisateur coach
-    const coachUser = await prisma.user.upsert({
-      where: { email: coachData.email },
-      update: { activatedAt: new Date() },
+  // 2. Coaches (10)
+  const subjectsList = Object.values(Subject);
+  
+  for (let i = 1; i <= 10; i++) {
+    const email = `coach${i}@nexus.local`;
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {},
       create: {
-        email: coachData.email,
+        email,
         password: hashedPassword,
-        firstName: coachData.firstName,
-        lastName: coachData.lastName,
+        firstName: `Coach`,
+        lastName: `${i}`,
         role: 'COACH',
         activatedAt: new Date(),
       },
     });
 
-    // Créer le profil coach
-    const coachProfile = await prisma.coachProfile.upsert({
-      where: { userId: coachUser.id },
+    await prisma.coachProfile.upsert({
+      where: { userId: user.id },
       update: {},
       create: {
-        userId: coachUser.id,
-        title: 'Professeur',
-        pseudonym: coachData.pseudonym,
-        tag: coachData.tag,
-        description: coachData.description,
-        philosophy: coachData.philosophy,
-        expertise: coachData.expertise,
-        subjects: coachData.subjects,
-        availableOnline: true,
-        availableInPerson: true,
+        userId: user.id,
+        pseudonym: `CoachMaster${i}`,
+        subjects: [pickRandom(subjectsList), pickRandom(subjectsList)],
+        title: 'Professeur Certifié',
+        description: 'Expert en pédagogie différenciée.',
+      }
+    });
+  }
+  console.log('✅ 10 Coaches seeded');
+
+  // 3. Parents (50) & Students (100)
+  // Each parent has 2 students on average
+  for (let i = 1; i <= 50; i++) {
+    const parentEmail = `parent${i}@nexus.local`;
+    
+    // Create Parent
+    const parentUser = await prisma.user.upsert({
+      where: { email: parentEmail },
+      update: {},
+      create: {
+        email: parentEmail,
+        password: hashedPassword,
+        firstName: `Parent`,
+        lastName: `${i}`,
+        role: 'PARENT',
+        activatedAt: new Date(),
       },
     });
 
-    console.log(`Coach ${coachData.pseudonym} créé:`, coachProfile);
+    const parentProfile = await prisma.parentProfile.upsert({
+      where: { userId: parentUser.id },
+      update: {},
+      create: { userId: parentUser.id }
+    });
 
-    // Créer quelques disponibilités pour chaque coach
-    const availabilitySlots = [
-      { dayOfWeek: 1, startTime: '09:00', endTime: '10:00' }, // Lundi
-      { dayOfWeek: 1, startTime: '14:00', endTime: '15:00' },
-      { dayOfWeek: 2, startTime: '10:00', endTime: '11:00' }, // Mardi
-      { dayOfWeek: 2, startTime: '15:00', endTime: '16:00' },
-      { dayOfWeek: 3, startTime: '09:00', endTime: '10:00' }, // Mercredi
-      { dayOfWeek: 3, startTime: '14:00', endTime: '15:00' },
-      { dayOfWeek: 4, startTime: '10:00', endTime: '11:00' }, // Jeudi
-      { dayOfWeek: 4, startTime: '15:00', endTime: '16:00' },
-      { dayOfWeek: 5, startTime: '09:00', endTime: '10:00' }, // Vendredi
-      { dayOfWeek: 5, startTime: '14:00', endTime: '15:00' }
-    ];
-
-    for (const slot of availabilitySlots) {
-      const exists = await prisma.coachAvailability.findFirst({
-        where: {
-          coachId: coachUser.id,
-          dayOfWeek: slot.dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          isRecurring: true,
-          specificDate: null
-        }
-      });
-      if (!exists) {
-        await prisma.coachAvailability.create({
-          data: {
-            coachId: coachUser.id,
-            dayOfWeek: slot.dayOfWeek,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            isAvailable: true,
-            isRecurring: true,
-            validFrom: new Date(),
-            validUntil: null
-          }
+    // Create 2 students per parent
+    for (let j = 1; j <= 2; j++) {
+        const studentEmail = `student${i}-${j}@nexus.local`;
+        const studentUser = await prisma.user.upsert({
+            where: { email: studentEmail },
+            update: {},
+            create: {
+                email: studentEmail,
+                password: hashedPassword,
+                firstName: `Eleve`,
+                lastName: `${i}-${j}`,
+                role: 'ELEVE',
+                activatedAt: new Date(),
+            }
         });
-      }
+
+        await prisma.student.upsert({
+            where: { userId: studentUser.id },
+            update: {},
+            create: {
+                userId: studentUser.id,
+                parentId: parentProfile.id,
+                grade: j === 1 ? 'PREMIERE' : 'TERMINALE',
+                credits: 5,
+            }
+        });
     }
-
-    console.log(`Disponibilités créées pour ${coachData.pseudonym}`);
   }
+  console.log('✅ 50 Parents & 100 Students seeded');
 
-  // Créer quelques données de test
-  const testUser = await prisma.user.upsert({
-    where: { email: 'test@example.com' },
-    update: {},
-    create: {
-      email: 'test@example.com',
-      password: hashedPassword,
-      firstName: 'Test',
-      lastName: 'User',
-      role: 'ELEVE',
-    },
-  });
+  // 4. Pedagogical Content with Vectors (20)
+  console.log('🧠 Seeding Vector Knowledge Base...');
+  
+  // Clean existing to avoid duplicates logic complexity
+  // await prisma.pedagogicalContent.deleteMany(); // Dangerous in prod, safe in seed if we assume fresh start or idempotent
 
-  // Créer des parents et étudiants de test
-  const parentUser = await prisma.user.upsert({
-    where: { email: 'parent@example.com' },
-    update: { activatedAt: new Date() },
-    create: {
-      email: 'parent@example.com',
-      password: hashedPassword,
-      firstName: 'Parent',
-      lastName: 'Test',
-      role: 'PARENT',
-      activatedAt: new Date(),
-    },
-  });
+  const contents = [
+      { title: "Dérivée d'une fonction", subject: "MATHEMATIQUES", content: "La dérivée f'(x) représente le taux d'accroissement instantané..." },
+      { title: "Loi binomiale", subject: "MATHEMATIQUES", content: "La loi binomiale modélise le nombre de succès dans une répétition d'épreuves de Bernoulli..." },
+      { title: "Programmation Orientée Objet", subject: "NSI", content: "La POO repose sur des classes et des objets, l'encapsulation et l'héritage..." },
+      { title: "La conscience", subject: "PHILOSOPHIE", content: "La conscience est la connaissance immédiate de sa propre activité psychique..." },
+      // ... generate more generically
+  ];
 
-  const parentProfile = await prisma.parentProfile.upsert({
-    where: { userId: parentUser.id },
-    update: {},
-    create: {
-      userId: parentUser.id,
-      address: '123 Rue de la Paix, Tunis',
-      city: 'Tunis',
-      country: 'Tunisie'
-    },
-  });
+  for (let i = 0; i < 20; i++) {
+      const baseContent = contents[i % contents.length];
+      const title = `${baseContent.title} ${i + 1}`;
+      const vector = generateVector(1536);
+      const id = createId();
+      
+      // Use raw query for vector insertion
+      // Note: We cast the array to vector type string representation properly if needed, but Prisma Raw usually handles params.
+      // However, pgvector expects '[1,2,3]' string format or array.
+      
+      const vectorString = `[${vector.join(',')}]`;
 
-  const studentUser = await prisma.user.upsert({
-    where: { email: 'student@example.com' },
-    update: {},
-    create: {
-      email: 'student@example.com',
-      password: hashedPassword,
-      firstName: 'Étudiant',
-      lastName: 'Test',
-      role: 'ELEVE',
-      activatedAt: new Date(), // Seeded student is pre-activated
-    },
-  });
+      await prisma.$executeRaw`
+        INSERT INTO "pedagogical_contents" (id, title, content, subject, "embedding_vector", "updatedAt", "embedding", "tags")
+        VALUES (
+            ${id}, 
+            ${title}, 
+            ${baseContent.content}, 
+            ${baseContent.subject}::"Subject", 
+            ${vectorString}::vector, 
+            NOW(), 
+            '[]'::jsonb, 
+            '[]'::jsonb
+        );
+      `;
+  }
+  console.log('✅ 20 Vectorized Contents seeded');
 
-  const student = await prisma.student.upsert({
-    where: { userId: studentUser.id },
-    update: {},
-    create: {
-      userId: studentUser.id,
-      parentId: parentProfile.id,
-      grade: 'Terminale',
-      school: 'Lycée Pilote',
-      credits: 10,
-      totalSessions: 0,
-      completedSessions: 0
-    },
-  });
-
-  console.log('Utilisateur test créé:', testUser.email);
-  console.log('Parent et étudiant créés:', { parent: parentProfile.id, student: student.id });
-
-  // Activer aussi test@example.com
-  await prisma.user.update({
-    where: { email: 'test@example.com' },
-    data: { activatedAt: new Date() },
-  });
-
-  console.log('\n=== SEED TERMINÉ ===');
-  console.log('Comptes disponibles (mot de passe: admin123):');
-  console.log('  ADMIN:      admin@nexus-reussite.com');
-  console.log('  ASSISTANTE: assistante@nexus-reussite.com');
-  console.log('  COACH:      helios/zenon/athena/hermes/clio@nexus-reussite.com');
-  console.log('  PARENT:     parent@example.com');
-  console.log('  ELEVE:      student@example.com, test@example.com');
+  console.log('🚀 Massive Seeding Complete.');
 }
 
 main()

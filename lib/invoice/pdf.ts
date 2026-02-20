@@ -118,8 +118,7 @@ function getPaymentMethodLabel(method: string | null | undefined): string {
   const labels: Record<string, string> = {
     CASH: 'Espèces',
     BANK_TRANSFER: 'Virement bancaire',
-    KONNECT: 'Konnect',
-    WISE: 'Wise',
+    CLICTOPAY: 'ClicToPay',
     CHECK: 'Chèque',
     OTHER: 'Autre',
   };

@@ -55,7 +55,7 @@ describe('Payment Idempotency - Concurrency', () => {
   describe('Direct Database Constraint', () => {
     it('should prevent duplicate payments with same externalId and method', async () => {
       if (!dbAvailable) return;
-      const externalId = `konnect_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const externalId = `clictopay_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const paymentData = {
         userId,
         type: 'SUBSCRIPTION' as const,
@@ -63,7 +63,7 @@ describe('Payment Idempotency - Concurrency', () => {
         currency: 'TND',
         description: 'Monthly subscription',
         status: 'COMPLETED' as const,
-        method: 'konnect',
+        method: 'clictopay',
         externalId
       };
 
@@ -80,8 +80,8 @@ describe('Payment Idempotency - Concurrency', () => {
 
     it('should allow concurrent webhook calls with upsert pattern', async () => {
       if (!dbAvailable) return;
-      const externalId = `konnect_tx_concurrent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const method = 'konnect';
+      const externalId = `clictopay_tx_concurrent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const method = 'clictopay';
 
       // Simulate 3 concurrent webhook calls for same transaction
       const results = await Promise.all([
@@ -137,35 +137,35 @@ describe('Payment Idempotency - Concurrency', () => {
       if (!dbAvailable) return;
       const externalId = `external_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Create payment with konnect
-      const konnect = await prisma.payment.create({
+      // Create payment with clictopay
+      const clictopay = await prisma.payment.create({
         data: {
           userId,
           type: 'SUBSCRIPTION',
           amount: 99.99,
           currency: 'TND',
-          description: 'Konnect payment',
-          method: 'konnect',
+          description: 'ClicToPay payment',
+          method: 'clictopay',
           externalId
         }
       });
 
-      // Create payment with wise (different method)
-      const wise = await prisma.payment.create({
+      // Create payment with bank_transfer (different method)
+      const bankTransfer = await prisma.payment.create({
         data: {
           userId,
           type: 'SUBSCRIPTION',
           amount: 99.99,
           currency: 'USD',
-          description: 'Wise payment',
-          method: 'wise',
+          description: 'Bank transfer payment',
+          method: 'bank_transfer',
           externalId
         }
       });
 
-      expect(konnect.id).toBeDefined();
-      expect(wise.id).toBeDefined();
-      expect(konnect.id).not.toBe(wise.id);
+      expect(clictopay.id).toBeDefined();
+      expect(bankTransfer.id).toBeDefined();
+      expect(clictopay.id).not.toBe(bankTransfer.id);
     });
 
     it('should allow multiple payments with NULL externalId', async () => {
@@ -202,8 +202,8 @@ describe('Payment Idempotency - Concurrency', () => {
   describe('Upsert Pattern Behavior', () => {
     it('should return existing payment on second call', async () => {
       if (!dbAvailable) return;
-      const externalId = `konnect_tx_upsert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const method = 'konnect';
+      const externalId = `clictopay_tx_upsert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const method = 'clictopay';
 
       // First call creates payment
       const result1 = await upsertPaymentByExternalId({
@@ -241,8 +241,8 @@ describe('Payment Idempotency - Concurrency', () => {
 
     it('should handle race condition in upsert gracefully', async () => {
       if (!dbAvailable) return;
-      const externalId = `konnect_tx_race_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const method = 'konnect';
+      const externalId = `clictopay_tx_race_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const method = 'clictopay';
 
       // Simulate race: both threads check "not exists", then both try to create
       const createAttempts = await Promise.allSettled([

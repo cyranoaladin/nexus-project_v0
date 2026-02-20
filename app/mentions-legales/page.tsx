@@ -72,7 +72,7 @@ export default function MentionsLegalesPage() {
                             <ul className="mt-2 list-disc pl-5 text-neutral-300">
                                 <li><strong>Hébergement Web :</strong> VPS Ubuntu (Docker, Nginx reverse proxy)</li>
                                 <li><strong>Base de Données & Auth :</strong> PostgreSQL + NextAuth (JWT)</li>
-                                <li><strong>Paiements :</strong> Konnect (Tunisie, TND) & Wise (International, EUR/USD)</li>
+                                <li><strong>Paiements :</strong> ClicToPay (Banque Zitouna, TND) & Virement bancaire</li>
                             </ul>
                         </section>
 

@@ -1,8 +1,7 @@
 import { MathJaxProvider } from './components/MathJaxProvider';
 import MathsRevisionClient from './components/MathsRevisionClient';
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 
 /**
  * Spécialité Maths Première - Interactive Revision Page
@@ -17,7 +16,7 @@ import { authOptions } from '@/lib/auth';
 export default async function MathsPremierePage() {
   const callbackUrl = '/programme/maths-1ere';
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const sessionUser = session?.user as { id?: string; firstName?: string; name?: string } | undefined;
 
   if (!sessionUser?.id) {

@@ -2,7 +2,7 @@
  * Unit Tests - NextAuth API Route
  */
 
-jest.mock('next-auth', () => ({
+jest.mock('@/auth', () => ({
   __esModule: true,
   default: jest.fn(() => 'handler'),
 }));

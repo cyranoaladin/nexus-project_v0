@@ -20,8 +20,8 @@ jest.mock('next/server', () => {
 });
 
 // Mock next-auth
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 // Mock next/navigation
@@ -43,11 +43,10 @@ jest.mock('@/lib/auth', () => ({
   authOptions: {},
 }));
 
-import { getServerSession } from 'next-auth';
 import { getUserEntitlements } from '@/lib/entitlement';
 import { requireFeature, requireFeatureApi } from '@/lib/access/guard';
 
-const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
+const mockGetServerSession = auth as jest.MockedFunction<typeof auth>;
 const mockGetUserEntitlements = getUserEntitlements as jest.MockedFunction<typeof getUserEntitlements>;
 
 beforeEach(() => {

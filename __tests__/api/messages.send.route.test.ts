@@ -1,9 +1,8 @@
 import { POST } from '@/app/api/messages/send/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -25,7 +24,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('returns 401 when unauthenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({}));
     const body = await response.json();
@@ -35,7 +34,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('returns 404 when receiver missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1', role: 'ELEVE' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
@@ -48,7 +47,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('returns 400 on invalid payload', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1', role: 'ELEVE' },
     });
 
@@ -60,7 +59,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('blocks student to non coach/assistant', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1', role: 'ELEVE' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
@@ -76,7 +75,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('creates message when allowed', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1', role: 'ELEVE' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
@@ -102,7 +101,7 @@ describe('POST /api/messages/send', () => {
   });
 
   it('allows coach to send with attachment fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-3', role: 'COACH' },
     });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({

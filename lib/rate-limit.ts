@@ -1,6 +1,6 @@
 /**
  * Rate Limiting Middleware
- * Protects API routes from abuse using Upstash Redis
+ * Protects API routes from abuse using Upstash Redis (with In-Memory Fallback)
  */
 
 import { Ratelimit } from '@upstash/ratelimit';
@@ -8,7 +8,9 @@ import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 
-// Initialize Redis client (fallback to in-memory for development)
+console.log("DEBUG: RATE LIMIT LOADED - MEMORY FALLBACK ENABLED");
+
+// Initialize Redis client
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
     ? new Redis({
         url: process.env.UPSTASH_REDIS_REST_URL,
@@ -16,55 +18,41 @@ const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_RE
     })
     : undefined;
 
-// SECURITY: Warn loudly if rate limiting is disabled in production
-if (!redis && process.env.NODE_ENV === 'production') {
-    console.error(
-        '[SECURITY WARNING] Rate limiting is DISABLED — UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN is not set. ' +
-        'All rate limits are bypassed. Set these environment variables to enable rate limiting.'
-    );
+// In-Memory Fallback Store
+const memoryStore = new Map<string, { count: number; reset: number }>();
+
+function inMemoryRateLimit(identifier: string, limit: number, windowSeconds: number) {
+    const now = Date.now();
+    const windowMs = windowSeconds * 1000;
+    const record = memoryStore.get(identifier);
+
+    if (!record || now > record.reset) {
+        memoryStore.set(identifier, { count: 1, reset: now + windowMs });
+        return { success: true, limit, remaining: limit - 1, reset: now + windowMs };
+    }
+
+    if (record.count >= limit) {
+        return { success: false, limit, remaining: 0, reset: record.reset };
+    }
+
+    record.count++;
+    return { success: true, limit, remaining: limit - record.count, reset: record.reset };
 }
 
-// Create rate limiters for different endpoints
+// Configuration for limits
+const LIMITS = {
+    auth: { limit: 5, window: 15 * 60 }, // 5 req / 15 min
+    ai: { limit: 20, window: 60 },       // 20 req / 1 min
+    api: { limit: 100, window: 60 },     // 100 req / 1 min
+    notifyEmail: { limit: 5, window: 60 } // 5 req / 1 min
+};
+
+// Create rate limiters for different endpoints (Redis based)
 export const rateLimiters = {
-    // Strict rate limit for authentication endpoints
-    auth: redis
-        ? new Ratelimit({
-            redis,
-            limiter: Ratelimit.slidingWindow(5, '15 m'), // 5 requests per 15 minutes
-            analytics: true,
-            prefix: 'ratelimit:auth',
-        })
-        : null,
-
-    // Moderate rate limit for AI/ARIA endpoints
-    ai: redis
-        ? new Ratelimit({
-            redis,
-            limiter: Ratelimit.slidingWindow(20, '1 m'), // 20 requests per minute
-            analytics: true,
-            prefix: 'ratelimit:ai',
-        })
-        : null,
-
-    // General API rate limit
-    api: redis
-        ? new Ratelimit({
-            redis,
-            limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
-            analytics: true,
-            prefix: 'ratelimit:api',
-        })
-        : null,
-
-    // Strict rate limit for email notification endpoint (prevents spam/abuse)
-    notifyEmail: redis
-        ? new Ratelimit({
-            redis,
-            limiter: Ratelimit.slidingWindow(5, '1 m'), // 5 requests per minute per IP
-            analytics: true,
-            prefix: 'ratelimit:notify-email',
-        })
-        : null,
+    auth: redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(LIMITS.auth.limit, `${LIMITS.auth.window} s`), analytics: true, prefix: 'ratelimit:auth' }) : null,
+    ai: redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(LIMITS.ai.limit, `${LIMITS.ai.window} s`), analytics: true, prefix: 'ratelimit:ai' }) : null,
+    api: redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(LIMITS.api.limit, `${LIMITS.api.window} s`), analytics: true, prefix: 'ratelimit:api' }) : null,
+    notifyEmail: redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(LIMITS.notifyEmail.limit, `${LIMITS.notifyEmail.window} s`), analytics: true, prefix: 'ratelimit:notify-email' }) : null,
 };
 
 /**
@@ -73,47 +61,42 @@ export const rateLimiters = {
 export async function applyRateLimit(
     request: NextRequest,
     limiter: Ratelimit | null,
-    identifier?: string
+    identifier?: string,
+    type: keyof typeof LIMITS = 'api'
 ): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number; reason?: string }> {
-    if (!limiter) {
-        // SECURITY: Fail-closed in production — never allow unprotected requests
-        if (process.env.NODE_ENV === 'production') {
-            logger.error('Rate limiting NOT configured in production — failing closed (503)');
-            return { success: false, reason: 'RATELIMIT_NOT_CONFIGURED' };
-        }
-        // Dev/test: allow through with warning
-        logger.warn('Rate limiting disabled - Redis not configured');
-        return { success: true };
-    }
-
+    
     // Use IP address as identifier if not provided
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'anonymous';
     const id = identifier || ip;
 
-    try {
-        const { success, limit, remaining, reset } = await limiter.limit(id);
-
-        if (!success) {
-            logger.warn({
-                type: 'rate-limit-exceeded',
-                identifier: id,
-                path: request.nextUrl.pathname,
-                limit,
-                reset,
-            }, 'Rate limit exceeded');
+    // Redis path
+    if (limiter) {
+        try {
+            const { success, limit, remaining, reset } = await limiter.limit(id);
+            if (!success) {
+                logger.warn({ type: 'rate-limit-exceeded', identifier: id, path: request.nextUrl.pathname }, 'Rate limit exceeded (Redis)');
+            }
+            return { success, limit, remaining, reset };
+        } catch (error) {
+            logger.error({ error }, 'Redis Rate limiting error - falling back to memory');
+            // Fallback to memory on Redis error
         }
-
-        return { success, limit, remaining, reset };
-    } catch (error) {
-        logger.error({
-            type: 'rate-limit-error',
-            error: error instanceof Error ? error.message : 'Unknown error',
-        }, 'Rate limiting error');
-
-        // Fail open - allow request if rate limiting fails
-        return { success: true };
     }
+
+    // In-Memory Fallback Path
+    if (!redis) {
+        logger.warn('Rate limiting running in In-Memory Fallback mode (No Redis)');
+    }
+    
+    const config = LIMITS[type] || LIMITS.api;
+    const memResult = inMemoryRateLimit(`${type}:${id}`, config.limit, config.window);
+    
+    if (!memResult.success) {
+        logger.warn({ type: 'rate-limit-exceeded-mem', identifier: id, path: request.nextUrl.pathname }, 'Rate limit exceeded (Memory)');
+    }
+    
+    return memResult;
 }
 
 /**
@@ -135,22 +118,13 @@ export function createRateLimitResponse(
         { status: 429 }
     );
 
-    if (limit !== undefined) {
-        response.headers.set('X-RateLimit-Limit', limit.toString());
-    }
-    if (remaining !== undefined) {
-        response.headers.set('X-RateLimit-Remaining', remaining.toString());
-    }
-    if (reset !== undefined) {
-        response.headers.set('X-RateLimit-Reset', reset.toString());
-    }
+    if (limit !== undefined) response.headers.set('X-RateLimit-Limit', limit.toString());
+    if (remaining !== undefined) response.headers.set('X-RateLimit-Remaining', remaining.toString());
+    if (reset !== undefined) response.headers.set('X-RateLimit-Reset', reset.toString());
 
     return response;
 }
 
-/**
- * Create 503 response when rate limiting is not configured in production
- */
 function createRateLimitUnavailableResponse(): NextResponse {
     return NextResponse.json(
         {
@@ -172,13 +146,10 @@ export async function checkRateLimit(
     type: 'auth' | 'ai' | 'api' | 'notifyEmail' = 'api'
 ): Promise<NextResponse | null> {
     const limiter = rateLimiters[type];
-    const result = await applyRateLimit(request, limiter);
+    // Pass type to applyRateLimit for fallback config lookup
+    const result = await applyRateLimit(request, limiter, undefined, type);
 
     if (!result.success) {
-        // Distinguish between "not configured" (503) and "limit exceeded" (429)
-        if (result.reason === 'RATELIMIT_NOT_CONFIGURED') {
-            return createRateLimitUnavailableResponse();
-        }
         return createRateLimitResponse(result.limit, result.remaining, result.reset);
     }
 

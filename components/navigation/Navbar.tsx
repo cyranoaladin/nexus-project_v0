@@ -1,11 +1,10 @@
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import { navigationConfig } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
 
 export async function Navbar() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     redirect('/auth/signin');

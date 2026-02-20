@@ -1,9 +1,8 @@
 import { POST } from '@/app/api/parent/credit-request/route';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -26,7 +25,7 @@ describe('POST /api/parent/credit-request', () => {
   });
 
   it('returns 401 when not parent', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({}));
     const body = await response.json();
@@ -36,7 +35,7 @@ describe('POST /api/parent/credit-request', () => {
   });
 
   it('returns 400 on missing fields', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One' },
     });
 
@@ -48,7 +47,7 @@ describe('POST /api/parent/credit-request', () => {
   });
 
   it('returns 404 when parent profile missing', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One' },
     });
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
@@ -61,7 +60,7 @@ describe('POST /api/parent/credit-request', () => {
   });
 
   it('returns 404 when student not found', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One' },
     });
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
@@ -75,7 +74,7 @@ describe('POST /api/parent/credit-request', () => {
   });
 
   it('creates credit request', async () => {
-    (getServerSession as jest.Mock).mockResolvedValue({
+    (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One' },
     });
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });

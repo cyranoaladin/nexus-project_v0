@@ -23,8 +23,7 @@ interface TestResult {
 }
 
 interface PaymentConfig {
-  konnect: Record<string, boolean>;
-  wise: Record<string, boolean>;
+  clictopay: Record<string, boolean>;
   allConfigured: boolean;
 }
 
@@ -54,12 +53,11 @@ export default function AdminTestsPage() {
         setEmailConfig(emailData.configuration);
       }
 
-      // Charger config paiements
-      const paymentResponse = await fetch('/api/admin/test-payments');
-      if (paymentResponse.ok) {
-        const paymentData = await paymentResponse.json();
-        setPaymentConfig(paymentData.configuration);
-      }
+      // ClicToPay config — API not yet available
+      setPaymentConfig({
+        clictopay: { CLICTOPAY_API_KEY: !!process.env.NEXT_PUBLIC_CLICTOPAY_API_KEY },
+        allConfigured: false,
+      });
     } catch {
     }
   };
@@ -212,70 +210,26 @@ export default function AdminTestsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {paymentConfig && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-neutral-200">Konnect (Tunisie)</h4>
-                    {Object.entries(paymentConfig.konnect).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
-                        <span className="text-sm text-neutral-300">{key}</span>
-                        <Badge variant={configured ? 'default' : 'destructive'}>
-                          {configured ? 'OK' : 'Manquant'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-neutral-200">Wise (International)</h4>
-                    {Object.entries(paymentConfig.wise).map(([key, configured]) => (
-                      <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
-                        <span className="text-sm text-neutral-300">{key}</span>
-                        <Badge variant={configured ? 'default' : 'destructive'}>
-                          {configured ? 'OK' : 'Manquant'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm text-neutral-200">ClicToPay (Banque Zitouna)</h4>
+                  {Object.entries(paymentConfig.clictopay).map(([key, configured]) => (
+                    <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
+                      <span className="text-sm text-neutral-300">{key}</span>
+                      <Badge variant={configured ? 'default' : 'destructive'}>
+                        {configured ? 'OK' : 'Manquant'}
+                      </Badge>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              <div className="space-y-3">
-                <Button
-                  onClick={() => runTest('konnectConnection', '/api/admin/test-payments', {
-                    action: 'test_connection'
-                  })}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  Tester Connexion Konnect
-                </Button>
-
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Montant (millimes)"
-                    value={testAmount}
-                    onChange={(e) => setTestAmount(e.target.value)}
-                    min="100"
-                    className="flex-1 bg-surface-elevated border-white/10 text-neutral-100"
-                  />
-                  <Button
-                    onClick={() => runTest('konnectPayment', '/api/admin/test-payments', {
-                      action: 'create_test_payment',
-                      amount: parseInt(testAmount)
-                    })}
-                    disabled={loading || !testAmount}
-                    variant="outline"
-                    className="border-white/10 text-neutral-200 hover:text-white"
-                  >
-                    Créer Paiement Test
-                  </Button>
-                </div>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                <p className="text-sm text-amber-200 font-medium">En attente d&apos;activation des clés API ClicToPay</p>
+                <p className="text-xs text-amber-300/70 mt-1">Les tests de connexion seront disponibles après configuration.</p>
               </div>
 
               <div className="space-y-2">
-                <TestResultDisplay testKey="konnectConnection" title="Test Connexion Konnect" />
-                <TestResultDisplay testKey="konnectPayment" title="Test Création Paiement" />
+                <TestResultDisplay testKey="clictopayConnection" title="Test Connexion ClicToPay" />
               </div>
             </CardContent>
           </Card>
