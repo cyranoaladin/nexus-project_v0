@@ -299,6 +299,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
         run: npm run build
@@ -308,6 +309,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
           RATE_LIMIT_DISABLE: '1'
@@ -333,6 +335,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
           REUSE_EXISTING_SERVER: 'true'
         run: npx playwright test --project=chromium
 
