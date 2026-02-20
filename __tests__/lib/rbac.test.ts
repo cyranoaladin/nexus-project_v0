@@ -164,7 +164,7 @@ describe('getPoliciesForRole()', () => {
     expect(keys).toContain('parent.dashboard');
     expect(keys).toContain('parent.children');
     expect(keys).toContain('sessions.book');
-    expect(keys).toContain('payments.wise');
+    expect(keys).toContain('payments.bank-transfer');
     expect(keys).not.toContain('admin.dashboard');
     expect(keys).not.toContain('coach.dashboard');
   });
