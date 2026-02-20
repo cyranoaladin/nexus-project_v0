@@ -1,5 +1,4 @@
 import NextAuth from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
@@ -8,7 +7,9 @@ import { UserRole } from '@prisma/client';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma) as any,
+  // No adapter needed: Credentials-only auth with JWT strategy.
+  // PrismaAdapter requires Account/Session/VerificationToken tables
+  // which are not in the schema (and not needed for credentials + JWT).
   session: { strategy: 'jwt' },
   providers: [
     Credentials({
