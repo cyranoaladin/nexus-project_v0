@@ -236,6 +236,9 @@ test.describe('Authentication & Booking Flow', () => {
 
     test.afterAll(async () => {
       await setStudentCreditsByEmail(CREDS.student.email, 8);
+      if (CREDS.student2?.email) {
+        await setStudentCreditsByEmail(CREDS.student2.email, 5);
+      }
       await disconnectPrisma();
     });
 
@@ -433,7 +436,11 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Booking fails when parent has insufficient credits', async ({ page }) => {
+      // Zero credits for ALL children to ensure the test is deterministic
       await setStudentCreditsByEmail(CREDS.student.email, 0);
+      if (CREDS.student2?.email) {
+        await setStudentCreditsByEmail(CREDS.student2.email, 0);
+      }
 
       await login(page, 'parent');
 
