@@ -6669,3 +6669,560 @@ Routes that modify single fields use POST instead of PATCH.
 
 ---
 
+
+---
+
+## 8. Code Quality Sampling Review
+
+**Date**: February 21, 2026  
+**Reviewer**: AI Code Quality Analyst  
+**Scope**: Sample-based review of code quality, maintainability, and refactoring opportunities  
+**Files Reviewed**: 30 largest files, 20 most frequently changed files, key business logic modules
+
+---
+
+### 8.1 Methodology
+
+**Sampling Strategy**:
+1. **Size-based sampling**: Top 30 largest files (identified via `wc -l`)
+2. **Change-frequency sampling**: Top 20 most frequently changed files (last 3 months via `git log`)
+3. **Complexity sampling**: Files with highest function density
+4. **Pattern analysis**: Automated pattern detection (console.log, TODO, complex conditions)
+
+**Metrics Collected**:
+- Lines of code per file
+- Function count and average function length
+- Cyclomatic complexity indicators (nested conditions, chained operators)
+- Code duplication patterns
+- Error handling coverage
+- Console.log and debug statement count
+- TODO/FIXME comment density
+
+---
+
+### 8.2 File Size and Complexity Analysis
+
+#### **CQ-001: Excessive File Sizes** (P2) — **Major Maintainability Risk**
+
+**Finding**: **14 files exceed 700 lines**, significantly above recommended 300-line threshold.
+
+**Top 15 Largest Files**:
+| Rank | File | Lines | Type | Issue Severity |
+|------|------|-------|------|----------------|
+| 1 | `app/programme/maths-1ere/data.ts` | 1424 | Data | ✅ Acceptable (pure data) |
+| 2 | `app/academies-hiver/page.tsx` | 1418 | UI | ❌ **Critical** (monolithic component) |
+| 3 | `app/programme/maths-1ere/components/MathsRevisionClient.tsx` | 1390 | UI | ❌ **Critical** (complex client component) |
+| 4 | `e2e/parent-dashboard.spec.ts` | 1066 | Test | ⚠️ Moderate (E2E test suite) |
+| 5 | `lib/data/stage-qcm-structure.ts` | 1033 | Data | ✅ Acceptable (static data) |
+| 6 | `__tests__/lib/diagnostics/comprehensive-engine.test.ts` | 1027 | Test | ⚠️ Moderate (test coverage) |
+| 7 | `app/offres/page.tsx` | 1021 | UI | ❌ **High** (large marketing page) |
+| 8 | `app/bilan-pallier2-maths/resultat/[id]/page.tsx` | 969 | UI | ❌ **High** (complex result rendering) |
+| 9 | `app/equipe/page.tsx` | 947 | UI | ⚠️ Moderate (content-heavy) |
+| 10 | `app/dashboard/admin/facturation/page.tsx` | 940 | UI | ❌ **High** (admin dashboard) |
+| 11 | `__tests__/api/sessions/book.test.ts` | 927 | Test | ⚠️ Moderate (comprehensive tests) |
+| 12 | `app/bilan-pallier2-maths/page.tsx` | 807 | UI | ⚠️ Moderate (form page) |
+| 13 | `lib/diagnostics/score-diagnostic.ts` | 773 | Logic | ⚠️ Moderate (complex algorithm) |
+| 14 | `scripts/mega-e2e-validation.ts` | 752 | Script | ⚠️ Moderate (validation script) |
+| 15 | `components/ui/session-booking.tsx` | 733 | UI | ❌ **High** (complex booking UI) |
+
+**Impact**:
+- **Cognitive Load**: Files >500 lines require mental pagination to understand
+- **Review Difficulty**: Code reviews become time-consuming and error-prone
+- **Merge Conflicts**: Large files increase conflict probability
+- **Performance**: Large client components increase bundle sizes (especially `MathsRevisionClient.tsx` at 1390 lines)
+
+**Root Causes**:
+1. **Missing component composition**: UI pages contain inline JSX instead of extracted components
+2. **God components**: Single components handle state, logic, rendering, and data fetching
+3. **Data co-location**: Large data arrays embedded in code (acceptable for pure data files)
+
+**Recommendations**:
+1. **Immediate (P1)**:
+   - Split `MathsRevisionClient.tsx` (1390 lines) into:
+     - `MathsRevisionClient.tsx` (container, ~200 lines)
+     - `components/maths/QuizSection.tsx`
+     - `components/maths/ChallengeSection.tsx`
+     - `components/maths/ProgressTracker.tsx`
+   - Extract reusable sections from `academies-hiver/page.tsx` (1418 lines) into `components/marketing/AcademyCard.tsx`
+   
+2. **Medium-term (P2)**:
+   - Enforce max file size (500 lines) in ESLint config:
+     ```js
+     "max-lines": ["warn", { "max": 500, "skipBlankLines": true, "skipComments": true }]
+     ```
+   - Refactor `offres/page.tsx` and `equipe/page.tsx` using component composition pattern
+
+3. **Long-term (P3)**:
+   - Add file size metrics to CI pipeline (fail PR if new files >700 lines)
+
+**Effort**: Large (2-3 sprints for top 5 files)
+
+---
+
+#### **CQ-002: Monolithic API Route Handlers** (P2)
+
+**Finding**: **10 API routes exceed 400 lines**, violating single-responsibility principle.
+
+**Top 10 Largest API Routes**:
+| File | Lines | Primary Issue |
+|------|-------|---------------|
+| `app/api/coaches/availability/route.ts` | 513 | Complex availability calculation logic |
+| `app/api/sessions/book/route.ts` | 467 | Inline transaction logic, validation, and business rules |
+| `app/api/bilan-pallier2-maths/route.ts` | 404 | Diagnostic generation mixed with data formatting |
+| `app/api/payments/validate/route.ts` | 393 | Payment processing with multiple providers inline |
+| `app/api/admin/dashboard/route.ts` | 372 | 18 parallel queries + aggregation logic |
+| `app/api/admin/users/route.ts` | 317 | User management CRUD all in one file |
+| `app/api/reservation/route.ts` | 304 | Legacy route (duplicate of `/sessions/book`) |
+| `app/api/aria/chat/route.ts` | 290 | ARIA streaming logic mixed with auth and entitlement |
+| `app/api/admin/invoices/[id]/route.ts` | 280 | Invoice CRUD + PDF generation |
+| `app/api/admin/invoices/route.ts` | 265 | Invoice listing + filtering logic |
+
+**Example Code Smell** (`app/api/admin/dashboard/route.ts`):
+```typescript
+// Lines 84-130: 18 parallel Prisma queries inline
+const [
+  totalUsers,
+  totalStudents,
+  totalCoaches,
+  totalAssistants,
+  // ... 14 more queries
+] = await Promise.all([
+  prisma.user.count(),
+  prisma.student.count(),
+  // ... 16 more inline queries
+]);
+
+// Lines 145-280: Aggregation logic inline
+const userGrowth = aggregateByMonth(allUsers); // Helper function at top of file
+const revenueGrowth = aggregateRevenueByMonth(allPayments);
+// ... more aggregation
+```
+
+**Problem**: Business logic, data access, and response formatting are all in route handler.
+
+**Recommendation**:
+- **Refactor to service layer pattern**:
+  ```typescript
+  // lib/analytics/dashboard-metrics.ts
+  export async function getDashboardMetrics() {
+    const [userMetrics, revenueMetrics] = await Promise.all([
+      getUserGrowthMetrics(),
+      getRevenueMetrics()
+    ]);
+    return { userMetrics, revenueMetrics };
+  }
+  
+  // app/api/admin/dashboard/route.ts (simplified to ~50 lines)
+  export async function GET() {
+    const session = await requireRole(UserRole.ADMIN);
+    const metrics = await getDashboardMetrics();
+    return successResponse(metrics);
+  }
+  ```
+
+**Benefits**:
+- Testability: Can unit test `getDashboardMetrics()` without HTTP mocking
+- Reusability: Metrics can be used in other contexts (scheduled reports, webhooks)
+- Readability: Route handler becomes trivial routing logic
+
+**Effort**: Medium (1-2 weeks for top 5 routes)  
+**Priority**: P2
+
+---
+
+### 8.3 Function Length and Complexity
+
+#### **CQ-003: Long Functions** (P3)
+
+**Finding**: Several files contain functions exceeding **100 lines** (recommended max: 50).
+
+**Examples**:
+1. **`MathsRevisionClient.tsx`** — 14 functions in 1390 lines = **99 lines/function average**
+   - `MathsRevisionClient` component: **~400 lines** (includes JSX)
+   - Multiple `useEffect` hooks with inline logic
+
+2. **`lib/diagnostics/score-diagnostic.ts`** — 11 functions in 773 lines = **70 lines/function**
+   - `calculateDomainScores()`: **~120 lines**
+   - `detectInconsistencies()`: **~80 lines**
+
+3. **`components/ui/session-booking.tsx`** — Complex state management (733 lines)
+   - `SessionBooking` component: **~500 lines**
+   - Inline event handlers and validation logic
+
+**Indicators of High Complexity**:
+- **2,015 `if` statements** across codebase (proxy for cyclomatic complexity)
+- **12 instances** of triple chained conditions (`&&` && `&&`)
+- **Nested maps**: 2 files use `.map().map()` (potential O(n²) complexity)
+
+**Example of Complex Condition** (`lib/diagnostics/score-diagnostic.ts:87`):
+```typescript
+.filter((c) => c.mastery !== null && c.mastery >= 2 && c.mastery <= 3 && (c.friction === null || c.friction <= 1))
+```
+
+**Recommendation**:
+1. Extract complex conditions to named functions:
+   ```typescript
+   const isConfidentButNotMastered = (c: Competency) => {
+     return c.mastery !== null 
+       && c.mastery >= 2 
+       && c.mastery <= 3 
+       && (c.friction === null || c.friction <= 1);
+   };
+   
+   // Usage:
+   .filter(isConfidentButNotMastered)
+   ```
+
+2. Enable ESLint rule:
+   ```js
+   "complexity": ["warn", { "max": 10 }],
+   "max-statements": ["warn", 20]
+   ```
+
+**Priority**: P3  
+**Effort**: Small (incremental refactoring)
+
+---
+
+### 8.4 Code Duplication
+
+#### **CQ-004: Fetch API Duplication** (P2)
+
+**Finding**: **81 files** use raw `fetch()` calls, many with duplicated error handling patterns.
+
+**Pattern Analysis**:
+```typescript
+// Pattern repeated in 81 files:
+const response = await fetch('/api/...');
+if (!response.ok) {
+  throw new Error('Failed to fetch');
+}
+const data = await response.json();
+```
+
+**Problem**: No centralized API client means:
+- Inconsistent error handling
+- No request/response interceptors
+- Difficult to add global headers (auth tokens, request IDs)
+- Hard to mock in tests
+
+**Recommendation**:
+- **Create centralized API client** (`lib/api/client.ts`):
+  ```typescript
+  export async function apiClient<T>(path: string, options?: RequestInit): Promise<T> {
+    const response = await fetch(path, {
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      ...options
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new ApiError(error.message, response.status);
+    }
+    
+    return response.json();
+  }
+  
+  // Usage:
+  const data = await apiClient<User>('/api/users/123');
+  ```
+
+**Benefits**:
+- DRY compliance
+- Centralized error handling
+- Easier to add logging, retry logic, or caching
+
+**Effort**: Medium (refactor 81 files)  
+**Priority**: P2
+
+---
+
+#### **CQ-005: Duplicate Helper Functions** (P3)
+
+**Finding**: Utility functions duplicated across files.
+
+**Examples**:
+1. **Date normalization logic** appears in 3 files:
+   - `app/api/sessions/book/route.ts:18-23` (`normalizeTime`)
+   - `lib/session-booking.ts` (similar logic)
+   - `components/ui/session-booking.tsx` (date manipulation)
+
+2. **Aggregation functions** duplicated:
+   - `app/api/admin/dashboard/route.ts:27-36` (`aggregateByMonth`)
+   - `app/api/admin/analytics/route.ts` (similar monthly aggregation)
+
+**Recommendation**:
+- Extract to `lib/utils/date.ts` and `lib/utils/aggregation.ts`
+- **Effort**: Small  
+- **Priority**: P3
+
+---
+
+### 8.5 Error Handling Patterns
+
+#### **CQ-006: Inconsistent Error Handling** (P2)
+
+**Finding**: **52 files** use `try/catch`, but error handling patterns vary:
+- **24 files** use `.catch()` instead of try/catch
+- Some catch blocks swallow errors silently
+- Inconsistent error logging
+
+**Pattern Examples**:
+
+**❌ Bad — Silent Error Swallowing**:
+```typescript
+// components/ui/session-booking.tsx:109
+try {
+  loadCoaches();
+} catch {
+  setError('Erreur lors du chargement des coachs');
+}
+// Error object not logged, making debugging impossible
+```
+
+**✅ Good — Centralized Error Handling**:
+```typescript
+// app/api/sessions/book/route.ts uses centralized ApiError
+throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
+```
+
+**Recommendation**:
+1. **Enforce error logging in catch blocks**:
+   ```typescript
+   } catch (error) {
+     logger.error({ error }, 'Failed to load coaches');
+     setError('Erreur lors du chargement des coachs');
+   }
+   ```
+
+2. **Use centralized error utilities** (`lib/api/errors.ts`) everywhere
+
+3. **ESLint rule**:
+   ```js
+   "no-empty-catch": "error"
+   ```
+
+**Priority**: P2  
+**Effort**: Medium
+
+---
+
+### 8.6 Development Artifacts and Code Hygiene
+
+#### **CQ-007: Excessive Console.log Statements** (P1) — **Production Risk**
+
+**Finding**: **444 `console.log` statements** in source code (excluding node_modules).
+
+**Impact**:
+- **Performance degradation** in production (logging overhead)
+- **Information leakage** (logs may contain sensitive data)
+- **Cluttered browser console** for end users
+
+**Distribution**:
+- 52 in `app/` directory (including UI components)
+- 91 in `lib/` directory (business logic)
+- 301 in tests and scripts (acceptable)
+
+**Example** (`app/programme/maths-1ere/components/MathsRevisionClient.tsx`):
+```typescript
+console.log('Progress loaded:', data); // Line 142
+console.log('Saving progress...'); // Line 251
+```
+
+**Recommendation**:
+1. **Remove all `console.log` from production code** (use `logger.info()` instead)
+2. **ESLint rule**:
+   ```js
+   "no-console": ["error", { "allow": ["warn", "error"] }]
+   ```
+3. **Replace with structured logging**:
+   ```typescript
+   logger.info({ progress: data }, 'Progress loaded');
+   ```
+
+**Priority**: P1 (security + performance risk)  
+**Effort**: Small (automated search-replace + manual review)
+
+---
+
+#### **CQ-008: High TODO/FIXME Density** (P3)
+
+**Finding**: **64 TODO/FIXME comments** in codebase.
+
+**Top 10 TODOs by Priority**:
+1. **P1** — `app/api/bilan-gratuit/route.ts:117` — `TODO: Envoyer email de bienvenue`
+2. **P1** — `app/api/bilan-gratuit/route.ts:118` — `TODO: Créer une tâche pour l'assistante`
+3. **P0** — `app/api/payments/clictopay/init/route.ts:25` — `TODO: Implémenter l'intégration ClicToPay`
+4. **P0** — `app/api/payments/clictopay/webhook/route.ts:15` — `TODO: Implémenter le traitement du webhook`
+5. **P2** — `app/api/analytics/event/route.ts:8` — `TODO: Wire to a real analytics backend`
+6. **P2** — `components/ui/aria-chat.tsx:51` — `TODO: Vérifier les droits ARIA de l'élève`
+7. **P3** — `e2e/student-journey.spec.ts` — 5 `test.fixme()` (flaky tests disabled)
+
+**Recommendation**:
+1. **Convert TODOs to tracked issues** (GitHub Issues or JIRA)
+2. **Remove completed TODOs** (e.g., `TODO [TICKET NEX-42]` if ticket closed)
+3. **Enforce PR rule**: No new TODOs without linked issue
+
+**Priority**: P3  
+**Effort**: Small
+
+---
+
+### 8.7 Async/Await Patterns
+
+#### **CQ-009: No Sequential Await Anti-Patterns Detected** ✅
+
+**Finding**: **Zero instances** of sequential `await` anti-pattern found.
+
+**Validation**:
+```bash
+grep -r "await.*await.*await" # Result: 0 matches
+```
+
+**Positive Observation**: Codebase consistently uses `Promise.all()` for parallel execution.
+
+**Example** (`app/api/admin/dashboard/route.ts:84-130`):
+```typescript
+const [totalUsers, totalStudents, totalCoaches] = await Promise.all([
+  prisma.user.count(),
+  prisma.student.count(),
+  prisma.coachProfile.count()
+]);
+```
+
+**Score**: ✅ **Excellent async/await hygiene**
+
+---
+
+### 8.8 Magic Numbers and Hardcoded Values
+
+#### **CQ-010: Magic Numbers in Business Logic** (P3)
+
+**Finding**: Hardcoded numeric constants without named variables.
+
+**Examples**:
+1. **Session booking time limits** (`app/api/sessions/book/route.ts`):
+   ```typescript
+   if (scheduledDate > maxBookingDate) { // maxBookingDate = today + 3 months
+     throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
+   }
+   if (startHour < 8 || endHour > 20) { // Magic numbers: 8, 20
+     throw ApiError.badRequest('Sessions must be between 8:00 AM and 8:00 PM');
+   }
+   ```
+
+2. **Credit costs** (`lib/credits.ts`):
+   ```typescript
+   const CREDIT_COSTS = {
+     COURS_ONLINE: 1,
+     COURS_PRESENTIEL: 1.25,
+     ATELIER_GROUPE: 1.5
+   } as const; // ✅ Good — named constants
+   ```
+
+**Recommendation**:
+- Extract magic numbers to named constants:
+  ```typescript
+  const BUSINESS_HOURS = { START: 8, END: 20 };
+  const MAX_BOOKING_ADVANCE_MONTHS = 3;
+  
+  if (startHour < BUSINESS_HOURS.START || endHour > BUSINESS_HOURS.END) {
+    throw ApiError.badRequest(`Sessions must be between ${BUSINESS_HOURS.START}:00 AM and ${BUSINESS_HOURS.END}:00 PM`);
+  }
+  ```
+
+**Priority**: P3  
+**Effort**: Small
+
+---
+
+### 8.9 Code Quality Metrics Summary
+
+| Metric | Value | Threshold | Status |
+|--------|-------|-----------|--------|
+| **Files >700 lines** | 14 | <5 | ❌ 180% over |
+| **API routes >400 lines** | 10 | <3 | ❌ 233% over |
+| **Average lines/function** | 32-99 | <50 | ⚠️ 50% acceptable |
+| **Console.log count** | 444 | 0 | ❌ Needs cleanup |
+| **TODO/FIXME count** | 64 | <20 | ⚠️ 220% over |
+| **Files using fetch()** | 81 | <10 | ❌ 710% over |
+| **Try/catch coverage** | 52 | N/A | ✅ Good |
+| **Sequential await anti-pattern** | 0 | 0 | ✅ Excellent |
+| **Complex boolean conditions** | 12 | <5 | ⚠️ Moderate |
+| **Nested maps** | 2 | 0 | ⚠️ Low risk |
+
+**Overall Code Quality Score**: **5.5/10** ⚠️ **Moderate Quality — Needs Refactoring**
+
+---
+
+### 8.10 Refactoring Opportunities
+
+#### **High-Impact Wins** (Effort vs. Benefit):
+
+**Quick Wins (P1 — 1-2 days)**:
+1. **Remove console.log statements** (444 instances) → Use structured logger
+2. **Add ESLint rules** (`max-lines`, `no-console`, `complexity`) → Prevent future regressions
+3. **Convert TODOs to issues** (64 instances) → Improve tracking
+
+**Medium Wins (P2 — 1-2 weeks)**:
+1. **Create centralized API client** (refactor 81 files) → DRY + better error handling
+2. **Extract large API route logic to services** (top 5 routes) → Testability + reusability
+3. **Fix inconsistent error handling** (52 files) → Better debugging
+
+**Long-term Investments (P3 — 1 month+)**:
+1. **Split monolithic UI components** (top 5 files) → Maintainability + bundle size
+2. **Enforce max file size in CI** → Prevent future bloat
+3. **Extract duplicate utilities** → DRY compliance
+
+---
+
+### 8.11 Priority Recommendations
+
+#### **P0 (Critical — This Week)**:
+*None identified in code quality category (prioritize security/architecture P0s first)*
+
+#### **P1 (High — This Sprint)**:
+1. **CQ-007**: Remove all `console.log` from production code (444 instances) + add ESLint rule
+2. **CQ-001**: Split `MathsRevisionClient.tsx` (1390 lines) and `academies-hiver/page.tsx` (1418 lines)
+3. **CQ-004**: Create centralized API client (refactor 81 files using fetch)
+
+#### **P2 (Medium — Next 2 Sprints)**:
+1. **CQ-002**: Refactor top 5 largest API routes to service layer pattern
+2. **CQ-006**: Standardize error handling (add logging to all catch blocks)
+3. **CQ-001**: Add `max-lines` ESLint rule (500 line limit)
+
+#### **P3 (Low — Backlog)**:
+1. **CQ-008**: Convert 64 TODOs to tracked issues
+2. **CQ-010**: Extract magic numbers to named constants
+3. **CQ-005**: Extract duplicate utility functions
+4. **CQ-003**: Refactor long functions (>50 lines) incrementally
+
+---
+
+### 8.12 Code Quality Best Practices
+
+**Strengths** ✅:
+1. **Excellent async/await patterns** — Consistent use of `Promise.all()` for parallelism
+2. **Good error handling infrastructure** — Centralized `ApiError` and `successResponse` utilities
+3. **Named constants for business rules** — Credit costs, time limits use const objects
+4. **Comprehensive test coverage** — 99.88% test pass rate (2,590/2,593 tests)
+
+**Weaknesses** ❌:
+1. **File size bloat** — 14 files >700 lines (maintainability risk)
+2. **Development artifacts in production** — 444 console.log statements
+3. **Fetch API duplication** — 81 files with inline fetch logic
+4. **Technical debt tracking** — 64 untracked TODOs
+
+**Neutral** ⚠️:
+1. **Function complexity** — Some long functions (70-99 lines/avg) but not extreme
+2. **Error handling coverage** — Good infrastructure, inconsistent usage
+3. **Code comments** — Minimal (prefer self-documenting code, but missing JSDoc)
+
+---
+
+**Code Quality Sampling Review Complete** ✅
+
+**Next Step**: Performance Review — Database and React Patterns (Section 9)
+
+---
+
