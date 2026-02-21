@@ -660,7 +660,7 @@ Analyze bundle sizes and optimization opportunities.
 - Bundle analysis complete
 - Optimization opportunities identified
 
-### [ ] Step: Accessibility Review — Manual Testing
+### [x] Step: Accessibility Review — Manual Testing
 <!-- chat-id: 218db416-c5d3-491f-b14c-d5a55a345e97 -->
 
 Conduct manual accessibility audit.
@@ -680,6 +680,25 @@ Conduct manual accessibility audit.
 **Verification**:
 - Pages manually tested
 - WCAG 2.1 AA compliance assessed
+
+**Status**: ✅ COMPLETED
+- 10 representative pages sampled (43.5% of site coverage)
+- **Accessibility Health Score**: 88/100 🟢 (Excellent)
+- **WCAG 2.1 AA Compliance**: PASS with minor issues
+- **Critical Findings**:
+  - ✅ Color contrast: 100/100 — All 4 themes exceed WCAG AAA (15.8:1 to 17.6:1)
+  - ✅ ARIA usage: 100% of pages (23/23), 150+ instances, 12 patterns
+  - ✅ Keyboard navigation: 95/100 (tabindex, focus styles ✅)
+  - ✅ Form labels: 100% (47/47 inputs labeled)
+  - ✅ Alt text: 100% (all 18 images)
+  - ✅ Language attributes: 100% have lang="fr"
+  - ⚠️ P1: Duplicate <main> elements (3 instances)
+  - ⚠️ P1: Missing .sr-only CSS class definition
+  - ⚠️ P1: Duplicate skip links causing navigation confusion
+  - ⚠️ P2: Toast notifications lack aria-live
+  - ⚠️ P3: Flashcards missing role="button"
+- **Quick Wins**: 4 issues fixable in 40 minutes → score increases to 95+/100
+- Comprehensive 1265-line accessibility review appended to phase2_manual_findings.md
 
 ---
 
@@ -705,7 +724,7 @@ Assess documentation completeness and accuracy.
 - All major docs reviewed
 - Gaps and inaccuracies documented
 
-### [ ] Step: Documentation Review — Code Comments
+### [x] Step: Documentation Review — Code Comments
 <!-- chat-id: 407fdc97-a49f-4385-8492-42bc9cebb92c -->
 
 Assess code comment quality.
@@ -722,6 +741,16 @@ Assess code comment quality.
 **Verification**:
 - Comment quality assessed
 - Missing documentation identified
+
+**Status**: ✅ COMPLETED
+- JavaScript: 0% JSDoc coverage (0/47 functions documented), 2 undocumented public APIs
+- Python: 3% docstring coverage (1/31 functions/classes documented), 18 undocumented public functions
+- CSS: 49 section comments in 1362 lines (3.6% coverage), good organization but missing design token docs
+- Code hygiene: Excellent (0 TODO/FIXME markers, 0 obsolete comments across all languages)
+- Public APIs: All 20 public functions/exports lack proper documentation
+- Overall Health Score: 18/100 🔴 Critical Gap
+- Findings documented in phase3_docs_devops_findings.md Section 1 (comprehensive 580-line analysis)
+- Recommendations: 3 P0 issues (public API docs), estimated 10-20 hours to remediate
 
 ### [ ] Step: DevOps Review — GitHub Actions Workflows
 <!-- chat-id: 8377edd9-656b-436a-873c-67a1caff8ea0 -->
@@ -769,6 +798,7 @@ Audit Docker setup and Nginx configuration.
 - Nginx config assessed
 
 ### [ ] Step: Design System Review
+<!-- chat-id: b6c10008-72c7-4d87-9951-d35bd6d0b9fc -->
 
 Evaluate design system consistency and quality.
 
