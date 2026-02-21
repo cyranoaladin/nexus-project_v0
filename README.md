@@ -1,6 +1,6 @@
 # Nexus Réussite — Plateforme de Pilotage Éducatif
 
-> **Source de vérité unique** — Dernière mise à jour : 21 février 2026
+> **Source de vérité unique** — Dernière mise à jour : 21 février 2026 (post-refactor tests)
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 
@@ -168,19 +168,19 @@ nexus-project_v0/
 │   ├── sections/                   # 32 sections landing page
 │   ├── dashboard/                  # 16 composants dashboard
 │   ├── stages/                     # 24 composants stages
-│   ├── assessments/                # 9 composants évaluation
+│   ├── assessments/                # 8 composants évaluation
 │   ├── layout/                     # CorporateNavbar, CorporateFooter
-│   ├── navigation/                 # 9 composants navigation
+│   ├── navigation/                 # 8 composants navigation
 │   └── providers.tsx               # SessionProvider wrapper
 │
 ├── prisma/
-│   ├── schema.prisma               # 1287 lignes, 35+ modèles, 8 enums
-│   ├── migrations/                 # 17 migrations
+│   ├── schema.prisma               # ~1286 lignes, 38 modèles, 20 enums
+│   ├── migrations/                 # 16 migrations
 │   └── seed.ts                     # Seed production (9 users, 5 coachs)
 │
-├── __tests__/                      # 224 fichiers tests (Jest)
-├── e2e/                            # 27 fichiers E2E (Playwright)
-├── scripts/                        # 38 scripts utilitaires
+├── __tests__/                      # 216 fichiers tests (Jest)
+├── e2e/                            # 19 fichiers E2E (Playwright)
+├── scripts/                        # 35 scripts utilitaires
 ├── .github/workflows/ci.yml        # CI pipeline (7 jobs)
 ├── docker-compose.prod.yml         # Docker Compose production
 ├── Dockerfile.prod                 # Dockerfile production (standalone)
@@ -209,7 +209,7 @@ Payment ──▶ ClicToPayTransaction
 StageReservation (standalone, scoringResult JSON)
 ```
 
-### Modèles Principaux (35+)
+### Modèles Principaux (38)
 
 | Modèle | Description | Relations clés |
 |--------|-------------|----------------|
@@ -627,21 +627,28 @@ Konnect et Wise ont été **supprimés**. Le système actuel :
 
 ### Couverture
 
-| Type | Framework | Fichiers | Tests |
-|------|-----------|----------|-------|
-| **Unitaires** | Jest + jsdom | 224 | ~2 600+ |
-| **Intégration** | Jest + node + PostgreSQL | inclus | inclus |
-| **E2E** | Playwright + Chromium | 27 | 196+ |
+| Type | Framework | Suites | Tests |
+|------|-----------|--------|-------|
+| **Unitaires + API** | Jest + jsdom | 206 | 2 593 |
+| **DB Intégration** | Jest + node + PostgreSQL | 7 | 68 |
+| **E2E** | Playwright + Chromium | 19 | 207 |
 
 ### Commandes
 
 ```bash
-npm test                    # Jest (unit + integration)
-npm run test:unit           # Jest unit only (jsdom)
-npm run test:integration    # Jest integration (node + DB)
+npm test                    # Jest unit + API (parallel, exclut DB dirs)
+npm run test:db-integration # Jest DB integration (serial, --runInBand)
+npm run test:all            # Les deux séquentiellement
 npm run test:e2e            # Playwright E2E
 npx playwright test --project=chromium  # E2E Chromium only
 ```
+
+### Configs Jest
+
+| Config | Environnement | Scope |
+|--------|---------------|-------|
+| `jest.config.js` | jsdom (custom fetch polyfill) | Unit + API (exclut `concurrency/`, `database/`, `db/`, `transactions/`) |
+| `jest.config.db.js` | node | DB integration (serial, `maxWorkers: 1`) |
 
 ### Suites de Tests Notables
 
@@ -798,7 +805,9 @@ npm run build          # Build production
 npm run start          # Start production server
 npm run lint           # ESLint
 npm run typecheck      # TypeScript check
-npm test               # Jest (all)
+npm test               # Jest unit + API (parallel)
+npm run test:db-integration  # Jest DB integration (serial)
+npm run test:all       # Unit + DB séquentiellement
 npm run test:e2e       # Playwright E2E
 npm run db:generate    # Prisma generate
 npm run db:push        # Prisma push schema

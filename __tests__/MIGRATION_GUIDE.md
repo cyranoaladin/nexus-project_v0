@@ -36,7 +36,7 @@ describe('User Tests', () => {
 ### Après (Tests qui passent)
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { createUniqueUserData } from '../helpers/test-data';
 
 describe('User Tests', () => {
@@ -55,7 +55,7 @@ describe('User Tests', () => {
 ### 1. Importer le Setup et les Helpers
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { 
   createUniqueUserData,
   createUniquePaymentData,
@@ -111,7 +111,7 @@ const payment = await prisma.payment.create({
 });
 
 // ✅ APRÈS
-const paymentData = createUniquePaymentData(user.id, 'konnect');
+const paymentData = createUniquePaymentData(user.id, 'bank_transfer');
 const payment = await prisma.payment.create({ data: paymentData });
 ```
 
@@ -177,7 +177,7 @@ for (let i = 0; i < 2; i++) {
 ### Test Utilisateur Simple
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { createUniqueUserData } from '../helpers/test-data';
 
 describe('User CRUD', () => {
@@ -198,7 +198,7 @@ describe('User CRUD', () => {
 ### Test Paiement avec Relations
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { createUniqueUserData, createUniquePaymentData } from '../helpers/test-data';
 
 describe('Payment Tests', () => {
@@ -208,7 +208,7 @@ describe('Payment Tests', () => {
     const user = await prisma.user.create({ data: userData });
     
     // Create payment
-    const paymentData = createUniquePaymentData(user.id, 'konnect');
+    const paymentData = createUniquePaymentData(user.id, 'bank_transfer');
     const payment = await prisma.payment.create({ data: paymentData });
     
     expect(payment.userId).toBe(user.id);
@@ -220,7 +220,7 @@ describe('Payment Tests', () => {
 ### Test Sessions Multiples
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { createUniqueUserData, createUniqueSessionData } from '../helpers/test-data';
 
 describe('Session Booking', () => {
@@ -263,7 +263,7 @@ Le script npm est configuré pour utiliser ces variables :
 ```json
 {
   "scripts": {
-    "test:integration": "NODE_ENV=test DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nexus_test jest --config jest.config.integration.js --runInBand"
+    "test:db-integration": "jest --config jest.config.db.js --runInBand"
   }
 }
 ```
@@ -300,6 +300,5 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nexus_test npm run te
 
 Pour plus d'informations, voir :
 - `__tests__/README.md` - Documentation complète
-- `__tests__/setup.ts` - Code du setup automatique
+- `__tests__/setup/test-database.ts` - Code du setup automatique
 - `__tests__/helpers/test-data.ts` - Code des helpers
-- `__tests__/integration/example.integration.test.ts` - Exemple complet

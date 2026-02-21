@@ -54,7 +54,7 @@ start.setHours(10, 0, 0, 0);
 
 ### 4. Exécution Sérielle Forcée
 
-**jest.integration.config.js** :
+**jest.config.db.js** :
 ```javascript
 {
   maxWorkers: 1,        // 1 seul worker
