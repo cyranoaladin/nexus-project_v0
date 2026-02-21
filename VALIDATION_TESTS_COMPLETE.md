@@ -1,21 +1,25 @@
 # Validation des Tests — État Actuel
 
-**Dernière mise à jour :** 21 janvier 2026
+**Dernière mise à jour :** 21 février 2026
 
-Ce document ne valide pas automatiquement les tests. Il décrit **ce qui existe** et **comment vérifier**.
+Ce document décrit **ce qui existe** et **comment vérifier**.
 
 ## 1) Ce qui est présent
-- Jest : unit + integration (configs séparées)
-- Playwright : E2E (config par défaut sur `__tests__/e2e`)
 
-## 2) Vérification manuelle
+- **Jest unit + API** : `jest.config.js` — 206 suites, 2 593 tests
+- **Jest DB intégration** : `jest.config.db.js` — 7 suites, 68 tests
+- **Playwright E2E** : `playwright.config.ts` (testDir: `e2e/`) — 19 fichiers, 207 tests
+
+## 2) Vérification
+
 ```bash
-npm run test:unit
-npm run test:integration
-npm run test:e2e
+npm test                    # Unit + API (parallel)
+npm run test:db-integration # DB intégration (serial)
+npm run test:e2e            # Playwright E2E
 ```
 
 ## 3) Remarques
-- Les résultats dépendent de l’environnement local (DB, variables, données de seed).
-- Les scénarios dans `e2e/` ne sont pas exécutés par défaut.
 
+- Les tests DB nécessitent PostgreSQL (local port 5435 ou CI port 5432).
+- Les tests E2E nécessitent un build préalable + seed de la DB E2E.
+- CI exécute les 3 types dans des jobs séparés (7 jobs total).

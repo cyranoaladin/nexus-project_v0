@@ -1,20 +1,26 @@
-# Rapport d’Implémentation des Tests — État Réel
+# Rapport d'Implémentation des Tests — État Réel
 
-**Dernière mise à jour :** 21 janvier 2026
+**Dernière mise à jour :** 21 février 2026
 
 ## 1) Ce qui est en place
-- **Jest** : configuration unit + integration (`jest.config.unit.js`, `jest.config.integration.js`)
-- **Playwright** : configuration E2E (`playwright.config.ts`, `playwright.config.e2e.ts`)
-- **Dossiers de tests** : `__tests__/lib`, `__tests__/api`, `__tests__/components`, `__tests__/pages`, `__tests__/e2e`
 
-## 2) Ce qui n’est pas garanti
-- Aucun rapport “pass/fail” n’est stocké ici.
-- Les tests peuvent nécessiter des données seed, des variables d’environnement, et un serveur actif.
+- **Jest unit + API** : `jest.config.js` (jsdom + Web Fetch polyfill, Proxy Prisma mock)
+- **Jest DB intégration** : `jest.config.db.js` (node, testPrisma, serial)
+- **Playwright E2E** : `playwright.config.ts` (testDir: `e2e/`, Chromium)
+- **Dossiers de tests** : `__tests__/` (216 fichiers), `e2e/` (19 fichiers)
 
-## 3) Recommandation d’exécution
+## 2) Résultats CI (21 février 2026)
+
+| Type | Suites | Tests | Failures | Skipped |
+|------|--------|-------|----------|---------|
+| Unit + API | 206 | 2 593 | 0 | 0 |
+| DB Intégration | 7 | 68 | 0 | 0 |
+| E2E (Chromium) | 19 | 207 | 0 | 0 |
+
+## 3) Commandes d'exécution
+
 ```bash
-npm run test:unit
-npm run test:integration
-npm run test:e2e
-```
-
+npm test                    # Unit + API (parallel)
+npm run test:db-integration # DB intégration (serial)
+npm run test:all            # Les deux séquentiellement
+npm run test:e2e            # Playwright E2E
