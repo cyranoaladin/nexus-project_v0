@@ -1,9 +1,9 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
-import { prisma } from './prisma';
-import { logger } from './logger';
-import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG, RAG_CONFIG } from './aria/constants';
-import { sanitizeUserPrompt, sanitizeRAGContent, validateAriaResponse, detectSuspiciousActivity } from './aria/security';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG, RAG_CONFIG } from './constants';
+import { sanitizeUserPrompt, sanitizeRAGContent, validateAriaResponse, detectSuspiciousActivity } from './security';
 
 // Validate OpenAI API key in production
 if (process.env.NODE_ENV === 'production' && !process.env.OPENAI_API_KEY) {

@@ -1430,10 +1430,94 @@ npx prisma migrate dev --name add-credits-check-constraint
 
 ### 6.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| TEST-001 | Increase timeout for integration tests (`jest.setTimeout(10000)`) | P2 | 1h |
-| TEST-002 | Capture coverage percentages in CI | P3 | 30min |
+#### TEST-001: Increase Timeout for Integration Tests (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: XS (1 hour)  
+**Impact**: 🟡 Medium - Fixes 3 flaky test failures
+
+**Problem**: 3 tests timeout due to slow async operations:
+- `diagnostic-form.test.tsx` — Form submission timeout
+- `financial-history.test.tsx` — Sorting timeout  
+- `bilan-gratuit-form.test.tsx` — Form submission timeout
+
+**Remediation**:
+
+1. **Increase Global Timeout** (15 minutes):
+   ```javascript
+   // jest.setup.js
+   jest.setTimeout(10000); // 10 seconds (up from default 5s)
+   ```
+
+2. **Increase Test-Specific Timeouts** (15 minutes):
+   ```typescript
+   // __tests__/components/diagnostic-form.test.tsx
+   it('submits form with valid data', async () => {
+     // ... test logic
+   }, 10000); // 10 second timeout for this test
+   ```
+
+3. **Mock Slow Operations** (30 minutes):
+   ```typescript
+   // Instead of real API calls
+   jest.mock('@/lib/diagnostics/score-diagnostic', () => ({
+     generateDiagnostic: jest.fn().mockResolvedValue(mockResult),
+   }));
+   ```
+
+**Expected Outcome**:
+- ✅ 100% test pass rate (2,593/2,593)
+- ✅ No more timeout failures
+- ✅ CI reliability improved
+
+---
+
+#### TEST-002: Capture Coverage Percentages in CI (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: XS (30 minutes)  
+**Impact**: 🟢 Low - Enables coverage tracking over time
+
+**Remediation**:
+1. Update `package.json`:
+   ```json
+   {
+     "scripts": {
+       "test:coverage": "jest --coverage --coverageReporters=text-summary --coverageReporters=lcov"
+     }
+   }
+   ```
+
+2. Update `.github/workflows/ci.yml`:
+   ```yaml
+   - name: Run Tests with Coverage
+     run: npm run test:coverage
+   
+   - name: Upload Coverage to Codecov
+     uses: codecov/codecov-action@v3
+     with:
+       files: ./coverage/lcov.info
+   ```
+
+3. Set Coverage Threshold:
+   ```javascript
+   // jest.config.js
+   module.exports = {
+     coverageThreshold: {
+       global: {
+         statements: 80,
+         branches: 75,
+         functions: 80,
+         lines: 80,
+       },
+     },
+   };
+   ```
+
+**Expected Outcome**:
+- ✅ Coverage tracked in CI/CD
+- ✅ Prevents coverage regression
+- ✅ Visible coverage badge in README
 
 ---
 

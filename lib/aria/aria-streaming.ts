@@ -1,8 +1,8 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
-import { logger } from './logger';
-import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG } from './aria/constants';
-import { sanitizeUserPrompt, sanitizeRAGContent, detectSuspiciousActivity } from './aria/security';
+import { logger } from '@/lib/logger';
+import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG } from './constants';
+import { sanitizeUserPrompt, sanitizeRAGContent, detectSuspiciousActivity } from './security';
 import { searchKnowledgeBase } from './aria';
 
 const openai = new OpenAI({
