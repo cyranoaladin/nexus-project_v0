@@ -198,6 +198,16 @@ export const RateLimitPresets = {
     maxRequests: 300,
     message: 'Rate limit exceeded'
   }),
+
+  /**
+   * Strict rate limit for ARIA AI endpoints
+   * 30 requests per hour (prevents cost abuse)
+   */
+  aria: rateLimit({
+    windowMs: 60 * 60 * 1000,
+    maxRequests: 30,
+    message: 'ARIA usage limit exceeded. Please try again later.'
+  }),
 };
 
 /**

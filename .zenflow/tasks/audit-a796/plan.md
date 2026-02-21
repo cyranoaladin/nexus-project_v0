@@ -467,6 +467,7 @@ Review continuous integration pipeline and deployment configuration.
 - Recommendations documented
 
 ### [ ] Step: Accessibility Compliance Review
+<!-- chat-id: bb94ff8f-646c-43b6-93b3-e4d1bbe5bf58 -->
 
 Conduct spot-check of accessibility compliance (WCAG 2.1 AA).
 

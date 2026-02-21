@@ -11,6 +11,7 @@ import { generateAriaResponseStream } from '@/lib/aria-streaming'
 import { checkAndAwardBadges } from '@/lib/badges'
 import { createLogger } from '@/lib/middleware/logger'
 import { requireFeatureApi } from '@/lib/access'
+import { RateLimitPresets } from '@/lib/middleware/rateLimit'
 
 // Schema de validation pour les messages ARIA
 const ariaMessageSchema = z.object({
@@ -25,6 +26,10 @@ export async function POST(request: NextRequest) {
   const isStreamingRequest = acceptHeader.includes('text/event-stream')
   
   try {
+    // Rate limiting for ARIA (30 requests per hour to prevent cost abuse)
+    const rateLimitResult = RateLimitPresets.aria(request, 'aria-chat');
+    if (rateLimitResult) return rateLimitResult;
+
     let session: any = null
     try {
       session = await auth()

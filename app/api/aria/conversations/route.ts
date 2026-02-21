@@ -5,11 +5,16 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Subject } from '@/types/enums'
 import { createLogger } from '@/lib/middleware/logger'
+import { RateLimitPresets } from '@/lib/middleware/rateLimit'
 
 export async function GET(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
+    // Rate limiting for ARIA (30 requests per hour)
+    const rateLimitResult = RateLimitPresets.aria(request, 'aria-conversations');
+    if (rateLimitResult) return rateLimitResult;
+
     const session = await auth()
     
     if (!session || session.user.role !== 'ELEVE') {
