@@ -198,8 +198,8 @@ Search for code quality and security patterns.
 - Findings documented in phase1_automated_findings.md Section 3 (12.5 KB added)
 - Key findings: No security anti-patterns, large site.css (1362 lines) needs modularization, 48 innerHTML usages require audit
 
-### [ ] Step: Site Statique — PWA Analysis
-<!-- chat-id: f8b87d18-6b96-4f00-9391-42c81a743fff -->
+### [x] Step: Site Statique — PWA Analysis
+<!-- chat-id: f7ec8c58-5418-4d3e-8df8-0e1e1c8b6a3e -->
 
 Analyze Progressive Web App configuration.
 
@@ -214,6 +214,18 @@ Analyze Progressive Web App configuration.
 **Verification**:
 - Manifest validated
 - Service worker strategy documented
+
+**Status**: ✅ COMPLETED
+- Manifest validated: JSON valid, 7 required fields present, SVG icon (668 bytes)
+- Service worker: v20250929-01, hybrid caching strategy, 26 pre-cached assets
+- Security: Origin check ✅, method filter ✅, no sensitive data cached ✅
+- Update UX: Toast notification system + manual update button implemented
+- Offline: Core pages cached, network-first HTML, cache-first assets
+- HTTPS: Partially documented in README, HSTS header commented out in Nginx
+- Installability: ✅ Works on modern browsers (Chrome/Edge/Safari)
+- Issues found: 3 P1 (CSS cache mismatch, missing PNG icons, HTTPS docs), 3 P2, 2 P3
+- PWA Health Score: 80/100 🟡
+- Findings documented in phase1_automated_findings.md Section 4 (483 lines, comprehensive analysis)
 
 ### [ ] Step: Backend Python — Discovery and Analysis
 <!-- chat-id: 804a8ed9-6124-48e5-97c7-1e9833969ec3 -->
@@ -359,6 +371,7 @@ Analyze project architecture and component relationships.
 - Architecture patterns documented
 
 ### [ ] Step: Code Quality Review — Site Statique
+<!-- chat-id: cd3da073-87ac-4d01-850c-bb88c3ccae04 -->
 
 Sample and review static site code quality.
 
