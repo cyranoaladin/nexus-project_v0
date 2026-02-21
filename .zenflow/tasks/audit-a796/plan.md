@@ -310,6 +310,7 @@ Review credits and payment system for correctness and security.
 - Transaction safety assessed
 
 ### [ ] Step: Critical Business Logic Review - Session Booking
+<!-- chat-id: 0cc03383-eb00-4b4a-8f1b-52c39e8edad5 -->
 
 Review session booking system for concurrency and data integrity.
 
