@@ -117,7 +117,8 @@ Run Lighthouse performance and PWA audit on the static site.
 - Full findings documented in phase1_automated_findings.md (6.4 KB)
 - Artifacts: lighthouse-report.report.html + lighthouse-report.report.json
 
-### [ ] Step: Site Statique — JavaScript Linting
+### [x] Step: Site Statique — JavaScript Linting
+<!-- chat-id: 29f38b09-278c-400f-8e95-6854de17abe9 -->
 
 Run ESLint on site JavaScript files.
 
@@ -132,6 +133,16 @@ Run ESLint on site JavaScript files.
 **Verification**:
 - Lint results captured
 - Violations categorized
+
+**Status**: ✅ COMPLETED
+- ESLint 6.8.0 installed (was missing from package.json)
+- Fixed config compatibility issues (es2022 → es2020)
+- 14 files analyzed: 7 clean, 7 with violations
+- 17 total errors (all `no-empty` rule - empty catch blocks)
+- 0 warnings
+- Health score: 75/100
+- Findings documented in phase1_automated_findings.md Section 2 (5.1 KB added)
+- Key issues: Missing ESLint dependency, deprecated version, silent error swallowing
 
 ### [ ] Step: Site Statique — CSS Build and Analysis
 
