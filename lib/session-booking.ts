@@ -291,6 +291,9 @@ export class SessionBookingService {
       await this.createSessionReminders(session, tx);
 
       return session;
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      timeout: 15000  // 15 seconds timeout
     });
   }
 

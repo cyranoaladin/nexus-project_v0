@@ -219,7 +219,12 @@ export async function GET(request: NextRequest) {
       }))
     };
 
-    return NextResponse.json(dashboardData);
+    // ✅ PERF-REACT-003: Add cache headers for 60s to reduce DB load
+    return NextResponse.json(dashboardData, {
+      headers: {
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120'
+      }
+    });
 
   } catch (error) {
     console.error('Error fetching student dashboard data:', error);
