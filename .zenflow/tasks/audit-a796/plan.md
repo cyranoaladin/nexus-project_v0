@@ -818,6 +818,7 @@ Evaluate design system consistency and quality.
 - Consistency issues identified
 
 ### [ ] Step: SEO and PWA Review
+<!-- chat-id: 988e83f6-d96f-4faf-8d16-738d761828ed -->
 
 Assess SEO optimization and PWA completeness.
 
