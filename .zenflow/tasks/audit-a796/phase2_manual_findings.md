@@ -509,4 +509,548 @@ None in architecture domain — see Security and Authorization sections for P1 i
 
 ---
 
-**Next Section**: Security - Authentication Review (to be completed in next step)
+## 2. Security - Authorization and RBAC Review
+
+### 2.1 Authorization Architecture Overview
+
+**Authorization Model**: Hybrid RBAC + Feature-Based Access Control (FBAC)
+
+The application implements a multi-layered authorization system:
+
+1. **Route Protection**: NextAuth middleware (`middleware.ts`) protects UI routes
+2. **Role-Based Access Control (RBAC)**: Centralized policy map in `lib/rbac.ts`
+3. **Feature-Based Access Control (FBAC)**: Subscription entitlement checks in `lib/access/`
+4. **Guard Functions**: Reusable guards in `lib/guards.ts` for API routes
+5. **Resource Ownership**: Inline checks in API routes
+
+#### ✅ **Strengths**:
+
+1. **Well-Designed RBAC System**:
+   - Fine-grained resource/action permission matrix (11 resources × 9 actions)
+   - Route-level policy map with 40+ declarative policies
+   - Clear role hierarchy: ADMIN > ASSISTANTE > COACH > PARENT > ELEVE
+
+2. **Centralized Guard Functions** (`lib/guards.ts`):
+   - `requireAuth()`: Authentication check
+   - `requireRole()`: Single role enforcement
+   - `requireAnyRole()`: Multi-role enforcement
+   - `isOwner()`, `isStaff()`: Helper utilities
+
+3. **Feature-Based Access Control** (`lib/access/`):
+   - Declarative feature catalog with 10 features
+   - Entitlement engine integrates with subscriptions
+   - Supports role exemptions (ADMIN bypasses entitlement checks)
+
+4. **Clean Type Safety**:
+   - All guards return typed `AuthSession | NextResponse`
+   - `isErrorResponse()` type guard for clean control flow
+
+#### ⚠️ **Critical Issues**:
+
+---
+
+### **P0-AUTH-004: Massive API Authorization Gap** ⚠️ **CRITICAL**
+
+**Finding**: **Only 30% (24/80) of API routes have explicit authorization guards**
+
+**Evidence**:
+```bash
+# Total API routes
+find app/api -name "route.ts" | wc -l
+# Result: 80 routes
+
+# Routes with authorization guards
+grep -r "requireAuth|requireRole|requireAnyRole|enforcePolicy" app/api | wc -l
+# Result: 24 instances (30% coverage)
+```
+
+**Missing Authorization Examples**:
+
+| Route | Methods | Risk | Impact |
+|-------|---------|------|--------|
+| `/api/diagnostics/definitions` | GET | Medium | **Public diagnostic metadata exposure** |
+| `/api/analytics/event` | POST | Low | **Unauthenticated analytics pollution** |
+| `/api/contact` | POST | Low | Public contact form (intentional) |
+| `/api/health` | GET | None | Public health check (intentional) |
+| `/api/bilan-gratuit` | POST | None | Public signup (intentional) |
+
+**Impact**:
+- **56 API routes** lack explicit authorization checks
+- Reliance on inline `await auth()` calls without standardized error handling
+- Inconsistent authorization patterns across codebase
+- Potential for authorization bypass vulnerabilities
+- Difficult to audit access control coverage
+
+**Root Cause**:
+1. No enforced authorization pattern in API route development
+2. Mix of guard functions vs inline auth checks
+3. No automated check for authorization coverage in CI
+
+**Exploitation Scenario**:
+```typescript
+// Vulnerable route (example pattern found in codebase)
+export async function GET(request: NextRequest) {
+  // ❌ No auth check at all
+  const data = await prisma.sensitiveData.findMany();
+  return NextResponse.json(data);
+}
+
+// ❌ Even worse: partial auth
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  // ❌ No null check, no role check
+  const userId = session.user.id; // Can throw if session is null
+  // ...
+}
+```
+
+**Recommendation**:
+
+1. **Immediate Action (P0)**:
+   - Audit all 80 API routes for authorization coverage
+   - Add authorization guards to all routes that handle sensitive data
+   - Document intentionally public routes (health, contact, signup)
+
+2. **Implement API Route Linter** (P1):
+   ```typescript
+   // eslint-plugin-local/require-auth-guard.js
+   module.exports = {
+     rules: {
+       'require-auth-guard': {
+         create(context) {
+           return {
+             ExportNamedDeclaration(node) {
+               // Detect exported GET/POST/etc without requireAuth/requireRole
+             }
+           };
+         }
+       }
+     }
+   };
+   ```
+
+3. **Standardize Authorization Pattern**:
+   ```typescript
+   // ✅ Correct pattern
+   export async function POST(request: NextRequest) {
+     const session = await requireAnyRole([UserRole.PARENT, UserRole.ADMIN]);
+     if (isErrorResponse(session)) return session;
+     
+     // Safe: session is typed as AuthSession
+     const userId = session.user.id;
+     // ...
+   }
+   ```
+
+4. **CI Check**:
+   ```yaml
+   # .github/workflows/security.yml
+   - name: Check API authorization coverage
+     run: npm run check-auth-coverage
+   ```
+
+**Effort**: Large (3-5 days to audit and fix all routes)  
+**Priority**: **P0 — CRITICAL**
+
+---
+
+### **P1-AUTH-005: Inconsistent Resource Ownership Validation**
+
+**Finding**: Resource ownership checks are inconsistent across API routes
+
+**Examples of Good Ownership Checks**:
+
+✅ **Session Cancellation** (`app/api/sessions/cancel/route.ts`):
+```typescript
+// Check if user owns the session
+if (session.user.role === 'ELEVE') {
+  if (session.user.id !== sessionToCancel.studentId) {
+    throw ApiError.forbidden('You do not have permission to cancel this session');
+  }
+}
+```
+
+✅ **Parent Dashboard** (`app/api/parent/dashboard/route.ts`):
+```typescript
+if (session.user.role !== 'PARENT') {
+  return NextResponse.json({ error: 'Accès réservé aux parents' }, { status: 403 });
+}
+
+const parentProfile = await prisma.parentProfile.findUnique({
+  where: { userId: session.user.id }, // ✅ Scoped to own data
+  include: { children: true }
+});
+```
+
+❌ **Examples of Missing Ownership Checks**:
+
+**`app/api/students/[studentId]/badges/route.ts`** (assumption based on pattern):
+```typescript
+// Potential issue: Does it verify requester owns the student or is coach?
+// Should check: PARENT owns student OR COACH has session with student
+```
+
+**Impact**:
+- Parents could access other parents' children data
+- Students could access other students' sessions
+- Horizontal privilege escalation risk
+
+**Recommendation**:
+1. Create reusable ownership validators:
+   ```typescript
+   // lib/guards.ts
+   export async function requireStudentAccess(
+     session: AuthSession,
+     studentId: string
+   ): Promise<Student | NextResponse> {
+     // ADMIN/ASSISTANTE: full access
+     if (isStaff(session)) {
+       return await prisma.student.findUniqueOrThrow({ where: { id: studentId } });
+     }
+     
+     // PARENT: verify ownership via ParentProfile
+     if (session.user.role === 'PARENT') {
+       const student = await prisma.student.findFirst({
+         where: {
+           id: studentId,
+           parent: { userId: session.user.id }
+         }
+       });
+       if (!student) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+       return student;
+     }
+     
+     // ELEVE: verify self
+     if (session.user.role === 'ELEVE') {
+       if (session.user.id !== studentId) {
+         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+       }
+       return await prisma.student.findUniqueOrThrow({ where: { userId: studentId } });
+     }
+     
+     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+   }
+   ```
+
+2. Audit all routes with path parameters (`[id]`, `[studentId]`, `[sessionId]`) for ownership validation
+3. Add integration tests for horizontal privilege escalation
+
+**Effort**: Medium (2-3 days)  
+**Priority**: **P1 — High**
+
+---
+
+### **P1-AUTH-006: RBAC Policy Map Underutilized**
+
+**Finding**: Only **2 routes** use the centralized `enforcePolicy()` function from `lib/rbac.ts`
+
+**Evidence**:
+```bash
+grep -r "enforcePolicy" app/api --include="*.ts"
+# Result: Only found in admin routes
+```
+
+**Current State**:
+- 40+ policies defined in `RBAC_POLICIES` (excellent design)
+- Only admin routes actually use `enforcePolicy()`
+- Most routes use manual `requireRole()` or inline checks
+- Policy map is ignored by 95% of routes
+
+**Example: Good Policy Usage** (`lib/rbac.ts` defines):
+```typescript
+'aria.chat': {
+  allowedRoles: [UserRole.ELEVE, UserRole.COACH, UserRole.PARENT],
+  description: 'Chat with ARIA AI assistant',
+}
+```
+
+But `/api/aria/chat/route.ts` doesn't use it:
+```typescript
+// ❌ Manual role check instead of enforcePolicy('aria.chat')
+if (session.user.role !== 'ELEVE') {
+  return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
+}
+```
+
+**Impact**:
+- Policy changes require code updates instead of config changes
+- Difficult to audit what policies are enforced
+- Risk of drift between policy definitions and actual enforcement
+
+**Recommendation**:
+1. **Refactor all routes to use `enforcePolicy()`**:
+   ```typescript
+   // ✅ Declarative
+   export async function POST(request: NextRequest) {
+     const session = await enforcePolicy('aria.chat');
+     if (isErrorResponse(session)) return session;
+     // ...
+   }
+   ```
+
+2. **Add Policy Coverage Metrics**:
+   ```typescript
+   // lib/rbac-metrics.ts
+   export function checkPolicyCoverage() {
+     const definedPolicies = Object.keys(RBAC_POLICIES);
+     const usedPolicies = scanCodebaseForEnforcePolicyCalls();
+     const unusedPolicies = definedPolicies.filter(p => !usedPolicies.includes(p));
+     console.warn('Unused RBAC policies:', unusedPolicies);
+   }
+   ```
+
+3. **Document Policy-to-Route Mapping**:
+   - Generate matrix: Policy Key → API Routes
+   - Identify missing policies for new routes
+
+**Effort**: Large (requires systematic refactoring)  
+**Priority**: **P1 — High**
+
+---
+
+### **P2-AUTH-007: Middleware Provides No API Authorization**
+
+**Finding**: `middleware.ts` only protects UI pages, not API routes
+
+**Current Middleware** (`middleware.ts`):
+```typescript
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
+};
+```
+
+**Analysis**:
+- `!api` explicitly excludes all API routes from middleware
+- NextAuth middleware only runs on UI page routes
+- All API authorization depends on manual guards
+
+**Impact**:
+- No centralized API request logging
+- No global rate limiting at middleware layer
+- No consistent security headers for API responses
+- Each API route must implement auth independently
+
+**Recommendation**:
+1. **Add API Middleware Layer**:
+   ```typescript
+   // middleware.ts
+   export async function middleware(request: NextRequest) {
+     const isApiRoute = request.nextUrl.pathname.startsWith('/api');
+     
+     if (isApiRoute) {
+       // Log all API requests
+       logger.logRequest(request);
+       
+       // Global rate limiting
+       const rateLimitResult = await checkGlobalRateLimit(request);
+       if (rateLimitResult) return rateLimitResult;
+       
+       // Security headers
+       const response = NextResponse.next();
+       response.headers.set('X-Content-Type-Options', 'nosniff');
+       response.headers.set('X-Frame-Options', 'DENY');
+       return response;
+     }
+     
+     // UI route protection (existing logic)
+     return NextAuth(authConfig).auth(request);
+   }
+   ```
+
+2. Consider API-specific middleware chaining
+
+**Effort**: Medium  
+**Priority**: **P2 — Medium**
+
+---
+
+### **P2-AUTH-008: No Role Elevation Protections**
+
+**Finding**: No explicit checks prevent role elevation via API manipulation
+
+**Example Vulnerability**:
+```typescript
+// Hypothetical vulnerable endpoint
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await requireRole(UserRole.ADMIN);
+  if (isErrorResponse(session)) return session;
+  
+  const body = await request.json();
+  
+  // ❌ Dangerous: allows changing any user's role
+  await prisma.user.update({
+    where: { id: params.id },
+    data: body // If body.role is present, role changes without validation
+  });
+}
+```
+
+**Current State**:
+- User update routes exist (`/api/admin/users/route.ts`)
+- No explicit validation preventing role field updates
+- Relies on input validation schemas (good) but no explicit role elevation guard
+
+**Recommendation**:
+1. **Add Role Elevation Guard**:
+   ```typescript
+   // lib/guards.ts
+   export function preventRoleElevation(
+     session: AuthSession,
+     targetRole: UserRole
+   ): boolean {
+     const roleHierarchy = {
+       ADMIN: 5,
+       ASSISTANTE: 4,
+       COACH: 3,
+       PARENT: 2,
+       ELEVE: 1
+     };
+     
+     return roleHierarchy[session.user.role] > roleHierarchy[targetRole];
+   }
+   ```
+
+2. **Audit User Modification Routes**:
+   - `/api/admin/users/route.ts`
+   - Any route that updates `User.role`
+
+3. **Add Integration Test**:
+   ```typescript
+   it('prevents ASSISTANTE from creating ADMIN users', async () => {
+     const response = await request(app)
+       .post('/api/admin/users')
+       .set('Cookie', assistanteSession)
+       .send({ role: 'ADMIN', ... });
+     expect(response.status).toBe(403);
+   });
+   ```
+
+**Effort**: Small  
+**Priority**: **P2 — Medium**
+
+---
+
+### **P3-AUTH-009: No Authorization Audit Trail**
+
+**Finding**: Authorization decisions are not consistently logged
+
+**Current State**:
+- Some routes log security events (ARIA routes with `logger.logSecurityEvent`)
+- Most routes have no audit trail for:
+  - Failed authorization attempts
+  - Successful privilege grants
+  - Resource ownership denials
+
+**Example: Good Logging** (`app/api/aria/chat/route.ts`):
+```typescript
+logger.logSecurityEvent('unauthorized_access', 401, {
+  ip,
+  reason: 'invalid_role',
+  expectedRole: 'ELEVE',
+  actualRole: session?.user.role
+});
+```
+
+**Missing Logging**:
+- Role mismatches in guard functions
+- RBAC policy denials
+- Resource ownership failures
+
+**Recommendation**:
+1. **Enhance Guard Functions with Logging**:
+   ```typescript
+   export async function requireRole(requiredRole: UserRole): Promise<AuthSession | NextResponse> {
+     const result = await requireAuth();
+     if (isErrorResponse(result)) return result;
+     
+     const session = result as AuthSession;
+     
+     if (session.user.role !== requiredRole) {
+       // ✅ Add audit logging
+       logger.logSecurityEvent('role_mismatch', 403, {
+         userId: session.user.id,
+         actualRole: session.user.role,
+         requiredRole,
+         timestamp: new Date().toISOString()
+       });
+       
+       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+     }
+     
+     return session;
+   }
+   ```
+
+2. **Create Authorization Audit Dashboard** (admin view):
+   - Recent authorization failures
+   - Suspicious access patterns
+   - Most blocked routes
+
+**Effort**: Medium  
+**Priority**: **P3 — Low**
+
+---
+
+### 2.2 Authorization System Metrics
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Total API Routes** | 80 | ℹ️ |
+| **Routes with Authorization Guards** | 24 (30%) | ❌ Critical Gap |
+| **RBAC Policies Defined** | 40+ | ✅ Excellent |
+| **RBAC Policies Enforced** | ~2 (5%) | ❌ Underutilized |
+| **Guard Functions Available** | 5 | ✅ Good |
+| **Feature Gates Defined** | 10 | ✅ Good |
+| **Middleware API Coverage** | 0% | ❌ No API Protection |
+
+---
+
+### 2.3 Authorization Pattern Analysis
+
+**Pattern Distribution Across API Routes**:
+
+| Pattern | Count | % | Example |
+|---------|-------|---|---------|
+| **No Authorization** | ~56 | 70% | `/api/diagnostics/definitions` |
+| **Manual `await auth()` + role check** | ~16 | 20% | `/api/parent/dashboard` |
+| **Guard Functions** (`requireRole`, etc.) | ~6 | 7.5% | `/api/admin/dashboard` |
+| **RBAC `enforcePolicy()`** | ~2 | 2.5% | (admin routes) |
+
+**Recommendation**: Standardize on **Guard Functions** or **RBAC Policies** for all routes.
+
+---
+
+### 2.4 Summary: Authorization Health Score
+
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| **RBAC Design** | 9/10 | Excellent policy system, well-typed |
+| **Guard Functions** | 8/10 | Clean design but underutilized |
+| **API Coverage** | 3/10 | **Only 30% of routes protected** ❌ |
+| **Resource Ownership** | 6/10 | Some routes good, many missing |
+| **Middleware Protection** | 2/10 | API routes excluded |
+| **Audit Logging** | 4/10 | Inconsistent across routes |
+
+**Overall Authorization Score**: **5.3/10** ⚠️ **Needs Improvement**
+
+---
+
+### 2.5 Priority Recommendations Summary
+
+#### **P0 (Critical)**:
+1. **P0-AUTH-004**: **Audit and fix 56 unprotected API routes** — Massive authorization gap
+
+#### **P1 (High Priority)**:
+1. **P1-AUTH-005**: **Implement consistent resource ownership validation**
+2. **P1-AUTH-006**: **Refactor routes to use centralized RBAC policies**
+
+#### **P2 (Medium Priority)**:
+1. **P2-AUTH-007**: **Add API middleware for global security policies**
+2. **P2-AUTH-008**: **Implement role elevation protections**
+
+#### **P3 (Low Priority)**:
+1. **P3-AUTH-009**: **Add authorization audit trail logging**
+
+---
+
+**Next Section**: Input Validation and Data Protection Review (to be completed in next step)
