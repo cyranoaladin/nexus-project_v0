@@ -1915,13 +1915,252 @@ npm run test:db:reset  # Reset test database
 
 ### 9.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| DEVOPS-001 | Add `USER nextjs` to Dockerfile (non-root) | P2 | 1h |
-| DEVOPS-002 | Add `HEALTHCHECK` directive to Dockerfile | P2 | 30min |
-| DEVOPS-003 | Enable Dependabot for automated security patches | P3 | 15min |
-| DEVOPS-004 | Add coverage threshold (`--coverageThreshold 80%`) | P3 | 30min |
-| DEVOPS-005 | Add automated staging deployment job | P3 | 4h |
+#### DEVOPS-001: Run Docker Container as Non-Root User (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (1 hour)  
+**Impact**: 🟡 Medium - Critical security hardening
+
+**Problem**: Dockerfile runs as root user. If container is compromised, attacker has root privileges.
+
+**Remediation**:
+
+Add to `Dockerfile` (after dependencies install):
+
+```dockerfile
+# Multi-stage build
+FROM node:20-alpine AS base
+# ... existing stages ...
+
+# Production runner
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy built files
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Switch to non-root user
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]
+```
+
+**Testing** (15 minutes):
+```bash
+# Build image
+docker build -t nexus-reussite:latest .
+
+# Verify user
+docker run --rm nexus-reussite:latest whoami
+# Expected output: nextjs (not root)
+
+# Test application
+docker run -p 3000:3000 nexus-reussite:latest
+# Visit http://localhost:3000
+```
+
+**Expected Outcome**:
+- ✅ Container runs as UID 1001 (non-root)
+- ✅ Reduced attack surface if container compromised
+- ✅ Compliance with security best practices
+
+**References**:
+- Docker: [Security Best Practices](https://docs.docker.com/develop/security-best-practices/)
+- OWASP: [Docker Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html)
+
+---
+
+#### DEVOPS-002: Add Health Check to Docker Container (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: XS (30 minutes)  
+**Impact**: 🟡 Medium - Enables container orchestration health monitoring
+
+**Problem**: No health check defined. Orchestrators (Docker Swarm, Kubernetes) cannot detect application health.
+
+**Remediation**:
+
+1. **Create Health Check Endpoint** (15 minutes):
+   ```typescript
+   // app/api/health/route.ts
+   import { NextResponse } from 'next/server';
+   import { prisma } from '@/lib/prisma';
+   
+   export async function GET() {
+     try {
+       // Check database connection
+       await prisma.$queryRaw`SELECT 1`;
+       
+       return NextResponse.json({
+         status: 'healthy',
+         timestamp: new Date().toISOString(),
+         uptime: process.uptime(),
+         database: 'connected',
+       }, { status: 200 });
+     } catch (error) {
+       return NextResponse.json({
+         status: 'unhealthy',
+         error: error.message,
+       }, { status: 503 });
+     }
+   }
+   ```
+
+2. **Add to Dockerfile** (5 minutes):
+   ```dockerfile
+   # Health check (polls every 30s, timeout 10s, 3 retries)
+   HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+     CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+   ```
+
+3. **Test** (10 minutes):
+   ```bash
+   docker build -t nexus-reussite:latest .
+   docker run -d --name nexus nexus-reussite:latest
+   
+   # Check health status
+   docker ps  # Shows "healthy" or "unhealthy"
+   docker inspect --format='{{.State.Health.Status}}' nexus
+   ```
+
+**Expected Outcome**:
+- ✅ Container orchestrators can detect unhealthy containers
+- ✅ Automatic restart of failed containers
+- ✅ Better monitoring and alerting
+
+---
+
+#### DEVOPS-003: Enable Dependabot for Automated Security Patches (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: XS (15 minutes)  
+**Impact**: 🟢 Low - Automated dependency updates
+
+**Remediation**:
+
+Create `.github/dependabot.yml`:
+
+```yaml
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "team-reviewers"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Group minor/patch updates
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Separate major updates
+    versioning-strategy: increase
+    
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+```
+
+**Expected Outcome**:
+- ✅ Weekly automated PRs for dependency updates
+- ✅ Security patches auto-proposed
+- ✅ Reduced manual update burden
+
+---
+
+#### DEVOPS-004: Add Coverage Threshold Enforcement (P3)
+
+**See TEST-002 above** - Covered in Testing recommendations.
+
+---
+
+#### DEVOPS-005: Add Automated Staging Deployment (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟢 Low - Enables continuous deployment
+
+**Remediation**:
+
+Add to `.github/workflows/ci.yml`:
+
+```yaml
+deploy-staging:
+  name: Deploy to Staging
+  runs-on: ubuntu-latest
+  needs: [lint, typecheck, unit, integration, e2e, build]
+  if: github.ref == 'refs/heads/develop'  # Only on develop branch
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Staging via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        script: |
+          cd /var/www/nexus-reussite-staging
+          git pull origin develop
+          docker-compose down
+          docker-compose build
+          docker-compose up -d
+          docker-compose exec -T app npx prisma migrate deploy
+    
+    - name: Verify Deployment
+      run: |
+        sleep 30  # Wait for app to start
+        curl --fail https://staging.nexusreussite.academy/api/health || exit 1
+    
+    - name: Notify Team
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload: |
+          {
+            "text": "✅ Staging deployment successful: ${{ github.sha }}"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+**Expected Outcome**:
+- ✅ Automatic deployment to staging on merge to `develop`
+- ✅ Faster feedback loop for QA testing
+- ✅ Reduced manual deployment effort
 
 ---
 
