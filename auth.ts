@@ -7,6 +7,7 @@ import { UserRole } from '@prisma/client';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
   // No adapter needed: Credentials-only auth with JWT strategy.
   // PrismaAdapter requires Account/Session/VerificationToken tables
   // which are not in the schema (and not needed for credentials + JWT).
