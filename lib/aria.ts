@@ -89,16 +89,25 @@ export async function generateAriaResponse(
   conversationHistory: Array<{ role: string; content: string; }> = []
 ): Promise<string> {
   try {
+    // Security: Detect suspicious activity
+    detectSuspiciousActivity(studentId, message);
+    
+    // Security: Sanitize user input to prevent prompt injection
+    const sanitizedMessage = sanitizeUserPrompt(message, studentId);
+    
     // Recherche dans la base de connaissances
-    const knowledgeBase = await searchKnowledgeBase(message, subject);
+    const knowledgeBase = await searchKnowledgeBase(sanitizedMessage, subject);
 
-    // Construction du contexte
+    // Construction du contexte (with sanitization)
     let context = '';
     if (knowledgeBase.length > 0) {
       context = '\n\nCONTEXTE NEXUS RÉUSSITE (Sources vérifiées) :\n';
       knowledgeBase.forEach((content, index) => {
         const score = content.similarity > 0 ? `(Pertinence: ${Math.round(content.similarity * 100)}%)` : '';
-        context += `${index + 1}. ${content.title} ${score}\n${content.content}\n\n`;
+        // Security: Sanitize RAG content to prevent prompt injection
+        const sanitizedContent = sanitizeRAGContent(content.content);
+        const sanitizedTitle = sanitizeRAGContent(content.title);
+        context += `${index + 1}. ${sanitizedTitle} ${score}\n${sanitizedContent}\n\n`;
       });
     } else {
         context = '\n\nNote: Aucune source spécifique trouvée dans la base Nexus. Réponds avec tes connaissances générales de manière prudente.\n';
@@ -116,22 +125,48 @@ export async function generateAriaResponse(
       })),
       {
         role: 'user',
-        content: `Matière : ${subject}\n\nQuestion : ${message}`
+        content: `Matière : ${subject}\n\nQuestion : ${sanitizedMessage}`
       }
     ];
 
-    // Appel à OpenAI
+    // Appel à OpenAI (with token usage tracking)
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: OPENAI_CONFIG.model,
       messages,
-      max_tokens: 1000,
-      temperature: 0.7
+      max_tokens: OPENAI_CONFIG.maxTokens,
+      temperature: OPENAI_CONFIG.temperature,
+      user: studentId  // OpenAI user identifier for rate limiting
     });
 
-    return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
+    const response = completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
+    
+    // Token usage tracking for cost monitoring
+    if (completion.usage) {
+      logger.info('ARIA token usage', {
+        studentId,
+        subject,
+        promptTokens: completion.usage.prompt_tokens,
+        completionTokens: completion.usage.completion_tokens,
+        totalTokens: completion.usage.total_tokens,
+        model: OPENAI_CONFIG.model
+      });
+    }
+    
+    // Validate response quality
+    const validation = validateAriaResponse(response, subject);
+    if (!validation.valid) {
+      logger.warn('ARIA response validation failed', {
+        studentId,
+        subject,
+        reason: validation.reason
+      });
+      // Still return response, just log the warning
+    }
+
+    return response;
 
   } catch (error) {
-    console.error('Erreur ARIA:', error);
+    logger.error('Erreur ARIA:', { error, studentId, subject });
     return 'Je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.';
   }
 }
@@ -183,7 +218,7 @@ export async function saveAriaConversation(
   return { conversation, ariaMessage };
 }
 
-// Génération de réponse ARIA en streaming
+// Génération de réponse ARIA en streaming (with timeout and security)
 export async function generateAriaStream(
   studentId: string,
   subject: Subject,
@@ -191,16 +226,25 @@ export async function generateAriaStream(
   conversationHistory: Array<{ role: string; content: string; }> = [],
   onComplete?: (fullResponse: string) => Promise<void>
 ): Promise<ReadableStream> {
+  // Security: Detect suspicious activity
+  detectSuspiciousActivity(studentId, message);
+  
+  // Security: Sanitize user input to prevent prompt injection
+  const sanitizedMessage = sanitizeUserPrompt(message, studentId);
+  
   // Recherche dans la base de connaissances
-  const knowledgeBase = await searchKnowledgeBase(message, subject);
+  const knowledgeBase = await searchKnowledgeBase(sanitizedMessage, subject);
 
-  // Construction du contexte
+  // Construction du contexte (with sanitization)
   let context = '';
   if (knowledgeBase.length > 0) {
     context = '\n\nCONTEXTE NEXUS RÉUSSITE (Sources vérifiées) :\n';
     knowledgeBase.forEach((content, index) => {
         const score = content.similarity > 0 ? `(Pertinence: ${Math.round(content.similarity * 100)}%)` : '';
-      context += `${index + 1}. ${content.title} ${score}\n${content.content}\n\n`;
+        // Security: Sanitize RAG content
+        const sanitizedContent = sanitizeRAGContent(content.content);
+        const sanitizedTitle = sanitizeRAGContent(content.title);
+        context += `${index + 1}. ${sanitizedTitle} ${score}\n${sanitizedContent}\n\n`;
     });
   }
 
@@ -216,36 +260,63 @@ export async function generateAriaStream(
     })),
     {
       role: 'user',
-      content: `Matière : ${subject}\n\nQuestion : ${message}`
+      content: `Matière : ${subject}\n\nQuestion : ${sanitizedMessage}`
     }
   ];
 
   const stream = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: OPENAI_CONFIG.model,
     messages,
-    max_tokens: 1000,
-    temperature: 0.7,
+    max_tokens: OPENAI_CONFIG.maxTokens,
+    temperature: OPENAI_CONFIG.temperature,
     stream: true,
+    user: studentId
   });
 
   const encoder = new TextEncoder();
   let fullResponse = '';
+  const startTime = Date.now();
 
   return new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of stream) {
+          // Timeout protection (30 seconds max)
+          if (Date.now() - startTime > 30000) {
+            logger.warn('ARIA streaming timeout', { studentId, duration: Date.now() - startTime });
+            controller.close();
+            break;
+          }
+          
+          // Length protection
+          if (fullResponse.length > 5000) {
+            logger.warn('ARIA streaming length exceeded', { studentId, length: fullResponse.length });
+            controller.close();
+            break;
+          }
+          
           const content = chunk.choices[0]?.delta?.content || '';
           if (content) {
             fullResponse += content;
             controller.enqueue(encoder.encode(content));
           }
         }
+        
         controller.close();
+        
+        // Log token usage (estimate for streaming - actual usage in completion)
+        logger.info('ARIA streaming completed', {
+          studentId,
+          subject,
+          responseLength: fullResponse.length,
+          duration: Date.now() - startTime
+        });
+        
         if (onComplete) {
           await onComplete(fullResponse);
         }
       } catch (e) {
+        logger.error('ARIA streaming error', { error: e, studentId });
         controller.error(e);
       }
     },

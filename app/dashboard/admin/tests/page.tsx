@@ -53,11 +53,19 @@ export default function AdminTestsPage() {
         setEmailConfig(emailData.configuration);
       }
 
-      // ClicToPay config — API not yet available
-      setPaymentConfig({
-        clictopay: { CLICTOPAY_API_KEY: !!process.env.NEXT_PUBLIC_CLICTOPAY_API_KEY },
-        allConfigured: false,
-      });
+      // Charger config payment (ClicToPay) depuis API sécurisée
+      const paymentResponse = await fetch('/api/admin/test-payment');
+      if (paymentResponse.ok) {
+        const paymentData = await paymentResponse.json();
+        const configMap = paymentData.configuration.reduce((acc: Record<string, boolean>, item: {variable: string; configured: boolean}) => {
+          acc[item.variable] = item.configured;
+          return acc;
+        }, {});
+        setPaymentConfig({
+          clictopay: configMap,
+          allConfigured: paymentData.allConfigured,
+        });
+      }
     } catch {
     }
   };

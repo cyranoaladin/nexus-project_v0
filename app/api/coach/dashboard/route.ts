@@ -201,7 +201,12 @@ export async function GET(request: NextRequest) {
       uniqueStudentsCount: uniqueStudentBookings.length
     };
 
-    return NextResponse.json(dashboardData);
+    // ✅ PERF-REACT-003: Add cache headers for 60s
+    return NextResponse.json(dashboardData, {
+      headers: {
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120'
+      }
+    });
 
   } catch (error) {
     console.error('Error fetching coach dashboard data:', error);

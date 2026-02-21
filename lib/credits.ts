@@ -129,22 +129,36 @@ export async function refundSessionBookingById(sessionBookingId: string, reason?
     const result = await prisma.$transaction(async (tx) => {
       // Charger la réservation dans la même transaction
       const booking = await tx.sessionBooking.findUnique({ where: { id: sessionBookingId } });
-      if (!booking) return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
+      if (!booking) {
+        console.error(`[Refund] Session booking not found: ${sessionBookingId}`);
+        return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
+      }
 
       // Règle: rembourser seulement si annulée
       if (booking.status !== 'CANCELLED') {
+        console.warn(
+          `[Refund] Attempted refund on non-cancelled session: ${sessionBookingId} ` +
+          `(status: ${booking.status}, student: ${booking.studentId})`
+        );
         return { ok: false, reason: 'NOT_CANCELLED' as const };
       }
 
       // Vérifier l'idempotence (un seul REFUND par session)
       const existing = await tx.creditTransaction.findFirst({ where: { sessionId: sessionBookingId, type: 'REFUND' } });
       if (existing) {
+        console.info(`[Refund] Refund already exists for session: ${sessionBookingId} (idempotent)`);
         return { ok: true, alreadyRefunded: true as const };
       }
 
       // Trouver l'entité Student (id) via userId de la booking
       const studentEntity = await tx.student.findFirst({ where: { userId: booking.studentId } });
-      if (!studentEntity) return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
+      if (!studentEntity) {
+        console.error(
+          `[Refund] Student entity not found for userId: ${booking.studentId} ` +
+          `(session: ${sessionBookingId})`
+        );
+        return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
+      }
 
       const created = await tx.creditTransaction.create({
         data: {
@@ -155,6 +169,11 @@ export async function refundSessionBookingById(sessionBookingId: string, reason?
           sessionId: sessionBookingId
         }
       });
+
+      console.info(
+        `[Refund] Successfully refunded ${booking.creditsUsed} credits for session: ${sessionBookingId} ` +
+        `(student: ${booking.studentId}, transaction: ${created.id})`
+      );
 
       return { ok: true, transaction: created };
     }, { isolationLevel: 'Serializable' });

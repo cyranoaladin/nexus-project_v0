@@ -220,6 +220,9 @@ export class SessionBookingService {
 
   /**
    * Book a session with all validations and notifications
+   * 
+   * @deprecated Consider using POST /api/sessions/book endpoint instead
+   * This legacy method lacks some validations present in the API route (parent relationship, student conflict check, business hours)
    */
   static async bookSession(data: SessionBookingData): Promise<SessionWithRelations> {
     return await prisma.$transaction(async (tx) => {
@@ -438,15 +441,24 @@ export class SessionBookingService {
         status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] },
         OR: [
           {
+            // New session starts during existing session
             AND: [
               { startTime: { lte: startTime } },
               { endTime: { gt: startTime } }
             ]
           },
           {
+            // New session ends during existing session
             AND: [
               { startTime: { lt: endTime } },
               { endTime: { gte: endTime } }
+            ]
+          },
+          {
+            // New session completely contains existing session
+            AND: [
+              { startTime: { gte: startTime } },
+              { endTime: { lte: endTime } }
             ]
           }
         ]

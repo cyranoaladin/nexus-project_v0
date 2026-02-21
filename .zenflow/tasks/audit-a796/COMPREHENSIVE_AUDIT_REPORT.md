@@ -1041,57 +1041,341 @@ With **immediate remediation** of the P0 authorization issue and **short-term fi
 
 ## Appendices
 
-### Appendix A: Detailed Metrics
+### Appendix A: Consolidated Findings by Dimension
+
+This appendix provides the complete catalog of all findings organized by audit dimension with IDs, priorities, and effort estimates.
+
+---
+
+#### **A.1 Security (21 findings)**
+
+**P0 — Critical (3 findings, 18h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P0-SEC-001** | SQL Injection Risk — 40+ `$queryRawUnsafe`/`$executeRawUnsafe` calls | Database | 8h |
+| **P0-SEC-002** | Code Execution Risk — `new Function()` in InteractiveMafs.tsx:57 | Maths-1ere | 4h |
+| **P0-SEC-003** | Client API Key Exposure — `NEXT_PUBLIC_CLICTOPAY_API_KEY` | Payments | 2h |
+| **P0-AUTH-004** | API Authorization Gap — Only 12% (10/81) routes use explicit guards | Auth | 16h |
+
+**P1 — High Priority (7 findings, 13h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P1-SEC-001** | 36 npm Vulnerabilities (1 moderate, 35 high) | Dependencies | 1h |
+| **P1-SEC-004** | Sensitive Logging — Activation token in error logs (activate/route.ts:44) | Auth | 1h |
+| **P1-SEC-005** | XSS Risk — 11 unaudited `dangerouslySetInnerHTML` usages | UI | 2h |
+| **P1-AUTH-001** | Password Reset Token Validation — Not fully audited | Auth | 2h |
+| **P1-AUTH-005** | Missing Security Headers — No CSP, HSTS, X-Frame-Options | Middleware | 1h |
+| **P1-AUTH-007** | Input Validation Gaps — Not all POST/PATCH use Zod schemas | API | 4h |
+| **P1-LOGIC-006** | AI Content Filtering — No OpenAI Moderation API integration | ARIA | 2h |
+
+**P2 — Medium Priority (8 findings, 16h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-AUTH-001** | `any` Type in Payment Route — `payments/validate/route.ts:183` | Payments | 30min |
+| **P2-AUTH-002** | `any` Type in Auth Config — `auth.config.ts:23` | Auth | 30min |
+| **P2-AUTH-003** | No Account Lockout — Brute force attacks possible | Auth | 2h |
+| **P2-SEC-006** | Missing UPSTASH Redis vars in .env.example | Config | 30min |
+| **P2-AUTH-005** | Inconsistent Resource Ownership Validation | Auth | 8h |
+| **P2-AUTH-006** | RBAC Policy Map Underutilized — Only 2 routes use `enforcePolicy()` | Auth | 4h |
+
+**P3 — Low Priority (3 findings, 2h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-SEC-001** | Console.log with Sensitive Data (77+ instances) | Logging | 1h |
+| **P3-SEC-002** | Hardcoded Test Credentials (acceptable for non-prod) | Testing | - |
+| **P3-SEC-003** | 6 `@ts-ignore` / `@ts-expect-error` suppressions | Code Quality | 1h |
+
+---
+
+#### **A.2 Code Quality (12 findings)**
+
+**P2 — Medium Priority (7 findings, 22h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-QUAL-001** | 69 `any` Types (20% of codebase) | Type Safety | 8h |
+| **P2-QUAL-002** | 77+ console.log statements (replace with structured logger) | Logging | 4h |
+| **P2-QUAL-004** | 25 TODO/FIXME Comments | Technical Debt | 2h |
+| **P2-ARCH-002** | Large Files (3 files >900 lines) | Architecture | 8h |
+
+**P3 — Low Priority (5 findings, 8h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-QUAL-003** | Magic Numbers (extract to constants) | Code Style | 2h |
+| **P3-QUAL-005** | 6 Unused Variables (ESLint warnings) | Code Quality | 1h |
+| **P3-ARCH-001** | Minimal State Management Architecture | Architecture | 4h |
+| **P3-ARCH-003** | Deep Import Paths (`../../../`) in 12 files | Organization | 1h |
+
+---
+
+#### **A.3 Performance (9 findings)**
+
+**P1 — High Priority (1 finding, 4h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P1-PERF-001** | 35 MB Unoptimized Images (15 PNGs, should be WebP) | Images | 3h |
+
+**P2 — Medium Priority (6 findings, 16h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-PERF-001** | `/programme/maths-1ere` — 508 kB First Load JS | Bundle Size | 6h |
+| **P2-PERF-002** | `/bilan-gratuit/assessment` — 400 kB First Load JS | Bundle Size | 4h |
+| **P2-PERF-003** | No Pagination on List Endpoints | API | 4h |
+| **P2-PERF-004** | N+1 Query Patterns (forEach + Prisma) | Database | 2h |
+
+**P3 — Low Priority (2 findings, 5h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-PERF-005** | 66 `use client` Directives (audit for Server Components) | React | 4h |
+| **P3-PERF-006** | 3 CSS Background Images (bypass next/image) | Images | 1h |
+| **P3-PERF-007** | 3 Tailwind CSS Warnings (opacity syntax) | Build | 30min |
+
+---
+
+#### **A.4 Database (4 findings)**
+
+**P2 — Medium Priority (2 findings, 45min effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-DB-001** | Missing Index on `SessionBooking.scheduledDate` | Schema | 15min |
+| **P2-DB-002** | No CHECK Constraint (credits >= 0) | Schema | 30min |
+
+**P3 — Low Priority (2 findings, 2h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-DB-003** | Raw SQL Queries (114 instances, mostly safe Prisma) | Queries | - |
+
+---
+
+#### **A.5 Testing (8 findings)**
+
+**P0 — Critical (1 finding, 8h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P0-TEST-001** | Invoice PDF Generation — 5.84% Coverage (Critical) | Invoice | 8h |
+
+**P1 — High Priority (4 findings, 18h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P1-TEST-002** | Integration Tests Skipped (68 DB tests not running in CI) | CI/CD | 3h |
+| **P1-TEST-003** | Student Activation Service — 28.88% Coverage | Auth | 4h |
+| **P1-TEST-004** | Coach Availability API — 35.41% Coverage | Sessions | 4h |
+| **P1-TEST-005** | Reservation API — 48.83% Coverage | Sessions | 4h |
+| **P1-TEST-006** | Payment Validation — 69.13% Coverage (gaps) | Payments | 3h |
+
+**P2 — Medium Priority (2 findings, 11h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-TEST-007** | E2E Tests Require Manual Setup | E2E | 3h |
+| **P2-TEST-008** | Frontend Components — 40-60% Coverage | UI | 8h |
+
+**P3 — Low Priority (1 finding, 30min effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-TEST-009** | 3 Timeout Failures (form submission tests) | Testing | 1h |
+| **P3-TEST-010** | Coverage Threshold Not Enforced in CI | CI/CD | 30min |
+
+---
+
+#### **A.6 API Design (5 findings)**
+
+**P2 — Medium Priority (3 findings, 14h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-API-001** | Inconsistent 201 vs 200 for POST | REST | 2h |
+| **P2-API-002** | No API Versioning Strategy | API | 4h |
+| **P2-API-003** | No OpenAPI/Swagger Spec | Documentation | 8h |
+
+**P3 — Low Priority (2 findings, 2h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-API-004** | Mixed Concerns in API Routes | Architecture | - |
+| **P3-API-005** | Monolithic API Route Files (373 lines in admin/dashboard) | Architecture | 2h |
+
+---
+
+#### **A.7 Architecture (7 findings)**
+
+**P2 — Medium Priority (5 findings, 23h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-ARCH-002** | Large Files (3 files >900 lines) | Organization | 8h |
+| **P2-ARCH-004** | Monolithic API Routes (373 lines) | API | 4h |
+| **P2-SOC-001** | Mixed Concerns in API Routes | Design | 6h |
+| **P2-ORG-002** | Flat lib/ Root (42 files, needs grouping) | Organization | 3h |
+| **P2-CONFIG-001** | No Environment Variable Validation at Startup | Config | 2h |
+
+**P3 — Low Priority (2 findings, 9h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-ARCH-001** | Minimal State Management Strategy | Architecture | 4h |
+| **P3-ARCH-003** | Deep Import Paths (`../../../`) | Organization | 1h |
+| **P3-SOC-002** | UI Logic in Page Components | UI | 4h |
+
+---
+
+#### **A.8 Documentation (6 findings)**
+
+**P1 — High Priority (1 finding, 6h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P1-DOCS-001** | No Centralized API Route Documentation | API Docs | 6h |
+
+**P2 — Medium Priority (3 findings, 12h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-DOCS-002** | JSDoc Coverage ~22% (28/126 lib files) | Code Docs | 6h |
+| **P2-DOCS-003** | No OpenAPI Spec | API Docs | 8h |
+| **P2-DOCS-004** | ARCHITECTURE.md Misleading (only covers maths-1ere) | Docs | 1h |
+
+**P3 — Low Priority (2 findings, 3h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-DOCS-005** | No Troubleshooting Section in README | Docs | 1h |
+| **P3-DOCS-006** | Missing E2E Setup Instructions | Testing Docs | 1h |
+
+---
+
+#### **A.9 DevOps & CI/CD (6 findings)**
+
+**P2 — Medium Priority (3 findings, 2.5h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-DEVOPS-001** | Docker Container Runs as Root | Docker | 1h |
+| **P2-DEVOPS-002** | No HEALTHCHECK Directive in Dockerfile | Docker | 30min |
+| **P2-DEP-001** | NextAuth v5 Beta Dependency | Dependencies | 1h |
+
+**P3 — Low Priority (3 findings, 5h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-DEVOPS-003** | No Dependabot/Renovate | Automation | 15min |
+| **P3-DEVOPS-004** | Coverage Threshold Not Enforced | CI | 30min |
+| **P3-DEVOPS-005** | No Automated Staging Deployment | Deployment | 4h |
+
+---
+
+#### **A.10 Accessibility (3 findings)**
+
+**P2 — Medium Priority (2 findings, 6h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P2-ACCESS-001** | No Automated Accessibility Tests (jest-axe, Lighthouse CI) | Testing | 6h |
+
+**P3 — Low Priority (1 finding, 1h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-ACCESS-002** | Focus Indicators Not Verified (manual test needed) | UI | 1h |
+
+---
+
+#### **A.11 UI/UX (3 findings)**
+
+**P3 — Low Priority (3 findings, 3h effort)**:
+
+| ID | Finding | Subsystem | Effort |
+|----|---------|-----------|--------|
+| **P3-UI-001** | Deprecated Tailwind Classes (3 CSS warnings) | Styles | 1h |
+| **P3-UI-002** | Design Token Usage Not Fully Verified | Design System | 2h |
+
+---
+
+### Appendix B: Findings Summary by Priority
+
+**Total Findings**: **84 issues**
+
+| Priority | Count | Total Effort | Critical Areas |
+|----------|-------|--------------|----------------|
+| **P0** | **5** | **50h** | Authorization (16h), SQL Injection (8h), Invoice Tests (8h), Code Execution (4h), Client Secret (2h) |
+| **P1** | **14** | **60h** | Testing Gaps (18h), Security (13h), Docs (6h), Performance (4h) |
+| **P2** | **44** | **180h** | Code Quality (22h), Architecture (23h), Performance (16h), API (14h), Security (16h) |
+| **P3** | **21** | **45h** | Low priority improvements across all dimensions |
+
+**Grand Total Estimated Effort**: **335 hours** (~8-9 weeks for 1 developer)
+
+**Realistic Remediation Plan**:
+- **Week 1-2 (P0)**: 50h — Critical security and testing fixes
+- **Month 1 (P1)**: 60h — High-priority improvements
+- **Quarter 1 (P2)**: 180h — Medium-priority refactors
+- **Backlog (P3)**: 45h — Low-priority enhancements
+
+---
+
+### Appendix C: Detailed Metrics
 
 **Phase 1: Automated Analysis**
-- TypeScript: 0 errors, 336 files
+- TypeScript: 0 errors, 336 files, strict mode enabled
 - ESLint: 11 warnings (5 `any`, 6 unused vars)
 - npm audit: 36 vulnerabilities (1 moderate, 35 high)
-- Build: 94.5s, 87 pages, 103 kB shared JS
-- Tests: 2,593 total, 2,590 passed (99.88%)
+- Build: 94.5s, 87 static pages, 103 kB shared JS, 234 total routes
+- Tests: 2,639 total, 2,636 passed (99.88%), 84.67% coverage
 
 **Phase 2: Manual Review**
 - 81 API routes inventoried
-- 10 routes use explicit guards (12%)
-- 45 RBAC policies defined
+- 10 routes use explicit guards (12% coverage)
+- 45 RBAC policies defined (95% unused)
 - 38 Prisma models, 20 enums
-- 7 `dangerouslySetInnerHTML` usages
+- 11 `dangerouslySetInnerHTML` usages (7 medium risk, 4 low risk)
+- 40+ unsafe raw SQL queries identified
 
 **Phase 3: Docs & DevOps**
-- README: 822 lines
-- CI/CD: 7 jobs, 562 lines YAML
-- Docker: 4-stage multi-stage build
-- Accessibility: Spot-check (5 pages)
+- README: 822 lines (95/100 completeness)
+- CI/CD: 7 parallel jobs, 562 lines YAML
+- Docker: 4-stage multi-stage build, Alpine Linux
+- JSDoc Coverage: 22% (28/126 lib files)
+- UPSTASH Redis vars missing from .env.example
 
-### Appendix B: Prioritized Issue List (50 Total)
+---
 
-**P0 (Critical)**: 1 issue, 16h effort  
-**P1 (High)**: 5 issues, 10h effort  
-**P2 (Medium)**: 15 issues, ~45h effort  
-**P3 (Low)**: 20 issues, ~25h effort  
+### Appendix D: Tool Outputs
 
-### Appendix C: Tool Outputs
+See individual phase reports for complete tool outputs:
+- `phase1_automated_findings.md` (1,242 lines) — TypeScript, ESLint, npm audit, build analysis, test coverage
+- `phase2_manual_findings.md` (7,229 lines) — Architecture, security, business logic, code quality review
+- `phase3_docs_devops_findings.md` (798 lines) — Documentation completeness, DevOps, accessibility, UI/UX
 
-See individual phase reports:
-- `phase1_automated_findings.md` — Automated analysis results
-- `phase2_manual_findings.md` — Manual code review findings
-- `phase3_docs_devops_findings.md` — Documentation and DevOps audit
+---
 
-### Appendix D: References
+### Appendix E: References
 
 **Documentation**:
-- README.md (822 lines)
-- ARCHITECTURE.md (53 lines)
-- ARCHITECTURE_TECHNIQUE.md (not audited)
-- FINAL_AUDIT_REPORT.md (Design System v2.0)
-- AUDIT_WORKFLOWS_DASHBOARDS.md
-- RAPPORT_AUDIT_SENIOR_PHASE12.md
+- README.md (822 lines) — Comprehensive project documentation
+- ARCHITECTURE.md (53 lines) — Maths-1ere module architecture
+- ARCHITECTURE_TECHNIQUE.md (70 lines) — Technical overview
+- FINAL_AUDIT_REPORT.md — Design System v2.0 audit
+- AUDIT_WORKFLOWS_DASHBOARDS.md — Workflow audit
+- RAPPORT_AUDIT_SENIOR_PHASE12.md — Senior developer audit
 
 **External Standards**:
-- WCAG 2.1 AA (accessibility)
-- OWASP Top 10 (security)
-- REST API Best Practices
-- Next.js Documentation (App Router)
+- WCAG 2.1 AA (Web Content Accessibility Guidelines)
+- OWASP Top 10 2021 (Web Application Security Risks)
+- REST API Best Practices (RFC 7231, Richardson Maturity Model)
+- Next.js 15 Documentation (App Router, Server Components)
+- Prisma Best Practices (Query Optimization, Transactions)
 
 ---
 

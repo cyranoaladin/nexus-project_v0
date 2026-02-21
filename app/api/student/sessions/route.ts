@@ -75,7 +75,10 @@ export async function GET(request: NextRequest) {
 
     logger.logRequest(200, { count: formattedSessions.length });
 
-    return successResponse({ sessions: formattedSessions });
+    // ✅ PERF-REACT-003: Add cache headers for 60s
+    const response = successResponse({ sessions: formattedSessions });
+    response.headers.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=120');
+    return response;
 
   } catch (error) {
     logger.error('Failed to fetch student sessions', error);

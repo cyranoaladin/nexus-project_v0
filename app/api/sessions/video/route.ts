@@ -78,7 +78,9 @@ export async function POST(request: NextRequest) {
         const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
         const jitsiUrl = `${jitsiServerUrl}/${roomName}`;
 
-        return NextResponse.json({
+        logger.logRequest(200, { sessionId, action: 'JOIN', roomName });
+        
+        return successResponse({
           success: true,
           sessionData: {
             id: bookingSession.id,
@@ -95,28 +97,40 @@ export async function POST(request: NextRequest) {
         });
 
       case 'LEAVE':
-        // Marquer la session comme terminée
-        await prisma.sessionBooking.update({
-          where: { id: sessionId },
-          data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
-        });
+        // Only coach can mark session as completed
+        if (session.user.role === 'COACH' && session.user.id === bookingSession.coachId) {
+          await prisma.sessionBooking.update({
+            where: { id: sessionId },
+            data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
+          });
+          
+          logger.info('Session marked as completed by coach', { sessionId });
+        } else {
+          // For students/parents, just log the departure
+          await prisma.sessionBooking.update({
+            where: { id: sessionId },
+            data: {
+              coachNotes: `${session.user.firstName} ${session.user.lastName} left at ${new Date().toISOString()}`
+            }
+          });
+          
+          logger.info('Participant left session', { sessionId, userId: session.user.id });
+        }
 
-        // TODO: Logique de crédits si nécessaire
+        logger.logRequest(200, { sessionId, action: 'LEAVE' });
 
-        return NextResponse.json({
+        return successResponse({
           success: true,
-          message: 'Session completed successfully'
+          message: 'Session left successfully'
         });
 
       default:
-        return NextResponse.json({ error: 'Unsupported action' }, { status: 400 });
+        throw ApiError.badRequest('Unsupported action');
     }
 
   } catch (error) {
-    console.error('Erreur lors de la gestion de la session vidéo:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Video session error', error);
+    logger.logRequest(500);
+    return await handleApiError(error, 'POST /api/sessions/video');
   }
 }
