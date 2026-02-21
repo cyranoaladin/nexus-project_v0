@@ -456,12 +456,14 @@ Sample and review static site code quality.
 **Status**: ✅ COMPLETED
 - 10 files analyzed: index.html, site.css, contents.js, levels.js, progression.js, theme-toggle.js, onboarding.js, icons.js, sw-client.js
 - Top 5 largest JS files identified: contents.js (365 lines), levels.js (171), progression.js (80), onboarding.js (61), theme-toggle.js (47)
-- **Critical Finding**: 22% code duplication (196 lines across 7 files)
-- HTML issues: Duplicate `<main>` elements (3x), duplicate skip links, duplicate preconnect
-- CSS issues: 1362-line monolithic file (should be <500 or modularized), duplicate design tokens
-- JS issues: Excessive function length (render() = 93 lines), god object pattern in contents.js
+- **Critical Issues Identified**:
+  1. **P0 — Code Duplication: 22%** (196 duplicated lines in contents.js, levels.js, progression.js, icons.js)
+  2. **P0 — Monolithic CSS File** (1362 lines — should be split into 15+ modules)
+  3. **P0 — Invalid HTML Structure** (3 `<main>` elements: lines 42, 91, 92 — validation error)
+  4. **P1 — God Object Function** (contents.js::render() = 93 lines — should be <30)
+  5. **P1 — No Module System** (all JS uses IIFE, no ES6 import/export)
 - Health score: 68/100 (Needs Improvement)
-- Comprehensive findings documented in phase2_manual_findings.md (777 lines, 41.2 KB)
+- Comprehensive findings documented in phase2_manual_findings.md (3266 lines, 172 KB)
 - Key recommendations: Extract 5 shared utility modules, split CSS into 15+ files, refactor monolithic functions
 
 ### [x] Step: Code Quality Review — Backend Python
