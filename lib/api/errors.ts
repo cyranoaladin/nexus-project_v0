@@ -262,6 +262,9 @@ export async function handleApiError(
   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
   const errorStack = error instanceof Error ? error.stack : undefined;
 
+  // Generate request ID for tracking
+  const requestId = `err_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
   log.error(
     {
       errorCode: ErrorCode.INTERNAL_ERROR,
@@ -269,15 +272,20 @@ export async function handleApiError(
       message: errorMessage,
       stack: errorStack,
       context,
+      requestId,
     },
     'Unexpected error'
   );
 
   // SECURITY: Never expose internal error details to client
+  // But include requestId for support/debugging
   return errorResponse(
     HttpStatus.INTERNAL_SERVER_ERROR,
     ErrorCode.INTERNAL_ERROR,
-    'An unexpected error occurred'
+    'An unexpected error occurred',
+    { requestId },
+    undefined,
+    { requestId }
   );
 }
 

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     const studentId = session.user.id;
 
-    // Fetch sessions
+    // Fetch sessions (✅ PERF-DB-003: Optimized with select for minimal data transfer)
     const sessions = await prisma.sessionBooking.findMany({
       where: {
         studentId: studentId
@@ -38,7 +38,17 @@ export async function GET(request: NextRequest) {
         { scheduledDate: 'desc' },
         { startTime: 'desc' }
       ],
-      include: {
+      select: {
+        id: true,
+        title: true,
+        subject: true,
+        status: true,
+        scheduledDate: true,
+        startTime: true,
+        duration: true,
+        creditsUsed: true,
+        modality: true,
+        type: true,
         coach: {
           select: {
             id: true,

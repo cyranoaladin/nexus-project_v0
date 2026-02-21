@@ -18,11 +18,17 @@ export async function GET(request: NextRequest) {
 
     const coachUserId = session.user.id;
 
-    // Fetch coach profile + user
+    // Fetch coach profile + user (✅ PERF-DB-003: Optimized with select)
     const coach = await prisma.coachProfile.findUnique({
       where: { userId: coachUserId },
       include: {
-        user: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        },
       }
     });
 

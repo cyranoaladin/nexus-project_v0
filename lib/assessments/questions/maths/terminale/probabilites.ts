@@ -10,8 +10,8 @@
  * - Intervalle de fluctuation
  */
 
-import { Subject } from '../../../core/types';
-import type { QuestionModule } from '../../types';
+import { Subject } from '@/assessments/core/types';
+import type { QuestionModule } from '@/assessments/types';
 
 const questionModule: QuestionModule = {
   id: 'probabilites',

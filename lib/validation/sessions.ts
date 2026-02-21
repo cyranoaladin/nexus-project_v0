@@ -110,3 +110,15 @@ export const bookFullSessionSchema = z.object({
 });
 
 export type BookFullSessionInput = z.infer<typeof bookFullSessionSchema>;
+
+/**
+ * Session video action schema (POST /api/sessions/video)
+ */
+export const sessionVideoSchema = z.object({
+  sessionId: z.string().cuid('Invalid session ID'),
+  action: z.enum(['JOIN', 'LEAVE'], {
+    errorMap: () => ({ message: 'Action must be either JOIN or LEAVE' })
+  })
+});
+
+export type SessionVideoInput = z.infer<typeof sessionVideoSchema>;

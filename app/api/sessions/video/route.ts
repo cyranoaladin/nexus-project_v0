@@ -1,23 +1,34 @@
 export const dynamic = 'force-dynamic';
 
-import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { SessionStatus } from '@prisma/client';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { sessionVideoSchema } from '@/lib/validation';
+import { parseBody } from '@/lib/api/helpers';
+import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { createLogger } from '@/lib/middleware/logger';
+import { UserRole } from '@/types/enums';
 
 export async function POST(request: NextRequest) {
+  let logger = createLogger(request);
+
   try {
-    const session = await auth();
+    // Rate limiting (prevent spam video room creation)
+    const rateLimitResult = RateLimitPresets.api(request, 'session-video');
+    if (rateLimitResult) return rateLimitResult;
 
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    // Authorization
+    const session = await requireAnyRole([UserRole.ELEVE, UserRole.COACH, UserRole.PARENT]);
+    if (isErrorResponse(session)) return session;
 
-    const { sessionId, action } = await request.json();
+    // Update logger with session context
+    logger = createLogger(request, session);
+    logger.info('Processing video session action');
 
-    if (!sessionId || !action) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
-    }
+    // Validation
+    const { sessionId, action } = await parseBody(request, sessionVideoSchema);
 
     // Vérifier que la session existe et que l'utilisateur y a accès (SessionBooking canonique)
     const bookingSession = await prisma.sessionBooking.findFirst({
@@ -37,7 +48,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!bookingSession) {
-      return NextResponse.json({ error: 'Session non trouvée' }, { status: 404 });
+      throw ApiError.notFound('Session not found or access denied');
     }
 
     // Vérifier que la session est accessible temporellement (±15 min autour du début)
@@ -48,9 +59,7 @@ export async function POST(request: NextRequest) {
     const fifteenMinutes = 15 * 60 * 1000;
 
     if (now.getTime() < sessionStart.getTime() - fifteenMinutes) {
-      return NextResponse.json({
-        error: 'La session n\'est pas encore disponible ou a expiré'
-      }, { status: 400 });
+      throw ApiError.badRequest('Session is not yet available. You can join 15 minutes before the scheduled time.');
     }
 
     switch (action) {

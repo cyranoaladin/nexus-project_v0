@@ -9,6 +9,26 @@
 
 ---
 
+## Table of Contents
+
+1. [Executive Summary](#executive-summary)
+2. [Architecture Audit](#1-architecture-audit)
+3. [Code Quality Audit](#2-code-quality-audit)
+4. [Security Audit](#3-security-audit)
+5. [Performance Audit](#4-performance-audit)
+6. [Database Design Audit](#5-database-design-audit)
+7. [Testing Audit](#6-testing-audit)
+8. [API Design Audit](#7-api-design-audit)
+9. [Documentation Audit](#8-documentation-audit)
+10. [DevOps & CI/CD Audit](#9-devops--cicd-audit)
+11. [Accessibility Audit](#10-accessibility-audit)
+12. [UI/UX Consistency Audit](#11-uiux-consistency-audit)
+13. [Overall Recommendations](#12-overall-recommendations)
+14. [Conclusion](#13-conclusion)
+15. [Appendices](#appendices)
+
+---
+
 ## Executive Summary
 
 This comprehensive audit evaluated the Nexus Réussite educational platform across 11 technical dimensions using automated analysis (30%), manual deep-dive review (50%), and documentation/DevOps assessment (20%).
@@ -123,10 +143,150 @@ This comprehensive audit evaluated the Nexus Réussite educational platform acro
 
 ### 1.4 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| ARCH-001 | Enforce `enforcePolicy()` usage in all API routes | P0 | 16h |
-| ARCH-002 | Create platform-wide ARCHITECTURE.md (auth flow, RBAC, credit transactions) | P3 | 4h |
+#### ARCH-001: Enforce `enforcePolicy()` in All API Routes (P0)
+
+**Priority**: P0 (Critical)  
+**Effort**: Large (16 hours)  
+**Impact**: 🔴 Critical - Fixes authorization gap affecting 88% of routes
+
+**Problem**: Only 10/81 API routes (12%) use centralized authorization guards. Most routes use ad-hoc `auth()` calls without policy enforcement, creating inconsistent security and high risk of unauthorized access.
+
+**Detailed Remediation Steps**:
+
+1. **Create Route Audit Spreadsheet** (2 hours):
+   - List all 81 routes from `app/api/`
+   - Document current auth approach for each
+   - Map to required RBAC policy from `lib/rbac.ts`
+   - Track implementation status
+   
+   **Template**:
+   ```csv
+   Route,HTTP Method,Current Auth,Required Policy,Status,Notes
+   /api/sessions/book,POST,auth() only,sessions.book,❌ Missing,
+   /api/admin/dashboard,GET,requireRole('ADMIN'),admin.dashboard,⚠️ Needs migration,
+   /api/aria/chat,POST,Manual role check,aria.chat,❌ Missing,
+   ```
+
+2. **Standardize Authorization Pattern** (2 hours):
+   
+   **Before** (inconsistent):
+   ```typescript
+   // Pattern 1: Manual auth check
+   export async function POST(req: NextRequest) {
+     const session = await auth();
+     if (!session || session.user.role !== 'ADMIN') {
+       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+     }
+     // ... business logic
+   }
+   
+   // Pattern 2: requireRole helper
+   export async function GET(req: NextRequest) {
+     const session = await requireRole('PARENT');
+     // ... business logic
+   }
+   ```
+   
+   **After** (standardized with `enforcePolicy`):
+   ```typescript
+   import { enforcePolicy } from '@/lib/rbac';
+   
+   export async function POST(req: NextRequest) {
+     // Single line - enforces policy, checks feature entitlement, returns session
+     const session = await enforcePolicy('sessions.book');
+     
+     // Business logic - guaranteed authorized user
+     const booking = await createBooking(session.user.id, ...);
+     return NextResponse.json(booking, { status: 201 });
+   }
+   ```
+
+3. **Implement Route-by-Route** (10 hours for 71 routes):
+   
+   **Priority Order**:
+   - Week 1 (4h): Payment routes (6 routes) - highest risk
+   - Week 1 (4h): Admin routes (12 routes) - privilege escalation risk
+   - Week 2 (2h): Student/parent routes (15 routes) - data access risk
+   
+   **Migration Checklist per Route**:
+   - [ ] Import `enforcePolicy` from `@/lib/rbac`
+   - [ ] Replace auth logic with single `enforcePolicy()` call
+   - [ ] Use correct policy name (verify in `lib/rbac.ts`)
+   - [ ] Remove redundant auth checks
+   - [ ] Test with unauthorized user (expect 403)
+   - [ ] Test with authorized user (expect 200/201)
+   - [ ] Update route audit spreadsheet
+
+4. **Add CI/CD Enforcement** (2 hours):
+   
+   Create custom ESLint rule to prevent regression:
+   
+   ```javascript
+   // eslint-rules/require-enforce-policy.js
+   module.exports = {
+     meta: {
+       type: 'problem',
+       docs: {
+         description: 'Require enforcePolicy() in all API routes',
+       },
+     },
+     create(context) {
+       return {
+         ExportNamedDeclaration(node) {
+           const filename = context.getFilename();
+           if (!filename.includes('app/api/') || !filename.endsWith('route.ts')) {
+             return;
+           }
+           
+           // Check if route exports GET/POST/PATCH/DELETE
+           const exportedFunctions = ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'];
+           // ... validate enforcePolicy() is called
+         }
+       };
+     }
+   };
+   ```
+   
+   Add to `.github/workflows/ci.yml`:
+   ```yaml
+   - name: Check API Route Authorization
+     run: npm run lint -- --rule 'require-enforce-policy: error'
+   ```
+
+**Expected Outcome**:
+- ✅ 100% of API routes use centralized authorization
+- ✅ Consistent security enforcement across platform
+- ✅ Automated CI checks prevent regression
+- ✅ Clear audit trail in route spreadsheet
+
+**References**:
+- Existing implementation: `lib/rbac.ts` (enforcePolicy function)
+- OWASP: [Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)
+- Best practice: Centralized authorization (vs scattered checks)
+
+---
+
+#### ARCH-002: Create Platform-Wide Architecture Documentation (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Medium (4 hours)  
+**Impact**: 🟢 Low - Improves maintainability and onboarding
+
+**Current State**: `ARCHITECTURE.md` only covers `maths-1ere` module. No general platform architecture doc exists.
+
+**Remediation**:
+1. Rename `ARCHITECTURE.md` → `ARCHITECTURE_MATHS_1ERE.md`
+2. Create new `ARCHITECTURE.md` covering:
+   - Overall system architecture (Next.js App Router, Prisma, PostgreSQL)
+   - Authentication flow (NextAuth v5)
+   - Authorization flow (RBAC policies)
+   - Critical business flows (session booking, credit transactions, ARIA chat)
+   - Deployment architecture (Docker, Hetzner)
+   - Caching strategy (React cache, unstable_cache)
+3. Include sequence diagrams for complex flows
+4. Reference from `README.md`
+
+**Effort**: 4 hours (2h writing, 2h diagrams)
 
 ---
 
@@ -179,12 +339,163 @@ This comprehensive audit evaluated the Nexus Réussite educational platform acro
 
 ### 2.5 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| QUAL-001 | Replace 69 `any` types with proper TypeScript types | P2 | 8h |
-| QUAL-002 | Replace console.log (77+) with structured logger | P3 | 4h |
-| QUAL-003 | Extract magic numbers to constants (e.g., cancellation hours) | P3 | 2h |
-| QUAL-004 | Triage 25 TODO/FIXME comments | P3 | 2h |
+#### QUAL-001: Replace `any` Types with Proper TypeScript Types (P2)
+
+**Priority**: P2 (Medium - P1 for payment route)  
+**Effort**: Medium (8 hours total)  
+**Impact**: 🟡 Medium - Improves type safety and prevents runtime errors
+
+**Problem**: 69 `any` types across 50 files (20% of codebase). Critical issue in payment validation route.
+
+**High-Priority Files** (P1 - 2 hours):
+
+1. **`app/api/payments/validate/route.ts:183`** (CRITICAL):
+   ```typescript
+   // ❌ BEFORE (unsafe)
+   const paymentData = body as any;
+   
+   // ✅ AFTER (type-safe with Zod)
+   import { z } from 'zod';
+   
+   const PaymentValidationSchema = z.object({
+     orderId: z.string().cuid(),
+     amount: z.number().positive(),
+     status: z.enum(['PENDING', 'COMPLETED', 'FAILED']),
+     transactionId: z.string().optional(),
+     metadata: z.record(z.unknown()).optional(),
+   });
+   
+   type PaymentValidation = z.infer<typeof PaymentValidationSchema>;
+   
+   export async function POST(req: NextRequest) {
+     const body = await req.json();
+     const paymentData = PaymentValidationSchema.parse(body); // Type-safe!
+     // ... rest of logic
+   }
+   ```
+
+2. **`app/api/aria/chat/route.ts:28`**:
+   ```typescript
+   // ❌ BEFORE
+   const user = session.user as any;
+   
+   // ✅ AFTER
+   import { User } from '@prisma/client';
+   import { Session } from 'next-auth';
+   
+   interface AuthSession extends Session {
+     user: User & {
+       id: string;
+       role: UserRole;
+     };
+   }
+   
+   const user = session.user; // Fully typed
+   ```
+
+**Medium-Priority Files** (P2 - 4 hours):
+- `lib/aria.ts:59`: Type ARIA response structure
+- `lib/guards.ts:137`: Use `Session` type from next-auth
+- `app/api/student/dashboard/route.ts:10`: Type dashboard data
+
+**Low-Priority Files** (P2 - 2 hours):
+- Test files: Mock types acceptable, but prefer `unknown` over `any`
+- Data migration scripts: Document with `// @ts-expect-error` if truly dynamic
+
+**Migration Strategy**:
+1. **Week 1**: Fix payment route (critical)
+2. **Week 2**: Fix API routes (4 files)
+3. **Month 1**: Systematic replacement in `lib/` (remaining 60 instances)
+
+**Quick Wins** (use `unknown` instead of `any`):
+```typescript
+// Instead of: const data: any = ...
+const data: unknown = ...;
+if (typeof data === 'object' && data !== null) {
+  // Type guard - safe!
+}
+```
+
+**References**:
+- TypeScript Handbook: [Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
+- Zod: [Runtime Type Validation](https://zod.dev/)
+
+---
+
+#### QUAL-002: Replace console.log with Structured Logger (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟢 Low - Improves production debugging
+
+**Remediation**:
+1. Install `pino` or `winston` logger
+2. Create `lib/logger.ts`:
+   ```typescript
+   import pino from 'pino';
+   
+   export const logger = pino({
+     level: process.env.LOG_LEVEL || 'info',
+     redact: ['password', 'token', 'apiKey'], // Auto-redact secrets
+   });
+   ```
+3. Replace `console.log` → `logger.info()`
+4. Replace `console.error` → `logger.error()`
+5. Add request ID tracking
+
+**Effort**: 4 hours (77 instances ÷ 20/hour = 4h)
+
+---
+
+#### QUAL-003: Extract Magic Numbers to Constants (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟢 Low - Improves maintainability
+
+**Example**:
+```typescript
+// ❌ BEFORE (magic number)
+if (hoursSinceBooking < 24) {
+  throw new Error('Cannot cancel within 24 hours');
+}
+
+// ✅ AFTER (named constant)
+const MIN_CANCELLATION_HOURS = 24;
+if (hoursSinceBooking < MIN_CANCELLATION_HOURS) {
+  throw new Error(`Cannot cancel within ${MIN_CANCELLATION_HOURS} hours`);
+}
+```
+
+Create `lib/constants.ts`:
+```typescript
+export const BUSINESS_RULES = {
+  SESSION_MIN_CANCELLATION_HOURS: 24,
+  SESSION_MAX_DURATION_MINUTES: 120,
+  CREDIT_EXPIRY_DAYS: 365,
+  PASSWORD_MIN_LENGTH: 8,
+} as const;
+```
+
+**Effort**: 2 hours
+
+---
+
+#### QUAL-004: Triage TODO/FIXME Comments (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟢 Low - Reduces technical debt
+
+**Action Plan**:
+1. Run `grep -r "TODO\|FIXME" app/ lib/ --exclude-dir=node_modules`
+2. For each TODO:
+   - Create GitHub issue if actionable
+   - Fix immediately if <15 min
+   - Remove if outdated
+3. Document in `TECHNICAL_DEBT.md`
+
+**Effort**: 2 hours (25 TODOs ÷ 12/hour)
 
 ---
 

@@ -1,53 +1,42 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { prisma } from './prisma';
+import { logger } from './logger';
+import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG, RAG_CONFIG } from './aria/constants';
+import { sanitizeUserPrompt, sanitizeRAGContent, validateAriaResponse, detectSuspiciousActivity } from './aria/security';
+
+// Validate OpenAI API key in production
+if (process.env.NODE_ENV === 'production' && !process.env.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY is required in production');
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
   baseURL: process.env.OPENAI_BASE_URL || undefined,
 });
 
-// Système de prompt pour ARIA
-const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
-
-RÈGLES IMPORTANTES :
-1. Tu ne réponds QUE sur la matière demandée par l'élève
-2. Tes réponses sont basées sur la base de connaissances Nexus Réussite
-3. Tu adaptes ton niveau au lycée (Seconde, Première, Terminale)
-4. Tu es bienveillant, encourageant et pédagogue
-5. Tu proposes toujours des exemples concrets
-6. Si tu ne sais pas, tu le dis et suggères de contacter un coach
-
-STYLE :
-- Utilise un ton amical mais professionnel
-- Structure tes réponses clairement
-- Utilise des émojis avec parcimonie
-- Propose des exercices ou des méthodes pratiques
-
-Tu représentes l'excellence de Nexus Réussite.`;
-
 // Génération d'embedding (New: Phase 2)
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     // Si pas de clé OpenAI (dev avec Ollama), on retourne un vecteur vide pour éviter le crash
     if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'ollama') {
-        console.warn("ARIA: Mode Ollama détecté ou clé manquante, recherche vectorielle désactivée.");
+        logger.warn("ARIA: Mode Ollama détecté ou clé manquante, recherche vectorielle désactivée.");
         return []; 
     }
 
     const response = await openai.embeddings.create({
-      model: "text-embedding-3-small",
+      model: OPENAI_CONFIG.embeddingModel,
       input: text.replace(/\n/g, ' '),
     });
     return response.data[0].embedding;
   } catch (error) {
-    console.warn("ARIA: Erreur génération embedding", error);
+    logger.warn("ARIA: Erreur génération embedding", { error });
     return [];
   }
 }
 
 // Recherche dans la base de connaissances (RAG Vectoriel + Fallback)
-async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
+export async function searchKnowledgeBase(query: string, subject: Subject, limit: number = RAG_CONFIG.resultsLimit) {
   try {
     // 1. Tenter la recherche vectorielle
     const queryEmbedding = await generateEmbedding(query);
@@ -61,27 +50,27 @@ async function searchKnowledgeBase(query: string, subject: Subject, limit: numbe
                  1 - (embedding_vector <=> ${vectorQuery}::vector) as similarity
           FROM "pedagogical_contents"
           WHERE subject = ${subject}::"Subject"
-          AND 1 - (embedding_vector <=> ${vectorQuery}::vector) > 0.4 
+          AND 1 - (embedding_vector <=> ${vectorQuery}::vector) > ${RAG_CONFIG.similarityThreshold} 
           ORDER BY embedding_vector <=> ${vectorQuery}::vector ASC
           LIMIT ${limit};
         `;
         
         if (contents.length > 0) {
-            console.log(`ARIA: ${contents.length} résultats vectoriels trouvés pour "${query}"`);
+            logger.info(`ARIA: ${contents.length} résultats vectoriels trouvés`, { query: query.substring(0, 50) });
             return contents;
         }
     }
   } catch (error) {
-      console.error("ARIA: Échec recherche vectorielle, bascule sur recherche mot-clé.", error);
+      logger.error("ARIA: Échec recherche vectorielle, bascule sur recherche mot-clé.", { error });
   }
 
   // 2. Fallback: Recherche textuelle simple (si vectoriel échoue ou pas de résultats)
-  console.log(`ARIA: Recherche mot-clé fallback pour "${query}"`);
+  logger.info(`ARIA: Recherche mot-clé fallback`, { query: query.substring(0, 50) });
   const contents = await prisma.pedagogicalContent.findMany({
     where: {
       subject,
       OR: [
-        { title: { contains: query } }, // removed mode: insensitive as it might not be supported by all adapters or types
+        { title: { contains: query } },
         { content: { contains: query } },
       ]
     },

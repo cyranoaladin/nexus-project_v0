@@ -231,8 +231,15 @@ export async function POST(req: NextRequest) {
       }
 
       // Use cached credits field for performance (O(1) vs O(n))
-      if (studentRecord.credits < validatedData.creditsToUse) {
-        throw ApiError.badRequest(`Insufficient credits. Available: ${studentRecord.credits}, Required: ${validatedData.creditsToUse}`);
+      // Note: Serializable isolation level prevents TOCTOU race conditions
+      // If another transaction modifies credits concurrently, this transaction will be rolled back
+      const currentCredits = studentRecord.credits;
+      if (currentCredits < validatedData.creditsToUse) {
+        throw ApiError.badRequest(
+          `Crédits insuffisants pour réserver cette session. ` +
+          `Disponible: ${currentCredits} crédit${currentCredits > 1 ? 's' : ''}, ` +
+          `Requis: ${validatedData.creditsToUse} crédit${validatedData.creditsToUse > 1 ? 's' : ''}`
+        );
       }
 
       // 7. Check if student already has a session at this time
@@ -305,7 +312,8 @@ export async function POST(req: NextRequest) {
           type: validatedData.type,
           modality: validatedData.modality,
           creditsUsed: validatedData.creditsToUse,
-          status: 'SCHEDULED'
+          status: 'SCHEDULED',
+          idempotencyKey: validatedData.idempotencyKey
         },
         include: {
           student: true,
