@@ -16,13 +16,22 @@ export async function generateAriaResponseStream(
   message: string,
   conversationHistory: Array<{ role: string; content: string; }> = []
 ): Promise<ReadableStream> {
-  const knowledgeBase = await searchKnowledgeBase(message, subject);
+  // Security: Detect suspicious activity and sanitize input
+  detectSuspiciousActivity(studentId, message);
+  const sanitizedMessage = sanitizeUserPrompt(message, studentId);
+  
+  // Use shared vectorial search (unified RAG implementation)
+  const knowledgeBase = await searchKnowledgeBase(sanitizedMessage, subject);
 
   let context = '';
   if (knowledgeBase.length > 0) {
-    context = '\n\nCONTEXTE NEXUS RÉUSSITE :\n';
+    context = '\n\nCONTEXTE NEXUS RÉUSSITE (Sources vérifiées) :\n';
     knowledgeBase.forEach((content, index) => {
-      context += `${index + 1}. ${content.title}\n${content.content}\n\n`;
+      const score = content.similarity > 0 ? `(Pertinence: ${Math.round(content.similarity * 100)}%)` : '';
+      // Security: Sanitize RAG content
+      const sanitizedContent = sanitizeRAGContent(content.content);
+      const sanitizedTitle = sanitizeRAGContent(content.title);
+      context += `${index + 1}. ${sanitizedTitle} ${score}\n${sanitizedContent}\n\n`;
     });
   }
 
@@ -37,26 +46,46 @@ export async function generateAriaResponseStream(
     })),
     {
       role: 'user',
-      content: `Matière : ${subject}\n\nQuestion : ${message}`
+      content: `Matière : ${subject}\n\nQuestion : ${sanitizedMessage}`
     }
   ];
 
   const stream = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: OPENAI_CONFIG.model,
     messages,
-    max_tokens: 1000,
-    temperature: 0.7,
-    stream: true
+    max_tokens: OPENAI_CONFIG.maxTokens,
+    temperature: OPENAI_CONFIG.temperature,
+    stream: true,
+    user: studentId
   });
 
   const encoder = new TextEncoder();
+  const startTime = Date.now();
+  let fullResponse = '';
 
   return new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of stream) {
+          // Timeout protection (30 seconds)
+          if (Date.now() - startTime > 30000) {
+            logger.warn('ARIA streaming timeout', { studentId, duration: Date.now() - startTime });
+            controller.enqueue(encoder.encode('data: [TIMEOUT]\n\n'));
+            controller.close();
+            break;
+          }
+          
+          // Length protection
+          if (fullResponse.length > 5000) {
+            logger.warn('ARIA streaming length exceeded', { studentId, length: fullResponse.length });
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+            break;
+          }
+          
           const content = chunk.choices[0]?.delta?.content;
           if (content) {
+            fullResponse += content;
             const data = `data: ${JSON.stringify({ content })}\n\n`;
             controller.enqueue(encoder.encode(data));
           }
@@ -64,8 +93,15 @@ export async function generateAriaResponseStream(
         
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         controller.close();
+        
+        logger.info('ARIA streaming completed', {
+          studentId,
+          subject,
+          responseLength: fullResponse.length,
+          duration: Date.now() - startTime
+        });
       } catch (error) {
-        console.error('Streaming error:', error);
+        logger.error('Streaming error:', { error, studentId });
         const errorData = `data: ${JSON.stringify({ error: 'Streaming error occurred' })}\n\n`;
         controller.enqueue(encoder.encode(errorData));
         controller.close();
