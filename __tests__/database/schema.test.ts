@@ -26,17 +26,17 @@ describe('Schema Integrity Tests', () => {
     if (!dbAvailable) {
       console.warn('⚠️  Skipping schema integrity tests: test database not available');
     }
-  });
+  }, 10000);
 
   beforeEach(async () => {
     if (!dbAvailable) return;
     await setupTestDatabase();
-  });
+  }, 30000);
 
   afterAll(async () => {
     try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    await prisma.$disconnect();
-  });
+    try { await prisma.$disconnect(); } catch { /* ignore */ }
+  }, 30000);
 
   describe('Cascade Delete Tests', () => {
     describe('User → ParentProfile cascade', () => {
@@ -368,8 +368,8 @@ describe('Schema Integrity Tests', () => {
   });
 
   describe('Cascade Behavior Tests (formerly Restrict)', () => {
-    describe('User with Payment → Cascade', () => {
-      it('should cascade delete Payment when User is deleted', async () => {
+    describe('User with Payment → SetNull', () => {
+      it('should set Payment.userId to null when User is deleted (preserves payment history)', async () => {
         if (!dbAvailable) return;
         const { parentUser } = await createTestParent();
 
@@ -386,13 +386,14 @@ describe('Schema Integrity Tests', () => {
 
         expect(payment).toBeDefined();
 
-        // Payment.userId is now CASCADE - deletion should succeed
+        // Payment.userId uses onDelete: SetNull — payment persists with userId=null
         await prisma.user.delete({ where: { id: parentUser.id } });
 
         const paymentAfterDelete = await prisma.payment.findUnique({
           where: { id: payment.id }
         });
-        expect(paymentAfterDelete).toBeNull();
+        expect(paymentAfterDelete).not.toBeNull();
+        expect(paymentAfterDelete!.userId).toBeNull();
       });
     });
 

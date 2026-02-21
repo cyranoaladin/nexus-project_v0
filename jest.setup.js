@@ -18,89 +18,108 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+// Restore Node native Web Fetch API globals (captured before jsdom in jest.setup-fetch-polyfill.js)
+// jsdom doesn't expose Request/Response/Headers but Next.js route handlers need them
+if (process.__nodeWebAPIs) {
+  const { Request, Response, Headers, fetch } = process.__nodeWebAPIs;
+  if (typeof global.Request === 'undefined' && Request) global.Request = Request;
+  if (typeof global.Response === 'undefined' && Response) global.Response = Response;
+  if (typeof global.Headers === 'undefined' && Headers) global.Headers = Headers;
+  if (typeof global.fetch === 'undefined' && fetch) global.fetch = fetch;
+}
+
+// Polyfill crypto.randomUUID for jsdom (needed by sessions.video route)
+if (typeof global.crypto === 'undefined') {
+  const { webcrypto } = require('crypto');
+  global.crypto = webcrypto;
+} else if (typeof global.crypto.randomUUID !== 'function') {
+  const { randomUUID } = require('crypto');
+  global.crypto.randomUUID = randomUUID;
+}
+
 // Polyfill setImmediate for winston logger
 global.setImmediate = global.setImmediate || ((fn, ...args) => setTimeout(fn, 0, ...args));
 
-// Mock Prisma client
-jest.mock('./lib/prisma', () => ({
-  prisma: {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
+// Mock Prisma client — Proxy-based: auto-creates jest.fn() for any model.method access
+// All created jest.fn() instances are stable (same reference per model.method)
+// and properly cleared by jest.clearAllMocks() since they are standard jest.fn()
+jest.mock('./lib/prisma', () => {
+  const modelCache = {};
+  const topLevel = {};
+  const createModelProxy = () => {
+    const methodCache = {};
+    return new Proxy({}, {
+      get(_, method) {
+        if (typeof method === 'symbol') return undefined;
+        if (!methodCache[method]) methodCache[method] = jest.fn();
+        return methodCache[method];
+      }
+    });
+  };
+  const handler = {
+    get(target, prop) {
+      if (typeof prop === 'symbol') return undefined;
+      // Top-level methods ($transaction, $queryRaw, $connect, $disconnect)
+      if (typeof prop === 'string' && prop.startsWith('$')) {
+        if (!topLevel[prop]) topLevel[prop] = jest.fn();
+        return topLevel[prop];
+      }
+      // Model proxy: auto-creates jest.fn() for any method
+      if (!modelCache[prop]) modelCache[prop] = createModelProxy();
+      return modelCache[prop];
     },
-    student: {
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      create: jest.fn(),
-    },
-    parentProfile: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-    },
-    studentProfile: {
-      create: jest.fn(),
-    },
-    session: {
-      create: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    // Add SessionBooking for refund flow tests
-    sessionBooking: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    sessionReport: {
-      findMany: jest.fn(),
-    },
-    ariaConversation: {
-      count: jest.fn(),
-      create: jest.fn(),
-      findUnique: jest.fn(),
-    },
-    ariaMessage: {
-      count: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    pedagogicalContent: {
-      findMany: jest.fn(),
-    },
-    creditTransaction: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    coachProfile: {
-      findFirst: jest.fn(),
-    },
-    payment: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    trajectory: {
-      create: jest.fn(),
-      findFirst: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    diagnostic: {
-      count: jest.fn(),
-    },
-    invoiceAccessToken: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      updateMany: jest.fn(),
-    },
-    $queryRaw: jest.fn(),
-    $transaction: jest.fn(),
-  },
+    set(target, prop, value) {
+      // Allow tests to override models via direct assignment (e.g. prisma.diagnostic = {...})
+      modelCache[prop] = value;
+      return true;
+    }
+  };
+  return { prisma: new Proxy({}, handler) };
+});
+
+// Mock Next Auth (v5) and its ESM subpaths to avoid SyntaxError: Unexpected token 'export'
+jest.mock('next-auth', () => {
+  const mockAuth = jest.fn(() => Promise.resolve(null));
+  mockAuth.handlers = { GET: jest.fn(), POST: jest.fn() };
+  return {
+    __esModule: true,
+    default: jest.fn(() => ({
+      auth: mockAuth,
+      handlers: { GET: jest.fn(), POST: jest.fn() },
+      signIn: jest.fn(),
+      signOut: jest.fn(),
+    })),
+    getServerSession: jest.fn(),
+  };
+});
+jest.mock('next-auth/providers/credentials', () => ({
+  __esModule: true,
+  default: jest.fn((config) => ({ id: 'credentials', name: 'Credentials', ...config })),
+}));
+jest.mock('@auth/core/providers/credentials', () => ({
+  __esModule: true,
+  default: jest.fn((config) => ({ id: 'credentials', name: 'Credentials', ...config })),
 }));
 
-// Mock Next Auth
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+// Mock ESM-only packages that next/jest cannot transform
+jest.mock('@paralleldrive/cuid2', () => ({
+  createId: jest.fn(() => 'mock-cuid-' + Math.random().toString(36).slice(2, 10)),
+  init: jest.fn(() => () => 'mock-cuid'),
+}));
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  getSession: jest.fn(),
+  SessionProvider: ({ children }) => children,
+}));
+
+// Mock auth.ts to prevent ESM import chain (next-auth → @auth/core)
+jest.mock('./auth', () => ({
+  auth: jest.fn(() => Promise.resolve(null)),
+  handlers: { GET: jest.fn(), POST: jest.fn() },
+  signIn: jest.fn(),
+  signOut: jest.fn(),
 }));
 
 // Mock next/navigation for components relying on app router hooks

@@ -13,7 +13,6 @@ import PathsSectionGSAP from '@/components/sections/paths-section-gsap';
 import ApproachSectionGSAP from '@/components/sections/approach-section-gsap';
 import DNASectionGSAP from '@/components/sections/dna-section-gsap';
 import OfferSectionGSAP from '@/components/sections/offer-section-gsap';
-import KorrigoProofSection from '@/components/sections/korrigo-section-gsap';
 import TestimonialsSectionGSAP from '@/components/sections/testimonials-section-gsap';
 import ContactSectionGSAP from '@/components/sections/contact-section-gsap';
 
@@ -63,7 +62,6 @@ export default function HomePage() {
         <ApproachSectionGSAP />
         <DNASectionGSAP />
         <OfferSectionGSAP />
-        <KorrigoProofSection />
         <TestimonialsSectionGSAP />
         <ContactSectionGSAP />
       </main>

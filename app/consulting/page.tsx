@@ -66,7 +66,7 @@ export default function ConsultingPage() {
                             <Code2 className="text-brand-accent mb-4 h-10 w-10" strokeWidth={1.5} />
                             <h3 className="text-xl font-bold mb-3 text-white">Développement Sur Mesure</h3>
                             <p className="text-slate-400 text-sm leading-relaxed">
-                                Création d'outils métiers spécifiques (comme Korrigo) et de Dashboards de pilotage pour la Vie Scolaire.
+                                Création d'outils métiers spécifiques et de Dashboards de pilotage pour la Vie Scolaire.
                             </p>
                         </div>
                     </div>

@@ -124,10 +124,10 @@ export default function HomeHero() {
                     <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">
                       <div className="flex items-center gap-2 text-brand-accent">
                         <CheckCircle2 className="h-5 w-5" />
-                        <span className="text-sm font-semibold">Korrigo Engine</span>
+                        <span className="text-sm font-semibold">Dashboard Parent</span>
                       </div>
                       <p className="mt-2 text-xs text-slate-300">
-                        Correction & Pilotage
+                        Suivi & Pilotage
                       </p>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">

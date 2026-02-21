@@ -18,7 +18,7 @@ export default function CTASection() {
               href="/contact"
               className="inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-brand-accent to-brand-accent-dark px-8 text-sm font-semibold text-surface-dark shadow-lg hover:shadow-[0_0_24px_rgba(46,233,246,0.3)]"
             >
-              Réserver une Démo Korrigo
+              Parler à un Expert
             </a>
             <a
               href="/contact"
