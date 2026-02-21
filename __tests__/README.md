@@ -1,13 +1,16 @@
 # Test Setup and Helpers
 
-This directory contains test utilities and setup files for integration tests.
+**Dernière mise à jour :** 21 février 2026
+
+This directory contains test utilities and setup files for unit and integration tests.
 
 ## Files
 
-### `setup.ts`
-Global test setup that runs before each integration test. Provides:
-- **Automatic database cleanup** between tests
-- **Prisma client** export for tests
+### `setup/test-database.ts`
+DB integration test setup. Provides:
+- **`testPrisma`** — Real Prisma client connected to PostgreSQL
+- **`canConnectToTestDb()`** — Connection check with 3s timeout
+- **`setupTestDatabase()`** — TRUNCATE all tables + create UUID-based test data
 - **Proper teardown** after all tests
 
 ### `helpers/test-data.ts`
@@ -27,7 +30,7 @@ createUniqueUserData('STUDENT') // Returns complete user object with unique emai
 
 **Payment Data**
 ```typescript
-createUniquePaymentData(userId, 'konnect') // Returns payment with unique externalId
+createUniquePaymentData(userId, 'bank_transfer') // Returns payment with unique externalId
 ```
 
 **Session Booking**
@@ -50,7 +53,7 @@ wait(100) // Async wait utility
 ### Integration Tests
 
 ```typescript
-import { prisma } from '../setup';
+import { testPrisma as prisma } from '../setup/test-database';
 import { 
   createUniqueUserData, 
   createUniquePaymentData,
@@ -66,7 +69,7 @@ describe('Payment Integration Tests', () => {
     const user = await prisma.user.create({ data: userData });
     
     // Create unique payment
-    const paymentData = createUniquePaymentData(user.id, 'konnect');
+    const paymentData = createUniquePaymentData(user.id, 'bank_transfer');
     const payment = await prisma.payment.create({ data: paymentData });
     
     expect(payment).toBeDefined();
@@ -99,24 +102,21 @@ describe('Session Booking Tests', () => {
 
 ## Configuration
 
-### jest.integration.config.js
-Separate Jest config for integration tests:
+### jest.config.db.js
+Separate Jest config for DB integration tests:
 - Uses `node` environment (not jsdom)
-- Loads `__tests__/setup.ts` for automatic cleanup
-- Increased timeout (30s) for database operations
-- Matches `*.integration.test.ts` files
+- Loads `__tests__/setup/test-database.ts` for DB setup
+- Serial execution: `maxWorkers: 1`
+- Covers: `concurrency/`, `database/`, `db/`, `transactions/`
 
-### Running Integration Tests
+### Running DB Integration Tests
 
 ```bash
-# Run all integration tests
-npm run test:integration
+# Run all DB integration tests (serial)
+npm run test:db-integration
 
-# Run specific integration test
-npm run test:integration -- path/to/test.integration.test.ts
-
-# Run with coverage
-npm run test:integration -- --coverage
+# Run specific test file
+npm run test:db-integration -- __tests__/database/schema.test.ts
 ```
 
 ## Best Practices

@@ -1,7 +1,7 @@
 # Documentation Technique de Livraison — Nexus Réussite
 
-**Version :** 2.0
-**Dernière mise à jour :** 21 janvier 2026
+**Version :** 3.0
+**Dernière mise à jour :** 21 février 2026
 **Statut :** Actuel (conforme au code)
 
 ---
@@ -15,20 +15,21 @@ Il n'inclut pas le code source du moteur de correction vectorielle **Korrigo**, 
 Utilisateurs
    │
    ▼
-Next.js 14 (App Router)
+Next.js 15 (App Router, standalone)
    ├─ UI (pages publiques + dashboards)
    ├─ API Routes (auth, sessions, paiements, aria…)
-   ├─ NextAuth (JWT)
+   ├─ NextAuth v5 (Auth.js, JWT)
    └─ Prisma Client
         │
         ▼
-SQLite (DATABASE_URL=file:...)
+PostgreSQL 15+ (pgvector)
 
 Services externes
-   ├─ OpenAI (ARIA)
+   ├─ Ollama (ARIA — LLaMA 3.2, Qwen 2.5)
+   ├─ ChromaDB (RAG embeddings)
    ├─ SMTP (emails)
    ├─ Jitsi (visio)
-   └─ Konnect/Wise (paiements, partiellement simulés)
+   └─ ClicToPay (paiements, skeleton 501)
 ```
 
 ## 2.1 Variables d’environnement (source de vérité)
@@ -36,12 +37,11 @@ Voir `env.example` et `env.local.example`.
 
 Variables clés :
 - **Core** : `NODE_ENV`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
-- **DB** : `DATABASE_URL` (SQLite par défaut)
+- **DB** : `DATABASE_URL` (PostgreSQL)
 - **SMTP** : `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`
-- **OpenAI** : `OPENAI_API_KEY`, `OPENAI_MODEL`
+- **Ollama** : `OPENAI_BASE_URL`, `OPENAI_MODEL`, `OLLAMA_URL`
+- **RAG** : `RAG_INGESTOR_URL`, `RAG_SEARCH_TIMEOUT`
 - **Jitsi** : `NEXT_PUBLIC_JITSI_SERVER_URL`
-- **Konnect** : `KONNECT_API_KEY`, `KONNECT_WALLET_ID`, `KONNECT_BASE_URL`, `KONNECT_WEBHOOK_SECRET`
-- **Wise** : `NEXT_PUBLIC_WISE_*`
 
 ## 3.1 Build & démarrage
 La build inclut une copie des assets publics (`scripts/copy-public-assets.js`).
@@ -59,16 +59,17 @@ npm run start
 - `NEXTAUTH_SECRET` est **obligatoire en production**.
 
 ## 4.1 Base de données
-- **Provider actuel : SQLite**.
-- Si vous souhaitez PostgreSQL en production, il faut **modifier `prisma/schema.prisma`**, régénérer les migrations, et adapter les scripts Docker.
+- **Provider : PostgreSQL 15+** avec pgvector.
+- Schéma : `prisma/schema.prisma` (~1286 lignes, 38 modèles, 20 enums, 16 migrations).
+- Production : Docker Compose (`docker-compose.prod.yml`).
 
 ## 5.1 Paiements (réel)
-- **Konnect** : flux simulé (URL de démo) + webhook prévu.
-- **Wise** : création d’un paiement `PENDING`, validation manuelle par l’assistante.
+- **Virement bancaire** : déclaration parent → paiement PENDING → validation staff → activation abonnement + crédits + facture.
+- **ClicToPay** (Banque Zitouna) : skeleton API (501), en cours d'intégration.
 
 ## 6.1 IA ARIA (réel)
-- Appels OpenAI via `lib/aria.ts`.
-- Recherche **textuelle** dans `PedagogicalContent` (pas de pgvector).
+- Appels Ollama (LLaMA 3.2 / Qwen 2.5) via OpenAI SDK (`lib/aria.ts`).
+- RAG : ChromaDB + pgvector (embeddings nomic-embed-text).
 - Historique conversations + feedback utilisateur sauvegardés en DB.
 
 ## 7.1 Tests

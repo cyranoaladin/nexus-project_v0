@@ -1,62 +1,27 @@
-# E2E Testing - Edge Runtime Compatibility Issue
+# E2E Testing Notes
 
-## Current Status
+**Dernière mise à jour :** 21 février 2026
 
-The E2E test for student ARIA interaction (`e2e/student-aria.spec.ts`) is **fully implemented and correct**. However, it cannot run in development mode due to a Next.js middleware Edge runtime compatibility issue.
+## Statut — RÉSOLU ✅
 
-## The Issue
+L'incompatibilité Edge Runtime (`EvalError: Code generation from strings disallowed`) est **résolue** depuis la migration vers NextAuth v5 (Auth.js). Le middleware fonctionne nativement en Edge Runtime.
 
-Next.js middleware runs in the Edge runtime, which has strict security policies that prohibit `eval()` and `new Function()`. In development mode, Next.js uses `eval-source-map` devtool which relies on `eval()` for module loading, causing this error:
+## Architecture E2E actuelle
 
-```
-EvalError: Code generation from strings disallowed for this context
-```
+- **Config** : `playwright.config.ts` (testDir: `e2e/`)
+- **Serveur** : build standalone (`.next/standalone`)
+- **DB** : `nexus_e2e` (seed via `scripts/seed-e2e-db.ts`)
+- **Résultats CI** : 19 fichiers, 207 tests, 194+ passed
 
-This is a known limitation when using Next.js middleware with dependencies like `next-auth` and logging libraries in development mode.
-
-## Solutions
-
-### Option 1: Middleware Swap Script (Recommended for Development)
-
-Use the provided `test-with-middleware-swap.sh` script which temporarily replaces the full middleware with a minimal version during E2E tests:
+## Lancer les tests
 
 ```bash
-./test-with-middleware-swap.sh e2e/student-aria.spec.ts --project=chromium
+npm run test:e2e            # Playwright E2E
+npm run test:e2e:ui         # UI mode (debug interactif)
+npm run test:e2e:headed     # Voir le navigateur
 ```
 
-### Option 2: Production Mode Testing
+## Historique
 
-Build and test against production mode where eval() is not used:
-
-```bash
-npm run build
-npm run start &
-npx playwright test e2e/student-aria.spec.ts
-```
-
-### Option 3: Environment Variable Flag
-
-The middleware has been updated to support `DISABLE_MIDDLEWARE=true`, but this doesn't solve the bundling issue since dependencies are still loaded at build time.
-
-## Files Created
-
-- `middleware.e2e.ts` - Minimal Edge-compatible middleware for E2E tests
-- `test-with-middleware-swap.sh` - Script to temporarily swap middleware during tests
-- `lib/middleware/errors.ts` - Edge-compatible error utilities (no Pino dependency)
-
-## Test Implementation
-
-The E2E test itself is complete and includes:
-- ✅ Navigation to `/dashboard/student`
-- ✅ Dashboard element verification (student name, credits)
-- ✅ Subject selection (Mathématiques)
-- ✅ Question input and submission to ARIA
-- ✅ Loading indicator verification
-- ✅ Streaming response handling with custom `waitForStreamingResponse()` utility
-- ✅ Response content verification
-- ✅ Feedback button interaction
-- ✅ Conversation history persistence after page reload
-
-## Recommendation
-
-For CI/CD pipelines, use production mode testing (Option 2) as it provides the most realistic testing environment and avoids all Edge runtime compatibility issues.
+Ce fichier documentait un blocage E2E causé par `next-auth v4` + Edge Runtime.
+La migration vers NextAuth v5 a résolu le problème. Les workarounds (middleware swap, `DISABLE_MIDDLEWARE`) ne sont plus nécessaires.

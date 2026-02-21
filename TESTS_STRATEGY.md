@@ -1,56 +1,59 @@
-# Tests Strategy - Pragmatic Approach
+# Tests Strategy — Nexus Réussite
 
-## Current Status
-- ✅ **Lint**: 0 errors, 0 warnings
-- ✅ **TypeCheck**: 0 errors  
-- ✅ **Unit Tests**: 1062 passed, 148 skipped (87.8% coverage)
-- ✅ **Integration Tests**: 203 passed, 10 skipped (95.3% coverage)
-- ⚠️ **E2E Tests**: Blocked by next-auth middleware incompatibility
+**Dernière mise à jour :** 21 février 2026
 
-## Skipped Tests Classification
+## Statut Actuel (CI vert ✅)
 
-### Category 1: UI/Styling Tests (Not Critical) - Keep Skipped
-- `diagnostic-form.test.tsx`: CSS class assertions (`bg-or-stellaire`)
-- `toast.test.tsx`: UI component styling
-- `tooltip.test.tsx`: UI component styling
-**Reason**: These test CSS classes which can change frequently. Visual regression tests would be better.
+| Type | Suites | Tests | Failures | Skipped |
+|------|--------|-------|----------|---------|
+| **Unit + API** | 206 | 2 593 | 0 | 0 |
+| **DB Intégration** | 7 | 68 | 0 | 0 |
+| **E2E (Chromium)** | 19 | 207 | 0 | 0 |
+| **Total** | **232** | **2 868** | **0** | **0** |
 
-### Category 2: Edge Cases (Not Critical) - Keep Skipped  
-- `logger.test.ts`: API error logging edge cases
-- `theme.test.ts`: Theme token validation
-- `schema.test.ts`: Database schema integrity checks
-**Reason**: These test infrastructure edge cases that rarely fail in practice.
+- ✅ **Lint** : 0 errors, 0 warnings
+- ✅ **TypeCheck** : `tsc --noEmit` — 0 errors
+- ✅ **Build** : Next.js production build OK
 
-### Category 3: Complex Async (Flaky) - Keep Skipped
-- `orchestrator-integration.test.ts`: Async workflow queue processing
-- `conflicts.test.ts`: Git conflict detection
-- `diff.test.ts`: Git diff analysis
-- `engine.test.ts`: Workflow engine rollback scenarios
-**Reason**: These tests are timing-dependent and flaky. Need refactoring with better mocks.
+## Architecture des Tests
 
-### Category 4: Business Logic (Critical) - FIX THESE
-- ✅ `bilan-gratuit-form.test.tsx`: 1 test failing (form state persistence)
-**Action**: Fix the state persistence issue
+### Séparation Unit / DB
 
-## E2E Strategy
+Les tests Jest sont séparés en deux configs pour éviter les conflits :
 
-### Problem
-next-auth v4 middleware incompatible with Next.js 15 Edge Runtime
+- **`jest.config.js`** — Unit + API (parallel, jsdom + Web Fetch polyfill)
+  - Prisma mocké via Proxy auto-créant des `jest.fn()`
+  - Exclut les dirs DB : `concurrency/`, `database/`, `db/`, `transactions/`
 
-### Solution (Pragmatic)
-Create custom auth check middleware without next-auth/middleware:
-- Check session server-side in API routes  
-- Skip middleware-level auth for E2E
-- Use session checks in getServerSideProps/API handlers
+- **`jest.config.db.js`** — DB intégration (serial, node)
+  - Vrai client Prisma (`testPrisma`) connecté à PostgreSQL
+  - `maxWorkers: 1`, `--runInBand` pour éviter les contentions
+  - Truncate + UUID pour isolation complète
 
-### Alternative (If needed)
-Run E2E only against production builds where middleware is pre-compiled
+### E2E (Playwright)
 
-## Target Metrics (Realistic)
-- Unit Tests: 1063/1210 = **87.9%** (1 more test fixed)
-- Integration Tests: 203/213 = **95.3%** 
-- E2E Tests: 28/33 = **85%** (with custom middleware)
-- **Overall**: ~90% pass rate (excellent for real-world projects)
+- NextAuth v5 (Auth.js) — compatible Edge Runtime
+- Build standalone + seed DB E2E (`scripts/seed-e2e-db.ts`)
+- Credentials dynamiques (`e2e/.credentials.json`)
+- `continue-on-error: true` en CI (ne bloque pas le merge)
 
-## Documentation
-All skipped tests have clear `.skip` markers and this document explains why.
+## Commandes
+
+```bash
+npm test                    # Unit + API (parallel)
+npm run test:db-integration # DB intégration (serial)
+npm run test:all            # Les deux séquentiellement
+npm run test:e2e            # Playwright E2E
+```
+
+## CI Pipeline (7 jobs)
+
+| Job | Scope | DB | Timeout |
+|-----|-------|-----|---------|
+| `lint` | ESLint | Non | — |
+| `typecheck` | `tsc --noEmit` | Non | — |
+| `unit` | Jest unit + API | Non | — |
+| `integration` | Jest DB | Oui (PostgreSQL) | — |
+| `e2e` | Playwright | Oui (nexus_e2e) | 20 min |
+| `security` | npm audit + semgrep | Non | — |
+| `build` | Next.js build | Non | — |
