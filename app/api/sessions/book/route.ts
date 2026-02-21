@@ -67,17 +67,20 @@ export async function POST(req: NextRequest) {
       throw ApiError.badRequest('Cannot book sessions more than 3 months in advance');
     }
 
-    // Check if booking is on a weekend (optional business rule)
+    // Check if booking is on a weekend (configurable business rule)
+    const allowWeekends = process.env.ALLOW_WEEKEND_SESSIONS === 'true';
     const dayOfWeek = scheduledDate.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
+    if (!allowWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
       throw ApiError.badRequest('Sessions cannot be booked on weekends');
     }
 
-    // Check if booking is outside business hours (8 AM to 8 PM)
+    // Check if booking is outside business hours (configurable)
+    const minHour = parseInt(process.env.SESSION_MIN_HOUR || '8');
+    const maxHour = parseInt(process.env.SESSION_MAX_HOUR || '20');
     const startHour = parseInt(requestStartTime.split(':')[0]);
     const endHour = parseInt(requestEndTime.split(':')[0]);
-    if (startHour < 8 || endHour > 20) {
-      throw ApiError.badRequest('Sessions must be between 8:00 AM and 8:00 PM');
+    if (startHour < minHour || endHour > maxHour) {
+      throw ApiError.badRequest(`Sessions must be between ${minHour}:00 and ${maxHour}:00`);
     }
 
     // Start transaction

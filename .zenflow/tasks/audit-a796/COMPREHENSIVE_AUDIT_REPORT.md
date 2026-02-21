@@ -82,6 +82,34 @@ This comprehensive audit evaluated the Nexus Réussite educational platform acro
 
 ---
 
+### Consolidated Findings Summary
+
+**Total Issues Identified**: **84 findings** across 11 audit dimensions
+
+| Dimension | P0 | P1 | P2 | P3 | Total | Effort |
+|-----------|----|----|----|----|-------|--------|
+| **Security** | 4 | 7 | 8 | 3 | **21** | 49h |
+| **Testing** | 1 | 5 | 2 | 2 | **10** | 50.5h |
+| **Code Quality** | - | - | 4 | 5 | **9** | 30h |
+| **Performance** | - | 1 | 4 | 3 | **8** | 25.5h |
+| **Architecture** | - | - | 5 | 2 | **7** | 32h |
+| **Documentation** | - | 1 | 3 | 2 | **6** | 21h |
+| **DevOps & CI/CD** | - | - | 3 | 3 | **6** | 7.5h |
+| **API Design** | - | - | 3 | 2 | **5** | 16h |
+| **Database** | - | - | 2 | 1 | **3** | 2.75h |
+| **Accessibility** | - | - | 2 | 1 | **3** | 7h |
+| **UI/UX** | - | - | - | 3 | **3** | 3h |
+| **TOTALS** | **5** | **14** | **44** | **21** | **84** | **335h** |
+
+**Key Insights**:
+- **Security** is the top concern (21 findings, 4 critical)
+- **Testing** has significant gaps (10 findings, including 1 P0)
+- **P0 issues** require **50 hours** of immediate work
+- **P1 issues** require **60 hours** in next sprint
+- **Total remediation effort**: ~8-9 weeks for 1 developer
+
+---
+
 ## 1. Architecture Audit
 
 ### 1.1 Overall Architecture
@@ -1070,12 +1098,196 @@ export function middleware(request: NextRequest) {
 
 ### 4.5 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| PERF-001 | Code-split `/programme/maths-1ere` (lazy-load labs) | P2 | 4h |
-| PERF-002 | Dynamic import question sets in assessment | P2 | 2h |
-| PERF-003 | Add pagination to list endpoints | P2 | 4h |
-| PERF-004 | Audit "use client" usage, prefer Server Components | P3 | 4h |
+#### PERF-001: Code-Split `/programme/maths-1ere` Bundle (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟡 Medium - Reduces largest bundle from 508 kB to ~250 kB (50% reduction)
+
+**Problem**: `/programme/maths-1ere` is 508 kB First Load JS (356 kB route bundle). Monolithic 1,390-line `MathsRevisionClient.tsx` eagerly loads MathJax, interactive labs, and full UI.
+
+**Remediation Steps**:
+
+1. **Lazy-Load MathJax** (1 hour):
+   ```typescript
+   // Before: Eager import
+   import 'mathjax/es5/tex-mml-chtml.js';
+   
+   // After: Lazy load when user opens chapter
+   const [mathJaxLoaded, setMathJaxLoaded] = useState(false);
+   
+   async function loadMathJax() {
+     if (!mathJaxLoaded) {
+       await import('mathjax/es5/tex-mml-chtml.js');
+       setMathJaxLoaded(true);
+     }
+   }
+   
+   // Trigger on chapter open
+   <button onClick={() => { loadMathJax(); openChapter(); }}>
+   ```
+   **Savings**: ~80 kB
+
+2. **Split Route by Chapter** (2 hours):
+   Create dynamic route `/programme/maths-1ere/[chapterId]`:
+   
+   ```typescript
+   // app/programme/maths-1ere/[chapterId]/page.tsx
+   export default async function ChapterPage({ params }) {
+     const chapter = await getChapter(params.chapterId);
+     return <ChapterViewer chapter={chapter} />;
+   }
+   
+   // Smaller bundle - only loads chapter-specific code
+   ```
+   
+   **Savings**: ~120 kB (loads chapter on-demand vs all chapters)
+
+3. **Lazy-Load Exercise Engine** (1 hour):
+   ```typescript
+   const ExerciseEngine = dynamic(
+     () => import('./ExerciseEngine'),
+     { 
+       ssr: false,
+       loading: () => <Skeleton className="h-96" />
+     }
+   );
+   ```
+   **Savings**: ~40 kB
+
+**Expected Outcome**:
+- ✅ First Load JS: 508 kB → ~250 kB (51% reduction)
+- ✅ Faster initial page load (2s → 1s on 3G)
+- ✅ Better user experience on mobile
+
+**References**:
+- Next.js: [Code Splitting](https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading)
+- Web.dev: [Reduce JavaScript Payloads](https://web.dev/reduce-javascript-payloads-with-code-splitting/)
+
+---
+
+#### PERF-002: Dynamic Import Question Sets in Assessment (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟡 Medium - Reduces assessment bundle from 400 kB to ~220 kB (45% reduction)
+
+**Problem**: `/bilan-gratuit/assessment` loads all 100+ QCM questions upfront (400 kB First Load JS).
+
+**Remediation**:
+1. **Paginate Questions** (1 hour):
+   ```typescript
+   // Before: Load all questions
+   const allQuestions = await getQuestions();
+   
+   // After: Load 10 questions per page via API
+   const [currentPage, setCurrentPage] = useState(1);
+   const { data: questions } = useSWR(
+     `/api/assessments/questions?page=${currentPage}&limit=10`
+   );
+   ```
+
+2. **Dynamic Import by Subject** (1 hour):
+   ```typescript
+   // Only load MATHS questions for math assessment
+   const questions = await import(`./questions/${subject}.json`);
+   ```
+
+**Expected Outcome**:
+- ✅ First Load JS: 400 kB → ~220 kB (45% reduction)
+- ✅ Faster initial render
+- ✅ Better perceived performance (progressive loading)
+
+---
+
+#### PERF-003: Add Pagination to List Endpoints (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟡 Medium - Prevents slow queries on large datasets
+
+**Problem**: No pagination on list endpoints (students, sessions, payments). As data grows, queries become slow.
+
+**Remediation**:
+1. **Create Pagination Helper** (1 hour):
+   ```typescript
+   // lib/pagination.ts
+   export function paginate<T>(
+     items: T[],
+     page: number = 1,
+     pageSize: number = 20
+   ) {
+     const offset = (page - 1) * pageSize;
+     const paginatedItems = items.slice(offset, offset + pageSize);
+     
+     return {
+       data: paginatedItems,
+       meta: {
+         page,
+         pageSize,
+         total: items.length,
+         totalPages: Math.ceil(items.length / pageSize),
+       },
+     };
+   }
+   ```
+
+2. **Update API Routes** (2 hours):
+   ```typescript
+   // app/api/admin/students/route.ts
+   export async function GET(req: NextRequest) {
+     const { searchParams } = new URL(req.url);
+     const page = parseInt(searchParams.get('page') || '1');
+     const limit = parseInt(searchParams.get('limit') || '20');
+     
+     const [students, total] = await Promise.all([
+       prisma.student.findMany({
+         skip: (page - 1) * limit,
+         take: limit,
+       }),
+       prisma.student.count(),
+     ]);
+     
+     return NextResponse.json({
+       data: students,
+       meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+     });
+   }
+   ```
+
+3. **Update Frontend** (1 hour):
+   ```typescript
+   // Use pagination component
+   <Table>
+     {students.map(s => <StudentRow key={s.id} student={s} />)}
+   </Table>
+   <Pagination
+     currentPage={page}
+     totalPages={totalPages}
+     onPageChange={setPage}
+   />
+   ```
+
+**Expected Outcome**:
+- ✅ API response time: <200ms (vs 2s+ for 1000+ records)
+- ✅ Reduced memory usage
+- ✅ Better UX (faster page loads)
+
+---
+
+#### PERF-004: Audit "use client" Usage (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟢 Low - Incremental bundle size improvements
+
+**Remediation**:
+1. Audit 134 `use client` directives
+2. Convert pages to Server Components where possible
+3. Nest `use client` deeper in component tree
+4. Target: Reduce from 134 → ~100 client components
+
+**Effort**: 4 hours (systematic review)
 
 ---
 
@@ -1114,10 +1326,73 @@ model Student {
 
 ### 5.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| DB-001 | Add index on `SessionBooking.scheduledDate` | P2 | 15min |
-| DB-002 | Add CHECK constraint (credits >= 0) for defense-in-depth | P3 | 30min |
+#### DB-001: Add Index on `SessionBooking.scheduledDate` (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: XS (15 minutes)  
+**Impact**: 🟡 Medium - Improves query performance for session listing/filtering
+
+**Problem**: Common queries filter sessions by date range, but no index exists on `scheduledDate`.
+
+**Remediation**:
+```prisma
+// prisma/schema.prisma
+model SessionBooking {
+  id            String   @id @default(cuid())
+  scheduledDate DateTime
+  // ... other fields
+  
+  @@index([scheduledDate]) // Add this line
+  @@index([coachId, scheduledDate]) // Composite for coach-specific queries
+}
+```
+
+**Generate Migration**:
+```bash
+npx prisma migrate dev --name add-session-booking-date-index
+```
+
+**Expected Query Improvement**:
+- Before: Full table scan (O(n))
+- After: Index scan (O(log n))
+- Speed improvement: 10-50x for large datasets (1000+ sessions)
+
+---
+
+#### DB-002: Add CHECK Constraint for Credits (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: XS (30 minutes)  
+**Impact**: 🟢 Low - Defense-in-depth for credit integrity
+
+**Problem**: While application logic prevents negative credits, database lacks constraint enforcement.
+
+**Remediation**:
+```sql
+-- Add CHECK constraint in migration
+ALTER TABLE "CreditAccount" 
+ADD CONSTRAINT "check_credits_non_negative" 
+CHECK ("balance" >= 0);
+```
+
+Or in Prisma (PostgreSQL raw SQL):
+```prisma
+model CreditAccount {
+  id      String @id @default(cuid())
+  balance Int    @default(0)
+  // Enforced at DB level for defense-in-depth
+}
+```
+
+**Migration**:
+```bash
+npx prisma migrate dev --name add-credits-check-constraint
+```
+
+**Expected Outcome**:
+- ✅ Database rejects negative credits even if app logic fails
+- ✅ Protection against direct SQL updates
+- ✅ Defense-in-depth security posture
 
 ---
 

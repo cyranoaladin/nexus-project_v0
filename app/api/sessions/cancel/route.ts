@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { refundSessionBookingById, canCancelBooking } from '@/lib/credits';
+import { refundSessionBookingById, canCancelBooking } from '@/lib/domain/credits';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { SessionStatus } from '@prisma/client';
@@ -89,20 +89,55 @@ export async function POST(request: NextRequest) {
     
     const hoursUntilSession = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    // Cancel the session
-    await prisma.sessionBooking.update({
-      where: { id: sessionId },
-      data: {
-        status: SessionStatus.CANCELLED,
-        cancelledAt: new Date(),
-        coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled'
-      }
-    });
+    // Cancel session and refund credits atomically in single transaction
+    await prisma.$transaction(async (tx) => {
+      // 1. Cancel the session
+      await tx.sessionBooking.update({
+        where: { id: sessionId },
+        data: {
+          status: SessionStatus.CANCELLED,
+          cancelledAt: new Date(),
+          coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled'
+        }
+      });
 
-    // Refund credits if eligible (idempotent)
-    if (canRefund) {
-      await refundSessionBookingById(sessionId, reason);
-    }
+      // 2. Refund credits if eligible (idempotent within transaction)
+      if (canRefund) {
+        // Find student entity
+        const studentEntity = await tx.student.findFirst({
+          where: { userId: sessionToCancel.studentId }
+        });
+
+        if (studentEntity) {
+          // Check for existing REFUND transaction (idempotency)
+          const existingRefund = await tx.creditTransaction.findFirst({
+            where: { sessionId, type: 'REFUND' }
+          });
+
+          if (!existingRefund) {
+            // Create refund transaction
+            await tx.creditTransaction.create({
+              data: {
+                studentId: studentEntity.id,
+                type: 'REFUND',
+                amount: sessionToCancel.creditsUsed,
+                description: reason ? `Refund: ${reason}` : 'Refund: cancellation',
+                sessionId
+              }
+            });
+
+            // Update cached credits field
+            await tx.student.update({
+              where: { id: studentEntity.id },
+              data: { credits: { increment: sessionToCancel.creditsUsed } }
+            });
+          }
+        }
+      }
+    }, {
+      isolationLevel: 'Serializable',
+      timeout: 10000  // 10 seconds timeout
+    });
 
     logger.logRequest(200, {
       sessionId,

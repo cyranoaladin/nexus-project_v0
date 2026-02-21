@@ -23,14 +23,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Accès réservé aux parents' }, { status: 403 });
     }
 
-    // Fetch Parent Profile and Children with UPCOMING sessions
+    // Fetch Parent Profile and Children (✅ PERF-DB-003: Optimized with select)
     const parentProfile = await prisma.parentProfile.findUnique({
       where: { userId: session.user.id },
       include: {
         children: {
           include: {
             user: {
-              include: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
                 studentSessions: {
                   where: {
                     status: 'SCHEDULED'
@@ -76,8 +79,16 @@ export async function GET() {
               }
             },
             badges: {
-              include: {
-                badge: true
+              select: {
+                earnedAt: true,
+                badge: {
+                  select: {
+                    id: true,
+                    name: true,
+                    icon: true,
+                    category: true
+                  }
+                }
               }
             }
           }
@@ -164,6 +175,7 @@ export async function GET() {
       };
     }));
 
+    // ✅ PERF-REACT-003: Add cache headers for 60s
     return NextResponse.json({
       // Parent info
       parent: {
@@ -181,6 +193,10 @@ export async function GET() {
         status: p.status,
         type: p.type
       }))
+    }, {
+      headers: {
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120'
+      }
     });
 
   } catch (error) {
