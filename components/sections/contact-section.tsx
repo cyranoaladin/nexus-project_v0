@@ -393,7 +393,7 @@ export default function ContactSection() {
                   {active === "schools" && (
                     <>
                       <option>Nexus Digital Campus (LMS & pilotage)</option>
-                      <option>Réserver une démo Korrigo</option>
+                      <option>Solutions IA pour établissements</option>
                       <option>Activer ARIA (tuteur IA & suivi)</option>
                       <option>Studio IA / Agents autonomes</option>
                       <option>IA sécurisée avec vos données</option>

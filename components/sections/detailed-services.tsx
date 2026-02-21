@@ -40,9 +40,9 @@ const TABS = [
         title: "L'École Augmentée (Studio & Infra)",
         subtitle: "Gouvernance & Outils IA Souverains",
         shortDesc:
-          "Équipez votre structure avec Korrigo, des Agents Vie Scolaire et une certification sécurisée.",
+          "Équipez votre structure avec des Agents Vie Scolaire, des outils IA et une certification sécurisée.",
         fullDesc:
-          "Ne laissez pas la tech gérer votre école, utilisez la tech pour la piloter. Nous déployons chez vous : 1) Korrigo pour diviser par deux le temps de correction des profs. 2) Des Agents IA sécurisés pour l'administratif. 3) Une certification sécurisée des diplômes pour votre image de marque.",
+          "Ne laissez pas la tech gérer votre école, utilisez la tech pour la piloter. Nous déployons chez vous : 1) Des outils IA pour optimiser le temps des enseignants. 2) Des Agents IA sécurisés pour l'administratif. 3) Une certification sécurisée des diplômes pour votre image de marque.",
         benefits: [
           "Gain de temps administratif (-30%)",
           "Image d'excellence immédiate",

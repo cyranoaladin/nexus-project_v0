@@ -60,7 +60,7 @@ export default function PillarsGrid() {
               <ul className="mt-6 space-y-3 text-slate-300 text-sm md:text-base">
                 <li>• Agents Autonomes (Vie scolaire / Tutorat)</li>
                 <li>• IA sécurisée avec vos données</li>
-                <li>• Korrigo (Correction augmentée)</li>
+                <li>• Outils IA pour enseignants</li>
               </ul>
             </div>
           </div>

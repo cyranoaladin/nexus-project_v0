@@ -8,7 +8,7 @@ const testimonials = [
     name: "M. Khaled A.",
     role: "Directeur de Lycée",
     quote:
-      "Grâce à Korrigo, mes équipes ont gagné 30% de temps administratif.",
+      "Le dashboard Nexus nous donne une visibilité totale sur la progression des élèves.",
   },
   {
     name: "Mme Inès R.",

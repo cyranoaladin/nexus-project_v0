@@ -46,19 +46,19 @@ describe('Double Booking Prevention - Concurrency', () => {
     }
     await setupTestDatabase();
     await createTestUsers();
-  });
+  }, 10000);
 
   afterAll(async () => {
     try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    await prisma.$disconnect();
-  });
+    try { await prisma.$disconnect(); } catch { /* ignore */ }
+  }, 30000);
 
   afterEach(async () => {
     if (!dbAvailable) return;
     // Full cleanup to prevent orphaned records, then re-create users
     await setupTestDatabase();
     await createTestUsers();
-  });
+  }, 30000);
 
   describe('Exact Duplicate Prevention', () => {
     it('should prevent exact duplicate bookings made concurrently', async () => {

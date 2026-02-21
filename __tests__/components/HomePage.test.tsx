@@ -14,7 +14,6 @@ jest.mock('@/components/sections/paths-section-gsap', () => () => <div data-test
 jest.mock('@/components/sections/approach-section-gsap', () => () => <div data-testid="approach">Approach</div>);
 jest.mock('@/components/sections/dna-section-gsap', () => () => <div data-testid="dna">DNA</div>);
 jest.mock('@/components/sections/offer-section-gsap', () => () => <div data-testid="offer">Offer</div>);
-jest.mock('@/components/sections/korrigo-section-gsap', () => () => <div data-testid="korrigo">Korrigo</div>);
 jest.mock('@/components/sections/testimonials-section-gsap', () => () => <div data-testid="testimonials">Testimonials</div>);
 jest.mock('@/components/sections/contact-section-gsap', () => () => <div data-testid="contact">Contact</div>);
 
@@ -29,7 +28,6 @@ describe('HomePage', () => {
         expect(screen.getByTestId('approach')).toBeInTheDocument();
         expect(screen.getByTestId('dna')).toBeInTheDocument();
         expect(screen.getByTestId('offer')).toBeInTheDocument();
-        expect(screen.getByTestId('korrigo')).toBeInTheDocument();
         expect(screen.getByTestId('testimonials')).toBeInTheDocument();
         expect(screen.getByTestId('contact')).toBeInTheDocument();
         expect(screen.getByTestId('footer')).toBeInTheDocument();

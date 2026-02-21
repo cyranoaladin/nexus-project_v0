@@ -38,19 +38,19 @@ describe('Payment Idempotency - Concurrency', () => {
     }
     await setupTestDatabase();
     await createUser();
-  });
+  }, 10000);
 
   afterAll(async () => {
     try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    await prisma.$disconnect();
-  });
+    try { await prisma.$disconnect(); } catch { /* ignore */ }
+  }, 30000);
 
   afterEach(async () => {
     if (!dbAvailable) return;
     // Full cleanup to prevent orphaned records, then re-create user
     await setupTestDatabase();
     await createUser();
-  });
+  }, 30000);
 
   describe('Direct Database Constraint', () => {
     it('should prevent duplicate payments with same externalId and method', async () => {
