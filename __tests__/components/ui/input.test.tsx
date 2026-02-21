@@ -40,7 +40,7 @@ describe('Input', () => {
 
       const helperText = screen.getByText('Must be at least 8 characters');
       expect(helperText).toBeInTheDocument();
-      expect(helperText).toHaveClass('text-gray-600');
+      expect(helperText).toHaveClass('text-neutral-400');
     });
 
     it('renders input with error message', () => {
@@ -219,7 +219,7 @@ describe('Input', () => {
       const input = screen.getByRole('textbox');
       expect(input).toHaveClass('focus-visible:outline-none');
       expect(input).toHaveClass('focus-visible:ring-2');
-      expect(input).toHaveClass('focus-visible:ring-primary-500');
+      expect(input).toHaveClass('focus-visible:ring-brand-primary');
     });
 
     it('error message has role="alert" for screen readers', () => {
@@ -364,7 +364,7 @@ describe('Input', () => {
       render(<Input />);
 
       const input = screen.getByRole('textbox');
-      expect(input).toHaveClass('border-gray-300');
+      expect(input).toHaveClass('border-white/15');
     });
   });
 
