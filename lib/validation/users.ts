@@ -41,9 +41,10 @@ export type UpdateUserInput = z.infer<typeof updateUserSchema>;
  * User list filters (GET /api/admin/users)
  */
 export const listUsersSchema = z.object({
-  role: z.nativeEnum(UserRole).optional(),
+  role: z.string().optional(),
   isActive: z.coerce.boolean().optional(),
   search: z.string().max(200).optional(),
+  page: z.coerce.number().int().min(1).optional(),
   ...paginationSchema.shape,
 });
 

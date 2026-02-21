@@ -33,13 +33,17 @@ export async function GET(request: NextRequest) {
 
     // Parse and validate query parameters
     const params = parseSearchParams(request, listUsersSchema);
-    const { skip, take } = getPagination(params.limit ?? 10, params.offset ?? 0);
+
+    // Convert page to offset if provided
+    const limit = params.limit ?? 10;
+    const offset = params.page ? (params.page - 1) * limit : (params.offset ?? 0);
+    const { skip, take } = getPagination(limit, offset);
 
     // Build where clause
     const whereClause: Prisma.UserWhereInput = {};
 
-    if (params.role) {
-      whereClause.role = params.role;
+    if (params.role && params.role !== 'ALL' && Object.values(UserRole).includes(params.role as UserRole)) {
+      whereClause.role = params.role as UserRole;
     }
 
     // Note: isActive field does not exist in User schema
@@ -95,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse({
       users: formattedUsers,
-      pagination: createPaginationMeta(total, params.limit ?? 10, params.offset ?? 0)
+      pagination: createPaginationMeta(total, limit, offset)
     });
 
   } catch (error) {
