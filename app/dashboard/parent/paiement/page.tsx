@@ -99,9 +99,8 @@ function PaiementContent() {
         .then((data) => { setHasPendingPayment(!!data.hasPending); })
         .catch(() => {})
         .finally(() => setPendingCheckDone(true));
-    } else {
-      router.push('/dashboard/parent/abonnements');
     }
+    // No redirect — show default payment overview when no params
   }, [session, status, router, searchParams]);
 
   const handleCopyIban = useCallback(async () => {
@@ -151,8 +150,32 @@ function PaiementContent() {
     }
   }, [orderDetails, router]);
 
-  if (status === "loading" || !orderDetails) {
+  if (status === "loading") {
     return <PaiementPageLoading />;
+  }
+
+  if (!orderDetails) {
+    return (
+      <div className="min-h-screen bg-transparent">
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold text-white mb-6">Paiements</h1>
+          <div className="rounded-xl border border-white/10 bg-surface-card p-8 text-center">
+            <Landmark className="w-10 h-10 mx-auto mb-4 text-brand-accent" />
+            <h2 className="text-lg font-semibold text-white mb-2">Aucune commande en cours</h2>
+            <p className="text-neutral-400 mb-6 max-w-md mx-auto">
+              Pour effectuer un paiement, choisissez d'abord une formule ou un pack depuis la page Abonnements.
+            </p>
+            <Link
+              href="/dashboard/parent/abonnements"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-6 py-3 text-sm font-bold text-black transition hover:bg-brand-accent-dark"
+            >
+              <CreditCard className="w-4 h-4" />
+              Voir les Abonnements
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
