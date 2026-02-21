@@ -49,25 +49,25 @@ This comprehensive audit evaluated the Nexus Réussite educational platform acro
 1. **🔴 P0-AUTH-004**: API Authorization Gap — Only 12% of API routes (10/81) use explicit authorization guards  
    **Impact**: High risk of unauthorized access | **Effort**: 16 hours
 
-2. **🔴 P1-SECURITY**: 36 npm Vulnerabilities (1 moderate, 35 high) in dependencies  
+2. **🔴 P0-SEC-001**: SQL Injection Risk — 40+ unsafe raw SQL queries (`$queryRawUnsafe`/`$executeRawUnsafe`)  
+   **Impact**: Critical database compromise risk | **Effort**: 8 hours
+
+3. **🔴 P0-TEST-001**: Invoice PDF Generation — 5.84% test coverage  
+   **Impact**: Financial/billing system untested | **Effort**: 8 hours
+
+4. **🔴 P0-SEC-002**: Code Execution Risk — `new Function()` in InteractiveMafs.tsx  
+   **Impact**: Arbitrary code execution vulnerability | **Effort**: 4 hours
+
+5. **🟡 P1-SEC-001**: 36 npm Vulnerabilities (1 moderate, 35 high) in dependencies  
    **Impact**: Potential ReDoS attacks | **Effort**: 1 hour
 
-3. **🟡 P1-AUTH-001**: Password Reset Token Validation not fully audited  
-   **Impact**: Potential account takeover | **Effort**: 2 hours
+### Top 5 Recommendations (P0/P1 Priority)
 
-4. **🟡 P1-AUTH-005**: Middleware lacks security headers (CSP, HSTS, X-Frame-Options)  
-   **Impact**: XSS, clickjacking vulnerabilities | **Effort**: 1 hour
-
-5. **🟡 P2-DEVOPS-004**: Docker container runs as root  
-   **Impact**: Privilege escalation if compromised | **Effort**: 1 hour
-
-### Top 5 Recommendations
-
-1. **Enforce `enforcePolicy()` in all API routes** — Audit 81 routes, enforce centralized RBAC guards
-2. **Run `npm audit fix --force`** — Patch dependency vulnerabilities
-3. **Add security headers middleware** — Implement Helmet.js or Next.js security headers
-4. **Add automated accessibility tests** — Integrate `jest-axe` and Lighthouse CI
-5. **Implement API versioning** — Prepare for breaking changes
+1. **[P0] Enforce API authorization guards** — Audit all 81 routes, standardize `enforcePolicy()` usage (16h)
+2. **[P0] Eliminate SQL injection risks** — Replace `$queryRawUnsafe` with parameterized queries (8h)
+3. **[P0] Test invoice generation** — Add comprehensive tests for financial/billing system (8h)
+4. **[P0] Fix code execution vulnerability** — Replace `new Function()` with safe math parser (4h)
+5. **[P1] Patch npm vulnerabilities** — Run `npm audit fix --force`, test workflows (1h)
 
 ### Risk Assessment
 
@@ -593,14 +593,438 @@ export const BUSINESS_RULES = {
 
 ### 3.4 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| SEC-001 | Audit all 81 API routes, enforce `enforcePolicy()` | P0 | 16h |
-| SEC-002 | Run `npm audit fix --force`, test workflows | P1 | 1h |
-| SEC-003 | Add security headers (CSP, HSTS, X-Frame-Options) | P1 | 1h |
-| SEC-004 | Audit password reset token validation | P1 | 2h |
-| SEC-005 | Add account lockout (5 failed logins) | P2 | 2h |
-| SEC-006 | Replace console.log, redact sensitive data | P2 | 4h |
+#### SEC-001: Audit All API Routes and Enforce `enforcePolicy()` (P0)
+
+**See ARCH-001 above** - This is the same recommendation (authorization coverage gap).
+
+---
+
+#### SEC-002: Patch npm Vulnerabilities (P1)
+
+**Priority**: P1 (High)  
+**Effort**: Small (1 hour)  
+**Impact**: 🔴 High - Fixes 36 vulnerabilities (1 moderate, 35 high)
+
+**Problem**: 36 npm vulnerabilities, primarily in dev dependencies (ESLint, Jest). Main vulnerability: `minimatch < 10.2.1` (ReDoS via repeated wildcards).
+
+**Detailed Remediation Steps**:
+
+1. **Patch Non-Breaking Vulnerabilities** (5 minutes):
+   ```bash
+   npm audit fix
+   ```
+   This fixes `ajv < 6.14.0` (moderate severity ReDoS).
+
+2. **Review Breaking Changes** (15 minutes):
+   ```bash
+   npm audit fix --force --dry-run
+   ```
+   Expected breaking changes:
+   - ESLint 8 → 10 (config format changes)
+   - Jest dependencies update (minimal breaking changes)
+
+3. **Apply Force Upgrade** (5 minutes):
+   ```bash
+   npm audit fix --force
+   ```
+
+4. **Test All Workflows** (30 minutes):
+   ```bash
+   # Verify linting still works
+   npm run lint
+   
+   # Verify type checking
+   npm run typecheck
+   
+   # Run all tests
+   npm test
+   npm run test:integration
+   npm run test:e2e
+   
+   # Verify build
+   npm run build
+   ```
+
+5. **Fix ESLint Config If Needed** (5 minutes):
+   If ESLint 10 breaks config:
+   ```javascript
+   // eslint.config.mjs (flat config for ESLint 10)
+   import { FlatCompat } from '@eslint/eslintrc';
+   import path from 'path';
+   
+   const compat = new FlatCompat({
+     baseDirectory: path.dirname(new URL(import.meta.url).pathname),
+   });
+   
+   export default [
+     ...compat.extends('next/core-web-vitals'),
+     // ... rest of config
+   ];
+   ```
+
+6. **Verify CI/CD** (5 minutes):
+   Push to feature branch, verify all CI jobs pass.
+
+7. **Document Changes** (5 minutes):
+   Update `package.json` lock file, commit with message:
+   ```
+   fix(security): patch 36 npm vulnerabilities
+   
+   - Fixed ajv ReDoS (moderate)
+   - Updated ESLint ecosystem to v10 (35 high severity)
+   - Tested all workflows: lint, typecheck, test, build
+   ```
+
+**Expected Outcome**:
+- ✅ 0 high/critical npm vulnerabilities
+- ✅ All tests passing
+- ✅ Build successful
+- ✅ CI/CD green
+
+**Rollback Plan** (if issues):
+```bash
+git checkout package.json package-lock.json
+npm install
+```
+
+**References**:
+- CVE: [minimatch ReDoS](https://github.com/advisories/GHSA-3ppc-4f35-3m26)
+- ESLint 10: [Migration Guide](https://eslint.org/docs/latest/use/migrate-to-10.0.0)
+
+---
+
+#### SEC-003: Add Security Headers to Middleware (P1)
+
+**Priority**: P1 (High)  
+**Effort**: Small (1 hour)  
+**Impact**: 🔴 High - Prevents XSS, clickjacking, MITM attacks
+
+**Problem**: `middleware.ts` only handles authentication redirects. Missing critical security headers:
+- `Content-Security-Policy` (XSS protection)
+- `Strict-Transport-Security` (HTTPS enforcement)
+- `X-Frame-Options` (clickjacking protection)
+- `X-Content-Type-Options` (MIME sniffing protection)
+
+**Detailed Remediation**:
+
+**Option 1: Next.js Config (Recommended)** (30 minutes):
+
+Add to `next.config.ts`:
+
+```typescript
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY', // Prevent clickjacking
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff', // Prevent MIME sniffing
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(self), geolocation=()',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com", // For MathJax, GTM
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src 'self' data: https: blob:",
+              "connect-src 'self' https://api.openai.com https://*.supabase.co",
+              "frame-ancestors 'none'", // Clickjacking protection
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join('; '),
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;
+```
+
+**Option 2: Middleware (Alternative)** (30 minutes):
+
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  // Security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  );
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; ..."
+  );
+  
+  // ... existing auth logic
+  
+  return response;
+}
+```
+
+**Testing** (15 minutes):
+1. Deploy to staging
+2. Check headers with browser DevTools:
+   - Open Network tab
+   - Reload page
+   - Inspect response headers for `/`
+3. Verify CSP doesn't break MathJax/GTM:
+   - Open Console tab
+   - Check for CSP violation warnings
+   - Adjust `script-src` if needed
+
+**CSP Fine-Tuning** (15 minutes):
+- Start strict, relax as needed
+- Use `Content-Security-Policy-Report-Only` header first (test mode)
+- Monitor violations in production
+- Tighten policy over time
+
+**Expected Outcome**:
+- ✅ All security headers present
+- ✅ No functionality breakage
+- ✅ Security scan (SecurityHeaders.com) grade A
+
+**References**:
+- OWASP: [Secure Headers](https://owasp.org/www-project-secure-headers/)
+- MDN: [Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+- CSP Evaluator: [CSP Evaluator Tool](https://csp-evaluator.withgoogle.com/)
+
+---
+
+#### SEC-004: Audit Password Reset Token Validation (P1)
+
+**Priority**: P1 (High)  
+**Effort**: Small (2 hours)  
+**Impact**: 🔴 High - Prevents account takeover via token manipulation
+
+**Problem**: Password reset flow security not fully verified. Potential risks:
+- Token reuse after password change
+- Token brute-forcing
+- Token leakage in logs/errors
+
+**Audit Checklist**:
+
+1. **Review Token Generation** (30 minutes):
+   ```bash
+   # Find password reset implementation
+   grep -r "password.*reset" app/api lib/ --include="*.ts"
+   grep -r "resetToken\|reset_token" app/api lib/ --include="*.ts"
+   ```
+   
+   **Verify**:
+   - [ ] Token is cryptographically random (≥128 bits entropy)
+   - [ ] Token is hashed before storage in database
+   - [ ] Token has expiry (≤1 hour recommended)
+   - [ ] Token is invalidated after use
+   
+   **Expected Implementation**:
+   ```typescript
+   import { randomBytes, createHash } from 'crypto';
+   
+   // Generate token
+   const token = randomBytes(32).toString('hex'); // 256 bits
+   const hashedToken = createHash('sha256').update(token).digest('hex');
+   
+   await prisma.user.update({
+     where: { email },
+     data: {
+       resetToken: hashedToken,
+       resetTokenExpiry: new Date(Date.now() + 3600000), // 1 hour
+     },
+   });
+   ```
+
+2. **Review Token Validation** (30 minutes):
+   ```bash
+   # Find validation logic
+   grep -r "resetToken" app/api --include="*.ts" -A 10
+   ```
+   
+   **Verify**:
+   - [ ] Token is hashed before DB lookup
+   - [ ] Expiry is checked
+   - [ ] Token is cleared after use
+   - [ ] Rate limiting on reset endpoint (5 attempts/hour)
+   
+   **Expected Implementation**:
+   ```typescript
+   const hashedToken = createHash('sha256').update(token).digest('hex');
+   
+   const user = await prisma.user.findFirst({
+     where: {
+       resetToken: hashedToken,
+       resetTokenExpiry: { gt: new Date() }, // Not expired
+     },
+   });
+   
+   if (!user) {
+     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
+   }
+   
+   // Change password
+   await prisma.user.update({
+     where: { id: user.id },
+     data: {
+       password: hashedPassword,
+       resetToken: null, // Clear token
+       resetTokenExpiry: null,
+     },
+   });
+   ```
+
+3. **Check Token Leakage** (30 minutes):
+   ```bash
+   # Find logging of reset tokens
+   grep -r "resetToken\|reset_token" app/ lib/ --include="*.ts" | grep -i "console\|log\|error"
+   ```
+   
+   **Fix If Found**:
+   ```typescript
+   // ❌ BAD
+   console.log('Reset token:', resetToken);
+   logger.error('Token validation failed:', { token });
+   
+   // ✅ GOOD
+   logger.info('Password reset initiated', { email: user.email });
+   logger.error('Token validation failed', { userId: user.id }); // No token
+   ```
+
+4. **Add Rate Limiting** (30 minutes):
+   ```typescript
+   // app/api/auth/reset-password/route.ts
+   import { checkRateLimit } from '@/lib/rate-limit';
+   
+   export async function POST(req: NextRequest) {
+     const { email } = await req.json();
+     
+     // Rate limit: 5 reset attempts per hour per email
+     const rateLimitResult = await checkRateLimit({
+       identifier: `password-reset:${email}`,
+       limit: 5,
+       window: 3600,
+     });
+     
+     if (!rateLimitResult.success) {
+       return NextResponse.json(
+         { error: 'Too many reset attempts. Try again later.' },
+         { status: 429 }
+       );
+     }
+     
+     // ... reset logic
+   }
+   ```
+
+**Expected Outcome**:
+- ✅ Token is cryptographically secure (≥128 bits)
+- ✅ Token is hashed in database
+- ✅ Token expires in ≤1 hour
+- ✅ Token is invalidated after use
+- ✅ No token leakage in logs
+- ✅ Rate limiting prevents brute force
+
+**References**:
+- OWASP: [Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
+- NIST: [Digital Identity Guidelines (SP 800-63B)](https://pages.nist.gov/800-63-3/sp800-63b.html)
+
+---
+
+#### SEC-005: Add Account Lockout (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟡 Medium - Prevents brute force attacks on login
+
+**Remediation**:
+1. Add fields to User model:
+   ```prisma
+   model User {
+     // ... existing fields
+     failedLoginAttempts Int @default(0)
+     lockedUntil         DateTime?
+   }
+   ```
+
+2. Implement lockout logic in auth:
+   ```typescript
+   // lib/auth-helpers.ts
+   const MAX_ATTEMPTS = 5;
+   const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+   
+   export async function handleFailedLogin(userId: string) {
+     const user = await prisma.user.update({
+       where: { id: userId },
+       data: {
+         failedLoginAttempts: { increment: 1 },
+       },
+     });
+     
+     if (user.failedLoginAttempts >= MAX_ATTEMPTS) {
+       await prisma.user.update({
+         where: { id: userId },
+         data: {
+           lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS),
+         },
+       });
+     }
+   }
+   
+   export async function checkAccountLock(userId: string) {
+     const user = await prisma.user.findUnique({ where: { id: userId } });
+     if (user.lockedUntil && user.lockedUntil > new Date()) {
+       throw new Error('Account locked. Try again later.');
+     }
+   }
+   ```
+
+3. Reset on successful login:
+   ```typescript
+   await prisma.user.update({
+     where: { id: userId },
+     data: {
+       failedLoginAttempts: 0,
+       lockedUntil: null,
+     },
+   });
+   ```
+
+**Effort**: 2 hours (migration + implementation + testing)
+
+---
+
+#### SEC-006: Replace console.log and Redact Sensitive Data (P2)
+
+**See QUAL-002 above** - Covered in Code Quality recommendations with additional security focus on redacting passwords, tokens, API keys.
 
 ---
 

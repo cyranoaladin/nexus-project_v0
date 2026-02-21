@@ -20,7 +20,13 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { DashboardPilotage } from '@/components/dashboard/DashboardPilotage';
+import dynamic from 'next/dynamic';
+
+// ✅ PERF-REACT-004: Lazy-load heavy dashboard component
+const DashboardPilotage = dynamic(() => import('@/components/dashboard/DashboardPilotage').then(m => ({ default: m.DashboardPilotage })), {
+  loading: () => <div className="flex items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>,
+  ssr: false
+});
 
 interface AdminDashboardData {
   stats: {

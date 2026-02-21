@@ -2,11 +2,25 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AssessmentRunner } from "@/components/assessments/AssessmentRunner";
+import dynamic from "next/dynamic";
 import { Subject, Grade } from "@/lib/assessments/core/types";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { Loader2 } from "lucide-react";
+
+// ✅ PERF-REACT-004: Lazy-load heavy AssessmentRunner component (~150kB of questions)
+const AssessmentRunner = dynamic(
+  () => import("@/components/assessments/AssessmentRunner").then(m => ({ default: m.AssessmentRunner })),
+  {
+    loading: () => (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement de l'évaluation...</p>
+      </div>
+    ),
+    ssr: false
+  }
+);
 
 /**
  * Map bilan-gratuit subject names to Assessment Subject enum.

@@ -56,20 +56,6 @@ export const ErrorCode = {
 export type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];
 
 /**
- * API Error Response Format
- *
- * Consistent structure returned by all API errors:
- * - error: Machine-readable error code
- * - message: Human-readable error message
- * - details: Optional additional context (validation errors, etc.)
- */
-export interface ApiErrorResponse {
-  error: string;
-  message: string;
-  details?: unknown;
-}
-
-/**
  * Custom API Error Class
  *
  * Use this to throw typed errors in API routes that will be
@@ -87,16 +73,14 @@ export class ApiError extends Error {
   }
 
   /**
-   * Convert to API response format
+   * Convert to API response format (using standard envelope)
    */
   toResponse(): NextResponse<ApiErrorResponse> {
-    return NextResponse.json(
-      {
-        error: this.code,
-        message: this.message,
-        ...(this.details ? { details: this.details } : {}),
-      },
-      { status: this.statusCode }
+    return errorResponse(
+      this.statusCode,
+      this.code,
+      this.message,
+      this.details
     );
   }
 

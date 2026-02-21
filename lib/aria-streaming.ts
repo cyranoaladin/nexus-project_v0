@@ -1,45 +1,14 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
-import { prisma } from './prisma';
+import { logger } from './logger';
+import { ARIA_SYSTEM_PROMPT, OPENAI_CONFIG } from './aria/constants';
+import { sanitizeUserPrompt, sanitizeRAGContent, detectSuspiciousActivity } from './aria/security';
+import { searchKnowledgeBase } from './aria';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
   baseURL: process.env.OPENAI_BASE_URL || undefined,
 });
-
-const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
-
-RÈGLES IMPORTANTES :
-1. Tu ne réponds QUE sur la matière demandée par l'élève
-2. Tes réponses sont basées sur la base de connaissances Nexus Réussite
-3. Tu adaptes ton niveau au lycée (Seconde, Première, Terminale)
-4. Tu es bienveillant, encourageant et pédagogue
-5. Tu proposes toujours des exemples concrets
-6. Si tu ne sais pas, tu le dis et suggères de contacter un coach
-
-STYLE :
-- Utilise un ton amical mais professionnel
-- Structure tes réponses clairement
-- Utilise des émojis avec parcimonie
-- Propose des exercices ou des méthodes pratiques
-
-Tu représentes l'excellence de Nexus Réussite.`;
-
-async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  const contents = await prisma.pedagogicalContent.findMany({
-    where: {
-      subject,
-      OR: [
-        { title: { contains: query } },
-        { content: { contains: query } },
-      ]
-    },
-    take: limit,
-    orderBy: { createdAt: 'desc' }
-  });
-
-  return contents;
-}
 
 export async function generateAriaResponseStream(
   studentId: string,
