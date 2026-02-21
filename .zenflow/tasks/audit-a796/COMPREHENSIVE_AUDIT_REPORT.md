@@ -1556,11 +1556,199 @@ npx prisma migrate dev --name add-credits-check-constraint
 
 ### 7.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| API-001 | Standardize on 201 Created for resource creation | P2 | 2h |
-| API-002 | Add `/api/v1/` prefix for future versioning | P2 | 4h |
-| API-003 | Generate OpenAPI spec from Zod schemas | P2 | 8h |
+#### API-001: Standardize Status Codes (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟡 Medium - Improves API consistency
+
+**Problem**: Inconsistent use of 201 vs 200 for POST requests creating resources.
+
+**Remediation**:
+1. **Audit POST Routes** (30 minutes):
+   ```bash
+   grep -r "POST.*NextResponse.json.*200" app/api --include="*.ts"
+   ```
+
+2. **Standardize to 201 Created** (1 hour):
+   ```typescript
+   // ❌ BEFORE (inconsistent)
+   return NextResponse.json(session, { status: 200 });
+   
+   // ✅ AFTER (RESTful)
+   return NextResponse.json(session, { status: 201 });
+   ```
+
+3. **Update API Conventions Doc** (30 minutes):
+   ```markdown
+   ## HTTP Status Codes
+   - 200 OK: Successful GET, PATCH, DELETE
+   - 201 Created: Successful POST (resource created)
+   - 400 Bad Request: Validation error
+   - 401 Unauthorized: Not authenticated
+   - 403 Forbidden: Not authorized
+   - 404 Not Found: Resource not found
+   - 409 Conflict: Duplicate/conflict (e.g., double booking)
+   - 500 Internal Server Error: Unexpected error
+   ```
+
+**Expected Outcome**:
+- ✅ Consistent status codes across API
+- ✅ Better HTTP semantics compliance
+- ✅ Clearer frontend error handling
+
+---
+
+#### API-002: Add API Versioning (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟡 Medium - Prepares for future breaking changes
+
+**Problem**: No versioning strategy. Breaking changes will affect all clients.
+
+**Remediation**:
+
+**Option 1: URL Versioning** (Recommended):
+1. Create `/api/v1/` directory structure (2 hours):
+   ```bash
+   mkdir -p app/api/v1
+   # Symlink current routes to v1
+   ln -s ../sessions app/api/v1/sessions
+   ln -s ../aria app/api/v1/aria
+   # ... (or copy routes)
+   ```
+
+2. Update client calls (2 hours):
+   ```typescript
+   // ❌ BEFORE
+   fetch('/api/sessions/book', ...)
+   
+   // ✅ AFTER
+   fetch('/api/v1/sessions/book', ...)
+   ```
+
+3. Add deprecation warnings to non-versioned routes:
+   ```typescript
+   // app/api/sessions/book/route.ts (legacy)
+   export async function POST(req: NextRequest) {
+     console.warn('DEPRECATED: Use /api/v1/sessions/book');
+     // ... existing logic
+   }
+   ```
+
+**Option 2: Header Versioning** (Alternative):
+```typescript
+// middleware.ts
+const apiVersion = req.headers.get('X-API-Version') || '1';
+if (apiVersion !== '1') {
+  return NextResponse.json({ error: 'Unsupported API version' }, { status: 400 });
+}
+```
+
+**Expected Outcome**:
+- ✅ Breaking changes can be introduced in v2 without breaking v1 clients
+- ✅ Gradual migration path for clients
+- ✅ Deprecation warnings guide migration
+
+---
+
+#### API-003: Generate OpenAPI Spec (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Medium (8 hours)  
+**Impact**: 🟡 Medium - Auto-generates API documentation
+
+**Problem**: No machine-readable API spec. Manual documentation becomes outdated.
+
+**Remediation**:
+
+1. **Install Dependencies** (5 minutes):
+   ```bash
+   npm install --save-dev next-swagger-doc swagger-ui-react
+   npm install zod-to-openapi
+   ```
+
+2. **Annotate Zod Schemas** (4 hours):
+   ```typescript
+   // app/api/sessions/book/route.ts
+   import { z } from 'zod';
+   import { extendZodWithOpenApi } from 'zod-to-openapi';
+   
+   extendZodWithOpenApi(z);
+   
+   const bookSessionSchema = z.object({
+     studentId: z.string().cuid().openapi({ example: 'clx123' }),
+     coachId: z.string().cuid().openapi({ example: 'clx456' }),
+     scheduledDate: z.string().datetime().openapi({ example: '2026-03-01T14:00:00Z' }),
+   }).openapi('BookSessionRequest');
+   
+   /**
+    * @swagger
+    * /api/sessions/book:
+    *   post:
+    *     summary: Book a coaching session
+    *     requestBody:
+    *       content:
+    *         application/json:
+    *           schema:
+    *             $ref: '#/components/schemas/BookSessionRequest'
+    *     responses:
+    *       201:
+    *         description: Session booked successfully
+    */
+   export async function POST(req: NextRequest) {
+     const body = bookSessionSchema.parse(await req.json());
+     // ... logic
+   }
+   ```
+
+3. **Generate Spec** (2 hours):
+   ```typescript
+   // scripts/generate-openapi.ts
+   import { generateOpenAPI } from 'next-swagger-doc';
+   
+   const spec = generateOpenAPI({
+     apiFolder: 'app/api',
+     definition: {
+       openapi: '3.1.0',
+       info: {
+         title: 'Nexus Réussite API',
+         version: '1.0.0',
+       },
+     },
+   });
+   
+   fs.writeFileSync('./public/openapi.json', JSON.stringify(spec, null, 2));
+   ```
+
+4. **Add Swagger UI** (1 hour):
+   ```typescript
+   // app/api-docs/page.tsx
+   'use client';
+   import SwaggerUI from 'swagger-ui-react';
+   import 'swagger-ui-react/swagger-ui.css';
+   
+   export default function ApiDocs() {
+     return <SwaggerUI url="/openapi.json" />;
+   }
+   ```
+
+5. **Automate in CI** (1 hour):
+   ```yaml
+   # .github/workflows/ci.yml
+   - name: Generate OpenAPI Spec
+     run: npm run generate-openapi
+   
+   - name: Validate OpenAPI Spec
+     run: npx swagger-cli validate public/openapi.json
+   ```
+
+**Expected Outcome**:
+- ✅ Auto-generated API documentation at `/api-docs`
+- ✅ Machine-readable spec for client generation
+- ✅ Always up-to-date (generated from code)
+- ✅ Postman/Insomnia import support
 
 ---
 

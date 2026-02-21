@@ -49,16 +49,28 @@ function getIngestorUrl(): string {
  */
 export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
   const baseUrl = getIngestorUrl();
-  const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
+  const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '5000', 10);  // Reduced from 12s to 5s
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+  // Validate and sanitize query
+  const sanitizedQuery = options.query.substring(0, 500);  // Limit query length
+
   try {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Add authentication if RAG_API_KEY is configured
+    if (process.env.RAG_API_KEY) {
+      headers['Authorization'] = `Bearer ${process.env.RAG_API_KEY}`;
+    }
+    
     const response = await fetch(`${baseUrl}/search`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
-        q: options.query,
+        q: sanitizedQuery,
         k: options.k ?? 4,
         include_documents: options.includeDocuments ?? true,
         collection: options.collection ?? 'ressources_pedagogiques_terminale',
