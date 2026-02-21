@@ -144,7 +144,8 @@ Run ESLint on site JavaScript files.
 - Findings documented in phase1_automated_findings.md Section 2 (5.1 KB added)
 - Key issues: Missing ESLint dependency, deprecated version, silent error swallowing
 
-### [ ] Step: Site Statique — CSS Build and Analysis
+### [x] Step: Site Statique — CSS Build and Analysis
+<!-- chat-id: 940d8165-ab47-4062-8cc9-ff90c88641fb -->
 
 Build and analyze CSS bundle.
 
@@ -160,7 +161,17 @@ Build and analyze CSS bundle.
 - Build completes
 - Bundle size documented
 
+**Status**: ✅ COMPLETED
+- postcss-cli installed (was missing from package.json)
+- Build successful: 25,435 bytes → 19,659 bytes (22.7% reduction, 5.8 KB saved)
+- PostCSS plugins verified: postcss-import, autoprefixer, cssnano
+- Critical finding: HTML references site.css (unminified) instead of site.min.css
+- Health score: 65/100
+- Findings documented in phase1_automated_findings.md Section 3
+- Key issues: Minified CSS not used (P0), missing postcss-cli dependency (P1), no browserslist config (P2)
+
 ### [ ] Step: Site Statique — Code Pattern Search
+<!-- chat-id: 3a7ea369-6cda-45a1-84f6-6880ac77108f -->
 
 Search for code quality and security patterns.
 
@@ -178,6 +189,7 @@ Search for code quality and security patterns.
 - Counts documented
 
 ### [ ] Step: Site Statique — PWA Analysis
+<!-- chat-id: f8b87d18-6b96-4f00-9391-42c81a743fff -->
 
 Analyze Progressive Web App configuration.
 
@@ -194,6 +206,7 @@ Analyze Progressive Web App configuration.
 - Service worker strategy documented
 
 ### [ ] Step: Backend Python — Discovery and Analysis
+<!-- chat-id: 804a8ed9-6124-48e5-97c7-1e9833969ec3 -->
 
 Identify and analyze backend Python components.
 
@@ -213,6 +226,7 @@ Identify and analyze backend Python components.
 - If backend exists: lint + security scan results captured
 
 ### [ ] Step: Frontend React — TypeScript and Linting
+<!-- chat-id: b2e51722-9235-4edb-b05a-b4d696a462d5 -->
 
 Analyze React frontend (if exists).
 
@@ -230,6 +244,7 @@ Analyze React frontend (if exists).
 - Lint violations documented
 
 ### [ ] Step: Frontend React — Build Analysis
+<!-- chat-id: 4b14cab2-44d4-44eb-b0d0-2b835382e8d7 -->
 
 Build React app and analyze bundle size.
 
@@ -247,6 +262,7 @@ Build React app and analyze bundle size.
 - Bundle sizes documented
 
 ### [ ] Step: Tests — Unit Tests Execution
+<!-- chat-id: c2b3fdf3-d0f2-43a8-af69-a65f6a536a29 -->
 
 Run unit tests with coverage.
 
@@ -264,6 +280,7 @@ Run unit tests with coverage.
 - Coverage metrics extracted
 
 ### [ ] Step: Tests — E2E Tests Execution
+<!-- chat-id: 79d43f6d-3ab6-4888-94c9-67e42c68e116 -->
 
 Run Playwright E2E tests.
 
