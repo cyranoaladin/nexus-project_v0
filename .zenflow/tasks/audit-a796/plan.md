@@ -63,7 +63,8 @@ Save to `.zenflow/tasks/audit-a796/plan.md` (this file).
 
 ## Phase 1: Automated Analysis & Metrics Collection
 
-### [ ] Step: Setup and Environment Verification
+### [x] Step: Setup and Environment Verification
+<!-- chat-id: 1ad580e1-ee41-4347-a668-5ba0a01f90d1 -->
 
 Verify the project setup and prepare for audit.
 
@@ -80,6 +81,15 @@ Verify the project setup and prepare for audit.
 **Verification**:
 - npm install completes successfully
 - http://localhost:8000/site/index.html loads
+
+**Status**: ✅ COMPLETED
+- Node.js v22.21.0, npm 11.6.3 verified
+- npm install: 483 packages installed (31 vulnerabilities noted)
+- Python 3.12.3 verified
+- Backend dependencies: FastAPI stack in apps/backend/, minimal in backend/
+- Active components: site/ (PWA), apps/backend/ (FastAPI), apps/frontend/ (React/Vite), ui/ (React/Vite)
+- Local server running on port 8000
+- http://localhost:8000/index.html loads successfully
 
 ### [ ] Step: Site Statique — Lighthouse Audit
 
