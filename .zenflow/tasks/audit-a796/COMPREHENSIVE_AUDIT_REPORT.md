@@ -1781,11 +1781,96 @@ if (apiVersion !== '1') {
 
 ### 8.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| DOCS-001 | Generate OpenAPI 3.1 spec from Zod schemas | P2 | 8h |
-| DOCS-002 | Add troubleshooting section (common errors) | P3 | 2h |
-| DOCS-003 | Create platform-wide ARCHITECTURE.md | P3 | 4h |
+#### DOCS-001: Generate OpenAPI Spec (P2)
+
+**See API-003 above** - Same recommendation as API Design section.
+
+---
+
+#### DOCS-002: Add Troubleshooting Section (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟢 Low - Reduces developer setup time
+
+**Remediation**:
+
+Add to `README.md` or `DEVELOPMENT_SETUP.md`:
+
+```markdown
+## Troubleshooting
+
+### Database Connection Errors
+
+**Error**: `Can't reach database server at localhost:5432`
+
+**Solutions**:
+1. Start PostgreSQL:
+   ```bash
+   docker-compose up -d postgres
+   ```
+2. Check DATABASE_URL in `.env`:
+   ```
+   DATABASE_URL="postgresql://user:pass@localhost:5432/nexus?schema=public"
+   ```
+3. Verify PostgreSQL is running:
+   ```bash
+   docker ps | grep postgres
+   ```
+
+### SMTP Email Errors
+
+**Error**: `EAUTH: Invalid credentials`
+
+**Solutions**:
+1. Use [Ethereal Email](https://ethereal.email/) for development
+2. Update `.env` with Ethereal credentials
+3. For production, use SendGrid/AWS SES
+
+### Port Already in Use
+
+**Error**: `Port 3000 is already in use`
+
+**Solutions**:
+1. Kill process using port 3000:
+   ```bash
+   lsof -ti:3000 | xargs kill -9
+   ```
+2. Or use different port:
+   ```bash
+   PORT=3001 npm run dev
+   ```
+
+### TypeScript Errors After npm install
+
+**Error**: `Cannot find module '@prisma/client'`
+
+**Solution**:
+```bash
+npx prisma generate  # Regenerate Prisma client
+```
+
+### Test Database Not Found
+
+**Error**: `Database "nexus_test" does not exist`
+
+**Solution**:
+```bash
+createdb nexus_test  # Create test database
+npm run test:db:reset  # Reset test database
+```
+```
+
+**Expected Outcome**:
+- ✅ Faster developer onboarding
+- ✅ Reduced support requests
+- ✅ Self-service problem resolution
+
+---
+
+#### DOCS-003: Create Platform-Wide ARCHITECTURE.md (P3)
+
+**See ARCH-002 above** - Same recommendation as Architecture section.
 
 ---
 
