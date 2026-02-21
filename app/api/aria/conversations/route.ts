@@ -10,17 +10,22 @@ export async function GET(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
-    const session = await auth()
+    let session: any = null
+    try {
+      session = await auth()
+    } catch {
+      // auth() can throw UntrustedHost in standalone mode
+    }
     
-    if (!session || session.user.role !== 'ELEVE') {
+    if (!session?.user || session.user.role !== 'ELEVE') {
       const forwarded = request.headers.get('x-forwarded-for')
       const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
       
       logger.logSecurityEvent('unauthorized_access', 401, {
         ip,
-        reason: !session ? 'no_session' : 'invalid_role',
+        reason: !session?.user ? 'no_session' : 'invalid_role',
         expectedRole: 'ELEVE',
-        actualRole: session?.user.role
+        actualRole: session?.user?.role
       })
       
       logger.logRequest(401)

@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
       
       logger.logSecurityEvent('unauthorized_access', 401, {
         ip,
-        reason: !session ? 'no_session' : 'invalid_role',
+        reason: !session?.user ? 'no_session' : 'invalid_role',
         expectedRole: 'ELEVE',
-        actualRole: session?.user.role
+        actualRole: session?.user?.role
       })
       
       logger.logRequest(401)
