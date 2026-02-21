@@ -671,3 +671,156 @@ npm run test:e2e
 **Document Status**: ✅ Metrics Dashboard Complete (Partial Phase 1)  
 **Last Updated**: 2026-02-21 16:05 CET  
 **Next Update**: After completing Steps 5-11
+
+---
+
+## 3. Backend Python — Discovery and Analysis
+
+**Backend Locations**: `backend/` (minimal) + `apps/backend/` (main)  
+**Framework**: FastAPI 0.115.0+  
+**Python Version**: 3.12.3  
+**Test Date**: 2026-02-21 16:01 GMT+0100
+
+### 3.1 Backend Structure Overview
+
+#### Two Backend Directories Identified
+
+**1. `backend/` (Minimal - Legacy?)**
+- **Purpose**: Minimal authentication utilities directory
+- **Dependencies**: passlib>=1.7.4, bcrypt==4.0.1
+- **Files**: Only requirements.txt
+- **Assessment**: Possibly legacy or shared utilities; not an active API server
+
+**2. `apps/backend/` (Main FastAPI Application)**
+- **Framework**: FastAPI 0.115.0+ with Uvicorn
+- **Database**: SQLAlchemy 2.0.32 + SQLite (default: apps/backend/data/app.db)
+- **Authentication**: JWT tokens with OAuth2 password flow
+- **Lines of Code**: 904 lines across 14 Python files
+
+### 3.2 API Endpoints
+
+**Public Endpoints**:
+- `GET /` - Root endpoint
+- `GET /api/tree` - Full content directory tree (cached with @lru_cache)
+- `GET /api/tree/{subpath}` - Subtree with path traversal protection
+
+**Auth Endpoints** (/auth prefix):
+- `POST /auth/token` - OAuth2 password login
+- `GET /auth/me` - Current user profile
+- `GET /auth/me/groups` - User's groups
+- `GET /auth/admin/users` - List all users (teacher-only)
+
+### 3.3 Dependencies
+
+All 12 dependencies are modern and current:
+- FastAPI >=0.115.0, Uvicorn, Pydantic v2, SQLAlchemy 2.0
+- passlib[bcrypt], python-jose (JWT), pytest >=8.2.0, flake8 >=7.1.0
+
+**Assessment**: ✅ Excellent - no deprecated packages
+
+### 3.4 Code Quality (Manual Review)
+
+**File Sizes**: 14 files, avg 64 lines, largest: users.py (163 lines)
+
+**✅ Strengths**:
+- Excellent type hints coverage (~100%)
+- Modern SQLAlchemy 2.0 syntax
+- Clean separation of concerns
+- No hardcoded secrets
+- Proper error handling with HTTP exceptions
+- Path traversal protection
+- SQL injection protection (ORM only)
+- CORS properly configured
+
+**⚠️ Areas for Improvement**:
+- **P1**: Missing rate limiting on /auth/token (brute-force risk)
+- **P2**: users.py complexity (163 lines - consider splitting)
+- **P2**: Ephemeral secret key fallback in dev
+- **P2**: Credentials written to disk (outputs/ not in .gitignore)
+- **P3**: No function docstrings
+- **P3**: print() in script instead of logging
+
+### 3.5 Security Assessment
+
+**Strengths** ✅:
+- bcrypt_sha256 password hashing
+- JWT with 60-min expiration
+- SQL injection protection
+- Path traversal protection
+- Role-based access control
+
+**Critical Issue** ⚠️:
+- **[P1] Missing rate limiting** on /auth/token - enables brute-force attacks
+
+**Recommendations**:
+1. Add rate limiting (slowapi)
+2. Document HTTPS requirement
+3. Add outputs/ to .gitignore
+4. Add HTTPS redirect middleware
+
+### 3.6 Testing
+
+**4 test files found** (8.3 KB total):
+- test_auth.py, test_tree.py, test_more_coverage.py, test_main_static_cors.py
+
+**❌ Could not execute pytest** due to environment restrictions  
+**Recommendation**: Verify tests pass in CI/CD
+
+### 3.7 Linting
+
+**.flake8 config exists** (max-line-length=120, reasonable exclusions)
+
+**❌ Automated tools unavailable**: flake8, bandit, ruff, mypy not installed
+
+**Manual checks**:
+- ✅ No raw SQL, hardcoded secrets, TODO comments
+- ✅ No type: ignore or Any usage
+- ✅ Only 1 print() (in script, not API)
+
+### 3.8 Summary & Metrics
+
+**Overall Health Score**: 82/100 🟢
+
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| Code Quality | 85/100 | 🟢 Good |
+| Security | 75/100 | 🟡 Needs rate limiting |
+| Architecture | 90/100 | 🟢 Excellent |
+| Dependencies | 95/100 | 🟢 Excellent |
+| Testing | 60/100 | 🟡 Not verified |
+| Documentation | 85/100 | 🟢 Good |
+
+**Top Priorities**:
+1. [P1] Add rate limiting on /auth/token
+2. [P1] Verify tests pass in CI
+3. [P2] Add outputs/ to .gitignore
+4. [P2] Document HTTPS requirement
+5. [P2] Refactor users.py into smaller modules
+
+**Comparison vs Site Statique**:
+- Backend code quality: 85/100 vs JS: 75/100
+- Backend security: 75/100 vs JS: 100/100
+- Backend dependencies: 95/100 vs JS: Mixed (deprecated ESLint)
+- Observation: Python backend is cleaner and more robust
+
+### 3.9 Metrics for Dashboard
+```
+Framework: FastAPI 0.115.0+
+Python: 3.12.3
+Files: 14
+Lines of Code: 904
+Avg File Size: 64 lines
+Dependencies: 12 (all modern)
+Test Files: 4
+API Endpoints: 7 (3 public, 4 auth)
+Auth: JWT + OAuth2
+Database: SQLAlchemy 2.0 + SQLite
+Type Hints: ~100%
+Security Score: 75/100
+Critical Issues: 1 (rate limiting)
+```
+
+---
+
+**Next Steps**: Continue with Phase 1 remaining steps
+

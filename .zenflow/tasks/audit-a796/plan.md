@@ -687,6 +687,7 @@ Assess code comment quality.
 - Missing documentation identified
 
 ### [ ] Step: DevOps Review — GitHub Actions Workflows
+<!-- chat-id: 8377edd9-656b-436a-873c-67a1caff8ea0 -->
 
 Audit CI/CD pipeline quality.
 
