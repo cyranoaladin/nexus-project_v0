@@ -269,70 +269,242 @@ clictopay: { CLICTOPAY_API_KEY: !!process.env.NEXT_PUBLIC_CLICTOPAY_API_KEY }
 
 ---
 
-## 4. Build Analysis
+## 4. Build Analysis & Bundle Optimization
 
 **Command**: `npm run build`  
 **Result**: ✅ **SUCCESS** (Exit Code: 0)  
-**Execution Time**: 94.5s
+**Execution Time**: 71.95s (1m 12s)
 
 ### Build Metrics
 
 #### Compilation
-- **Status**: ✅ Compiled successfully
-- **Time**: 36.4s
-- **Output**: 87 static pages, 80+ API routes
+- **Status**: ✅ Compiled successfully in 17.2s
+- **Output**: 87 static pages (prerendered), 88 API routes, 59 dynamic pages
+- **Total Routes**: 234
+- **Middleware**: 87 kB (healthy size)
 
 #### Bundle Size Analysis
 
-**Total First Load JS**: 103 kB (shared across all pages)
+**Total First Load JS Baseline**: 103 kB (shared across all pages)
+
+**Shared Chunks**:
+- `chunks/4bd1b696-*.js`: 54.2 kB (Next.js framework code)
+- `chunks/1255-*.js`: 45.7 kB (React + dependencies)
+- Other shared chunks: 3.01 kB
 
 | Route Category | Size Range | Example | First Load JS |
 |----------------|------------|---------|---------------|
-| **Static Pages** | 381 B - 231 kB | `/` | 177 kB |
+| **Static Pages** | 381 B - 231 kB | `/`, `/offres` | 103-400 kB |
 | **API Routes** | 381 B | `/api/*` | 103 kB |
-| **Dynamic Pages** | 1.42 kB - 38 kB | `/dashboard/*` | 108-297 kB |
+| **Dynamic Pages** | 170 B - 38 kB | `/dashboard/*` | 106-297 kB |
 | **Middleware** | 87 kB | - | 87 kB |
 
-**Largest Pages**:
-1. `/programme/maths-1ere` - **356 kB** (508 kB First Load) ⚠️
-2. `/bilan-gratuit/assessment` - **231 kB** (400 kB First Load) ⚠️
-3. `/dashboard/coach` - **14.6 kB** (238 kB First Load)
-4. `/assessments/[id]/result` - **38 kB** (297 kB First Load)
+### 🔴 Critical Bundle Size Issues
 
-**Largest Shared Chunks**:
-- `chunks/4bd1b696-*.js` - 54.2 kB
-- `chunks/1255-*.js` - 45.7 kB
+#### Largest Bundles (>200 kB First Load JS)
 
-#### CSS Warnings (3)
+| Rank | Route | Page Size | First Load JS | Status |
+|------|-------|-----------|---------------|--------|
+| 🔴 1 | `/programme/maths-1ere` | **356 kB** | **508 kB** | Critical |
+| 🔴 2 | `/bilan-gratuit/assessment` | **231 kB** | **400 kB** | Critical |
+| ⚠️ 3 | `/assessments/[id]/result` | 38 kB | **297 kB** | High |
+| ⚠️ 4 | `/admin/directeur` | 24.1 kB | **270 kB** | High |
+| ⚠️ 5 | `/dashboard/coach` | 14.6 kB | **238 kB** | Medium |
 
-**Issue**: Unexpected token in Tailwind opacity syntax
+**Analysis of Top 2 Critical Bundles**:
 
+##### 1. `/programme/maths-1ere` (508 kB) 🔴
+**Root Cause**: 1,390-line monolithic client component (`MathsRevisionClient.tsx`)
+
+**Dependencies Loading**:
+- `framer-motion` (animations)
+- MathJax (math rendering)
+- Multiple heavy interactive components:
+  - `PythonIDE` (code editor)
+  - `InteractiveMafs` (graphing library)
+  - `ParabolaController`, `TangenteGlissante`, `MonteCarloSim`, `PythonExercises`, `ToileAraignee`, `Enrouleur`, `VectorProjector` (8 lab components)
+- Supabase client (database)
+- Zustand store (state management)
+
+**Mitigation (8 lab components already lazy-loaded)**:
+✅ Good: 8 labs use `dynamic(() => import(...), { ssr: false })`  
+❌ Issue: MathJax + ExerciseEngine + InteractiveGraph + SkillTree still bundled eagerly  
+❌ Issue: Monolithic 1,390-line component includes all UI logic
+
+**Recommendations**:
+1. **Split component** into modules:
+   - `MathsRevisionDashboard.tsx` (landing view)
+   - `CourseViewer.tsx` (chapter content)
+   - `QuizRunner.tsx` (quiz logic)
+   - `ProgressTracker.tsx` (stats/badges)
+2. **Lazy-load MathJax**: Only load when user opens a chapter
+3. **Route-level code splitting**: Create `/programme/maths-1ere/[chapter]` dynamic routes
+4. **Estimated Impact**: Reduce First Load JS to ~200-250 kB (50% reduction)
+
+##### 2. `/bilan-gratuit/assessment` (400 kB) 🔴
+**Root Cause**: `AssessmentRunner` component (420 lines) loads all QCM questions upfront
+
+**Dependencies**:
+- Full question bank (likely 100+ questions)
+- CorporateNavbar + CorporateFooter (layout components)
+- Assessment engine logic
+- Form validation + state management
+
+**Recommendations**:
+1. **Paginate questions**: Load 10 questions at a time via API
+2. **Dynamic import by subject**: Only load MATHS, NSI, or GENERAL question sets
+3. **Defer layout**: Use lighter header/footer for assessment mode
+4. **Estimated Impact**: Reduce to ~180-220 kB (45% reduction)
+
+### Code Splitting Analysis
+
+#### `use client` Directive Usage
+**Total**: 66 occurrences across 66 files
+
+**Distribution**:
+- Pages: 10 files (e.g., `/page.tsx`, `/offres/page.tsx`, `/bilan-gratuit/assessment/page.tsx`)
+- Components: 50+ files (dashboards, interactive labs, UI widgets)
+- Lib utilities: 6 files (`math-engine.ts`, `supabase.ts` - unnecessary for lib files ⚠️)
+
+**⚠️ Issues Found**:
+1. **Lib files with `use client`** (2 instances):
+   - `app/programme/maths-1ere/lib/math-engine.ts` - Should be server-compatible utility
+   - `app/programme/maths-1ere/lib/supabase.ts` - Client-only Supabase client (acceptable)
+
+2. **Over-clientification**: 66 client components increases bundle size
+   - Many pages could use Server Components for initial render
+   - Example: `/bilan-gratuit/assessment/page.tsx` forces full client bundle even though only `AssessmentRunner` needs client interactivity
+
+**Recommendation**: Convert 10-15 top-level pages to Server Components, nest `use client` deeper in component tree
+
+#### Dynamic Imports Usage
+**Total**: 29 occurrences (good adoption ✅)
+
+**Best Practices Found** (8 instances in `/programme/maths-1ere`):
+```tsx
+const PythonIDE = dynamic(() => import('./PythonIDE'), { ssr: false });
+const InteractiveMafs = dynamic(() => import('./InteractiveMafs'), { ssr: false });
 ```
+
+**Other Uses**:
+- API routes: 4 instances (importing heavy dependencies in routes)
+- Test files: 15+ instances (test setup - not production concern)
+
+**⚠️ Missing Dynamic Imports** (opportunities):
+1. MathJax library in `MathsRevisionClient.tsx`
+2. Chart libraries (if any) in dashboard components
+3. Assessment question sets in `AssessmentRunner.tsx`
+
+**Recommendation**: Add 5-8 more strategic dynamic imports for ~100 kB savings
+
+### Image Optimization Analysis
+
+#### ✅ Good: `next/image` Adoption
+**Total**: 17 instances (proper Next.js Image component usage)
+
+**Files Using `next/image`**:
+- Navigation: `CorporateNavbar.tsx`, `CorporateFooter.tsx`
+- Hero sections: `hero-section.tsx`, `hero-section-gsap.tsx`
+- Feature sections: `pillars-section.tsx`, `offers-preview-section.tsx`, `business-model-section.tsx`, `korrigo-showcase.tsx`, `guarantee-section.tsx`
+- UI components: `SplashScreen.tsx`, `guarantee-seal.tsx`, `aria-chat.tsx`, `aria-widget.tsx`
+- Pages: `maths-1ere/components/MathsRevisionClient.tsx`, `stages/dashboard-excellence/page.tsx`, `parent/paiement/page.tsx`
+
+**✅ No Raw `<img>` Tags Found**: 0 instances (excellent!)
+
+#### 🔴 Critical: Unoptimized Image Sizes
+**Public Directory Analysis** (top 15 largest images):
+
+| Rank | File | Size | Status | Recommendation |
+|------|------|------|--------|----------------|
+| 🔴 1 | `public/images/Korrigo.png` | **5.5 MB** | Critical | Compress to WebP (<500 KB) |
+| 🔴 2 | `public/images/asisstante_parents.png` | **2.8 MB** | Critical | Compress to WebP (<300 KB) |
+| 🔴 3 | `public/images/intervenante4.png` | **2.2 MB** | Critical | Compress to WebP (<250 KB) |
+| 🔴 4-7 | `intervenante{1,3}.png`, `intervenant{5,4}.png` | **2.0-2.1 MB each** | Critical | Compress to WebP (<250 KB) |
+| 🔴 8-15 | `intervenant{10,6}.png`, `scene1_stage.png`, `hero-image.png`, etc. | **1.8-1.9 MB each** | High | Compress to WebP (<200 KB) |
+
+**Total Unoptimized Image Size**: ~30-35 MB across 15 images
+
+**Impact**:
+- Slow page loads on image-heavy pages (homepage, team page, stages pages)
+- High bandwidth costs
+- Poor mobile experience
+
+**Recommendations (P1 - High Priority)**:
+1. **Convert all PNGs to WebP** format (60-80% size reduction)
+2. **Resize images** to actual display dimensions (most team photos likely 800x800px max)
+3. **Use next/image responsively**: Provide multiple sizes via `sizes` prop
+4. **Lazy-load below-the-fold images**: Add `loading="lazy"` to non-critical images
+5. **Consider CDN**: Use Vercel Image Optimization or Cloudinary
+6. **Estimated Savings**: Reduce from 35 MB to ~3-5 MB (85-90% reduction)
+
+#### CSS Background Images
+**Inline `backgroundImage` usage**: 3 instances
+
+**Files**:
+- `app/page.tsx:1`
+- `components/sections/experts-highlight-section.tsx:1`
+- `components/sections/hero-section.tsx:1`
+
+**⚠️ Concern**: CSS background images bypass Next.js Image optimization
+
+**Recommendation**: Replace CSS backgrounds with `next/image` + `fill` + `object-cover` pattern
+
+### CSS Warnings (3)
+
+**Issue**: Unexpected token in Tailwind opacity syntax (Next.js 15.5.12 + Tailwind CSS parser)
+
+```css
 .dashboard-soft .bg-gray-50\/50 
                              ^-- Unexpected token Number { value: 50.0 }
+.dashboard-soft .bg-white\/70
+                          ^-- Unexpected token Number { value: 70.0 }
+.dashboard-soft .bg-white\/80
+                          ^-- Unexpected token Number { value: 80.0 }
 ```
 
-**Affected Classes**:
-- `.bg-gray-50\/50`
-- `.bg-white\/70`
-- `.bg-white\/80`
+**Root Cause**: Next.js CSS optimizer doesn't recognize Tailwind v3 `/` opacity syntax  
+**Impact**: Build succeeds but warnings suggest potential runtime CSS issues  
+**Fix Options**:
+1. Use separate opacity utility: `bg-gray-50 bg-opacity-50`
+2. Use arbitrary values: `bg-gray-50/[0.5]`
+3. Upgrade to Tailwind CSS v4 (experimental)
 
-**Cause**: Tailwind CSS v4 parser issue with `/` opacity syntax  
-**Impact**: Build successful but warnings indicate potential CSS parsing issues  
-**Recommendation**: Verify CSS output or use opacity utilities (`bg-opacity-50`)
+**Priority**: P3 (Low) - Non-blocking but should be cleaned up
 
 ### Performance Insights
 
 **✅ Strengths**:
-- Small shared chunk size (103 kB baseline)
-- Static generation for 87 pages (excellent SEO/performance)
-- Middleware optimized (87 kB)
+1. **87 static pages prerendered**: Excellent SEO + CDN caching
+2. **Small shared baseline (103 kB)**: Next.js 15 + React 19 optimized
+3. **Dynamic imports used**: 29 instances show good code-splitting awareness
+4. **Zero raw `<img>` tags**: 100% using `next/image` ✅
+5. **Middleware optimized (87 kB)**: Acceptable for auth + routing logic
 
-**⚠️ Concerns**:
-1. **`/programme/maths-1ere` (508 kB)**: Likely MathJax + interactive labs
-   - **Recommendation**: Code-split labs, lazy-load MathJax
-2. **`/bilan-gratuit/assessment` (400 kB)**: Assessment questions bundle
-   - **Recommendation**: Dynamic import question sets by subject
+**🔴 Critical Issues**:
+1. **2 routes exceed 400 kB**: `/programme/maths-1ere` (508 kB), `/bilan-gratuit/assessment` (400 kB)
+2. **35 MB of unoptimized images**: 15 PNGs should be WebP + resized
+3. **66 client components**: Over-reliance on `use client` increases bundles
+
+**⚠️ Medium Issues**:
+1. **3 routes 230-297 kB**: Still above recommended 200 kB threshold
+2. **1,390-line component**: `MathsRevisionClient.tsx` needs splitting
+3. **CSS background images**: 3 instances bypass Image optimization
+
+### Recommendations Summary
+
+| Priority | Issue | Action | Estimated Impact | Effort |
+|----------|-------|--------|------------------|--------|
+| **P0** | 35 MB unoptimized images | Convert to WebP + resize | -30 MB, 50% faster loads | 2-3 hours |
+| **P1** | `/programme/maths-1ere` (508 kB) | Split into 4 components + lazy MathJax | -250 kB (-50%) | 6-8 hours |
+| **P1** | `/bilan-gratuit/assessment` (400 kB) | Paginate questions + dynamic imports | -180 kB (-45%) | 4 hours |
+| **P2** | 66 `use client` components | Convert 10-15 pages to Server Components | -50-100 kB | 4 hours |
+| **P2** | CSS background images | Replace with `next/image` | Better optimization | 1 hour |
+| **P3** | 3 CSS warnings | Fix Tailwind opacity syntax | Clean build output | 30 min |
+
+**Total Estimated Performance Gain**:
+- **Bundle size**: -400-500 kB (40-50% reduction on critical routes)
+- **Image payload**: -30 MB (85% reduction)
+- **First Load JS**: ~200-250 kB for largest routes (industry standard)
 
 ---
 
@@ -415,9 +587,15 @@ npm test -- --coverage --coverageReporters=text-summary
 | **Security** | XSS Risks | 7 (dangerouslySetInnerHTML) | ⚠️ |
 | **Security** | Console Logs | 77+ | ⚠️ |
 | **Build** | Status | Success | ✅ |
-| **Build** | Time | 94.5s | ✅ |
+| **Build** | Time | 71.95s | ✅ |
 | **Build** | CSS Warnings | 3 | ⚠️ |
-| **Build** | Largest Page | 508 kB | ⚠️ |
+| **Build** | Largest Page | 508 kB | 🔴 |
+| **Build** | Routes (Total) | 234 (87 static) | ✅ |
+| **Build** | `use client` Usage | 66 files | ⚠️ |
+| **Build** | Dynamic Imports | 29 | ✅ |
+| **Images** | `next/image` Usage | 17 files | ✅ |
+| **Images** | Raw `<img>` Tags | 0 | ✅ |
+| **Images** | Unoptimized Size | 35 MB | 🔴 |
 | **Tests** | Pass Rate | 99.88% | ✅ |
 | **Tests** | Failed Tests | 3 (timeouts) | ⚠️ |
 | **Tests** | Total Tests | 2,593 | ✅ |
@@ -444,7 +622,7 @@ Using weighted categories (Security 30%, Code Quality 20%, Performance 15%, Test
 **Deduction Rationale**:
 - **Security (-35)**: 36 high/moderate vulnerabilities
 - **Code Quality (-15)**: 69 `any` types, 7 XSS risks, 25 TODOs
-- **Performance (-25)**: 2 large bundles (508 kB, 400 kB)
+- **Performance (-25)**: 2 large bundles (508 kB, 400 kB), 35 MB unoptimized images
 - **Testing (-5)**: 3 timeout failures
 
 ---
@@ -467,40 +645,56 @@ Using weighted categories (Security 30%, Code Quality 20%, Performance 15%, Test
    - **Action**: Add proper type definition for payment validation
    - **Effort**: 30 minutes
 
-### P2: Medium Priority (5)
+### P2: Medium Priority (7)
 
-3. **Performance: Large Bundle - `/programme/maths-1ere` (508 kB)**
-   - **Action**: Code-split MathJax and lab components
+3. **Performance: Unoptimized Images (35 MB)**
+   - **Impact**: Slow page loads, high bandwidth costs, poor mobile UX
+   - **Action**: Convert 15 large PNGs to WebP + resize to display dimensions
+   - **Effort**: 2-3 hours
+
+4. **Performance: Large Bundle - `/programme/maths-1ere` (508 kB)**
+   - **Impact**: Slow initial load for interactive math program
+   - **Action**: Split 1,390-line component into 4 modules + lazy-load MathJax
+   - **Effort**: 6-8 hours
+
+5. **Performance: Large Bundle - `/bilan-gratuit/assessment` (400 kB)**
+   - **Impact**: Slow assessment start for prospective students
+   - **Action**: Paginate questions + dynamic import by subject
    - **Effort**: 4 hours
 
-4. **Performance: Large Bundle - `/bilan-gratuit/assessment` (400 kB)**
-   - **Action**: Dynamic import question sets
-   - **Effort**: 2 hours
-
-5. **Code Quality: 69 `any` Types**
+6. **Code Quality: 69 `any` Types**
    - **Action**: Systematically replace with proper types
    - **Effort**: 8 hours (batch refactor)
 
-6. **Security: 7 `dangerouslySetInnerHTML` Usages**
+7. **Code Quality: 66 `use client` Components**
+   - **Impact**: Unnecessarily large client bundles (over-clientification)
+   - **Action**: Convert 10-15 top-level pages to Server Components
+   - **Effort**: 4 hours
+
+8. **Security: 7 `dangerouslySetInnerHTML` Usages**
    - **Action**: Security review + sanitization verification
    - **Effort**: 2 hours
 
-7. **Testing: 3 Timeout Failures**
+9. **Testing: 3 Timeout Failures**
    - **Action**: Increase timeouts + mock slow operations
    - **Effort**: 1 hour
 
-### P3: Low Priority (3)
+### P3: Low Priority (4)
 
-8. **Code Quality: 77 Console Statements**
+10. **Performance: 3 CSS Background Images**
+    - **Action**: Replace with `next/image` + fill pattern
+    - **Effort**: 1 hour
+
+11. **Code Quality: 77 Console Statements**
    - **Action**: Replace with structured logger
    - **Effort**: 4 hours
 
-9. **Code Quality: 25 TODO/FIXME Comments**
-   - **Action**: Triage and create tickets
-   - **Effort**: 2 hours
+12. **Code Quality: 25 TODO/FIXME Comments**
+    - **Action**: Triage and create tickets
+    - **Effort**: 2 hours
 
-10. **Build: 3 CSS Warnings**
-    - **Action**: Verify Tailwind v4 migration
+13. **Build: 3 CSS Warnings**
+    - **Action**: Fix Tailwind opacity syntax
     - **Effort**: 30 minutes
 
 ---
