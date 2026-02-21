@@ -1,4 +1,4 @@
-import { prisma } from './prisma'
+import { prisma } from '@/lib/prisma'
 
 // Définition des badges selon la documentation
 const BADGE_DEFINITIONS = [
