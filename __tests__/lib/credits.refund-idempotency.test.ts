@@ -66,10 +66,10 @@ describe('refundSessionBookingById - idempotency and basic flow', () => {
     });
 
     // After conflict, the function queries prisma.creditTransaction.findFirst (root client)
-    (prisma as any).creditTransaction.findFirst = jest.fn().mockResolvedValue({ id: 'tx-existing', type: 'REFUND' });
+    (prisma.creditTransaction.findFirst as jest.Mock).mockResolvedValue({ id: 'tx-existing', type: 'REFUND' });
 
     const res = await refundSessionBookingById('sb4');
     expect(res).toEqual({ ok: true, alreadyRefunded: true });
-    expect((prisma as any).creditTransaction.findFirst).toHaveBeenCalled();
+    expect(prisma.creditTransaction.findFirst).toHaveBeenCalled();
   });
 });

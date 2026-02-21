@@ -23,7 +23,7 @@ const ContactSectionGSAP = () => {
             subtitle: "Audit & Solutions IA",
             fields: {
                 organization: { label: "Nom de l'établissement", placeholder: "Lycée Pilote..." },
-                options: ["Audit IA", "Korrigo", "Formation Staff"]
+                options: ["Audit IA", "Solutions IA", "Formation Staff"]
             }
         },
         student: {

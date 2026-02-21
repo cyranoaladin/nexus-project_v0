@@ -16,6 +16,15 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn()
 }));
 
+// Mock rate limiting (always allow)
+jest.mock('@/lib/middleware/rateLimit', () => ({
+  RateLimitPresets: {
+    expensive: jest.fn().mockReturnValue(null),
+    standard: jest.fn().mockReturnValue(null),
+    strict: jest.fn().mockReturnValue(null),
+  },
+}));
+
 // Mock entitlement engine (for access guard)
 jest.mock('@/lib/entitlement', () => ({
   getUserEntitlements: jest.fn().mockResolvedValue([

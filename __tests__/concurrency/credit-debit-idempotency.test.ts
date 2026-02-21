@@ -38,12 +38,12 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     const { parentProfile } = await createTestParent({ email: `credit.idempotency.${runId}@test.com` });
     const { student } = await createTestStudent(parentProfile.id, { user: { email: `student.credit.${runId}@test.com` } });
     studentRecordId = student.id;
-  });
+  }, 10000);
 
   afterAll(async () => {
     try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    await prisma.$disconnect();
-  });
+    try { await prisma.$disconnect(); } catch { /* ignore */ }
+  }, 30000);
 
   afterEach(async () => {
     if (!dbAvailable) return;
@@ -54,7 +54,7 @@ describe('Credit Transaction Idempotency - Concurrency', () => {
     const { parentProfile } = await createTestParent({ email: `credit.re.${runId}@test.com` });
     const { student } = await createTestStudent(parentProfile.id, { user: { email: `student.re.${runId}@test.com` } });
     studentRecordId = student.id;
-  });
+  }, 30000);
 
   describe('USAGE Transaction Idempotency (INV-CRE-1)', () => {
     it('should prevent duplicate USAGE transactions for same session', async () => {

@@ -43,14 +43,14 @@ describe('CTASection', () => {
   it('renders both CTA buttons', () => {
     render(<CTASection />);
 
-    expect(screen.getByText(/Réserver une Démo Korrigo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Parler à un Expert/i)).toBeInTheDocument();
     expect(screen.getByText(/Auditer mon Établissement/i)).toBeInTheDocument();
   });
 
   it('has correct links for CTA buttons', () => {
     render(<CTASection />);
 
-    const demoLink = screen.getByText(/Réserver une Démo Korrigo/i).closest('a');
+    const demoLink = screen.getByText(/Parler à un Expert/i).closest('a');
     expect(demoLink).toHaveAttribute('href', '/contact');
 
     const auditLink = screen.getByText(/Auditer mon Établissement/i).closest('a');
@@ -84,7 +84,7 @@ describe('CTASection', () => {
   it('has proper button styling and classes', () => {
     render(<CTASection />);
 
-    const primaryButton = screen.getByText(/Réserver une Démo Korrigo/i).closest('a');
+    const primaryButton = screen.getByText(/Parler à un Expert/i).closest('a');
     const secondaryButton = screen.getByText(/Auditer mon Établissement/i).closest('a');
 
     expect(primaryButton).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe('CTASection', () => {
     const mainMessage = screen.getByText(/L'Innovation n'attend pas/i);
     expect(mainMessage).toBeInTheDocument();
 
-    const primaryCTA = screen.getByText(/Réserver une Démo Korrigo/i);
+    const primaryCTA = screen.getByText(/Parler à un Expert/i);
     expect(primaryCTA).toBeInTheDocument();
   });
 });

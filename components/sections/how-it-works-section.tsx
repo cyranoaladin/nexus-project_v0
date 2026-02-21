@@ -9,7 +9,7 @@ const steps = [
   },
   {
     title: "Solutions adaptées",
-    subtitle: "Korrigo, ARIA ou dév sur mesure - Nous choisissons ensemble.",
+    subtitle: "ARIA, outils IA ou dév sur mesure - Nous choisissons ensemble.",
   },
   {
     title: "Formation & Adoption",

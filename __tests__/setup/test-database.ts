@@ -7,8 +7,8 @@ import { randomUUID } from 'crypto';
 const ciDatabaseUrl = process.env.DATABASE_URL;
 const ciTestDatabaseUrl = process.env.TEST_DATABASE_URL;
 
-// Load local test defaults (override: false = won't overwrite existing env vars)
-dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: false });
+// Load test env vars (override: true so TEST_DATABASE_URL from .env.test takes precedence)
+dotenv.config({ path: path.resolve(__dirname, '../../.env.test'), override: true });
 
 // Restore CI env vars if they were set (they take absolute precedence)
 if (ciDatabaseUrl) process.env.DATABASE_URL = ciDatabaseUrl;
@@ -53,10 +53,14 @@ export async function resetTestDatabase() {
  * Check if the test database is reachable.
  * Returns true if connected, false otherwise.
  * Use this in beforeAll to skip tests when no DB is available.
+ * Includes a 3-second timeout to prevent hanging.
  */
 export async function canConnectToTestDb(): Promise<boolean> {
   try {
-    await testPrisma.$queryRaw`SELECT 1`;
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('DB connection timeout')), 3000)
+    );
+    await Promise.race([testPrisma.$queryRaw`SELECT 1`, timeout]);
     return true;
   } catch {
     return false;

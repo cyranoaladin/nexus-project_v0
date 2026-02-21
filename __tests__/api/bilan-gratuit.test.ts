@@ -30,7 +30,7 @@ jest.mock('../../lib/email', () => ({
 
 describe('/api/bilan-gratuit', () => {
   beforeEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   const validRequestData = {

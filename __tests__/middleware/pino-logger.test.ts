@@ -44,12 +44,16 @@ function createMockRequest(path: string = '/api/test', method: string = 'GET'): 
     },
   });
   
-  // Add nextUrl property that the logger expects
-  (request as any).nextUrl = {
-    pathname: path,
-    href: url,
-    origin: 'http://localhost:3000',
-  };
+  // Override nextUrl (read-only getter on NextRequest) via defineProperty
+  Object.defineProperty(request, 'nextUrl', {
+    value: {
+      pathname: path,
+      href: url,
+      origin: 'http://localhost:3000',
+    },
+    writable: true,
+    configurable: true,
+  });
   
   return request;
 }
