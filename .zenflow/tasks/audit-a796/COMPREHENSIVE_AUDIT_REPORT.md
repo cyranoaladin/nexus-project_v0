@@ -2454,10 +2454,101 @@ deploy-staging:
 
 ### 11.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| UI-001 | Migrate deprecated Tailwind classes to v4 syntax | P3 | 1h |
-| UI-002 | Audit hardcoded colors vs design tokens | P3 | 2h |
+#### UI-001: Migrate Deprecated Tailwind Classes (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: XS (1 hour)  
+**Impact**: 🟢 Low - Prevents future build warnings
+
+**Problem**: 3 CSS warnings for deprecated Tailwind v4 opacity syntax (`.bg-gray-50\/50`).
+
+**Remediation**:
+
+1. **Find Deprecated Classes** (15 minutes):
+   ```bash
+   grep -r "bg-.*\/" app/ components/ --include="*.tsx" --include="*.ts"
+   ```
+
+2. **Migrate to New Syntax** (30 minutes):
+   ```tsx
+   // ❌ BEFORE (Tailwind v3 opacity syntax)
+   <div className="bg-gray-50\/50">
+   
+   // ✅ AFTER (Tailwind v4 syntax)
+   <div className="bg-gray-50/50">  # Remove backslash
+   
+   // Or use opacity modifier
+   <div className="bg-gray-50 bg-opacity-50">
+   ```
+
+3. **Verify Build** (15 minutes):
+   ```bash
+   npm run build
+   # Should see: 0 CSS warnings
+   ```
+
+**Expected Outcome**:
+- ✅ Zero build warnings
+- ✅ Future-proof Tailwind usage
+- ✅ Cleaner build output
+
+---
+
+#### UI-002: Audit Hardcoded Colors vs Design Tokens (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟢 Low - Improves design consistency
+
+**Problem**: Some components may use hardcoded colors instead of design tokens from `lib/theme/tokens.ts`.
+
+**Remediation**:
+
+1. **Search for Hardcoded Colors** (30 minutes):
+   ```bash
+   # Find hex colors
+   grep -r "#[0-9a-fA-F]\{6\}" app/ components/ --include="*.tsx" --include="*.ts"
+   
+   # Find RGB colors
+   grep -r "rgb\|rgba" app/ components/ --include="*.tsx" --include="*.ts"
+   ```
+
+2. **Review Design Tokens** (30 minutes):
+   ```typescript
+   // lib/theme/tokens.ts
+   export const colors = {
+     primary: {
+       50: '#f0f9ff',
+       500: '#3b82f6',
+       900: '#1e3a8a',
+     },
+     // ... review all token definitions
+   };
+   ```
+
+3. **Replace Hardcoded Colors** (1 hour):
+   ```tsx
+   // ❌ BEFORE (hardcoded)
+   <div className="text-[#3b82f6]">
+   
+   // ✅ AFTER (design token)
+   <div className="text-primary-500">
+   
+   // For inline styles
+   import { colors } from '@/lib/theme/tokens';
+   <div style={{ color: colors.primary[500] }}>
+   ```
+
+**Expected Outcome**:
+- ✅ Consistent color usage across platform
+- ✅ Easier theme changes (single source of truth)
+- ✅ Better design system adherence
+
+---
+
+**End of Detailed Recommendations**
+
+---
 
 ---
 
