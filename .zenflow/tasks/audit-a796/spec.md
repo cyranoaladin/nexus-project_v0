@@ -1,650 +1,1014 @@
-# Technical Specification
-# Comprehensive Audit - Nexus Réussite Platform
+# Technical Specification — Audit Complet d'Interface Maths 2025-2026
 
-**Project**: Interface_Maths_2025_2026  
-**Version**: 1.0  
-**Date**: February 21, 2026  
-**Based on**: requirements.md v1.0  
-
----
-
-## 1. Technical Context
-
-### 1.1 Technology Stack
-- **Runtime**: Node.js (version from package.json)
-- **Framework**: Next.js 15.5 (App Router, React Server Components)
-- **Language**: TypeScript 5.x (strict mode)
-- **Database**: PostgreSQL 15+ with pgvector extension
-- **ORM**: Prisma 6.13
-- **Authentication**: NextAuth v5.0.0-beta.30
-- **Testing**: Jest 29, Playwright 1.58
-- **Styling**: Tailwind CSS v4.1
-- **State**: Zustand 5.x
-- **AI/RAG**: Ollama (LLaMA 3.2, Qwen 2.5), ChromaDB
-
-### 1.2 Codebase Metrics
-- **Files**: 790 TypeScript/JavaScript files
-- **LOC**: ~17,000 (app/ + lib/)
-- **Models**: 38 Prisma models, 20 enums
-- **API Routes**: 80+ routes
-- **Components**: 44 UI components
-- **Tests**: 2,868 tests (2,593 unit, 68 integration, 207 E2E)
-
-### 1.3 Available Tools
-- **TypeScript Compiler**: `npm run typecheck` (tsc --noEmit)
-- **Linter**: `npm run lint` (ESLint)
-- **Tests**: `npm test`, `npm run test:integration`, `npm run test:e2e`
-- **Build**: `npm run build` (Next.js production build)
-- **Security**: `npm audit` (dependency scanning)
-- **Code Search**: Grep/Ripgrep for pattern analysis
-- **File Analysis**: Read tool for manual code review
+**Date**: 21 février 2026  
+**Projet**: Interface Maths 2025-2026  
+**Repository**: https://github.com/cyranoaladin/Interface_Maths_2025_2026  
+**Référence**: requirements.md
 
 ---
 
-## 2. Implementation Approach
+## 1. Contexte Technique
 
-### 2.1 Audit Methodology
+### 1.1 Stack Technologique
 
-The audit will be conducted in **4 sequential phases**, each producing specific outputs that feed into the final comprehensive report.
+Le projet **Interface Maths 2025-2026** est composé de **3 sous-systèmes**:
 
-#### **Phase 1: Automated Analysis & Metrics Collection**
-**Objective**: Gather quantitative data using automated tools  
-**Effort**: 30% of total audit time  
+#### **A) Site Statique Principal** (`site/`)
+- **Languages**: HTML5, CSS3 (CSS variables), JavaScript vanilla (ES6+)
+- **Design System**: CSS custom properties, 4 thèmes (dark/light/energie/pure)
+- **Icônes**: Lucide (CDN)
+- **PWA**: manifest.webmanifest + service worker (sw.js)
+- **Build**: PostCSS (autoprefixer, cssnano)
+- **Lint**: ESLint (config `.eslintrc.cjs`)
 
-**Activities**:
-1. **TypeScript Analysis**
-   - Run `npm run typecheck` to identify type errors
-   - Search for `any` types, `@ts-ignore`, `@ts-expect-error`
-   - Measure strict mode compliance
+**Fichiers clés**:
+- `site/index.html` — Accueil (12.7 KB)
+- `site/assets/css/site.css` — Design system
+- `site/assets/js/*.js` — Logique métier (contents, levels, progression, theme-toggle, neon-toggle, icons)
+- `site/assets/contents.json` — Index des ressources
+- `site/manifest.webmanifest` — PWA config
+- `site/sw.js` — Service worker
 
-2. **Linting Analysis**
-   - Run `npm run lint` to identify code quality issues
-   - Count warnings vs errors
-   - Identify most common violations
+#### **B) Backend Python** (optionnel)
+- **Locations**: `backend/` + `apps/backend/`
+- **Framework**: À déterminer (Flask? FastAPI?)
+- **Tests**: pytest (`tests/test_*.py`)
+- **Dépendances**: `backend/requirements.txt` (29 bytes → minimal)
 
-3. **Security Scanning**
-   - Run `npm audit` for dependency vulnerabilities
-   - Search for hardcoded secrets (patterns: API_KEY, PASSWORD, SECRET)
-   - Scan for sensitive data in logs (console.log, logger patterns)
-   - Review environment variable usage
+**État**: Existence incertaine en production (le site statique a des fallbacks)
 
-4. **Build Analysis**
-   - Run `npm run build` to analyze bundle sizes
-   - Extract First Load JS metrics
-   - Identify large bundles and optimization opportunities
+#### **C) Frontend React Moderne** (en développement)
+- **Locations**: `apps/frontend/` + `ui/`
+- **Languages**: TypeScript, React
+- **Build**: Vite
+- **Styling**: Tailwind CSS
+- **Tests**: Vitest (unitaires)
+- **Lint**: ESLint (TypeScript config)
 
-5. **Test Coverage Analysis**
-   - Run tests with coverage: `npm test -- --coverage`
-   - Extract coverage percentages (statements, branches, functions, lines)
-   - Identify untested critical paths
+**Fichiers clés**:
+- `apps/frontend/src/main.ts` — Entry point
+- `ui/src/` — Autre version React?
+- `vite.config.ts`, `tailwind.config.js`
 
-6. **Code Pattern Analysis**
-   - Count `dangerouslySetInnerHTML` usage (XSS risk)
-   - Count raw SQL queries vs Prisma usage
-   - Identify deprecated Tailwind classes
-   - Search for TODO/FIXME comments
-   - Count error handling patterns (try/catch coverage)
+### 1.2 DevOps et Déploiement
 
-**Outputs**:
-- `metrics.json` or `metrics.md`: Quantitative measurements
-- List of automated findings with file paths and line numbers
+**CI/CD** (GitHub Actions):
+- `backend-ci.yml` — Tests backend
+- `deploy.yml` — Déploiement automatisé
+- `backend-docker.yml` — Build image Docker
 
----
+**Containerization**:
+- `deploy/docker/docker-compose.yml`
+- `deploy/nginx/` — Configuration Nginx
 
-#### **Phase 2: Manual Deep-Dive Review**
-**Objective**: Conduct expert code review of critical subsystems  
-**Effort**: 50% of total audit time  
+**Release Management**:
+- Semantic Release (`.releaserc.json`)
+- CHANGELOG automatisé
 
-**Activities**:
+### 1.3 Tests
 
-**A. Architecture Review**
-1. Read and analyze:
-   - `ARCHITECTURE.md`, `ARCHITECTURE_TECHNIQUE.md`
-   - `app/` directory structure (App Router patterns)
-   - `lib/` organization (business logic separation)
-   - State management patterns (Zustand stores)
-2. Create dependency graph (imports/exports analysis)
-3. Identify circular dependencies
-4. Assess separation of concerns (UI, business logic, data access)
-5. Check for architectural anti-patterns
+**Unitaires** (Vitest):
+- `tests/unit/` — Tests JavaScript vanilla
+- `npm run test:unit`
 
-**B. Security Review** (Critical Priority)
-1. **Authentication** (`auth.ts`, `auth.config.ts`):
-   - Password hashing implementation (bcrypt usage)
-   - JWT configuration and security
-   - Session management
-   - Password reset flow
-   - Student activation tokens
+**E2E** (Playwright):
+- `tests/e2e/` — Scénarios utilisateur
+- `npm run test:e2e`
+- Axe-core intégré (accessibilité)
 
-2. **Authorization** (`middleware.ts`, `lib/rbac.ts`, `lib/access/`):
-   - Route protection coverage
-   - RBAC policy enforcement
-   - API route guards (every route in `app/api/`)
-   - Role elevation checks
-   - Resource ownership validation
-
-3. **Input Validation** (all API routes):
-   - Zod schema coverage
-   - Missing validation points
-   - File upload validation (if exists)
-   - Query parameter sanitization
-
-4. **Data Protection**:
-   - Environment variable security
-   - Secret management (.env, .env.example)
-   - Sensitive data in logs
-   - Security headers (middleware)
-
-**C. Database Review** (`prisma/schema.prisma`)
-1. Schema design quality:
-   - Normalization level
-   - Relationship integrity (foreign keys)
-   - Cascade delete rules
-   - Index coverage
-   - Data type appropriateness
-   - Nullability rules
-2. Migration quality:
-   - Review recent migrations in `prisma/migrations/`
-   - Check for destructive operations
-   - Reversibility assessment
-
-**D. Critical Business Logic Review**
-1. **Credits System** (`lib/credits.ts`):
-   - Race condition handling
-   - Idempotency guarantees
-   - Transaction integrity
-   - Refund logic
-
-2. **Session Booking** (`lib/session-booking.ts`):
-   - Double-booking prevention
-   - Availability conflicts
-   - Credit deduction atomicity
-
-3. **ARIA AI** (`lib/aria.ts`, `lib/aria-streaming.ts`):
-   - Prompt injection protection
-   - Context isolation
-   - Error handling
-   - API key security
-   - Rate limiting
-
-**E. API Design Review**
-1. Inventory all API routes (`app/api/`)
-2. Check REST conventions:
-   - HTTP methods usage (GET, POST, PATCH, DELETE)
-   - Status codes (200, 201, 400, 401, 403, 404, 500)
-   - Error response format consistency
-   - Validation error messages
-3. Rate limiting implementation (Upstash Redis)
-
-**F. Performance Review**
-1. Database query patterns:
-   - Identify N+1 queries
-   - Check for missing `include` optimizations
-   - Review `select` usage for projection
-2. React patterns:
-   - Server Components vs Client Components
-   - `use client` directive usage
-   - Dynamic imports for code splitting
-   - Suspense boundaries
-3. Image optimization (`next/image` usage)
-4. Caching strategies (React cache, unstable_cache)
-
-**G. Code Quality Review**
-1. Sampling strategy:
-   - Review top 20 largest files
-   - Review files with highest complexity
-   - Review recently changed files
-2. Check for:
-   - Code duplication (DRY violations)
-   - Function length (>50 lines)
-   - Cyclomatic complexity
-   - Nested callbacks (callback hell)
-   - Error handling consistency
-   - Async/await patterns
-
-**Outputs**:
-- Categorized findings by subsystem
-- Security issues with severity ratings
-- Performance bottlenecks with metrics
-- Code quality issues with examples
+**Python** (pytest):
+- `tests/test_auth_routes.py`
+- `tests/test_config.py`
+- `tests/test_security.py`
 
 ---
 
-#### **Phase 3: Documentation & DevOps Review**
-**Objective**: Assess documentation completeness and CI/CD quality  
-**Effort**: 10% of total audit time  
+## 2. Approche d'Audit par Composante
 
-**Activities**:
+### 2.1 Site Statique (`site/`)
 
-**A. Documentation Review**
-1. README.md assessment:
-   - Setup instructions clarity
-   - Environment variables documentation
-   - Testing instructions
-   - Deployment guide
-2. Architecture docs:
-   - Read `ARCHITECTURE.md`, `ARCHITECTURE_TECHNIQUE.md`
-   - Verify accuracy against codebase
-   - Identify outdated information
-3. API documentation:
-   - Check for route documentation
-   - API conventions adherence
-4. Code comments:
-   - JSDoc coverage for public APIs
-   - Complex logic explanation
-   - TODO/FIXME tracking
+#### **A) Analyse Automatisée**
 
-**B. DevOps Review**
-1. CI/CD Pipeline (`.github/workflows/`):
-   - Job completeness (lint, test, build, security)
-   - Parallelization effectiveness
-   - Caching strategy
-   - Failure handling
-2. Docker configuration:
-   - Multi-stage build efficiency
-   - Layer caching
-   - Security (non-root user, minimal base image)
-3. Environment management:
-   - .env.example completeness
-   - Missing variables documentation
-4. Deployment:
-   - Review deployment scripts
-   - Backup strategies (if documented)
-   - Rollback procedures
-
-**C. Accessibility Review**
-1. Sample 10 representative pages/components
-2. Check WCAG 2.1 AA compliance:
-   - Semantic HTML usage
-   - ARIA attributes correctness
-   - Keyboard navigation (focus management)
-   - Color contrast (verify against claims)
-   - Form labels and error messages
-   - Focus indicators
-
-**D. UI/UX Consistency Review**
-1. Design system adherence:
-   - Check token usage (`lib/theme/tokens.ts`)
-   - Verify Design System v2.0 migration status
-   - Identify deprecated patterns
-2. Component library usage:
-   - shadcn/ui pattern consistency
-   - Custom component quality
-3. Responsive design:
-   - Mobile, tablet, desktop breakpoints
-   - Touch target sizes
-4. Loading/error states:
-   - Skeleton loaders
-   - Error boundaries
-   - Form validation UX
-
-**Outputs**:
-- Documentation gap analysis
-- CI/CD recommendations
-- Accessibility compliance report
-- UI/UX consistency findings
-
----
-
-#### **Phase 4: Synthesis & Report Generation**
-**Objective**: Compile findings into comprehensive, actionable report  
-**Effort**: 10% of total audit time  
-
-**Activities**:
-1. **Findings Categorization**:
-   - Group by audit dimension (11 dimensions)
-   - Prioritize by severity (P0, P1, P2, P3)
-   - Tag by subsystem (auth, credits, ARIA, etc.)
-
-2. **Metrics Dashboard Creation**:
-   - Compile all quantitative metrics
-   - Create comparison tables
-   - Generate health score (0-100)
-
-3. **Recommendations Formulation**:
-   - Each finding → specific, actionable recommendation
-   - Include code examples where helpful
-   - Estimate effort (S, M, L, XL)
-
-4. **Executive Summary Writing**:
-   - Overall health assessment
-   - Top 5 critical findings
-   - Top 5 recommendations
-   - Risk assessment
-
-5. **Report Structuring**:
-   - Follow PRD deliverable structure
-   - Cross-reference related findings
-   - Include appendices with detailed data
-
-**Outputs**:
-- `COMPREHENSIVE_AUDIT_REPORT.md` (primary deliverable)
-- `audit_metrics.md` (metrics dashboard)
-- `audit_issues.csv` (issue tracker, optional)
-
----
-
-## 3. Source Code Structure Changes
-
-**No source code changes will be made**. This is a read-only audit. Findings will be documented in the audit report for future implementation.
-
-**New files created**:
-- `.zenflow/tasks/audit-a796/spec.md` (this document)
-- `.zenflow/tasks/audit-a796/COMPREHENSIVE_AUDIT_REPORT.md` (final report)
-- `.zenflow/tasks/audit-a796/audit_metrics.md` (metrics dashboard)
-- `.zenflow/tasks/audit-a796/phase1_automated_findings.md` (phase 1 output)
-- `.zenflow/tasks/audit-a796/phase2_manual_findings.md` (phase 2 output)
-- `.zenflow/tasks/audit-a796/phase3_docs_devops_findings.md` (phase 3 output)
-
----
-
-## 4. Data Model / API / Interface Changes
-
-**Not applicable**. This is an audit task with no implementation changes.
-
----
-
-## 5. Delivery Phases
-
-### **Phase 1: Automated Analysis & Metrics Collection**
-**Duration**: ~30% of effort  
-**Deliverable**: `phase1_automated_findings.md`  
-
-**Tasks**:
-1. Run TypeScript type checking
-2. Run ESLint analysis
-3. Run npm audit (security)
-4. Run build analysis (bundle sizes)
-5. Run test coverage
-6. Perform code pattern searches (Grep)
-7. Compile metrics into structured format
-
-**Success Criteria**:
-- All automated tools executed successfully
-- Quantitative metrics extracted and documented
-- Automated findings categorized by type
-
----
-
-### **Phase 2: Manual Deep-Dive Review**
-**Duration**: ~50% of effort  
-**Deliverable**: `phase2_manual_findings.md`  
-
-**Tasks**:
-1. Review architecture and dependencies
-2. Conduct security audit (auth, RBAC, API guards, validation)
-3. Review database schema and migrations
-4. Review critical business logic (credits, sessions, ARIA)
-5. Review API design and conventions
-6. Identify performance issues (queries, React patterns)
-7. Sample code quality review
-
-**Success Criteria**:
-- All critical subsystems reviewed
-- Security findings documented with severity
-- Performance bottlenecks identified with evidence
-- Code quality issues catalogued with examples
-
----
-
-### **Phase 3: Documentation & DevOps Review**
-**Duration**: ~10% of effort  
-**Deliverable**: `phase3_docs_devops_findings.md`  
-
-**Tasks**:
-1. Review documentation completeness
-2. Review CI/CD pipeline
-3. Review Docker and deployment configuration
-4. Conduct accessibility spot-check
-5. Review UI/UX consistency
-
-**Success Criteria**:
-- Documentation gaps identified
-- CI/CD quality assessed
-- Accessibility compliance level determined
-- UI/UX consistency evaluated
-
----
-
-### **Phase 4: Synthesis & Report Generation**
-**Duration**: ~10% of effort  
-**Deliverable**: `COMPREHENSIVE_AUDIT_REPORT.md`  
-
-**Tasks**:
-1. Consolidate all findings from phases 1-3
-2. Categorize and prioritize (P0-P3)
-3. Create metrics dashboard
-4. Write recommendations for each finding
-5. Calculate overall health score
-6. Write executive summary
-7. Finalize comprehensive report
-
-**Success Criteria**:
-- All findings integrated into final report
-- Issues prioritized and categorized
-- Recommendations are actionable and specific
-- Executive summary provides high-level overview
-- Report follows PRD structure
-
----
-
-## 6. Verification Approach
-
-### 6.1 Verification of Automated Analysis
-- **TypeScript**: Verify `npm run typecheck` exits with code 0 or document errors found
-- **Linting**: Verify `npm run lint` output is captured and categorized
-- **Security**: Verify `npm audit` results show vulnerability counts by severity
-- **Build**: Verify `npm run build` succeeds and bundle metrics are extracted
-- **Tests**: Verify test commands run and coverage percentages are captured
-
-### 6.2 Verification of Manual Review
-- **Completeness**: Cross-check that all subsystems from PRD Section 8 are reviewed
-- **Evidence**: Each finding must reference specific file paths and line numbers
-- **Severity**: P0/P1 findings must have clear justification for severity level
-
-### 6.3 Verification of Report Quality
-- **Structure**: Report follows PRD Section 4.1 structure
-- **Actionability**: Each finding has a recommendation
-- **Metrics**: Quantitative data included where available
-- **Clarity**: Executive summary can be understood by non-technical stakeholders
-
-### 6.4 Final Checklist
-Before considering the audit complete, verify:
-- ✅ All 11 audit dimensions addressed (Architecture, Code Quality, Security, Performance, Database, Testing, API Design, Documentation, DevOps, Accessibility, UI/UX)
-- ✅ All critical subsystems reviewed (Auth, RBAC, Credits, Sessions, ARIA, Database)
-- ✅ Findings prioritized (P0, P1, P2, P3)
-- ✅ Metrics dashboard created
-- ✅ Executive summary written
-- ✅ Recommendations are specific and actionable
-- ✅ Report is well-formatted and comprehensive
-- ✅ `plan.md` updated with [x] for completed steps
-
----
-
-## 7. Risk Mitigation
-
-### Risk 1: Incomplete Coverage
-**Mitigation**: Use systematic checklist from PRD to ensure all dimensions covered
-
-### Risk 2: Inaccurate Findings
-**Mitigation**: Always cite file paths, line numbers, and evidence. Verify findings by re-reading relevant code.
-
-### Risk 3: Non-Actionable Recommendations
-**Mitigation**: Each recommendation must be specific (e.g., "Add Zod schema to /api/sessions/book route" not "Improve validation")
-
-### Risk 4: Missing Critical Issues
-**Mitigation**: Prioritize security and data integrity subsystems (auth, RBAC, credits, database schema)
-
-### Risk 5: Report Too Long/Unfocused
-**Mitigation**: Use executive summary for high-level overview, detailed sections for technical team, prioritize P0/P1 findings
-
----
-
-## 8. Technical Decisions
-
-### Decision 1: Static Analysis Only (No Runtime Testing)
-**Rationale**: Per PRD Section 5, load testing and penetration testing are out of scope. We conduct static code analysis, not dynamic runtime testing.
-
-### Decision 2: Four-Phase Approach
-**Rationale**: Separates automated (fast, objective) from manual (slow, subjective) analysis. Allows parallelization of automated tasks. Ensures comprehensive coverage.
-
-### Decision 3: Markdown Report Format
-**Rationale**: Markdown is version-controllable, readable in GitHub, easily convertible to other formats. Aligns with existing project documentation standards.
-
-### Decision 4: Prioritization Using P0-P3
-**Rationale**: Industry-standard severity levels. Clear actionability (P0 = immediate, P1 = soon, P2 = next sprint, P3 = backlog).
-
-### Decision 5: Focus on Critical Subsystems
-**Rationale**: PRD Section 8 identifies auth, credits, ARIA, database, and sessions as high-risk areas. These receive deeper review than other subsystems.
-
-### Decision 6: No Code Fixes During Audit
-**Rationale**: Per PRD Section 5, refactoring and fixes are out of scope. Audit identifies issues; implementation is a separate phase.
-
-### Decision 7: Sample-Based Code Quality Review
-**Rationale**: With 790 files and 17,000 LOC, exhaustive review is impractical. Sample largest, most complex, and recently changed files for quality assessment.
-
-### Decision 8: Health Score Calculation
-A 0-100 score will be calculated based on weighted categories:
-- **Security**: 30% (critical for production)
-- **Code Quality**: 20% (maintainability)
-- **Performance**: 15% (user experience)
-- **Testing**: 15% (reliability)
-- **Documentation**: 10% (developer experience)
-- **Architecture**: 10% (scalability)
-
-Each category scored on: automated metrics, manual findings, and P0/P1 issue count.
-
----
-
-## 9. Dependencies
-
-### External Dependencies
-- **None**: Audit uses existing project tooling
-
-### Internal Dependencies
-- `package.json`: Scripts for typecheck, lint, test, build
-- `tsconfig.json`: TypeScript configuration
-- `eslint.config.mjs`: Linting rules
-- `.github/workflows/`: CI configuration
-- `prisma/schema.prisma`: Database schema
-- `README.md`: Project documentation
-
-### Assumptions
-- Development environment is set up (dependencies installed)
-- Tests are currently passing (per PRD: 2,799 tests)
-- Build is successful (no blocking compilation errors)
-- Access to all source code and documentation
-
----
-
-## 10. Success Metrics
-
-The technical specification will be successfully implemented when:
-
-1. **Comprehensive Coverage**: All 11 audit dimensions from PRD Section 3 are analyzed
-2. **Actionable Findings**: Each issue has a clear recommendation and severity rating
-3. **Evidence-Based**: All findings cite specific file paths, line numbers, or metrics
-4. **Prioritized**: Issues categorized as P0, P1, P2, or P3
-5. **Quantitative**: Metrics dashboard includes measurable data (coverage %, bundle sizes, vulnerability counts, etc.)
-6. **Accessible**: Executive summary provides high-level overview for stakeholders
-7. **Deliverable Complete**: `COMPREHENSIVE_AUDIT_REPORT.md` follows PRD structure
-8. **Plan Updated**: `plan.md` reflects all completed steps with [x]
-
----
-
-## 11. Appendices
-
-### Appendix A: File Paths to Review
-
-**Critical Security Files**:
-- `auth.ts`
-- `auth.config.ts`
-- `middleware.ts`
-- `lib/rbac.ts`
-- `lib/access/` (all files)
-- `app/api/**/*.ts` (all API routes)
-
-**Critical Business Logic**:
-- `lib/credits.ts`
-- `lib/invoice/` (all files)
-- `lib/session-booking.ts`
-- `lib/aria.ts`
-- `lib/aria-streaming.ts`
-- `lib/rag-client.ts`
-
-**Database**:
-- `prisma/schema.prisma`
-- `prisma/migrations/` (recent migrations)
-
-**Configuration**:
-- `package.json`
-- `tsconfig.json`
-- `eslint.config.mjs`
-- `next.config.ts`
-- `tailwind.config.ts`
-- `.env.example`
-- `docker-compose.yml`
-- `Dockerfile`
-
-**Documentation**:
-- `README.md`
-- `ARCHITECTURE.md`
-- `ARCHITECTURE_TECHNIQUE.md`
-- `docs/` (all files)
-
-### Appendix B: Search Patterns for Code Analysis
-
-**Security Patterns**:
-- `any` types: `grep -r ": any" --include="*.ts" --include="*.tsx"`
-- Secrets: `grep -rE "(API_KEY|PASSWORD|SECRET|TOKEN)" --include="*.ts"`
-- SQL injection: `grep -r "\$\{" prisma/` (raw SQL in Prisma)
-- XSS: `grep -r "dangerouslySetInnerHTML"`
-- Logs: `grep -r "console.log.*password\|secret\|token" -i`
-
-**Performance Patterns**:
-- Client components: `grep -r "use client"`
-- Dynamic imports: `grep -r "dynamic("`
-- N+1 queries: Search for `forEach` + `prisma` (nested queries in loops)
-
-**Code Quality Patterns**:
-- TODO: `grep -r "TODO\|FIXME"`
-- Long files: Files > 300 lines
-- ts-ignore: `grep -r "@ts-ignore\|@ts-expect-error"`
-- Error handling: `grep -r "try {" -c` (count try/catch blocks)
-
-### Appendix C: Tool Commands
-
+**Performance & PWA** (Lighthouse):
 ```bash
+# Via Playwright ou CLI Lighthouse
+npx lighthouse http://localhost:8000/site/index.html --view
+```
+**Métriques attendues**:
+- Performance: 90+
+- Accessibility: 95+
+- Best Practices: 90+
+- SEO: 95+
+- PWA: 90+ (manifest + SW)
+
+**Linting JavaScript**:
+```bash
+npm run lint
+# ESLint sur site/assets/js/*.js (ignore .min.js)
+```
+**Cibles**:
+- `contents.js` — Gestion des ressources
+- `levels.js` — Listes par niveau
+- `progression.js` — Timeline/grille
+- `theme-toggle.js`, `neon-toggle.js` — Thèmes
+- `icons.js` — Init Lucide
+
+**Build CSS**:
+```bash
+npm run css:build
+# PostCSS: site/assets/css/site.css → site.min.css
+```
+**Vérifications**:
+- Build sans erreurs
+- Taille du bundle CSS (< 50 KB?)
+- Autoprefixer coverage
+
+**Validation HTML**:
+```bash
+# Validation W3C (via API ou nu-validator)
+curl -H "Content-Type: text/html; charset=utf-8" \
+  --data-binary @site/index.html \
+  https://validator.w3.org/nu/?out=json
+```
+
+**Recherche de patterns**:
+```bash
+# TODO/FIXME
+grep -rn "TODO\|FIXME" site/assets/js/
+
+# console.log (à supprimer en production)
+grep -rn "console\\.log" site/assets/js/
+
+# Secrets hardcodés
+grep -rn "API_KEY\|SECRET\|PASSWORD\|TOKEN" site/
+
+# Liens cassés (href vides ou invalides)
+grep -rn 'href=""' site/
+```
+
+**PWA Analysis**:
+- Valider `manifest.webmanifest` (JSON valide, icônes présentes)
+- Analyser `sw.js` (stratégie de cache, scope, versioning)
+- Vérifier offline fallback
+
+#### **B) Revue Manuelle**
+
+**Architecture**:
+- ✅ Séparation des concerns (HTML/CSS/JS)
+- ✅ Modularité JavaScript (fonctions réutilisables?)
+- ✅ Dépendances (uniquement Lucide CDN)
+
+**Code Quality** (échantillon 10-15 fichiers):
+- `site/index.html` — Structure, sémantique, accessibilité
+- `site/assets/css/site.css` — Organisation, CSS variables, BEM?
+- `site/assets/js/contents.js` — Complexité, DRY, gestion d'erreurs
+- `site/assets/js/progression.js` — Algorithmes, performance
+- `site/sw.js` — Sécurité service worker, cache strategy
+
+**Sécurité**:
+- ✅ CSP headers (à vérifier dans Nginx config)
+- ✅ Service worker scope (pas de cache de données sensibles)
+- ✅ XSS (innerHTML vs textContent)
+- ✅ Pas de secrets en clair
+
+**Performance**:
+- ✅ Taille des bundles JS (< 100 KB total?)
+- ✅ Images optimisées (formats WebP? lazy loading?)
+- ✅ Fonts (WOFF2, preload?)
+- ✅ Service worker cache (aggressive ou conservative?)
+
+**Accessibilité** (échantillon 5-10 pages):
+- ✅ `lang="fr"` sur toutes les pages
+- ✅ Navigation clavier (focus visible)
+- ✅ ARIA attributes (rôles, labels)
+- ✅ Contraste de couleurs (vérifier les 4 thèmes)
+- ✅ Formulaires (labels, error messages)
+- ✅ Images (alt text)
+
+**Design System**:
+- ✅ Tokens CSS (variables bien nommées?)
+- ✅ Cohérence des 4 thèmes (dark/light/energie/pure)
+- ✅ Responsive (breakpoints, grilles)
+- ✅ Composants réutilisables (cartes, chips, boutons)
+
+#### **C) Tests**
+
+**Exécuter les tests**:
+```bash
+# Unitaires
+npm run test:unit
+
+# E2E (nécessite serveur local)
+python3 -m http.server --directory site 8000 &
+npm run test:e2e
+```
+
+**Analyser la couverture**:
+```bash
+npm run test:unit -- --coverage
+```
+
+**Scénarios E2E attendus** (selon README):
+- Navigation: Accueil → Première → Progression → Retour
+- Recherche et suggestions
+- Filtres (Type, Thème) et reset
+- Favoris (persistance localStorage)
+- Langue française (pas de mots anglais)
+- Accessibilité (axe-core)
+
+**Gaps à identifier**:
+- Fonctions non testées
+- Pages sans E2E coverage
+- Edge cases manquants
+
+---
+
+### 2.2 Backend Python (`backend/`, `apps/backend/`)
+
+#### **A) Exploration et Identification**
+
+**Structure**:
+```bash
+# Explorer backend/
+ls -R backend/
+
+# Explorer apps/backend/
+ls -R apps/backend/
+
+# Identifier le framework
+grep -r "flask\|fastapi\|django" backend/ apps/backend/
+```
+
+**Endpoints API**:
+- Documenter `/api/tree` (si existe)
+- Autres routes?
+
+#### **B) Analyse Automatisée**
+
+**Linting Python**:
+```bash
+# Installer ruff ou flake8
+pip install ruff
+
+# Lint
+ruff check backend/ apps/backend/
+```
+
+**Sécurité Python**:
+```bash
+# Installer bandit
+pip install bandit
+
+# Scan sécurité
+bandit -r backend/ apps/backend/
+```
+
+**Tests**:
+```bash
+# Installer pytest
+pip install pytest pytest-cov
+
+# Run tests avec couverture
+pytest tests/ --cov=backend --cov=apps/backend --cov-report=html
+```
+
+**Dépendances**:
+```bash
+# Vérifier requirements.txt
+cat backend/requirements.txt
+
+# Audit npm-style (si pipenv/poetry)
+pip-audit
+```
+
+#### **C) Revue Manuelle**
+
+**Architecture**:
+- Routes et controllers
+- Séparation concerns (business logic vs routes)
+- Gestion d'erreurs
+
+**Sécurité**:
+- ✅ CORS configuration
+- ✅ Input validation
+- ✅ Injection SQL (si DB)
+- ✅ Secrets management (env vars)
+- ✅ Rate limiting
+- ✅ Authentication (si applicable)
+
+**Code Quality**:
+- Complexité
+- DRY violations
+- Type hints (Python 3.10+?)
+- Docstrings
+
+**Tests**:
+- Couverture (cible: 80%+)
+- Tests d'intégration
+- Mock/fixtures
+
+---
+
+### 2.3 Frontend React (`apps/frontend/`, `ui/`)
+
+#### **A) Analyse Automatisée**
+
+**TypeScript Check**:
+```bash
+cd apps/frontend
+npm run typecheck || tsc --noEmit
+```
+
+**Linting**:
+```bash
+npm run lint
+```
+
+**Build Analysis**:
+```bash
+npm run build
+# Analyser la taille des bundles
+ls -lh dist/assets/*.js
+```
+
+**Tests Vitest**:
+```bash
+npm run test:unit -- --coverage
+```
+
+**Recherche de patterns**:
+```bash
+# any types
+grep -rn ": any" apps/frontend/src/
+
+# @ts-ignore
+grep -rn "@ts-ignore\|@ts-expect-error" apps/frontend/src/
+
+# console.log
+grep -rn "console\\.log" apps/frontend/src/
+
+# useEffect sans deps
+grep -A5 "useEffect" apps/frontend/src/ | grep -B5 "\[\]"
+```
+
+#### **B) Revue Manuelle**
+
+**Architecture React**:
+- Components structure (atomic design?)
+- State management (Context? Zustand? Redux?)
+- Routing (React Router?)
+- API layer
+
+**Code Quality**:
+- Components size (< 200 lines?)
+- Hooks usage (proper dependencies)
+- Prop types (TypeScript interfaces)
+- Performance (useMemo, useCallback, React.memo)
+
+**Sécurité**:
+- XSS (dangerouslySetInnerHTML)
+- API calls (CSRF tokens?)
+- Secrets (API keys en .env?)
+
+**Performance**:
+- Bundle size (< 200 KB?)
+- Code splitting
+- Lazy loading
+- Images optimization
+
+**Tests**:
+- Components coverage
+- Hooks tests
+- Integration tests
+
+---
+
+### 2.4 DevOps & CI/CD
+
+#### **A) GitHub Actions Workflows**
+
+**Analyser les workflows**:
+```bash
+# Lister les workflows
+ls -la .github/workflows/
+
+# backend-ci.yml
+# deploy.yml
+# backend-docker.yml
+```
+
+**Critères d'évaluation**:
+- ✅ Jobs parallèles (lint, test, build)
+- ✅ Caching (npm, pip)
+- ✅ Matrix tests (multi-versions Node/Python?)
+- ✅ Failure handling
+- ✅ Artifacts upload
+- ✅ Deployment automation
+- ✅ Security (secrets management)
+
+#### **B) Docker**
+
+**Analyser docker-compose.yml**:
+```bash
+cat deploy/docker/docker-compose.yml
+```
+
+**Vérifications**:
+- ✅ Multi-stage builds (Dockerfile)
+- ✅ Volumes persistence
+- ✅ Networks isolation
+- ✅ Health checks
+- ✅ Environment variables
+- ✅ Image size (< 500 MB?)
+- ✅ Security (non-root user, minimal base image)
+
+**Analyser Nginx**:
+```bash
+cat deploy/nginx/*.conf
+```
+
+**Vérifications**:
+- ✅ HTTPS configuration
+- ✅ Security headers (CSP, HSTS, X-Frame-Options)
+- ✅ Gzip compression
+- ✅ Caching headers
+- ✅ Rate limiting
+
+#### **C) Scripts de Déploiement**
+
+**Analyser**:
+```bash
+ls scripts/
+cat scripts/*.mjs scripts/*.py
+```
+
+**Vérifications**:
+- ✅ Robustesse (error handling)
+- ✅ Idempotence
+- ✅ Logging
+- ✅ Rollback capability
+
+---
+
+### 2.5 Documentation
+
+#### **A) README.md**
+
+**Critères d'évaluation**:
+- ✅ Setup instructions (clear, testable)
+- ✅ Architecture overview
+- ✅ Commands (dev, test, build, deploy)
+- ✅ Environment variables
+- ✅ Contributing guidelines
+- ✅ License
+- ✅ Badges (CI status, version, license)
+
+**Vérifier la précision**:
+- ✅ Commandes fonctionnent
+- ✅ Liens ne sont pas cassés
+- ✅ Captures d'écran (si présentes) à jour
+
+#### **B) Documentation Additionnelle**
+
+**Fichiers markdown à analyser**:
+- `CHANGELOG.md` — Historique des versions
+- `ETAT_DES_LIEUX.md` — État du projet
+- `guide_implementation.md` — Guide dev
+- `charte_graphique_*.md` — Design system
+- `modernisation_pages_cours.md` — Roadmap?
+- `analyse_ui_inspirations.md` — UI refs
+
+**Vérifications**:
+- ✅ Pertinence (docs obsolètes?)
+- ✅ Cohérence entre docs
+- ✅ Exemples de code (fonctionnels?)
+
+#### **C) Commentaires dans le Code**
+
+**Échantillonnage**:
+- JavaScript: JSDoc pour fonctions publiques
+- Python: Docstrings pour classes/fonctions
+- CSS: Commentaires pour sections
+
+**Critères**:
+- ✅ Clarté
+- ✅ Pas de redondance (code self-explanatory)
+- ✅ Pas de commentaires obsolètes
+
+---
+
+## 3. Outils et Commandes
+
+### 3.1 Récapitulatif des Commandes
+
+#### **Site Statique**
+```bash
+# Serveur local
+python3 -m http.server --directory site 8000
+
+# Lint JavaScript
+npm run lint
+
+# Build CSS
+npm run css:build
+
+# Tests unitaires
+npm run test:unit
+
+# Tests E2E
+npm run test:e2e
+
+# Lighthouse
+npx lighthouse http://localhost:8000/site/index.html --view
+```
+
+#### **Backend Python**
+```bash
+# Lint
+ruff check backend/ apps/backend/
+
+# Sécurité
+bandit -r backend/ apps/backend/
+
+# Tests
+pytest tests/ --cov --cov-report=html
+```
+
+#### **Frontend React**
+```bash
+cd apps/frontend
+
 # TypeScript check
 npm run typecheck
 
-# Linting
+# Lint
 npm run lint
 
-# Security
-npm audit
-npm audit --audit-level=moderate
-
-# Build analysis
+# Build
 npm run build
 
-# Tests with coverage
-npm test -- --coverage
-npm run test:integration
-npm run test:e2e
+# Tests
+npm run test:unit -- --coverage
+```
 
-# File statistics
-find app lib -name "*.ts" -o -name "*.tsx" | wc -l
-cloc app lib --by-file
+#### **DevOps**
+```bash
+# Docker build local
+docker compose -f deploy/docker/docker-compose.yml up -d --build
+
+# Test endpoints
+curl http://localhost/
+curl http://localhost/api/tree
+```
+
+### 3.2 Outils Externes
+
+**Performance**:
+- Lighthouse (CLI ou Chrome DevTools)
+- WebPageTest
+- Bundle Analyzer (webpack-bundle-analyzer, vite-plugin-bundle)
+
+**Accessibilité**:
+- axe DevTools (Chrome extension)
+- WAVE (browser extension)
+- Pa11y (CLI)
+
+**Sécurité**:
+- npm audit (Node.js)
+- pip-audit (Python)
+- OWASP Dependency-Check
+- Snyk
+
+**Code Quality**:
+- SonarQube (optionnel)
+- CodeClimate (optionnel)
+
+---
+
+## 4. Métriques et Scoring
+
+### 4.1 Dashboard de Métriques
+
+**Performance**:
+- Lighthouse scores (Performance, Accessibility, SEO, PWA)
+- Bundle sizes (JS, CSS)
+- Time to Interactive (TTI)
+- First Contentful Paint (FCP)
+- Largest Contentful Paint (LCP)
+
+**Code Quality**:
+- Lignes de code (LOC) par composante
+- Complexité cyclomatique (moyenne)
+- Duplication (% de code dupliqué)
+- Commentaires (ratio commentaires/code)
+
+**Sécurité**:
+- Vulnérabilités (npm audit, pip-audit, bandit)
+- Secrets hardcodés (count)
+- CSP headers (présence/qualité)
+
+**Tests**:
+- Couverture unitaire (%)
+- Couverture E2E (scénarios)
+- Tests passing/total
+- Temps d'exécution tests
+
+**Documentation**:
+- Complétude README (score subjectif 1-10)
+- Commentaires JSDoc/Docstrings (%)
+- Docs obsolètes (count)
+
+**DevOps**:
+- Build success rate
+- CI job duration
+- Image Docker size
+- Deployment frequency
+
+**Accessibilité**:
+- Axe violations (count par sévérité)
+- WCAG conformance level (A, AA, AAA)
+- Keyboard navigation (score subjectif 1-10)
+
+**Design System**:
+- Tokens CSS (count)
+- Thèmes (count)
+- Composants réutilisables (count)
+- Cohérence (score subjectif 1-10)
+
+### 4.2 Calcul du Score de Santé Global (0-100)
+
+**Formule pondérée**:
+```
+Score = (
+  Sécurité * 0.25 +
+  Qualité du Code * 0.20 +
+  Performance * 0.15 +
+  Tests * 0.15 +
+  Accessibilité * 0.10 +
+  Documentation * 0.10 +
+  DevOps * 0.05
+)
+```
+
+**Sous-scores** (0-100 chacun):
+- **Sécurité**: Basé sur vulnérabilités, CSP, secrets
+- **Qualité du Code**: Basé sur lint errors, complexité, duplication
+- **Performance**: Basé sur Lighthouse scores, bundle sizes
+- **Tests**: Basé sur couverture et pass rate
+- **Accessibilité**: Basé sur axe violations et WCAG level
+- **Documentation**: Basé sur complétude README et commentaires
+- **DevOps**: Basé sur CI/CD quality et deployment automation
+
+**Niveaux**:
+- 90-100: Excellent ✅
+- 75-89: Bon ⚠️
+- 60-74: Moyen ⚠️
+- 0-59: Critique 🔴
+
+---
+
+## 5. Structure des Livrables
+
+### 5.1 phase1_automated_findings.md
+
+```markdown
+# Phase 1: Automated Analysis Findings
+
+## Executive Summary
+- Total issues found: X
+- Critical: X | High: X | Medium: X | Low: X
+
+## 1. Site Statique
+
+### 1.1 Lighthouse Audit
+- Performance: XX/100
+- Accessibility: XX/100
+- Best Practices: XX/100
+- SEO: XX/100
+- PWA: XX/100
+
+### 1.2 ESLint (JavaScript)
+- Total violations: X
+- Errors: X | Warnings: X
+- Top violations: ...
+
+### 1.3 Code Patterns
+- TODO/FIXME: X occurrences
+- console.log: X occurrences
+- Secrets: X found (!!!)
+
+## 2. Backend Python
+
+### 2.1 Ruff Lint
+...
+
+### 2.2 Bandit Security Scan
+...
+
+### 2.3 pytest Coverage
+...
+
+## 3. Frontend React
+
+### 3.1 TypeScript Errors
+...
+
+### 3.2 ESLint Violations
+...
+
+### 3.3 Build Analysis
+...
+
+## 4. Tests
+
+### 4.1 Unit Tests (Vitest)
+...
+
+### 4.2 E2E Tests (Playwright)
+...
+```
+
+### 5.2 phase2_manual_findings.md
+
+```markdown
+# Phase 2: Manual Review Findings
+
+## 1. Architecture Review
+
+### 1.1 Overall Structure
+- Findings: ...
+- Recommendations: ...
+
+### 1.2 Site Statique Architecture
+...
+
+### 1.3 Backend Python Architecture
+...
+
+### 1.4 Frontend React Architecture
+...
+
+## 2. Code Quality Review
+
+### 2.1 Site Statique (sampled files)
+...
+
+### 2.2 Backend Python (sampled files)
+...
+
+### 2.3 Frontend React (sampled files)
+...
+
+## 3. Security Review
+
+### 3.1 Service Worker Security
+...
+
+### 3.2 API Security (Backend)
+...
+
+### 3.3 XSS Vulnerabilities
+...
+
+## 4. Performance Review
+
+### 4.1 Bundle Analysis
+...
+
+### 4.2 Caching Strategy
+...
+
+## 5. Accessibility Review
+
+### 5.1 Keyboard Navigation
+...
+
+### 5.2 ARIA Attributes
+...
+
+### 5.3 Color Contrast
+...
+```
+
+### 5.3 phase3_docs_devops_findings.md
+
+```markdown
+# Phase 3: Documentation & DevOps Findings
+
+## 1. Documentation Review
+
+### 1.1 README.md
+...
+
+### 1.2 Additional Docs
+...
+
+### 1.3 Code Comments
+...
+
+## 2. DevOps Review
+
+### 2.1 GitHub Actions Workflows
+...
+
+### 2.2 Docker Configuration
+...
+
+### 2.3 Nginx Configuration
+...
+
+### 2.4 Deployment Scripts
+...
+
+## 3. Design System Review
+
+### 3.1 CSS Tokens
+...
+
+### 3.2 Themes Consistency
+...
+
+### 3.3 Component Library
+...
+```
+
+### 5.4 COMPREHENSIVE_AUDIT_REPORT.md
+
+```markdown
+# Comprehensive Audit Report — Interface Maths 2025-2026
+
+## Executive Summary
+
+### Project Overview
+...
+
+### Health Score
+**Overall: XX/100** (Excellent/Bon/Moyen/Critique)
+
+### Top 5 Critical Findings
+1. ...
+2. ...
+
+### Top 5 Recommendations
+1. ...
+2. ...
+
+## Metrics Dashboard
+[Tableau de métriques]
+
+## Findings by Dimension
+
+### 1. Architecture
+...
+
+### 2. Code Quality
+...
+
+### 3. Security
+...
+
+### 4. Performance
+...
+
+### 5. Accessibility
+...
+
+### 6. Tests
+...
+
+### 7. Documentation
+...
+
+### 8. DevOps
+...
+
+### 9. Design System
+...
+
+### 10. SEO & PWA
+...
+
+### 11. Backend Python
+...
+
+## Prioritized Recommendations
+
+### P0 (Critical — Fix immediately)
+...
+
+### P1 (High — Fix soon)
+...
+
+### P2 (Medium — Plan for next sprint)
+...
+
+### P3 (Low — Improvements)
+...
+
+## Conclusion and Next Steps
+...
 ```
 
 ---
 
-## Document Control
+## 6. Workflow d'Exécution
 
-**Version**: 1.0  
-**Status**: APPROVED  
-**Date**: February 21, 2026  
-**Author**: Audit Agent  
-**Approved By**: Requirements Document v1.0  
-**Next Phase**: Planning (breakdown into implementation tasks)  
+### 6.1 Phase 1: Automated (2-3h)
+
+**Setup**:
+```bash
+cd /home/alaeddine/Interface_Maths_2025_2026
+
+# Installer dépendances
+npm install
+pip install -r backend/requirements.txt (si applicable)
+
+# Installer outils
+npm install -g lighthouse
+pip install ruff bandit pytest pytest-cov
+```
+
+**Exécuter les scans**:
+1. Site statique: Lighthouse + ESLint + patterns search
+2. Backend Python: Ruff + Bandit + pytest
+3. Frontend React: TypeScript + ESLint + build + Vitest
+4. Tests: npm test
+
+**Output**: `phase1_automated_findings.md`
+
+### 6.2 Phase 2: Manual Review (4-6h)
+
+**Workflow**:
+1. Lire architecture (README, fichiers clés)
+2. Sampler 30-40 fichiers représentatifs
+3. Analyser sécurité (service worker, API, XSS)
+4. Analyser performance (bundles, caching)
+5. Tester accessibilité manuellement (keyboard, ARIA)
+
+**Output**: `phase2_manual_findings.md`
+
+### 6.3 Phase 3: Docs & DevOps (2-3h)
+
+**Workflow**:
+1. Lire tous les docs markdown
+2. Analyser workflows GitHub Actions
+3. Analyser Docker + Nginx config
+4. Tester scripts de déploiement
+5. Évaluer design system (cohérence CSS)
+
+**Output**: `phase3_docs_devops_findings.md`
+
+### 6.4 Phase 4: Synthesis (2-3h)
+
+**Workflow**:
+1. Consolider tous les findings
+2. Calculer métriques et scores
+3. Prioriser (P0/P1/P2/P3)
+4. Écrire recommandations actionnables
+5. Rédiger executive summary
+
+**Output**: `COMPREHENSIVE_AUDIT_REPORT.md` + `audit_metrics.md`
+
+### 6.5 Final Checklist
+
+✅ Toutes les composantes auditées (site/backend/frontend)  
+✅ 11 dimensions couvertes  
+✅ Métriques quantitatives compilées  
+✅ Findings priorisés (P0/P1/P2/P3)  
+✅ Recommandations actionnables avec exemples  
+✅ Executive summary clair  
+✅ Rapport final formatté et lisible  
+
+---
+
+## 7. Risques et Mitigations
+
+### 7.1 Risques Identifiés
+
+| Risque | Impact | Probabilité | Mitigation |
+|--------|--------|-------------|------------|
+| Backend Python non fonctionnel | Medium | Medium | Skip si broken, documenter |
+| Frontend React en développement incomplet | Low | High | Analyser l'existant, noter gaps |
+| Tests E2E échouent | Medium | Low | Investiguer causes, documenter |
+| Service worker casse en local | Low | Medium | Tester en HTTPS ou via Docker |
+| Documentation obsolète | Low | Medium | Comparer avec code actuel |
+
+### 7.2 Décisions Autonomes en Cas de Blocage
+
+✅ **Si backend Python inaccessible**: Skip et documenter (le site statique a fallbacks)  
+✅ **Si frontend React incomplet**: Analyser ce qui existe, ne pas bloquer  
+✅ **Si tests échouent**: Documenter les failures comme findings  
+✅ **Si Docker ne build pas**: Analyser la config, proposer fixes  
+✅ **Si docs contradictoires**: Privilégier le code source comme source de vérité  
+
+---
+
+## 8. Conclusion
+
+Cette spécification détaille l'approche technique pour auditer **Interface Maths 2025-2026** selon ses **3 composantes** (site statique, backend Python, frontend React) et **11 dimensions** (architecture, qualité, sécurité, performance, accessibilité, tests, documentation, DevOps, design system, SEO/PWA, backend).
+
+L'audit sera **exhaustif** (tous fichiers clés analysés), **approfondi** (revue manuelle + automatisée), et **actionnable** (recommandations priorisées avec exemples).
+
+---
+
+**Prochaine étape**: Créer `plan.md` avec le découpage détaillé des tâches d'implémentation.
