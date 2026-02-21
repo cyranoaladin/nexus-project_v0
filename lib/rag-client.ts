@@ -1,7 +1,7 @@
 /**
  * RAG Client — Connects to the Ingestor API (FastAPI) for semantic search.
  * Server: infra-ingestor-1 on infra_rag_net (port 8001)
- * Endpoints: POST /search, POST /ingest, GET /health
+ * Endpoints: POST /search, POST /ingest, GET /health, GET /collections, GET /collections/{name}/stats
  */
 
 interface RAGSearchHit {
@@ -9,10 +9,22 @@ interface RAGSearchHit {
   document: string;
   metadata: Record<string, unknown>;
   distance: number;
+  score?: number;
 }
 
 interface RAGSearchResponse {
   hits: RAGSearchHit[];
+  total_candidates?: number;
+  filters_applied?: Record<string, unknown> | null;
+}
+
+interface RAGCollectionStats {
+  collection: string;
+  count: number;
+  subjects: Record<string, number>;
+  levels: Record<string, number>;
+  types: Record<string, number>;
+  sources: Record<string, number>;
 }
 
 interface RAGSearchOptions {
@@ -24,9 +36,15 @@ interface RAGSearchOptions {
   includeDocuments?: boolean;
   /** ChromaDB collection name */
   collection?: string;
-  /** Optional metadata filters */
+  /** Optional metadata filters (subject, level, type, domain) */
   filters?: Record<string, unknown>;
 }
+
+/** Supported subjects for filtering */
+export type RAGSubject = 'maths' | 'nsi' | 'physique_chimie' | 'francais' | 'svt' | 'ses';
+
+/** Supported levels for filtering */
+export type RAGLevel = 'seconde' | 'premiere' | 'terminale' | 'superieur';
 
 /**
  * Get the RAG Ingestor base URL.
@@ -87,6 +105,20 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
 }
 
 /**
+ * Search with subject and level filters (convenience wrapper).
+ */
+export async function ragSearchBySubject(
+  query: string,
+  subject: RAGSubject,
+  level?: RAGLevel,
+  k = 4,
+): Promise<RAGSearchHit[]> {
+  const filters: Record<string, string> = { subject };
+  if (level) filters.level = level;
+  return ragSearch({ query, k, filters });
+}
+
+/**
  * Check if the RAG service is healthy.
  */
 export async function ragHealthCheck(): Promise<boolean> {
@@ -111,6 +143,30 @@ export async function ragHealthCheck(): Promise<boolean> {
 }
 
 /**
+ * Get collection statistics (subjects, levels, types breakdown).
+ */
+export async function ragCollectionStats(
+  collectionName = 'ressources_pedagogiques_terminale',
+): Promise<RAGCollectionStats | null> {
+  const baseUrl = getIngestorUrl();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(`${baseUrl}/collections/${collectionName}/stats`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as RAGCollectionStats;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Build a RAG context string from search results for LLM prompting.
  */
 export function buildRAGContext(hits: RAGSearchHit[]): string {
@@ -119,7 +175,11 @@ export function buildRAGContext(hits: RAGSearchHit[]): string {
   let context = '\n\n--- CONTEXTE PÉDAGOGIQUE (base de connaissances Nexus Réussite) ---\n';
   hits.forEach((hit, index) => {
     const source = (hit.metadata?.source as string) || 'Document pédagogique';
-    context += `\n[${index + 1}] ${source}\n${hit.document}\n`;
+    const subject = (hit.metadata?.subject as string) || '';
+    const level = (hit.metadata?.level as string) || '';
+    const meta = [subject, level].filter(Boolean).join(' — ');
+    const header = meta ? `${source} (${meta})` : source;
+    context += `\n[${index + 1}] ${header}\n${hit.document}\n`;
   });
   context += '\n--- FIN DU CONTEXTE ---\n';
 
