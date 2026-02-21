@@ -299,6 +299,7 @@ Run Playwright E2E tests.
 - Accessibility violations captured
 
 ### [ ] Step: Compile Phase 1 Metrics
+<!-- chat-id: 760e0756-349d-4cd0-85c9-66066290c12c -->
 
 Consolidate all automated findings into metrics dashboard.
 
