@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { recordAriaFeedback } from '@/lib/aria'
 import { checkAndAwardBadges } from '@/lib/badges'
 import { createLogger } from '@/lib/middleware/logger'
+import { RateLimitPresets } from '@/lib/middleware/rateLimit'
 
 // Schema de validation pour le feedback ARIA
 const ariaFeedbackSchema = z.object({
@@ -18,6 +19,10 @@ export async function POST(request: NextRequest) {
   const logger = createLogger(request)
   
   try {
+    // Rate limiting for ARIA (30 requests per hour)
+    const rateLimitResult = RateLimitPresets.aria(request, 'aria-feedback');
+    if (rateLimitResult) return rateLimitResult;
+
     const session = await auth()
     
     if (!session || session.user.role !== 'ELEVE') {

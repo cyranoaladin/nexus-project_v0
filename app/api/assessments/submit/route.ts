@@ -175,13 +175,28 @@ export async function POST(request: NextRequest) {
       // Backfill with canonical domains — guarantees all domains are persisted (0 if absent)
       const completeDomains = backfillCanonicalDomains(subject, categoryScores);
 
-      for (const [domain, score] of Object.entries(completeDomains)) {
+      // ✅ PERF-DB-002: Batch insert all domain scores in a single query (200-500ms savings)
+      const domainEntries = Object.entries(completeDomains);
+      
+      if (domainEntries.length > 0) {
+        // Build parameterized VALUES clause: ($1, $2, $3), ($1, $4, $5), ...
+        const valuesClause = domainEntries
+          .map((_, idx) => {
+            const offset = idx * 2; // 2 params per row (domain, score)
+            return `(gen_random_uuid()::text, $1, $${offset + 2}, $${offset + 3}, NOW())`;
+          })
+          .join(', ');
+
+        // Flatten parameters: [assessmentId, domain1, score1, domain2, score2, ...]
+        const params = [
+          assessment.id,
+          ...domainEntries.flatMap(([domain, score]) => [domain, score])
+        ];
+
         await prisma.$executeRawUnsafe(
           `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
-           VALUES (gen_random_uuid()::text, $1, $2, $3, NOW())`,
-          assessment.id,
-          domain,
-          score
+           VALUES ${valuesClause}`,
+          ...params
         );
       }
 

@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import type pino from 'pino';
+import type { ApiErrorResponse, ApiSuccessResponse, ResponseMeta } from './types';
 
 // Lazy import logger to avoid loading Pino in Edge runtime (middleware)
 // Only load when actually needed (in handleApiError)
@@ -137,6 +138,7 @@ export class ApiError extends Error {
  * @param message - Error message (human-readable)
  * @param details - Optional additional context
  * @param headers - Optional custom headers
+ * @param meta - Optional metadata (timestamp, requestId, etc.)
  *
  * @example
  * ```ts
@@ -148,16 +150,20 @@ export function errorResponse(
   code: string,
   message: string,
   details?: unknown,
-  headers?: HeadersInit
+  headers?: HeadersInit,
+  meta?: ResponseMeta
 ): NextResponse<ApiErrorResponse> {
-  return NextResponse.json(
-    {
-      error: code,
+  const response: ApiErrorResponse = {
+    success: false,
+    error: {
+      code,
       message,
       ...(details ? { details } : {}),
     },
-    { status: statusCode, headers }
-  );
+    ...(meta ? { meta } : {}),
+  };
+
+  return NextResponse.json(response, { status: statusCode, headers });
 }
 
 /**
@@ -282,12 +288,23 @@ export async function handleApiError(
  *
  * @param data - Response data
  * @param status - HTTP status code (default: 200)
+ * @param meta - Optional metadata (pagination, timestamp, requestId, etc.)
  *
  * @example
  * ```ts
  * return successResponse({ user: createdUser }, 201);
  * ```
  */
-export function successResponse<T>(data: T, status: number = HttpStatus.OK): NextResponse<T> {
-  return NextResponse.json(data, { status });
+export function successResponse<T>(
+  data: T,
+  status: number = HttpStatus.OK,
+  meta?: ResponseMeta
+): NextResponse<ApiSuccessResponse<T>> {
+  const response: ApiSuccessResponse<T> = {
+    success: true,
+    data,
+    ...(meta ? { meta } : {}),
+  };
+
+  return NextResponse.json(response, { status });
 }

@@ -230,17 +230,9 @@ export async function POST(req: NextRequest) {
         throw ApiError.badRequest('Student record not found');
       }
 
-      // Calculate current credits from transactions
-      const creditTransactions = await tx.creditTransaction.findMany({
-        where: { studentId: studentRecord.id }
-      });
-
-      const currentCredits = creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
-        return total + transaction.amount;
-      }, 0);
-
-      if (currentCredits < validatedData.creditsToUse) {
-        throw ApiError.badRequest(`Insufficient credits. Available: ${currentCredits}, Required: ${validatedData.creditsToUse}`);
+      // Use cached credits field for performance (O(1) vs O(n))
+      if (studentRecord.credits < validatedData.creditsToUse) {
+        throw ApiError.badRequest(`Insufficient credits. Available: ${studentRecord.credits}, Required: ${validatedData.creditsToUse}`);
       }
 
       // 7. Check if student already has a session at this time
@@ -270,7 +262,34 @@ export async function POST(req: NextRequest) {
         throw ApiError.conflict('You already have a session scheduled at this time');
       }
 
-      // 8. Create the session
+      // 8. Check for idempotency (prevent duplicate bookings on retry)
+      if (validatedData.idempotencyKey) {
+        const existingBooking = await tx.sessionBooking.findUnique({
+          where: { idempotencyKey: validatedData.idempotencyKey },
+          include: {
+            student: true,
+            coach: true,
+            parent: true
+          }
+        });
+
+        if (existingBooking) {
+          logger.info('Idempotent booking request - returning existing booking', { 
+            bookingId: existingBooking.id,
+            idempotencyKey: validatedData.idempotencyKey
+          });
+          
+          return {
+            booking: existingBooking,
+            coachUser: coachProfile.user,
+            studentName: `${student.firstName} ${student.lastName}`,
+            parentId,
+            alreadyCreated: true
+          };
+        }
+      }
+
+      // 9. Create the session
       const sessionBooking = await tx.sessionBooking.create({
         data: {
           studentId: validatedData.studentId,
@@ -313,6 +332,12 @@ export async function POST(req: NextRequest) {
             description: `Session booking: ${validatedData.title} - ${validatedData.subject}`,
             sessionId: sessionBooking.id
           }
+        });
+
+        // Decrement cached credits field for consistency
+        await tx.student.update({
+          where: { id: studentRecord.id },
+          data: { credits: { decrement: validatedData.creditsToUse } }
         });
       }
 

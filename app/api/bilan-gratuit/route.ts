@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       message: 'Inscription réussie ! Vous recevrez un email de confirmation sous 24h.',
       parentId: result.parentUser.id,
       studentId: result.student.id
-    });
+    }, { status: 201 });
 
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {

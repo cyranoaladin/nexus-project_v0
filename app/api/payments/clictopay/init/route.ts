@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 
 /**
  * POST /api/payments/clictopay/init
@@ -13,6 +14,10 @@ import { auth } from '@/auth';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting for payment initiation (10 requests per minute)
+    const rateLimitResult = RateLimitPresets.expensive(request, 'payment-init');
+    if (rateLimitResult) return rateLimitResult;
+
     const session = await auth();
 
     if (!session?.user?.id) {

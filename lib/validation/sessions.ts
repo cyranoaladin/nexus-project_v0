@@ -72,6 +72,7 @@ export const bookFullSessionSchema = z.object({
   coachId: idSchema,
   studentId: idSchema,
   subject: z.enum(['MATHEMATIQUES', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'HISTOIRE_GEO', 'ANGLAIS', 'ESPAGNOL', 'PHYSIQUE_CHIMIE', 'SVT', 'SES']),
+  idempotencyKey: z.string().uuid('Idempotency key must be a valid UUID').optional(),
   scheduledDate: z.string().min(1, 'Date is required').refine((date) => {
     // Compare YYYY-MM-DD strings to avoid UTC vs local timezone mismatch
     const todayStr = new Date().toISOString().split('T')[0];

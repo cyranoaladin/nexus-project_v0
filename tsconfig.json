@@ -22,6 +22,18 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/assessments/*": [
+        "./lib/assessments/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/app/*": [
+        "./app/*"
       ]
     },
     "types": [

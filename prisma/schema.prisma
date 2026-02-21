@@ -567,6 +567,9 @@ model CoachAvailability {
 model SessionBooking {
   id String @id @default(cuid())
 
+  // Idempotency key for preventing duplicate bookings on retry
+  idempotencyKey String? @unique
+
   // Participants
   studentId String
   student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)

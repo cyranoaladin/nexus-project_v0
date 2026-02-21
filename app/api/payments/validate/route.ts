@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import {
@@ -180,6 +181,10 @@ async function generateInvoiceAndDocument(
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting for payment validation (10 requests per minute)
+    const rateLimitResult = RateLimitPresets.expensive(request, 'payment-validate');
+    if (rateLimitResult) return rateLimitResult;
+
     let session: any = null;
     try {
       session = await auth();

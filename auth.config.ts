@@ -20,7 +20,7 @@ export const authConfig = {
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn && isOnAuth) {
         // Redirect logged-in users away from auth pages to their dashboard
-        const role = (auth.user as any).role;
+        const role = auth.user.role;
         let redirectPath = '/dashboard';
         
         switch (role) {
@@ -46,9 +46,9 @@ export const authConfig = {
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as any;
-        session.user.firstName = token.firstName as string;
-        session.user.lastName = token.lastName as string;
+        session.user.role = token.role;
+        session.user.firstName = token.firstName as string | undefined;
+        session.user.lastName = token.lastName as string | undefined;
       }
       return session;
     },

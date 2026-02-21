@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Mafs, Coordinates, Plot, Theme, Text as MafsText, Point, Line, Circle } from 'mafs';
+import { ComputeEngine } from '@cortex-js/compute-engine';
 import 'mafs/core.css';
 
 /**
@@ -32,35 +33,32 @@ interface InteractiveMafsProps {
   onPointMove?: (x: number, y: number) => void;
 }
 
+// Initialize ComputeEngine once
+const ce = new ComputeEngine();
+
 /**
- * Safely evaluate a math expression string as a function of x.
+ * Safely evaluate a math expression string as a function of x using ComputeEngine.
  * Supports: x, ^, sqrt, sin, cos, tan, exp, log, abs, pi, e
+ * No arbitrary code execution - uses safe math parser.
  */
 function createMathFunction(expr: string): (x: number) => number {
-  // Replace math notation with JS equivalents
-  const jsExpr = expr
-    .replace(/\^/g, '**')
-    .replace(/sqrt\(/g, 'Math.sqrt(')
-    .replace(/sin\(/g, 'Math.sin(')
-    .replace(/cos\(/g, 'Math.cos(')
-    .replace(/tan\(/g, 'Math.tan(')
-    .replace(/exp\(/g, 'Math.exp(')
-    .replace(/log\(/g, 'Math.log(')
-    .replace(/ln\(/g, 'Math.log(')
-    .replace(/abs\(/g, 'Math.abs(')
-    .replace(/pi/g, 'Math.PI')
-    .replace(/(?<![a-zA-Z])e(?![a-zA-Z(])/g, 'Math.E');
-
-  return (x: number): number => {
-    try {
-      // eslint-disable-next-line no-new-func
-      const fn = new Function('x', `"use strict"; return (${jsExpr});`);
-      const result = fn(x) as number;
-      return Number.isFinite(result) ? result : NaN;
-    } catch {
-      return NaN;
-    }
-  };
+  try {
+    // Parse the expression once
+    const parsedExpr = ce.parse(expr);
+    
+    return (x: number): number => {
+      try {
+        // Substitute x and evaluate
+        const result = parsedExpr.subs({ x }).N().value;
+        return typeof result === 'number' && Number.isFinite(result) ? result : NaN;
+      } catch {
+        return NaN;
+      }
+    };
+  } catch {
+    // If parsing fails, return a function that always returns NaN
+    return () => NaN;
+  }
 }
 
 export default function InteractiveMafs({

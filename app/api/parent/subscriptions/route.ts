@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
         status: subscription.status,
         message: 'Demande d\'abonnement envoyée. En attente d\'approbation par l\'assistant.'
       }
-    });
+    }, { status: 201 });
 
   } catch (error) {
     console.error('Error creating subscription request:', error);

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { PaymentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 
 /**
  * POST /api/payments/bank-transfer/confirm
@@ -23,6 +24,10 @@ const confirmBankTransferSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting for payment confirmation (10 requests per minute)
+    const rateLimitResult = RateLimitPresets.expensive(request, 'payment-confirm');
+    if (rateLimitResult) return rateLimitResult;
+
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'PARENT') {

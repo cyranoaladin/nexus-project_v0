@@ -21,24 +21,46 @@ import { prisma } from '@/lib/prisma';
  *
  * @param date - Date to derive yearMonth from (defaults to now)
  * @returns Invoice number string, e.g. "202602-0001"
+ * @throws Error if invoice sequence query fails or returns invalid result
  */
 export async function generateInvoiceNumber(
   date: Date = new Date()
 ): Promise<string> {
   const yearMonth = date.getFullYear() * 100 + (date.getMonth() + 1);
 
-  // Atomic upsert via raw SQL — guaranteed no collision
-  const result = await prisma.$queryRaw<Array<{ current: number }>>`
-    INSERT INTO "invoice_sequences" ("id", "yearMonth", "current", "createdAt", "updatedAt")
-    VALUES (gen_random_uuid()::text, ${yearMonth}, 1, NOW(), NOW())
-    ON CONFLICT ("yearMonth")
-    DO UPDATE SET "current" = "invoice_sequences"."current" + 1, "updatedAt" = NOW()
-    RETURNING "current"
-  `;
+  try {
+    // Atomic upsert via raw SQL — guaranteed no collision
+    const result = await prisma.$queryRaw<Array<{ current: number }>>`
+      INSERT INTO "invoice_sequences" ("id", "yearMonth", "current", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${yearMonth}, 1, NOW(), NOW())
+      ON CONFLICT ("yearMonth")
+      DO UPDATE SET "current" = "invoice_sequences"."current" + 1, "updatedAt" = NOW()
+      RETURNING "current"
+    `;
 
-  const current = result[0]?.current ?? 1;
-  const paddedNumber = String(current).padStart(4, '0');
-  return `${yearMonth}-${paddedNumber}`;
+    // Strict validation: ensure we got a valid result
+    if (!result || result.length === 0 || typeof result[0]?.current !== 'number') {
+      throw new Error(
+        `Invoice sequence query returned invalid result: ${JSON.stringify(result)}`
+      );
+    }
+
+    const current = result[0].current;
+    const paddedNumber = String(current).padStart(4, '0');
+    return `${yearMonth}-${paddedNumber}`;
+  } catch (err) {
+    // Log error with context and propagate (fail fast — don't generate invoice without valid number)
+    console.error('[Invoice] Failed to generate invoice number:', {
+      yearMonth,
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    
+    throw new Error(
+      `Failed to generate unique invoice number for ${yearMonth}`,
+      { cause: err }
+    );
+  }
 }
 
 /**

@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         sender: message.sender,
         receiver: message.receiver
       }
-    })
+    }, { status: 201 })
     
   } catch (error) {
     if (error instanceof z.ZodError) {

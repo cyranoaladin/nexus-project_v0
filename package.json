@@ -104,7 +104,7 @@
     "mafs": "^0.21.0",
     "mathlive": "^0.108.3",
     "next": "^15.5.11",
-    "next-auth": "^5.0.0-beta.30",
+    "next-auth": "5.0.0-beta.30",
     "nodemailer": "^7.0.13",
     "openai": "^4.104.0",
     "pdfkit": "^0.17.2",

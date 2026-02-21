@@ -196,7 +196,7 @@ export async function allocateMonthlyCredits(studentId: string, credits: number)
   });
 }
 
-// Expiration des crédits reportés
+// Expiration des crédits reportés (idempotent)
 export async function expireOldCredits() {
   const { prisma } = await import('./prisma');
 
@@ -208,12 +208,26 @@ export async function expireOldCredits() {
   });
 
   for (const transaction of expiredTransactions) {
+    // Check if this transaction has already been expired (idempotency)
+    const existingExpiration = await prisma.creditTransaction.findFirst({
+      where: {
+        studentId: transaction.studentId,
+        type: 'EXPIRATION',
+        description: { contains: transaction.id }
+      }
+    });
+
+    if (existingExpiration) {
+      continue; // Already expired, skip
+    }
+
+    // Create expiration transaction with link to original transaction ID
     await prisma.creditTransaction.create({
       data: {
         studentId: transaction.studentId,
         type: 'EXPIRATION',
         amount: -transaction.amount,
-        description: `Expiration de ${transaction.amount} crédits reportés`
+        description: `Expiration de ${transaction.amount} crédits reportés (tx: ${transaction.id})`
       }
     });
   }
