@@ -2190,11 +2190,246 @@ deploy-staging:
 
 ### 10.3 Recommendations
 
-| ID | Recommendation | Priority | Effort |
-|----|----------------|----------|--------|
-| ACCESS-001 | Add `jest-axe` for automated a11y testing | P2 | 4h |
-| ACCESS-002 | Add Lighthouse CI (accessibility ≥90) | P2 | 2h |
-| ACCESS-003 | Manual keyboard navigation testing | P3 | 1h |
+#### ACCESS-001: Add Automated Accessibility Testing with jest-axe (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (4 hours)  
+**Impact**: 🟡 Medium - Catches 40-50% of accessibility issues automatically
+
+**Problem**: No automated accessibility testing. Manual testing is incomplete and time-consuming.
+
+**Remediation**:
+
+1. **Install Dependencies** (5 minutes):
+   ```bash
+   npm install --save-dev jest-axe @axe-core/react
+   ```
+
+2. **Configure jest-axe** (15 minutes):
+   ```typescript
+   // jest.setup.js
+   import { toHaveNoViolations } from 'jest-axe';
+   
+   expect.extend(toHaveNoViolations);
+   ```
+
+3. **Add Accessibility Tests** (3 hours):
+   ```typescript
+   // __tests__/accessibility/dashboard.test.tsx
+   import { render } from '@testing-library/react';
+   import { axe } from 'jest-axe';
+   import DashboardPage from '@/app/dashboard/page';
+   
+   describe('Dashboard Accessibility', () => {
+     it('should not have accessibility violations', async () => {
+       const { container } = render(<DashboardPage />);
+       const results = await axe(container);
+       expect(results).toHaveNoViolations();
+     });
+   });
+   ```
+
+4. **Add Tests for Critical Pages** (1.5 hours):
+   - Login page
+   - Dashboard (5 role-based dashboards)
+   - Session booking form
+   - Payment form
+   - ARIA chat interface
+   - Assessment page
+
+5. **Add to CI/CD** (30 minutes):
+   ```yaml
+   # .github/workflows/ci.yml
+   - name: Run Accessibility Tests
+     run: npm run test:a11y
+   ```
+
+**Expected Outcome**:
+- ✅ Automated detection of common a11y issues:
+  - Missing alt text on images
+  - Insufficient color contrast
+  - Missing form labels
+  - Incorrect heading hierarchy
+  - Missing ARIA attributes
+- ✅ Prevents accessibility regressions
+- ✅ WCAG 2.1 Level A/AA compliance verification
+
+**References**:
+- jest-axe: [Documentation](https://github.com/nickcolley/jest-axe)
+- axe-core: [Rules Reference](https://github.com/dequelabs/axe-core/blob/develop/doc/rule-descriptions.md)
+
+---
+
+#### ACCESS-002: Add Lighthouse CI for Performance & Accessibility (P2)
+
+**Priority**: P2 (Medium)  
+**Effort**: Small (2 hours)  
+**Impact**: 🟡 Medium - Continuous monitoring of accessibility and performance
+
+**Problem**: No automated performance/accessibility scoring. Issues go undetected until production.
+
+**Remediation**:
+
+1. **Install Lighthouse CI** (10 minutes):
+   ```bash
+   npm install --save-dev @lhci/cli
+   ```
+
+2. **Configure Lighthouse** (30 minutes):
+   ```javascript
+   // lighthouserc.js
+   module.exports = {
+     ci: {
+       collect: {
+         startServerCommand: 'npm run start',
+         url: [
+           'http://localhost:3000',
+           'http://localhost:3000/dashboard',
+           'http://localhost:3000/bilan-gratuit/assessment',
+           'http://localhost:3000/programme/maths-1ere',
+         ],
+         numberOfRuns: 3,
+       },
+       assert: {
+         assertions: {
+           'categories:performance': ['error', { minScore: 0.85 }],
+           'categories:accessibility': ['error', { minScore: 0.90 }],
+           'categories:best-practices': ['error', { minScore: 0.90 }],
+           'categories:seo': ['warn', { minScore: 0.85 }],
+         },
+       },
+       upload: {
+         target: 'temporary-public-storage',
+       },
+     },
+   };
+   ```
+
+3. **Add to CI/CD** (1 hour):
+   ```yaml
+   # .github/workflows/lighthouse.yml
+   name: Lighthouse CI
+   
+   on: [pull_request]
+   
+   jobs:
+     lighthouse:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-node@v4
+           with:
+             node-version: 20
+         
+         - name: Install dependencies
+           run: npm ci
+         
+         - name: Build app
+           run: npm run build
+         
+         - name: Run Lighthouse CI
+           run: |
+             npm install -g @lhci/cli
+             lhci autorun
+         
+         - name: Upload results
+           uses: actions/upload-artifact@v3
+           with:
+             name: lighthouse-results
+             path: .lighthouseci
+   ```
+
+4. **Configure Thresholds** (30 minutes):
+   - Accessibility: ≥90 (error if below)
+   - Performance: ≥85 (error if below)
+   - Best Practices: ≥90 (error if below)
+   - SEO: ≥85 (warning if below)
+
+**Expected Outcome**:
+- ✅ Automated accessibility scoring on every PR
+- ✅ Performance budget enforcement
+- ✅ Prevents accessibility/performance regressions
+- ✅ Visual reports for debugging
+
+**References**:
+- Lighthouse CI: [Documentation](https://github.com/GoogleChrome/lighthouse-ci)
+- Web.dev: [Lighthouse](https://web.dev/lighthouse-ci/)
+
+---
+
+#### ACCESS-003: Manual Keyboard Navigation Testing (P3)
+
+**Priority**: P3 (Low)  
+**Effort**: XS (1 hour)  
+**Impact**: 🟢 Low - Verifies keyboard accessibility
+
+**Problem**: No manual keyboard testing. Tab order and focus management not verified.
+
+**Remediation**:
+
+**Testing Checklist** (1 hour):
+
+1. **Tab Order Test** (20 minutes):
+   - [ ] Tab through login page (logical order?)
+   - [ ] Tab through dashboards (all interactive elements reachable?)
+   - [ ] Tab through forms (correct field order?)
+   - [ ] Tab through modals (focus trapped in modal?)
+   - [ ] Tab through dropdowns (keyboard navigable?)
+
+2. **Focus Indicators** (15 minutes):
+   - [ ] All focused elements have visible outline/ring
+   - [ ] Focus indicators meet 3:1 contrast ratio
+   - [ ] Custom components (buttons, inputs) have focus styles
+
+3. **Keyboard Shortcuts** (15 minutes):
+   - [ ] Escape closes modals/dropdowns
+   - [ ] Enter submits forms
+   - [ ] Arrow keys navigate lists/menus
+   - [ ] Space toggles checkboxes
+
+4. **Skip Links** (10 minutes):
+   - [ ] "Skip to main content" link exists
+   - [ ] Skip link is first focusable element
+   - [ ] Skip link works on all pages
+
+**Document Results**:
+```markdown
+## Keyboard Accessibility Test Results
+
+**Date**: 2026-02-21  
+**Tester**: [Name]
+
+### ✅ Pass
+- Login page: Logical tab order
+- Dashboard: All buttons reachable
+
+### ⚠️ Needs Fix
+- Modal focus trap: Escape doesn't close modal on `/sessions/book`
+- Missing focus indicator on custom dropdown component
+
+### 🔴 Blocker
+- Skip link missing on all pages
+```
+
+**Quick Fixes** (30 minutes):
+```typescript
+// Add skip link to layout
+<a href="#main" className="sr-only focus:not-sr-only">
+  Skip to main content
+</a>
+<main id="main">
+  {children}
+</main>
+```
+
+**Expected Outcome**:
+- ✅ Full keyboard accessibility verified
+- ✅ Focus management issues identified
+- ✅ Compliance with WCAG 2.1 SC 2.1.1 (Keyboard)
+
+**References**:
+- WebAIM: [Keyboard Accessibility](https://webaim.org/techniques/keyboard/)
+- WCAG: [2.1.1 Keyboard (Level A)](https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html)
 
 ---
 
