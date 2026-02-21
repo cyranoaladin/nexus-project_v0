@@ -1,1088 +1,1218 @@
 # Phase 3: Documentation & DevOps Findings
 
-**Date**: 2026-02-21  
-**Scope**: GitHub Actions CI/CD workflows, Docker, Nginx configuration, documentation quality  
-**Repository**: https://github.com/cyranoaladin/Interface_Maths_2025_2026
+**Audit Date**: 21 February 2026  
+**Auditor**: Zencoder AI  
+**Project**: Nexus Réussite (Educational Platform)  
+**Repository**: https://github.com/cyranoaladin/nexus-project_v0.git
 
 ---
 
-## Table of Contents
+## ⚠️ CRITICAL FINDING: Repository Mismatch
 
-1. [CI/CD — GitHub Actions Workflows](#cicd--github-actions-workflows)
-2. [Docker & Nginx Configuration](#docker--nginx-configuration) *(pending)*
-3. [Documentation Quality](#documentation-quality) *(pending)*
-4. [Design System Review](#design-system-review) *(pending)*
-5. [SEO & PWA Review](#seo--pwa-review) *(pending)*
+**Severity**: P0 (Blocker)  
+**Status**: REQUIRES IMMEDIATE CLARIFICATION
+
+### Issue
+The audit task description specified:
+- **Expected Repository**: `https://github.com/cyranoaladin/Interface_Maths_2025_2026`
+- **Actual Repository**: `https://github.com/cyranoaladin/nexus-project_v0.git`
+- **Project Name**: Nexus Réussite (not Interface Maths)
+
+### Impact
+This audit is being performed on **the wrong repository**. All findings, recommendations, and metrics are for the "Nexus Réussite" educational platform, not the "Interface Maths 2025-2026" project.
+
+### Recommendation
+**Action Required**: User must clarify whether to:
+1. Continue auditing `nexus-project_v0` (current repository)
+2. Switch to `Interface_Maths_2025_2026` repository
+3. Audit both repositories separately
 
 ---
 
-## 1. CI/CD — GitHub Actions Workflows
+## Section 1: Docker Configuration Analysis
 
 ### 1.1 Overview
 
-**Total workflows**: 8 active workflows + ~11 backup files  
-**Workflow files**:
+**Files Analyzed**:
+- `docker-compose.yml` (66 lines)
+- `Dockerfile` (72 lines)
+- `.dockerignore` (23 lines)
 
-| Workflow | File | Triggers | Purpose |
-|----------|------|----------|---------|
-| **backend-ci** | `backend-ci.yml` | push (main/master, tags), PR | Backend linting & testing |
-| **Deploy to VPS** | `deploy.yml` | push (main, tags), release, manual | Full deployment pipeline |
-| **Build & Push Backend Image** | `backend-docker.yml` | push tags | Docker image publishing |
-| **CI** | `ci.yml` | PR to main, manual | HTML validation, link checking, frontend lint |
-| **frontend-audit** | `frontend-audit.yml` | daily 2 AM, manual | npm security audit |
-| **Lighthouse CI** | `lighthouse-ci.yml` | push (main, feat/refonte-premium), manual | Performance testing |
-| **Uptime monitor** | `monitor.yml` | every 30 min, manual | Production health checks |
-| **Release** | `release.yml` | push main, manual | Semantic versioning |
-
-**Health Score**: **72/100** 🟡 (Good, but needs optimization)
+**Project Type**: Next.js 15 application with PostgreSQL database and external services (Ollama, RAG Ingestor)
 
 ---
 
-### 1.2 Detailed Workflow Analysis
+### 1.2 docker-compose.yml Analysis
 
-#### 1.2.1 Backend CI (`backend-ci.yml`)
+#### 1.2.1 Services Architecture
 
-**Purpose**: Lint and test Python backend on every push/PR
+**Services Defined**: 2
+1. **postgres-db**: PostgreSQL 15 with pgvector extension
+2. **next-app**: Next.js application (built from Dockerfile)
 
-**Configuration**:
-```yaml
-- Python 3.11 on ubuntu-latest
-- Working directory: apps/backend
-- Triggers: push to main/master/tags, all PRs
-```
+**External Networks**: 
+- `infra_rag_net` (external) - connects to Ollama LLM and RAG Ingestor services
 
-**Steps**:
-1. ✅ Checkout code
-2. ✅ Set up Python 3.11
-3. ✅ Install dependencies (pip install -r requirements.txt)
-4. ✅ Pin bcrypt/passlib versions (security measure)
-5. ✅ Prepare OUTPUTS_DIR environment variable
-6. ✅ Lint with flake8
-7. ✅ Run pytest with 85% coverage threshold
+#### 1.2.2 Security Assessment
 
-**Strengths**:
-- ✅ **Strong coverage requirement** (85% threshold)
-- ✅ **Version pinning** for security-critical dependencies (bcrypt, passlib)
-- ✅ **Fail-fast approach** (stops on lint errors)
-- ✅ **Modern actions** (actions/checkout@v4, setup-python@v5)
+| Security Dimension | Score | Finding |
+|-------------------|-------|---------|
+| **Secrets Management** | 🟢 85/100 | Environment variables from `.env` file (good), sensitive values not hardcoded |
+| **Database Security** | 🟡 70/100 | Port exposed (5435:5432) - unnecessary for internal-only DB |
+| **Network Isolation** | 🟢 90/100 | Dedicated `nexus-network` for internal services, controlled external access |
+| **Health Checks** | 🟢 95/100 | Comprehensive health checks for both services |
+| **Container Restart Policy** | 🟢 100/100 | `restart: always` ensures resilience |
+| **Non-root User** | 🔴 0/100 | **CRITICAL**: No user specification in docker-compose.yml (depends on Dockerfile) |
 
-**Issues**:
+**Overall Docker Compose Security Score**: 73/100 🟡
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ❌ **No pip caching** | CI takes 30-60s extra per run | Add `cache: 'pip'` to `setup-python` action |
-| **P2** | ⚠️ **Redundant dependency install** | pytest-cov + bcrypt/passlib should be in requirements.txt | Move test deps to requirements-dev.txt |
-| **P2** | ⚠️ **No job parallelization** | Lint + test run sequentially (could save ~20s) | Split into separate jobs that run in parallel |
-| **P2** | ⚠️ **No flake8 config validation** | Silent failures if .flake8 is misconfigured | Add `--version` check or validate config |
-| **P3** | ℹ️ **Hardcoded Python version** | No matrix testing across versions | Add matrix for 3.10, 3.11, 3.12 |
+#### 1.2.3 Detailed Findings
 
-**Example fix for P1 (pip caching)**:
-```yaml
-- name: Set up Python
-  uses: actions/setup-python@v5
-  with:
-    python-version: "3.11"
-    cache: 'pip'  # ← Add this line
-```
+##### ✅ Strengths
 
-**Estimated time saved with caching**: 30-45 seconds per run
+1. **Health Checks Implemented** (Lines 18-22, 51-56)
+   - PostgreSQL: `pg_isready` check every 10s
+   - Next.js: HTTP health endpoint check every 30s
+   - Proper dependency management: `next-app` waits for healthy `postgres-db`
 
----
+2. **Environment Variable Security** (Lines 32-33)
+   ```yaml
+   env_file:
+     - .env
+   ```
+   - Secrets stored externally, not committed to repository
+   - DATABASE_URL correctly overridden for Docker internal networking
 
-#### 1.2.2 Deployment (`deploy.yml`)
+3. **Volume Persistence** (Line 13, 47, 59)
+   - PostgreSQL data persisted: `nexus-postgres-data:/var/lib/postgresql/data`
+   - Application storage persisted: `./storage:/app/storage`
+   - Named volume prevents data loss on container recreation
 
-**Purpose**: Full deployment pipeline to VPS
+4. **Network Isolation** (Lines 48-65)
+   - Internal network `nexus-network` isolates DB from external access
+   - External network `infra_rag_net` provides controlled access to shared services
+   - Multi-network approach follows least-privilege principle
 
-**Configuration**:
-```yaml
-- Runs on: ubuntu-latest
-- Concurrency: deploy-vps-${{ github.ref }} (cancel-in-progress: true)
-- Triggers: push main/tags, releases, manual dispatch
-```
+5. **Service Dependencies** (Lines 28-30)
+   ```yaml
+   depends_on:
+     postgres-db:
+       condition: service_healthy
+   ```
+   - Prevents race conditions on startup
+   - Ensures database is ready before application connects
 
-**Steps** (10 total):
-1. ✅ Checkout code
-2. ✅ Setup Node for frontend build (conditional)
-3. ✅ Build frontend (conditional, rsync to site/assets)
-4. ✅ Generate sitemap.xml (Python script)
-5. ✅ Generate contents.json index (Node.js script)
-6. ✅ Install system dependencies (rsync, openssh-client, jq)
-7. ✅ Setup SSH agent with private key
-8. ✅ Add VPS host to known_hosts
-9. ✅ **Wait for backend-ci success** (dependency orchestration)
-10. ✅ Deploy via rsync
-11. ✅ Sanity check deployed endpoints
+##### ⚠️ Issues Found
 
-**Strengths**:
-- ✅ **Excellent dependency orchestration** (waits for backend-ci to pass before deploying)
-- ✅ **Concurrency control** (prevents race conditions on deployments)
-- ✅ **Comprehensive sanity checks** (12 retry attempts, 2-minute timeout)
-- ✅ **Smart conditional execution** (checks for frontend before building)
-- ✅ **Security best practices** (SSH key via ssh-agent, not inline)
-- ✅ **PDF exclusion** (prevents large file deployments)
-- ✅ **Retry logic** (12 attempts with 10s delays for sanity checks)
-- ✅ **Fallback URL testing** (tries both root and /site paths)
+**P1 - High Priority**
 
-**Issues**:
+1. **Database Port Exposure** (Lines 16-17)
+   ```yaml
+   ports:
+     - "5435:5432"
+   ```
+   - **Issue**: PostgreSQL exposed on host port 5435
+   - **Risk**: Attack surface increased, unnecessary external access
+   - **Impact**: If Docker host is compromised, DB is directly accessible
+   - **Recommendation**: Remove port mapping unless required for external tools
+   ```yaml
+   # REMOVE THIS (DB should be internal-only):
+   # ports:
+   #   - "5435:5432"
+   ```
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ❌ **No npm/pip caching** | Wastes 1-2 minutes per deployment | Add `cache: 'npm'` and `cache: 'pip'` |
-| **P1** | ⚠️ **No rollback mechanism** | Failed deployments leave site in broken state | Add pre-deploy backup + rollback on sanity check failure |
-| **P2** | ⚠️ **Hardcoded timeout** (60 iterations × 10s = 10 min) | Excessive wait time for failed CI | Reduce to 3-5 minutes max |
-| **P2** | ⚠️ **Silent rsync failures** | Deployment may partially succeed | Add `--itemize-changes` and verify exit code |
-| **P2** | ⚠️ **No artifact preservation** | Can't debug failed deployments | Upload site/ contents as GitHub artifact |
-| **P3** | ℹ️ **Duplicate Node setup steps** (lines 28 + 50) | Wastes ~10s | Consolidate into single setup |
-| **P3** | ℹ️ **GitHub Pages sanity check disabled** (`if: false`) | Dead code | Remove entirely or document why disabled |
-| **P3** | ℹ️ **Manual path fallback** (scripts/gen_site_index.mjs vs Interface_Maths_2025_2026/...) | Brittle path handling | Use consistent relative paths |
+2. **Container Names Hardcoded** (Lines 6, 26)
+   - **Issue**: `container_name: nexus-postgres-db` prevents multiple deployments
+   - **Impact**: Cannot run staging + production on same host
+   - **Recommendation**: Remove `container_name` directives, use Docker Compose project names
+   ```yaml
+   # REMOVE:
+   # container_name: nexus-postgres-db
+   # container_name: nexus-next-app
+   ```
 
-**Critical finding**: **No rollback strategy**. If sanity checks fail after deployment, the site remains broken until manual intervention.
+**P2 - Medium Priority**
 
-**Example fix for P1 (rollback mechanism)**:
-```yaml
-- name: Backup current deployment
-  run: |
-    ssh "$VPS_USER@$VPS_HOST" \
-      "tar -czf /tmp/backup-$(date +%s).tar.gz -C $VPS_PATH ."
+3. **External Network Dependency** (Lines 64-65)
+   ```yaml
+   infra_rag_net:
+     external: true
+   ```
+   - **Issue**: Assumes pre-existing external network (not documented in docker-compose.yml)
+   - **Risk**: Deployment will fail if network doesn't exist
+   - **Recommendation**: Add deployment documentation or startup script
+   ```bash
+   # Example pre-deployment script
+   docker network create infra_rag_net || true
+   docker-compose up -d
+   ```
 
-- name: Deploy static site
-  id: deploy
-  run: |
-    rsync -az --delete site/ "$VPS_USER@$VPS_HOST:$VPS_PATH/"
+4. **Missing Resource Limits**
+   - **Issue**: No CPU/memory limits defined
+   - **Risk**: Container can consume all host resources
+   - **Recommendation**: Add resource constraints
+   ```yaml
+   services:
+     postgres-db:
+       deploy:
+         resources:
+           limits:
+             cpus: '2'
+             memory: 2G
+           reservations:
+             memory: 512M
+   ```
 
-- name: Sanity check
-  id: sanity
-  run: |
-    # ... existing sanity checks ...
+5. **Application Port** (Line 45)
+   ```yaml
+   ports:
+     - "3001:3000"
+   ```
+   - **Issue**: Non-standard port mapping (3001 instead of 3000)
+   - **Impact**: Inconsistency with typical Next.js conventions
+   - **Note**: Not necessarily wrong, but should be documented in README
+   - **Recommendation**: Document why 3001 is used (likely avoiding conflicts)
 
-- name: Rollback on failure
-  if: failure() && steps.sanity.outcome == 'failure'
-  run: |
-    BACKUP=$(ssh "$VPS_USER@$VPS_HOST" "ls -t /tmp/backup-*.tar.gz | head -n1")
-    ssh "$VPS_USER@$VPS_HOST" \
-      "tar -xzf $BACKUP -C $VPS_PATH"
-```
+**P3 - Low Priority**
 
-**Deployment safety score**: **65/100** 🟡 (Missing rollback, no blue-green deployment)
+6. **Missing Labels/Metadata**
+   - **Issue**: No labels for container identification, monitoring, or cleanup
+   - **Recommendation**: Add metadata labels
+   ```yaml
+   services:
+     postgres-db:
+       labels:
+         - "com.nexusreussite.service=database"
+         - "com.nexusreussite.version=1.0"
+         - "com.nexusreussite.environment=production"
+   ```
 
----
-
-#### 1.2.3 Backend Docker (`backend-docker.yml`)
-
-**Purpose**: Build and push Docker image to GitHub Container Registry on version tags
-
-**Configuration**:
-```yaml
-- Triggers: push tags matching v*.*.*
-- Registry: ghcr.io (GitHub Container Registry)
-- Permissions: contents:read, packages:write
-```
-
-**Steps**:
-1. ✅ Checkout code
-2. ✅ Login to GHCR with GITHUB_TOKEN
-3. ✅ Build Docker image with tag from ref_name
-4. ✅ Push image to registry
-
-**Strengths**:
-- ✅ **Proper permissions scoping** (minimal required permissions)
-- ✅ **Automated lowercase conversion** (Docker registry requirement)
-- ✅ **Token-based auth** (no hardcoded credentials)
-- ✅ **Triggered only on version tags** (prevents unnecessary builds)
-
-**Issues**:
-
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P0** | 🔴 **No multi-stage build verification** | Can't confirm Dockerfile uses best practices | Add step to validate Dockerfile structure |
-| **P1** | ❌ **No image scanning** | Security vulnerabilities go undetected | Add Trivy/Grype scan before push |
-| **P1** | ❌ **No BuildKit caching** | Builds from scratch every time (~2-5 min) | Add Docker layer caching or BuildX with cache-from |
-| **P1** | ❌ **No build testing** | Image might be broken but still pushed | Add `docker run` smoke test |
-| **P2** | ⚠️ **No image tagging strategy** | Only version tag, no `latest` tag | Add `latest` tag for main branch + semantic tags |
-| **P2** | ⚠️ **No build args** | Can't customize build (e.g., build mode, version) | Add `--build-arg` support |
-| **P3** | ℹ️ **Hardcoded build context** (apps/backend) | Can't build other components | Make configurable or document assumption |
-
-**Critical finding**: **No security scanning**. Container images are published without vulnerability analysis.
-
-**Example fix for P1 (image scanning)**:
-```yaml
-- name: Build image
-  run: |
-    REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-    IMAGE="ghcr.io/${REPO_LC}/backend:${{ github.ref_name }}"
-    docker build -t "$IMAGE" apps/backend
-    echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-
-- name: Scan image for vulnerabilities
-  uses: aquasecurity/trivy-action@master
-  with:
-    image-ref: ${{ env.IMAGE }}
-    format: 'sarif'
-    output: 'trivy-results.sarif'
-    severity: 'CRITICAL,HIGH'
-    exit-code: '1'  # Fail on critical/high vulns
-
-- name: Push image
-  if: success()  # Only push if scan passes
-  run: docker push "$IMAGE"
-```
-
-**Docker workflow score**: **58/100** 🟡 (Major security gap, no testing)
+7. **Healthcheck Start Period** (Line 56)
+   - **Current**: `start_period: 60s` for Next.js app
+   - **Note**: Generous grace period (good for production)
+   - **Optimization**: Could be reduced if app starts faster (<30s)
 
 ---
 
-#### 1.2.4 CI Workflow (`ci.yml`)
+### 1.3 Dockerfile Analysis
 
-**Purpose**: Comprehensive CI checks for PRs (HTML validation, link checking, frontend linting)
+#### 1.3.1 Multi-Stage Build Structure
 
-**Configuration**:
-```yaml
-- Triggers: PRs to main, manual dispatch
-- Jobs: 3 parallel jobs (validate-html, link-check, frontend-lint)
-- Permissions: contents:read, checks:write, pull-requests:write, statuses:write
-```
+**Build Stages**: 4
+1. **base**: Node.js 18-alpine + OpenSSL (minimal dependencies)
+2. **deps**: Install all dependencies (npm ci)
+3. **builder**: Generate Prisma client + build Next.js app
+4. **runner**: Production runtime (production deps only)
 
-**Jobs breakdown**:
+**Multi-Stage Build Score**: 🟢 95/100 (Excellent practice)
 
-##### Job 1: `validate-html`
-- ✅ Validates all HTML files in site/ using html5validator
-- ✅ Also checks CSS syntax (`--alsocheckcss`)
-- ✅ Filters external URL checks
-- ⚠️ **Uses `continue-on-error: true`** (findings don't block PRs)
+#### 1.3.2 Security Assessment
 
-##### Job 2: `link-check`
-- ✅ Uses Lychee link checker (modern, fast)
-- ✅ Comprehensive exclusions (node_modules, dist, CDN links)
-- ✅ Smart remapping (relative URLs to file://)
-- ✅ Accepts multiple HTTP codes (200, 206, 301, 302, etc.)
-- ✅ Retry logic (timeout 20s, 2 retries, 2s wait)
-- ⚠️ **Uses `continue-on-error: true`** (findings don't block PRs)
+| Security Dimension | Score | Finding |
+|-------------------|-------|---------|
+| **Base Image Security** | 🟢 90/100 | Alpine Linux (minimal attack surface) |
+| **Non-root User** | 🔴 0/100 | **CRITICAL**: Runs as root (no USER directive) |
+| **Layer Optimization** | 🟢 85/100 | Good layer caching strategy |
+| **Secret Handling** | 🟡 70/100 | Build-time placeholder used (acceptable) |
+| **Minimal Dependencies** | 🟢 90/100 | Production deps separated (`--omit=dev`) |
+| **Image Size** | 🟢 85/100 | Multi-stage reduces final image size |
 
-##### Job 3: `frontend-lint`
-- ✅ Detects frontend workspace dynamically
-- ✅ Only runs if apps/frontend/package.json exists
-- ✅ Runs ESLint on Vue frontend
-- ✅ Uses `npm ci` with fallback to `npm install`
+**Overall Dockerfile Security Score**: 70/100 🟡
 
-**Strengths**:
-- ✅ **Excellent parallelization** (all 3 jobs run concurrently)
-- ✅ **Smart conditional execution** (checks for frontend before running)
-- ✅ **Modern tools** (html5validator, Lychee, ESLint)
-- ✅ **Proper permission scoping**
-- ✅ **Comprehensive link checking** (excludes CDN, handles redirects)
+#### 1.3.3 Detailed Findings
 
-**Issues**:
+##### ✅ Strengths
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ⚠️ **All jobs use `continue-on-error`** | Quality checks never block PRs | Remove or make configurable via workflow input |
-| **P1** | ❌ **No npm caching** | Wastes 20-40s per run | Add `cache: 'npm'` to setup-node |
-| **P1** | ❌ **No Python caching** | html5validator install takes ~30s | Add `cache: 'pip'` to setup-python |
-| **P2** | ⚠️ **Guards on wrong event** (`if: github.event_name != 'push'`) | Confusing logic (push never triggers this workflow anyway) | Remove guards or clarify intent |
-| **P2** | ⚠️ **No artifact uploads** | Can't review validation errors in GitHub UI | Upload html5validator/Lychee reports as artifacts |
-| **P2** | ⚠️ **Excludes important repos** | ui/ React app not linted (only apps/frontend Vue) | Add ui/ to frontend-lint job |
-| **P3** | ℹ️ **Lychee excludes production URL** (maths.labomaths.tn) | Can't validate actual production links | Remove exclusion or add separate prod check |
+1. **Alpine-based Image** (Line 7)
+   ```dockerfile
+   FROM node:18-alpine AS base
+   ```
+   - ✅ Minimal attack surface (~5MB base vs ~900MB for standard Node image)
+   - ✅ Reduced vulnerability exposure
+   - ✅ Faster image pulls and deployments
 
-**Critical finding**: **`continue-on-error: true` on all jobs**. This means:
-- Broken HTML never blocks PRs ❌
-- Broken links never block PRs ❌
-- ESLint errors never block PRs ❌
+2. **Multi-Stage Build** (Lines 7, 14, 23, 43)
+   - ✅ Separates build tools from production runtime
+   - ✅ Final image excludes TypeScript compiler, Prisma CLI, dev dependencies
+   - ✅ Reduces final image size by ~60-70%
 
-This defeats the purpose of CI checks.
+3. **Production Dependencies Only** (Lines 50-51)
+   ```dockerfile
+   COPY --from=builder /app/package.json /app/package-lock.json* ./
+   RUN npm ci --omit=dev
+   ```
+   - ✅ Removes devDependencies from final image
+   - ✅ Critical security improvement vs. including all dependencies
 
-**Example fix for P1 (remove continue-on-error)**:
-```yaml
-validate-html:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Validate HTML files
-      # Remove: continue-on-error: true
-      run: |
-        find site -type f -name "*.html" -print0 | \
-          xargs -0 html5validator --alsocheckcss --filterurl https?://.*
-```
+4. **Prisma Client Generation** (Lines 29-31)
+   ```dockerfile
+   COPY prisma ./prisma/
+   RUN npx prisma generate
+   ```
+   - ✅ Correctly generates client during build
+   - ✅ Copies generated client to final image (lines 61-62)
 
-**CI workflow score**: **68/100** 🟡 (Excellent parallelization, but checks don't enforce quality)
+5. **Next.js Standalone Output** (Lines 55-56)
+   ```dockerfile
+   COPY --from=builder /app/.next/standalone ./
+   COPY --from=builder /app/.next/static ./.next/static
+   ```
+   - ✅ Uses Next.js standalone mode (minimal runtime)
+   - ✅ Excludes unnecessary node_modules
 
----
+6. **Proper Layer Caching** (Lines 16-18)
+   ```dockerfile
+   COPY package.json package-lock.json* ./
+   RUN npm ci
+   COPY . .
+   ```
+   - ✅ Dependencies installed before code copy (cache efficiency)
+   - ✅ Code changes don't invalidate dependency layer
 
-#### 1.2.5 Frontend Audit (`frontend-audit.yml`)
+##### 🔴 Critical Issues
 
-**Purpose**: Daily npm security audit
+**P0 - CRITICAL**
 
-**Configuration**:
-```yaml
-- Triggers: daily at 2 AM UTC (cron: "0 2 * * *"), manual dispatch
-- Target: apps/frontend only
-- Threshold: Fails on high/critical vulnerabilities
-```
+1. **No Non-Root User** (Missing USER directive)
+   - **Issue**: Container runs as root (UID 0)
+   - **Risk**: If attacker escapes container, they have root access to host
+   - **CVE Reference**: CIS Docker Benchmark 4.1
+   - **Impact**: CRITICAL security vulnerability
+   - **Recommendation**: Add non-root user
+   ```dockerfile
+   # Add after line 46 (ENV HOSTNAME=0.0.0.0)
+   RUN addgroup -g 1001 -S nodejs && \
+       adduser -S nextjs -u 1001 -G nodejs
+   
+   # Change ownership of app files
+   RUN chown -R nextjs:nodejs /app
+   
+   # Switch to non-root user
+   USER nextjs
+   ```
+   - **Testing**: Verify app still works with reduced privileges
+   - **Effort**: 15 minutes (small code change, requires testing)
 
-**Steps**:
-1. ✅ Checkout code
-2. ✅ Detect frontend workspace
-3. ✅ Setup Node.js 20
-4. ✅ Install dependencies
-5. ✅ Run `npm audit --audit-level=high`
+##### ⚠️ High Priority Issues
 
-**Strengths**:
-- ✅ **Automated security monitoring** (daily schedule)
-- ✅ **Appropriate threshold** (high/critical only)
-- ✅ **Conditional execution** (only if frontend exists)
-- ✅ **Manual trigger option** (for on-demand checks)
+**P1**
 
-**Issues**:
+2. **Build-Time Secret Placeholder** (Lines 35-36)
+   ```dockerfile
+   ARG NEXTAUTH_SECRET=build-time-placeholder
+   ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+   ```
+   - **Issue**: Placeholder secret stored in image metadata
+   - **Risk**: If image is leaked, placeholder visible in `docker history`
+   - **Note**: Comment says "real secret is injected at runtime" - good
+   - **Recommendation**: Use multi-stage build to avoid storing ANY secret
+   ```dockerfile
+   # REMOVE from Dockerfile (not needed if .env is mounted at runtime)
+   # ARG NEXTAUTH_SECRET=build-time-placeholder
+   # ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+   ```
+   - **Alternative**: If Next.js build requires it, document in README that image is private
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ❌ **No npm caching** | Wastes 20-40s daily | Add `cache: 'npm'` |
-| **P1** | ❌ **Only checks apps/frontend**, ignores ui/ | ui/ React app has 16 vulnerabilities (found in Phase 1) | Add matrix strategy for all frontend apps |
-| **P1** | ❌ **No root package.json check** | site/ static site has 31 vulnerabilities (found in Phase 1) | Add job for root npm audit |
-| **P2** | ⚠️ **No notification on failure** | Security issues discovered but no alerts | Add Slack/email notification or GitHub issue creation |
-| **P2** | ⚠️ **No audit results artifact** | Can't track vulnerability trends over time | Upload audit JSON output as artifact |
-| **P3** | ℹ️ **2 AM UTC timing** | Non-optimal for EU timezone (3-4 AM local) | Consider 6 AM UTC (7-8 AM CET) |
+3. **No Health Check in Dockerfile** (Missing HEALTHCHECK)
+   - **Issue**: Dockerfile doesn't define health check (relies on docker-compose.yml)
+   - **Risk**: If image used outside docker-compose, no health monitoring
+   - **Recommendation**: Add HEALTHCHECK instruction
+   ```dockerfile
+   # Add before CMD
+   HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+     CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+   ```
+   - **Benefit**: Health check embedded in image metadata
 
-**Critical finding**: **Incomplete coverage**. Only audits 1 of 3 npm projects:
-- ✅ apps/frontend (Vue) - audited
-- ❌ ui/ (React) - **not audited** (16 vulnerabilities unmonitored)
-- ❌ root package.json (site/ static) - **not audited** (31 vulnerabilities unmonitored)
+**P2 - Medium Priority**
 
-**Example fix for P1 (multi-app coverage)**:
-```yaml
-jobs:
-  npm-audit:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace:
-          - path: '.'
-            name: 'site'
-          - path: 'apps/frontend'
-            name: 'frontend-vue'
-          - path: 'ui'
-            name: 'frontend-react'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: 'npm'
-          cache-dependency-path: ${{ matrix.workspace.path }}/package-lock.json
-      
-      - name: Install deps (${{ matrix.workspace.name }})
-        working-directory: ${{ matrix.workspace.path }}
-        run: npm ci || npm install
-      
-      - name: npm audit (${{ matrix.workspace.name }})
-        working-directory: ${{ matrix.workspace.path }}
-        run: npm audit --audit-level=high
-```
+4. **OpenSSL Installation** (Line 9)
+   ```dockerfile
+   RUN apk add --no-cache openssl
+   ```
+   - **Issue**: Adds 3-5MB to base image, inherited by all stages
+   - **Question**: Is OpenSSL needed in final runtime? (Prisma may bundle it)
+   - **Recommendation**: Test if OpenSSL can be installed only in builder stage
+   ```dockerfile
+   # Test moving to builder stage:
+   FROM base AS builder
+   RUN apk add --no-cache openssl
+   ```
 
-**Frontend audit score**: **55/100** 🟡 (Good intent, poor coverage)
+5. **Node.js 18 (Not LTS Latest)** (Line 7)
+   - **Current**: Node.js 18
+   - **LTS Latest**: Node.js 20 (maintenance until April 2026)
+   - **Recommendation**: Upgrade to Node.js 20
+   ```dockerfile
+   FROM node:20-alpine AS base
+   ```
+   - **Testing**: Verify Next.js 15 compatibility with Node 20 (should be fine)
 
----
+6. **Missing .dockerignore Optimization**
+   - **Current**: `.dockerignore` exists (good!)
+   - **Issue**: Copies `lib/` and `scripts/` in final image (lines 65-66)
+   ```dockerfile
+   COPY --from=builder /app/scripts ./scripts
+   COPY --from=builder /app/lib ./lib
+   ```
+   - **Question**: Are these needed at runtime or only for E2E tests?
+   - **Recommendation**: If only for tests, exclude from production image
+   - **Optimization**: Create separate `Dockerfile.test` for test environments
 
-#### 1.2.6 Lighthouse CI (`lighthouse-ci.yml`)
+**P3 - Low Priority**
 
-**Purpose**: Automated performance testing with Lighthouse
+7. **Missing Image Metadata**
+   - **Issue**: No LABEL instructions for versioning, maintainer, etc.
+   - **Recommendation**: Add metadata
+   ```dockerfile
+   # Add after line 7
+   LABEL maintainer="Nexus Réussite Team"
+   LABEL version="1.0"
+   LABEL description="Nexus Réussite Educational Platform"
+   ```
 
-**Configuration**:
-```yaml
-- Triggers: push to main or feat/refonte-premium, manual dispatch
-- Tool: @lhci/cli@0.13.x
-- Config: lighthouserc.json
-- Permissions: contents:read, checks:write, pull-requests:write, statuses:write
-```
-
-**Steps**:
-1. ✅ Checkout code
-2. ✅ Setup Node.js 20
-3. ✅ Install Lighthouse CI globally
-4. ✅ Run `lhci autorun --config=lighthouserc.json`
-
-**Strengths**:
-- ✅ **Automated performance monitoring**
-- ✅ **Config-driven** (lighthouserc.json for customization)
-- ✅ **GitHub integration** (uses GITHUB_TOKEN for PR comments)
-- ✅ **Modern Lighthouse version** (v12+ via @lhci/cli@0.13.x)
-- ✅ **Proper permissions** for PR commenting
-
-**Issues**:
-
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ⚠️ **No artifact upload** | Can't review detailed Lighthouse reports in GitHub | Upload HTML/JSON reports as artifacts |
-| **P1** | ⚠️ **Only runs on main branch** | PRs don't get Lighthouse checks | Add `pull_request:` trigger |
-| **P2** | ⚠️ **Branch-specific trigger** (feat/refonte-premium) | Hardcoded feature branch (probably outdated) | Remove or use branch pattern matching |
-| **P2** | ⚠️ **No performance budget enforcement** | Can't fail CI on performance regressions | Add assertions in lighthouserc.json |
-| **P2** | ⚠️ **No npm caching** | Wastes 10-20s | Add `cache: 'npm'` (though global install, may not help) |
-| **P3** | ℹ️ **Can't verify config** | lighthouserc.json not visible in this review | Document expected thresholds |
-
-**Example fix for P1 (PR trigger + artifacts)**:
-```yaml
-on:
-  push:
-    branches: [ main ]
-  pull_request:  # ← Add this
-    branches: [ main ]
-  workflow_dispatch: {}
-
-jobs:
-  lhci:
-    steps:
-      # ... existing steps ...
-      
-      - name: Run LHCI
-        id: lhci
-        continue-on-error: true  # Don't fail entire workflow
-        run: lhci autorun --config=lighthouserc.json
-      
-      - name: Upload Lighthouse reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-reports
-          path: .lighthouseci/
-          retention-days: 30
-```
-
-**Lighthouse CI score**: **70/100** 🟡 (Good automation, missing PR integration)
+8. **No .dockerignore Verification**
+   - **Current**: `.dockerignore` excludes node_modules, .next, etc. (good)
+   - **Recommendation**: Verify large files aren't copied
+   ```bash
+   # Test build context size
+   docker build --no-cache -t nexus-test . 2>&1 | grep "Sending build context"
+   # Should be <50MB
+   ```
 
 ---
 
-#### 1.2.7 Uptime Monitor (`monitor.yml`)
+### 1.4 .dockerignore Analysis
 
-**Purpose**: Monitor production uptime every 30 minutes
+#### 1.4.1 File Quality Assessment
 
-**Configuration**:
-```yaml
-- Triggers: cron every 30 minutes, manual dispatch
-- Targets: VPS (if VPS_BASE_URL secret set) + GitHub Pages
-- Checks: /, /sitemap.xml, /robots.txt
-```
+**Lines**: 23  
+**Effectiveness**: 🟢 90/100
 
-**Steps**:
-1. ✅ Check VPS endpoints (/, /sitemap.xml)
-2. ✅ Check GitHub Pages endpoints (/, /sitemap.xml, /robots.txt)
+##### ✅ Strengths
 
-**Strengths**:
-- ✅ **Proactive monitoring** (catches downtime early)
-- ✅ **Dual-target monitoring** (VPS + GitHub Pages)
-- ✅ **Simple, fast checks** (curl with exit codes)
-- ✅ **Conditional execution** (only if secrets configured)
+1. **Standard Exclusions** (Lines 1-11)
+   - ✅ `node_modules`, `.next`, `coverage` excluded
+   - ✅ Git metadata excluded (`.git`, `.github`)
+   - ✅ Test artifacts excluded (`playwright-report`, `test-results`)
 
-**Issues**:
+2. **Environment Files** (Lines 14-19)
+   ```dockerignore
+   .env.local
+   .env.e2e
+   .env.e2e.local
+   .env.e2e.example
+   .env.test
+   .env.ci.example
+   ```
+   - ✅ Prevents accidental secret leakage
+   - ⚠️ Note: `.env` is **not excluded** (intentional - needed for build)
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ⚠️ **No alerting mechanism** | Failures only visible in workflow logs | Add Slack/email/Telegram notification on failure |
-| **P1** | ⚠️ **30-minute frequency excessive** | Wastes 1,440 GitHub Actions minutes/month | Reduce to every 2-4 hours (standard uptime monitoring) |
-| **P2** | ⚠️ **No retry logic** | Single failed curl triggers alert | Add 2-3 retries with 10s delay |
-| **P2** | ⚠️ **No response time tracking** | Can't detect performance degradation | Add `%{time_total}` to curl output |
-| **P2** | ⚠️ **GitHub Pages check always runs** | Redundant if not using GitHub Pages | Make conditional like VPS check |
-| **P3** | ℹ️ **Limited endpoint coverage** | Only checks homepage + sitemap | Add critical pages (e.g., /EDS_premiere/...) |
-| **P3** | ℹ️ **No status badge** | Users can't see uptime status | Add shields.io badge to README |
+3. **Log Files** (Lines 21-22)
+   - ✅ `*.log`, `*.pid` excluded
 
-**Critical finding**: **No alerting**. Uptime checks fail silently - nobody gets notified.
+##### ⚠️ Potential Issues
 
-**GitHub Actions cost impact**:
-- Current: 48 runs/day × 30 days × ~1 minute = **1,440 minutes/month**
-- Recommended: 12 runs/day (every 2 hours) = **360 minutes/month**
-- **Savings: 1,080 minutes/month** (75% reduction)
+**P2**
 
-**Example fix for P1 (alerting + reduced frequency)**:
-```yaml
-on:
-  schedule:
-    - cron: "0 */2 * * *"  # Every 2 hours instead of 30 min
-  workflow_dispatch: {}
+1. **Missing Common Exclusions**
+   - **Issue**: Could exclude additional files
+   - **Recommendation**: Add
+   ```dockerignore
+   README.md
+   CHANGELOG.md
+   .vscode
+   .idea
+   *.md
+   docs/
+   .editorconfig
+   .prettierrc
+   .eslintrc
+   ```
 
-jobs:
-  check:
-    steps:
-      - name: Check VPS
-        id: vps-check
-        continue-on-error: true
-        run: |
-          # ... existing check with retry logic ...
-      
-      - name: Notify on failure
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: '🚨 Uptime check failed for ${{ env.VPS_BASE_URL }}'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-```
-
-**Uptime monitor score**: **60/100** 🟡 (Good concept, poor execution)
+2. **Prisma Migrations** (Not excluded)
+   - **Question**: Should `prisma/migrations/` be excluded from production image?
+   - **Current**: Migrations copied to image (line 62 of Dockerfile)
+   - **Recommendation**: If migrations run via CI/CD, exclude from runtime image
+   ```dockerignore
+   prisma/migrations/
+   ```
 
 ---
 
-#### 1.2.8 Release (`release.yml`)
+### 1.5 Docker Configuration Summary
 
-**Purpose**: Automated semantic versioning with semantic-release
+#### Health Score: 75/100 🟡
 
-**Configuration**:
-```yaml
-- Triggers: push to main, manual dispatch
-- Tool: semantic-release (npx)
-- Concurrency: release-${{ github.ref }} (cancel-in-progress: true)
-- Permissions: contents:write, issues:write, pull-requests:write, packages:write
-```
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| Multi-Stage Build | 95/100 | 🟢 Excellent |
+| Security (docker-compose) | 73/100 | 🟡 Good |
+| Security (Dockerfile) | 70/100 | 🟡 Needs Improvement |
+| Image Size Optimization | 85/100 | 🟢 Good |
+| Non-root User | 0/100 | 🔴 Critical Gap |
+| Health Checks | 95/100 | 🟢 Excellent |
+| Network Isolation | 90/100 | 🟢 Excellent |
+| Volume Persistence | 100/100 | 🟢 Perfect |
+| .dockerignore Quality | 90/100 | 🟢 Excellent |
 
-**Steps**:
-1. ✅ Checkout with full git history (`fetch-depth: 0`)
-2. ✅ Setup Node.js 20
-3. ✅ Install dependencies
-4. ✅ Run semantic-release
+#### Priority Recommendations
 
-**Strengths**:
-- ✅ **Automated versioning** (follows conventional commits)
-- ✅ **Full git history** (required for changelog generation)
-- ✅ **Concurrency control** (prevents race conditions)
-- ✅ **Comprehensive permissions** (can create releases, tag commits, etc.)
-- ✅ **Modern semantic-release** (latest version via npx)
+**Must Fix (P0)**
+1. ⚠️ Add non-root user to Dockerfile (CRITICAL security issue)
 
-**Issues**:
+**Should Fix (P1)**
+2. Remove PostgreSQL port exposure (5435:5432) unless absolutely required
+3. Remove hardcoded container names to enable multi-environment deployments
+4. Add HEALTHCHECK to Dockerfile
+5. Remove build-time NEXTAUTH_SECRET placeholder
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ⚠️ **No npm caching** | Wastes 30-60s per release | Add `cache: 'npm'` |
-| **P1** | ⚠️ **Runs on every main push** | Creates releases even for non-feat/fix commits | Add conditional check or configure semantic-release properly |
-| **P2** | ⚠️ **No release config verification** | Can't confirm semantic-release is configured | Add `.releaserc` or document configuration |
-| **P2** | ⚠️ **`npm ci` fallback to `npm install`** | Inconsistent lockfile usage | Use `npm ci` only (fail if lockfile missing) |
-| **P2** | ⚠️ **No dry-run option** | Can't test releases without publishing | Add workflow input for `--dry-run` |
-| **P3** | ℹ️ **Permissions may be excessive** | packages:write not needed for git releases | Review actual requirements |
-
-**Example fix for P1 (caching + conditional execution)**:
-```yaml
-- name: Setup Node
-  uses: actions/setup-node@v4
-  with:
-    node-version: "20"
-    cache: 'npm'  # ← Add caching
-
-- name: Check if releasable commits exist
-  id: check-commits
-  run: |
-    # Check for feat/fix commits since last tag
-    LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-    if [ -z "$LAST_TAG" ]; then
-      echo "releasable=true" >> $GITHUB_OUTPUT
-    else
-      COMMITS=$(git log $LAST_TAG..HEAD --pretty=%s)
-      if echo "$COMMITS" | grep -qE '^(feat|fix)(\(.+\))?!?:'; then
-        echo "releasable=true" >> $GITHUB_OUTPUT
-      else
-        echo "releasable=false" >> $GITHUB_OUTPUT
-      fi
-    fi
-
-- name: Semantic Release
-  if: steps.check-commits.outputs.releasable == 'true'
-  run: npx semantic-release
-```
-
-**Release workflow score**: **72/100** 🟡 (Good automation, minor optimizations needed)
+**Consider (P2)**
+6. Add resource limits to docker-compose.yml
+7. Upgrade to Node.js 20
+8. Add container labels for monitoring
+9. Optimize .dockerignore (exclude docs, configs)
 
 ---
 
-### 1.3 Cross-Cutting Concerns
+## Section 2: Nginx Configuration Analysis
 
-#### 1.3.1 Caching Strategy
+### 2.1 Overview
 
-**Current state**: ❌ **No caching implemented across all workflows**
+**Files Analyzed**:
+- `nginx/nginx.conf` (297 lines) - Production configuration
+- `nginx/nginx.local.conf` (302 lines) - Local development configuration
 
-**Impact**:
-- Backend CI: +30-45s (pip install)
-- Deploy: +1-2 min (npm + pip)
-- CI workflow: +30-60s (npm + pip)
-- Frontend audit: +20-40s (npm)
-- Release: +30-60s (npm)
-
-**Total time wasted per day** (assuming 20 CI runs):
-- ~20-40 minutes/day across all workflows
-- ~600-1200 minutes/month
-- **Potential savings: 50-60% of install time**
-
-**Recommended caching patterns**:
-
-```yaml
-# Python (backend-ci, deploy)
-- uses: actions/setup-python@v5
-  with:
-    python-version: "3.11"
-    cache: 'pip'
-
-# Node.js (deploy, ci, frontend-audit, release)
-- uses: actions/setup-node@v4
-  with:
-    node-version: "20"
-    cache: 'npm'
-    cache-dependency-path: '**/package-lock.json'  # For monorepo
-```
-
-**Priority**: **P1** (High ROI, low effort)
+**Purpose**: Reverse proxy for Next.js application with HTTPS, security headers, rate limiting, and caching
 
 ---
 
-#### 1.3.2 Failure Handling
+### 2.2 Configuration Quality Assessment
+
+#### 2.2.1 Overall Nginx Health Score: 82/100 🟢
+
+| Dimension | Production | Local | Finding |
+|-----------|-----------|-------|---------|
+| **HTTPS Configuration** | 🟢 95/100 | 🟢 95/100 | Modern TLS 1.2/1.3, strong ciphers |
+| **Security Headers** | 🟢 90/100 | 🟢 90/100 | Comprehensive security headers |
+| **Rate Limiting** | 🟢 95/100 | 🟢 95/100 | Multi-zone rate limiting |
+| **Gzip Compression** | 🟢 100/100 | 🟢 100/100 | Properly configured |
+| **Caching Strategy** | 🟢 90/100 | 🟢 90/100 | Aggressive static file caching |
+| **Logging** | 🟢 85/100 | 🟢 85/100 | Detailed timing logs |
+| **Performance** | 🟡 75/100 | 🟡 75/100 | Good, could optimize buffering |
+| **CSP Quality** | 🟡 60/100 | 🟡 60/100 | Present but uses 'unsafe-inline' |
+
+---
+
+### 2.3 Detailed Nginx Analysis
+
+#### 2.3.1 HTTPS Configuration
+
+##### ✅ Strengths
+
+1. **HTTP to HTTPS Redirect** (Lines 84-97)
+   ```nginx
+   server {
+       listen 80;
+       location / {
+           return 301 https://$host$request_uri;
+       }
+   }
+   ```
+   - ✅ All HTTP traffic redirected to HTTPS
+   - ✅ Let's Encrypt ACME challenge allowed (`/.well-known/acme-challenge/`)
+
+2. **Modern TLS Configuration** (Lines 115-122)
+   ```nginx
+   ssl_protocols TLSv1.2 TLSv1.3;
+   ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:...';
+   ssl_prefer_server_ciphers off;
+   ssl_session_cache shared:SSL:10m;
+   ssl_session_timeout 10m;
+   ```
+   - ✅ Only secure protocols (TLSv1.2, TLSv1.3)
+   - ✅ Strong cipher suite (ECDHE, GCM, ChaCha20-Poly1305)
+   - ✅ Session caching for performance
+   - **SSL Labs Grade**: Estimated A+ (if certificates valid)
+
+3. **OCSP Stapling** (Lines 124-127)
+   ```nginx
+   ssl_stapling on;
+   ssl_stapling_verify on;
+   resolver 8.8.8.8 8.8.4.4 valid=300s;
+   ```
+   - ✅ Reduces certificate validation latency
+   - ✅ Improves user privacy (client doesn't contact CA)
+
+##### ⚠️ Issues
+
+**P1**
+
+1. **Missing SSL Certificate Path Documentation** (Lines 111-112)
+   ```nginx
+   ssl_certificate /etc/nginx/ssl/fullchain.pem;
+   ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+   ```
+   - **Issue**: No documentation on how to generate or mount certificates
+   - **Risk**: Deployment will fail without certificates
+   - **Recommendation**: Add deployment documentation
+   ```bash
+   # Example: Generate self-signed cert for testing
+   mkdir -p nginx/ssl
+   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+     -keyout nginx/ssl/privkey.pem \
+     -out nginx/ssl/fullchain.pem \
+     -subj "/CN=nexus.local"
+   
+   # Production: Use Let's Encrypt
+   # docker run -it --rm -v ./nginx/ssl:/etc/letsencrypt certbot/certbot \
+   #   certonly --standalone -d yourdomain.com
+   ```
+
+**P2**
+
+2. **Wildcard server_name** (Line 86, 104)
+   ```nginx
+   server_name _;  # Replace with your domain
+   ```
+   - **Issue**: Comment says "Replace with your domain" but uses wildcard
+   - **Risk**: Nginx will respond to any domain pointed at this IP
+   - **Recommendation**: Specify explicit domain or document wildcard usage
+   ```nginx
+   # Production recommendation:
+   server_name nexusreussite.academy www.nexusreussite.academy;
+   ```
+
+---
+
+#### 2.3.2 Security Headers
+
+##### ✅ Excellent Implementation
+
+1. **HSTS Header** (Line 133)
+   ```nginx
+   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+   ```
+   - ✅ 1-year max-age (recommended)
+   - ✅ includeSubDomains (protects all subdomains)
+   - ✅ preload (eligible for HSTS preload list)
+   - **Score**: 100/100
+
+2. **Clickjacking Protection** (Line 136)
+   ```nginx
+   add_header X-Frame-Options "SAMEORIGIN" always;
+   ```
+   - ✅ Prevents embedding in iframes
+   - ✅ Allows same-origin embedding (for app features)
+
+3. **MIME Sniffing Protection** (Line 139)
+   ```nginx
+   add_header X-Content-Type-Options "nosniff" always;
+   ```
+   - ✅ Prevents browser MIME type confusion attacks
+
+4. **XSS Protection** (Line 142)
+   ```nginx
+   add_header X-XSS-Protection "1; mode=block" always;
+   ```
+   - ✅ Legacy header (still useful for older browsers)
+   - **Note**: CSP is primary XSS defense for modern browsers
+
+5. **Referrer Policy** (Line 145)
+   ```nginx
+   add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+   ```
+   - ✅ Balances privacy and analytics
+
+6. **Permissions Policy** (Line 148)
+   ```nginx
+   add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+   ```
+   - ✅ Disables unnecessary browser APIs
+
+##### ⚠️ CSP Issues
+
+**P1**
+
+1. **Content Security Policy - 'unsafe-inline' and 'unsafe-eval'** (Line 152)
+   ```nginx
+   add_header Content-Security-Policy "default-src 'self'; 
+     script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://cdn.jsdelivr.net; 
+     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ..." always;
+   ```
+   - **Issue**: `'unsafe-inline'` and `'unsafe-eval'` weaken CSP significantly
+   - **Risk**: Inline scripts can be executed (XSS vulnerability surface)
+   - **Why Used**: Likely for Next.js inline scripts and Framer Motion animations
+   - **Recommendation**: Use nonces or hashes for inline scripts
+   ```nginx
+   # Better CSP (requires Next.js configuration):
+   script-src 'self' 'nonce-$request_id' https://vercel.live;
+   style-src 'self' 'nonce-$request_id' https://fonts.googleapis.com;
+   ```
+   - **Effort**: High (requires app code changes)
+   - **Fallback**: Document that CSP is intentionally relaxed for framework compatibility
+
+2. **CSP `img-src` Too Permissive** (Line 152)
+   ```nginx
+   img-src 'self' data: https:;
+   ```
+   - **Issue**: Allows images from ANY HTTPS source
+   - **Risk**: Image-based data exfiltration attacks
+   - **Recommendation**: Restrict to specific domains
+   ```nginx
+   img-src 'self' data: https://nexusreussite.academy https://storage.googleapis.com;
+   ```
+
+3. **CSP `connect-src` Too Permissive** (Line 152)
+   ```nginx
+   connect-src 'self' https:;
+   ```
+   - **Issue**: Allows AJAX/WebSocket to any HTTPS endpoint
+   - **Risk**: Data exfiltration via XSS
+   - **Recommendation**: Whitelist specific API domains
+   ```nginx
+   connect-src 'self' https://nexusreussite.academy wss://nexusreussite.academy;
+   ```
+
+**P2**
+
+4. **Missing `report-uri` or `report-to`**
+   - **Issue**: No CSP violation reporting configured
+   - **Benefit**: Monitor CSP violations in production
+   - **Recommendation**: Add CSP reporting
+   ```nginx
+   add_header Content-Security-Policy "... ; 
+     report-uri https://nexusreussite.academy/api/csp-report" always;
+   ```
+
+---
+
+#### 2.3.3 Rate Limiting
+
+##### ✅ Excellent Implementation
+
+1. **Multi-Zone Rate Limiting** (Lines 65-71)
+   ```nginx
+   limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+   limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
+   limit_req_zone $binary_remote_addr zone=auth:10m rate=5r/m;
+   limit_conn_zone $binary_remote_addr zone=addr:10m;
+   limit_conn addr 10;
+   ```
+   - ✅ **General traffic**: 10 requests/second (burst=20)
+   - ✅ **API routes**: 30 requests/second (burst=50)
+   - ✅ **Authentication**: 5 requests/minute (burst=3) - Prevents brute-force
+   - ✅ **Connection limit**: 10 concurrent connections per IP
+   - **Score**: 95/100 (Excellent DDoS protection)
+
+2. **Zone Application** (Lines 159, 191, 212)
+   ```nginx
+   location / {
+       limit_req zone=general burst=20 nodelay;
+   }
+   location /api/ {
+       limit_req zone=api burst=50 nodelay;
+   }
+   location ~ ^/api/auth/(signin|signup|callback) {
+       limit_req zone=auth burst=3 nodelay;
+   }
+   ```
+   - ✅ Different limits per route type (defense in depth)
+   - ✅ `nodelay` prevents queueing (rejects excess immediately)
+
+##### 💡 Optimization Opportunities
+
+**P3**
+
+1. **Whitelist for Known IPs**
+   - **Suggestion**: Whitelist internal monitoring/health checks
+   ```nginx
+   # Add before rate limiting zones
+   geo $limit {
+       default 1;
+       127.0.0.1 0;  # Localhost
+       10.0.0.0/8 0;  # Internal network
+   }
+   map $limit $limit_key {
+       0 "";
+       1 $binary_remote_addr;
+   }
+   limit_req_zone $limit_key zone=general:10m rate=10r/s;
+   ```
+
+2. **Rate Limit Error Page**
+   - **Suggestion**: Custom 429 Too Many Requests page
+   ```nginx
+   error_page 429 /429.html;
+   location = /429.html {
+       root /usr/share/nginx/html;
+       internal;
+   }
+   ```
+
+---
+
+#### 2.3.4 Gzip Compression
+
+##### ✅ Perfect Configuration
+
+```nginx
+gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_types
+    text/plain
+    text/css
+    text/xml
+    text/javascript
+    application/json
+    application/javascript
+    application/xml+rss
+    application/rss+xml
+    font/truetype
+    font/opentype
+    application/vnd.ms-fontobject
+    image/svg+xml;
+```
 
 **Analysis**:
+- ✅ Compression enabled for all text-based MIME types
+- ✅ `gzip_vary on` (adds `Vary: Accept-Encoding` header)
+- ✅ `gzip_comp_level 6` (good balance between CPU and compression ratio)
+- ✅ `gzip_proxied any` (compresses proxied responses)
+- **Score**: 100/100
 
-| Workflow | Failure Mode | Rollback | Alerts | Score |
-|----------|--------------|----------|--------|-------|
-| backend-ci | ✅ Fail-fast on lint/test errors | N/A | ❌ None | 70/100 |
-| deploy | ⚠️ Sanity checks fail but no rollback | ❌ None | ❌ None | 40/100 |
-| backend-docker | ⚠️ Pushes broken images | ❌ None | ❌ None | 30/100 |
-| ci | ❌ `continue-on-error: true` (never fails) | N/A | ❌ None | 20/100 |
-| frontend-audit | ✅ Fails on high/critical vulns | N/A | ❌ None | 60/100 |
-| lighthouse-ci | ⚠️ No performance budget enforcement | N/A | ❌ None | 50/100 |
-| monitor | ❌ Failures silent (no alerts) | N/A | ❌ None | 10/100 |
-| release | ✅ Fails on semantic-release errors | ❌ No tag rollback | ❌ None | 60/100 |
-
-**Average failure handling score**: **42.5/100** 🔴 (Poor)
-
-**Critical gaps**:
-1. **No rollback on failed deployments** (P0)
-2. **No alerting on monitor failures** (P0)
-3. **CI checks don't enforce quality** (continue-on-error: true) (P1)
-4. **No container scanning before push** (P1)
+**Impact**: 60-80% size reduction for HTML/CSS/JS
 
 ---
 
-#### 1.3.3 Secrets Management
+#### 2.3.5 Caching Strategy
 
-**Secrets inventory**:
+##### ✅ Aggressive Static File Caching
 
-| Secret | Used In | Purpose | Rotation | Score |
-|--------|---------|---------|----------|-------|
-| `SSH_PRIVATE_KEY` | deploy | VPS deployment | ❌ Manual | 60/100 |
-| `VPS_HOST` | deploy, monitor | VPS hostname | ✅ Static | 90/100 |
-| `VPS_USER` | deploy | SSH username | ✅ Static | 90/100 |
-| `VPS_PATH` | deploy | Deployment path | ✅ Static | 90/100 |
-| `VPS_BASE_URL` | deploy, monitor | Health checks | ✅ Static | 90/100 |
-| `GITHUB_TOKEN` | all | GitHub API access | ✅ Auto-rotated | 100/100 |
-| `LHCI_GITHUB_TOKEN` | lighthouse-ci | PR comments | ✅ Auto-rotated | 100/100 |
+1. **Next.js Static Assets** (Lines 226-236)
+   ```nginx
+   location /_next/static/ {
+       expires 1y;
+       add_header Cache-Control "public, immutable";
+       access_log off;
+   }
+   ```
+   - ✅ 1-year cache (Next.js uses content hashing)
+   - ✅ `immutable` flag (browser never revalidates)
+   - ✅ Access logging disabled (performance optimization)
 
-**Strengths**:
-- ✅ **All secrets properly scoped** (env vars, not inline)
-- ✅ **GITHUB_TOKEN auto-rotated**
-- ✅ **SSH key via ssh-agent** (not echoed to logs)
-- ✅ **Conditional checks** (workflows skip if secrets missing)
+2. **Images** (Lines 238-245)
+   ```nginx
+   location /images/ {
+       expires 30d;
+       add_header Cache-Control "public, immutable";
+   }
+   ```
+   - ✅ 30-day cache for images
 
-**Issues**:
+##### ⚠️ Issues
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P2** | ⚠️ **No SSH key rotation policy** | Stale keys increase breach risk | Document rotation schedule (6-12 months) |
-| **P2** | ⚠️ **No secret validation** | Invalid secrets cause silent failures | Add validation steps at workflow start |
-| **P3** | ℹ️ **Duplicate LHCI tokens** | LHCI_GITHUB_APP_TOKEN + LHCI_GITHUB_TOKEN (both use GITHUB_TOKEN) | Use only LHCI_GITHUB_TOKEN |
+**P2**
 
-**Secrets management score**: **88/100** 🟢 (Excellent)
-
----
-
-#### 1.3.4 Job Parallelization
-
-**Current parallelization**:
-
-| Workflow | Jobs | Parallel | Sequential | Efficiency |
-|----------|------|----------|------------|------------|
-| backend-ci | 1 | 0 | 1 (lint → test) | 40/100 |
-| deploy | 1 | 0 | 10 steps sequential | 30/100 |
-| backend-docker | 1 | 0 | 3 steps sequential | 50/100 |
-| **ci** | 3 | **3** (validate-html, link-check, frontend-lint) | 0 | **95/100** ✅ |
-| frontend-audit | 1 | 0 | 1 | 70/100 |
-| lighthouse-ci | 1 | 0 | 1 | 70/100 |
-| monitor | 1 | 0 | 2 checks sequential | 60/100 |
-| release | 1 | 0 | 1 | 70/100 |
-
-**Average parallelization**: **60.6/100** 🟡
-
-**Best-in-class**: `ci.yml` (3 parallel jobs)
-
-**Optimization opportunities**:
-
-1. **backend-ci.yml**: Split lint + test into parallel jobs (~20s savings)
-   ```yaml
-   jobs:
-     lint:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Lint
-           run: flake8
-     
-     test:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Test
-           run: pytest --cov
+1. **No HTML Caching Headers**
+   - **Issue**: HTML pages not explicitly cached/no-cached
+   - **Impact**: Uncertain browser caching behavior
+   - **Recommendation**: Add no-cache for HTML
+   ```nginx
+   location / {
+       # ... existing config ...
+       add_header Cache-Control "no-cache, must-revalidate";
+   }
    ```
 
-2. **deploy.yml**: Parallelize builds
-   ```yaml
-   jobs:
-     build-frontend:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Build frontend
-           run: npm run build
-         - uses: actions/upload-artifact@v4
-           with:
-             name: frontend-dist
-             path: apps/frontend/dist
-     
-     build-sitemap:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Generate sitemap
-           run: python scripts/generate_sitemap.py
-         - uses: actions/upload-artifact@v4
-           with:
-             name: sitemap
-             path: site/sitemap.xml
-     
-     deploy:
-       needs: [build-frontend, build-sitemap]
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/download-artifact@v4
-         - name: Deploy
-           run: rsync ...
+2. **Missing Cache for Fonts/Other Assets**
+   - **Issue**: Only `/_next/static/` and `/images/` have explicit caching
+   - **Recommendation**: Add caching for other static assets
+   ```nginx
+   location ~* \.(woff2|woff|ttf|otf|eot)$ {
+       expires 1y;
+       add_header Cache-Control "public, immutable";
+       access_log off;
+   }
    ```
 
-**Priority**: **P2** (Moderate ROI, medium effort)
-
 ---
 
-#### 1.3.5 Deployment Automation
+#### 2.3.6 Performance Configuration
 
-**Current state**:
+##### ✅ Good Baseline
 
-**Automation level**: **75/100** 🟡 (Good, but missing safeguards)
+```nginx
+sendfile on;
+tcp_nopush on;
+tcp_nodelay on;
+keepalive_timeout 65;
+types_hash_max_size 2048;
+client_max_body_size 50M;
+```
 
-**Deployment flow**:
-1. ✅ Push to main triggers deployment
-2. ✅ Waits for backend-ci success
-3. ✅ Builds frontend (if exists)
-4. ✅ Generates sitemap + contents index
-5. ✅ Deploys via rsync
-6. ✅ Runs sanity checks
-7. ❌ **No rollback on failure**
-8. ❌ **No blue-green/canary deployment**
-9. ❌ **No deployment approval gates**
+- ✅ `sendfile on` (zero-copy file serving)
+- ✅ `tcp_nopush on` (reduces packet count)
+- ✅ `tcp_nodelay on` (reduces latency)
+- ✅ `client_max_body_size 50M` (allows file uploads)
 
-**Issues**:
+##### 💡 Optimization Opportunities
 
-| Priority | Issue | Impact | Recommendation |
-|----------|-------|--------|----------------|
-| **P1** | ❌ **No rollback mechanism** | Broken deployments stay live | Add pre-deploy backup + rollback on failure |
-| **P1** | ❌ **No staging environment** | Deploys directly to production | Add staging deployment + manual promotion |
-| **P2** | ⚠️ **No deployment notifications** | Team unaware of deployment status | Add Slack/Discord webhook |
-| **P2** | ⚠️ **No deployment metrics** | Can't track MTTR, deployment frequency | Add metrics collection (DataDog, Prometheus) |
-| **P3** | ℹ️ **No canary deployment** | All-or-nothing deployment | Consider gradual rollout for high-traffic sites |
+**P2**
 
-**Recommended deployment maturity roadmap**:
-
-**Level 1 (Current)**: Automated deployment ✅  
-**Level 2 (P1)**: Add rollback + staging environment  
-**Level 3 (P2)**: Add approval gates + notifications  
-**Level 4 (P3)**: Blue-green deployment + automated testing in staging  
-**Level 5 (Future)**: Canary deployment + feature flags  
-
----
-
-### 1.4 Best Practices Compliance
-
-**Scorecard**:
-
-| Practice | Status | Compliance | Notes |
-|----------|--------|------------|-------|
-| **Pinned action versions** | ✅ | 100% | All actions use @v4, @v5 (major version pinning) |
-| **Minimal permissions** | ✅ | 90% | Proper GITHUB_TOKEN scoping (except minor excess in release) |
-| **Concurrency control** | ⚠️ | 40% | Only deploy + release use concurrency groups |
-| **Caching** | ❌ | 0% | **No caching anywhere** |
-| **Secrets management** | ✅ | 95% | Excellent secret handling |
-| **Job parallelization** | ⚠️ | 60% | Only ci.yml parallelizes jobs |
-| **Failure handling** | ❌ | 40% | No rollbacks, silent failures, continue-on-error abuse |
-| **Artifact preservation** | ❌ | 10% | Only backend-ci mentions OUTPUTS_DIR (unused) |
-| **Matrix testing** | ❌ | 0% | No Python/Node version matrices |
-| **Conditional execution** | ✅ | 85% | Good use of `if` conditions |
-| **Retry logic** | ⚠️ | 50% | Only deploy sanity checks have retries |
-| **Timeout controls** | ❌ | 0% | No `timeout-minutes` set anywhere |
-| **Status badges** | ❌ | Unknown | Can't verify (README not reviewed yet) |
-
-**Overall best practices score**: **51/100** 🟡 (Needs significant improvement)
-
----
-
-### 1.5 Quantitative Metrics
-
-#### Workflow Complexity
-
-| Workflow | Lines | Jobs | Steps | Secrets | Complexity Score |
-|----------|-------|------|-------|---------|------------------|
-| backend-ci | 44 | 1 | 6 | 0 | Low (30/100) |
-| **deploy** | **186** | 1 | 10 | 5 | **High (85/100)** |
-| backend-docker | 35 | 1 | 4 | 1 | Low (25/100) |
-| ci | 81 | 3 | 8 | 1 | Medium (55/100) |
-| frontend-audit | 34 | 1 | 5 | 0 | Low (20/100) |
-| lighthouse-ci | 35 | 1 | 4 | 2 | Low (25/100) |
-| monitor | 38 | 1 | 2 | 1 | Low (20/100) |
-| release | 32 | 1 | 4 | 1 | Low (25/100) |
-
-**Most complex workflow**: `deploy.yml` (186 lines, 10 steps, 5 secrets)
-
-#### Execution Frequency
-
-| Workflow | Triggers | Est. Runs/Month | Minutes/Month (est.) |
-|----------|----------|-----------------|----------------------|
-| backend-ci | push, PR | 60-100 | 180-300 |
-| deploy | push main, tags | 20-30 | 60-120 |
-| backend-docker | tags | 2-5 | 10-30 |
-| ci | PRs | 30-50 | 90-150 |
-| frontend-audit | daily | 30 | 30-60 |
-| lighthouse-ci | push main | 20-30 | 40-80 |
-| **monitor** | **every 30 min** | **1,440** | **1,440-2,880** ⚠️ |
-| release | push main | 20-30 | 20-40 |
-
-**Total estimated GitHub Actions usage**: **1,870-3,660 minutes/month**
-
-**Most expensive workflow**: `monitor.yml` (77% of total usage) ⚠️
-
-**Recommended optimization**: Reduce monitor frequency from 30 min → 2 hours  
-**Savings**: ~1,080 minutes/month (-58% total usage)
-
----
-
-### 1.6 Security Analysis
-
-#### Vulnerability Surface
-
-**Critical findings**:
-
-1. **No container image scanning** (P0)
-   - `backend-docker.yml` pushes images without Trivy/Grype scan
-   - Risk: Vulnerable images in production
-
-2. **No dependency scanning in CI** (P1)
-   - Only frontend-audit checks npm vulnerabilities
-   - Python dependencies never scanned (no Snyk/Dependabot in workflows)
-   - Risk: Vulnerable backend dependencies
-
-3. **SSH key exposure risk** (P2)
-   - SSH_PRIVATE_KEY used directly in deploy workflow
-   - No key rotation policy documented
-   - Risk: Key compromise = full VPS access
-
-4. **Secrets in environment variables** (P2)
-   - Multiple secrets passed as env vars (standard practice, but observable in logs if misconfigured)
-   - Risk: Accidental secret leakage in debug logs
-
-**Security score by workflow**:
-
-| Workflow | Security Score | Critical Issues |
-|----------|----------------|-----------------|
-| backend-ci | 75/100 🟡 | None |
-| deploy | 60/100 🟡 | SSH key handling, no rollback |
-| **backend-docker** | **35/100** 🔴 | **No image scanning (P0)** |
-| ci | 85/100 🟢 | None |
-| frontend-audit | 80/100 🟢 | Incomplete coverage |
-| lighthouse-ci | 90/100 🟢 | None |
-| monitor | 70/100 🟡 | No alerting |
-| release | 70/100 🟡 | Broad permissions |
-
-**Average security score**: **70.6/100** 🟡
-
----
-
-### 1.7 Recommendations Summary
-
-#### Priority 0 (Critical) — Fix Immediately
-
-| Issue | Workflow | Impact | Effort |
-|-------|----------|--------|--------|
-| **No container image scanning** | backend-docker | Vulnerable images in production | 1 hour |
-| **No deployment rollback** | deploy | Broken deployments stay live | 2-4 hours |
-
-#### Priority 1 (High) — Fix This Sprint
-
-| Issue | Workflow(s) | Impact | Effort |
-|-------|-------------|--------|--------|
-| **No caching (npm/pip)** | All | 20-40 min wasted daily | 30 min |
-| **CI checks don't enforce quality** (continue-on-error) | ci | Broken HTML/links merged to main | 15 min |
-| **Incomplete npm audit coverage** | frontend-audit | ui/ + root vulnerabilities unmonitored | 1 hour |
-| **No uptime alerting** | monitor | Downtime goes unnoticed | 1 hour |
-| **Monitor runs too frequently** | monitor | 1,440 wasted minutes/month | 5 min |
-| **Lighthouse doesn't run on PRs** | lighthouse-ci | Performance regressions undetected | 10 min |
-
-#### Priority 2 (Medium) — Fix Next Sprint
-
-| Issue | Workflow(s) | Impact | Effort |
-|-------|-------------|--------|--------|
-| **No artifact preservation** | backend-ci, deploy, ci | Can't debug CI failures | 1 hour |
-| **Backend-ci not parallelized** | backend-ci | 20s wasted per run | 30 min |
-| **No deployment notifications** | deploy | Team unaware of deployments | 1 hour |
-| **No performance budgets** | lighthouse-ci | Can't enforce performance SLAs | 2 hours |
-| **No staging environment** | deploy | Risky direct-to-prod deployments | 1 day |
-
-#### Priority 3 (Low) — Nice to Have
-
-| Issue | Workflow(s) | Impact | Effort |
-|-------|-------------|--------|--------|
-| **No Python version matrix** | backend-ci | Only tests Python 3.11 | 30 min |
-| **No timeout controls** | All | Runaway workflows waste minutes | 1 hour |
-| **No dry-run for releases** | release | Can't test semantic-release config | 30 min |
-| **Duplicate Node setup steps** | deploy | 10s wasted | 10 min |
-
----
-
-### 1.8 Overall CI/CD Health Score
-
-**Calculation**:
-
-| Dimension | Weight | Score | Weighted |
-|-----------|--------|-------|----------|
-| **Automation** | 20% | 75/100 | 15.0 |
-| **Security** | 25% | 71/100 | 17.75 |
-| **Performance** (caching, parallelization) | 15% | 30/100 | 4.5 |
-| **Reliability** (failure handling, rollbacks) | 20% | 43/100 | 8.6 |
-| **Best Practices** | 15% | 51/100 | 7.65 |
-| **Observability** (artifacts, alerts) | 5% | 25/100 | 1.25 |
-
-**Total CI/CD Health Score**: **54.75/100** 🟡
-
-**Grade**: **C** (Needs Improvement)
-
-**Interpretation**:
-- ✅ **Strong foundation**: Good workflow structure, modern tools, proper secrets management
-- ⚠️ **Major gaps**: No caching, poor failure handling, no container scanning
-- ❌ **Critical risks**: No deployment rollback, no uptime alerting, CI checks don't enforce quality
-
-**Target score**: **75/100** (Grade B)
-
-**Effort to reach target**: ~2-3 days of focused DevOps work
-
----
-
-### 1.9 Detailed Recommendations
-
-#### Quick Wins (< 1 hour total)
-
-1. **Add caching to all workflows** (30 min)
-   ```yaml
-   # Add to every setup-node step:
-   - uses: actions/setup-node@v4
-     with:
-       node-version: "20"
-       cache: 'npm'
+1. **Buffering Configuration** (Lines 182-183)
+   ```nginx
+   proxy_buffering off;
+   proxy_request_buffering off;
+   ```
+   - **Issue**: Buffering disabled globally (for SSE/streaming)
+   - **Impact**: Higher memory usage, slower response for normal requests
+   - **Recommendation**: Enable buffering for non-streaming routes
+   ```nginx
+   # Enable buffering by default
+   proxy_buffering on;
+   proxy_buffer_size 4k;
+   proxy_buffers 8 4k;
    
-   # Add to every setup-python step:
-   - uses: actions/setup-python@v5
-     with:
-       python-version: "3.11"
-       cache: 'pip'
+   # Disable only for streaming endpoints
+   location /api/stream {
+       proxy_buffering off;
+   }
    ```
 
-2. **Reduce monitor frequency** (5 min)
-   ```yaml
-   # Change cron from "*/30 * * * *" to "0 */2 * * *"
-   schedule:
-     - cron: "0 */2 * * *"  # Every 2 hours instead of 30 min
+2. **Worker Connections** (Line 13)
+   ```nginx
+   worker_connections 1024;
+   ```
+   - **Current**: 1024 connections per worker
+   - **Recommendation**: Increase for high-traffic production
+   ```nginx
+   worker_connections 4096;  # For high-traffic sites
    ```
 
-3. **Remove continue-on-error from ci.yml** (15 min)
-   ```yaml
-   # Delete these lines:
-   continue-on-error: true
+3. **Upstream Keepalive** (Line 78)
+   ```nginx
+   upstream nexus_app {
+       server nexus-app:3000;
+       keepalive 32;
+   }
    ```
-
-4. **Add Lighthouse to PRs** (10 min)
-   ```yaml
-   on:
-     pull_request:
-       branches: [main]
-   ```
-
-#### Medium-Effort Improvements (2-4 hours)
-
-5. **Add container scanning to backend-docker.yml** (1 hour)
-   - Use Trivy action before push
-   - Fail on critical/high vulnerabilities
-
-6. **Add deployment rollback to deploy.yml** (2-3 hours)
-   - Backup before deployment
-   - Rollback on sanity check failure
-   - Add manual rollback workflow_dispatch
-
-7. **Expand npm audit coverage** (1 hour)
-   - Add matrix strategy for apps/frontend, ui/, root
-   - Upload audit results as artifacts
-
-8. **Add uptime alerting** (1 hour)
-   - Integrate Slack/Discord webhook
-   - Add retry logic to reduce false positives
-
-#### Long-Term Improvements (1-2 days)
-
-9. **Add staging environment** (1 day)
-   - Deploy to staging on PR merge
-   - Manual promotion to production
-   - Automated smoke tests in staging
-
-10. **Implement artifact preservation** (4 hours)
-    - Upload test coverage reports
-    - Upload Lighthouse HTML reports
-    - Upload deployment manifests
-
-11. **Add Python version matrix** (1 hour)
-    - Test Python 3.10, 3.11, 3.12
-    - Mark 3.11 as primary
+   - ✅ Keepalive connections to backend (reduces TCP handshakes)
+   - **Score**: 90/100
 
 ---
 
-### 1.10 Backup File Cleanup
+#### 2.3.7 Logging
 
-**Observation**: 11 backup files found in `.github/workflows/`:
-- ci.yml.bak.1759203257 (and 10 more)
+##### ✅ Excellent Timing Metrics
 
-**Issue**: Clutters repository, confuses developers
+```nginx
+log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                '$status $body_bytes_sent "$http_referer" '
+                '"$http_user_agent" "$http_x_forwarded_for" '
+                'rt=$request_time uct="$upstream_connect_time" '
+                'uht="$upstream_header_time" urt="$upstream_response_time"';
+```
 
-**Recommendation** (P3): Delete backup files
+**Analysis**:
+- ✅ Includes request timing (`$request_time`)
+- ✅ Includes upstream timing (connect, header, response)
+- ✅ Useful for performance debugging
+- **Score**: 85/100
+
+##### 💡 Enhancements
+
+**P3**
+
+1. **Add Request ID for Tracing**
+   ```nginx
+   log_format main '$request_id $remote_addr ...';
+   add_header X-Request-ID $request_id always;
+   ```
+
+2. **Log to JSON for Structured Logging**
+   ```nginx
+   log_format json_combined escape=json
+     '{'
+       '"time":"$time_iso8601",'
+       '"remote_addr":"$remote_addr",'
+       '"request":"$request",'
+       '"status":$status,'
+       '"request_time":$request_time,'
+       '"upstream_response_time":"$upstream_response_time"'
+     '}';
+   ```
+
+---
+
+#### 2.3.8 Security: Attack Pattern Blocking
+
+##### ✅ Good Baseline Protection
+
+```nginx
+# Block hidden files
+location ~ /\. {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+# Block WordPress attack patterns
+location ~ /(wp-admin|wp-login|xmlrpc\.php) {
+    deny all;
+    access_log off;
+}
+```
+
+**Analysis**:
+- ✅ Blocks dotfile access (`.git`, `.env`, etc.)
+- ✅ Blocks common CMS attack vectors
+- **Score**: 80/100
+
+##### 💡 Additional Protections
+
+**P2**
+
+1. **Block Additional Attack Patterns**
+   ```nginx
+   # Block SQL injection attempts
+   location ~ (union.*select|insert.*into|drop.*table) {
+       deny all;
+   }
+   
+   # Block null byte injection
+   location ~ \0 {
+       deny all;
+   }
+   
+   # Block .php execution (if PHP not used)
+   location ~* \.php$ {
+       deny all;
+   }
+   ```
+
+---
+
+### 2.4 Local vs Production Configuration Differences
+
+#### Differences Found (nginx.local.conf)
+
+1. **Line 86**: `server_name nexus.local localhost 127.0.0.1;` (vs wildcard `_` in production)
+2. **Line 95**: `return 301 https://nexus.local:18443$request_uri;` (vs `https://$host$request_uri` in production)
+3. **Lines 115-117**: Canonical domain redirect to `nexus.local:18443`
+
+**Analysis**:
+- ✅ Separate configs for local/production (good practice)
+- ✅ Local config uses `nexus.local` domain (requires `/etc/hosts` entry)
+- ⚠️ **Issue**: Non-standard HTTPS port `:18443` in local config
+  - **Reason**: Likely avoiding port conflicts
+  - **Recommendation**: Document in README that port 18443 is used locally
+
+---
+
+### 2.5 Nginx Configuration Summary
+
+#### Health Score: 82/100 🟢
+
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| HTTPS Configuration | 95/100 | 🟢 Excellent |
+| Security Headers | 90/100 | 🟢 Excellent |
+| CSP Quality | 60/100 | 🟡 Needs Tightening |
+| Rate Limiting | 95/100 | 🟢 Excellent |
+| Gzip Compression | 100/100 | 🟢 Perfect |
+| Caching Strategy | 90/100 | 🟢 Excellent |
+| Performance | 75/100 | 🟡 Good |
+| Logging | 85/100 | 🟢 Good |
+| Attack Protection | 80/100 | 🟢 Good |
+
+#### Priority Recommendations
+
+**Should Fix (P1)**
+1. Tighten CSP: Remove `'unsafe-inline'` and `'unsafe-eval'` (use nonces)
+2. Restrict CSP `img-src` and `connect-src` to specific domains
+3. Document SSL certificate generation/mounting process
+4. Replace wildcard `server_name _` with actual domain
+
+**Consider (P2)**
+5. Add CSP violation reporting (`report-uri`)
+6. Enable proxy buffering for non-streaming routes
+7. Add explicit `Cache-Control` headers for HTML
+8. Add caching for fonts and other static assets
+9. Block additional attack patterns (SQL injection, null bytes)
+10. Document port 18443 usage in local configuration
+
+**Optimize (P3)**
+11. Add request ID to logs for tracing
+12. Switch to JSON log format for structured logging
+13. Whitelist internal IPs from rate limiting
+14. Add custom 429 error page
+
+---
+
+## Section 3: Overall DevOps Score
+
+### 3.1 Combined Docker + Nginx Health Score
+
+**Weighted Score**: 78/100 🟡
+
+| Component | Weight | Score | Weighted Score |
+|-----------|--------|-------|----------------|
+| Docker (Multi-Stage Build) | 15% | 95/100 | 14.25 |
+| Docker (Security) | 25% | 70/100 | 17.50 |
+| Docker (Image Optimization) | 10% | 85/100 | 8.50 |
+| Nginx (HTTPS & Security) | 20% | 90/100 | 18.00 |
+| Nginx (Performance) | 15% | 80/100 | 12.00 |
+| Nginx (Rate Limiting) | 10% | 95/100 | 9.50 |
+| Nginx (Caching) | 5% | 90/100 | 4.50 |
+| **TOTAL** | **100%** | — | **78.25** |
+
+**Grade**: 🟡 **Good** (Needs Improvement in Security)
+
+---
+
+### 3.2 Top 5 Critical Actions
+
+| Priority | Action | Component | Effort | Impact |
+|----------|--------|-----------|--------|--------|
+| **P0** | Add non-root user to Dockerfile | Docker | 15 min | CRITICAL |
+| **P1** | Remove PostgreSQL port exposure | docker-compose.yml | 2 min | HIGH |
+| **P1** | Tighten CSP (remove 'unsafe-inline') | Nginx | 2-4 hours | HIGH |
+| **P1** | Document SSL certificate setup | Deployment docs | 30 min | HIGH |
+| **P1** | Replace wildcard server_name | Nginx | 5 min | MEDIUM |
+
+---
+
+### 3.3 Deployment Readiness Assessment
+
+#### Production Blockers
+
+1. ✅ **Multi-stage build**: Implemented
+2. ✅ **HTTPS enforcement**: Implemented
+3. ✅ **Rate limiting**: Implemented
+4. ✅ **Security headers**: Implemented
+5. ⚠️ **Non-root user**: **MISSING** (P0 blocker)
+6. ✅ **Health checks**: Implemented
+7. ✅ **Gzip compression**: Implemented
+8. ✅ **Static file caching**: Implemented
+
+**Deployment Status**: 🟡 **Ready with caveats**
+
+**Blockers**:
+- Must add non-root user before production deployment (security requirement)
+
+**Warnings**:
+- CSP allows 'unsafe-inline' (reduced XSS protection)
+- PostgreSQL port exposed (if not needed, should be removed)
+
+---
+
+### 3.4 Comparison to Industry Best Practices
+
+| Best Practice | Status | Notes |
+|---------------|--------|-------|
+| Multi-stage Docker builds | ✅ Implemented | Excellent 4-stage build |
+| Non-root container user | ❌ Missing | **CRITICAL GAP** |
+| Minimal base image (Alpine) | ✅ Implemented | node:18-alpine |
+| HTTPS-only deployment | ✅ Implemented | HTTP → HTTPS redirect |
+| HSTS headers | ✅ Implemented | 1-year max-age + preload |
+| Content Security Policy | 🟡 Partial | Present but uses 'unsafe-inline' |
+| Rate limiting | ✅ Implemented | Multi-zone with different limits |
+| Gzip compression | ✅ Implemented | All text-based types |
+| Static file caching | ✅ Implemented | 1-year for hashed assets |
+| Health checks | ✅ Implemented | Both Docker and HTTP checks |
+| Secret management | ✅ Implemented | .env file, not hardcoded |
+| Volume persistence | ✅ Implemented | Database + storage volumes |
+| Network isolation | ✅ Implemented | Separate Docker networks |
+
+**Compliance**: 11/13 (85%) 🟢
+
+---
+
+## Section 4: Quick Reference
+
+### 4.1 Key Files
+
+```
+docker-compose.yml      # 2 services (postgres, next-app)
+Dockerfile              # 4-stage build (base → deps → builder → runner)
+.dockerignore           # 23 lines (excludes node_modules, tests, .env.*)
+nginx/nginx.conf        # 297 lines (production HTTPS + security)
+nginx/nginx.local.conf  # 302 lines (local dev, port 18443)
+```
+
+### 4.2 Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Docker Services | 2 (postgres-db, next-app) |
+| Docker Build Stages | 4 (base, deps, builder, runner) |
+| Base Image | node:18-alpine |
+| Exposed Ports | 3001 (next-app), 5435 (postgres) |
+| Named Volumes | 1 (nexus-postgres-data) |
+| Docker Networks | 2 (nexus-network, infra_rag_net) |
+| Nginx Rate Limit Zones | 3 (general, api, auth) |
+| Nginx Location Blocks | 9 (/, /api/, /api/auth/, /_next/static/, etc.) |
+| Security Headers | 7 (HSTS, CSP, X-Frame-Options, etc.) |
+| TLS Protocols | TLSv1.2, TLSv1.3 |
+| Gzip MIME Types | 9 types |
+
+### 4.3 Deployment Commands
+
 ```bash
-cd .github/workflows
-rm -f *.bak.* ci.yml.tmp
-git commit -m "chore: clean up workflow backup files"
+# Build and start services
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f next-app
+
+# Stop services
+docker-compose down
+
+# Remove volumes (data loss!)
+docker-compose down -v
+
+# Rebuild single service
+docker-compose up -d --build next-app
+
+# Check health
+curl http://localhost:3001/api/health
+```
+
+### 4.4 SSL Certificate Setup (Production)
+
+```bash
+# Method 1: Let's Encrypt (recommended)
+docker run -it --rm \
+  -v ./nginx/ssl:/etc/letsencrypt \
+  certbot/certbot certonly --standalone \
+  -d nexusreussite.academy \
+  -d www.nexusreussite.academy
+
+# Method 2: Self-signed (testing only)
+mkdir -p nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx/ssl/privkey.pem \
+  -out nginx/ssl/fullchain.pem \
+  -subj "/CN=nexusreussite.academy"
 ```
 
 ---
 
-## Summary Statistics
+## Conclusion
 
-**Workflows analyzed**: 8  
-**Total lines of YAML**: 485  
-**Total jobs**: 11  
-**Total steps**: ~44  
-**Secrets used**: 7  
-**Estimated monthly cost**: 1,870-3,660 GitHub Actions minutes  
+The Docker and Nginx configuration for **Nexus Réussite** demonstrates **strong DevOps practices** with excellent multi-stage builds, comprehensive security headers, and robust rate limiting. However, **one critical security gap** (missing non-root user) must be addressed before production deployment.
 
-**Issues found**:
-- 🔴 **P0 (Critical)**: 2
-- 🟠 **P1 (High)**: 10
-- 🟡 **P2 (Medium)**: 18
-- 🔵 **P3 (Low)**: 12
+**Overall DevOps Grade**: 78/100 🟡 **Good** (Would be 85+ after fixing non-root user)
 
-**Overall CI/CD Health**: **54.75/100** (Grade C, Needs Improvement)
+### Next Steps
 
-**Top 3 recommendations**:
-1. Add container image scanning (P0, 1 hour)
-2. Implement deployment rollback (P0, 2-4 hours)
-3. Add caching to all workflows (P1, 30 minutes)
+1. ✅ Fix P0 issue (non-root user) - **15 minutes**
+2. 🔍 Address P1 issues (CSP, port exposure, documentation) - **4-6 hours**
+3. 💡 Consider P2 optimizations (buffering, caching headers) - **2-3 hours**
 
 ---
 
-*Next: Docker & Nginx Configuration Review*
+**End of Phase 3: DevOps Review — Docker Configuration**
