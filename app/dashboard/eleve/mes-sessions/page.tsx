@@ -55,7 +55,8 @@ export default function MesSessions() {
           status: Session['status'];
         };
 
-        const data = (await response.json()) as ApiSession[];
+        const responseData = await response.json();
+        const data: ApiSession[] = Array.isArray(responseData) ? responseData : (responseData.sessions || []);
         
         // Transform API data to match Session interface
         const transformedSessions: Session[] = data.map((sessionData) => ({
