@@ -391,6 +391,7 @@ Sample and review static site code quality.
 - Quality issues documented with line numbers
 
 ### [ ] Step: Code Quality Review — Backend Python
+<!-- chat-id: 5150d3bd-d721-4d1a-96c7-86a27182b310 -->
 
 Sample and review backend Python code quality (if exists).
 
