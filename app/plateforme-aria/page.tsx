@@ -94,7 +94,7 @@ const ARIA_STEPS = [
 
 export default function PlateformeAriaPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-slate-900">
       <CorporateNavbar />
       <main>
         {/* Hero ARIA */}
