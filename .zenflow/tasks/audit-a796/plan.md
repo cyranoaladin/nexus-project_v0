@@ -387,7 +387,7 @@ Consolidate all automated findings into metrics dashboard.
 
 ## Phase 2: Manual Deep-Dive Review
 
-### [ ] Step: Architecture Review
+### [x] Step: Architecture Review
 <!-- chat-id: 4e8bce34-fe70-4adf-bb80-75a475254c2e -->
 
 Analyze project architecture and component relationships.
@@ -405,6 +405,20 @@ Analyze project architecture and component relationships.
 **Verification**:
 - All 3 components analyzed
 - Architecture patterns documented
+
+**Status**: ✅ COMPLETED
+- Comprehensive architecture analysis completed (15.5 KB document)
+- 5 components identified: site/ (production PWA), apps/backend/ (FastAPI), apps/frontend/ (Vue abandoned), ui/ (React in-dev), backend/ (legacy)
+- Critical findings: 3 frontend implementations with no clear migration strategy
+- Cross-component dependency detected: ui/ depends on site/assets/contents.json (circular)
+- Code duplication: ~300 LOC (~25% of site/ JavaScript)
+- Architecture health score: 4.35/10 (43.5%) — Needs significant improvement
+- 4 P0/P1 recommendations provided:
+  1. Consolidate frontend strategy (choose site/ vs ui/)
+  2. Remove ui/ → site/ cross-dependency
+  3. Deprecate legacy backend/ directory
+  4. Remove abandoned apps/frontend/ (Vue)
+- Detailed findings saved to phase2_manual_findings.md (15.5 KB)
 
 ### [ ] Step: Code Quality Review — Site Statique
 <!-- chat-id: cd3da073-87ac-4d01-850c-bb88c3ccae04 -->
@@ -504,6 +518,7 @@ Audit backend API security (if exists).
 - Critical vulnerabilities identified
 
 ### [ ] Step: Security Review — XSS and Client-Side
+<!-- chat-id: 13abb749-9289-4b10-bc75-d56a058a4d29 -->
 
 Audit XSS vulnerabilities and client-side security.
 
