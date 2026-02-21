@@ -120,7 +120,7 @@ jobs:
         run: npx prisma generate
 
       - name: Run unit tests
-        run: npm run test:unit -- --ci --coverage --maxWorkers=2
+        run: npm test -- --ci --coverage --maxWorkers=2
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
@@ -227,7 +227,7 @@ jobs:
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
-        run: npm run test:integration -- --ci
+        run: npm run test:db-integration -- --ci
 
       - name: Upload test logs on failure
         if: failure()
