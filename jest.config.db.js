@@ -1,18 +1,11 @@
 /**
- * Jest Configuration — Real DB Integration Tests
+ * Jest Configuration — DB Integration Tests (serial)
  *
- * These tests run against a real PostgreSQL instance (docker-compose.test.yml).
- * They use Prisma directly (no mocks) to verify:
- *   - migrate deploy on a fresh DB
- *   - assessment submit → domain_scores insertion (canonical)
- *   - result API → cohort stats + percentile
- *   - FK constraints
- *   - LLM_MODE=off behavior
+ * Runs against a real PostgreSQL instance.
+ * All DB test suites run serially (maxWorkers: 1) to avoid shared DB contention.
  *
  * Usage:
- *   docker compose -f docker-compose.test.yml up -d
- *   DATABASE_URL=postgresql://nexus_user:test_password_change_in_real_prod@localhost:5434/nexus_test \
- *     npx jest --config jest.config.db.js --runInBand
+ *   npm run test:db-integration
  */
 
 const nextJest = require('next/jest');
@@ -22,20 +15,24 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
-  displayName: 'DB Integration Tests',
-  testEnvironment: 'node',
-  testMatch: [
-    '**/__tests__/db/**/*.(test|spec).(js|ts)',
+  displayName: 'db-integration',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
+  transformIgnorePatterns: [
+    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|framer-motion|geist)/)',
+    '/node_modules/.pnpm/(?!(next-auth|@auth|framer-motion|geist)@)',
+    '^.+\\.module\\.(css|sass|scss)$',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.db.js'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(@auth/prisma-adapter|next-auth|uuid|@paralleldrive/cuid2)/)',
+  testMatch: [
+    '<rootDir>/__tests__/concurrency/**/*.test.(js|ts|tsx)',
+    '<rootDir>/__tests__/database/**/*.test.(js|ts|tsx)',
+    '<rootDir>/__tests__/db/**/*.test.(js|ts|tsx)',
+    '<rootDir>/__tests__/transactions/**/*.test.(js|ts|tsx)',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/.next/standalone/'],
-  modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   maxWorkers: 1,
   testTimeout: 30000,
 };
