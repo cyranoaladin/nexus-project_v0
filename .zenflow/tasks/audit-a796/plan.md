@@ -170,7 +170,7 @@ Build and analyze CSS bundle.
 - Findings documented in phase1_automated_findings.md Section 3
 - Key issues: Minified CSS not used (P0), missing postcss-cli dependency (P1), no browserslist config (P2)
 
-### [ ] Step: Site Statique — Code Pattern Search
+### [x] Step: Site Statique — Code Pattern Search
 <!-- chat-id: 3a7ea369-6cda-45a1-84f6-6880ac77108f -->
 
 Search for code quality and security patterns.
@@ -187,6 +187,16 @@ Search for code quality and security patterns.
 **Verification**:
 - All pattern searches executed
 - Counts documented
+
+**Status**: ✅ COMPLETED
+- TODO/FIXME comments: 0 found (excellent code hygiene)
+- console.log statements: 0 found (production-ready)
+- Hardcoded secrets: 0 found (secure)
+- innerHTML usage: 48 occurrences across 10 files (medium XSS risk, needs review)
+- Files >300 lines: 13 files (29% of codebase): 2 CSS, 1 JS, 10 HTML
+- Health score: 82/100
+- Findings documented in phase1_automated_findings.md Section 3 (12.5 KB added)
+- Key findings: No security anti-patterns, large site.css (1362 lines) needs modularization, 48 innerHTML usages require audit
 
 ### [ ] Step: Site Statique — PWA Analysis
 <!-- chat-id: f8b87d18-6b96-4f00-9391-42c81a743fff -->
@@ -261,7 +271,7 @@ Build React app and analyze bundle size.
 - Build completes
 - Bundle sizes documented
 
-### [ ] Step: Tests — Unit Tests Execution
+### [x] Step: Tests — Unit Tests Execution
 <!-- chat-id: c2b3fdf3-d0f2-43a8-af69-a65f6a536a29 -->
 
 Run unit tests with coverage.
@@ -278,6 +288,16 @@ Run unit tests with coverage.
 **Verification**:
 - Tests executed
 - Coverage metrics extracted
+
+**Status**: ✅ COMPLETED
+- Coverage package installed (@vitest/coverage-v8@^2.0.5)
+- 2 tests executed (both passed, 100% pass rate)
+- Execution time: 1.10s
+- Coverage metrics: 0.2% statements, 2.12% branches, 2.17% functions, 0.2% lines
+- 45+ untested files identified
+- Critical finding: Virtually no test coverage (only search-utils.js tested)
+- Duplicate test files found (search.spec.js and search.test.js)
+- Comprehensive findings documented in phase1_automated_findings.md Section 3 (15.9 KB)
 
 ### [ ] Step: Tests — E2E Tests Execution
 <!-- chat-id: 79d43f6d-3ab6-4888-94c9-67e42c68e116 -->
@@ -320,6 +340,7 @@ Consolidate all automated findings into metrics dashboard.
 ## Phase 2: Manual Deep-Dive Review
 
 ### [ ] Step: Architecture Review
+<!-- chat-id: 4e8bce34-fe70-4adf-bb80-75a475254c2e -->
 
 Analyze project architecture and component relationships.
 
