@@ -33,7 +33,10 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/e2e/',
     '<rootDir>/__tests__/e2e/',
-    '<rootDir>/tests/',
+    '<rootDir>/__tests__/concurrency/',
+    '<rootDir>/__tests__/database/',
+    '<rootDir>/__tests__/db/',
+    '<rootDir>/__tests__/transactions/',
   ],
 };
 
