@@ -129,9 +129,9 @@ h1, h2, h3 {
   letter-spacing: -0.02em;
 }
 
-p:not([class]) {
-  color: rgb(var(--color-neutral-200));
-}
+/* p:not([class]) color removed — was forcing light text globally,
+   breaking readability on white/light backgrounds. Text color is now
+   inherited from parent containers. */
 
 /*
  * ═══════════════════════════════════════════════════════════════
@@ -643,10 +643,18 @@ body {
   h4,
   h5,
   h6 {
-    @apply text-white font-bold tracking-tight;
+    @apply font-bold tracking-tight;
     font-family: 'Space Grotesk', sans-serif;
     letter-spacing: -0.02em;
-    line-height: 0.95;
+    line-height: 1.15;
+  }
+
+  /* Headings default to white only on dark surfaces */
+  .bg-surface-darker h1, .bg-surface-darker h2, .bg-surface-darker h3,
+  .bg-surface-darker h4, .bg-surface-darker h5, .bg-surface-darker h6,
+  .bg-surface-dark h1, .bg-surface-dark h2, .bg-surface-dark h3,
+  .bg-surface-dark h4, .bg-surface-dark h5, .bg-surface-dark h6 {
+    color: white;
   }
 
   .font-mono {
