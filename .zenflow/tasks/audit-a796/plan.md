@@ -266,7 +266,7 @@ Review input validation coverage and sensitive data handling.
 - Missing validation documented
 - Security headers reviewed
 
-### [ ] Step: Database Schema and Migration Review
+### [x] Step: Database Schema and Migration Review
 <!-- chat-id: 3939bc08-f0d6-44c3-a1d5-c786792b3992 -->
 
 Analyze database design quality, integrity constraints, and migration history.
@@ -288,7 +288,8 @@ Analyze database design quality, integrity constraints, and migration history.
 - All 38 models analyzed
 - Findings include specific model/field references
 
-### [ ] Step: Critical Business Logic Review - Credits System
+### [x] Step: Critical Business Logic Review - Credits System
+<!-- chat-id: f4ce3744-b33a-4a14-b960-f0b0dd12de8e -->
 
 Review credits and payment system for correctness and security.
 
