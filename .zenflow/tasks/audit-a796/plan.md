@@ -91,7 +91,8 @@ Verify the project setup and prepare for audit.
 - Local server running on port 8000
 - http://localhost:8000/index.html loads successfully
 
-### [ ] Step: Site Statique — Lighthouse Audit
+### [x] Step: Site Statique — Lighthouse Audit
+<!-- chat-id: f1e481ef-78d7-42dc-9e9d-a7b5f679aa33 -->
 
 Run Lighthouse performance and PWA audit on the static site.
 
@@ -107,6 +108,14 @@ Run Lighthouse performance and PWA audit on the static site.
 **Verification**:
 - All 5 Lighthouse categories scored
 - Specific recommendations extracted
+
+**Status**: ✅ COMPLETED
+- Performance: 87/100, Accessibility: 100/100, Best Practices: 100/100, SEO: 85/100
+- PWA category deprecated in Lighthouse v12+ (will test separately in Step 6)
+- Core Web Vitals: FCP 1.5s, LCP 3.8s ⚠️, TBT 20ms, CLS 0.071, TTI 3.8s
+- Key issues identified: LCP optimization needed, unused CSS (12 KiB), cache headers missing, robots.txt + canonical link SEO errors
+- Full findings documented in phase1_automated_findings.md (6.4 KB)
+- Artifacts: lighthouse-report.report.html + lighthouse-report.report.json
 
 ### [ ] Step: Site Statique — JavaScript Linting
 
