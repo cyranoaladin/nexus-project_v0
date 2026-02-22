@@ -81,7 +81,7 @@ function DIUTooltip() {
               </h4>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-slate-600 ml-2"
+                className="text-slate-500 hover:text-slate-700 ml-2"
               >
                 <X size={14} />
               </button>
@@ -112,14 +112,14 @@ function parseMarkdownText(text: string) {
       const content = part.slice(2, -2);
       if (content === 'DIU NSI') {
         return (
-          <span key={index} className="font-semibold text-orange-600">
+          <span key={index} className="font-semibold text-blue-700">
             {content}
             <DIUTooltip />
           </span>
         );
       }
       return (
-        <span key={index} className="font-semibold text-orange-600">
+        <span key={index} className="font-semibold text-blue-700">
           {content}
         </span>
       );
@@ -144,10 +144,10 @@ export function PillarsSection() {
             <ShieldCheck className="w-4 h-4 mr-2" />
             Notre Promesse
           </Badge>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight max-w-4xl mx-auto">
+          <h2 className="font-heading text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight max-w-4xl mx-auto">
             L'<span className="text-blue-600">Excellence</span> Augmentée
           </h2>
-          <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
             Nous avons construit un écosystème unique où l'expertise humaine, la puissance technologique
             et la stratégie personnalisée convergent vers un seul objectif : votre réussite.
           </p>
@@ -173,12 +173,12 @@ export function PillarsSection() {
                   <div>
                     {/* En-tête du pilier */}
                     <div className="flex items-center mb-6">
-                      <Icon className="h-10 w-10 text-orange-500 mr-4" />
+                      <Icon className="h-10 w-10 text-brand-secondary mr-4" />
                       <div>
-                        <p className="text-sm font-semibold text-orange-600 uppercase tracking-wide mb-1">
+                        <p className="text-sm font-semibold text-blue-700 uppercase tracking-wide mb-1">
                           {pillar.category}
                         </p>
-                        <h3 className="font-heading text-2xl font-bold text-gray-900">
+                        <h3 className="font-heading text-2xl font-bold text-slate-900">
                           {pillar.title}
                         </h3>
                       </div>
@@ -193,8 +193,8 @@ export function PillarsSection() {
                     <div className="space-y-3">
                       {pillar.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-start">
-                          <CheckCircle2 className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700 leading-relaxed">
+                          <CheckCircle2 className="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                          <span className="text-slate-700 leading-relaxed">
                             {parseMarkdownText(feature)}
                           </span>
                         </div>

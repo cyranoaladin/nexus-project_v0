@@ -184,8 +184,8 @@ const SessionCalendarInner = memo(function SessionCalendarInner({
                   day_button: "rdp-day_button h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-100 rounded-md",
                   selected: "bg-brand-primary text-white hover:bg-brand-primary hover:text-white",
                   today: "bg-brand-primary/10 text-brand-primary font-bold",
-                  outside: "text-gray-400 opacity-50",
-                  disabled: "text-gray-400 opacity-50",
+                  outside: "text-slate-300 opacity-50",
+                  disabled: "text-slate-300 opacity-50",
                 }}
                 aria-label="Calendrier de sélection de date"
               />

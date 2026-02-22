@@ -64,8 +64,8 @@ function ErrorFallback({ error, onReset }: { error?: Error; onReset: () => void 
         </div>
 
         {isDev && error && (
-          <div className="bg-red-950/20 border border-red-900 rounded-lg p-4 text-left">
-            <p className="text-red-400 font-mono text-sm break-all">
+          <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-4 text-left">
+            <p className="text-slate-300 font-mono text-sm break-all">
               {error.message}
             </p>
           </div>

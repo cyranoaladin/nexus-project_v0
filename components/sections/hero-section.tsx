@@ -32,7 +32,7 @@ function DIUTooltip() {
               </h4>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-slate-600 ml-2"
+                className="text-slate-300 hover:text-slate-600 ml-2"
               >
                 <X size={14} />
               </button>

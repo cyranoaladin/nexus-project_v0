@@ -77,7 +77,7 @@ function ConfirmationContent() {
                     </div>
                     <div>
                       <h4 className="text-white font-medium text-sm">Votre diagnostic détaillé</h4>
-                      <p className="text-slate-400 text-xs mt-1">
+                      <p className="text-slate-300 text-xs mt-1">
                         Score de préparation, forces, priorités et profil d&apos;apprentissage
                       </p>
                     </div>
@@ -89,15 +89,15 @@ function ConfirmationContent() {
                     </div>
                     <div>
                       <h4 className="text-white font-medium text-sm">Plan de stage personnalisé</h4>
-                      <p className="text-slate-400 text-xs mt-1">
+                      <p className="text-slate-300 text-xs mt-1">
                         Modules recommandés, exercices ciblés et objectifs concrets
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                  <p className="text-yellow-200 text-sm">
+                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-slate-200 text-sm">
                     <strong>Important :</strong> Pour finaliser votre inscription au stage, 
                     cliquez sur le bouton ci-dessous pour accéder au paiement.
                   </p>
@@ -140,7 +140,7 @@ function ConfirmationContent() {
             transition={{ delay: 0.6 }}
             className="mt-12 text-center"
           >
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-slate-300 text-sm mb-4">
               Une question ? Notre équipe est disponible
             </p>
             <div className="flex items-center justify-center gap-2 text-brand-accent">

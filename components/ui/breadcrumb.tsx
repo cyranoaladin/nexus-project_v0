@@ -24,7 +24,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
             <li key={index} className="flex items-center">
               {index > 0 && (
                 <ChevronRight
-                  className="h-4 w-4 text-gray-400 mx-2"
+                  className="h-4 w-4 text-slate-300 mx-2"
                   aria-hidden="true"
                 />
               )}
@@ -38,7 +38,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
               ) : (
                 <Link
                   href={item.href || "/"}
-                  className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+                  className="text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-gray-100 transition-colors"
                 >
                   {item.label}
                 </Link>

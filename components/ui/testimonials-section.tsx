@@ -120,7 +120,7 @@ export function TestimonialsSection() {
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex">
                           {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                            <Star key={i} className="w-4 h-4 text-blue-300 fill-current" />
                           ))}
                         </div>
                         <Badge className="bg-green-100 text-green-700 text-xs">

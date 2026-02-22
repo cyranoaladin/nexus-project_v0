@@ -75,15 +75,15 @@ export default function VectorProjector() {
     }, [angleU, angleV]);
 
     return (
-        <div className={`bg-slate-900/50 border ${isOrthogonal ? 'border-green-500/40 shadow-lg shadow-green-500/10' : 'border-purple-500/20'} rounded-2xl overflow-hidden transition-all duration-300`}>
+        <div className={`bg-slate-900/50 border ${isOrthogonal ? 'border-green-500/40 shadow-lg shadow-green-500/10' : 'border-blue-500/20'} rounded-2xl overflow-hidden transition-all duration-300`}>
             <button
                 onClick={() => setExpanded(!expanded)}
                 className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
             >
                 <div className="flex items-center gap-2">
                     <span className="text-lg">🧲</span>
-                    <span className="font-bold text-purple-300 text-sm">Projecteur Vectoriel</span>
-                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
+                    <span className="font-bold text-blue-200 text-sm">Projecteur Vectoriel</span>
+                    <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
                 </div>
                 <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
             </button>
@@ -95,7 +95,7 @@ export default function VectorProjector() {
                         <span className="bg-slate-800 px-2 py-1 rounded text-blue-300">
                             <span className="font-bold">u⃗</span> = ({u[0].toFixed(1)} ; {u[1].toFixed(1)})
                         </span>
-                        <span className="bg-slate-800 px-2 py-1 rounded text-orange-300">
+                        <span className="bg-slate-800 px-2 py-1 rounded text-slate-200">
                             <span className="font-bold">v⃗</span> = ({v[0].toFixed(1)} ; {v[1].toFixed(1)})
                         </span>
                         <span className={`px-2 py-1 rounded font-bold ${isOrthogonal ? 'bg-green-500/20 text-green-400 animate-pulse' : 'bg-slate-800 text-white'}`}>
@@ -191,10 +191,10 @@ export default function VectorProjector() {
 
                     {/* Formula reminder */}
                     <div className="bg-slate-800/50 rounded-xl p-3 text-center space-y-1">
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-300">
                             <span className="text-blue-400 font-mono">u⃗({u[0].toFixed(1)};{u[1].toFixed(1)})</span>
                             {' · '}
-                            <span className="text-orange-400 font-mono">v⃗({v[0].toFixed(1)};{v[1].toFixed(1)})</span>
+                            <span className="text-slate-300 font-mono">v⃗({v[0].toFixed(1)};{v[1].toFixed(1)})</span>
                             {' = '}
                             <span className="text-white font-bold font-mono">
                                 {u[0].toFixed(1)}×{v[0].toFixed(1)} + {u[1].toFixed(1)}×{v[1].toFixed(1)} = {dotProduct.toFixed(2)}

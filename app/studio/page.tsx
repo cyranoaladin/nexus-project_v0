@@ -36,7 +36,7 @@ export default function StudioPage() {
                                 <Search className="h-6 w-6" strokeWidth={1.5} />
                             </div>
                             <h3 className="text-xl font-bold mb-3 text-white">RAG Enterprise</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Transformez vos PDF et bases documentaires en connaissances exploitables par chat.
                             </p>
                         </div>
@@ -46,7 +46,7 @@ export default function StudioPage() {
                                 <Cpu className="h-6 w-6" strokeWidth={1.5} />
                             </div>
                             <h3 className="text-xl font-bold mb-3 text-white">Agents Autonomes</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Déploiement d'équipes d'agents (CrewAI, LangGraph) pour automatiser vos tâches complexes.
                             </p>
                         </div>
@@ -55,7 +55,7 @@ export default function StudioPage() {
                                 <ShieldCheck className="h-6 w-6" strokeWidth={1.5} />
                             </div>
                             <h3 className="text-xl font-bold mb-3 text-white">Audit Algorithmique</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Analyse de performance et conformité de vos modèles LLM.
                             </p>
                         </div>

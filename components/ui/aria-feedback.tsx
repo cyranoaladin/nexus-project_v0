@@ -105,7 +105,7 @@ export function AriaFeedback({ messageId, onFeedback, className = '' }: AriaFeed
                 size="sm"
                 onClick={() => handleFeedback('negative')}
                 disabled={isSubmitting}
-                className="flex items-center gap-1 hover:bg-red-50 hover:border-red-300"
+                className="flex items-center gap-1 hover:bg-slate-100 hover:border-slate-300"
               >
                 <ThumbsDown className="w-4 h-4" />
                 <span className="text-xs">Pas utile</span>

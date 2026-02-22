@@ -189,7 +189,7 @@ export default function NotificationBell() {
                         <p className="text-xs text-gray-500 mt-1">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-slate-300 mt-1">
                           {formatTime(notification.createdAt)}
                         </p>
                       </div>

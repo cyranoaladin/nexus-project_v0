@@ -17,7 +17,7 @@ const guarantees = [
     icon: Award,
     title: "Mention Garantie",
     description: "Avec nos programmes Odyssée, nous garantissons une mention ou nous vous accompagnons gratuitement l'année suivante.",
-    color: "from-amber-600 to-yellow-500"
+    color: "from-blue-700 to-slate-700"
   },
   {
     icon: Clock,
@@ -29,7 +29,7 @@ const guarantees = [
     icon: Users,
     title: "Suivi Personnalisé",
     description: "Chaque élève bénéficie d'un coach dédié qui l'accompagne tout au long de son parcours.",
-    color: "from-purple-600 to-pink-500"
+    color: "from-blue-600 to-cyan-500"
   }
 ];
 
@@ -42,7 +42,7 @@ const stats = [
 
 export function GuaranteeSection() {
   return (
-    <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-slate-100">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
@@ -51,7 +51,7 @@ export function GuaranteeSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="mb-4 bg-amber-50 text-amber-700 border-amber-200">
+          <Badge variant="outline" className="mb-4 bg-blue-50 text-blue-700 border-blue-200">
             <Shield className="w-4 h-4 mr-2" />
             Nos Garanties
           </Badge>

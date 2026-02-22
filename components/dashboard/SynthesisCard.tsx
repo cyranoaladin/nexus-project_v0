@@ -42,15 +42,15 @@ function getStudentMessage(score: number, trend: string): { message: string; sec
     return { message: 'Progression régulière. Maintenir le rythme.', secondary: null, tone: 'text-blue-400' };
   }
   if (score >= 50 && trend === 'down') {
-    return { message: 'Trajectoire à ajuster.', secondary: 'Un échange stratégique est recommandé.', tone: 'text-amber-400' };
+    return { message: 'Trajectoire à ajuster.', secondary: 'Un échange stratégique est recommandé.', tone: 'text-blue-300' };
   }
   if (score >= 50) {
-    return { message: 'Trajectoire en construction.', secondary: 'Consolider les acquis pour stabiliser le cap.', tone: 'text-amber-400' };
+    return { message: 'Trajectoire en construction.', secondary: 'Consolider les acquis pour stabiliser le cap.', tone: 'text-blue-300' };
   }
   if (trend === 'up') {
-    return { message: 'Engagement à renforcer.', secondary: 'Dynamique positive détectée — maintenir l\u2019effort.', tone: 'text-amber-400' };
+    return { message: 'Engagement à renforcer.', secondary: 'Dynamique positive détectée — maintenir l\u2019effort.', tone: 'text-blue-300' };
   }
-  return { message: 'Un ajustement stratégique est recommandé.', secondary: 'Un point de situation permettrait de relancer la trajectoire.', tone: 'text-orange-400' };
+  return { message: 'Un ajustement stratégique est recommandé.', secondary: 'Un point de situation permettrait de relancer la trajectoire.', tone: 'text-slate-300' };
 }
 
 // ─── Coach synthesis ────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ function getCoachMessage(data: CoachSynthesisData): { message: string; tone: str
   if (parts.length === 0) {
     return { message: 'Tout est à jour. Aucune action en attente.', tone: 'text-emerald-400' };
   }
-  return { message: parts.join(' '), tone: data.pendingReports > 2 ? 'text-amber-400' : 'text-blue-400' };
+  return { message: parts.join(' '), tone: data.pendingReports > 2 ? 'text-blue-300' : 'text-blue-400' };
 }
 
 // ─── Assistante synthesis ───────────────────────────────────────────────────
@@ -93,7 +93,7 @@ function getAssistanteMessage(data: AssistanteSynthesisData): { message: string;
     return { message: 'Flux opérationnel nominal. Aucune action urgente.', tone: 'text-emerald-400' };
   }
   const total = data.pendingSubscriptions + data.pendingPayments;
-  return { message: parts.join(' '), tone: total > 3 ? 'text-amber-400' : 'text-blue-400' };
+  return { message: parts.join(' '), tone: total > 3 ? 'text-blue-300' : 'text-blue-400' };
 }
 
 // ─── Admin synthesis ────────────────────────────────────────────────────────

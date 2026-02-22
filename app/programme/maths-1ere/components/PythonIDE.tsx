@@ -212,14 +212,14 @@ export default function PythonIDE({
           isCorrect === true
             ? 'border-green-500/30 bg-green-900/10 text-green-300'
             : isCorrect === false
-            ? 'border-red-500/30 bg-red-900/10 text-red-300'
+            ? 'border-slate-500/30 bg-slate-800/50 text-slate-200'
             : 'border-slate-700 bg-slate-900/50 text-slate-300'
         }`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold text-slate-500">Sortie :</span>
             {isCorrect === true && <span className="text-xs text-green-400 font-bold">✓ Correct !</span>}
             {isCorrect === false && expectedOutput && (
-              <span className="text-xs text-red-400 font-bold">✗ Attendu : {expectedOutput}</span>
+              <span className="text-xs text-slate-300 font-bold">✗ Attendu : {expectedOutput}</span>
             )}
           </div>
           {output}

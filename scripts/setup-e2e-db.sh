@@ -20,9 +20,9 @@ fi
 echo "🧹 Cleaning up existing E2E container..."
 docker-compose -f docker-compose.e2e.yml down -v 2>/dev/null || true
 
-# Start PostgreSQL container
+# Start only PostgreSQL container (app/playwright are started by test run)
 echo "🐘 Starting PostgreSQL E2E container..."
-docker-compose -f docker-compose.e2e.yml up -d
+docker-compose -f docker-compose.e2e.yml up -d postgres-e2e
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for database to be ready..."
@@ -42,10 +42,10 @@ done
 
 echo "✅ Database is ready!"
 
-# Run Prisma migrations
+# Run Prisma migrations from host against postgres-e2e
 echo "📦 Running Prisma migrations..."
 DATABASE_URL="postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public" \
-  npx prisma db push --accept-data-loss
+  npx prisma migrate deploy
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."

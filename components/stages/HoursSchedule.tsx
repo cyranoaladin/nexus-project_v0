@@ -17,14 +17,14 @@ export function HoursSchedule({ schedule }: HoursScheduleProps) {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-900 to-blue-900 text-white">
+    <section className="py-16 md:py-24 bg-gradient-to-br from-slate-900 to-blue-900 text-white">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           {/* Titre */}
           <h2 className="text-3xl md:text-5xl font-black text-center mb-4">
             Volumes horaires réalistes, structurés
           </h2>
-          <p className="text-lg text-blue-200 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-200 text-center mb-12 max-w-2xl mx-auto">
             Un cadre exigeant adapté au rythme de chacun.
           </p>
 
@@ -34,7 +34,7 @@ export function HoursSchedule({ schedule }: HoursScheduleProps) {
             <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6">
               <h3 className="text-xl font-bold text-blue-300 mb-2">Pallier 1</h3>
               <p className="text-2xl font-black text-white mb-4">{schedule.pallier1.description}</p>
-              <ul className="space-y-2 text-sm text-blue-100">
+              <ul className="space-y-2 text-sm text-slate-200">
                 {schedule.pallier1.detail.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-blue-400 mt-0.5">•</span>
@@ -46,12 +46,12 @@ export function HoursSchedule({ schedule }: HoursScheduleProps) {
 
             {/* Pallier 2 */}
             <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-purple-300 mb-2">Pallier 2</h3>
+              <h3 className="text-xl font-bold text-blue-300 mb-2">Pallier 2</h3>
               <p className="text-2xl font-black text-white mb-4">{schedule.pallier2.description}</p>
-              <ul className="space-y-2 text-sm text-blue-100">
+              <ul className="space-y-2 text-sm text-slate-200">
                 {schedule.pallier2.detail.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-0.5">•</span>
+                    <span className="text-brand-secondary mt-0.5">•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -60,8 +60,8 @@ export function HoursSchedule({ schedule }: HoursScheduleProps) {
           </div>
 
           {/* Note */}
-          <div className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 mb-12 text-center">
-            <p className="text-sm text-amber-100">{schedule.note}</p>
+          <div className="bg-slate-700/35 border border-slate-400/35 rounded-xl p-4 mb-12 text-center">
+            <p className="text-sm text-slate-100">{schedule.note}</p>
           </div>
 
           {/* CTA */}

@@ -165,7 +165,7 @@ export default function StudentsManagement() {
           </Card>
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-amber-300">
+              <div className="text-2xl font-bold text-blue-200">
                 {students.filter(s => s.creditBalance === 0).length}
               </div>
               <p className="text-sm text-neutral-400">Sans Crédits</p>

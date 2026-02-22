@@ -57,7 +57,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
 
           <div className="mb-8">
             <div className="flex items-center justify-center gap-4">
-              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-slate-300'}`}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 ${
                   step >= 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-200 text-slate-600 border-slate-300'
                 }`}>
@@ -66,7 +66,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                 <span className="font-semibold hidden md:inline">Choix académie</span>
               </div>
               <div className={`h-px w-16 ${step >= 2 ? 'bg-blue-600' : 'bg-slate-300'}`}></div>
-              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-slate-300'}`}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 ${
                   step >= 2 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-200 text-slate-600 border-slate-300'
                 }`}>
@@ -86,7 +86,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   <div
                     key={academy.id}
                     className={`bg-white rounded-2xl shadow-lg border-2 p-6 hover:shadow-2xl transition-all cursor-pointer hover:scale-105 ${
-                      isPallier1 ? 'border-blue-400 hover:border-blue-600' : 'border-purple-400 hover:border-purple-600'
+                      isPallier1 ? 'border-blue-400 hover:border-blue-600' : 'border-brand-secondary/50 hover:border-brand-secondary'
                     }`}
                     onClick={() => handleSelectAcademy(academy)}
                   >
@@ -99,13 +99,13 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                     <p className="text-sm text-slate-600 mb-4">{academy.objective}</p>
 
                     <div className="mb-4">
-                      <div className="text-sm text-slate-500 line-through mb-1">{academy.price} DT</div>
+                      <div className="text-sm text-slate-600 line-through mb-1">{academy.price} DT</div>
                       <div className="text-2xl font-black text-blue-600">{academy.earlyBirdPrice} DT</div>
-                      <div className="text-xs text-green-700 font-semibold">Tarif anticipé</div>
+                      <div className="text-xs text-blue-700 font-semibold">Tarif anticipé</div>
                     </div>
 
-                    <div className="text-xs text-orange-700 font-semibold mb-4">
-                      ⚠️ {academy.seatsLeft} places restantes
+                    <div className="text-xs text-slate-700 font-semibold mb-4">
+                      {academy.seatsLeft} places restantes
                     </div>
 
                     <button
@@ -121,10 +121,10 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
 
           {step === 2 && selectedAcademy && (
             <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-blue-200">
+              <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-blue-200">
                 <button
                   onClick={() => setStep(1)}
-                  className="text-blue-600 hover:text-blue-700 font-semibold mb-6 flex items-center gap-2 text-sm"
+                  className="text-blue-700 hover:text-blue-800 font-semibold mb-6 flex items-center gap-2 text-sm"
                 >
                   ← Changer d'académie
                 </button>
@@ -146,15 +146,15 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   <div className="border-t border-slate-200 pt-6">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-slate-600">Prix normal</span>
-                      <span className="text-slate-500 line-through">{selectedAcademy.price} DT</span>
+                      <span className="text-slate-600 line-through">{selectedAcademy.price} DT</span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-slate-600 font-semibold">Tarif anticipé</span>
                       <span className="text-2xl font-black text-blue-600">{selectedAcademy.earlyBirdPrice} DT</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-700 font-semibold">Économie</span>
-                      <span className="text-green-700 font-bold">-{selectedAcademy.price - selectedAcademy.earlyBirdPrice} DT</span>
+                      <span className="text-blue-700 font-semibold">Économie</span>
+                      <span className="text-blue-700 font-bold">-{selectedAcademy.price - selectedAcademy.earlyBirdPrice} DT</span>
                     </div>
                   </div>
                 </div>
@@ -190,8 +190,8 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   Réserver ma consultation gratuite 📅
                 </button>
 
-                <p className="text-xs text-center text-slate-600">
-                  ⚠️ {selectedAcademy.seatsLeft} places restantes | Tarif anticipé jusqu'au 5 février
+                <p className="text-xs text-center text-slate-700">
+                  {selectedAcademy.seatsLeft} places restantes | Tarif anticipé jusqu'au 5 février
                 </p>
               </div>
             </div>

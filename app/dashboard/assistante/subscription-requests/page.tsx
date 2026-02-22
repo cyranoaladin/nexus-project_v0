@@ -118,7 +118,7 @@ export default function SubscriptionRequestsPage() {
   const getRequestTypeIcon = (type: string) => {
     switch (type) {
       case 'PLAN_CHANGE': return <CreditCard className="w-5 h-5 text-brand-accent" />;
-      case 'ARIA_ADDON': return <Brain className="w-5 h-5 text-purple-300" />;
+      case 'ARIA_ADDON': return <Brain className="w-5 h-5 text-blue-300" />;
       default: return <AlertCircle className="w-5 h-5 text-neutral-400" />;
     }
   };

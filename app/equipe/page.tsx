@@ -547,7 +547,7 @@ export default function EquipePage() {
                           {mentor.name.slice(0, 1)}
                         </div>
                         <div className="mt-2 text-sm font-semibold text-white">{mentor.name}</div>
-                        <div className="text-xs text-slate-400">{mentor.subject}</div>
+                        <div className="text-xs text-slate-300">{mentor.subject}</div>
                       </div>
                     ))}
                   </div>
@@ -703,7 +703,7 @@ export default function EquipePage() {
                     ))}
                   </div>
 
-                  <div className="mt-4 text-xs text-slate-400">
+                  <div className="mt-4 text-xs text-slate-300">
                     “{mentor.testimonial.quote}” — {mentor.testimonial.author}
                   </div>
 
@@ -752,7 +752,7 @@ export default function EquipePage() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3 items-center">
-              <span className="text-xs text-slate-400">Filtrer par :</span>
+              <span className="text-xs text-slate-300">Filtrer par :</span>
               {filterCategories.map((category) => (
                 <button
                   key={category.value}
@@ -765,11 +765,11 @@ export default function EquipePage() {
                   {category.label}
                 </button>
               ))}
-              <span className="text-xs text-slate-400">Disponibilité :</span>
+              <span className="text-xs text-slate-300">Disponibilité :</span>
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "available" }))}
                 className={`rounded-full px-3 py-1 text-xs border transition ${filters.availability === "available"
-                    ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
+                    ? "border-emerald-400 bg-emerald-400/10 text-blue-300"
                     : "border-white/10 text-slate-300"
                   }`}
               >
@@ -798,7 +798,7 @@ export default function EquipePage() {
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-white">{mentor.name}</h4>
-                      <div className="text-xs text-slate-400">{mentor.title}</div>
+                      <div className="text-xs text-slate-300">{mentor.title}</div>
                     </div>
                   </div>
 
@@ -814,7 +814,7 @@ export default function EquipePage() {
 
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-300">
                     <span>⭐ {mentor.rating.toFixed(1)}</span>
-                    <span className="text-emerald-300">🟢 {mentor.availability} places</span>
+                    <span className="text-blue-300">🟢 {mentor.availability} places</span>
                   </div>
 
                   <div className="mt-4 flex gap-2">
@@ -841,7 +841,7 @@ export default function EquipePage() {
                   Charger plus d&apos;experts
                 </button>
               )}
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-slate-300">
                 {visibleMentors.length}/{filteredMentors.length} experts affichés
               </div>
             </div>
@@ -858,7 +858,7 @@ export default function EquipePage() {
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
                 <h3 className="text-xl font-semibold text-white">Professeur Classique</h3>
-                <div className="mt-2 text-sm text-slate-400">~60 TND/h</div>
+                <div className="mt-2 text-sm text-slate-300">~60 TND/h</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-300">
                   <li>✅ Diplôme variable</li>
                   <li>✅ Suivi limité aux cours</li>
@@ -880,7 +880,7 @@ export default function EquipePage() {
                   <li>🛡️ Garantie résultats</li>
                   <li>🧭 Coaching orientation inclus</li>
                 </ul>
-                <div className="mt-4 text-xs text-slate-400">
+                <div className="mt-4 text-xs text-slate-300">
                   *Basé sur Programme Excellence (299 TND/mois pour 8h)
                 </div>
               </div>
@@ -919,7 +919,7 @@ export default function EquipePage() {
                   </div>
                   <div className="mt-6">
                     <div className="text-3xl font-bold text-gold-400">30 TND</div>
-                    <div className="text-sm text-slate-400">au lieu de 60 TND pour le premier cours</div>
+                    <div className="text-sm text-slate-300">au lieu de 60 TND pour le premier cours</div>
                   </div>
                   <div className="mt-6 flex flex-col gap-3">
                     <a

@@ -136,13 +136,13 @@ export default function SimulationPanel({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Simulateur de Progression</h3>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-300 mt-1">
             Ajustez les curseurs pour simuler l&apos;impact sur votre SSN
           </p>
         </div>
         <button
           onClick={resetAll}
-          className="text-xs text-slate-400 hover:text-slate-200 px-3 py-1 rounded border border-slate-600 hover:border-slate-500 transition-colors"
+          className="text-xs text-slate-300 hover:text-slate-100 px-3 py-1 rounded border border-slate-600 hover:border-slate-500 transition-colors"
         >
           Réinitialiser
         </button>
@@ -161,7 +161,7 @@ export default function SimulationPanel({
                 <span className="font-mono">
                   <span className="text-slate-500">{Math.round(d.score)}</span>
                   {delta !== 0 && (
-                    <span className={delta > 0 ? 'text-emerald-400' : 'text-red-400'}>
+                    <span className={delta > 0 ? 'text-emerald-400' : 'text-slate-300'}>
                       {' → '}{Math.round(simulated)}
                       {' ('}
                       {delta > 0 ? '+' : ''}{delta}
@@ -229,16 +229,16 @@ export default function SimulationPanel({
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
               simulation.level === 'excellence' ? 'bg-emerald-500/20 text-emerald-300' :
               simulation.level === 'tres_solide' ? 'bg-blue-500/20 text-blue-300' :
-              simulation.level === 'stable' ? 'bg-amber-500/20 text-amber-300' :
-              simulation.level === 'fragile' ? 'bg-orange-500/20 text-orange-300' :
-              'bg-red-500/20 text-red-300'
+              simulation.level === 'stable' ? 'bg-blue-400/20 text-blue-200' :
+              simulation.level === 'fragile' ? 'bg-slate-500/20 text-slate-200' :
+              'bg-slate-600/20 text-slate-100'
             }`}>
               {simulation.label}
             </span>
           </div>
           {simulation.ssnDelta !== null && simulation.ssnDelta !== 0 && (
             <div className={`text-xs mt-2 font-medium ${
-              simulation.ssnDelta > 0 ? 'text-emerald-400' : 'text-red-400'
+              simulation.ssnDelta > 0 ? 'text-emerald-400' : 'text-slate-300'
             }`}>
               {simulation.ssnDelta > 0 ? '+' : ''}{simulation.ssnDelta} points
             </div>

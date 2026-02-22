@@ -16,7 +16,7 @@ const PathsSectionGSAP = () => {
             subtitle: "Objectif mention",
             description: "Un cadre clair pour progresser en continu et sécuriser le Bac.",
             features: ["Cours particuliers ciblés", "Plan de révision", "Suivi parent"],
-            gradient: "from-blue-500/20 to-cyan-500/20",
+            gradient: "from-blue-500/20 to-slate-500/20",
             border: "hover:border-blue-400/50",
             cta: "Voir les formules",
             href: "/offres"
@@ -28,8 +28,8 @@ const PathsSectionGSAP = () => {
             subtitle: "Cadre & discipline",
             description: "Un accompagnement structuré pour rattraper, consolider et performer.",
             features: ["Diagnostic initial", "Coaching méthodo", "Sessions intensives"],
-            gradient: "from-purple-500/20 to-pink-500/20",
-            border: "hover:border-purple-400/50",
+            gradient: "from-brand-secondary/20 to-blue-500/20",
+            border: "hover:border-brand-secondary/50",
             cta: "Démarrer un bilan",
             href: "/bilan-gratuit"
         },
@@ -40,19 +40,19 @@ const PathsSectionGSAP = () => {
             subtitle: "Décisions sûres",
             description: "Clarifiez le projet et maximisez les chances d’admission.",
             features: ["Stratégie de dossier", "Coaching Grand Oral", "Suivi personnalisé"],
-            gradient: "from-emerald-500/20 to-green-500/20",
-            border: "hover:border-emerald-400/50",
+            gradient: "from-blue-500/20 to-slate-600/20",
+            border: "hover:border-blue-400/50",
             cta: "Parler à un expert",
             href: "/contact"
         }
     ];
 
     return (
-        <section ref={sectionRef} id="paths" className="py-24 bg-neutral-950 relative overflow-hidden">
+        <section ref={sectionRef} id="paths" className="py-16 md:py-24 bg-neutral-950 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]" />
-                <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-brand-secondary/10 rounded-full blur-[100px]" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6">
@@ -60,12 +60,12 @@ const PathsSectionGSAP = () => {
                 <div className="text-center mb-24" data-reveal="up">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
                         <User className="w-4 h-4 text-blue-400" />
-                        <span className="font-mono text-xs uppercase tracking-wider text-gray-400">Pour chaque ambition</span>
+                        <span className="font-mono text-xs uppercase tracking-wider text-slate-300">Pour chaque ambition</span>
                     </div>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-                        Choisissez votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Voie d'Excellence</span>
+                        Choisissez votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-slate-300">Voie d'Excellence</span>
                     </h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+                    <p className="text-slate-300 max-w-2xl mx-auto text-lg">
                         Que vous soyez au lycée, à l'université ou en poste, Nexus a conçu un parcours d'élite adapté à vos enjeux spécifiques.
                     </p>
                 </div>
@@ -92,20 +92,20 @@ const PathsSectionGSAP = () => {
                                 <h3 className="relative font-display text-2xl font-bold text-white mb-2">
                                     {path.title}
                                 </h3>
-                                <p className={`relative font-mono text-xs uppercase tracking-wider mb-6 ${path.id === 'eleve' ? 'text-blue-400' :
-                                    path.id === 'etudiant' ? 'text-purple-400' : 'text-emerald-400'
+                                <p className={`relative font-mono text-xs uppercase tracking-wider mb-6 ${path.id === 'lycee' ? 'text-blue-300' :
+                                    path.id === 'candidat' ? 'text-brand-secondary' : 'text-blue-200'
                                     }`}>
                                     {path.subtitle}
                                 </p>
 
-                                <p className="relative text-gray-400 text-sm leading-relaxed mb-8">
+                                <p className="relative text-slate-300 text-sm leading-relaxed mb-8">
                                     {path.description}
                                 </p>
 
                                 {/* Features */}
                                 <ul className="relative space-y-3 mb-8">
                                     {path.features.map((feature, idx) => (
-                                        <li key={idx} className="flex items-center gap-3 text-sm text-gray-300">
+                                        <li key={idx} className="flex items-center gap-3 text-sm text-slate-200">
                                             <div className="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-white/50 transition-colors" />
                                             {feature}
                                         </li>

@@ -186,13 +186,13 @@ export default function DashboardAdmin() {
                   <p className="text-xs md:text-sm text-neutral-400 mt-1">Élèves</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-purple-300">
+                  <div className="text-2xl md:text-3xl font-bold text-blue-300">
                     {adminData?.stats?.totalCoaches || 0}
                   </div>
                   <p className="text-xs md:text-sm text-neutral-400 mt-1">Coachs</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-amber-300">
+                  <div className="text-2xl md:text-3xl font-bold text-blue-200">
                     {adminData?.stats?.totalAssistants || 0}
                   </div>
                   <p className="text-xs md:text-sm text-neutral-400 mt-1">Assistantes</p>
@@ -227,10 +227,10 @@ export default function DashboardAdmin() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Abonnements Actifs</CardTitle>
-              <Activity className="h-4 w-4 text-purple-300" aria-hidden="true" />
+              <Activity className="h-4 w-4 text-blue-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-purple-200">
+              <div className="text-xl md:text-2xl font-bold text-blue-200">
                 {adminData?.stats?.activeSubscriptions || 0}
               </div>
               <p className="text-xs text-neutral-400 mt-1">
@@ -260,10 +260,10 @@ export default function DashboardAdmin() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Total Sessions</CardTitle>
-              <Database className="h-4 w-4 text-indigo-300" aria-hidden="true" />
+              <Database className="h-4 w-4 text-blue-300" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-indigo-300">
+              <div className="text-xl md:text-2xl font-bold text-blue-300">
                 {adminData?.stats?.totalSessions || 0}
               </div>
               <p className="text-xs text-neutral-400 mt-1">
@@ -275,10 +275,10 @@ export default function DashboardAdmin() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-neutral-200">Total Abonnements</CardTitle>
-              <CreditCard className="h-4 w-4 text-amber-300" aria-hidden="true" />
+              <CreditCard className="h-4 w-4 text-blue-200" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold text-amber-300">
+              <div className="text-xl md:text-2xl font-bold text-blue-200">
                 {adminData?.stats?.totalSubscriptions || 0}
               </div>
               <p className="text-xs text-neutral-400 mt-1">
@@ -351,7 +351,7 @@ export default function DashboardAdmin() {
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white" asChild>
                   <Link href="/dashboard/assistante/docs">
                     <div className="flex items-center space-x-3">
-                      <Settings className="w-4 h-4 md:w-5 md:h-5 text-indigo-300" aria-hidden="true" />
+                      <Settings className="w-4 h-4 md:w-5 md:h-5 text-blue-300" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Docs internes</p>
                         <p className="text-xs md:text-sm text-neutral-400">Référentiel read-only</p>
@@ -391,8 +391,8 @@ export default function DashboardAdmin() {
                       <div className="flex-shrink-0">
                         {activity.type === 'session' && <Activity className="w-4 h-4 md:w-5 md:h-5 text-brand-accent" aria-hidden="true" />}
                         {activity.type === 'user' && <Users className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" aria-hidden="true" />}
-                        {activity.type === 'subscription' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-purple-300" aria-hidden="true" />}
-                        {activity.type === 'credit' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-amber-300" aria-hidden="true" />}
+                        {activity.type === 'subscription' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-blue-300" aria-hidden="true" />}
+                        {activity.type === 'credit' && <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-blue-200" aria-hidden="true" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs md:text-sm font-medium text-white truncate">

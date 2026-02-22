@@ -255,7 +255,7 @@ export default function DashboardEleve() {
                         <div className="flex items-center space-x-2">
                           <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
                               ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20'
-                              : 'bg-amber-500/15 text-amber-200 border border-amber-500/20'
+                              : 'bg-blue-500/15 text-slate-200 border border-blue-500/20'
                             }`}>
                             {session.status}
                           </span>
@@ -298,11 +298,11 @@ export default function DashboardEleve() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
                     { value: 'MATHEMATIQUES', label: 'Maths', icon: '📐', color: 'text-sky-300' },
-                    { value: 'NSI', label: 'NSI', icon: '💻', color: 'text-violet-300' },
-                    { value: 'FRANCAIS', label: 'Français', icon: '📖', color: 'text-amber-300' },
+                    { value: 'NSI', label: 'NSI', icon: '💻', color: 'text-blue-300' },
+                    { value: 'FRANCAIS', label: 'Français', icon: '📖', color: 'text-blue-200' },
                     { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', icon: '🔬', color: 'text-emerald-300' },
                     { value: 'PHILOSOPHIE', label: 'Philosophie', icon: '🧠', color: 'text-rose-300' },
-                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', icon: '🌍', color: 'text-orange-300' },
+                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', icon: '🌍', color: 'text-slate-200' },
                   ].map((subject) => (
                     <button
                       key={subject.value}
@@ -369,7 +369,7 @@ export default function DashboardEleve() {
                 </Button>
                 <Link href="/dashboard/eleve/mes-sessions">
                   <Button variant="outline" className="w-full h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white">
-                    <Video className="w-5 h-5 text-purple-300" />
+                    <Video className="w-5 h-5 text-blue-300" />
                     <span className="text-[10px]">Sessions</span>
                   </Button>
                 </Link>

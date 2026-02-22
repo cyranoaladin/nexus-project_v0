@@ -80,7 +80,7 @@ export function CoachOverviewCard() {
       icon: FileText,
       label: 'Comptes-rendus à finaliser',
       value: data?.pendingReports ?? 0,
-      color: data?.pendingReports ? 'text-amber-400' : 'text-neutral-400',
+      color: data?.pendingReports ? 'text-blue-300' : 'text-neutral-400',
     },
     {
       icon: Clock,

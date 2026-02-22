@@ -111,10 +111,10 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             </div>
           </div>
 
-          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
+          <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
             <div className="flex items-start space-x-2">
-              <Receipt className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-amber-200">
+              <Receipt className="w-4 h-4 text-slate-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-slate-200">
                 <p className="font-medium mb-1">Information :</p>
                 <p>La facturation est automatique à la date indiquée. Vous recevrez un email de confirmation.</p>
               </div>

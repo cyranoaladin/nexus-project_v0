@@ -31,7 +31,7 @@ export default function AcademyPage() {
                         <Terminal className="text-brand-accent h-10 w-10 mb-4" strokeWidth={1.5} />
                         <h3 className="text-xl font-bold mb-2 text-white">Parcours NSI & Python</h3>
                         <p className="text-sm text-slate-300 mb-3">Cible : Lycée & Prépas.</p>
-                        <p className="text-slate-400 text-sm leading-relaxed">
+                        <p className="text-slate-300 text-sm leading-relaxed">
                             Algorithmique, Structures de données, Projets Web. Un accompagnement pointu pour exceller au Bac et au-delà.
                         </p>
                     </div>
@@ -40,7 +40,7 @@ export default function AcademyPage() {
                         <Sigma className="text-brand-accent h-10 w-10 mb-4" strokeWidth={1.5} />
                         <h3 className="text-xl font-bold mb-2 text-white">Mathématiques d'Excellence</h3>
                         <p className="text-sm text-slate-300 mb-3">Cible : Cycle Terminal.</p>
-                        <p className="text-slate-400 text-sm leading-relaxed">
+                        <p className="text-slate-300 text-sm leading-relaxed">
                             Rigueur du raisonnement, Analyse, Algèbre. Préparation aux concours et renforcement des acquis fondamentaux.
                         </p>
                     </div>
@@ -49,7 +49,7 @@ export default function AcademyPage() {
                         <Blocks className="text-brand-accent h-10 w-10 mb-4" strokeWidth={1.5} />
                         <h3 className="text-xl font-bold mb-2 text-white">Web3 & Solana</h3>
                         <p className="text-sm text-slate-300 mb-3">Cible : Post-Bac & Pro.</p>
-                        <p className="text-slate-400 text-sm leading-relaxed">
+                        <p className="text-slate-300 text-sm leading-relaxed">
                             Développement de Smart Contracts sur Solana (Rust). Comprendre et bâtir l'internet décentralisé.
                         </p>
                     </div>

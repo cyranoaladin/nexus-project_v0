@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-r from-slate-900 to-slate-800">
       <div className="text-center text-white">
         <h1 className="text-4xl font-bold mb-4">
           🎓 Nexus Réussite Academy
@@ -8,7 +8,7 @@ export default function Home() {
         <p className="text-xl mb-8">
           Plateforme éducative de référence
         </p>
-        <div className="bg-white/20 backdrop-blur-sm rounded-lg p-6">
+        <div className="bg-white/10 border border-white/20 backdrop-blur-sm rounded-lg p-6">
           <p className="text-lg">
             ✅ Application déployée avec succès
           </p>

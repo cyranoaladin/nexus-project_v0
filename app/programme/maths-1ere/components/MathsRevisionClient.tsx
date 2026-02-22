@@ -133,8 +133,8 @@ function getColorClasses(couleur: string) {
   switch (couleur) {
     case 'cyan': return { text: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-t-cyan-500', borderAccent: 'border-cyan-500/30' };
     case 'blue': return { text: 'text-blue-400', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
-    case 'purple': return { text: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-t-purple-500', borderAccent: 'border-purple-500/30' };
-    case 'amber': return { text: 'text-amber-400', bg: 'bg-amber-500/20', border: 'border-t-amber-500', borderAccent: 'border-amber-500/30' };
+    case 'purple': return { text: 'text-blue-300', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
+    case 'amber': return { text: 'text-blue-300', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
     case 'green': return { text: 'text-green-400', bg: 'bg-green-500/20', border: 'border-t-green-500', borderAccent: 'border-green-500/30' };
     default: return { text: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-t-cyan-500', borderAccent: 'border-cyan-500/30' };
   }
@@ -403,7 +403,7 @@ export default function MathsRevisionClient({
   if (store.hydrationError) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-slate-300 px-4">
-        <div className="max-w-xl w-full bg-slate-900/80 border border-red-500/30 rounded-2xl p-6 text-center">
+        <div className="max-w-xl w-full bg-slate-900/80 border border-slate-500/30 rounded-2xl p-6 text-center">
           <Image
             src="/images/logo_nexus_reussite.png"
             alt="Nexus Réussite"
@@ -412,11 +412,11 @@ export default function MathsRevisionClient({
             priority
             className="h-auto w-[200px] mx-auto mb-4"
           />
-          <h1 className="text-xl font-bold text-red-300 mb-2">Session non disponible</h1>
+          <h1 className="text-xl font-bold text-slate-100 mb-2">Session non disponible</h1>
           <p className="text-slate-300 mb-5">{store.hydrationError}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 rounded-xl bg-red-500/20 text-red-200 border border-red-400/40 hover:bg-red-500/30 transition-colors"
+            className="px-4 py-2 rounded-xl bg-slate-500/20 text-slate-100 border border-slate-400/40 hover:bg-slate-500/30 transition-colors"
           >
             Réessayer
           </button>
@@ -429,7 +429,7 @@ export default function MathsRevisionClient({
     <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-cyan-500/30 overflow-x-hidden">
       {syncError && (
         <div className="sticky top-0 z-[70] mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-2">
-          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+          <div className="rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-2 text-sm text-slate-200">
             {syncError}
           </div>
         </div>
@@ -557,16 +557,16 @@ function Navbar() {
             </div>
             {/* Combo */}
             {store.comboCount >= 3 && (
-              <div className="flex items-center gap-1 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/30">
+              <div className="flex items-center gap-1 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/30">
                 <span className="text-sm">⚡</span>
-                <span className="text-xs font-bold text-purple-400">x{store.getComboMultiplier()}</span>
+                <span className="text-xs font-bold text-blue-300">x{store.getComboMultiplier()}</span>
               </div>
             )}
             {/* Streak */}
             {store.streak > 0 && (
-              <div className="flex items-center gap-1 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/30">
+              <div className="flex items-center gap-1 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/30">
                 <span className="text-sm">🔥</span>
-                <span className="text-xs font-bold text-amber-400">{store.streak}j</span>
+                <span className="text-xs font-bold text-blue-300">{store.streak}j</span>
                 {store.streakFreezes > 0 && <span className="text-[10px] text-blue-400">❄️{store.streakFreezes}</span>}
               </div>
             )}
@@ -606,11 +606,11 @@ function Header({ displayName }: { displayName: string }) {
                 {greeting} {displayName}, prêt pour ta session ?{' '}
               </h1>
               <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
-                <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   {niveau.nom} {niveau.badge}
                 </span>
               </h2>
-              <p className="text-slate-400 text-lg max-w-2xl">
+              <p className="text-slate-300 text-lg max-w-2xl">
                 Ton Learning Lab interactif pour la spécialité Mathématiques (4h/semaine).
               </p>
             </div>
@@ -636,7 +636,7 @@ function TabBar({ currentTab, onSwitch }: { currentTab: TabName; onSwitch: (tab:
   return (
     <div className="flex overflow-x-auto gap-2 mb-8 p-1 bg-slate-800/40 rounded-2xl border border-slate-700/30 w-full md:w-fit mx-auto md:mx-0">
       {tabs.map((tab) => (
-        <button key={tab.id} onClick={() => onSwitch(tab.id)} className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 whitespace-nowrap ${currentTab === tab.id ? 'bg-cyan-500/10 border border-cyan-500/30 text-cyan-400' : 'text-slate-400 hover:text-white border border-transparent'}`}>
+        <button key={tab.id} onClick={() => onSwitch(tab.id)} className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 whitespace-nowrap ${currentTab === tab.id ? 'bg-cyan-500/10 border border-cyan-500/30 text-cyan-400' : 'text-slate-300 hover:text-white border border-transparent'}`}>
           {tab.icon}
           {tab.label}
         </button>
@@ -679,7 +679,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
             </svg>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
               <span className="text-3xl font-bold text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>{progressPct}%</span>
-              <span className="text-xs text-slate-400">du programme</span>
+              <span className="text-xs text-slate-300">du programme</span>
             </div>
           </div>
           <h3 className="font-bold text-white text-lg">Progression Globale</h3>
@@ -689,16 +689,16 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
         {/* Stats Cards */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <StatCard icon="⚡" iconBg="bg-blue-500/20 text-blue-400" label="Série" value={`${store.streak}`} unit="jours" subtitle={store.streakFreezes > 0 ? `❄️ ${store.streakFreezes} gel(s)` : 'Consécutifs'} />
-          <StatCard icon="🏆" iconBg="bg-purple-500/20 text-purple-400" label="XP Total" value={`${store.totalXP}`} unit="XP" subtitle={`${niveau.badge} ${niveau.nom}`} />
+          <StatCard icon="🏆" iconBg="bg-blue-500/20 text-blue-300" label="XP Total" value={`${store.totalXP}`} unit="XP" subtitle={`${niveau.badge} ${niveau.nom}`} />
 
           {/* XP Progress to next level */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-500/10 rounded-2xl p-6 sm:col-span-2">
             <div className="flex justify-between items-center mb-2">
               <h4 className="font-bold text-white text-sm">Progression vers le niveau suivant</h4>
-              {nextNiveau && <span className="text-xs text-slate-400">{nextNiveau.badge} {nextNiveau.nom}</span>}
+              {nextNiveau && <span className="text-xs text-slate-300">{nextNiveau.badge} {nextNiveau.nom}</span>}
             </div>
             <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden mb-2">
-              <div className="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full transition-all duration-700" style={{ width: `${xpProgress.percent}%` }} />
+              <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-700" style={{ width: `${xpProgress.percent}%` }} />
             </div>
             <p className="text-xs text-slate-500">{xpProgress.current} / {xpProgress.nextThreshold} XP</p>
           </div>
@@ -706,11 +706,11 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
       </div>
 
       {/* Daily Challenge */}
-      <div className="bg-gradient-to-br from-amber-900/20 to-slate-900 border border-amber-500/20 rounded-2xl p-6 mb-8">
+      <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-500/20 rounded-2xl p-6 mb-8">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xl">🎯</span>
-          <h3 className="font-bold text-amber-300">Défi du jour</h3>
-          <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">+{todayChallenge.xp} XP</span>
+          <h3 className="font-bold text-blue-200">Défi du jour</h3>
+          <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">+{todayChallenge.xp} XP</span>
         </div>
         <p className="text-white font-medium mb-3">{todayChallenge.question}</p>
         {dcSubmitted ? (
@@ -719,8 +719,8 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
           </div>
         ) : (
           <div className="flex gap-3">
-            <input type="text" value={dcAnswer} onChange={(e) => setDcAnswer(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleDailySubmit()} placeholder="Ta réponse..." className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-mono focus:border-amber-500 focus:outline-none text-sm" />
-            <button onClick={handleDailySubmit} className="bg-amber-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-amber-500 text-sm">Valider</button>
+            <input type="text" value={dcAnswer} onChange={(e) => setDcAnswer(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleDailySubmit()} placeholder="Ta réponse..." className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-mono focus:border-blue-500 focus:outline-none text-sm" />
+            <button onClick={handleDailySubmit} className="bg-blue-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-blue-500 text-sm">Valider</button>
           </div>
         )}
       </div>
@@ -733,7 +733,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
             <span className="text-xl">❄️</span>
             <h3 className="font-bold text-blue-300 text-sm">Gel de Série</h3>
           </div>
-          <p className="text-xs text-slate-400 mb-3">Protège ta série si tu rates un jour. Coût : 100 XP.</p>
+          <p className="text-xs text-slate-300 mb-3">Protège ta série si tu rates un jour. Coût : 100 XP.</p>
           <div className="flex items-center gap-3">
             <button
               onClick={() => store.buyStreakFreeze()}
@@ -750,17 +750,17 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
         </div>
 
         {/* Badges */}
-        <div className="bg-slate-800/70 border border-amber-500/20 rounded-2xl p-5">
+        <div className="bg-slate-800/70 border border-blue-500/20 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xl">🏅</span>
-            <h3 className="font-bold text-amber-300 text-sm">Badges ({store.badges.length}/{badgeDefinitions.length})</h3>
+            <h3 className="font-bold text-blue-200 text-sm">Badges ({store.badges.length}/{badgeDefinitions.length})</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {badgeDefinitions.map((b) => (
               <div
                 key={b.id}
                 className={`text-lg p-1.5 rounded-lg transition-all ${store.badges.includes(b.id)
-                  ? 'bg-amber-500/20 border border-amber-500/30'
+                  ? 'bg-blue-500/20 border border-blue-500/30'
                   : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
                   }`}
                 title={`${b.nom}: ${b.description}`}
@@ -774,11 +774,11 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
 
       {/* SRS Due Reviews */}
       {store.getDueReviews().length > 0 && (
-        <div className="bg-gradient-to-br from-indigo-900/20 to-slate-900 border border-indigo-500/20 rounded-2xl p-5 mb-8">
+        <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-500/20 rounded-2xl p-5 mb-8">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xl">🔄</span>
-            <h3 className="font-bold text-indigo-300 text-sm">Révisions du jour (SRS)</h3>
-            <span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
+            <h3 className="font-bold text-blue-300 text-sm">Révisions du jour (SRS)</h3>
+            <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">
               {store.getDueReviews().length} chapitre(s)
             </span>
           </div>
@@ -801,7 +801,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
                   onClick={() => {
                     onSwitchTab('cours');
                   }}
-                  className="text-xs px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 transition-all font-medium"
+                  className="text-xs px-3 py-2 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-medium"
                 >
                   📖 {chapTitle}
                 </motion.button>
@@ -834,7 +834,7 @@ function StatCard({ icon, iconBg, label, value, unit, subtitle }: { icon: string
       <div className="text-3xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
         {value} <span className="text-lg text-slate-500">{unit}</span>
       </div>
-      <div className="text-sm text-slate-400">{subtitle}</div>
+      <div className="text-sm text-slate-300">{subtitle}</div>
     </div>
   );
 }
@@ -845,9 +845,9 @@ function ThemeCard({ cat, completedCount }: { cat: Categorie; completedCount: nu
     <div className={`bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 p-4 rounded-xl border-t-2 ${colors.border}`}>
       <div className="text-2xl mb-2">{cat.icon}</div>
       <div className="font-bold text-white text-sm">{cat.titre}</div>
-      <div className="text-xs text-slate-400 mt-1">{completedCount}/{cat.chapitres.length} chapitres</div>
+      <div className="text-xs text-slate-300 mt-1">{completedCount}/{cat.chapitres.length} chapitres</div>
       <div className="w-full h-1 bg-slate-700 rounded-full mt-2 overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${cat.couleur === 'cyan' ? 'bg-cyan-500' : cat.couleur === 'blue' ? 'bg-blue-500' : cat.couleur === 'purple' ? 'bg-purple-500' : cat.couleur === 'amber' ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0}%` }} />
+        <div className={`h-full rounded-full transition-all ${cat.couleur === 'cyan' ? 'bg-cyan-500' : cat.couleur === 'blue' ? 'bg-blue-500' : cat.couleur === 'purple' ? 'bg-blue-500' : cat.couleur === 'amber' ? 'bg-blue-400' : 'bg-green-500'}`} style={{ width: `${cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0}%` }} />
       </div>
     </div>
   );
@@ -944,7 +944,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         <div>
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className={`px-3 py-1 rounded-full text-xs font-bold ${colors.bg} ${colors.text}`}>{cat.titre}</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">Difficulté {chap.difficulte}/5</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-300">Difficulté {chap.difficulte}/5</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400">{chap.pointsXP} XP</span>
           </div>
           <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>{chap.titre}</h2>
@@ -955,12 +955,12 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
                 const compMap: Record<string, { label: string; color: string }> = {
                   chercher: { label: '🔍 Chercher', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
                   modeliser: { label: '🧩 Modéliser', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-                  representer: { label: '📊 Représenter', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-                  raisonner: { label: '🧠 Raisonner', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+                  representer: { label: '📊 Représenter', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
+                  raisonner: { label: '🧠 Raisonner', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
                   calculer: { label: '🔢 Calculer', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
                   communiquer: { label: '💬 Communiquer', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
                 };
-                const info = compMap[c] ?? { label: c, color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
+                const info = compMap[c] ?? { label: c, color: 'bg-slate-500/10 text-slate-300 border-slate-500/20' };
                 return (
                   <span key={c} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${info.color}`}>
                     {info.label}
@@ -988,9 +988,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         </div>
 
         {/* Methode */}
-        <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-2xl p-6">
-          <h3 className="font-bold text-indigo-300 mb-3">🛠️ Méthode & Formules</h3>
-          <div className="font-mono text-sm bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 overflow-x-auto text-indigo-100">
+        <div className="bg-blue-900/20 border border-blue-500/30 rounded-2xl p-6">
+          <h3 className="font-bold text-blue-300 mb-3">🛠️ Méthode & Formules</h3>
+          <div className="font-mono text-sm bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 overflow-x-auto text-blue-100">
             {'$$' + chap.contenu.methode + '$$'}
           </div>
         </div>
@@ -999,7 +999,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.contenu.tableau && chap.contenu.tableau.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-slate-400 border-b border-slate-700"><tr><th className="p-3">Fonction</th><th className="p-3">Propriété / Dérivée</th></tr></thead>
+              <thead className="text-slate-300 border-b border-slate-700"><tr><th className="p-3">Fonction</th><th className="p-3">Propriété / Dérivée</th></tr></thead>
               <tbody className="divide-y divide-slate-700">
                 {chap.contenu.tableau.map((row, i) => (
                   <tr key={i}><td className="p-3 text-white font-mono">{row.f}</td><td className="p-3 text-cyan-400 font-mono">{row.derivee}</td></tr>
@@ -1013,7 +1013,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.contenu.cas && chap.contenu.cas.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-slate-400 border-b border-slate-700"><tr><th className="p-3">Cas</th><th className="p-3">Résultat</th></tr></thead>
+              <thead className="text-slate-300 border-b border-slate-700"><tr><th className="p-3">Cas</th><th className="p-3">Résultat</th></tr></thead>
               <tbody className="divide-y divide-slate-700">
                 {chap.contenu.cas.map((row, i) => (
                   <tr key={i}><td className="p-3 text-white font-mono">{'$' + row.delta + '$'}</td><td className="p-3 text-cyan-400" dangerouslySetInnerHTML={{ __html: row.solution }} /></tr>
@@ -1025,15 +1025,15 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* Erreurs Classiques — Enhanced visibility */}
         {chap.contenu.erreursClassiques && chap.contenu.erreursClassiques.length > 0 && (
-          <div className="bg-red-900/15 border-2 border-red-500/30 rounded-2xl p-5 shadow-lg shadow-red-500/5">
-            <h3 className="font-bold text-red-400 mb-3 flex items-center gap-2 text-base">
-              <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-lg">⚠️</span>
+          <div className="bg-slate-900/40 border-2 border-slate-500/30 rounded-2xl p-5 shadow-lg shadow-slate-500/5">
+            <h3 className="font-bold text-slate-200 mb-3 flex items-center gap-2 text-base">
+              <span className="w-8 h-8 rounded-full bg-slate-500/20 flex items-center justify-center text-lg">⚠️</span>
               Erreurs classiques — À éviter au Bac !
             </h3>
             <ul className="space-y-2">
               {chap.contenu.erreursClassiques.map((err, i) => (
-                <li key={i} className="flex gap-2 text-sm text-slate-300 bg-red-500/5 rounded-lg p-2">
-                  <span className="text-red-400 font-bold shrink-0 text-base">✗</span>
+                <li key={i} className="flex gap-2 text-sm text-slate-300 bg-slate-500/5 rounded-lg p-2">
+                  <span className="text-slate-200 font-bold shrink-0 text-base">✗</span>
                   <span dangerouslySetInnerHTML={{ __html: err }} />
                 </li>
               ))}
@@ -1042,10 +1042,10 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         )}
 
         {/* Astuce */}
-        <div className="flex gap-4 items-start p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+        <div className="flex gap-4 items-start p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
           <div className="text-2xl">💡</div>
           <div>
-            <div className="font-bold text-yellow-400 text-sm mb-1">Astuce du prof</div>
+            <div className="font-bold text-blue-300 text-sm mb-1">Astuce du prof</div>
             <div className="text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: chap.contenu.astuce }} />
           </div>
         </div>
@@ -1074,33 +1074,33 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           {/* 3-level hint system with XP malus indicator */}
           {chap.contenu.coupDePouce && (
             <div className="flex flex-wrap gap-2 mb-4">
-              <button onClick={() => setHintLevel(hintLevel >= 1 ? 0 : 1)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
+              <button onClick={() => setHintLevel(hintLevel >= 1 ? 0 : 1)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 1 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
                 💡 Indice <span className="opacity-60">(-10% XP)</span>
               </button>
-              <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
+              <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
                 🔍 Début de raisonnement <span className="opacity-60">(-30% XP)</span>
               </button>
-              <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
+              <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-slate-500/20 text-slate-200 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
                 📖 Correction détaillée <span className="opacity-60">(-100% XP)</span>
               </button>
             </div>
           )}
 
           {chap.contenu.coupDePouce && hintLevel >= 1 && (
-            <div className="mb-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl text-sm">
-              <p className="text-amber-300 font-bold text-xs mb-1">Indice :</p>
+            <div className="mb-3 p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-sm">
+              <p className="text-blue-200 font-bold text-xs mb-1">Indice :</p>
               <p className="text-slate-300" dangerouslySetInnerHTML={{ __html: chap.contenu.coupDePouce.indice }} />
             </div>
           )}
           {chap.contenu.coupDePouce && hintLevel >= 2 && (
-            <div className="mb-3 p-3 bg-orange-500/5 border border-orange-500/20 rounded-xl text-sm">
-              <p className="text-orange-300 font-bold text-xs mb-1">Début de raisonnement :</p>
+            <div className="mb-3 p-3 bg-slate-500/5 border border-slate-500/20 rounded-xl text-sm">
+              <p className="text-slate-200 font-bold text-xs mb-1">Début de raisonnement :</p>
               <p className="text-slate-300" dangerouslySetInnerHTML={{ __html: chap.contenu.coupDePouce.debutRaisonnement }} />
             </div>
           )}
           {chap.contenu.coupDePouce && hintLevel >= 3 && (
-            <div className="mb-3 p-3 bg-red-500/5 border border-red-500/20 rounded-xl text-sm">
-              <p className="text-red-300 font-bold text-xs mb-1">Correction détaillée :</p>
+            <div className="mb-3 p-3 bg-slate-500/5 border border-slate-500/20 rounded-xl text-sm">
+              <p className="text-slate-100 font-bold text-xs mb-1">Correction détaillée :</p>
               <ul className="space-y-1 text-slate-300 list-disc pl-4">
                 {chap.contenu.coupDePouce.correctionDetaillee.map((step, i) => (
                   <li key={i} dangerouslySetInnerHTML={{ __html: step }} />
@@ -1118,7 +1118,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
               {showSolution && (
                 <div className="mt-4 pt-4 border-t border-slate-800">
                   <div className="text-green-400 font-bold mb-2">Réponse : {'$' + chap.contenu.exercice.reponse + '$'}</div>
-                  <ul className="space-y-1 text-sm text-slate-400 list-disc pl-4">
+                  <ul className="space-y-1 text-sm text-slate-300 list-disc pl-4">
                     {chap.contenu.exercice.etapes.map((e, i) => (
                       <li key={i} dangerouslySetInnerHTML={{ __html: e }} />
                     ))}
@@ -1221,10 +1221,10 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         )}
 
         {/* SRS Review Button */}
-        <div className="bg-slate-900/50 border border-indigo-500/20 rounded-2xl p-5">
+        <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-indigo-300 text-sm flex items-center gap-2">🔄 Révision espacée (SRS)</h3>
+              <h3 className="font-bold text-blue-300 text-sm flex items-center gap-2">🔄 Révision espacée (SRS)</h3>
               <p className="text-xs text-slate-500 mt-1">
                 {store.srsQueue[chapId]
                   ? `Prochaine révision : ${store.srsQueue[chapId].nextReview} (intervalle : ${store.srsQueue[chapId].interval}j)`
@@ -1234,13 +1234,13 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             <div className="flex gap-2">
               <button
                 onClick={() => store.recordSRSReview(chapId, 2)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold"
+                className="text-xs px-3 py-1.5 rounded-lg bg-slate-500/10 text-slate-200 border border-slate-500/20 hover:bg-slate-500/20 transition-all font-bold"
               >
                 😰 Difficile
               </button>
               <button
                 onClick={() => store.recordSRSReview(chapId, 3)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all font-bold"
+                className="text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-bold"
               >
                 🤔 Moyen
               </button>
@@ -1320,7 +1320,7 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>Quiz d&apos;Automatismes</h2>
-        <p className="text-slate-400">Questions rapides sans calculatrice (type partie 1 E3C/Bac).</p>
+        <p className="text-slate-300">Questions rapides sans calculatrice (type partie 1 E3C/Bac).</p>
       </div>
 
       <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-8 min-h-[400px] flex items-center justify-center">
@@ -1335,11 +1335,11 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
 
         {quiz.phase === 'question' && (
           <div className="w-full">
-            <div className="flex justify-between text-sm text-slate-400 mb-4">
+            <div className="flex justify-between text-sm text-slate-300 mb-4">
               <span>Question {quiz.index + 1} / {quiz.questions.length}</span>
               <div className="flex items-center gap-3">
                 {store.comboCount >= 3 && (
-                  <span className="text-purple-400 font-bold text-xs">⚡ Combo x{store.getComboMultiplier()}</span>
+                  <span className="text-blue-300 font-bold text-xs">⚡ Combo x{store.getComboMultiplier()}</span>
                 )}
                 <span>{quiz.questions[quiz.index].categorie}</span>
               </div>
@@ -1363,7 +1363,7 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
             <div className="text-6xl mb-4">{quiz.isCorrect ? '✅' : '❌'}</div>
             <h3 className="text-2xl font-bold text-white mb-2">{quiz.isCorrect ? 'Correct !' : 'Oups...'}</h3>
             <div className="bg-slate-900/50 p-4 rounded-xl mb-6 text-left">
-              <p className="text-slate-400 text-sm font-bold mb-1">Explication :</p>
+              <p className="text-slate-300 text-sm font-bold mb-1">Explication :</p>
               <p className="text-slate-300 text-sm">{quiz.questions[quiz.index].explication}</p>
             </div>
             <button onClick={nextQuestion} className="bg-cyan-600 text-white font-bold py-2 px-6 rounded-full hover:bg-cyan-500">Suivant</button>
@@ -1375,7 +1375,7 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
             <h3 className="text-3xl font-bold text-white mb-2">Résultat</h3>
             <div className="text-6xl font-bold text-cyan-400 mb-2" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>{quiz.score}/{quiz.total}</div>
             <p className="text-sm text-cyan-400 mb-4">+{quiz.score * 10} XP gagnés !</p>
-            <p className="text-slate-400 mb-6">
+            <p className="text-slate-300 mb-6">
               {quiz.score === quiz.total ? 'Parfait ! 🌟' : quiz.score > quiz.total / 2 ? 'Bien joué ! 👍' : 'Entraîne-toi encore 💪'}
             </p>
             <div className="flex gap-3 justify-center">

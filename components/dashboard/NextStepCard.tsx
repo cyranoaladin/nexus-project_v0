@@ -38,8 +38,8 @@ import type { NextStep, StepPriority } from '@/lib/next-step-engine';
  */
 
 const PRIORITY_STYLES: Record<StepPriority, { border: string; accent: string; icon: LucideIcon }> = {
-  critical: { border: 'border-red-500/40', accent: 'text-red-400', icon: AlertTriangle },
-  high: { border: 'border-amber-500/30', accent: 'text-amber-400', icon: Zap },
+  critical: { border: 'border-slate-500/40', accent: 'text-slate-300', icon: AlertTriangle },
+  high: { border: 'border-blue-500/30', accent: 'text-blue-300', icon: Zap },
   medium: { border: 'border-brand-primary/30', accent: 'text-brand-primary', icon: Info },
   low: { border: 'border-neutral-700', accent: 'text-neutral-400', icon: ChevronRight },
 };
@@ -214,7 +214,7 @@ export function NextStepCard() {
           <div className="flex items-center gap-2 mb-0.5">
             <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">Action prioritaire</p>
             {isHighPriority && (
-              <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
+              <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-slate-1000/15 text-slate-300' : 'bg-blue-500/15 text-blue-300'}`}>
                 Priorité
               </span>
             )}

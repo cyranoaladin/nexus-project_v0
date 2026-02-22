@@ -67,7 +67,7 @@ const ContactSectionGSAP = () => {
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
                         Parlons de votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Avenir</span>
                     </h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-slate-300 max-w-2xl mx-auto">
                         Que vous souhaitiez moderniser votre établissement ou exceller dans vos études,
                         nos experts construisent la solution adaptée.
                     </p>
@@ -83,13 +83,13 @@ const ContactSectionGSAP = () => {
                                 onClick={() => setProfileType(key)}
                                 className={`flex items-center gap-3 px-6 py-4 rounded-xl border transition-all duration-300 ${isActive
                                     ? 'bg-brand-accent/10 border-brand-accent text-brand-accent shadow-[0_0_20px_rgba(46,233,246,0.1)]'
-                                    : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/20'
+                                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20'
                                     }`}
                             >
                                 <p.icon className="w-5 h-5" />
                                 <div className="text-left">
                                     <span className="block font-medium text-sm">{p.label}</span>
-                                    <span className={`block text-xs ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                                    <span className={`block text-xs ${isActive ? 'text-white/70' : 'text-slate-300'}`}>
                                         {p.subtitle}
                                     </span>
                                 </div>
@@ -114,7 +114,7 @@ const ContactSectionGSAP = () => {
                                         <Phone className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <div>
-                                        <span className="block text-gray-500 text-xs">Téléphone</span>
+                                        <span className="block text-slate-300 text-xs">Téléphone</span>
                                         <span className="block text-white font-medium">+216 99 19 28 29</span>
                                     </div>
                                 </div>
@@ -124,7 +124,7 @@ const ContactSectionGSAP = () => {
                                         <Mail className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <div>
-                                        <span className="block text-gray-500 text-xs">Email</span>
+                                        <span className="block text-slate-300 text-xs">Email</span>
                                         <span className="block text-white font-medium">contact@nexusreussite.academy</span>
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@ const ContactSectionGSAP = () => {
                                         <MapPin className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <div>
-                                        <span className="block text-gray-500 text-xs">Adresse</span>
+                                        <span className="block text-slate-300 text-xs">Adresse</span>
                                         <span className="block text-white font-medium text-sm">
                                             Centre Urbain Nord, Immeuble VENUS<br />
                                             1082 – Tunis
@@ -153,7 +153,7 @@ const ContactSectionGSAP = () => {
                                 {currentProfile.fields.options.map((option, idx) => (
                                     <span
                                         key={idx}
-                                        className="px-3 py-1.5 rounded-lg text-xs bg-white/5 text-gray-300
+                                        className="px-3 py-1.5 rounded-lg text-xs bg-white/5 text-slate-200
                              border border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
                                     >
                                         {option}
@@ -171,7 +171,7 @@ const ContactSectionGSAP = () => {
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div>
-                                    <label htmlFor="name" className="block text-gray-400 text-xs mb-2">Nom complet</label>
+                                    <label htmlFor="name" className="block text-slate-300 text-xs mb-2">Nom complet</label>
                                     <input
                                         id="name"
                                         type="text"
@@ -179,13 +179,13 @@ const ContactSectionGSAP = () => {
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         placeholder="Votre nom"
                                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
-                              text-white text-sm placeholder:text-gray-600 
+                              text-white text-sm placeholder:text-slate-500 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="email" className="block text-gray-400 text-xs mb-2">Email</label>
+                                    <label htmlFor="email" className="block text-slate-300 text-xs mb-2">Email</label>
                                     <input
                                         id="email"
                                         type="email"
@@ -193,7 +193,7 @@ const ContactSectionGSAP = () => {
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         placeholder="email@exemple.com"
                                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
-                              text-white text-sm placeholder:text-gray-600 
+                              text-white text-sm placeholder:text-slate-500 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                         required
                                     />
@@ -202,7 +202,7 @@ const ContactSectionGSAP = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div>
-                                    <label htmlFor="phone" className="block text-gray-400 text-xs mb-2">Téléphone</label>
+                                    <label htmlFor="phone" className="block text-slate-300 text-xs mb-2">Téléphone</label>
                                     <input
                                         id="phone"
                                         type="tel"
@@ -210,12 +210,12 @@ const ContactSectionGSAP = () => {
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         placeholder="+216 XX XXX XXX"
                                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
-                              text-white text-sm placeholder:text-gray-600 
+                              text-white text-sm placeholder:text-slate-500 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="organization" className="block text-gray-400 text-xs mb-2">
+                                    <label htmlFor="organization" className="block text-slate-300 text-xs mb-2">
                                         {currentProfile.fields.organization.label}
                                     </label>
                                     <input
@@ -225,14 +225,14 @@ const ContactSectionGSAP = () => {
                                         onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                                         placeholder={currentProfile.fields.organization.placeholder}
                                         className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
-                              text-white text-sm placeholder:text-gray-600 
+                              text-white text-sm placeholder:text-slate-500 
                               focus:border-blue-500 focus:outline-none transition-colors"
                                     />
                                 </div>
                             </div>
 
                             <div className="mb-6">
-                                <label htmlFor="message" className="block text-gray-400 text-xs mb-2">Message (optionnel)</label>
+                                <label htmlFor="message" className="block text-slate-300 text-xs mb-2">Message (optionnel)</label>
                                 <textarea
                                     id="message"
                                     value={formData.message}
@@ -240,7 +240,7 @@ const ContactSectionGSAP = () => {
                                     placeholder="Décrivez brièvement votre besoin..."
                                     rows={4}
                                     className="w-full bg-neutral-950 border border-white/10 rounded-xl px-4 py-3.5 
-                            text-white text-sm placeholder:text-gray-600 resize-none
+                            text-white text-sm placeholder:text-slate-500 resize-none
                             focus:border-blue-500 focus:outline-none transition-colors"
                                 />
                             </div>
@@ -256,7 +256,7 @@ const ContactSectionGSAP = () => {
                                 <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
 
-                            <p className="text-center text-gray-500 text-xs mt-4">
+                            <p className="text-center text-slate-300 text-xs mt-4">
                                 Notre équipe vous répond sous 24h ouvrées.
                             </p>
                         </form>

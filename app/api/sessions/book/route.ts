@@ -231,9 +231,24 @@ export async function POST(req: NextRequest) {
       }
 
       // Calculate current credits from transactions
-      const creditTransactions = await tx.creditTransaction.findMany({
+      let creditTransactions = await tx.creditTransaction.findMany({
         where: { studentId: studentRecord.id }
       });
+
+      // Backward-compatibility: migrate legacy `student.credits` into transactions lazily.
+      if (creditTransactions.length === 0 && studentRecord.credits > 0) {
+        await tx.creditTransaction.create({
+          data: {
+            studentId: studentRecord.id,
+            type: 'MANUAL_ADJUST',
+            amount: studentRecord.credits,
+            description: 'Legacy credits migration',
+          },
+        });
+        creditTransactions = await tx.creditTransaction.findMany({
+          where: { studentId: studentRecord.id }
+        });
+      }
 
       const currentCredits = creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
         return total + transaction.amount;

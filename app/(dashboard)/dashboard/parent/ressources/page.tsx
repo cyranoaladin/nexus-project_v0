@@ -11,11 +11,11 @@ export const metadata = {
 };
 
 function getFileIcon(mimeType: string) {
-  if (mimeType.includes('pdf')) return <FileText className="w-8 h-8 text-red-500" />;
+  if (mimeType.includes('pdf')) return <FileText className="w-8 h-8 text-slate-500" />;
   if (mimeType.includes('image')) return <ImageIcon className="w-8 h-8 text-green-500" />;
   if (mimeType.includes('word') || mimeType.includes('document')) return <FileText className="w-8 h-8 text-blue-500" />;
   if (mimeType.includes('sheet') || mimeType.includes('excel')) return <FileText className="w-8 h-8 text-emerald-600" />;
-  return <File className="w-8 h-8 text-slate-400" />;
+  return <File className="w-8 h-8 text-slate-300" />;
 }
 
 function formatSize(bytes: number) {

@@ -12,7 +12,7 @@ import { resolveAccess } from '@/lib/access/rules';
 // ─── credits_use feature gating ──────────────────────────────────────────────
 
 describe('credits_use access control', () => {
-  it('ELEVE without platform_access → denied (403)', () => {
+  it('ELEVE without credits_use entitlement → denied (403)', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
@@ -21,20 +21,20 @@ describe('credits_use access control', () => {
     });
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe('missing_entitlement');
-    expect(result.missing).toContain('platform_access');
+    expect(result.missing).toContain('credits_use');
   });
 
-  it('ELEVE with platform_access → allowed (entitlement check passes)', () => {
+  it('ELEVE with credits_use entitlement → allowed (entitlement check passes)', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(result.allowed).toBe(true);
   });
 
-  it('PARENT without platform_access → denied', () => {
+  it('PARENT without credits_use entitlement → denied', () => {
     const result = resolveAccess({
       role: 'PARENT',
       userId: 'parent-1',
@@ -42,15 +42,15 @@ describe('credits_use access control', () => {
       activeFeatures: [],
     });
     expect(result.allowed).toBe(false);
-    expect(result.missing).toContain('platform_access');
+    expect(result.missing).toContain('credits_use');
   });
 
-  it('PARENT with platform_access → allowed', () => {
+  it('PARENT with credits_use entitlement → allowed', () => {
     const result = resolveAccess({
       role: 'PARENT',
       userId: 'parent-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(result.allowed).toBe(true);
   });
@@ -85,7 +85,7 @@ describe('credits business rules (post-entitlement)', () => {
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(access.allowed).toBe(true);
 
@@ -102,7 +102,7 @@ describe('credits business rules (post-entitlement)', () => {
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(access.allowed).toBe(true);
 
@@ -117,7 +117,7 @@ describe('credits business rules (post-entitlement)', () => {
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: [], // no platform_access
+      activeFeatures: [], // no credits_use entitlement
     });
     expect(access.allowed).toBe(false);
     expect(access.reason).toBe('missing_entitlement');
@@ -147,7 +147,7 @@ describe('guard layering', () => {
     });
     expect(adminAccess.allowed).toBe(true);
 
-    // Layer 2: Entitlement — ELEVE needs platform_access
+    // Layer 2: Entitlement — ELEVE needs credits_use
     const eleveNoEnt = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
@@ -161,7 +161,7 @@ describe('guard layering', () => {
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(eleveWithEnt.allowed).toBe(true);
     // Layer 3 (credit balance) is checked in the endpoint, not in resolveAccess

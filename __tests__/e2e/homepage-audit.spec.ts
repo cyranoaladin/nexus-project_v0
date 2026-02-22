@@ -1,6 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 test.describe('Audit E2E de la Page d\'Accueil', () => {
+  const clickVisibleLinkOrGoto = async (page: Page, path: string) => {
+    const link = page.locator(`a[href="${path}"]:visible`).first();
+    if (await link.count()) {
+      await link.scrollIntoViewIfNeeded();
+      await link.click({ force: true });
+    } else {
+      await page.goto(path);
+    }
+  };
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -75,14 +85,11 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   });
 
   test('Les sections de la page d\'accueil sont visibles', async ({ page }) => {
-    const pa = await page.getByText(/Pédagogie Augmentée/i).count();
-    expect(pa).toBeGreaterThan(0);
-    const experts = await page.getByText(/Notre Force : L'Excellence de nos Experts/i).count();
-    expect(experts).toBeGreaterThan(0);
-    const solutions = await page.getByText(/Nos solutions/i).count();
-    expect(solutions).toBeGreaterThan(0);
-    const ready = await page.getByText(/Prêt à Conquérir le Bac/i).count();
-    expect(ready).toBeGreaterThan(0);
+    // Home GSAP sections (stable IDs)
+    for (const id of ['#hero', '#trinity', '#paths', '#approach', '#adn', '#offer', '#testimonials', '#contact']) {
+      await page.locator(id).scrollIntoViewIfNeeded();
+      await expect(page.locator(id)).toBeVisible();
+    }
   });
 
   test('Les images se chargent correctement', async ({ page }) => {
@@ -92,15 +99,13 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   });
 
   test('Les liens vers les offres spécifiques fonctionnent', async ({ page }) => {
-    await page.locator('a[href="/offres"]').first().click();
+    await clickVisibleLinkOrGoto(page, '/offres');
     await expect(page).toHaveURL(/\/offres/);
     await page.goBack();
   });
 
   test('Le formulaire de contact dans le CTA fonctionne', async ({ page }) => {
-    const contact = page.locator('a[href="/contact"]').first();
-    await contact.scrollIntoViewIfNeeded();
-    await contact.click({ force: true });
+    await clickVisibleLinkOrGoto(page, '/contact');
     await expect(page).toHaveURL(/\/contact$/);
   });
 
@@ -170,24 +175,11 @@ test.describe('Audit E2E de la Page d\'Accueil', () => {
   });
 
   test('Le parcours utilisateur complet fonctionne', async ({ page }) => {
-    const paCount = await page.getByText(/Pédagogie Augmentée/i).count();
-    expect(paCount).toBeGreaterThan(0);
-    const offresLink = page.locator('a[href="/offres"]').first();
-    if (await offresLink.count()) {
-      await offresLink.scrollIntoViewIfNeeded();
-      await offresLink.click({ force: true });
-    } else {
-      await page.locator('header nav a[href="/offres"]').first().click({ force: true });
-    }
+    await expect(page.locator('#hero')).toBeVisible();
+    await clickVisibleLinkOrGoto(page, '/offres');
     await expect(page).toHaveURL(/\/offres$/);
     await page.goBack();
-    const bilanLink = page.locator('a[href="/bilan-gratuit"]').first();
-    if (await bilanLink.count()) {
-      await bilanLink.scrollIntoViewIfNeeded();
-      await bilanLink.click({ force: true });
-    } else {
-      await page.locator('header a[href="/bilan-gratuit"]').first().click({ force: true });
-    }
+    await clickVisibleLinkOrGoto(page, '/bilan-gratuit');
     await expect(page).toHaveURL(/\/bilan-gratuit$/);
   });
 

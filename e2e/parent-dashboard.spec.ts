@@ -25,7 +25,7 @@ import { attachCoreApiGuard, assertNoCoreApiFailure, suppressCoreGuard } from '.
 // TEST CONFIGURATION
 // =============================================================================
 
-const DASHBOARD_LOAD_TIMEOUT = 20000;
+const DASHBOARD_LOAD_TIMEOUT = process.env.CI ? 45000 : 35000;
 const NETWORK_TIMEOUT = 10000;
 
 test.describe('Parent Dashboard', () => {

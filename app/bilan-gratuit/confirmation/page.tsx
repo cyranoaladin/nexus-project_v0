@@ -71,8 +71,8 @@ export default function ConfirmationPage() {
 
               <Card className="text-center bg-surface-card border border-white/10">
                 <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-500/15 rounded-full mb-4">
-                    <Phone className="w-6 h-6 text-emerald-400" aria-hidden="true" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-500/15 rounded-full mb-4">
+                    <Phone className="w-6 h-6 text-blue-400" aria-hidden="true" />
                   </div>
                   <h3 className="font-semibold text-lg mb-2 text-white">Appel Découverte</h3>
                   <p className="text-neutral-400 text-sm">
@@ -83,8 +83,8 @@ export default function ConfirmationPage() {
 
               <Card className="text-center bg-surface-card border border-white/10">
                 <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-500/15 rounded-full mb-4">
-                    <CheckCircle className="w-6 h-6 text-purple-400" aria-hidden="true" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-secondary/20 rounded-full mb-4">
+                    <CheckCircle className="w-6 h-6 text-brand-secondary" aria-hidden="true" />
                   </div>
                   <h3 className="font-semibold text-lg mb-2 text-white">Plan d'Action</h3>
                   <p className="text-neutral-400 text-sm">

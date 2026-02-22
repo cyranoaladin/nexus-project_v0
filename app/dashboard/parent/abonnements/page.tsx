@@ -342,7 +342,7 @@ export default function AbonnementsPage() {
             <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Brain className="w-5 h-5 mr-2 text-violet-300" />
+                  <Brain className="w-5 h-5 mr-2 text-blue-300" />
                   Add-ons ARIA
                 </CardTitle>
                 <p className="text-neutral-300">Étendez les capacités de votre assistant IA</p>
@@ -358,7 +358,7 @@ export default function AbonnementsPage() {
                             <p className="text-neutral-300 text-xs sm:text-sm">{addon.description}</p>
                           </div>
                           <div className="text-right">
-                            <span className="text-lg sm:text-xl font-bold text-violet-300">
+                            <span className="text-lg sm:text-xl font-bold text-blue-300">
                               +{addon.price} TND
                             </span>
                             <span className="text-neutral-400 text-xs sm:text-sm block">/mois</span>

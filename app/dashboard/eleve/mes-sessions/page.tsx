@@ -105,7 +105,7 @@ export default function MesSessions() {
   const getStatusBadge = (status: Session['status']) => {
     switch (status) {
       case 'SCHEDULED':
-        return <Badge variant="outline" className="border-amber-400/40 bg-amber-500/10 text-amber-200">Programmée</Badge>;
+        return <Badge variant="outline" className="border-blue-400/40 bg-blue-500/10 text-slate-200">Programmée</Badge>;
       case 'IN_PROGRESS':
         return <Badge className="border border-emerald-500/40 bg-emerald-500/20 text-emerald-200">En cours</Badge>;
       case 'COMPLETED':

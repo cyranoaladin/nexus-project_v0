@@ -94,7 +94,7 @@ export function SpecializedPacks() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="mb-4 bg-purple-50 text-purple-700 border-purple-200">
+          <Badge variant="outline" className="mb-4 bg-blue-50 text-blue-700 border-blue-200">
             <Crown className="w-4 h-4 mr-2" />
             Packs Spécialisés
           </Badge>

@@ -345,7 +345,7 @@ export function AriaChat() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleFeedback(message.id, true)}
-                              className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-gray-400'}`}
+                              className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-slate-300'}`}
                             >
                               <ThumbsUp className="w-3 h-3" />
                             </Button>
@@ -353,7 +353,7 @@ export function AriaChat() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleFeedback(message.id, false)}
-                              className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-red-600' : 'text-gray-400'}`}
+                              className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-slate-600' : 'text-slate-300'}`}
                             >
                               <ThumbsDown className="w-3 h-3" />
                             </Button>

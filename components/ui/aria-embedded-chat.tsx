@@ -333,7 +333,7 @@ const AriaEmbeddedChatInner = memo(function AriaEmbeddedChatInner({ studentId }:
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback(message.id, true)}
-                      className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-gray-400'}`}
+                      className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-slate-300'}`}
                       aria-label="Utile"
                       aria-pressed={message.feedback === true}
                       aria-describedby={`feedback-label-${message.id}`}
@@ -344,7 +344,7 @@ const AriaEmbeddedChatInner = memo(function AriaEmbeddedChatInner({ studentId }:
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFeedback(message.id, false)}
-                      className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-red-600' : 'text-gray-400'}`}
+                      className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-slate-600' : 'text-slate-300'}`}
                       aria-label="Pas utile"
                       aria-pressed={message.feedback === false}
                       aria-describedby={`feedback-label-${message.id}`}
@@ -382,7 +382,7 @@ const AriaEmbeddedChatInner = memo(function AriaEmbeddedChatInner({ studentId }:
 
         {error && (
           <div 
-            className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+            className="mb-4 p-3 bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-700"
             role="alert"
             aria-live="assertive"
           >

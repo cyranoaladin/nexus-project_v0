@@ -95,10 +95,10 @@ export default function AssessmentProcessingPage({ params }: { params: Promise<{
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
-          <AlertCircle className="w-20 h-20 text-red-500 mx-auto" />
+          <AlertCircle className="w-20 h-20 text-slate-300 mx-auto" />
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Erreur</h1>
-            <p className="text-lg text-slate-400">{error}</p>
+            <p className="text-lg text-slate-300">{error}</p>
           </div>
           <Button onClick={() => router.push('/')} variant="outline">
             Retour à l'accueil
@@ -126,7 +126,7 @@ export default function AssessmentProcessingPage({ params }: { params: Promise<{
           <h1 className="text-4xl font-bold">
             {status?.status === 'COMPLETED' ? 'Analyse terminée !' : 'Analyse en cours...'}
           </h1>
-          <p className="text-xl text-slate-400">
+          <p className="text-xl text-slate-300">
             {status?.message || 'Initialisation...'}
           </p>
         </div>

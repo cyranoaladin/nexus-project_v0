@@ -48,7 +48,7 @@ describe('Input', () => {
 
       const error = screen.getByText('Email is required');
       expect(error).toBeInTheDocument();
-      expect(error).toHaveClass('text-red-500');
+      expect(error).toHaveClass('text-slate-500');
       expect(error).toHaveAttribute('role', 'alert');
     });
 
@@ -70,7 +70,7 @@ describe('Input', () => {
 
       const requiredIndicator = screen.getByText('*');
       expect(requiredIndicator).toBeInTheDocument();
-      expect(requiredIndicator).toHaveClass('text-red-500');
+      expect(requiredIndicator).toHaveClass('text-slate-500');
       expect(requiredIndicator).toHaveAttribute('aria-label', 'required');
     });
 
@@ -356,8 +356,8 @@ describe('Input', () => {
       render(<Input error="Error" />);
 
       const input = screen.getByRole('textbox');
-      expect(input).toHaveClass('border-red-500');
-      expect(input).toHaveClass('focus-visible:ring-red-500');
+      expect(input).toHaveClass('border-blue-500');
+      expect(input).toHaveClass('focus-visible:ring-blue-500');
     });
 
     it('applies default border styling when no error', () => {
