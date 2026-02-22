@@ -220,11 +220,11 @@ test.describe('Role-based access control', () => {
     await expect(page).toHaveURL(/\/dashboard\/eleve/, { timeout: 15000 });
   });
 
-  test('admin can access parent dashboard (admin override)', async ({ page }) => {
+  test('admin est redirigé vers son dashboard si accès parent', async ({ page }) => {
     await apiLogin(page, CREDS.admin.email, CREDS.admin.password);
     await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
-    // Admin should stay on parent dashboard
-    await expect(page).toHaveURL(/\/dashboard\/parent/, { timeout: 15000 });
+    // Contract: every role is pinned to its own dashboard root
+    await expect(page).toHaveURL(/\/dashboard\/admin/, { timeout: 15000 });
   });
 });
 
