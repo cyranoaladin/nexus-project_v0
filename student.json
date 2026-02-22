@@ -2,7 +2,7 @@
   "cookies": [
     {
       "name": "authjs.csrf-token",
-      "value": "8421288b07fbb86498d71993e0398e60edbb32605e4e63a0445b7a9c5a844208%7C46724e2afc4e364e7f4bfb80fc8241d19f6f0343c5abf98770ca8885a00c584d",
+      "value": "3f1dc40ebfb112cbade7f279ef2d3150148b3002068efb33696846d9b81f11dd%7Ce3a3861397f97ebc4b5ea8f5218ab8555262f2f760fb9001ad368698b910bd32",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
@@ -12,7 +12,7 @@
     },
     {
       "name": "authjs.callback-url",
-      "value": "http%3A%2F%2Flocalhost%3A3000",
+      "value": "http%3A%2F%2Flocalhost%3A3001",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
@@ -22,10 +22,10 @@
     },
     {
       "name": "authjs.session-token",
-      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiSFhzVnA5bUtNd0o1LXJDeVJPLUJwaDdYbDZoN0JiUndGTTd6czlrUWx2bTdYQ3Z6bTJRZUJPWFVuMWtBVlh6RXYxa2N1RG56UmNwdkdxbm82QlY1bWcifQ..WjheORQ7SKLzmhDLHSXSUg.nfQSeWysrllwPsFetpoW8wrzaV7gSfVayD0bJcWnMYHs7QgjlCe8fV0BCm1MBh2BHKpI535ArQorNT48LfpVCkNuORSrHD90-EmYp8krt6Ok24YQk5BZrMkBd3mIHgZNBN_KMHdeXIKqlLS0s87NymJhXqPSUXjhAWHEyDpt5ARETpdgJ7InEjolDGguFBRBQyNvdVsHa0pSSwdxtyaxK_YMiAaQLu0ca20Fd-tWP8oRo4woV7KsaNZj6ywsWgTEUVVNs9lBr6fWJjk-tJcrUGhsYA_Lo1DNZJJBX6PvlAk6WXGORGboiCHgDaZ-3zjm.f-xvth2vdIK7iTO8eRgcx5IJXpCmdVNXRLQ_D70n_cg",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiSFhzVnA5bUtNd0o1LXJDeVJPLUJwaDdYbDZoN0JiUndGTTd6czlrUWx2bTdYQ3Z6bTJRZUJPWFVuMWtBVlh6RXYxa2N1RG56UmNwdkdxbm82QlY1bWcifQ..A_j27SUWPeXYjdMFpJEpYg.Lz1HTiPC9T0xfvRdR7ouEz5Te_fcOTLuhrh4RH-YpuREVSl72z2-Agy68cwK052zYjSsuswAqROZmN3IIlpwXDNmFlMqgH8H58jXVZcXz-pUVTc_B_z5Ke22QXrvAlH5m6Zw1FhvZ2FaIAfyXfZvHtznfo5jQEk2UFHjACw7_OkAflWxNFwU6_PkO7Ordu22SqKwVejjQ5SZsvttiXQjV5k5h_GViCvNTBKpBmXkku_gZhijxVPWI51bOnNt-MzRcgOPUscXlPu-vVqetum3pJtEEy9xFWnmmrVoWf8TlJFflxCctqNr6hAK4yoMuiXo.ZDfWc2pTYvfrkp8im9TkEbKMCTcLP2H7RBrN5biFoU4",
       "domain": "localhost",
       "path": "/",
-      "expires": 1774352738.830423,
+      "expires": 1774387102.900253,
       "httpOnly": true,
       "secure": false,
       "sameSite": "Lax"

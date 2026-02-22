@@ -71,7 +71,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="bg-surface-darker py-24">
+    <section id="contact" data-testid="section-contact" className="bg-surface-darker py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-10 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-200 backdrop-blur-md">
@@ -177,6 +177,7 @@ export default function ContactSection() {
                     Nom complet
                   </label>
                   <input
+                    data-testid="input-contact-nom"
                     type="text"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
@@ -190,6 +191,7 @@ export default function ContactSection() {
                     Email
                   </label>
                   <input
+                    data-testid="input-contact-email"
                     type="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
@@ -204,6 +206,7 @@ export default function ContactSection() {
                   Téléphone
                 </label>
                 <input
+                  data-testid="input-contact-phone"
                   type="tel"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
@@ -438,6 +441,7 @@ export default function ContactSection() {
                   Message (optionnel)
                 </label>
                 <textarea
+                  data-testid="input-contact-message"
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-slate-500 transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
@@ -448,18 +452,19 @@ export default function ContactSection() {
 
               <button
                 type="submit"
+                data-testid="btn-submit-contact"
                 className="mt-2 btn-primary disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={status === "loading"}
               >
                 {status === "loading" ? "Envoi..." : CTA_LABELS[active]}
               </button>
               {status === "success" && (
-                <div className="text-sm text-blue-300">
+                <div data-testid="contact-success-message" className="text-sm text-blue-300">
                   Merci, votre demande a bien été envoyée.
                 </div>
               )}
               {status === "error" && (
-                <div className="text-sm text-slate-200">
+                <div data-testid="contact-error-message" className="text-sm text-slate-200">
                   Une erreur est survenue. Merci de réessayer ou d’appeler directement.
                 </div>
               )}

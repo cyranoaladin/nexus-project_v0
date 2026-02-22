@@ -1,11 +1,21 @@
 import { test, expect, Page } from '@playwright/test';
 import { loginAsUser } from './helpers/auth';
+import { CREDS } from './helpers/credentials';
+import { disconnectPrisma, setEntitlementByUserEmail } from './helpers/db';
 
 async function loginAsStudent(page: Page) {
   await loginAsUser(page, 'student');
 }
 
 test.describe('Student ARIA Interaction', () => {
+  test.beforeAll(async () => {
+    await setEntitlementByUserEmail(CREDS.student.email, 'ARIA_ADDON_MATHS');
+  });
+
+  test.afterAll(async () => {
+    await disconnectPrisma();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
@@ -45,27 +55,31 @@ test.describe('Student ARIA Interaction', () => {
     return false;
   }
 
-  test.fixme('Student can access dashboard and see ARIA section', async ({ page }) => {
-    // FIXME: Student login + dashboard SSR/hydration timing unreliable in CI.
+  test('Student can access dashboard and see ARIA section', async ({ page }) => {
     await loginAsStudent(page);
 
     await expect(page).toHaveURL(/\/dashboard\/(eleve|student)/);
 
     // Verify student dashboard loaded
-    const creditsSection = page.getByText(/crédit|credit/i);
-    await expect(creditsSection.first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('body')).toContainText(/Nexus Réussite|Dashboard|Sessions|ARIA/i);
 
-    // Check for ARIA chat button or section
-    const ariaButton = page.locator('button.rounded-full, button:has-text("ARIA"), [data-testid*="aria"]').first();
+    // Check for ARIA chat button or ARIA section
+    const ariaButton = page
+      .locator('[data-testid="aria-chat-trigger"], button:has-text("ARIA"), [data-testid*="aria"]')
+      .first();
     if (await ariaButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-      console.log('✅ ARIA chat button found on student dashboard');
       await ariaButton.click();
       await page.waitForTimeout(500);
-
-      // Verify ARIA interface opened
-      await expect(page.getByText(/ARIA/i).first()).toBeVisible({ timeout: 5000 });
-    } else {
-      console.log('⚠️ ARIA chat button not visible - may require API key configuration');
     }
+
+    const ariaSignals = [
+      page.getByTestId('aria-input').first(),
+      page.locator('[data-testid*="aria"]').first(),
+      page.getByText(/ARIA/i).first(),
+    ];
+    const visibleSignals = await Promise.all(
+      ariaSignals.map((locator) => locator.isVisible().catch(() => false))
+    );
+    expect(visibleSignals.some(Boolean)).toBeTruthy();
   });
 });

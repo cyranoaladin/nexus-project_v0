@@ -96,8 +96,8 @@ function buildTreeNodes(): TreeNode[] {
 const colorClasses: Record<string, { bg: string; border: string; text: string; glow: string }> = {
   cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/50', text: 'text-cyan-400', glow: 'shadow-cyan-500/20' },
   blue: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-400', glow: 'shadow-blue-500/20' },
-  purple: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-400', glow: 'shadow-blue-500/20' },
-  amber: { bg: 'bg-slate-500/20', border: 'border-slate-500/50', text: 'text-slate-300', glow: 'shadow-slate-500/20' },
+  purple: { bg: 'bg-purple-500/20', border: 'border-purple-500/50', text: 'text-purple-400', glow: 'shadow-purple-500/20' },
+  amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/50', text: 'text-amber-400', glow: 'shadow-amber-500/20' },
   green: { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-green-400', glow: 'shadow-green-500/20' },
 };
 
@@ -179,6 +179,13 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                   const isSelected = selectedChapterId === node.id;
                   const dueReviews = store.getDueReviews();
                   const isDue = dueReviews.includes(node.id);
+                  const today = new Date().toISOString().slice(0, 10);
+                  const nextReview = store.srsQueue[node.id]?.nextReview;
+                  const isDueToday = !!nextReview && nextReview <= today;
+                  const isDueSoon =
+                    !!nextReview &&
+                    nextReview > today &&
+                    (new Date(nextReview).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24) <= 3;
 
                   // Identify which prerequisites are still missing
                   const missingPrereqs = isLocked
@@ -213,12 +220,16 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                             ? 'bg-slate-700 text-slate-500'
                             : isCompleted
                             ? 'bg-green-500/20 text-green-400'
+                            : isDueToday
+                            ? 'bg-orange-500/20 text-orange-300 animate-pulse'
+                            : isDueSoon
+                            ? 'bg-blue-500/20 text-blue-300'
                             : isDue
                             ? 'bg-blue-500/20 text-blue-300'
                             : `${colors.bg} ${colors.text}`
                         }`}
                       >
-                        {isLocked ? '🔒' : isCompleted ? '✓' : isDue ? '🔄' : node.row + 1}
+                        {isLocked ? '🔒' : isCompleted ? '✓' : isDueToday ? '⏰' : isDueSoon ? '🗓️' : isDue ? '🔄' : node.row + 1}
                       </div>
 
                       {/* Node info */}
@@ -229,7 +240,9 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                         <div className="flex items-center gap-2 text-[10px] text-slate-500">
                           <span>{'★'.repeat(node.difficulte)}{'☆'.repeat(5 - node.difficulte)}</span>
                           <span>{node.pointsXP} XP</span>
-                          {isDue && <span className="text-blue-300 font-bold">À réviser</span>}
+                          {isDueToday && <span className="text-orange-300 font-bold animate-pulse">À réviser aujourd'hui</span>}
+                          {!isDueToday && isDueSoon && <span className="text-blue-300 font-bold">À réviser bientôt</span>}
+                          {!isDueToday && !isDueSoon && isDue && <span className="text-blue-300 font-bold">À réviser</span>}
                           {isLocked && missingPrereqs.length > 0 && (
                             <span className="text-slate-300 truncate max-w-[120px]">
                               ← {missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}

@@ -30,6 +30,14 @@ export interface MathsLabRow {
   hint_usage: Record<string, number>;
   badges: string[];
   srs_queue: Record<string, unknown>;
+  diagnostic_results?: Record<string, unknown>;
+  time_per_chapter?: Record<string, number>;
+  formulaire_viewed?: boolean;
+  grand_oral_seen?: number;
+  lab_archimede_opened?: boolean;
+  euler_max_steps?: number;
+  newton_best_iterations?: number | null;
+  printed_fiche?: boolean;
   updated_at: string;
 }
 

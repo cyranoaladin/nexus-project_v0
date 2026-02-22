@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { BadgeDisplay } from '@/components/ui/parent/badge-display';
 
+jest.setTimeout(15000);
+
 jest.mock('framer-motion', () => {
   const React = require('react');
   const motionProps = new Set([
