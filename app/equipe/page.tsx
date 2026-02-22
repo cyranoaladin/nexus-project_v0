@@ -872,7 +872,7 @@ export default function EquipePage() {
                   <h3 className="text-xl font-semibold text-white">Expert Nexus</h3>
                   <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">MEILLEUR ROI</span>
                 </div>
-                <div className="mt-2 text-sm text-slate-300">37 TND/h*</div>
+                <div className="mt-2 text-sm text-slate-300">60 TND/h*</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
                   <li>🎓 100% Agrégés/Certifiés</li>
                   <li>📊 Dashboard + IA ARIA 24/7</li>
@@ -881,7 +881,7 @@ export default function EquipePage() {
                   <li>🧭 Coaching orientation inclus</li>
                 </ul>
                 <div className="mt-4 text-xs text-slate-300">
-                  *Basé sur Programme Excellence (299 TND/mois pour 8h)
+                  *Tarifs horaires de référence : cours individuel 60 TND/h, cours en groupe 40 TND/h
                 </div>
               </div>
             </div>

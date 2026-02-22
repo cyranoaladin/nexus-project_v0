@@ -672,7 +672,7 @@ export default function OffresPage() {
             </div>
 
             <p className="mt-4 text-xs text-neutral-400 text-center">
-              *Calcul basé sur la formule Hybride : 450 TND/mois pour 4h = 112 TND/h tout inclus (coach Agrégés et Certifiés + IA ARIA + dashboard + suivi).
+              *Tarifs horaires de référence : cours individuel 60 TND/h, cours en groupe 40 TND/h (tout inclus : coachs Agrégés et Certifiés + IA ARIA + dashboard + suivi).
             </p>
           </div>
         </section>
