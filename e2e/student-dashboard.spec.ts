@@ -30,10 +30,14 @@ test.describe('Student Dashboard', () => {
             const ariaHeader = page.getByText(/^ARIA$/i).first();
             const subjectPicker = page.getByText(/Choisis ta matière/i).first();
             const ariaInput = page.getByTestId('aria-input').first();
+            const headerVisible = await ariaHeader.isVisible().catch(() => false);
+            const pickerVisible = await subjectPicker.isVisible().catch(() => false);
+            const inputVisible = await ariaInput.isVisible().catch(() => false);
 
-            await expect(
-                ariaHeader.or(subjectPicker).or(ariaInput)
-            ).toBeVisible({ timeout: 10000 });
+            expect(
+                headerVisible || pickerVisible || inputVisible,
+                'ARIA modal/chat should expose header, subject picker, or input'
+            ).toBeTruthy();
         } else {
             console.log('⚠️  ARIA chat button not found on student dashboard');
         }
