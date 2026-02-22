@@ -103,6 +103,7 @@ export default function SignInPage() {
                     </Label>
                     <Input
                       id="email"
+                      data-testid="input-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -131,6 +132,7 @@ export default function SignInPage() {
                     <div className="relative mt-2">
                       <Input
                         id="password"
+                        data-testid="input-password"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -144,6 +146,7 @@ export default function SignInPage() {
                       />
                       <button
                         type="button"
+                        data-testid="btn-toggle-password"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300 hover:text-neutral-100 transition-colors"
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
@@ -168,6 +171,7 @@ export default function SignInPage() {
 
                   <Button
                     type="submit"
+                    data-testid="btn-signin"
                     className="w-full h-12 font-semibold"
                     disabled={isLoading}
                   >

@@ -1223,3 +1223,31 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+@media print {
+  nav,
+  .print-hidden,
+  [class*="backdrop-blur"] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .bg-slate-900,
+  .bg-slate-800 {
+    background: white !important;
+  }
+
+  .text-slate-300,
+  .text-white {
+    color: black !important;
+  }
+
+  .text-cyan-400,
+  .text-blue-400 {
+    color: #0369a1 !important;
+  }
+}

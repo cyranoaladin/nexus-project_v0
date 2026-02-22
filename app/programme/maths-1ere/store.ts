@@ -71,6 +71,14 @@ interface MathsLabState {
   // ─── Badges ───────────────────────────────────────────────────────────
   /** Earned badge IDs */
   badges: string[];
+  diagnosticResults: Record<string, { score: number; total: number; date: string }>;
+  timePerChapter: Record<string, number>;
+  formulaireViewed: boolean;
+  grandOralSeen: number;
+  labArchimedeOpened: boolean;
+  eulerMaxSteps: number;
+  newtonBestIterations: number | null;
+  printedFiche: boolean;
 
   // ─── Hydration (remote sync) ──────────────────────────────────────────
   /** Whether the store has been hydrated from remote */
@@ -105,6 +113,14 @@ interface MathsLabState {
   recordActivity: () => void;
   evaluateBadges: () => void;
   recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => void;
+  recordDiagnostic: (chapId: string, score: number, total: number) => void;
+  addChapterTime: (chapId: string, seconds: number) => void;
+  markFormulaireViewed: () => void;
+  trackGrandOralView: (count?: number) => void;
+  markLabArchimedeOpened: () => void;
+  markEulerSteps: (steps: number) => void;
+  markNewtonConvergence: (iterations: number) => void;
+  markPrintedFiche: () => void;
   resetProgress: () => void;
   setHydrationStatus: (status: { isHydrated: boolean; canWriteRemote: boolean; hydrationError: string | null }) => void;
   unlockChapter: (chapId: string) => void;
@@ -169,6 +185,13 @@ function evaluateBadgeConditions(state: {
   exerciseResults: Record<string, number[]>;
   hintUsage: Record<string, HintLevel>;
   badges: string[];
+  diagnosticResults: Record<string, { score: number; total: number; date: string }>;
+  formulaireViewed: boolean;
+  grandOralSeen: number;
+  labArchimedeOpened: boolean;
+  eulerMaxSteps: number;
+  newtonBestIterations: number | null;
+  printedFiche: boolean;
 }): string[] {
   const newBadges: string[] = [];
   const allChapterIds = Object.values(programmeData).flatMap((cat) =>
@@ -213,6 +236,21 @@ function evaluateBadgeConditions(state: {
       }
     } else if (cond === 'all_chapters_completed') {
       earned = allChapterIds.length > 0 && allChapterIds.every((id) => state.completedChapters.includes(id));
+    } else if (cond === 'lab_archimede_opened') {
+      earned = state.labArchimedeOpened;
+    } else if (cond === 'euler_steps_50') {
+      earned = state.eulerMaxSteps >= 50;
+    } else if (cond === 'newton_converge_5') {
+      earned = state.newtonBestIterations !== null && state.newtonBestIterations <= 5;
+    } else if (cond === 'grand_oral_3') {
+      earned = state.grandOralSeen >= 3;
+    } else if (cond === 'formulaire_viewed') {
+      earned = state.formulaireViewed;
+    } else if (cond === 'printed_fiche') {
+      earned = state.printedFiche;
+    } else if (cond === 'diagnostic_perfect_3') {
+      const perfectCount = Object.values(state.diagnosticResults).filter((r) => r.total > 0 && r.score === r.total).length;
+      earned = perfectCount >= 3;
     }
 
     if (earned) newBadges.push(badge.id);
@@ -273,6 +311,14 @@ export const useMathsLabStore = create<MathsLabState>()(
       exerciseResults: {},
       hintUsage: {},
       badges: [],
+      diagnosticResults: {},
+      timePerChapter: {},
+      formulaireViewed: false,
+      grandOralSeen: 0,
+      labArchimedeOpened: false,
+      eulerMaxSteps: 0,
+      newtonBestIterations: null,
+      printedFiche: false,
       isHydrated: false,
       canWriteRemote: false,
       hydrationError: null,
@@ -432,6 +478,13 @@ export const useMathsLabStore = create<MathsLabState>()(
           exerciseResults: state.exerciseResults,
           hintUsage: state.hintUsage,
           badges: state.badges,
+          diagnosticResults: state.diagnosticResults,
+          formulaireViewed: state.formulaireViewed,
+          grandOralSeen: state.grandOralSeen,
+          labArchimedeOpened: state.labArchimedeOpened,
+          eulerMaxSteps: state.eulerMaxSteps,
+          newtonBestIterations: state.newtonBestIterations,
+          printedFiche: state.printedFiche,
         });
         if (newBadges.length > 0) {
           set((s) => ({
@@ -456,6 +509,42 @@ export const useMathsLabStore = create<MathsLabState>()(
         });
         get().recordActivity();
       },
+
+      recordDiagnostic: (chapId: string, score: number, total: number) => {
+        set((state) => ({
+          diagnosticResults: {
+            ...state.diagnosticResults,
+            [chapId]: { score, total, date: getTodayISO() },
+          },
+          totalXP: state.totalXP + Math.max(0, Math.round((score / Math.max(total, 1)) * 6)),
+        }));
+      },
+
+      addChapterTime: (chapId: string, seconds: number) => {
+        set((state) => ({
+          timePerChapter: {
+            ...state.timePerChapter,
+            [chapId]: (state.timePerChapter[chapId] ?? 0) + Math.max(0, seconds),
+          },
+        }));
+      },
+
+      markFormulaireViewed: () => set({ formulaireViewed: true }),
+
+      trackGrandOralView: (count = 1) => set((state) => ({ grandOralSeen: state.grandOralSeen + Math.max(1, count) })),
+
+      markLabArchimedeOpened: () => set({ labArchimedeOpened: true }),
+
+      markEulerSteps: (steps: number) => set((state) => ({ eulerMaxSteps: Math.max(state.eulerMaxSteps, steps) })),
+
+      markNewtonConvergence: (iterations: number) => set((state) => ({
+        newtonBestIterations:
+          state.newtonBestIterations === null
+            ? iterations
+            : Math.min(state.newtonBestIterations, iterations),
+      })),
+
+      markPrintedFiche: () => set({ printedFiche: true }),
 
       recordActivity: () => {
         const today = getTodayISO();
@@ -506,13 +595,21 @@ export const useMathsLabStore = create<MathsLabState>()(
           exerciseResults: {},
           hintUsage: {},
           badges: [],
+          diagnosticResults: {},
+          timePerChapter: {},
+          formulaireViewed: false,
+          grandOralSeen: 0,
+          labArchimedeOpened: false,
+          eulerMaxSteps: 0,
+          newtonBestIterations: null,
+          printedFiche: false,
           srsQueue: {},
         });
       },
     }),
     {
       name: 'nexus-maths-lab-v2',
-      version: 3,
+      version: 4,
     }
   )
 );

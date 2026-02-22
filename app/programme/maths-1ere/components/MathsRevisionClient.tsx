@@ -15,6 +15,10 @@ import { useMathJax } from './MathJaxProvider';
 import ExerciseEngine from './ExerciseEngine';
 import InteractiveGraph from './InteractiveGraph';
 import SkillTree from './SkillTree';
+import DiagnosticPrerequis from './DiagnosticPrerequis';
+import GrandOralSuggestions from './GrandOralSuggestions';
+import ProceduralExercise from './ProceduralExercise';
+import FormulaireView from './FormulaireView';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import {
@@ -33,6 +37,9 @@ const PythonExercises = dynamic(() => import('./labs/PythonExercises'), { ssr: f
 const ToileAraignee = dynamic(() => import('./labs/ToileAraignee'), { ssr: false });
 const Enrouleur = dynamic(() => import('./labs/Enrouleur'), { ssr: false });
 const VectorProjector = dynamic(() => import('./labs/VectorProjector'), { ssr: false });
+const EulerExponentielle = dynamic(() => import('./labs/EulerExponentielle'), { ssr: false });
+const ArchimedePi = dynamic(() => import('./labs/ArchimedePi'), { ssr: false });
+const NewtonSolver = dynamic(() => import('./labs/NewtonSolver'), { ssr: false });
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
   let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
@@ -67,6 +74,14 @@ function toProgressPayload(
     | 'hintUsage'
     | 'badges'
     | 'srsQueue'
+    | 'diagnosticResults'
+    | 'timePerChapter'
+    | 'formulaireViewed'
+    | 'grandOralSeen'
+    | 'labArchimedeOpened'
+    | 'eulerMaxSteps'
+    | 'newtonBestIterations'
+    | 'printedFiche'
   >
 ): ProgressPayload {
   return {
@@ -84,6 +99,14 @@ function toProgressPayload(
     hint_usage: state.hintUsage as Record<string, number>,
     badges: state.badges,
     srs_queue: state.srsQueue as Record<string, unknown>,
+    diagnostic_results: state.diagnosticResults as unknown as Record<string, unknown>,
+    time_per_chapter: state.timePerChapter as Record<string, number>,
+    formulaire_viewed: state.formulaireViewed,
+    grand_oral_seen: state.grandOralSeen,
+    lab_archimede_opened: state.labArchimedeOpened,
+    euler_max_steps: state.eulerMaxSteps,
+    newton_best_iterations: state.newtonBestIterations ?? null,
+    printed_fiche: state.printedFiche,
   };
 }
 
@@ -126,15 +149,15 @@ const cardVariants = {
 };
 
 // ─── Tab types ───────────────────────────────────────────────────────────────
-type TabName = 'dashboard' | 'cours' | 'entrainement';
+type TabName = 'dashboard' | 'cours' | 'entrainement' | 'formulaire';
 
 // ─── Color helpers ──────────────────────────────────────────────────────────
 function getColorClasses(couleur: string) {
   switch (couleur) {
     case 'cyan': return { text: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-t-cyan-500', borderAccent: 'border-cyan-500/30' };
     case 'blue': return { text: 'text-blue-400', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
-    case 'purple': return { text: 'text-blue-300', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
-    case 'amber': return { text: 'text-blue-300', bg: 'bg-blue-500/20', border: 'border-t-blue-500', borderAccent: 'border-blue-500/30' };
+    case 'purple': return { text: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-t-purple-500', borderAccent: 'border-purple-500/30' };
+    case 'amber': return { text: 'text-amber-400', bg: 'bg-amber-500/20', border: 'border-t-amber-500', borderAccent: 'border-amber-500/30' };
     case 'green': return { text: 'text-green-400', bg: 'bg-green-500/20', border: 'border-t-green-500', borderAccent: 'border-green-500/30' };
     default: return { text: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-t-cyan-500', borderAccent: 'border-cyan-500/30' };
   }
@@ -249,6 +272,14 @@ export default function MathsRevisionClient({
             hintUsage: (remote.hint_usage as typeof state.hintUsage) ?? state.hintUsage,
             badges: remote.badges ?? state.badges,
             srsQueue: (remote.srs_queue as typeof state.srsQueue) ?? state.srsQueue,
+            diagnosticResults: (remote.diagnostic_results as typeof state.diagnosticResults) ?? state.diagnosticResults,
+            timePerChapter: (remote.time_per_chapter as typeof state.timePerChapter) ?? state.timePerChapter,
+            formulaireViewed: (remote.formulaire_viewed as boolean) ?? state.formulaireViewed,
+            grandOralSeen: (remote.grand_oral_seen as number) ?? state.grandOralSeen,
+            labArchimedeOpened: (remote.lab_archimede_opened as boolean) ?? state.labArchimedeOpened,
+            eulerMaxSteps: (remote.euler_max_steps as number) ?? state.eulerMaxSteps,
+            newtonBestIterations: (remote.newton_best_iterations as number | null) ?? state.newtonBestIterations,
+            printedFiche: (remote.printed_fiche as boolean) ?? state.printedFiche,
           }));
 
           for (const chapId of remote.completed_chapters ?? []) {
@@ -320,7 +351,15 @@ export default function MathsRevisionClient({
         state.badges !== prevState.badges ||
         state.streak !== prevState.streak ||
         state.exerciseResults !== prevState.exerciseResults ||
-        state.hintUsage !== prevState.hintUsage;
+        state.hintUsage !== prevState.hintUsage ||
+        state.diagnosticResults !== prevState.diagnosticResults ||
+        state.timePerChapter !== prevState.timePerChapter ||
+        state.formulaireViewed !== prevState.formulaireViewed ||
+        state.grandOralSeen !== prevState.grandOralSeen ||
+        state.labArchimedeOpened !== prevState.labArchimedeOpened ||
+        state.eulerMaxSteps !== prevState.eulerMaxSteps ||
+        state.newtonBestIterations !== prevState.newtonBestIterations ||
+        state.printedFiche !== prevState.printedFiche;
 
       if (!shouldSync) return;
 
@@ -502,6 +541,18 @@ export default function MathsRevisionClient({
                 />
               </motion.div>
             )}
+            {currentTab === 'formulaire' && (
+              <motion.div
+                key="formulaire"
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                <FormulaireView />
+              </motion.div>
+            )}
           </AnimatePresence>
         </main>
       </div>
@@ -630,6 +681,7 @@ const tabs: { id: TabName; label: string; icon: React.ReactNode }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg> },
   { id: 'cours', label: 'Fiches de Cours', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> },
   { id: 'entrainement', label: 'Quiz & Exos', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg> },
+  { id: 'formulaire', label: 'Formulaire', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6M9 16h6M9 8h6M5 4h14v16H5z" /></svg> },
 ];
 
 function TabBar({ currentTab, onSwitch }: { currentTab: TabName; onSwitch: (tab: TabName) => void }) {
@@ -847,7 +899,7 @@ function ThemeCard({ cat, completedCount }: { cat: Categorie; completedCount: nu
       <div className="font-bold text-white text-sm">{cat.titre}</div>
       <div className="text-xs text-slate-300 mt-1">{completedCount}/{cat.chapitres.length} chapitres</div>
       <div className="w-full h-1 bg-slate-700 rounded-full mt-2 overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${cat.couleur === 'cyan' ? 'bg-cyan-500' : cat.couleur === 'blue' ? 'bg-blue-500' : cat.couleur === 'purple' ? 'bg-blue-500' : cat.couleur === 'amber' ? 'bg-blue-400' : 'bg-green-500'}`} style={{ width: `${cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0}%` }} />
+        <div className={`h-full rounded-full transition-all ${cat.couleur === 'cyan' ? 'bg-cyan-500' : cat.couleur === 'blue' ? 'bg-blue-500' : cat.couleur === 'purple' ? 'bg-purple-500' : cat.couleur === 'amber' ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0}%` }} />
       </div>
     </div>
   );
@@ -861,11 +913,48 @@ function CoursView({ selectedChapter, onSelectChapter, typeset, focusMode, onTog
   focusMode: boolean;
   onToggleFocus: () => void;
 }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const filteredChapters = searchQuery.length > 2
+    ? Object.entries(programmeData).flatMap(([catKey, cat]) =>
+      cat.chapitres
+        .filter((c) =>
+          c.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.contenu.rappel.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((c) => ({ catKey, chapId: c.id, titre: c.titre, catTitre: cat.titre }))
+    )
+    : [];
+
   return (
     <div className={`grid grid-cols-1 ${focusMode ? '' : 'lg:grid-cols-12'} gap-6 h-full`}>
       {/* Skill Tree Sidebar (35% per CdC §3.1) */}
       {!focusMode && (
         <div className="lg:col-span-4 bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-2xl p-4 max-h-[80vh] overflow-y-auto">
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un chapitre, notion, formule..."
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500"
+              aria-label="Rechercher dans les fiches de cours"
+            />
+            {filteredChapters.length > 0 && (
+              <div className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-slate-700/40 bg-slate-900/70">
+                {filteredChapters.map((f) => (
+                  <button
+                    key={`${f.catKey}-${f.chapId}`}
+                    onClick={() => onSelectChapter({ catKey: f.catKey, chapId: f.chapId })}
+                    className="w-full text-left px-3 py-2 hover:bg-slate-800 border-b border-slate-800 last:border-b-0"
+                    aria-label={`Ouvrir ${f.titre}`}
+                  >
+                    <p className="text-sm text-white">{f.titre}</p>
+                    <p className="text-[10px] text-slate-400">{f.catTitre}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <SkillTree
             onSelectChapter={onSelectChapter}
             selectedChapterId={selectedChapter?.chapId}
@@ -913,6 +1002,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 }) {
   const [hintLevel, setHintLevel] = useState(0); // 0=none, 1=indice, 2=début, 3=correction
   const [showSolution, setShowSolution] = useState(false);
+  const timeRef = useRef<number>(Date.now());
   const store = useMathsLabStore();
   const cat = programmeData[catKey];
   const chap = cat?.chapitres.find((c) => c.id === chapId);
@@ -921,8 +1011,13 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
   useEffect(() => {
     setShowSolution(false);
     setHintLevel(0);
+    timeRef.current = Date.now();
     const timer = setTimeout(typeset, 200);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      const elapsed = Math.round((Date.now() - timeRef.current) / 1000);
+      if (elapsed > 10) store.addChapterTime(chapId, elapsed);
+    };
   }, [chapId, typeset]);
 
   useEffect(() => {
@@ -971,6 +1066,17 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           )}
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => {
+              window.print();
+              store.markPrintedFiche();
+              store.earnBadge('imprimeur');
+            }}
+            className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 print:hidden"
+            aria-label="Imprimer cette fiche de cours"
+          >
+            🖨️ Imprimer
+          </button>
           <button onClick={onToggleFocus} className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">
             {focusMode ? '◧ Sidebar' : '⛶ Focus'}
           </button>
@@ -981,6 +1087,16 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
       </div>
 
       <div className="space-y-6 relative z-10">
+        {chap.prerequisDiagnostic && (
+          <DiagnosticPrerequis
+            chapId={chapId}
+            questions={chap.prerequisDiagnostic}
+            onComplete={(score, total) => {
+              store.recordDiagnostic(chapId, score, total);
+            }}
+          />
+        )}
+
         {/* Rappel */}
         <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-6">
           <h3 className="font-bold text-white mb-2 flex items-center gap-2">📌 L&apos;essentiel du cours</h3>
@@ -1133,6 +1249,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.exercices && chap.exercices.length > 0 && (
           <ExerciseEngine exercices={chap.exercices} chapId={chapId} onExerciseCorrect={store.recordExerciseResult} />
         )}
+        <ProceduralExercise chapId={chapId} />
 
         {/* ─── Chapter-specific Lab Interactifs (CdC §4) ─────────────── */}
 
@@ -1149,9 +1266,15 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             title={chapId === 'derivation' ? 'La Tangente Glissante — f(x) = x³ − 3x' : 'Variations — f(x) = x²'}
           />
         )}
+        {(chapId === 'variations-courbes' || chapId === 'algo-newton') && <NewtonSolver />}
 
         {/* CdC §4.2.3 — L'Enrouleur (Trigonométrie) */}
-        {chapId === 'trigonometrie' && <Enrouleur />}
+        {chapId === 'trigonometrie' && (
+          <>
+            <Enrouleur />
+            <ArchimedePi />
+          </>
+        )}
 
         {/* CdC §4.2 — Projecteur Vectoriel (Produit Scalaire) */}
         {chapId === 'produit-scalaire' && <VectorProjector />}
@@ -1194,6 +1317,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             }
           />
         )}
+        {chapId === 'exponentielle' && <EulerExponentielle />}
 
         {catKey === 'geometrie' && (
           <InteractiveMafs
@@ -1254,6 +1378,8 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           </div>
         </div>
 
+        <GrandOralSuggestions chapId={chapId} />
+
         {/* External Resources */}
         {chap.ressourcesExt && chap.ressourcesExt.length > 0 && (
           <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-5">
@@ -1272,84 +1398,250 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
   );
 }
 
-// ─── Quiz View ───────────────────────────────────────────────────────────────
-type QuizState =
-  | { phase: 'idle' }
-  | { phase: 'question'; index: number; score: number; questions: QuizQuestion[] }
-  | { phase: 'feedback'; index: number; score: number; questions: QuizQuestion[]; isCorrect: boolean }
-  | { phase: 'result'; score: number; total: number };
+// ─── Quiz View (Automatismes EAM) ──────────────────────────────────────────
+type QuizMode = 'theme' | 'exam';
+type QuizPhase = 'idle' | 'question' | 'feedback' | 'result';
 
 function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => void; typeset: () => void }) {
-  const [quiz, setQuiz] = useState<QuizState>({ phase: 'idle' });
+  const [mode, setMode] = useState<QuizMode>('theme');
+  const [phase, setPhase] = useState<QuizPhase>('idle');
+  const [themeFilter, setThemeFilter] = useState<string>('all');
+  const [questionCount, setQuestionCount] = useState<number>(6);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+  const [showWrongOnly, setShowWrongOnly] = useState(false);
   const store = useMathsLabStore();
 
+  const categoryList = Array.from(new Set(quizData.map((q) => q.categorie))).sort((a, b) => a.localeCompare(b));
+  const current = questions[index];
+  const hasAnswered = answers[index] !== undefined;
+  const isExam = mode === 'exam';
+  const examTimerClass =
+    timeLeft <= 60 ? 'text-red-400 animate-pulse' : timeLeft <= 300 ? 'text-amber-300' : 'text-cyan-300';
+
   useEffect(() => {
-    const timer = setTimeout(typeset, 200);
+    const timer = setTimeout(typeset, 160);
     return () => clearTimeout(timer);
-  }, [quiz, typeset]);
+  }, [phase, index, questions, mode, showWrongOnly, typeset]);
+
+  useEffect(() => {
+    if (!timerActive || timeLeft <= 0) return;
+    const id = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setTimerActive(false);
+          finishQuiz();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerActive, timeLeft]);
+
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
+
+  const drawQuestions = useCallback(() => {
+    let pool = [...quizData];
+    if (!isExam && themeFilter !== 'all') {
+      pool = pool.filter((q) => q.categorie === themeFilter);
+    }
+    const desiredCount = isExam ? 12 : questionCount;
+    const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, Math.min(desiredCount, pool.length));
+    return shuffled;
+  }, [themeFilter, questionCount, isExam]);
 
   const startQuiz = useCallback(() => {
-    const shuffled = [...quizData].sort(() => 0.5 - Math.random()).slice(0, 5);
-    setQuiz({ phase: 'question', index: 0, score: 0, questions: shuffled });
-  }, []);
+    const drawn = drawQuestions();
+    setQuestions(drawn);
+    setIndex(0);
+    setScore(0);
+    setAnswers({});
+    setIsCorrect(null);
+    setShowWrongOnly(false);
+    setPhase('question');
+    if (isExam) {
+      setTimeLeft(20 * 60);
+      setTimerActive(true);
+    } else {
+      setTimeLeft(0);
+      setTimerActive(false);
+    }
+  }, [drawQuestions, isExam]);
+
+  const finishQuiz = useCallback(() => {
+    setTimerActive(false);
+    const finalScore = questions.reduce((acc, q, i) => acc + (answers[i] === q.correct ? 1 : 0), 0);
+    setScore(finalScore);
+    if (isExam) {
+      store.addQuizScore(finalScore * 15);
+    } else {
+      store.addQuizScore(finalScore * 10);
+    }
+    setPhase('result');
+  }, [questions, answers, store, isExam]);
 
   const checkAnswer = useCallback((choice: number) => {
-    if (quiz.phase !== 'question') return;
-    const q = quiz.questions[quiz.index];
-    const isCorrect = choice === q.correct;
-    if (isCorrect) {
+    if (phase !== 'question' || !current || hasAnswered) return;
+    const ok = choice === current.correct;
+    setAnswers((prev) => ({ ...prev, [index]: choice }));
+    if (ok) {
+      setScore((s) => s + 1);
       store.incrementCombo();
     } else {
       store.resetCombo();
     }
-    setQuiz({ phase: 'feedback', index: quiz.index, score: isCorrect ? quiz.score + 1 : quiz.score, questions: quiz.questions, isCorrect });
-  }, [quiz, store]);
+    if (isExam) {
+      const nextIdx = index + 1;
+      if (nextIdx >= questions.length) {
+        setTimeout(() => finishQuiz(), 150);
+      } else {
+        setIndex(nextIdx);
+      }
+    } else {
+      setIsCorrect(ok);
+      setPhase('feedback');
+    }
+  }, [phase, current, hasAnswered, index, questions.length, store, isExam, finishQuiz]);
 
   const nextQuestion = useCallback(() => {
-    if (quiz.phase !== 'feedback') return;
-    const nextIdx = quiz.index + 1;
-    if (nextIdx >= quiz.questions.length) {
-      store.addQuizScore(quiz.score * 10);
-      setQuiz({ phase: 'result', score: quiz.score, total: quiz.questions.length });
+    if (!isExam && phase !== 'feedback') return;
+    const nextIdx = index + 1;
+    if (nextIdx >= questions.length) {
+      finishQuiz();
     } else {
-      setQuiz({ phase: 'question', index: nextIdx, score: quiz.score, questions: quiz.questions });
+      setIndex(nextIdx);
+      setIsCorrect(null);
+      setPhase('question');
     }
-  }, [quiz, store]);
+  }, [phase, index, questions.length, finishQuiz, isExam]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (phase === 'question' && current) {
+        const numKey = parseInt(e.key, 10);
+        if (numKey >= 1 && numKey <= current.options.length) {
+          checkAnswer(numKey - 1);
+        }
+      }
+      if (phase === 'feedback' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        nextQuestion();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [phase, current, checkAnswer, nextQuestion]);
+
+  const noteSur6 = isExam && questions.length > 0 ? Math.round(((score / questions.length) * 6) * 2) / 2 : null;
+  const noteSur20 = noteSur6 !== null ? Math.round((noteSur6 / 6) * 20) : null;
+  const resultRows = questions
+    .map((q, i) => ({ q, i, ok: answers[i] === q.correct }))
+    .filter((row) => (showWrongOnly ? !row.ok : true));
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>Quiz d&apos;Automatismes</h2>
-        <p className="text-slate-300">Questions rapides sans calculatrice (type partie 1 E3C/Bac).</p>
+        <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
+          Partie Automatismes
+        </h2>
+        <p className="text-slate-300">Préparation EAM: session thématique ou simulation complète 12 questions / 20 min.</p>
       </div>
 
-      <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-8 min-h-[400px] flex items-center justify-center">
-        {quiz.phase === 'idle' && (
-          <div className="text-center">
-            <div className="text-6xl mb-6">⏱️</div>
-            <button onClick={startQuiz} className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:-translate-y-1">
-              Lancer une série (5 questions)
-            </button>
+      <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-6 md:p-8 min-h-[460px]">
+        {phase === 'idle' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                onClick={() => setMode('theme')}
+                className={`rounded-2xl border p-4 text-left transition-all ${mode === 'theme' ? 'border-cyan-500 bg-cyan-500/10' : 'border-slate-700 hover:border-cyan-500/50'}`}
+              >
+                <p className="text-lg font-bold text-white">⚡ Session thématique</p>
+                <p className="text-slate-300 text-sm">Entraînement ciblé avec correction immédiate.</p>
+              </button>
+              <button
+                onClick={() => setMode('exam')}
+                className={`rounded-2xl border p-4 text-left transition-all ${mode === 'exam' ? 'border-blue-500 bg-blue-500/10' : 'border-slate-700 hover:border-blue-500/50'}`}
+              >
+                <p className="text-lg font-bold text-white">🎯 Simulation EAM</p>
+                <p className="text-slate-300 text-sm">12 questions mixtes, 20 minutes, sans correction pendant l'épreuve.</p>
+              </button>
+            </div>
+
+            {mode === 'theme' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 block mb-2">Thème</label>
+                  <select
+                    value={themeFilter}
+                    onChange={(e) => setThemeFilter(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100"
+                  >
+                    <option value="all">Tous les thèmes</option>
+                    {categoryList.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 block mb-2">Nombre de questions</label>
+                  <div className="flex gap-2">
+                    {[6, 12].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setQuestionCount(n)}
+                        className={`px-4 py-2 rounded-xl border ${questionCount === n ? 'bg-cyan-600 border-cyan-500 text-white' : 'border-slate-700 text-slate-300 hover:border-cyan-500/60'}`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="text-center pt-2">
+              <button
+                onClick={startQuiz}
+                className={`text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition-all transform hover:-translate-y-1 ${isExam ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-blue-500/30' : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-cyan-500/30'}`}
+              >
+                {isExam ? 'Démarrer la simulation' : 'Lancer la session'}
+              </button>
+            </div>
           </div>
         )}
 
-        {quiz.phase === 'question' && (
+        {phase === 'question' && current && (
           <div className="w-full">
-            <div className="flex justify-between text-sm text-slate-300 mb-4">
-              <span>Question {quiz.index + 1} / {quiz.questions.length}</span>
+            <div className="flex flex-wrap justify-between gap-3 text-sm text-slate-300 mb-4">
+              <span>Question {index + 1} / {questions.length}</span>
               <div className="flex items-center gap-3">
-                {store.comboCount >= 3 && (
+                {!isExam && store.comboCount >= 3 && (
                   <span className="text-blue-300 font-bold text-xs">⚡ Combo x{store.getComboMultiplier()}</span>
                 )}
-                <span>{quiz.questions[quiz.index].categorie}</span>
+                <span>{current.categorie}</span>
+                {isExam && (
+                  <span role="timer" aria-live="polite" className={`font-bold ${examTimerClass}`}>
+                    ⏱ {formatTimer(timeLeft)}
+                  </span>
+                )}
               </div>
             </div>
             <div className="h-2 bg-slate-800 rounded-full mb-6">
-              <div className="h-full bg-cyan-500 rounded-full transition-all duration-300" style={{ width: `${(quiz.index / quiz.questions.length) * 100}%` }} />
+              <div className={`h-full rounded-full transition-all duration-300 ${isExam ? 'bg-blue-500' : 'bg-cyan-500'}`} style={{ width: `${((index + 1) / questions.length) * 100}%` }} />
             </div>
-            <h3 className="text-xl font-bold text-white mb-6 text-center">{quiz.questions[quiz.index].question}</h3>
+            <h3 className="text-xl font-bold text-white mb-6 text-center">{current.question}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-              {quiz.questions[quiz.index].options.map((opt, i) => (
+              {current.options.map((opt, i) => (
                 <button key={i} onClick={() => checkAnswer(i)} className="p-4 rounded-xl border border-slate-700 hover:border-cyan-500 hover:bg-slate-800 transition-all text-slate-300 font-mono text-center">
                   {opt}
                 </button>
@@ -1358,29 +1650,59 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
           </div>
         )}
 
-        {quiz.phase === 'feedback' && (
+        {phase === 'feedback' && current && (
           <div className="w-full text-center">
-            <div className="text-6xl mb-4">{quiz.isCorrect ? '✅' : '❌'}</div>
-            <h3 className="text-2xl font-bold text-white mb-2">{quiz.isCorrect ? 'Correct !' : 'Oups...'}</h3>
+            <div className="text-6xl mb-4">{isCorrect ? '✅' : '❌'}</div>
+            <h3 className="text-2xl font-bold text-white mb-2">{isCorrect ? 'Correct !' : 'Oups...'}</h3>
             <div className="bg-slate-900/50 p-4 rounded-xl mb-6 text-left">
               <p className="text-slate-300 text-sm font-bold mb-1">Explication :</p>
-              <p className="text-slate-300 text-sm">{quiz.questions[quiz.index].explication}</p>
+              <p className="text-slate-300 text-sm">{current.explication}</p>
             </div>
             <button onClick={nextQuestion} className="bg-cyan-600 text-white font-bold py-2 px-6 rounded-full hover:bg-cyan-500">Suivant</button>
           </div>
         )}
 
-        {quiz.phase === 'result' && (
+        {phase === 'result' && (
           <div className="text-center">
             <h3 className="text-3xl font-bold text-white mb-2">Résultat</h3>
-            <div className="text-6xl font-bold text-cyan-400 mb-2" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>{quiz.score}/{quiz.total}</div>
-            <p className="text-sm text-cyan-400 mb-4">+{quiz.score * 10} XP gagnés !</p>
+            <div className={`text-6xl font-bold mb-2 ${isExam ? 'text-blue-400' : 'text-cyan-400'}`} style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
+              {score}/{questions.length}
+            </div>
+            {isExam && noteSur6 !== null && noteSur20 !== null && (
+              <p className="text-sm text-blue-300 mb-2">Note automatismes: {noteSur6}/6 · Équivalent: {noteSur20}/20</p>
+            )}
+            <p className="text-sm text-cyan-400 mb-4">+{score * (isExam ? 15 : 10)} XP gagnés !</p>
             <p className="text-slate-300 mb-6">
-              {quiz.score === quiz.total ? 'Parfait ! 🌟' : quiz.score > quiz.total / 2 ? 'Bien joué ! 👍' : 'Entraîne-toi encore 💪'}
+              {score === questions.length ? 'Parfait ! 🌟' : score > questions.length / 2 ? 'Bien joué ! 👍' : 'Entraîne-toi encore 💪'}
             </p>
-            <div className="flex gap-3 justify-center">
+
+            <div className="flex flex-wrap gap-3 justify-center mb-6">
               <button onClick={startQuiz} className="bg-cyan-600 text-white font-bold py-2 px-6 rounded-full hover:bg-cyan-500">Rejouer</button>
               <button onClick={() => onSwitchTab('dashboard')} className="bg-slate-700 text-white font-bold py-2 px-6 rounded-full hover:bg-slate-600">Tableau de bord</button>
+              <button onClick={() => setPhase('idle')} className="bg-blue-600 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-500">Changer de mode</button>
+              <button onClick={() => setShowWrongOnly((v) => !v)} className="bg-slate-700 text-white font-bold py-2 px-6 rounded-full hover:bg-slate-600">
+                {showWrongOnly ? 'Voir tout' : 'Revoir les erreurs'}
+              </button>
+            </div>
+
+            <div className="space-y-3 text-left">
+              {resultRows.length === 0 && (
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-emerald-300 text-sm">
+                  Aucune erreur sur ce filtre.
+                </div>
+              )}
+              {resultRows.map(({ q, i, ok }) => (
+                <div key={`${q.id}-${i}`} className={`rounded-xl border p-4 ${ok ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-sm text-slate-300">Q{i + 1} · {q.categorie}</p>
+                    <span className={`text-xs font-bold ${ok ? 'text-emerald-300' : 'text-red-300'}`}>{ok ? 'OK' : 'Erreur'}</span>
+                  </div>
+                  <p className="text-slate-100 text-sm mb-2">{q.question}</p>
+                  <p className="text-xs text-slate-400">Ta réponse : {answers[i] !== undefined ? q.options[answers[i]] : 'Aucune'}</p>
+                  {!ok && <p className="text-xs text-slate-200">Bonne réponse : {q.options[q.correct]}</p>}
+                  {!ok && <p className="text-xs text-slate-400 mt-1">{q.explication}</p>}
+                </div>
+              ))}
             </div>
           </div>
         )}

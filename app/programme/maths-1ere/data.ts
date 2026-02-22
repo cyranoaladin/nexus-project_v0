@@ -91,6 +91,12 @@ export interface Chapitre {
   competences?: CompetenceBO[];
   contenu: ChapitreContenu;
   exercices?: Exercice[];
+  prerequisDiagnostic?: {
+    question: string;
+    options: string[];
+    correct: number;
+    remediation: string;
+  }[];
   ressourcesExt?: { label: string; url: string }[];
 }
 
@@ -123,8 +129,10 @@ export const niveaux: NiveauEleve[] = [
   { nom: 'Novice', xpMin: 0, badge: '🌱' },
   { nom: 'Initié', xpMin: 200, badge: '📗' },
   { nom: 'Expert', xpMin: 500, badge: '🔥' },
-  { nom: 'Maître', xpMin: 1000, badge: '�' },
+  { nom: 'Champion', xpMin: 750, badge: '⚡' },
+  { nom: 'Maître', xpMin: 1000, badge: '🎓' },
   { nom: 'Légende', xpMin: 2000, badge: '🏆' },
+  { nom: 'Invincible', xpMin: 3500, badge: '💫' },
 ];
 
 export function getNiveau(xp: number): NiveauEleve {
@@ -194,6 +202,21 @@ export const dailyChallenges: DailyChallenge[] = [
   { id: 'dc28', question: 'Calcul mental : $\\frac{3}{4} + \\frac{5}{6}$ ?', reponse: '$\\frac{19}{12}$', categorie: 'Automatismes', xp: 10 },
   { id: 'dc29', question: 'Dérivée de $e^{3x+1}$ ?', reponse: '$3e^{3x+1}$', categorie: 'Dérivation', xp: 10 },
   { id: 'dc30', question: 'Calcul mental : $\\sqrt{144}$ ?', reponse: '$12$', categorie: 'Automatismes', xp: 5 },
+  { id: 'dc31', question: 'La contraposée de « $a>0 \\Rightarrow a^2>0$ » ?', reponse: '$a^2 \\leq 0 \\Rightarrow a \\leq 0$', categorie: 'Logique', xp: 15 },
+  { id: 'dc32', question: '$F_6$ (Fibonacci, $F_0=0$) ?', reponse: '$8$', categorie: 'Suites', xp: 10 },
+  { id: 'dc33', question: 'Syracuse depuis 7 : $u_1=$ ?', reponse: '$22$', categorie: 'Algorithmique', xp: 10 },
+  { id: 'dc34', question: '$\\sin(\\pi/3) =$ ?', reponse: '$\\frac{\\sqrt{3}}{2}$', categorie: 'Trigonométrie', xp: 10 },
+  { id: 'dc35', question: 'Si $V(X)=4$, $\\sigma(X)=$ ?', reponse: '$2$', categorie: 'Probabilités', xp: 10 },
+  { id: 'dc36', question: 'Vecteur normal à $3x+y-2=0$ ?', reponse: '$(3;1)$', categorie: 'Géométrie', xp: 15 },
+  { id: 'dc37', question: 'Dérivée de $\\sin(2x)$ ?', reponse: '$2\\cos(2x)$', categorie: 'Dérivation', xp: 15 },
+  { id: 'dc38', question: '$\\cos(-\\pi/6) =$ ?', reponse: '$\\frac{\\sqrt{3}}{2}$', categorie: 'Trigonométrie', xp: 10 },
+  { id: 'dc39', question: 'Newton : $x_1$ pour $f(x)=x^2-2$ depuis $x_0=1$ ?', reponse: '$1.5$', categorie: 'Algorithmique', xp: 20 },
+  { id: 'dc40', question: '`[i for i in range(5) if i%2==0]` ?', reponse: '$[0, 2, 4]$', categorie: 'Algorithmique', xp: 10 },
+  { id: 'dc41', question: 'Minimum de $f(x)=x^2-6x+10$ ?', reponse: '$f(3)=1$', categorie: 'Dérivation', xp: 15 },
+  { id: 'dc42', question: '$e^x = e^5 \\Rightarrow x =$ ?', reponse: '$5$', categorie: 'Exponentielle', xp: 5 },
+  { id: 'dc43', question: 'Rayon de $(x+2)^2+(y-1)^2=16$ ?', reponse: '$4$', categorie: 'Géométrie', xp: 10 },
+  { id: 'dc44', question: 'Suite arith. $u_0=10$, $r=-3$. $u_4=$ ?', reponse: '$-2$', categorie: 'Suites', xp: 10 },
+  { id: 'dc45', question: '$P(A \\cup B)$ si $P(A)=0.3$, $P(B)=0.4$, A,B indép. ?', reponse: '$0.58$', categorie: 'Probabilités', xp: 15 },
 ];
 
 // ─── Programme Data (B.O. complet) ──────────────────────────────────────────
@@ -208,6 +231,74 @@ export const programmeData: Record<string, Categorie> = {
     icon: '📈',
     couleur: 'cyan',
     chapitres: [
+      // ── Logique & Raisonnement ────────────────────────────────────────
+      {
+        id: 'logique-raisonnement',
+        titre: 'Logique & Raisonnement',
+        niveau: 'essentiel',
+        difficulte: 2,
+        pointsXP: 40,
+        competences: ['raisonner', 'communiquer'],
+        contenu: {
+          rappel:
+            "Une <strong>proposition</strong> est un énoncé vrai ou faux. Connecteurs: ∧, ∨, ¬. L'implication $P \\Rightarrow Q$ est fausse seulement si $P$ est vraie et $Q$ est fausse.",
+          methode:
+            "\\text{Contraposée de } (P \\Rightarrow Q) : (\\neg Q \\Rightarrow \\neg P) \\\\ \\text{Réciproque : } (Q \\Rightarrow P) \\\\ \\text{Négation de } (\\forall x, P(x)) : (\\exists x, \\neg P(x))",
+          astuce:
+            'Pour réfuter une proposition universelle « Pour tout $x$… », un seul contre-exemple suffit.',
+          exercice: {
+            question: "Écrire la contraposée de : « Si $f$ est dérivable en $a$, alors $f$ est continue en $a$ ».",
+            reponse: "Si $f$ n'est pas continue en $a$, alors $f$ n'est pas dérivable en $a$.",
+            etapes: [
+              "Identifier $P$ = « $f$ dérivable en $a$ » et $Q$ = « $f$ continue en $a$ ».",
+              "La contraposée est $\\neg Q \\Rightarrow \\neg P$.",
+              "Rédiger: « Si $f$ n'est pas continue en $a$, alors $f$ n'est pas dérivable en $a$ ».",
+            ],
+          },
+          erreursClassiques: [
+            "Confondre contraposée ($\\neg Q \\Rightarrow \\neg P$) et réciproque ($Q \\Rightarrow P$).",
+            "Mal nier une inégalité: la négation de « $x > 0$ » est « $x \\leq 0$ ».",
+          ],
+          methodologieBac:
+            "Dans une démonstration, annoncer la méthode (directe, contraposée, absurde) avant de dérouler les étapes.",
+          coupDePouce: {
+            indice: "Pour la contraposée, on nie les deux propositions et on inverse.",
+            debutRaisonnement: "$\\neg Q$ = « non continue », $\\neg P$ = « non dérivable ».",
+            correctionDetaillee: [
+              "$P$: « $f$ dérivable en $a$ », $Q$: « $f$ continue en $a$ ».",
+              "Contraposée de $P \\Rightarrow Q$: $\\neg Q \\Rightarrow \\neg P$.",
+              "Donc: « Si $f$ n'est pas continue en $a$, alors $f$ n'est pas dérivable en $a$ ».",
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'qcm',
+            question: 'La négation de « Il existe un entier pair premier » est :',
+            options: [
+              'Tous les entiers pairs sont premiers',
+              'Tous les entiers pairs sont non premiers',
+              "Aucun entier pair n'est premier",
+              'Il existe un entier impair premier',
+            ],
+            correct: 2,
+            explication: 'La négation de $\\exists x, P(x)$ est $\\forall x, \\neg P(x)$.',
+          },
+          {
+            type: 'ordonnancement',
+            question: "Remettre dans l'ordre les étapes d'une démonstration par l'absurde :",
+            etapesDesordre: [
+              'Conclure que la supposition est fausse',
+              "Supposer le contraire de ce qu'on veut démontrer",
+              'Obtenir une contradiction',
+              'Énoncer la propriété à démontrer',
+            ],
+            ordreCorrect: [3, 1, 2, 0],
+            explication: "Méthode classique de l'absurde.",
+          },
+        ],
+      },
+
       // ── Second Degré ────────────────────────────────────────────────────
       {
         id: 'second-degre',
@@ -296,6 +387,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['second-degre'],
+        prerequisDiagnostic: [
+          { question: 'Calculer $(-2)^3$', options: ['$-6$', '$-8$', '$8$', '$6$'], correct: 1, remediation: 'second-degre' },
+          { question: 'Factoriser $4x - 8$', options: ['$4(x-2)$', '$4(x+2)$', '$2(2x-4)$', '$4x-8$'], correct: 0, remediation: 'second-degre' },
+        ],
         competences: ['modeliser', 'calculer', 'chercher'],
         contenu: {
           rappel:
@@ -372,6 +467,10 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 3,
         pointsXP: 70,
+        prerequisDiagnostic: [
+          { question: 'Pente de la tangente à $f(x)=x^2$ en $x=3$ ?', options: ['$3$', '$6$', '$9$', '$2$'], correct: 1, remediation: 'second-degre' },
+          { question: 'Taux de variation de $f(x)=x^2$ entre $x=0$ et $x=2$ ?', options: ['$2$', '$4$', '$1$', '$0$'], correct: 0, remediation: 'variations-courbes' },
+        ],
         competences: ['calculer', 'representer', 'raisonner', 'chercher'],
         contenu: {
           rappel:
@@ -507,6 +606,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['derivation'],
+        prerequisDiagnostic: [
+          { question: 'Sens de variation de $f(x)=e^x$ ?', options: ['Décroissante', 'Croissante', 'Constante', 'Oscillante'], correct: 1, remediation: 'derivation' },
+          { question: 'Signe de $e^x$ pour tout réel ?', options: ['Négatif', 'Positif', 'Nul', 'Varie'], correct: 1, remediation: 'derivation' },
+        ],
         competences: ['calculer', 'modeliser', 'raisonner'],
         contenu: {
           rappel:
@@ -911,6 +1014,10 @@ export const programmeData: Record<string, Categorie> = {
         niveau: 'essentiel',
         difficulte: 3,
         pointsXP: 60,
+        prerequisDiagnostic: [
+          { question: 'Si $P(A)=0.3$, alors $P(\\bar{A})=$ ?', options: ['$0.3$', '$0.7$', '$1$', '$-0.3$'], correct: 1, remediation: 'variables-aleatoires' },
+          { question: "La probabilité d'un événement certain vaut :", options: ['$0$', '$0.5$', '$1$', 'Dépend'], correct: 2, remediation: 'variables-aleatoires' },
+        ],
         competences: ['modeliser', 'calculer', 'raisonner'],
         contenu: {
           rappel:
@@ -1078,6 +1185,113 @@ export const programmeData: Record<string, Categorie> = {
             options: ['3', '4', '10', 'Erreur'],
             correct: 1,
             explication: '`len()` retourne le nombre d\'éléments de la liste, ici 4.',
+          },
+        ],
+      },
+      {
+        id: 'algo-fibonacci-syracuse',
+        titre: 'Suites remarquables : Fibonacci & Syracuse',
+        niveau: 'approfondissement',
+        difficulte: 3,
+        pointsXP: 60,
+        prerequis: ['algorithmique-python', 'suites'],
+        competences: ['chercher', 'modeliser', 'calculer'],
+        contenu: {
+          rappel:
+            "Fibonacci: $F_0=0$, $F_1=1$, $F_{n+2}=F_{n+1}+F_n$. Syracuse: si $u_n$ pair alors $u_{n+1}=u_n/2$, sinon $u_{n+1}=3u_n+1$.",
+          methode:
+            "\\text{Fibonacci (itératif)}: a,b = b,a+b \\\\ \\text{Syracuse}: \\texttt{while u != 1: ...} \\\\ \\lim\\limits_{n\\to\\infty}\\frac{F_{n+1}}{F_n}=\\varphi",
+          astuce:
+            "Pour $F_n$, deux variables suffisent. Pour Syracuse, le « temps de vol » est le nombre d'itérations pour atteindre 1.",
+          exercice: {
+            question: 'Écrire une fonction Python `fibonacci(n)` retournant $F_n$.',
+            reponse: 'def fibonacci(n):\\n    a, b = 0, 1\\n    for _ in range(n):\\n        a, b = b, a + b\\n    return a',
+            etapes: [
+              'Initialiser `a=0`, `b=1`.',
+              'Boucler `n` fois avec `a, b = b, a+b`.',
+              'Retourner `a`.',
+            ],
+          },
+          erreursClassiques: [
+            "Confondre l'indice du terme et le nombre d'itérations.",
+            "Gaspiller de la mémoire en stockant toute la suite alors qu'un terme seul suffit.",
+          ],
+          methodologieBac:
+            "Vérifier un algorithme en traçant un tableau de valeurs (a, b) sur les premières itérations.",
+          coupDePouce: {
+            indice: "Utiliser l'affectation parallèle: `a, b = b, a + b`.",
+            debutRaisonnement: "Départ `(a,b)=(0,1)`. Après 1 tour `(1,1)`, puis `(1,2)`...",
+            correctionDetaillee: [
+              "Initialiser `a,b = 0,1`.",
+              "Répéter la mise à jour `a,b = b,a+b` exactement `n` fois.",
+              "Le résultat attendu est dans `a`.",
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'numerique',
+            question: 'Calculer $F_7$ avec $F_0=0, F_1=1$.',
+            reponse: 13,
+            explication: '$F_7 = 13$.',
+          },
+          {
+            type: 'qcm',
+            question: 'Suite de Syracuse partant de 6 : première valeur strictement inférieure à 6 ?',
+            options: ['$3$', '$4$', '$2$', '$1$'],
+            correct: 0,
+            explication: '$6 \\to 3$ dès la première étape.',
+          },
+          {
+            type: 'ordonnancement',
+            question: "Remettre dans l'ordre Syracuse depuis $u_0=5$ :",
+            etapesDesordre: ['$u_3=2$ (4/2)', '$u_1=16$ (3×5+1)', '$u_4=1$ (2/2)', '$u_2=4$ (8/2)', '$u_0=5$ (départ)', '$u_2=8$ (16/2)'],
+            ordreCorrect: [4, 1, 5, 3, 0, 2],
+            explication: '$5 \\to 16 \\to 8 \\to 4 \\to 2 \\to 1$.',
+          },
+        ],
+      },
+      {
+        id: 'algo-newton',
+        titre: 'Méthode de Newton (Approfondissement)',
+        niveau: 'approfondissement',
+        difficulte: 4,
+        pointsXP: 80,
+        prerequis: ['variations-courbes', 'algorithmique-python'],
+        competences: ['chercher', 'modeliser', 'calculer', 'representer'],
+        contenu: {
+          rappel:
+            "La méthode de Newton approche une racine avec l'itération $x_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}$.",
+          methode:
+            "x_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)} \\\\ \\text{Arrêt: } |x_{n+1}-x_n| < \\varepsilon",
+          astuce:
+            "Convergence rapide près d'une racine si $f'(x_n) \\neq 0$, mais possible divergence sinon.",
+          exercice: {
+            question: "Approcher $\\sqrt{2}$ pour $f(x)=x^2-2$ avec $x_0=2$. Calculer $x_1$.",
+            reponse: '1.5',
+            etapes: [
+              '$f(2)=2$, $f\\\'(2)=4$.',
+              '$x_1=2-2/4=1.5$.',
+            ],
+          },
+          erreursClassiques: [
+            "Oublier la dérivée de la fonction.",
+            "Utiliser un point initial avec $f'(x_0)$ trop proche de 0.",
+          ],
+          coupDePouce: {
+            indice: "$x_1 = x_0 - f(x_0)/f'(x_0)$ avec $x_0=2$.",
+            debutRaisonnement: '$f(2)=2$ et $f\\\'(2)=4$.',
+            correctionDetaillee: [
+              '$x_1 = 2 - 2/4 = 1.5$.',
+            ],
+          },
+        },
+        exercices: [
+          {
+            type: 'numerique',
+            question: 'Newton sur $f(x)=x^2-2$ avec $x_0=1$. Calculer $x_1$.',
+            reponse: 1.5,
+            explication: '$x_1 = 1 - (-1)/2 = 1.5$.',
           },
         ],
       },
@@ -1394,6 +1608,47 @@ export const quizData: QuizQuestion[] = [
     categorie: 'Trigonométrie',
     difficulte: 2,
   },
+  {
+    id: 33,
+    question: 'La contraposée de $P \\Rightarrow Q$ est :',
+    options: ['$Q \\Rightarrow P$', '$\\neg P \\Rightarrow \\neg Q$', '$\\neg Q \\Rightarrow \\neg P$', '$P \\Rightarrow \\neg Q$'],
+    correct: 2,
+    explication: 'La contraposée de $P \\Rightarrow Q$ est $\\neg Q \\Rightarrow \\neg P$.',
+    categorie: 'Logique',
+    difficulte: 2,
+  },
+  {
+    id: 34,
+    question: 'Un contre-exemple suffit-il à réfuter $\\forall x \\in \\mathbb{R}, x^2 \\geq x$ ?',
+    options: ['Non, il faut plusieurs contre-exemples', 'Oui, un seul suffit', "Non, ce n'est pas réfutable", 'Dépend du contre-exemple'],
+    correct: 1,
+    explication: 'La négation de $\\forall x, P(x)$ est $\\exists x, \\neg P(x)$.',
+    categorie: 'Logique',
+    difficulte: 2,
+  },
+  { id: 35, question: '$F_0=0, F_1=1, F_{n+2}=F_{n+1}+F_n$. $F_8=$ ?', options: ['$13$', '$21$', '$34$', '$55$'], correct: 1, explication: '$F_8=21$.', categorie: 'Suites', difficulte: 2 },
+  { id: 36, question: 'Suite géom. $u_n = 3 \\times (-1)^n$. Elle est :', options: ['Croissante', 'Décroissante', 'Oscillante', 'Constante'], correct: 2, explication: 'La raison vaut $-1$, les signes alternent.', categorie: 'Suites', difficulte: 2 },
+  { id: 37, question: 'Somme $1 + q + q^2 + \\ldots + q^{n}$ pour $q \\neq 1$ vaut :', options: ['$nq$', '$\\frac{1-q^{n+1}}{1-q}$', '$\\frac{q^n - 1}{q-1}$', '$\\frac{1-q^n}{1-q}$'], correct: 1, explication: 'Formule de somme géométrique.', categorie: 'Suites', difficulte: 2 },
+  { id: 38, question: '$\\lim_{x \\to +\\infty} x^2 e^{-x} =$ ?', options: ['$+\\infty$', '$1$', '$0$', '$-\\infty$'], correct: 2, explication: 'Croissance comparée: $e^x$ domine tout polynôme.', categorie: 'Exponentielle', difficulte: 3 },
+  { id: 39, question: 'Dérivée de $f(x) = (2x+1)e^x$ ?', options: ['$2e^x$', '$(2x+3)e^x$', '$(2x+1)e^x$', '$(2x+2)e^x$'], correct: 1, explication: "$(uv)' = u'v + uv' = 2e^x + (2x+1)e^x.", categorie: 'Exponentielle', difficulte: 3 },
+  { id: 40, question: '$\\cos(\\pi/3) + \\sin(\\pi/6) = $ ?', options: ['$1$', '$\\sqrt{3}$', '$\\sqrt{3}/2$', '$\\sqrt{2}/2$'], correct: 0, explication: '$1/2 + 1/2 = 1$.', categorie: 'Trigonométrie', difficulte: 2 },
+  { id: 41, question: '$\\cos^2(x) + \\sin^2(x) =$ ?', options: ['$2$', '$0$', '$1$', '$\\cos(2x)$'], correct: 2, explication: 'Relation fondamentale.', categorie: 'Trigonométrie', difficulte: 1 },
+  { id: 42, question: 'La fonction $\\cos$ est paire, donc $\\cos(-\\pi/4) = $ ?', options: ['$-\\frac{\\sqrt{2}}{2}$', '$\\frac{\\sqrt{2}}{2}$', '$-\\frac{1}{2}$', '$\\frac{1}{2}$'], correct: 1, explication: '$\\cos(-x)=\\cos(x)$.', categorie: 'Trigonométrie', difficulte: 2 },
+  { id: 43, question: 'Variance de $X$ avec $P(X=0)=P(X=2)=0.5$. $E(X)=1$. $V(X)=$ ?', options: ['$1$', '$2$', '$0.5$', '$4$'], correct: 0, explication: '$V=E(X^2)-E(X)^2=2-1=1$.', categorie: 'Probabilités', difficulte: 3 },
+  { id: 44, question: 'Si $P(A)=0.4$, $P(B)=0.5$ et $P(A \\cup B)=0.7$, alors $P(A \\cap B) = $ ?', options: ['$0.2$', '$0.3$', '$0.9$', '$0.1$'], correct: 0, explication: '$P(A\\cap B)=0.4+0.5-0.7=0.2$.', categorie: 'Probabilités', difficulte: 2 },
+  { id: 45, question: "Écart-type de $X$ si $V(X)=9$ ?", options: ['$81$', '$4.5$', '$3$', '$\\sqrt{3}$'], correct: 2, explication: '$\\sigma=\\sqrt{V}=3$.', categorie: 'Probabilités', difficulte: 1 },
+  { id: 46, question: 'Un vecteur normal à la droite $2x - 3y + 5 = 0$ est :', options: ['$(-3;2)$', '$(3;-2)$', '$(2;-3)$', '$(-2;3)$'], correct: 2, explication: 'Pour $ax+by+c=0$, un normal est $(a;b)$.', categorie: 'Géométrie', difficulte: 2 },
+  { id: 47, question: 'Équation du cercle de centre $O(0;0)$ et rayon $5$ ?', options: ['$x^2 + y^2 = 25$', '$x^2 + y^2 = 5$', '$(x-5)^2+(y-5)^2=5$', '$x+y=5$'], correct: 0, explication: 'Forme standard du cercle.', categorie: 'Géométrie', difficulte: 1 },
+  { id: 48, question: 'Axe de symétrie de la parabole $y = x^2 - 4x + 1$ ?', options: ['$x=-2$', '$x=2$', '$x=4$', '$y=2$'], correct: 1, explication: '$x=-b/(2a)=2$.', categorie: 'Géométrie', difficulte: 2 },
+  { id: 49, question: 'Que fait `[x**2 for x in range(4)]` en Python ?', options: ['$[0,1,4,9]$', '$[1,4,9,16]$', '$[0,2,4,6]$', '$[4,4,4,4]$'], correct: 0, explication: 'Compréhension de liste sur 0..3.', categorie: 'Algorithmique', difficulte: 2 },
+  { id: 50, question: '`while n > 0: n = n // 2` partant de $n=8$. Combien de divisions ?', options: ['$3$', '$4$', '$8$', '$2$'], correct: 1, explication: '$8\\to4\\to2\\to1\\to0$ : 4 divisions.', categorie: 'Algorithmique', difficulte: 3 },
+  { id: 51, question: "Coût de l'algorithme naïf de Fibonacci (récursif sans mémoïsation) ?", options: ['$O(n)$', '$O(n^2)$', '$O(2^n)$', '$O(\\log n)$'], correct: 2, explication: 'Complexité exponentielle.', categorie: 'Algorithmique', difficulte: 3 },
+  { id: 52, question: "Dérivée de $f(x) = \\ln(2x+1)$ (si au programme) ?", options: ['$\\frac{2}{2x+1}$', '$\\frac{1}{2x+1}$', '$2\\ln(2x+1)$', '$\\frac{1}{x}$'], correct: 0, explication: "$(\\ln u)'=u'/u.", categorie: 'Dérivation', difficulte: 3 },
+  { id: 53, question: "Si $f(x)=x^3-3x$, alors $f'(x)=0$ pour :", options: ['$x=0$ uniquement', '$x=\\pm1$', '$x=\\pm\\sqrt3$', '$x=3$'], correct: 1, explication: '$f\'(x)=3x^2-3=3(x^2-1)$.', categorie: 'Dérivation', difficulte: 2 },
+  { id: 54, question: "Équation de la tangente à $f(x)=e^x$ en $x=0$ ?", options: ['$y=x$', '$y=x+1$', '$y=1$', '$y=e^x$'], correct: 1, explication: '$f(0)=1$ et $f\'(0)=1$.', categorie: 'Dérivation', difficulte: 2 },
+  { id: 55, question: "Optimisation : $f(x)=-x^2+4x$ atteint son maximum en :", options: ['$x=0$', '$x=2$', '$x=4$', '$x=-2$'], correct: 1, explication: '$f\'(x)=-2x+4=0\\Rightarrow x=2$.', categorie: 'Dérivation', difficulte: 2 },
+  { id: 56, question: "Si $f' > 0$ sur $]a;b[$ et $f'(b)=0$, alors pour $f(b)$ :", options: ['C’est un minimum', 'C’est un maximum possible', "C'est un zéro de $f$", "On ne peut rien conclure sans plus d'info"], correct: 3, explication: 'Il faut le signe de $f\'$ après $b$.', categorie: 'Dérivation', difficulte: 3 },
+  { id: 57, question: 'Dérivée de $f(x)=\\sin(3x)$ ?', options: ['$\\cos(3x)$', '$3\\cos(3x)$', '$-3\\cos(3x)$', '$-\\sin(3x)$'], correct: 1, explication: 'Par composition, $(\\sin u)\\\'=u\\\'\\cos u$.', categorie: 'Dérivation', difficulte: 2 },
 ];
 
 // ─── Badge Definitions ──────────────────────────────────────────────────────
@@ -1420,5 +1675,12 @@ export const badgeDefinitions: BadgeDefinition[] = [
   { id: 'probabiliste', nom: 'Probabiliste', description: 'Maîtriser Probabilités et Variables Aléatoires', icon: '🎲', condition: 'mastered:probabilites-all' },
   { id: 'polymathe', nom: 'Polymathe', description: 'Compléter tous les chapitres du programme', icon: '👑', condition: 'all_chapters_completed' },
   { id: 'modelisateur', nom: 'Modélisateur', description: 'Réussir 5 exercices en Suites ou Probabilités', icon: '🧮', condition: 'exercises_count:suites,probabilites-cond,variables-aleatoires >= 5' },
+  { id: 'archimede', nom: 'Archimède', description: "Ouvrir le lab d'approximation de π", icon: '🔴', condition: 'lab_archimede_opened' },
+  { id: 'euler-fan', nom: "Fan d'Euler", description: 'Construire e^x avec 50 pas dans le lab Euler', icon: '🌱', condition: 'euler_steps_50' },
+  { id: 'newton-rapide', nom: 'Newton Express', description: 'Converger en moins de 5 itérations avec Newton', icon: '🎯', condition: 'newton_converge_5' },
+  { id: 'fibonacci-master', nom: 'Maître Fibonacci', description: 'Maîtriser le chapitre Suites remarquables', icon: '🌻', condition: 'mastered:algo-fibonacci-syracuse' },
+  { id: 'grand-oral-ready', nom: 'Grand Oral Ready', description: 'Consulter 3 sujets Grand Oral différents', icon: '🎤', condition: 'grand_oral_3' },
+  { id: 'formulaire', nom: 'Memento', description: 'Consulter le formulaire pour la première fois', icon: '📋', condition: 'formulaire_viewed' },
+  { id: 'imprimeur', nom: 'Imprimeur', description: 'Imprimer une fiche de cours', icon: '🖨️', condition: 'printed_fiche' },
+  { id: 'diagnostic-ace', nom: 'Diagnostic Ace', description: 'Obtenir 100% à 3 diagnostics de prérequis', icon: '🩺', condition: 'diagnostic_perfect_3' },
 ];
-
