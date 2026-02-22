@@ -20,9 +20,9 @@
 
   /* Brand Colors (RGB format for Tailwind opacity support) */
   --color-brand-primary: 37 99 235;       /* #2563EB */
-  --color-brand-secondary: 242 92 92;     /* #F25C5C */
-  --color-brand-accent: 79 209 233;       /* #4FD1E9 */
-  --color-brand-accent-dark: 56 191 214;  /* #38BFD6 */
+  --color-brand-secondary: 107 134 163;   /* #6B86A3 */
+  --color-brand-accent: 143 175 196;      /* #8FAFC4 */
+  --color-brand-accent-dark: 111 144 168; /* #6F90A8 */
 
   /* Semantic Colors (RGB format) */
   --color-semantic-success: 16 185 129;  /* #10B981 */
@@ -270,27 +270,27 @@ h1, h2, h3 {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-accent px-7 py-3 text-sm font-bold text-black transition hover:bg-brand-accent-dark;
+    @apply inline-flex items-center justify-center rounded-full bg-brand-primary px-7 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary/90;
   }
 
   .btn-primary-lg {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-4 text-base font-bold text-black transition hover:bg-brand-accent-dark;
+    @apply inline-flex items-center justify-center rounded-full bg-brand-primary px-8 py-4 text-base font-semibold text-white transition hover:bg-brand-primary/90;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-7 py-3 text-sm font-semibold text-white transition hover:border-brand-accent/40 hover:bg-white/10;
+    @apply inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-7 py-3 text-sm font-semibold text-neutral-100 transition hover:border-white/35 hover:bg-white/10;
   }
 
   .btn-outline-strong {
-    @apply inline-flex items-center justify-center rounded-full border border-brand-accent/40 px-7 py-3 text-sm font-semibold text-white transition hover:bg-brand-accent/10;
+    @apply inline-flex items-center justify-center rounded-full border border-brand-primary/40 px-7 py-3 text-sm font-semibold text-neutral-100 transition hover:bg-brand-primary/15;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-7 py-3 text-sm font-bold text-neutral-950 transition hover:brightness-110;
+    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-7 py-3 text-sm font-semibold text-white transition hover:bg-brand-secondary/90;
   }
 
   .btn-secondary-lg {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-8 py-4 text-base font-bold text-neutral-950 transition hover:brightness-110;
+    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-8 py-4 text-base font-semibold text-white transition hover:bg-brand-secondary/90;
   }
 
   .btn-stage {
@@ -302,7 +302,7 @@ h1, h2, h3 {
   }
 
   .btn-stage-gradient {
-    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-bold text-white transition hover:from-blue-700 hover:to-purple-700 shadow-xl hover:shadow-2xl;
+    @apply inline-flex items-center justify-center rounded-full bg-brand-primary px-8 py-4 text-base font-semibold text-white transition hover:bg-brand-primary/90 shadow-xl hover:shadow-2xl;
   }
 
   .btn-stage-outline {
@@ -602,7 +602,7 @@ body {
 
   /* Accessibility: focus-visible ring for keyboard navigation */
   :focus-visible {
-    outline: 2px solid rgb(var(--color-brand-accent));
+    outline: 2px solid rgb(var(--color-brand-primary));
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -615,8 +615,8 @@ body {
     transform: translateX(-50%);
     z-index: 10000;
     padding: 0.75rem 1.5rem;
-    background: rgb(var(--color-brand-accent));
-    color: rgb(var(--color-surface-dark));
+    background: rgb(var(--color-brand-primary));
+    color: rgb(var(--color-neutral-50));
     font-weight: 700;
     font-size: 0.875rem;
     border-radius: 0 0 0.5rem 0.5rem;
@@ -666,30 +666,37 @@ body {
 
   /* ─── Scroll Reveal Animations (replaces GSAP) ─── */
 
-  /* Base state: hidden before reveal */
+  /* Base state: always visible by default (robust fallback) */
   [data-reveal] {
-    opacity: 0;
+    opacity: 1;
+    transform: none;
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Reveal variants */
-  [data-reveal="up"] {
+  /* Reveal variants enabled only when container opts in */
+  .reveal-animate [data-reveal="up"] {
+    opacity: 0;
     transform: translateY(40px);
   }
-  [data-reveal="down"] {
+  .reveal-animate [data-reveal="down"] {
+    opacity: 0;
     transform: translateY(-40px);
   }
-  [data-reveal="left"] {
+  .reveal-animate [data-reveal="left"] {
+    opacity: 0;
     transform: translateX(-30px);
   }
-  [data-reveal="right"] {
+  .reveal-animate [data-reveal="right"] {
+    opacity: 0;
     transform: translateX(30px);
   }
-  [data-reveal="scale"] {
+  .reveal-animate [data-reveal="scale"] {
+    opacity: 0;
     transform: scale(0.9);
   }
-  [data-reveal="fade"] {
+  .reveal-animate [data-reveal="fade"] {
+    opacity: 0;
     transform: none;
   }
 
@@ -769,11 +776,11 @@ body {
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#2EE9F6] to-[#1CB5C2];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#9DB6C8] to-[#7390A7];
   }
 
   .accent-line {
-    @apply h-[2px] bg-[#2EE9F6] origin-left;
+    @apply h-[2px] bg-[#7390A7] origin-left;
   }
 
   .grain-overlay {
@@ -812,6 +819,13 @@ body {
     min-height: 100vh;
     width: 100%;
     position: relative;
+  }
+
+  @media (max-width: 768px) {
+    .section-pinned {
+      height: auto;
+      min-height: 62vh;
+    }
   }
 
   /* All deprecated button and card utilities have been removed.
@@ -856,9 +870,9 @@ html {
   background: #2a2f38;
 }
 
-/* Selection - cyan theme */
+/* Selection - muted blue theme */
 ::selection {
-  background: rgba(46, 233, 246, 0.3);
+  background: rgba(37, 99, 235, 0.28);
   color: #F4F6FA;
 }
 
@@ -1007,6 +1021,61 @@ html {
   color: rgb(var(--color-neutral-300)) !important;
 }
 
+/* Global sobriety layer for legacy flashy utility classes */
+.from-purple-500,
+.from-purple-600,
+.from-pink-500,
+.from-yellow-500,
+.from-orange-500,
+.from-cyan-500 {
+  --tw-gradient-from: rgb(var(--color-brand-secondary)) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(var(--color-brand-secondary) / 0) var(--tw-gradient-to-position) !important;
+}
+
+.to-purple-500,
+.to-purple-600,
+.to-pink-500,
+.to-yellow-500,
+.to-orange-500,
+.to-cyan-500 {
+  --tw-gradient-to: rgb(var(--color-brand-accent-dark)) var(--tw-gradient-to-position) !important;
+}
+
+.text-purple-200,
+.text-purple-300,
+.text-purple-400,
+.text-purple-500,
+.text-pink-300,
+.text-pink-400,
+.text-cyan-300,
+.text-cyan-400 {
+  color: rgb(var(--color-neutral-200)) !important;
+}
+
+.text-yellow-300,
+.text-yellow-400,
+.text-yellow-500,
+.text-orange-400,
+.text-orange-500 {
+  color: rgb(var(--color-neutral-200)) !important;
+}
+
+.bg-yellow-400,
+.bg-yellow-500,
+.bg-yellow-600,
+.bg-orange-500,
+.bg-orange-600 {
+  background-color: #87704F !important;
+}
+
+.border-yellow-300,
+.border-yellow-400,
+.border-yellow-500,
+.border-orange-400,
+.border-orange-500 {
+  border-color: rgba(135, 112, 79, 0.55) !important;
+}
+
 .dashboard-soft .text-neutral-400 {
   color: rgb(var(--color-neutral-700)) !important;
 }
@@ -1121,6 +1190,24 @@ html {
 
   .text-h3 {
     font-size: clamp(1.25rem, 5vw, 1.5rem);
+  }
+
+  /* Home GSAP sections: reduce vertical density on mobile */
+  #hero,
+  #trinity,
+  #paths,
+  #approach,
+  #adn,
+  #offer,
+  #testimonials,
+  #contact {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+
+  #hero {
+    min-height: 78vh !important;
+    height: auto !important;
   }
 }
 

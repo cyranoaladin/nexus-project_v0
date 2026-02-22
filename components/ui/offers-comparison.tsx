@@ -55,7 +55,7 @@ const plans = [
   {
     name: "Programme Odyssée",
     icon: Crown,
-    color: "from-amber-600 to-yellow-500",
+    color: "from-blue-700 to-slate-700",
     price: "750 TND/mois",
     description: "Accompagnement complet vers l'excellence",
     popular: false,
@@ -76,7 +76,7 @@ export function OffersComparison() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="mb-4 bg-purple-50 text-purple-700 border-purple-200">
+          <Badge variant="outline" className="mb-4 bg-blue-50 text-blue-700 border-blue-200">
             <Star className="w-4 h-4 mr-2" />
             Comparaison des Offres
           </Badge>
@@ -170,7 +170,7 @@ export function OffersComparison() {
                     {feature.cortex === true ? (
                       <Check className="w-5 h-5 text-green-600 mx-auto" />
                     ) : feature.cortex === false ? (
-                      <X className="w-5 h-5 text-red-500 mx-auto" />
+                      <X className="w-5 h-5 text-slate-500 mx-auto" />
                     ) : (
                       <span className="text-sm text-gris-noble">{feature.cortex}</span>
                     )}
@@ -179,7 +179,7 @@ export function OffersComparison() {
                     {feature.academies === true ? (
                       <Check className="w-5 h-5 text-green-600 mx-auto" />
                     ) : feature.academies === false ? (
-                      <X className="w-5 h-5 text-red-500 mx-auto" />
+                      <X className="w-5 h-5 text-slate-500 mx-auto" />
                     ) : (
                       <span className="text-sm text-gris-noble">{feature.academies}</span>
                     )}
@@ -188,7 +188,7 @@ export function OffersComparison() {
                     {feature.odyssee === true ? (
                       <Check className="w-5 h-5 text-green-600 mx-auto" />
                     ) : feature.odyssee === false ? (
-                      <X className="w-5 h-5 text-red-500 mx-auto" />
+                      <X className="w-5 h-5 text-slate-500 mx-auto" />
                     ) : (
                       <span className="text-sm text-gris-noble">{feature.odyssee}</span>
                     )}

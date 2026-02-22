@@ -95,7 +95,7 @@ function getStatusBadge(status: string): { label: string; className: string } {
     case 'PAID':
       return { label: 'Payée', className: 'bg-emerald-500/20 text-emerald-400' };
     case 'CANCELLED':
-      return { label: 'Annulée', className: 'bg-red-500/20 text-red-400' };
+      return { label: 'Annulée', className: 'bg-slate-1000/20 text-slate-300' };
     default:
       return { label: status, className: 'bg-neutral-700/50 text-neutral-400' };
   }
@@ -440,7 +440,7 @@ export default function FacturationPage() {
           <>
             {/* Action error banner */}
             {actionError && (
-              <div className="mx-5 mt-3 px-3 py-2 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              <div className="mx-5 mt-3 px-3 py-2 rounded-md bg-slate-1000/10 border border-slate-500/20 text-slate-300 text-xs">
                 {actionError}
               </div>
             )}
@@ -506,7 +506,7 @@ export default function FacturationPage() {
                             </button>
                             <button
                               onClick={() => handleCancel(inv)}
-                              className="p-1.5 rounded-md hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                              className="p-1.5 rounded-md hover:bg-slate-1000/10 text-neutral-500 hover:text-slate-300 transition-colors"
                               title="Annuler"
                             >
                               <XCircle className="h-3.5 w-3.5" />
@@ -524,7 +524,7 @@ export default function FacturationPage() {
                             </button>
                             <button
                               onClick={() => handleCancel(inv)}
-                              className="p-1.5 rounded-md hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                              className="p-1.5 rounded-md hover:bg-slate-1000/10 text-neutral-500 hover:text-slate-300 transition-colors"
                               title="Annuler"
                             >
                               <XCircle className="h-3.5 w-3.5" />
@@ -590,7 +590,7 @@ export default function FacturationPage() {
             </div>
 
             {formError && (
-              <div className="mb-4 px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              <div className="mb-4 px-4 py-2.5 rounded-lg bg-slate-1000/10 border border-slate-500/20 text-sm text-slate-300">
                 {formError}
               </div>
             )}
@@ -703,7 +703,7 @@ export default function FacturationPage() {
                     <button
                       onClick={() => removeItem(index)}
                       disabled={items.length <= 1}
-                      className="p-2 rounded-lg text-neutral-500 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg text-neutral-500 hover:text-slate-300 hover:bg-slate-1000/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       title="Supprimer"
                     >
                       <Trash2 className="h-4 w-4" />

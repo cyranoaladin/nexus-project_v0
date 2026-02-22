@@ -60,7 +60,7 @@ export default function TestimonialsSection() {
                   <div className="text-sm font-semibold text-white">
                     {item.name}
                   </div>
-                  <div className="text-xs text-slate-400">{item.role}</div>
+                  <div className="text-xs text-slate-300">{item.role}</div>
                 </div>
               </div>
             </div>

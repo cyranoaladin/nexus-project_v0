@@ -58,7 +58,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                 onClick={() => setActiveTier('pallier2')}
                 className={`px-6 py-2 rounded-full font-semibold text-sm transition-all ${
                   activeTier === 'pallier2'
-                    ? 'bg-purple-600 text-white shadow-md'
+                    ? 'bg-brand-secondary text-white shadow-md'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -77,7 +77,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                   key={day.id}
                   className={`border-2 rounded-2xl overflow-hidden transition-all ${
                     day.highlight
-                      ? 'border-yellow-400 bg-yellow-50/50'
+                      ? 'border-blue-300 bg-blue-50/60'
                       : 'border-slate-200 bg-white'
                   }`}
                 >
@@ -102,7 +102,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                   {isOpen && (
                     <div className="px-6 pb-6 animate-in fade-in slide-in-from-top-2 duration-300">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                        <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-5 border border-orange-200">
+                        <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-5 border border-slate-200">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="text-2xl">🌅</span>
                             <h4 className="font-bold text-slate-900">Matin (9h-12h30)</h4>
@@ -117,7 +117,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                           </ul>
                         </div>
 
-                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200">
+                        <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-xl p-5 border border-blue-200">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="text-2xl">🌆</span>
                             <h4 className="font-bold text-slate-900">Après-midi (14h-17h30)</h4>
@@ -125,7 +125,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                           <ul className="space-y-2">
                             {tierSchedule.afternoon.map((item, idx) => (
                               <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                                <span className="text-purple-600 font-bold mt-0.5">•</span>
+                                <span className="text-brand-secondary font-bold mt-0.5">•</span>
                                 <span>{item}</span>
                               </li>
                             ))}
@@ -139,7 +139,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
             })}
           </div>
 
-          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200">
+          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-slate-50 rounded-2xl border-2 border-blue-200">
             <div className="flex items-start gap-4">
               <div className="text-3xl">🕌</div>
               <div>

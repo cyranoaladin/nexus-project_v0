@@ -11,7 +11,7 @@ const HeroSectionGSAP = () => {
     const authorityBadges = [
         { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
         { icon: GraduationCap, label: 'Agrégés et Certifiés', color: 'emerald' },
-        { icon: Blocks, label: '98% Réussite', color: 'purple' },
+        { icon: Blocks, label: '98% Réussite', color: 'secondary' },
     ];
 
     const badgePositions = [
@@ -32,7 +32,7 @@ const HeroSectionGSAP = () => {
     return (
         <section
             id="hero"
-            className="bg-surface-darker flex items-center justify-center overflow-hidden h-screen w-full relative"
+            className="bg-surface-darker flex items-center justify-center overflow-hidden min-h-[78vh] md:h-screen w-full relative"
             style={{ zIndex: 10 }}
         >
             {/* Background Visual */}
@@ -128,7 +128,7 @@ const HeroSectionGSAP = () => {
                             backdrop-blur-xl">
                                 <div className="text-center">
                                     <span className="block font-display text-4xl font-bold text-white">N</span>
-                                    <span className="block text-xs text-gray-400 mt-1">NEXUS</span>
+                                    <span className="block text-xs text-slate-300 mt-1">NEXUS</span>
                                 </div>
                             </div>
 
@@ -149,9 +149,9 @@ const HeroSectionGSAP = () => {
                                    flex flex-col items-center justify-center gap-2
                                    backdrop-blur-md hover:bg-white/10 transition-colors`}>
                                             <badge.icon className={`w-6 h-6 ${badge.color === 'blue' ? 'text-blue-400' :
-                                                badge.color === 'purple' ? 'text-purple-400' : 'text-emerald-400'
+                                                badge.color === 'secondary' ? 'text-brand-secondary' : 'text-emerald-400'
                                                 }`} />
-                                            <span className="text-xs text-gray-300 font-medium">{badge.label}</span>
+                                            <span className="text-xs text-slate-200 font-medium">{badge.label}</span>
                                         </div>
                                     </div>
                                 );

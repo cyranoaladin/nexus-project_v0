@@ -42,10 +42,10 @@ const DNASectionGSAP = () => {
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-8">
                         L’exigence au service <br />
-                        <span className="text-gray-500">de la réussite.</span>
+                        <span className="text-slate-300">de la réussite.</span>
                     </h2>
 
-                    <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                    <p className="text-slate-300 text-lg leading-relaxed mb-8">
                         Nous combinons l’expertise pédagogique, une IA utile et un suivi
                         transparent pour transformer le potentiel en résultats concrets.
                     </p>

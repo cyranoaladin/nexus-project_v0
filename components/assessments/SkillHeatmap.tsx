@@ -50,9 +50,9 @@ function getSkillLabel(tag: string): string {
 function getScoreColor(score: number): string {
   if (score >= 80) return 'bg-emerald-500/80 text-emerald-50';
   if (score >= 60) return 'bg-blue-500/70 text-blue-50';
-  if (score >= 40) return 'bg-amber-500/70 text-amber-50';
-  if (score >= 20) return 'bg-orange-500/70 text-orange-50';
-  return 'bg-red-500/70 text-red-50';
+  if (score >= 40) return 'bg-blue-400/60 text-blue-50';
+  if (score >= 20) return 'bg-slate-500/70 text-slate-50';
+  return 'bg-slate-700/80 text-slate-50';
 }
 
 export default function SkillHeatmap({ data, title = 'Carte des compétences' }: SkillHeatmapProps) {
@@ -73,17 +73,17 @@ export default function SkillHeatmap({ data, title = 'Carte des compétences' }:
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 mb-4 text-xs text-slate-400">
+      <div className="flex items-center gap-3 mb-4 text-xs text-slate-300">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-red-500/70" />
+          <div className="w-3 h-3 rounded bg-slate-700/80" />
           <span>0-19</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-orange-500/70" />
+          <div className="w-3 h-3 rounded bg-slate-500/70" />
           <span>20-39</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-amber-500/70" />
+          <div className="w-3 h-3 rounded bg-blue-400/60" />
           <span>40-59</span>
         </div>
         <div className="flex items-center gap-1">

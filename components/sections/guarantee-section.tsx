@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function GuaranteeSection() {
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-slate-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -17,7 +17,7 @@ export function GuaranteeSection() {
         >
           <div className="card-premium border-t-4 border-blue-600 relative overflow-hidden">
             {/* Effet de brillance */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-blue-600 to-indigo-600"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-blue-600 to-slate-700"></div>
 
             <div className="grid lg:grid-cols-2 gap-12 items-center p-12">
               {/* Colonne de gauche - Contenu textuel */}
@@ -63,7 +63,7 @@ export function GuaranteeSection() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                   viewport={{ once: true }}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white mb-8 shadow-inner"
+                  className="bg-gradient-to-r from-blue-700 to-slate-700 rounded-2xl p-8 text-white mb-8 shadow-inner"
                 >
                   <div className="flex items-center mb-6">
                     <Shield className="w-8 h-8 mr-4" />
@@ -72,7 +72,7 @@ export function GuaranteeSection() {
                     </h4>
                   </div>
 
-                  <p className="text-blue-100 text-lg leading-relaxed">
+                  <p className="text-slate-100 text-lg leading-relaxed">
                     Si votre enfant, inscrit à notre formule annuelle "Immersion" ou "Candidat Libre",
                     suit assidûment notre programme et n'obtient pas son Baccalauréat, nous vous
                     remboursons l'intégralité des frais de scolarité de l'année.
@@ -85,7 +85,7 @@ export function GuaranteeSection() {
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                   viewport={{ once: true }}
-                  className="text-sm text-gray-500"
+                  className="text-sm text-slate-600"
                 >
                   *Soumis à conditions de participation et de validation du parcours de suivi.
                   Voir nos conditions générales de vente.
@@ -126,8 +126,8 @@ export function GuaranteeSection() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
                   <Star className="w-6 h-6 text-blue-600" />
                 </div>
-                <h5 className="font-semibold text-gray-900 mb-2">Excellence Garantie</h5>
-                <p className="text-gray-600 text-sm">
+                <h5 className="font-semibold text-slate-900 mb-2">Excellence Garantie</h5>
+                <p className="text-slate-700 text-sm">
                   Notre équipe d'experts s'engage personnellement sur vos résultats
                 </p>
               </div>
@@ -136,8 +136,8 @@ export function GuaranteeSection() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
                   <Shield className="w-6 h-6 text-blue-600" />
                 </div>
-                <h5 className="font-semibold text-gray-900 mb-2">Sécurité Totale</h5>
-                <p className="text-gray-600 text-sm">
+                <h5 className="font-semibold text-slate-900 mb-2">Sécurité Totale</h5>
+                <p className="text-slate-700 text-sm">
                   Votre investissement est protégé par notre garantie unique
                 </p>
               </div>
@@ -146,8 +146,8 @@ export function GuaranteeSection() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
                   <Award className="w-6 h-6 text-blue-600" />
                 </div>
-                <h5 className="font-semibold text-gray-900 mb-2">Confiance Mutuelle</h5>
-                <p className="text-gray-600 text-sm">
+                <h5 className="font-semibold text-slate-900 mb-2">Confiance Mutuelle</h5>
+                <p className="text-slate-700 text-sm">
                   Nous partageons les risques pour maximiser votre réussite
                 </p>
               </div>

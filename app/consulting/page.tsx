@@ -44,28 +44,28 @@ export default function ConsultingPage() {
                         <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-brand-accent/50 hover:bg-white/10 transition-all">
                             <Server className="text-brand-accent mb-4 h-10 w-10" strokeWidth={1.5} />
                             <h3 className="text-xl font-bold mb-3 text-white">Audit & Infrastructure</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Diagnostic complet de votre réseau, sécurité des données (RGPD) et équipement des salles. Optimisation pour les exigences de la spécialité NSI.
                             </p>
                         </div>
                         <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-brand-accent/50 hover:bg-white/10 transition-all">
                             <Brain className="text-brand-accent mb-4 h-10 w-10" strokeWidth={1.5} />
                             <h3 className="text-xl font-bold mb-3 text-white">Ingénierie Pédagogique IA</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Formation des équipes enseignantes à l'IA générative. Comment intégrer ChatGPT/Claude dans les cours sans triche, mais avec intelligence.
                             </p>
                         </div>
                         <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-brand-accent/50 hover:bg-white/10 transition-all">
                             <Blocks className="text-brand-accent mb-4 h-10 w-10" strokeWidth={1.5} />
                             <h3 className="text-xl font-bold mb-3 text-white">Certification Sécurisée</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Sécurisation des diplômes et bulletins avec des certificats numériques vérifiables. Garantissez l'authenticité des parcours de vos élèves à vie.
                             </p>
                         </div>
                         <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:border-brand-accent/50 hover:bg-white/10 transition-all">
                             <Code2 className="text-brand-accent mb-4 h-10 w-10" strokeWidth={1.5} />
                             <h3 className="text-xl font-bold mb-3 text-white">Développement Sur Mesure</h3>
-                            <p className="text-slate-400 text-sm leading-relaxed">
+                            <p className="text-slate-300 text-sm leading-relaxed">
                                 Création d'outils métiers spécifiques et de Dashboards de pilotage pour la Vie Scolaire.
                             </p>
                         </div>

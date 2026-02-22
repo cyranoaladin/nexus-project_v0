@@ -5,6 +5,7 @@ import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { parseBody } from '@/lib/api/helpers';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
+import { requireFeatureApi } from '@/lib/access';
 
 jest.mock('@/lib/guards', () => ({
   ...jest.requireActual('@/lib/guards'),
@@ -45,6 +46,11 @@ jest.mock('@/lib/entitlement', () => ({
   getUserEntitlements: jest.fn().mockResolvedValue([
     { id: 'ent-1', productCode: 'PLATFORM', label: 'Platform', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['platform_access'] },
   ]),
+}));
+
+jest.mock('@/lib/access', () => ({
+  ...jest.requireActual('@/lib/access'),
+  requireFeatureApi: jest.fn(),
 }));
 
 const mockSession = {
@@ -158,6 +164,7 @@ describe('POST /api/sessions/book', () => {
     (RateLimitPresets.expensive as jest.Mock).mockReturnValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
+    (requireFeatureApi as jest.Mock).mockResolvedValue(null);
     (parseBody as jest.Mock).mockResolvedValue(buildPayload());
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
   });

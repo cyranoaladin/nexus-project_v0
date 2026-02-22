@@ -173,7 +173,7 @@ export default function ContactSection() {
             <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="text-xs uppercase tracking-widest text-slate-400">
+                  <label className="text-xs uppercase tracking-widest text-slate-300">
                     Nom complet
                   </label>
                   <input
@@ -186,7 +186,7 @@ export default function ContactSection() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-widest text-slate-400">
+                  <label className="text-xs uppercase tracking-widest text-slate-300">
                     Email
                   </label>
                   <input
@@ -200,7 +200,7 @@ export default function ContactSection() {
                 </div>
               </div>
               <div>
-                <label className="text-xs uppercase tracking-widest text-slate-400">
+                <label className="text-xs uppercase tracking-widest text-slate-300">
                   Téléphone
                 </label>
                 <input
@@ -215,7 +215,7 @@ export default function ContactSection() {
               {active === "schools" && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Nom de l&apos;établissement
                     </label>
                     <input
@@ -225,7 +225,7 @@ export default function ContactSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Fonction
                     </label>
                     <input
@@ -235,7 +235,7 @@ export default function ContactSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Taille de l&apos;établissement
                     </label>
                     <select
@@ -250,7 +250,7 @@ export default function ContactSection() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Priorité
                     </label>
                     <select
@@ -271,7 +271,7 @@ export default function ContactSection() {
               {active === "families" && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Classe de l&apos;élève
                     </label>
                     <input
@@ -281,7 +281,7 @@ export default function ContactSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Lycée
                     </label>
                     <input
@@ -291,7 +291,7 @@ export default function ContactSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Objectif principal
                     </label>
                     <select
@@ -307,7 +307,7 @@ export default function ContactSection() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Délai de démarrage
                     </label>
                     <select
@@ -338,7 +338,7 @@ export default function ContactSection() {
               {active === "pros" && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Niveau technique actuel
                     </label>
                     <input
@@ -348,7 +348,7 @@ export default function ContactSection() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Objectif
                     </label>
                     <select
@@ -364,7 +364,7 @@ export default function ContactSection() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-400">
+                    <label className="text-xs uppercase tracking-widest text-slate-300">
                       Délai de démarrage
                     </label>
                     <select
@@ -382,7 +382,7 @@ export default function ContactSection() {
               )}
 
               <div>
-                <label className="text-xs uppercase tracking-widest text-slate-400">
+                <label className="text-xs uppercase tracking-widest text-slate-300">
                   {active === "schools"
                     ? "Je souhaite"
                     : active === "families"
@@ -428,13 +428,13 @@ export default function ContactSection() {
                     </>
                   )}
                 </select>
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-2 text-xs text-slate-300">
                   Réponse sous 2h ouvrables. Vos informations restent confidentielles.
                 </p>
               </div>
 
               <div>
-                <label className="text-xs uppercase tracking-widest text-slate-400">
+                <label className="text-xs uppercase tracking-widest text-slate-300">
                   Message (optionnel)
                 </label>
                 <textarea
@@ -454,16 +454,16 @@ export default function ContactSection() {
                 {status === "loading" ? "Envoi..." : CTA_LABELS[active]}
               </button>
               {status === "success" && (
-                <div className="text-sm text-emerald-300">
+                <div className="text-sm text-blue-300">
                   Merci, votre demande a bien été envoyée.
                 </div>
               )}
               {status === "error" && (
-                <div className="text-sm text-red-300">
+                <div className="text-sm text-slate-200">
                   Une erreur est survenue. Merci de réessayer ou d’appeler directement.
                 </div>
               )}
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 En soumettant ce formulaire, vous acceptez d’être recontacté par un conseiller.
               </p>
             </form>

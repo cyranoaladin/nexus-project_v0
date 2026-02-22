@@ -1,0 +1,1650 @@
+{
+  "generatedAt": "2026-02-22T12:12:56.687Z",
+  "source": {
+    "appDir": "app/**/page.tsx + app/api/**/route.ts",
+    "navMap": "NAVIGATION_MAP.md",
+    "contractPageRoutes": [
+      "/",
+      "/offres",
+      "/bilan-gratuit",
+      "/bilan-gratuit/confirmation",
+      "/stages",
+      "/stages/fevrier-2026",
+      "/stages/fevrier-2026/diagnostic",
+      "/contact",
+      "/accompagnement-scolaire",
+      "/plateforme-aria",
+      "/equipe",
+      "/notre-centre",
+      "/famille",
+      "/academy",
+      "/consulting",
+      "/programme/*",
+      "/conditions",
+      "/mentions-legales",
+      "/auth/signin",
+      "/auth/activate",
+      "/auth/mot-de-passe-oublie",
+      "/auth/reset-password",
+      "/dashboard",
+      "/dashboard/admin",
+      "/dashboard/admin/users",
+      "/dashboard/admin/analytics",
+      "/dashboard/admin/subscriptions",
+      "/dashboard/admin/activities",
+      "/dashboard/admin/tests",
+      "/dashboard/admin/documents",
+      "/dashboard/admin/facturation",
+      "/dashboard/assistante",
+      "/dashboard/assistante/students",
+      "/dashboard/assistante/coaches",
+      "/dashboard/assistante/subscriptions",
+      "/dashboard/assistante/credit-requests",
+      "/dashboard/assistante/paiements",
+      "/dashboard/assistante/subscription-requests",
+      "/dashboard/assistante/credits",
+      "/dashboard/assistante/docs",
+      "/dashboard/coach",
+      "/dashboard/coach/sessions",
+      "/dashboard/coach/students",
+      "/dashboard/coach/availability",
+      "/dashboard/parent",
+      "/dashboard/parent/children",
+      "/dashboard/parent/abonnements",
+      "/dashboard/parent/paiement",
+      "/dashboard/parent/ressources",
+      "/dashboard/eleve",
+      "/dashboard/eleve/mes-sessions",
+      "/dashboard/eleve/sessions",
+      "/dashboard/eleve/ressources",
+      "/dashboard/trajectoire",
+      "/access-required",
+      "/inscription",
+      "/questionnaire",
+      "/tarifs",
+      "/academies-hiver",
+      "/plateforme",
+      "/education"
+    ],
+    "contractApiRoutes": [
+      "/api/contact",
+      "/api/bilan-gratuit",
+      "/api/auth/reset-password",
+      "/api/reservation",
+      "/api/stages/submit-diagnostic",
+      "/api/aria/chat"
+    ],
+    "e2eSpecsScanned": [
+      "e2e/auth-and-booking.spec.ts",
+      "e2e/auth.setup.ts",
+      "e2e/bilan-gratuit-flow.spec.ts",
+      "e2e/diagnostic-flows.spec.ts",
+      "e2e/generate-state.spec.ts",
+      "e2e/link-checker.spec.ts",
+      "e2e/marketing-navigation.spec.ts",
+      "e2e/offres-quiz.spec.ts",
+      "e2e/parent-dashboard-api-test.spec.ts",
+      "e2e/parent-dashboard-debug.spec.ts",
+      "e2e/parent-dashboard-manual.spec.ts",
+      "e2e/parent-dashboard.spec.ts",
+      "e2e/premium-home.spec.ts",
+      "e2e/programme/maths-1ere.spec.ts",
+      "e2e/qa-auth-workflows.spec.ts",
+      "e2e/stages-fevrier2026.spec.ts",
+      "e2e/static-pages.spec.ts",
+      "e2e/student-aria.spec.ts",
+      "e2e/student-dashboard.spec.ts",
+      "e2e/student-journey.spec.ts"
+    ],
+    "redirectSources": [
+      "/academies-hiver",
+      "/education",
+      "/inscription",
+      "/plateforme",
+      "/questionnaire",
+      "/tarifs"
+    ]
+  },
+  "counts": {
+    "pages": 73,
+    "apis": 80,
+    "documentedRoutes": 67,
+    "documentedPageRoutes": 61,
+    "documentedApiRoutes": 6,
+    "undocumentedInCode": 90,
+    "documentedMissingInCode": 1,
+    "routesMissingInTests": 44
+  },
+  "routes": {
+    "pages": [
+      {
+        "file": "app/(dashboard)/dashboard/admin/documents/page.tsx",
+        "route": "/dashboard/admin/documents",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/(dashboard)/dashboard/parent/ressources/page.tsx",
+        "route": "/dashboard/parent/ressources",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/academies-hiver/page.tsx",
+        "route": "/academies-hiver",
+        "type": "public"
+      },
+      {
+        "file": "app/academy/page.tsx",
+        "route": "/academy",
+        "type": "public"
+      },
+      {
+        "file": "app/access-required/page.tsx",
+        "route": "/access-required",
+        "type": "public"
+      },
+      {
+        "file": "app/accompagnement-scolaire/page.tsx",
+        "route": "/accompagnement-scolaire",
+        "type": "public"
+      },
+      {
+        "file": "app/admin/directeur/page.tsx",
+        "route": "/admin/directeur",
+        "type": "public"
+      },
+      {
+        "file": "app/admin/stages/fevrier-2026/page.tsx",
+        "route": "/admin/stages/fevrier-2026",
+        "type": "public"
+      },
+      {
+        "file": "app/assessments/[id]/processing/page.tsx",
+        "route": "/assessments/[id]/processing",
+        "type": "public"
+      },
+      {
+        "file": "app/assessments/[id]/result/page.tsx",
+        "route": "/assessments/[id]/result",
+        "type": "public"
+      },
+      {
+        "file": "app/auth/activate/page.tsx",
+        "route": "/auth/activate",
+        "type": "auth"
+      },
+      {
+        "file": "app/auth/mot-de-passe-oublie/page.tsx",
+        "route": "/auth/mot-de-passe-oublie",
+        "type": "auth"
+      },
+      {
+        "file": "app/auth/reset-password/page.tsx",
+        "route": "/auth/reset-password",
+        "type": "auth"
+      },
+      {
+        "file": "app/auth/signin/page.tsx",
+        "route": "/auth/signin",
+        "type": "auth"
+      },
+      {
+        "file": "app/bilan-gratuit/assessment/page.tsx",
+        "route": "/bilan-gratuit/assessment",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-gratuit/confirmation/page.tsx",
+        "route": "/bilan-gratuit/confirmation",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-gratuit/page.tsx",
+        "route": "/bilan-gratuit",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-pallier2-maths/confirmation/page.tsx",
+        "route": "/bilan-pallier2-maths/confirmation",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-pallier2-maths/dashboard/page.tsx",
+        "route": "/bilan-pallier2-maths/dashboard",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-pallier2-maths/page.tsx",
+        "route": "/bilan-pallier2-maths",
+        "type": "public"
+      },
+      {
+        "file": "app/bilan-pallier2-maths/resultat/[id]/page.tsx",
+        "route": "/bilan-pallier2-maths/resultat/[id]",
+        "type": "public"
+      },
+      {
+        "file": "app/conditions/page.tsx",
+        "route": "/conditions",
+        "type": "public"
+      },
+      {
+        "file": "app/consulting/page.tsx",
+        "route": "/consulting",
+        "type": "public"
+      },
+      {
+        "file": "app/contact/page.tsx",
+        "route": "/contact",
+        "type": "public"
+      },
+      {
+        "file": "app/dashboard/admin/activities/page.tsx",
+        "route": "/dashboard/admin/activities",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/analytics/page.tsx",
+        "route": "/dashboard/admin/analytics",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/facturation/page.tsx",
+        "route": "/dashboard/admin/facturation",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/page.tsx",
+        "route": "/dashboard/admin",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/subscriptions/page.tsx",
+        "route": "/dashboard/admin/subscriptions",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/tests/page.tsx",
+        "route": "/dashboard/admin/tests",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/admin/users/page.tsx",
+        "route": "/dashboard/admin/users",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/coaches/page.tsx",
+        "route": "/dashboard/assistante/coaches",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/credit-requests/page.tsx",
+        "route": "/dashboard/assistante/credit-requests",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/credits/page.tsx",
+        "route": "/dashboard/assistante/credits",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/docs/page.tsx",
+        "route": "/dashboard/assistante/docs",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/page.tsx",
+        "route": "/dashboard/assistante",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/paiements/page.tsx",
+        "route": "/dashboard/assistante/paiements",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/students/page.tsx",
+        "route": "/dashboard/assistante/students",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/subscription-requests/page.tsx",
+        "route": "/dashboard/assistante/subscription-requests",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/assistante/subscriptions/page.tsx",
+        "route": "/dashboard/assistante/subscriptions",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/coach/availability/page.tsx",
+        "route": "/dashboard/coach/availability",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/coach/page.tsx",
+        "route": "/dashboard/coach",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/coach/sessions/page.tsx",
+        "route": "/dashboard/coach/sessions",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/coach/students/page.tsx",
+        "route": "/dashboard/coach/students",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/eleve/mes-sessions/page.tsx",
+        "route": "/dashboard/eleve/mes-sessions",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/eleve/page.tsx",
+        "route": "/dashboard/eleve",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/eleve/ressources/page.tsx",
+        "route": "/dashboard/eleve/ressources",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/eleve/sessions/page.tsx",
+        "route": "/dashboard/eleve/sessions",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/page.tsx",
+        "route": "/dashboard",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/parent/abonnements/page.tsx",
+        "route": "/dashboard/parent/abonnements",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/parent/children/page.tsx",
+        "route": "/dashboard/parent/children",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/parent/page.tsx",
+        "route": "/dashboard/parent",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/parent/paiement/confirmation/page.tsx",
+        "route": "/dashboard/parent/paiement/confirmation",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/parent/paiement/page.tsx",
+        "route": "/dashboard/parent/paiement",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/dashboard/trajectoire/page.tsx",
+        "route": "/dashboard/trajectoire",
+        "type": "dashboard"
+      },
+      {
+        "file": "app/education/page.tsx",
+        "route": "/education",
+        "type": "public"
+      },
+      {
+        "file": "app/equipe/page.tsx",
+        "route": "/equipe",
+        "type": "public"
+      },
+      {
+        "file": "app/famille/page.tsx",
+        "route": "/famille",
+        "type": "public"
+      },
+      {
+        "file": "app/maths-1ere/page.tsx",
+        "route": "/maths-1ere",
+        "type": "public"
+      },
+      {
+        "file": "app/mentions-legales/page.tsx",
+        "route": "/mentions-legales",
+        "type": "public"
+      },
+      {
+        "file": "app/notre-centre/page.tsx",
+        "route": "/notre-centre",
+        "type": "public"
+      },
+      {
+        "file": "app/offres/page.tsx",
+        "route": "/offres",
+        "type": "public"
+      },
+      {
+        "file": "app/page.tsx",
+        "route": "/",
+        "type": "public"
+      },
+      {
+        "file": "app/plateforme-aria/page.tsx",
+        "route": "/plateforme-aria",
+        "type": "public"
+      },
+      {
+        "file": "app/programme/maths-1ere/page.tsx",
+        "route": "/programme/maths-1ere",
+        "type": "public"
+      },
+      {
+        "file": "app/session/video/page.tsx",
+        "route": "/session/video",
+        "type": "public"
+      },
+      {
+        "file": "app/stages/dashboard-excellence/page.tsx",
+        "route": "/stages/dashboard-excellence",
+        "type": "public"
+      },
+      {
+        "file": "app/stages/fevrier-2026/bilan/[reservationId]/page.tsx",
+        "route": "/stages/fevrier-2026/bilan/[reservationId]",
+        "type": "public"
+      },
+      {
+        "file": "app/stages/fevrier-2026/diagnostic/page.tsx",
+        "route": "/stages/fevrier-2026/diagnostic",
+        "type": "public"
+      },
+      {
+        "file": "app/stages/fevrier-2026/page.tsx",
+        "route": "/stages/fevrier-2026",
+        "type": "public"
+      },
+      {
+        "file": "app/stages/page.tsx",
+        "route": "/stages",
+        "type": "public"
+      },
+      {
+        "file": "app/studio/page.tsx",
+        "route": "/studio",
+        "type": "public"
+      },
+      {
+        "file": "app/test/page.tsx",
+        "route": "/test",
+        "type": "public"
+      }
+    ],
+    "apis": [
+      {
+        "file": "app/api/admin/activities/route.ts",
+        "route": "/api/admin/activities",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/analytics/route.ts",
+        "route": "/api/admin/analytics",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/dashboard/route.ts",
+        "route": "/api/admin/dashboard",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/directeur/stats/route.ts",
+        "route": "/api/admin/directeur/stats",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/documents/route.ts",
+        "route": "/api/admin/documents",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/invoices/[id]/route.ts",
+        "route": "/api/admin/invoices/[id]",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/invoices/[id]/send/route.ts",
+        "route": "/api/admin/invoices/[id]/send",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/invoices/route.ts",
+        "route": "/api/admin/invoices",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/recompute-ssn/route.ts",
+        "route": "/api/admin/recompute-ssn",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/subscriptions/route.ts",
+        "route": "/api/admin/subscriptions",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/test-email/route.ts",
+        "route": "/api/admin/test-email",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/users/route.ts",
+        "route": "/api/admin/users",
+        "type": "api"
+      },
+      {
+        "file": "app/api/admin/users/search/route.ts",
+        "route": "/api/admin/users/search",
+        "type": "api"
+      },
+      {
+        "file": "app/api/analytics/event/route.ts",
+        "route": "/api/analytics/event",
+        "type": "api"
+      },
+      {
+        "file": "app/api/aria/chat/route.ts",
+        "route": "/api/aria/chat",
+        "type": "api"
+      },
+      {
+        "file": "app/api/aria/conversations/route.ts",
+        "route": "/api/aria/conversations",
+        "type": "api"
+      },
+      {
+        "file": "app/api/aria/feedback/route.ts",
+        "route": "/api/aria/feedback",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/[id]/export/route.ts",
+        "route": "/api/assessments/[id]/export",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/[id]/result/route.ts",
+        "route": "/api/assessments/[id]/result",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/[id]/status/route.ts",
+        "route": "/api/assessments/[id]/status",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/predict/route.ts",
+        "route": "/api/assessments/predict",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/submit/route.ts",
+        "route": "/api/assessments/submit",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assessments/test/route.ts",
+        "route": "/api/assessments/test",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/activate-student/route.ts",
+        "route": "/api/assistant/activate-student",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/coaches/[id]/route.ts",
+        "route": "/api/assistant/coaches/[id]",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/coaches/route.ts",
+        "route": "/api/assistant/coaches",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/credit-requests/route.ts",
+        "route": "/api/assistant/credit-requests",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/dashboard/route.ts",
+        "route": "/api/assistant/dashboard",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/students/credits/route.ts",
+        "route": "/api/assistant/students/credits",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/subscription-requests/route.ts",
+        "route": "/api/assistant/subscription-requests",
+        "type": "api"
+      },
+      {
+        "file": "app/api/assistant/subscriptions/route.ts",
+        "route": "/api/assistant/subscriptions",
+        "type": "api"
+      },
+      {
+        "file": "app/api/auth/[...nextauth]/route.ts",
+        "route": "/api/auth/[...nextauth]",
+        "type": "api"
+      },
+      {
+        "file": "app/api/auth/reset-password/route.ts",
+        "route": "/api/auth/reset-password",
+        "type": "api"
+      },
+      {
+        "file": "app/api/bilan-gratuit/route.ts",
+        "route": "/api/bilan-gratuit",
+        "type": "api"
+      },
+      {
+        "file": "app/api/bilan-pallier2-maths/retry/route.ts",
+        "route": "/api/bilan-pallier2-maths/retry",
+        "type": "api"
+      },
+      {
+        "file": "app/api/bilan-pallier2-maths/route.ts",
+        "route": "/api/bilan-pallier2-maths",
+        "type": "api"
+      },
+      {
+        "file": "app/api/coach/dashboard/route.ts",
+        "route": "/api/coach/dashboard",
+        "type": "api"
+      },
+      {
+        "file": "app/api/coach/sessions/[sessionId]/report/route.ts",
+        "route": "/api/coach/sessions/[sessionId]/report",
+        "type": "api"
+      },
+      {
+        "file": "app/api/coaches/availability/route.ts",
+        "route": "/api/coaches/availability",
+        "type": "api"
+      },
+      {
+        "file": "app/api/coaches/available/route.ts",
+        "route": "/api/coaches/available",
+        "type": "api"
+      },
+      {
+        "file": "app/api/contact/route.ts",
+        "route": "/api/contact",
+        "type": "api"
+      },
+      {
+        "file": "app/api/diagnostics/definitions/route.ts",
+        "route": "/api/diagnostics/definitions",
+        "type": "api"
+      },
+      {
+        "file": "app/api/documents/[id]/route.ts",
+        "route": "/api/documents/[id]",
+        "type": "api"
+      },
+      {
+        "file": "app/api/health/route.ts",
+        "route": "/api/health",
+        "type": "api"
+      },
+      {
+        "file": "app/api/invoices/[id]/pdf/route.ts",
+        "route": "/api/invoices/[id]/pdf",
+        "type": "api"
+      },
+      {
+        "file": "app/api/invoices/[id]/receipt/pdf/route.ts",
+        "route": "/api/invoices/[id]/receipt/pdf",
+        "type": "api"
+      },
+      {
+        "file": "app/api/me/next-step/route.ts",
+        "route": "/api/me/next-step",
+        "type": "api"
+      },
+      {
+        "file": "app/api/messages/conversations/route.ts",
+        "route": "/api/messages/conversations",
+        "type": "api"
+      },
+      {
+        "file": "app/api/messages/send/route.ts",
+        "route": "/api/messages/send",
+        "type": "api"
+      },
+      {
+        "file": "app/api/notifications/route.ts",
+        "route": "/api/notifications",
+        "type": "api"
+      },
+      {
+        "file": "app/api/notify/email/route.ts",
+        "route": "/api/notify/email",
+        "type": "api"
+      },
+      {
+        "file": "app/api/parent/children/route.ts",
+        "route": "/api/parent/children",
+        "type": "api"
+      },
+      {
+        "file": "app/api/parent/credit-request/route.ts",
+        "route": "/api/parent/credit-request",
+        "type": "api"
+      },
+      {
+        "file": "app/api/parent/dashboard/route.ts",
+        "route": "/api/parent/dashboard",
+        "type": "api"
+      },
+      {
+        "file": "app/api/parent/subscription-requests/route.ts",
+        "route": "/api/parent/subscription-requests",
+        "type": "api"
+      },
+      {
+        "file": "app/api/parent/subscriptions/route.ts",
+        "route": "/api/parent/subscriptions",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/bank-transfer/confirm/route.ts",
+        "route": "/api/payments/bank-transfer/confirm",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/check-pending/route.ts",
+        "route": "/api/payments/check-pending",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/clictopay/init/route.ts",
+        "route": "/api/payments/clictopay/init",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/clictopay/webhook/route.ts",
+        "route": "/api/payments/clictopay/webhook",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/pending/route.ts",
+        "route": "/api/payments/pending",
+        "type": "api"
+      },
+      {
+        "file": "app/api/payments/validate/route.ts",
+        "route": "/api/payments/validate",
+        "type": "api"
+      },
+      {
+        "file": "app/api/programme/maths-1ere/progress/route.ts",
+        "route": "/api/programme/maths-1ere/progress",
+        "type": "api"
+      },
+      {
+        "file": "app/api/reservation/route.ts",
+        "route": "/api/reservation",
+        "type": "api"
+      },
+      {
+        "file": "app/api/reservation/verify/route.ts",
+        "route": "/api/reservation/verify",
+        "type": "api"
+      },
+      {
+        "file": "app/api/sessions/book/route.ts",
+        "route": "/api/sessions/book",
+        "type": "api"
+      },
+      {
+        "file": "app/api/sessions/cancel/route.ts",
+        "route": "/api/sessions/cancel",
+        "type": "api"
+      },
+      {
+        "file": "app/api/sessions/video/route.ts",
+        "route": "/api/sessions/video",
+        "type": "api"
+      },
+      {
+        "file": "app/api/stages/submit-diagnostic/route.ts",
+        "route": "/api/stages/submit-diagnostic",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/activate/route.ts",
+        "route": "/api/student/activate",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/credits/route.ts",
+        "route": "/api/student/credits",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/dashboard/route.ts",
+        "route": "/api/student/dashboard",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/documents/route.ts",
+        "route": "/api/student/documents",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/nexus-index/route.ts",
+        "route": "/api/student/nexus-index",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/resources/route.ts",
+        "route": "/api/student/resources",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/sessions/route.ts",
+        "route": "/api/student/sessions",
+        "type": "api"
+      },
+      {
+        "file": "app/api/student/trajectory/route.ts",
+        "route": "/api/student/trajectory",
+        "type": "api"
+      },
+      {
+        "file": "app/api/students/[studentId]/badges/route.ts",
+        "route": "/api/students/[studentId]/badges",
+        "type": "api"
+      },
+      {
+        "file": "app/api/subscriptions/aria-addon/route.ts",
+        "route": "/api/subscriptions/aria-addon",
+        "type": "api"
+      },
+      {
+        "file": "app/api/subscriptions/change/route.ts",
+        "route": "/api/subscriptions/change",
+        "type": "api"
+      }
+    ]
+  },
+  "coverage": {
+    "pageContractCoverage": [
+      {
+        "route": "/dashboard/admin/documents",
+        "file": "app/(dashboard)/dashboard/admin/documents/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/parent/ressources",
+        "file": "app/(dashboard)/dashboard/parent/ressources/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/academies-hiver",
+        "file": "app/academies-hiver/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/academy",
+        "file": "app/academy/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/access-required",
+        "file": "app/access-required/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/accompagnement-scolaire",
+        "file": "app/accompagnement-scolaire/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/admin/directeur",
+        "file": "app/admin/directeur/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/admin/stages/fevrier-2026",
+        "file": "app/admin/stages/fevrier-2026/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/assessments/[id]/processing",
+        "file": "app/assessments/[id]/processing/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/assessments/[id]/result",
+        "file": "app/assessments/[id]/result/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/auth/activate",
+        "file": "app/auth/activate/page.tsx",
+        "type": "auth",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/auth/mot-de-passe-oublie",
+        "file": "app/auth/mot-de-passe-oublie/page.tsx",
+        "type": "auth",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/auth/reset-password",
+        "file": "app/auth/reset-password/page.tsx",
+        "type": "auth",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/auth/signin",
+        "file": "app/auth/signin/page.tsx",
+        "type": "auth",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/bilan-gratuit/assessment",
+        "file": "app/bilan-gratuit/assessment/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/bilan-gratuit/confirmation",
+        "file": "app/bilan-gratuit/confirmation/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/bilan-gratuit",
+        "file": "app/bilan-gratuit/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/bilan-pallier2-maths/confirmation",
+        "file": "app/bilan-pallier2-maths/confirmation/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/bilan-pallier2-maths/dashboard",
+        "file": "app/bilan-pallier2-maths/dashboard/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/bilan-pallier2-maths",
+        "file": "app/bilan-pallier2-maths/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/bilan-pallier2-maths/resultat/[id]",
+        "file": "app/bilan-pallier2-maths/resultat/[id]/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/conditions",
+        "file": "app/conditions/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/consulting",
+        "file": "app/consulting/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/contact",
+        "file": "app/contact/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/admin/activities",
+        "file": "app/dashboard/admin/activities/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/admin/analytics",
+        "file": "app/dashboard/admin/analytics/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/admin/facturation",
+        "file": "app/dashboard/admin/facturation/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/admin",
+        "file": "app/dashboard/admin/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/admin/subscriptions",
+        "file": "app/dashboard/admin/subscriptions/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/admin/tests",
+        "file": "app/dashboard/admin/tests/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/admin/users",
+        "file": "app/dashboard/admin/users/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/coaches",
+        "file": "app/dashboard/assistante/coaches/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/credit-requests",
+        "file": "app/dashboard/assistante/credit-requests/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/credits",
+        "file": "app/dashboard/assistante/credits/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/docs",
+        "file": "app/dashboard/assistante/docs/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante",
+        "file": "app/dashboard/assistante/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/paiements",
+        "file": "app/dashboard/assistante/paiements/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/students",
+        "file": "app/dashboard/assistante/students/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/subscription-requests",
+        "file": "app/dashboard/assistante/subscription-requests/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/assistante/subscriptions",
+        "file": "app/dashboard/assistante/subscriptions/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/coach/availability",
+        "file": "app/dashboard/coach/availability/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/coach",
+        "file": "app/dashboard/coach/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/coach/sessions",
+        "file": "app/dashboard/coach/sessions/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/coach/students",
+        "file": "app/dashboard/coach/students/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/eleve/mes-sessions",
+        "file": "app/dashboard/eleve/mes-sessions/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/eleve",
+        "file": "app/dashboard/eleve/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/eleve/ressources",
+        "file": "app/dashboard/eleve/ressources/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/eleve/sessions",
+        "file": "app/dashboard/eleve/sessions/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard",
+        "file": "app/dashboard/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/parent/abonnements",
+        "file": "app/dashboard/parent/abonnements/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/parent/children",
+        "file": "app/dashboard/parent/children/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/parent",
+        "file": "app/dashboard/parent/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/dashboard/parent/paiement/confirmation",
+        "file": "app/dashboard/parent/paiement/confirmation/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/parent/paiement",
+        "file": "app/dashboard/parent/paiement/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/dashboard/trajectoire",
+        "file": "app/dashboard/trajectoire/page.tsx",
+        "type": "dashboard",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/education",
+        "file": "app/education/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/equipe",
+        "file": "app/equipe/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/famille",
+        "file": "app/famille/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/maths-1ere",
+        "file": "app/maths-1ere/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/mentions-legales",
+        "file": "app/mentions-legales/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/notre-centre",
+        "file": "app/notre-centre/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/offres",
+        "file": "app/offres/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/",
+        "file": "app/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/plateforme-aria",
+        "file": "app/plateforme-aria/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/programme/maths-1ere",
+        "file": "app/programme/maths-1ere/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/session/video",
+        "file": "app/session/video/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/stages/dashboard-excellence",
+        "file": "app/stages/dashboard-excellence/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/stages/fevrier-2026/bilan/[reservationId]",
+        "file": "app/stages/fevrier-2026/bilan/[reservationId]/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/stages/fevrier-2026/diagnostic",
+        "file": "app/stages/fevrier-2026/diagnostic/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      },
+      {
+        "route": "/stages/fevrier-2026",
+        "file": "app/stages/fevrier-2026/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/stages",
+        "file": "app/stages/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/studio",
+        "file": "app/studio/page.tsx",
+        "type": "public",
+        "referencedInE2E": true
+      },
+      {
+        "route": "/test",
+        "file": "app/test/page.tsx",
+        "type": "public",
+        "referencedInE2E": false
+      }
+    ],
+    "routesMissingInTests": [
+      {
+        "route": "/access-required",
+        "file": "app/access-required/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/admin/directeur",
+        "file": "app/admin/directeur/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/admin/stages/fevrier-2026",
+        "file": "app/admin/stages/fevrier-2026/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/assessments/[id]/processing",
+        "file": "app/assessments/[id]/processing/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/assessments/[id]/result",
+        "file": "app/assessments/[id]/result/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/auth/activate",
+        "file": "app/auth/activate/page.tsx",
+        "type": "auth"
+      },
+      {
+        "route": "/bilan-gratuit/assessment",
+        "file": "app/bilan-gratuit/assessment/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/bilan-gratuit/confirmation",
+        "file": "app/bilan-gratuit/confirmation/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/bilan-pallier2-maths/confirmation",
+        "file": "app/bilan-pallier2-maths/confirmation/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/bilan-pallier2-maths/resultat/[id]",
+        "file": "app/bilan-pallier2-maths/resultat/[id]/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/dashboard/admin/activities",
+        "file": "app/dashboard/admin/activities/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/analytics",
+        "file": "app/dashboard/admin/analytics/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/documents",
+        "file": "app/(dashboard)/dashboard/admin/documents/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/facturation",
+        "file": "app/dashboard/admin/facturation/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/subscriptions",
+        "file": "app/dashboard/admin/subscriptions/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/tests",
+        "file": "app/dashboard/admin/tests/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/admin/users",
+        "file": "app/dashboard/admin/users/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante",
+        "file": "app/dashboard/assistante/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/coaches",
+        "file": "app/dashboard/assistante/coaches/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/credit-requests",
+        "file": "app/dashboard/assistante/credit-requests/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/credits",
+        "file": "app/dashboard/assistante/credits/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/docs",
+        "file": "app/dashboard/assistante/docs/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/paiements",
+        "file": "app/dashboard/assistante/paiements/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/students",
+        "file": "app/dashboard/assistante/students/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/subscription-requests",
+        "file": "app/dashboard/assistante/subscription-requests/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/assistante/subscriptions",
+        "file": "app/dashboard/assistante/subscriptions/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/coach/availability",
+        "file": "app/dashboard/coach/availability/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/coach/sessions",
+        "file": "app/dashboard/coach/sessions/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/coach/students",
+        "file": "app/dashboard/coach/students/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/eleve/mes-sessions",
+        "file": "app/dashboard/eleve/mes-sessions/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/eleve/ressources",
+        "file": "app/dashboard/eleve/ressources/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/eleve/sessions",
+        "file": "app/dashboard/eleve/sessions/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/parent/abonnements",
+        "file": "app/dashboard/parent/abonnements/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/parent/children",
+        "file": "app/dashboard/parent/children/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/parent/paiement",
+        "file": "app/dashboard/parent/paiement/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/parent/paiement/confirmation",
+        "file": "app/dashboard/parent/paiement/confirmation/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/parent/ressources",
+        "file": "app/(dashboard)/dashboard/parent/ressources/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/dashboard/trajectoire",
+        "file": "app/dashboard/trajectoire/page.tsx",
+        "type": "dashboard"
+      },
+      {
+        "route": "/maths-1ere",
+        "file": "app/maths-1ere/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/session/video",
+        "file": "app/session/video/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/stages/dashboard-excellence",
+        "file": "app/stages/dashboard-excellence/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/stages/fevrier-2026/bilan/[reservationId]",
+        "file": "app/stages/fevrier-2026/bilan/[reservationId]/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/stages/fevrier-2026/diagnostic",
+        "file": "app/stages/fevrier-2026/diagnostic/page.tsx",
+        "type": "public"
+      },
+      {
+        "route": "/test",
+        "file": "app/test/page.tsx",
+        "type": "public"
+      }
+    ]
+  },
+  "diff": {
+    "undocumentedInCode": [
+      "/admin/directeur",
+      "/admin/stages/fevrier-2026",
+      "/api/admin/activities",
+      "/api/admin/analytics",
+      "/api/admin/dashboard",
+      "/api/admin/directeur/stats",
+      "/api/admin/documents",
+      "/api/admin/invoices",
+      "/api/admin/invoices/[id]",
+      "/api/admin/invoices/[id]/send",
+      "/api/admin/recompute-ssn",
+      "/api/admin/subscriptions",
+      "/api/admin/test-email",
+      "/api/admin/users",
+      "/api/admin/users/search",
+      "/api/analytics/event",
+      "/api/aria/conversations",
+      "/api/aria/feedback",
+      "/api/assessments/[id]/export",
+      "/api/assessments/[id]/result",
+      "/api/assessments/[id]/status",
+      "/api/assessments/predict",
+      "/api/assessments/submit",
+      "/api/assessments/test",
+      "/api/assistant/activate-student",
+      "/api/assistant/coaches",
+      "/api/assistant/coaches/[id]",
+      "/api/assistant/credit-requests",
+      "/api/assistant/dashboard",
+      "/api/assistant/students/credits",
+      "/api/assistant/subscription-requests",
+      "/api/assistant/subscriptions",
+      "/api/auth/[...nextauth]",
+      "/api/bilan-pallier2-maths",
+      "/api/bilan-pallier2-maths/retry",
+      "/api/coach/dashboard",
+      "/api/coach/sessions/[sessionId]/report",
+      "/api/coaches/availability",
+      "/api/coaches/available",
+      "/api/diagnostics/definitions",
+      "/api/documents/[id]",
+      "/api/health",
+      "/api/invoices/[id]/pdf",
+      "/api/invoices/[id]/receipt/pdf",
+      "/api/me/next-step",
+      "/api/messages/conversations",
+      "/api/messages/send",
+      "/api/notifications",
+      "/api/notify/email",
+      "/api/parent/children",
+      "/api/parent/credit-request",
+      "/api/parent/dashboard",
+      "/api/parent/subscription-requests",
+      "/api/parent/subscriptions",
+      "/api/payments/bank-transfer/confirm",
+      "/api/payments/check-pending",
+      "/api/payments/clictopay/init",
+      "/api/payments/clictopay/webhook",
+      "/api/payments/pending",
+      "/api/payments/validate",
+      "/api/programme/maths-1ere/progress",
+      "/api/reservation/verify",
+      "/api/sessions/book",
+      "/api/sessions/cancel",
+      "/api/sessions/video",
+      "/api/student/activate",
+      "/api/student/credits",
+      "/api/student/dashboard",
+      "/api/student/documents",
+      "/api/student/nexus-index",
+      "/api/student/resources",
+      "/api/student/sessions",
+      "/api/student/trajectory",
+      "/api/students/[studentId]/badges",
+      "/api/subscriptions/aria-addon",
+      "/api/subscriptions/change",
+      "/assessments/[id]/processing",
+      "/assessments/[id]/result",
+      "/bilan-gratuit/assessment",
+      "/bilan-pallier2-maths",
+      "/bilan-pallier2-maths/confirmation",
+      "/bilan-pallier2-maths/dashboard",
+      "/bilan-pallier2-maths/resultat/[id]",
+      "/dashboard/parent/paiement/confirmation",
+      "/maths-1ere",
+      "/session/video",
+      "/stages/dashboard-excellence",
+      "/stages/fevrier-2026/bilan/[reservationId]",
+      "/studio",
+      "/test"
+    ],
+    "documentedMissingInCode": [
+      "/programme/*"
+    ]
+  }
+}

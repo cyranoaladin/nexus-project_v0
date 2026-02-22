@@ -42,14 +42,14 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                 key={situation.id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-200 hover:border-blue-400 flex flex-col"
               >
-                <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-6 text-white">
+                <div className="bg-gradient-to-br from-blue-700 to-slate-700 p-6 text-white">
                   <div className="text-4xl mb-3">{situation.icon}</div>
                   <h3 className="text-xl font-bold">{situation.title}</h3>
                 </div>
 
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="mb-4">
-                    <div className="text-xs uppercase tracking-wider text-red-600 font-semibold mb-2">
+                    <div className="text-xs uppercase tracking-wider text-slate-700 font-semibold mb-2">
                       ❌ Problème
                     </div>
                     <p className="text-sm text-slate-700">{situation.problem}</p>
@@ -65,7 +65,7 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                   </div>
 
                   <div className="mb-6 flex-1">
-                    <div className="text-xs uppercase tracking-wider text-green-700 font-semibold mb-2">
+                    <div className="text-xs uppercase tracking-wider text-blue-700 font-semibold mb-2">
                       ✅ Notre réponse
                     </div>
                     <p className="text-sm text-slate-700">{situation.solution}</p>

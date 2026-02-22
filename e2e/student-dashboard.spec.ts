@@ -27,7 +27,13 @@ test.describe('Student Dashboard', () => {
             await chatButton.click();
             await page.waitForTimeout(500);
 
-            await expect(page.getByText(/ARIA/i).first()).toBeVisible();
+            const ariaHeader = page.getByText(/^ARIA$/i).first();
+            const subjectPicker = page.getByText(/Choisis ta matière/i).first();
+            const ariaInput = page.getByTestId('aria-input').first();
+
+            await expect(
+                ariaHeader.or(subjectPicker).or(ariaInput)
+            ).toBeVisible({ timeout: 10000 });
         } else {
             console.log('⚠️  ARIA chat button not found on student dashboard');
         }

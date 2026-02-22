@@ -305,10 +305,10 @@ export default function DashboardAssistante() {
         {/* Alertes et Tâches Urgentes */}
         {(dashboardData?.stats?.pendingBilans || 0) > 0 || (dashboardData?.stats?.pendingPayments || 0) > 0 || (dashboardData?.stats?.pendingCreditRequests || 0) > 0 || (dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 ? (
           <div className="mb-6 md:mb-8">
-            <Card className="border-amber-500/20 bg-amber-500/10">
+            <Card className="border-blue-500/20 bg-blue-500/10">
               <CardHeader>
-                <CardTitle className="flex items-center text-amber-200 text-sm md:text-base">
-                  <AlertCircle className="w-4 h-4 md:w-5 md:h-5 mr-2 text-amber-200" />
+                <CardTitle className="flex items-center text-slate-200 text-sm md:text-base">
+                  <AlertCircle className="w-4 h-4 md:w-5 md:h-5 mr-2 text-slate-200" />
                   Tâches Urgentes
                 </CardTitle>
               </CardHeader>
@@ -407,7 +407,7 @@ export default function DashboardAssistante() {
                 
                 <Link href="/dashboard/assistante/students">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
-                    <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-300" />
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-blue-300" />
                     <span className="text-xs md:text-sm font-medium">Gérer les Élèves</span>
                     <span className="text-xs text-neutral-400 text-center">Voir tous les élèves</span>
                   </Button>
@@ -504,7 +504,7 @@ export default function DashboardAssistante() {
 
                 <Button variant="outline" className="w-full justify-start h-auto p-3 md:p-4 border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
                   <div className="flex items-center space-x-3">
-                    <Mail className="w-4 h-4 md:w-5 md:h-5 text-purple-300" />
+                    <Mail className="w-4 h-4 md:w-5 md:h-5 text-blue-300" />
                     <div className="text-left">
                       <p className="font-medium text-sm md:text-base">Support Client</p>
                       <p className="text-xs md:text-sm text-neutral-400">Messages et demandes</p>
@@ -513,8 +513,8 @@ export default function DashboardAssistante() {
                 </Button>
               </div>
 
-              <div className="mt-6 p-3 md:p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <p className="text-xs md:text-sm text-amber-200">
+              <div className="mt-6 p-3 md:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <p className="text-xs md:text-sm text-slate-200">
                   <strong>Note :</strong> Les outils de gestion avancés seront disponibles
                   dans les prochaines phases de développement.
                 </p>

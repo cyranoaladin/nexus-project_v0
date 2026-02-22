@@ -302,15 +302,15 @@ export default function CoachAvailability({
             <div className={`mb-4 p-3 rounded-lg flex items-center ${
               message.type === 'success' 
                 ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
+                : 'bg-slate-100 border border-slate-200'
             }`}>
               {message.type === 'success' ? (
                 <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
+                <AlertCircle className="w-4 h-4 text-slate-600 mr-2" />
               )}
               <span className={`text-sm ${
-                message.type === 'success' ? 'text-green-700' : 'text-red-700'
+                message.type === 'success' ? 'text-green-700' : 'text-slate-700'
               }`}>
                 {message.text}
               </span>
@@ -352,7 +352,7 @@ export default function CoachAvailability({
                                 size="sm"
                                 variant="outline"
                                 onClick={() => clearDaySchedule(day.value)}
-                                className="text-xs text-red-600"
+                                className="text-xs text-slate-600"
                               >
                                 <Trash2 className="w-3 h-3 mr-1" />
                                 Vider
@@ -373,14 +373,14 @@ export default function CoachAvailability({
                                 className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
                               >
                                 <div className="flex items-center space-x-2 flex-1">
-                                  <Clock className="w-4 h-4 text-gray-400" />
+                                  <Clock className="w-4 h-4 text-slate-300" />
                                   <Input
                                     type="time"
                                     value={slot.startTime}
                                     onChange={(e) => updateTimeSlot(day.value, index, 'startTime', e.target.value)}
                                     className="w-24 h-8 text-sm"
                                   />
-                                  <span className="text-gray-400">-</span>
+                                  <span className="text-slate-300">-</span>
                                   <Input
                                     type="time"
                                     value={slot.endTime}
@@ -401,7 +401,7 @@ export default function CoachAvailability({
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => removeTimeSlot(day.value, index)}
-                                  className="text-red-600 hover:text-red-700 p-1"
+                                  className="text-slate-600 hover:text-slate-700 p-1"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -489,14 +489,14 @@ export default function CoachAvailability({
                             className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
                           >
                             <div className="flex items-center space-x-2 flex-1">
-                              <Clock className="w-4 h-4 text-gray-400" />
+                              <Clock className="w-4 h-4 text-slate-300" />
                               <Input
                                 type="time"
                                 value={slot.startTime}
                                 onChange={(e) => updateSpecificSlot(index, 'startTime', e.target.value)}
                                 className="w-24 h-8 text-sm"
                               />
-                              <span className="text-gray-400">-</span>
+                              <span className="text-slate-300">-</span>
                               <Input
                                 type="time"
                                 value={slot.endTime}
@@ -517,7 +517,7 @@ export default function CoachAvailability({
                               size="sm"
                               variant="ghost"
                               onClick={() => removeSpecificSlot(index)}
-                              className="text-red-600 hover:text-red-700 p-1"
+                              className="text-slate-600 hover:text-slate-700 p-1"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

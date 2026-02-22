@@ -213,7 +213,7 @@ export default function CreditRequestsPage() {
         <div className="space-y-4">
           {filteredCreditRequests.length > 0 ? (
             filteredCreditRequests.map((request) => (
-              <Card key={request.id} className="border-amber-500/20 bg-amber-500/10">
+              <Card key={request.id} className="border-blue-500/20 bg-blue-500/10">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
@@ -227,7 +227,7 @@ export default function CreditRequestsPage() {
                         {new Date(request.createdAt).toLocaleDateString('fr-FR')} à {new Date(request.createdAt).toLocaleTimeString('fr-FR')}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-amber-200 border-amber-500/30">
+                    <Badge variant="outline" className="text-slate-200 border-blue-500/30">
                       En attente
                     </Badge>
                   </div>

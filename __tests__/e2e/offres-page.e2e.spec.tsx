@@ -7,98 +7,44 @@ test.describe('Page Offres E2E', () => {
   });
 
   test('page se charge correctement', async ({ page }) => {
-    // Vérifier que la page se charge
-    // Le titre peut être vide côté app/route; vérifier plutôt un h1/h2 clé
-    // Attendre la section Cortex ou fallback sur autre section visible
-    const cortex = page.locator('#cortex');
-    try {
-      await cortex.waitFor({ timeout: 8000 });
-    } catch {
-      await page.waitForLoadState('networkidle');
-    }
-
-    // Vérifier que les sections principales sont présentes
-    await expect(page.getByText(/Pilotez Votre Réussite/i)).toBeVisible();
-    await expect(page.getByText(/Analyse Stratégique Différentielle/i)).toBeVisible();
-
-    // Utiliser des sélecteurs plus spécifiques
-    await expect(page.locator('h3').filter({ hasText: 'Nexus Cortex' })).toBeVisible();
-    await expect(page.locator('h3').filter({ hasText: 'Académies Nexus' })).toBeVisible();
-    await expect(page.locator('h3').filter({ hasText: 'Programme Odyssée' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Investissez dans la seule garantie de réussite au Bac/i);
+    await expect(page.locator('#offres-principales')).toBeVisible();
+    await expect(page.locator('#comparaison')).toBeVisible();
+    await expect(page.locator('#garanties')).toBeVisible();
+    await expect(page.locator('#faq')).toBeVisible();
   });
 
   test('navigation flottante fonctionne', async ({ page }) => {
-    // Scroll pour faire apparaître la navigation flottante
-    await page.evaluate(() => window.scrollTo(0, 1200));
+    // La page expose une navigation par ancres en haut de page.
+    await page.locator('a[href="#offres-principales"]:visible').first().click();
+    await expect(page).toHaveURL(/#offres-principales$/);
+    await expect(page.locator('#offres-principales')).toBeVisible();
 
-    // Vérifier que les boutons de navigation sont présents dans la nav flottante
-    const floatingNav = page.locator('div.fixed.bottom-6');
-    await expect(floatingNav.getByText('Cortex').first()).toBeVisible();
-    await expect(floatingNav.getByText('Académies')).toBeVisible();
-    await expect(floatingNav.getByText('Odyssée')).toBeVisible();
-
-    // Tester la navigation vers Cortex
-    await floatingNav.getByText('Cortex').click();
-    await expect(page.locator('#cortex')).toBeVisible();
-
-    // Tester la navigation vers Académies
-    await floatingNav.getByText('Académies').click();
-    await expect(page.locator('#academies')).toBeVisible();
-
-    // Tester la navigation vers Odyssée
-    await floatingNav.getByText('Odyssée').click();
-    await expect(page.locator('#odyssee')).toBeVisible();
+    await page.locator('a[href="#faq"]:visible').first().click();
+    await expect(page).toHaveURL(/#faq$/);
+    await expect(page.locator('#faq')).toBeVisible();
   });
 
   test('boutons CTA fonctionnent', async ({ page }) => {
-    // Tester les boutons "Découvrir" dans les sections
-    const discoverButtons = page.locator('a,button').filter({ hasText: /Découvrir/i }).first();
-    await discoverButtons.scrollIntoViewIfNeeded();
-    await expect(discoverButtons).toBeVisible();
-
-    // Vérifier que les boutons sont cliquables
-    await expect(discoverButtons.first()).toBeEnabled();
+    // CTA principal visible en haut de page
+    const cta = page.getByRole('link', { name: /Démarrer un bilan gratuit/i }).first();
+    await cta.scrollIntoViewIfNeeded();
+    await expect(cta).toBeVisible();
+    await expect(cta).toBeEnabled();
   });
 
   test('formulaire de diagnostic fonctionne', async ({ page }) => {
-    // Scroll vers le formulaire
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.9));
-
-    // Vérifier que le formulaire est présent
-    // DiagnosticForm: badge Constructeur de Parcours 2.0 visible en haut de la section
-    const diagBadge = page.getByText(/Constructeur de Parcours 2\.0/i);
-    const badgeCount = await diagBadge.count();
-    expect(badgeCount).toBeGreaterThanOrEqual(0);
-
-    // Remplir le formulaire avec des sélecteurs plus spécifiques
-    const formButtons = page.locator('button').filter({ hasText: 'Terminale' });
-    await formButtons.first().click();
-
-    const aefeButtons = page.locator('button').filter({ hasText: 'Élève dans un lycée français' });
-    await aefeButtons.first().click();
-
-    const mentionButtons = page.locator('button').filter({ hasText: 'Obtenir une Mention' });
-    await mentionButtons.first().click();
-
-    // Vérifier qu'une recommandation apparaît
-    // La recommandation n'apparait qu'après validation complète; on ne l'exige pas
-
-    // Vérifier que les boutons d'action sont présents
-    // Les boutons d'action peuvent ne pas être rendus si la reco n'est pas affichée
+    // Le tunnel "recommandation rapide" remplace l'ancien formulaire.
+    await page.getByRole('button', { name: /^Lycée français$/ }).first().click();
+    await expect(page.getByText('Recommandée pour vous')).toBeVisible();
+    await expect(page.locator('#offres-principales .text-xs.font-semibold.text-brand-accent')).toContainText('Recommandée pour vous');
   });
 
   test('comparaison des offres s\'affiche', async ({ page }) => {
-    // Scroll vers la section de comparaison
-    await page.evaluate(() => window.scrollTo(0, 2000));
-
-    // Vérifier que la comparaison est présente (souple)
-    const compTitle = await page.getByText(/Comparaison des Offres|Choisissez Votre Parcours/i).count();
-    expect(compTitle).toBeGreaterThanOrEqual(0);
-
-    // Utiliser des sélecteurs plus spécifiques
-    await expect(page.locator('h3').filter({ hasText: 'Nexus Cortex' })).toBeVisible();
-    await expect(page.locator('h3').filter({ hasText: 'Académies Nexus' })).toBeVisible();
-    await expect(page.locator('h3').filter({ hasText: 'Programme Odyssée' })).toBeVisible();
+    await page.locator('#comparaison').scrollIntoViewIfNeeded();
+    await expect(page.locator('#comparaison')).toBeVisible();
+    await expect(page.getByText('La comparaison la plus claire du marché')).toBeVisible();
+    await expect(page.locator('#comparaison .text-brand-accent.font-semibold')).toContainText('Nexus Réussite');
   });
 
   test('témoignages s\'affichent', async ({ page }) => {
@@ -115,18 +61,12 @@ test.describe('Page Offres E2E', () => {
   });
 
   test('FAQ s\'affiche et fonctionne', async ({ page }) => {
-    // Scroll vers la FAQ
-    await page.evaluate(() => window.scrollTo(0, 4000));
+    await page.locator('#faq').scrollIntoViewIfNeeded();
+    await expect(page.getByText('Questions fréquentes des parents')).toBeVisible();
 
-    // Vérifier que la FAQ est présente
-    await expect(page.getByText('Questions Fréquentes')).toBeVisible();
-
-    // Tester l'ouverture d'une question
-    const firstQuestion = page.getByText('Quelle est la différence entre un élève scolarisé et un candidat libre ?');
+    const firstQuestion = page.getByText("Qu'est-ce qu'un crédit et comment fonctionne-t-il ?");
     await firstQuestion.click();
-
-    // Vérifier que la réponse s'affiche
-    await expect(page.getByText('Un élève scolarisé suit les cours')).toBeVisible();
+    await expect(page.locator('#faq').getByText(/1 crédit = 1 heure de cours particulier en ligne/i).first()).toBeVisible();
   });
 
   test('garanties s\'affichent', async ({ page }) => {
@@ -172,7 +112,8 @@ test.describe('Page Offres E2E', () => {
     // Attendre que les animations se terminent
     await page.waitForTimeout(2000);
 
-    // Vérifier que les éléments sont visibles (animations terminées)
-    await expect(page.getByText('Pilotez Votre Réussite')).toBeVisible();
+    // Vérifier qu'après scroll complet la page reste interactive
+    await expect(page.locator('#faq')).toBeVisible();
+    await expect(page.getByRole('link', { name: /Démarrer un bilan gratuit/i }).first()).toBeVisible();
   });
 });

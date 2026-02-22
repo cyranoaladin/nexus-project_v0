@@ -19,7 +19,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
   };
 
   return (
-    <section id="academies" className="py-20 bg-gradient-to-br from-white to-slate-50">
+    <section id="academies" className="py-16 md:py-20 bg-gradient-to-br from-white to-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Titre */}
@@ -31,7 +31,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
           </p>
           
           {/* Clarification Première & Terminale */}
-          <p className="text-sm text-slate-500 text-center mb-8 max-w-xl mx-auto">
+          <p className="text-sm text-slate-600 text-center mb-8 max-w-xl mx-auto">
             Chaque académie s'adapte au niveau (Première ou Terminale). 
             La différence essentielle se joue sur le <strong>pallier</strong> choisi.
           </p>
@@ -53,7 +53,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'premiere'
                   ? 'bg-slate-600 text-white shadow-lg rounded-full px-6 py-2'
-                  : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'
               }`}
             >
               Première
@@ -63,7 +63,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
               className={`px-6 py-2 rounded-full font-semibold text-xs transition-all ${
                 filter === 'terminale'
                   ? 'bg-slate-600 text-white shadow-lg rounded-full px-6 py-2'
-                  : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'
               }`}
             >
               Terminale
@@ -78,7 +78,7 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 className={`relative bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 flex flex-col ${
                   academy.tier === 'pallier1'
                     ? 'border-2 border-blue-300 hover:border-blue-500'
-                    : 'border-2 border-purple-400 hover:border-purple-600 ring-4 ring-purple-100'
+                    : 'border-2 border-brand-secondary/50 hover:border-brand-secondary ring-4 ring-blue-100'
                 }`}
               >
                 {/* Ribbon for Pallier 2 */}
@@ -99,22 +99,22 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 <div className={`mb-4 p-3 rounded-lg ${
                   academy.tier === 'pallier1'
                     ? 'bg-blue-50 border border-blue-200'
-                    : 'bg-purple-50 border border-purple-200'
+                    : 'bg-slate-50 border border-brand-secondary/30'
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className={`text-xs font-bold uppercase ${
-                      academy.tier === 'pallier1' ? 'text-blue-700' : 'text-purple-700'
+                      academy.tier === 'pallier1' ? 'text-blue-700' : 'text-blue-800'
                     }`}>
                       {academy.tier === 'pallier1' ? '📚 Pallier 1' : '🚀 Pallier 2'}
                     </span>
                     <span className={`text-xs font-semibold ${
-                      academy.tier === 'pallier1' ? 'text-blue-600' : 'text-purple-600'
+                      academy.tier === 'pallier1' ? 'text-blue-600' : 'text-brand-secondary'
                     }`}>
                       {academy.tier === 'pallier1' ? 'Prépa Bac' : 'Excellence'}
                     </span>
                   </div>
                   <p className={`text-xs mt-1 ${
-                    academy.tier === 'pallier1' ? 'text-blue-800' : 'text-purple-800'
+                    academy.tier === 'pallier1' ? 'text-blue-800' : 'text-slate-700'
                   }`}>
                     {academy.tier === 'pallier1' 
                       ? 'Consolider les bases, méthode fiable' 
@@ -131,11 +131,11 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 {/* Info en cards */}
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div className="bg-slate-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-slate-500 mb-1">Durée</div>
+                    <div className="text-xs text-slate-600 mb-1">Durée</div>
                     <div className="text-sm font-bold text-slate-900">{academy.durationHours}h</div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-2 text-center">
-                    <div className="text-xs text-slate-500 mb-1">Groupe</div>
+                    <div className="text-xs text-slate-600 mb-1">Groupe</div>
                     <div className="text-sm font-bold text-slate-900">{academy.groupSizeMax} élèves</div>
                   </div>
                 </div>
@@ -156,13 +156,13 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 <div className={`rounded-xl p-4 mb-4 ${
                   academy.tier === 'pallier1'
                     ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200'
-                    : 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300'
+                    : 'bg-gradient-to-br from-slate-50 to-blue-100 border-2 border-brand-secondary/35'
                 }`}>
                   <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-xs text-slate-500 line-through">Prix: {academy.price} TND</span>
+                    <span className="text-xs text-slate-600 line-through">Prix: {academy.price} TND</span>
                     <div className="text-right">
                       <div className={`text-2xl font-black ${
-                        academy.tier === 'pallier1' ? 'text-blue-700' : 'text-purple-700'
+                        academy.tier === 'pallier1' ? 'text-blue-700' : 'text-blue-800'
                       }`}>
                         {academy.earlyBirdPrice} TND
                       </div>
@@ -172,9 +172,9 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                   <div className="mt-2 pt-2 border-t border-slate-300">
                     <p className="text-xs font-bold text-center">
                       {academy.seatsLeft <= 3 ? (
-                        <span className="text-red-600">🔥 Plus que {academy.seatsLeft} places!</span>
+                        <span className="text-slate-800">Places limitées: {academy.seatsLeft} restantes</span>
                       ) : (
-                        <span className="text-green-600">✅ {academy.seatsLeft} places restantes</span>
+                        <span className="text-blue-700">{academy.seatsLeft} places restantes</span>
                       )}
                     </p>
                   </div>

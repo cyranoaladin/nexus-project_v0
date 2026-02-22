@@ -177,14 +177,14 @@ function ARIAInteractiveModule() {
             )}
 
             {isPackBetter && (
-              <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-500/15 to-slate-500/15 border border-blue-400/30 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="w-5 h-5 text-yellow-400 mr-2" />
-                  <span className="text-yellow-400 font-semibold text-sm">Offre Spéciale</span>
+                  <Sparkles className="w-5 h-5 text-blue-300 mr-2" />
+                  <span className="text-blue-300 font-semibold text-sm">Offre Spéciale</span>
                 </div>
                 <p className="text-white text-sm">
                   Passez au <strong>Pack Toutes Matières</strong> pour seulement{' '}
-                  <strong className="text-red-400">120 TND/mois</strong> et économisez{' '}
+                  <strong className="text-blue-300">120 TND/mois</strong> et économisez{' '}
                   <strong>{savings} TND</strong> !
                 </p>
               </div>
@@ -196,7 +196,7 @@ function ARIAInteractiveModule() {
               <span className="text-lg font-semibold text-white">Prix Total Mensuel :</span>
               <div className="text-right">
                 {isPackBetter && (
-                  <span className="block text-sm text-slate-400 line-through">
+                  <span className="block text-sm text-slate-300 line-through">
                     +{additionalSubjects * 50} TND/mois
                   </span>
                 )}
@@ -213,7 +213,7 @@ function ARIAInteractiveModule() {
             className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${additionalSubjects === 0
                 ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                 : isPackBetter
-                  ? 'bg-red-500 hover:bg-red-600 text-white'
+                  ? 'bg-brand-secondary hover:bg-brand-accent-dark text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             asChild={additionalSubjects > 0}
@@ -321,7 +321,7 @@ export function BusinessModelSection() {
                 className="card-dark"
               >
                 <div className="flex items-center mb-6">
-                  <Zap className="w-8 h-8 text-red-500 mr-4" />
+                  <Zap className="w-8 h-8 text-brand-secondary mr-4" />
                   <h3 className="font-heading font-bold text-xl text-gray-900">Les Crédits (La Flexibilité)</h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
@@ -339,7 +339,7 @@ export function BusinessModelSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
           viewport={{ once: true }}
-          className="card-dark bg-gradient-to-r from-blue-50 to-indigo-50 p-8 mb-16"
+          className="card-dark bg-gradient-to-r from-blue-50 to-slate-50 p-8 mb-16"
         >
           <h3 className="font-heading font-bold text-2xl text-gray-900 mb-6 text-center">
             💡 Règles du Système de Crédits
@@ -384,7 +384,7 @@ export function BusinessModelSection() {
               >
                 {'popular' in plan && plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
+                    <div className="bg-brand-secondary text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
                       <Award className="w-4 h-4 mr-1 inline" />
                       Le plus populaire
                     </div>
@@ -392,7 +392,7 @@ export function BusinessModelSection() {
                 )}
 
                 <Card className={`h-full flex flex-col hover:shadow-xl transition-all duration-300 ${'popular' in plan && plan.popular
-                  ? 'bg-white border-2 border-red-500 shadow-2xl transform scale-105 -translate-y-4'
+                  ? 'bg-white border-2 border-brand-secondary shadow-2xl transform scale-105 -translate-y-4'
                   : 'bg-white border border-slate-200 shadow-lg'
                   }`}>
                   <CardHeader className="text-center p-8">
@@ -438,7 +438,7 @@ export function BusinessModelSection() {
                     <Button
                       asChild
                       className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${'popular' in plan && plan.popular
-                        ? 'bg-red-500 hover:bg-red-600 text-white'
+                        ? 'bg-brand-secondary hover:bg-brand-accent-dark text-white'
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
                         }`}
                     >

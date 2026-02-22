@@ -273,7 +273,7 @@ export default function DashboardExcellencePage() {
               className="h-9 w-auto object-contain"
             />
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Nexus Reussite</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Nexus Reussite</p>
               <p className="[font-family:var(--font-space-grotesk)] text-base font-bold">Espace Excellence</p>
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function DashboardExcellencePage() {
 
       <section className="mx-auto max-w-6xl px-4 pt-12 md:px-8">
         <div className="text-center">
-          <h1 className="[font-family:var(--font-space-grotesk)] bg-gradient-to-r from-indigo-300 via-violet-300 to-pink-300 bg-clip-text text-4xl font-bold text-transparent md:text-6xl">
+          <h1 className="[font-family:var(--font-space-grotesk)] bg-gradient-to-r from-blue-300 via-blue-400 to-slate-300 bg-clip-text text-4xl font-bold text-transparent md:text-6xl">
             Protocole Excellence
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300 md:text-xl">
@@ -299,10 +299,10 @@ export default function DashboardExcellencePage() {
           {metrics.map((metric) => (
             <article
               key={metric.label}
-              className="rounded-2xl border border-slate-700/60 bg-slate-900/55 p-6 backdrop-blur-xl transition hover:-translate-y-1 hover:border-indigo-400/60 hover:shadow-[0_18px_40px_-18px_rgba(99,102,241,0.7)]"
+              className="rounded-2xl border border-slate-700/60 bg-slate-900/55 p-6 backdrop-blur-xl transition hover:-translate-y-1 hover:border-blue-400/60 hover:shadow-[0_18px_40px_-18px_rgba(59,130,246,0.55)]"
             >
               <p className="[font-family:var(--font-space-grotesk)] text-4xl font-bold text-white">{metric.value}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">{metric.label}</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-300">{metric.label}</p>
             </article>
           ))}
         </div>
@@ -321,7 +321,7 @@ export default function DashboardExcellencePage() {
         </div>
 
         <div className="relative pl-0 md:pl-12">
-          <div className="absolute bottom-4 left-5 top-4 hidden w-px bg-gradient-to-b from-indigo-400/50 to-pink-400/50 md:block" />
+          <div className="absolute bottom-4 left-5 top-4 hidden w-px bg-gradient-to-b from-blue-400/50 to-slate-400/50 md:block" />
 
           <div className="space-y-4">
             {PROGRAM_DAYS.map((day, index) => {
@@ -338,12 +338,12 @@ export default function DashboardExcellencePage() {
                     className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
                   >
                     <div className="space-y-1">
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">{day.day}</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-300">{day.day}</p>
                       <h3 className="text-lg font-semibold text-white">{day.title}</h3>
                     </div>
                     <span
                       className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-600 bg-slate-950/80 transition ${
-                        isOpen ? "rotate-45 border-indigo-300 text-indigo-200" : "text-slate-400"
+                        isOpen ? "rotate-45 border-blue-300 text-blue-200" : "text-slate-300"
                       }`}
                     >
                       <Plus className="h-4 w-4" />
@@ -370,7 +370,7 @@ export default function DashboardExcellencePage() {
                                 key={badge}
                                 className={`rounded-md border px-3 py-1 text-xs [font-family:var(--font-space-grotesk)] ${
                                   highlight
-                                    ? "border-indigo-400/40 bg-indigo-500/10 text-indigo-200"
+                                    ? "border-brand-secondary/40 bg-brand-secondary/10 text-slate-200"
                                     : "border-slate-600 bg-slate-800/50 text-slate-300"
                                 }`}
                               >
@@ -407,15 +407,15 @@ export default function DashboardExcellencePage() {
           >
             <div className="flex items-start justify-between border-b border-white/10 bg-gradient-to-r from-slate-800 to-slate-950 p-6">
               <div>
-                <h2 className="[font-family:var(--font-space-grotesk)] text-2xl font-bold text-amber-300">
+                <h2 className="[font-family:var(--font-space-grotesk)] text-2xl font-bold text-blue-300">
                   Certificat de Competences
                 </h2>
-                <p className="mt-1 text-sm text-slate-400">Session Hiver 2026 | Nexus Reussite Lab</p>
+                <p className="mt-1 text-sm text-slate-300">Session Hiver 2026 | Nexus Reussite Lab</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsPortfolioOpen(false)}
-                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                className="rounded-full p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white"
                 aria-label="Fermer"
               >
                 <X className="h-5 w-5" />
@@ -424,7 +424,7 @@ export default function DashboardExcellencePage() {
 
             <div className="grid gap-6 p-6 lg:grid-cols-2">
               <section>
-                <h3 className="mb-4 inline-block border-b-2 border-indigo-400 pb-1 text-white">Competences Cles (KPI)</h3>
+                <h3 className="mb-4 inline-block border-b-2 border-blue-400 pb-1 text-white">Competences Cles (KPI)</h3>
                 <div className="space-y-4">
                   {SKILL_METRICS.map((metric) => (
                     <article key={metric.label}>
@@ -434,7 +434,7 @@ export default function DashboardExcellencePage() {
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-slate-700/60">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-pink-300"
+                          className="h-full rounded-full bg-gradient-to-r from-blue-400 to-slate-300"
                           style={{ width: `${metric.score}%` }}
                         />
                       </div>
@@ -445,19 +445,19 @@ export default function DashboardExcellencePage() {
 
               <section className="space-y-6">
                 <div>
-                  <h3 className="mb-3 inline-block border-b-2 border-indigo-400 pb-1 text-white">Projet Capstone</h3>
+                  <h3 className="mb-3 inline-block border-b-2 border-blue-400 pb-1 text-white">Projet Capstone</h3>
                   <p className="text-sm text-slate-300">
                     <span className="font-semibold text-white">Theme :</span> Optimisation de trajectoires et modelisation
                     probabiliste.
                   </p>
-                  <p className="mt-3 text-sm text-slate-400">
+                  <p className="mt-3 text-sm text-slate-300">
                     L'eleve a modelise un probleme complexe meleant geometrie vectorielle et simulation aleatoire pour
                     determiner une zone optimale, avec verification Python.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-indigo-400/30 bg-indigo-500/10 p-4">
-                  <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-indigo-200">
+                <div className="rounded-xl border border-blue-400/30 bg-blue-600/10 p-4">
+                  <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-200">
                     <CheckCircle2 className="h-4 w-4" />
                     Mots-cles Parcoursup
                   </p>
@@ -479,8 +479,8 @@ export default function DashboardExcellencePage() {
                 <div className="text-right">
                   <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Certifie par</p>
                   <p className="text-lg font-bold text-white">M. Alaeddine BEN RHOUMA</p>
-                  <p className="text-sm text-indigo-300">Professeur Agrege de Mathematiques</p>
-                  <p className="text-xs text-slate-400">Lycee Pierre Mendes France de Tunis</p>
+                  <p className="text-sm text-blue-300">Professeur Agrege de Mathematiques</p>
+                  <p className="text-xs text-slate-300">Lycee Pierre Mendes France de Tunis</p>
                 </div>
               </section>
             </div>
@@ -490,15 +490,15 @@ export default function DashboardExcellencePage() {
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-slate-900/90 px-4 py-4 backdrop-blur-xl md:px-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 md:flex-row">
-          <p className="hidden text-xs text-slate-400 md:block">
-            Etudiant : acces premium active • <span className="text-emerald-300">Nexus Lab connected</span>
+          <p className="hidden text-xs text-slate-300 md:block">
+            Etudiant : acces premium active • <span className="text-blue-300">Nexus Lab connected</span>
           </p>
 
           <div className="flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-end">
             <button
               type="button"
               onClick={() => setIsPortfolioOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-amber-300/40 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition hover:bg-amber-300 hover:text-slate-900"
+              className="inline-flex items-center gap-2 rounded-lg border border-blue-300/40 bg-blue-500/10 px-4 py-2 text-xs font-semibold text-blue-200 transition hover:bg-blue-400 hover:text-slate-900"
             >
               <Layers className="h-4 w-4" />
               Voir Competences
@@ -517,7 +517,7 @@ export default function DashboardExcellencePage() {
               type="button"
               onClick={generateCertificate}
               disabled={isGeneratingPdf}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-[0_0_20px_rgba(99,102,241,0.45)] transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-[0_0_20px_rgba(99,102,241,0.45)] transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {certificateLabel === "Telecharge" ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
               {certificateLabel}
@@ -528,7 +528,7 @@ export default function DashboardExcellencePage() {
 
       <div className="pointer-events-none fixed -left-[9999px] top-0 z-[-1] h-[794px] w-[1123px] overflow-hidden bg-white opacity-0">
         <div ref={certificateRef} className="h-[794px] w-[1123px] bg-white p-10 text-slate-800">
-          <div className="relative flex h-full flex-col items-center justify-center border-[10px] border-double border-amber-400 bg-[radial-gradient(circle,#fffaf0_0%,#ffffff_100%)] p-10">
+          <div className="relative flex h-full flex-col items-center justify-center border-[10px] border-double border-blue-400 bg-[radial-gradient(circle,#f8fbff_0%,#ffffff_100%)] p-10">
             <img
               src="/images/logo_nexus_reussite.png"
               alt="Nexus Reussite"
@@ -540,8 +540,8 @@ export default function DashboardExcellencePage() {
               NEXUS REUSSITE ACADEMY
             </p>
             <p className="mt-6 text-2xl italic text-slate-500">Certifie que</p>
-            <p className="mt-4 border-b-2 border-amber-400 px-10 pb-2 text-6xl font-bold text-slate-900">Sarah BEN SALAH</p>
-            <p className="mt-8 text-5xl font-bold uppercase tracking-[0.15em] text-amber-700">ATTESTATION D'EXCELLENCE</p>
+            <p className="mt-4 border-b-2 border-blue-400 px-10 pb-2 text-6xl font-bold text-slate-900">Sarah BEN SALAH</p>
+            <p className="mt-8 text-5xl font-bold uppercase tracking-[0.15em] text-blue-700">ATTESTATION D'EXCELLENCE</p>
 
             <p className="mt-8 max-w-4xl text-center font-medium leading-relaxed text-slate-700">
               A complete avec succes le Programme Intensif de Mathematiques Avancees & Algorithmique (Volume : 30 heures).
@@ -549,7 +549,7 @@ export default function DashboardExcellencePage() {
               de la Geometrie Vectorielle et de la Programmation Scientifique, validee par un Professeur Agrege.
             </p>
 
-            <div className="absolute bottom-10 left-1/2 flex h-28 w-28 -translate-x-1/2 items-center justify-center rounded-full border-4 border-amber-700 text-center text-sm font-bold text-amber-700 shadow-[0_0_0_10px_rgba(180,83,9,0.1)]">
+            <div className="absolute bottom-10 left-1/2 flex h-28 w-28 -translate-x-1/2 items-center justify-center rounded-full border-4 border-blue-700 text-center text-sm font-bold text-blue-700 shadow-[0_0_0_10px_rgba(37,99,235,0.12)]">
               NEXUS
               <br />
               CERTIFIED
@@ -579,7 +579,7 @@ export default function DashboardExcellencePage() {
       <button
         type="button"
         onClick={() => setIsPortfolioOpen(true)}
-        className="fixed bottom-24 right-4 inline-flex items-center gap-2 rounded-full border border-indigo-300/35 bg-indigo-500/20 px-4 py-2 text-xs font-semibold text-indigo-100 backdrop-blur md:hidden"
+        className="fixed bottom-24 right-4 inline-flex items-center gap-2 rounded-full border border-blue-300/35 bg-blue-500/20 px-4 py-2 text-xs font-semibold text-slate-100 backdrop-blur md:hidden"
       >
         <Sparkles className="h-4 w-4" />
         Portfolio

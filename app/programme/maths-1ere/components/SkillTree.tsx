@@ -96,8 +96,8 @@ function buildTreeNodes(): TreeNode[] {
 const colorClasses: Record<string, { bg: string; border: string; text: string; glow: string }> = {
   cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/50', text: 'text-cyan-400', glow: 'shadow-cyan-500/20' },
   blue: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-400', glow: 'shadow-blue-500/20' },
-  purple: { bg: 'bg-purple-500/20', border: 'border-purple-500/50', text: 'text-purple-400', glow: 'shadow-purple-500/20' },
-  amber: { bg: 'bg-amber-500/20', border: 'border-amber-500/50', text: 'text-amber-400', glow: 'shadow-amber-500/20' },
+  purple: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-400', glow: 'shadow-blue-500/20' },
+  amber: { bg: 'bg-slate-500/20', border: 'border-slate-500/50', text: 'text-slate-300', glow: 'shadow-slate-500/20' },
   green: { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-green-400', glow: 'shadow-green-500/20' },
 };
 
@@ -146,7 +146,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
 
       {/* New student guidance */}
       {isNewStudent && (
-        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 text-xs text-slate-400">
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 text-xs text-slate-300">
           <span className="text-cyan-400 font-bold">🚀 Par où commencer ?</span>{' '}
           Les chapitres sans prérequis sont accessibles dès maintenant :
           <span className="text-white font-medium ml-1">
@@ -214,7 +214,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                             : isCompleted
                             ? 'bg-green-500/20 text-green-400'
                             : isDue
-                            ? 'bg-amber-500/20 text-amber-400'
+                            ? 'bg-blue-500/20 text-blue-300'
                             : `${colors.bg} ${colors.text}`
                         }`}
                       >
@@ -229,9 +229,9 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                         <div className="flex items-center gap-2 text-[10px] text-slate-500">
                           <span>{'★'.repeat(node.difficulte)}{'☆'.repeat(5 - node.difficulte)}</span>
                           <span>{node.pointsXP} XP</span>
-                          {isDue && <span className="text-amber-400 font-bold">À réviser</span>}
+                          {isDue && <span className="text-blue-300 font-bold">À réviser</span>}
                           {isLocked && missingPrereqs.length > 0 && (
-                            <span className="text-red-400/70 truncate max-w-[120px]">
+                            <span className="text-slate-300 truncate max-w-[120px]">
                               ← {missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}
                             </span>
                           )}

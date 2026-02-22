@@ -165,9 +165,9 @@ describe('ErrorBoundary', () => {
         </ErrorBoundary>
       );
 
-      const errorMessageContainer = container.querySelector('.bg-red-950\\/20');
+      const errorMessageContainer = container.querySelector('.bg-slate-900\\/40');
       expect(errorMessageContainer).toBeInTheDocument();
-      expect(errorMessageContainer).toHaveClass('border-red-900', 'rounded-lg');
+      expect(errorMessageContainer).toHaveClass('border-slate-700', 'rounded-lg');
     });
 
     it('logs error to console in development mode', () => {

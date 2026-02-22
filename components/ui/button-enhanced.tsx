@@ -20,10 +20,10 @@ export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
 }
 
 const variantStyles = {
-    primary: 'bg-brand-accent text-surface-dark hover:bg-brand-accent-dark',
+    primary: 'bg-brand-primary text-white hover:bg-brand-primary/90',
     secondary: 'bg-brand-secondary text-white hover:bg-brand-secondary/90',
-    outline: 'border-2 border-white/20 text-white hover:border-brand-accent hover:text-brand-accent',
-    ghost: 'text-white hover:bg-white/10',
+    outline: 'border-2 border-white/20 text-neutral-100 hover:border-white/35 hover:bg-white/10',
+    ghost: 'text-neutral-100 hover:bg-white/10',
     danger: 'bg-error text-white hover:bg-error/90',
 };
 
@@ -53,7 +53,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <motion.button
                 ref={ref}
                 className={cn(
-                    'relative font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-surface-dark',
+                    'relative font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:ring-offset-surface-dark',
                     variantStyles[variant],
                     sizeStyles[size],
                     fullWidth && 'w-full',

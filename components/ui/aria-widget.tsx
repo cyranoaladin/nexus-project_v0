@@ -199,6 +199,7 @@ export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps)
                   <button
                     key={subject.value}
                     onClick={() => handleSelectSubject(subject.value)}
+                    data-testid={`aria-subject-${subject.value.toLowerCase()}`}
                     className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
                   >
                     <span className="text-xl">{subject.icon}</span>
@@ -218,6 +219,7 @@ export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps)
                 {messages.map((message, index) => (
                   <div
                     key={index}
+                    data-testid={message.role === 'assistant' ? 'aria-message-assistant' : 'aria-message-user'}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
@@ -279,6 +281,7 @@ export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps)
                   />
                   <Button
                     onClick={handleSendMessage}
+                    data-testid="aria-send"
                     className="px-3 bg-brand-accent hover:bg-brand-accent/90"
                     disabled={isLoading || !currentMessage.trim()}
                   >

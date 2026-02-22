@@ -204,7 +204,7 @@ export default function SessionsPage() {
                       </SelectContent>
                     </Select>
                     {errors.subject && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-slate-500 text-sm mt-1">
                         {errors.subject.message as string}
                       </p>
                     )}
@@ -231,7 +231,7 @@ export default function SessionsPage() {
                       </SelectContent>
                     </Select>
                     {errors.type && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-slate-500 text-sm mt-1">
                         {errors.type.message as string}
                       </p>
                     )}
@@ -249,7 +249,7 @@ export default function SessionsPage() {
                         placeholder="Sélectionnez une date et heure"
                       />
                       {errors.scheduledAt && (
-                        <p className="text-red-500 text-sm mt-1">
+                        <p className="text-slate-500 text-sm mt-1">
                           {errors.scheduledAt.message as string}
                         </p>
                       )}
@@ -271,7 +271,7 @@ export default function SessionsPage() {
                         </SelectContent>
                       </Select>
                       {errors.duration && (
-                        <p className="text-red-500 text-sm mt-1">
+                        <p className="text-slate-500 text-sm mt-1">
                           {errors.duration.message as string}
                         </p>
                       )}
@@ -287,7 +287,7 @@ export default function SessionsPage() {
                       placeholder="Ex: Révision chapitre dérivées"
                     />
                     {errors.title && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-slate-500 text-sm mt-1">
                         {errors.title.message as string}
                       </p>
                     )}
@@ -395,8 +395,8 @@ export default function SessionsPage() {
                   </div>
 
                   <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <div className="w-8 h-8 bg-violet-500/20 rounded-full flex items-center justify-center">
-                      <span className="text-violet-200 font-semibold text-sm">A</span>
+                    <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-blue-200 font-semibold text-sm">A</span>
                     </div>
                     <div>
                       <p className="font-medium text-sm">Scriptor</p>
@@ -419,7 +419,7 @@ export default function SessionsPage() {
                     <span>Cours : annulation gratuite &gt; 24h</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-violet-300" />
+                    <Clock className="w-4 h-4 text-blue-300" />
                     <span>Ateliers : annulation gratuite &gt; 48h</span>
                   </div>
                 </div>

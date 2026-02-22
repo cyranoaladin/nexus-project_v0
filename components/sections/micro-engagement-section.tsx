@@ -11,7 +11,7 @@ export function MicroEngagementSection() {
 
   return (
     <>
-      <section className="py-16 bg-gradient-to-br from-blue-50 to-white">
+      <section className="py-16 bg-gradient-to-br from-slate-50 to-white">
         <div className="section-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,7 +67,7 @@ export function MicroEngagementSection() {
                 <span>Analyse personnalisée</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-brand-secondary rounded-full"></div>
                 <span>100% gratuit</span>
               </div>
             </motion.div>

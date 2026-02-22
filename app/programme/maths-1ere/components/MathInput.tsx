@@ -133,16 +133,16 @@ export default function MathInput({
   }, []);
 
   return (
-    <div className={`bg-slate-900/50 border border-indigo-500/20 rounded-xl overflow-hidden ${className}`}>
+    <div className={`bg-slate-900/50 border border-blue-500/20 rounded-xl overflow-hidden ${className}`}>
       <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800/50 border-b border-slate-700/30">
         <div className="flex items-center gap-2">
           <span className="text-sm">🔢</span>
-          <span className="text-xs font-bold text-indigo-300">Saisie mathématique</span>
+          <span className="text-xs font-bold text-blue-300">Saisie mathématique</span>
         </div>
         {loaded && (
           <button
             onClick={toggleKeyboard}
-            className="text-xs px-2 py-1 rounded bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition-colors"
+            className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
             title="Clavier mathématique virtuel"
           >
             ⌨ Clavier
@@ -167,7 +167,7 @@ export default function MathInput({
 
       {/* LaTeX preview */}
       {latex && (
-        <div className="px-3 py-1.5 border-t border-slate-700/30 text-xs text-slate-500 font-mono truncate">
+        <div className="px-3 py-1.5 border-t border-slate-700/30 text-xs text-slate-300 font-mono truncate">
           LaTeX: {latex}
         </div>
       )}

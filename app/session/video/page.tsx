@@ -92,7 +92,7 @@ function SessionVideoCallContent() {
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <Card className="max-w-md w-full mx-4 bg-surface-card border border-white/10">
           <CardHeader>
-            <CardTitle className="text-red-300">Erreur</CardTitle>
+            <CardTitle className="text-slate-200">Erreur</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-neutral-300 mb-4">
@@ -175,7 +175,7 @@ function SessionVideoCallContent() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <BookOpen className="w-5 h-5 text-purple-300" />
+                  <BookOpen className="w-5 h-5 text-blue-300" />
                   <div>
                     <p className="text-sm font-medium text-neutral-100">Matière</p>
                     <p className="text-sm text-neutral-400">{sessionData.subject}</p>

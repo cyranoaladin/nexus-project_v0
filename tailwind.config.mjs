@@ -27,9 +27,9 @@ const config = {
 
         // Gold scale - Keep for premium features
         gold: {
-          400: '#FACC15',
-          500: '#EAB308',
-          600: '#CA8A04',
+          400: '#C7B08A',
+          500: '#A58D65',
+          600: '#87704F',
         },
 
         // ===== SHADCN UI COLORS (Keep for compatibility) =====

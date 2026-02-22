@@ -103,7 +103,7 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-lg text-slate-400">Chargement des résultats...</p>
+          <p className="text-lg text-slate-300">Chargement des résultats...</p>
         </div>
       </div>
     );
@@ -114,10 +114,10 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
-          <AlertCircle className="w-20 h-20 text-red-500 mx-auto" />
+          <AlertCircle className="w-20 h-20 text-slate-300 mx-auto" />
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Erreur</h1>
-            <p className="text-lg text-slate-400">{error || 'Résultats introuvables'}</p>
+            <p className="text-lg text-slate-300">{error || 'Résultats introuvables'}</p>
           </div>
           <Button onClick={() => router.push('/')} variant="outline">
             Retour à l&apos;accueil
@@ -136,7 +136,7 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-4xl font-bold">Bilan d&apos;Excellence Nexus</h1>
-              <p className="text-lg text-slate-400 mt-2">
+              <p className="text-lg text-slate-300 mt-2">
                 {getSubjectLabel(result.subject)} •{' '}
                 {result.grade === 'PREMIERE' ? 'Première' : 'Terminale'} •{' '}
                 {result.studentName}
@@ -180,17 +180,17 @@ export default function AssessmentResultPage({ params }: { params: Promise<{ id:
             percentile={result.percentile}
           />
           {result.isLowSample && (
-            <div className="col-span-1 md:col-span-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-400 text-center">
+            <div className="col-span-1 md:col-span-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-300 text-center">
               Cohorte restreinte (n={result.cohortN}) — le SSN et le percentile sont des estimations.
             </div>
           )}
 
           {/* Confidence Index Card */}
           <div className="p-6 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl border border-blue-500/30">
-            <div className="text-sm text-slate-400 mb-1">Indice de Confiance</div>
+            <div className="text-sm text-slate-300 mb-1">Indice de Confiance</div>
             <div className="text-5xl font-bold text-blue-400">
               {result.confidenceIndex}
-              <span className="text-lg font-normal text-slate-400">/100</span>
+              <span className="text-lg font-normal text-slate-300">/100</span>
             </div>
             <div className="text-sm text-slate-300 mt-3">
               {result.confidenceIndex >= 80 && 'Très fiable — réponses cohérentes et assurées'}

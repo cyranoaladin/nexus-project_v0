@@ -54,7 +54,7 @@ const experts: Expert[] = [
     ],
     specialites: ["Soutien en Spécialité PC", "Préparation aux Épreuves Pratiques"],
     icon: Beaker,
-    color: "from-purple-600 to-pink-500"
+    color: "from-blue-700 to-slate-700"
   },
   {
     pseudonyme: "Scriptor",
@@ -67,7 +67,7 @@ const experts: Expert[] = [
     ],
     specialites: ["Grand Oral", "Dissertation", "Commentaire composé"],
     icon: Brain,
-    color: "from-orange-600 to-red-500"
+    color: "from-slate-700 to-slate-600"
   },
   {
     pseudonyme: "Recursiv",
@@ -80,7 +80,7 @@ const experts: Expert[] = [
     ],
     specialites: ["Académie Python & NSI", "Projets NSI"],
     icon: Code,
-    color: "from-indigo-600 to-blue-500"
+    color: "from-blue-700 to-blue-500"
   },
   {
     pseudonyme: "Kernel",

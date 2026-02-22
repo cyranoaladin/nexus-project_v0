@@ -45,7 +45,7 @@ export function ComparisonTableSection() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-16 md:py-20 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,10 +54,10 @@ export function ComparisonTableSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
             La Différence Nexus en Détail
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
             Une comparaison factuelle qui démontre pourquoi nous sommes le choix de l'excellence
           </p>
         </motion.div>
@@ -73,11 +73,11 @@ export function ComparisonTableSection() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-6 px-6 font-bold text-lg text-gray-900">
+                  <tr className="border-b-2 border-slate-200">
+                    <th className="text-left py-6 px-6 font-bold text-lg text-slate-900">
                       Critère d'Exigence
                     </th>
-                    <th className="text-center py-6 px-6 font-bold text-lg text-gray-600">
+                    <th className="text-center py-6 px-6 font-bold text-lg text-slate-600">
                       Le Soutien Scolaire Standard
                     </th>
                     <th className="text-center py-6 px-6">
@@ -95,15 +95,15 @@ export function ComparisonTableSection() {
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       viewport={{ once: true }}
-                      className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
+                      className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors"
                     >
-                      <td className="py-6 px-6 font-semibold text-gray-900">
+                      <td className="py-6 px-6 font-semibold text-slate-900">
                         {row.criteria}
                       </td>
                       <td className="py-6 px-6 text-center">
                         <div className="flex items-center justify-center space-x-3">
-                          <X className="w-5 h-5 text-red-500" />
-                          <span className="text-gray-600">{row.standard}</span>
+                          <X className="w-5 h-5 text-slate-300" />
+                          <span className="text-slate-600">{row.standard}</span>
                         </div>
                       </td>
                       <td className="py-6 px-6 text-center">
@@ -127,11 +127,11 @@ export function ComparisonTableSection() {
             viewport={{ once: true }}
             className="mt-12 text-center"
           >
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-r from-blue-700 to-slate-700 rounded-2xl p-8 text-white">
               <h3 className="text-2xl font-bold mb-4">
                 Prêt à Découvrir la Différence ?
               </h3>
-              <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+              <p className="text-slate-100 mb-6 max-w-2xl mx-auto">
                 Rejoignez les familles qui ont fait le choix de l'excellence et transformé le parcours scolaire de leur enfant.
               </p>
               <Button asChild className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg">

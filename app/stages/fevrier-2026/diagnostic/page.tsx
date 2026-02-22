@@ -78,12 +78,12 @@ function DiagnosticContent() {
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none mb-4"
               />
               {error && (
-                <p className="text-red-600 text-xs mb-3">{error}</p>
+                <p className="text-slate-600 text-xs mb-3">{error}</p>
               )}
               <button
                 type="submit"
                 disabled={verifying}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-r from-blue-700 to-slate-700 text-white rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 {verifying ? (
                   <span className="flex items-center justify-center gap-2">

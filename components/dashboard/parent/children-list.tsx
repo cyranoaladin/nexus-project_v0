@@ -67,7 +67,7 @@ export function ChildrenList({ childrenData }: { childrenData: ChildData[] }) {
 
                         <div className="space-y-3">
                             <h4 className="text-sm font-semibold flex items-center text-neutral-100">
-                                <Trophy className="w-4 h-4 mr-2 text-amber-300" />
+                                <Trophy className="w-4 h-4 mr-2 text-blue-200" />
                                 Badges obtenus
                             </h4>
                             <ScrollArea className="h-[120px] w-full rounded-md border border-white/10 p-2 bg-surface-darker/60">

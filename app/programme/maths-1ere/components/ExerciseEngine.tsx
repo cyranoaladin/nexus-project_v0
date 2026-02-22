@@ -43,7 +43,7 @@ function QCMExercise({
           let cls = 'border-slate-700 hover:border-cyan-500/50';
           if (submitted) {
             if (i === exercice.correct) cls = 'border-green-500 bg-green-500/10';
-            else if (i === selected) cls = 'border-red-500 bg-red-500/10';
+            else if (i === selected) cls = 'border-slate-500 bg-slate-500/10';
           } else if (i === selected) {
             cls = 'border-cyan-500 bg-cyan-500/10';
           }
@@ -69,11 +69,11 @@ function QCMExercise({
           Valider
         </button>
       ) : (
-        <div className={`p-3 rounded-xl text-sm ${selected === exercice.correct ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
-          <p className={`font-bold mb-1 ${selected === exercice.correct ? 'text-green-400' : 'text-red-400'}`}>
+        <div className={`p-3 rounded-xl text-sm ${selected === exercice.correct ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
+          <p className={`font-bold mb-1 ${selected === exercice.correct ? 'text-green-400' : 'text-slate-300'}`}>
             {selected === exercice.correct ? '✓ Correct !' : '✗ Incorrect'}
           </p>
-          <p className="text-slate-400">{exercice.explication}</p>
+          <p className="text-slate-300">{exercice.explication}</p>
         </div>
       )}
     </div>
@@ -166,7 +166,7 @@ function NumericExercise({
           className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none disabled:opacity-60"
         />
         {exercice.unite && (
-          <span className="text-slate-400 self-center text-sm">{exercice.unite}</span>
+          <span className="text-slate-300 self-center text-sm">{exercice.unite}</span>
         )}
       </div>
       {!submitted ? (
@@ -179,15 +179,15 @@ function NumericExercise({
         </button>
       ) : (
         <div className="space-y-2">
-          <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
-            <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+          <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
+            <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
               {isCorrect ? '✓ Correct !' : `✗ Incorrect — Réponse attendue : ${exercice.reponse}`}
             </p>
-            <p className="text-slate-400">{exercice.explication}</p>
+            <p className="text-slate-300">{exercice.explication}</p>
           </div>
           {errorHint && (
-            <div className="p-3 rounded-xl text-sm bg-amber-500/10 border border-amber-500/30">
-              <p className="text-amber-400 font-bold">{errorHint}</p>
+            <div className="p-3 rounded-xl text-sm bg-blue-500/10 border border-blue-500/30">
+              <p className="text-blue-300 font-bold">{errorHint}</p>
             </div>
           )}
         </div>
@@ -267,7 +267,7 @@ function OrderingExercise({
           let borderCls = 'border-slate-700';
           if (submitted) {
             const correctOrder = exercice.ordreCorrect.map((idx) => exercice.etapesDesordre[idx]);
-            borderCls = item === correctOrder[i] ? 'border-green-500 bg-green-500/5' : 'border-red-500 bg-red-500/5';
+            borderCls = item === correctOrder[i] ? 'border-green-500 bg-green-500/5' : 'border-slate-500 bg-slate-500/5';
           }
           return (
             <div
@@ -299,11 +299,11 @@ function OrderingExercise({
           Valider l&apos;ordre
         </button>
       ) : (
-        <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
-          <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+        <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
+          <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
             {isCorrect ? '✓ Ordre correct !' : '✗ Ordre incorrect'}
           </p>
-          <p className="text-slate-400">{exercice.explication}</p>
+          <p className="text-slate-300">{exercice.explication}</p>
         </div>
       )}
     </div>
@@ -349,7 +349,7 @@ export default function ExerciseEngine({
               onClick={() => setCurrentIndex(i)}
               className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentIndex
                 ? 'bg-cyan-500 text-white'
-                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
             >
               {i + 1}

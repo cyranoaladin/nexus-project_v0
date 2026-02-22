@@ -9,7 +9,7 @@ interface SocialProofProps {
 
 export function SocialProof({ testimonials }: SocialProofProps) {
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+    <section className="py-16 md:py-20 bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
           {/* Titre */}
@@ -27,11 +27,11 @@ export function SocialProof({ testimonials }: SocialProofProps) {
               <div className="text-sm text-slate-700 font-semibold">Satisfaction observée</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-lg">
-              <div className="text-4xl font-black text-purple-600 mb-2">+4,2 pts</div>
+              <div className="text-4xl font-black text-brand-secondary mb-2">+4,2 pts</div>
               <div className="text-sm text-slate-700 font-semibold">Progression moyenne</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-lg">
-              <div className="text-4xl font-black text-green-600 mb-2">150+</div>
+              <div className="text-4xl font-black text-blue-700 mb-2">150+</div>
               <div className="text-sm text-slate-700 font-semibold">Mentions TB obtenues</div>
             </div>
           </div>

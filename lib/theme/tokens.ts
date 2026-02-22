@@ -24,9 +24,9 @@ export const designTokens = {
     // Brand Colors - Nexus Identity
     brand: {
       primary: '#2563EB',    // Refined Blue - primary actions, links
-      secondary: '#F25C5C',  // Softer Red - secondary actions, alerts
-      accent: '#4FD1E9',     // Soft Cyan - highlights, accents
-      'accent-dark': '#38BFD6', // Darker cyan for hover states
+      secondary: '#6B86A3',  // Muted Steel Blue - secondary actions
+      accent: '#8FAFC4',     // Soft Slate Blue - highlights
+      'accent-dark': '#6F90A8', // Darker slate blue for hover states
     },
 
     // Semantic Colors - Functional meaning

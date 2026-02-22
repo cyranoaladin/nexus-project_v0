@@ -31,8 +31,8 @@ type SortDirection = "asc" | "desc";
 
 const STATUS_COLORS = {
   COMPLETED: "bg-green-100 text-green-800 border-green-200",
-  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  FAILED: "bg-red-100 text-red-800 border-red-200",
+  PENDING: "bg-blue-100 text-blue-800 border-blue-200",
+  FAILED: "bg-slate-100 text-slate-800 border-slate-200",
   REFUNDED: "bg-blue-100 text-blue-800 border-blue-200",
   CANCELLED: "bg-neutral-100 text-neutral-800 border-neutral-200"
 } as const;
@@ -401,7 +401,7 @@ export function FinancialHistory({ transactions, childrenList = [] }: FinancialH
                           className={`font-semibold ${
                             transaction.amount >= 0 
                               ? "text-green-600" 
-                              : "text-red-600"
+                              : "text-slate-600"
                           }`}
                         >
                           {transaction.amount >= 0 ? "+" : ""}

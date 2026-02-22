@@ -56,7 +56,7 @@ export default function MentionsLegalesPage() {
                                 </p>
                             </div>
 
-                            <div className="pl-4 border-l-4 border-purple-500">
+                            <div className="pl-4 border-l-4 border-blue-500">
                                 <h3 className="font-bold text-lg text-white">2.2. Pôle Factory (Tech & Web3)</h3>
                                 <p className="text-neutral-300">
                                     La fourniture de solutions logicielles (SaaS, RAG Pipelines, Smart Contracts) est régie par les Conditions Générales de Vente (CGV) spécifiques aux produits numériques. Nexus Réussite garantit la conformité du code livré aux spécifications fonctionnelles validées.

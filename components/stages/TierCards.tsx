@@ -14,7 +14,7 @@ export function TierCards({ tiers }: TierCardsProps) {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+    <section className="py-16 md:py-20 bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
           {/* Titre */}
@@ -69,8 +69,8 @@ export function TierCards({ tiers }: TierCardsProps) {
           </div>
 
           {/* Phrase honnête obligatoire */}
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-lg mb-12 max-w-3xl mx-auto">
-            <p className="text-sm text-amber-900 font-medium italic">
+          <div className="bg-slate-100 border-l-4 border-slate-500 p-6 rounded-lg mb-12 max-w-3xl mx-auto">
+            <p className="text-sm text-slate-800 font-medium italic">
               ⚠️ Les résultats dépendent du travail personnel et de l'implication de chacun.
             </p>
           </div>

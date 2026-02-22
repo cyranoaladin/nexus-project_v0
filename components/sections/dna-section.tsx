@@ -41,7 +41,7 @@ export default function DNASection() {
               <GraduationCap className="h-6 w-6" strokeWidth={1.5} />
             </div>
             <h3 className="text-2xl font-bold text-white font-display mb-3">Terrain & Pédagogie</h3>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-300 leading-relaxed">
               Une équipe d&apos;universitaires, agrégés et certifiés avec plus de 25 ans d&apos;expérience cumulée. Nous connaissons la salle de classe car nous y avons enseigné. Des méthodes qui fonctionnent réellement.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function DNASection() {
               <Blocks className="h-6 w-6" strokeWidth={1.5} />
             </div>
             <h3 className="text-2xl font-bold text-white font-display mb-3">Studio d&apos;Innovation</h3>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-300 leading-relaxed">
               Architectures souveraines, Assistants Intelligents et Web3. Nous ne faisons pas que conseiller, nous bâtissons des outils robustes. Vos données restent chez vous (Souveraineté).
             </p>
           </div>

@@ -33,12 +33,12 @@ export function FinalCTA({ closingDate, academies }: FinalCTAProps) {
   }, [closingDate]);
 
   return (
-    <section id="reservation" className="py-20 bg-gradient-to-br from-red-600 to-orange-600 text-white">
+    <section id="reservation" className="py-16 md:py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-4xl mx-auto text-center">
           {/* Titre */}
           <h2 className="text-3xl md:text-5xl font-black mb-6">
-            ⚠️ Dernières places avant le 10/02
+            Dernières places avant le 10/02
           </h2>
 
           {/* Countdown */}
@@ -70,7 +70,7 @@ export function FinalCTA({ closingDate, academies }: FinalCTAProps) {
             <h3 className="text-lg font-bold mb-4 text-center">Places restantes par académie</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               {academies.map((academy) => {
-                const colorClass = academy.seatsLeft <= 3 ? 'text-red-300' : academy.seatsLeft <= 5 ? 'text-yellow-300' : 'text-green-300';
+                const colorClass = academy.seatsLeft <= 3 ? 'text-slate-100' : academy.seatsLeft <= 5 ? 'text-blue-200' : 'text-blue-300';
                 const levelLabel = academy.level === 'terminale' ? 'Term.' : '1ère';
                 const tierLabel = academy.tier === 'pallier1' ? 'P1' : 'P2';
                 const subjectLabel = academy.subject === 'maths' ? 'Maths' : 'NSI';

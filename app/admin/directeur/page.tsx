@@ -125,7 +125,7 @@ export default function DirecteurDashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-lg text-slate-400">Chargement du tableau de bord...</p>
+          <p className="text-lg text-slate-300">Chargement du tableau de bord...</p>
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export default function DirecteurDashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
-          <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto" />
+          <AlertTriangle className="w-16 h-16 text-blue-500 mx-auto" />
           <h1 className="text-2xl font-bold">{error || 'Données indisponibles'}</h1>
           <Button onClick={() => router.push('/dashboard')} variant="outline">
             Retour
@@ -161,16 +161,16 @@ export default function DirecteurDashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Tableau de Bord Directeur</h1>
-          <p className="text-slate-400 mt-1">Vue stratégique — Pilotage Nexus 2.0</p>
+          <p className="text-slate-300 mt-1">Vue stratégique — Pilotage Nexus 2.0</p>
         </div>
 
         {/* ─── Low Sample Warning ──────────────────────────────────────── */}
         {isLowSample && (
-          <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+          <div className="flex items-center gap-3 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+            <AlertTriangle className="w-5 h-5 text-blue-300 flex-shrink-0" />
             <div>
-              <span className="text-sm font-medium text-amber-300">Cohorte insuffisante</span>
-              <span className="text-sm text-amber-400/80 ml-2">
+              <span className="text-sm font-medium text-blue-200">Cohorte insuffisante</span>
+              <span className="text-sm text-blue-300/80 ml-2">
                 N={kpis.completedAssessments} (minimum recommandé : 30). Les métriques SSN, percentiles et distributions sont indicatives.
               </span>
             </div>
@@ -214,7 +214,7 @@ export default function DirecteurDashboardPage() {
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
             <h3 className="text-lg font-semibold mb-4">
               Distribution SSN
-              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+              {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={distData}>
@@ -242,7 +242,7 @@ export default function DirecteurDashboardPage() {
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
             <h3 className="text-lg font-semibold mb-4">
               Progression Mensuelle SSN
-              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+              {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
             {monthlyProgression.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
@@ -282,7 +282,7 @@ export default function DirecteurDashboardPage() {
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
             <h3 className="text-lg font-semibold mb-4">
               Radar Global Cohorte
-              {isLowSample && <span className="ml-2 text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
+              {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
             {radarData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -310,7 +310,7 @@ export default function DirecteurDashboardPage() {
           {/* Pedagogical Alerts */}
           <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-400" />
+              <AlertTriangle className="w-5 h-5 text-slate-300" />
               Alertes Pédagogiques
             </h3>
             {alerts.length > 0 ? (
@@ -318,13 +318,13 @@ export default function DirecteurDashboardPage() {
                 {alerts.map((alert) => (
                   <div
                     key={alert.assessmentId}
-                    className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg border border-red-500/20"
+                    className="flex items-center justify-between p-3 bg-slate-1000/10 rounded-lg border border-slate-500/20"
                   >
                     <div>
                       <div className="text-sm font-medium">{alert.studentName}</div>
-                      <div className="text-xs text-slate-400">{alert.studentEmail} • {alert.subject}</div>
+                      <div className="text-xs text-slate-300">{alert.studentEmail} • {alert.subject}</div>
                     </div>
-                    <div className="text-lg font-bold text-red-400">
+                    <div className="text-lg font-bold text-slate-300">
                       {Math.round(alert.ssn)}
                     </div>
                   </div>

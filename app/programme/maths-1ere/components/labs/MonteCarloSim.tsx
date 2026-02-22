@@ -57,15 +57,15 @@ export default function MonteCarloSim() {
   }, [mode]);
 
   return (
-    <div className="bg-slate-900/50 border border-amber-500/20 rounded-2xl overflow-hidden">
+    <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">🎲</span>
-          <span className="font-bold text-amber-300 text-sm">Simulation de Monte-Carlo</span>
-          <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
+          <span className="font-bold text-blue-200 text-sm">Simulation de Monte-Carlo</span>
+          <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
         <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
       </button>
@@ -84,8 +84,8 @@ export default function MonteCarloSim() {
                 onClick={() => { setMode(m.id); reset(); }}
                 className={`flex-1 text-xs px-3 py-2 rounded-lg font-bold transition-all ${
                   mode === m.id
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                    ? 'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+                    : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                 }`}
               >
                 {m.label}
@@ -95,22 +95,22 @@ export default function MonteCarloSim() {
 
           {/* Controls */}
           <div className="flex gap-2 flex-wrap">
-            <button onClick={() => simulate(1)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+1</button>
-            <button onClick={() => simulate(10)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+10</button>
-            <button onClick={() => simulate(100)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+100</button>
-            <button onClick={() => simulate(1000)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-500 transition-all">+1000</button>
+            <button onClick={() => simulate(1)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+1</button>
+            <button onClick={() => simulate(10)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+10</button>
+            <button onClick={() => simulate(100)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+100</button>
+            <button onClick={() => simulate(1000)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+1000</button>
             <button onClick={reset} className="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 transition-all ml-auto">↺ Reset</button>
           </div>
 
           {/* Results */}
           <div className="bg-slate-800/50 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between text-xs text-slate-400">
+            <div className="flex justify-between text-xs text-slate-300">
               <span>Essais : <span className="text-white font-bold">{totalTrials}</span></span>
               {mode === 'coin' && (
-                <span>Fréquence Pile : <span className={`font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : 'text-amber-400'}`}>{(coinFreq * 100).toFixed(1)}%</span> (théorique : 50%)</span>
+                <span>Fréquence Pile : <span className={`font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : 'text-blue-300'}`}>{(coinFreq * 100).toFixed(1)}%</span> (théorique : 50%)</span>
               )}
               {mode === 'pi' && (
-                <span>π ≈ <span className={`font-bold ${Math.abs(piEstimate - Math.PI) < 0.1 ? 'text-green-400' : 'text-amber-400'}`}>{piEstimate.toFixed(4)}</span> (réel : {Math.PI.toFixed(4)})</span>
+                <span>π ≈ <span className={`font-bold ${Math.abs(piEstimate - Math.PI) < 0.1 ? 'text-green-400' : 'text-blue-300'}`}>{piEstimate.toFixed(4)}</span> (réel : {Math.PI.toFixed(4)})</span>
               )}
             </div>
 
@@ -119,7 +119,7 @@ export default function MonteCarloSim() {
               <div>
                 <div className="flex gap-1 h-8">
                   <div
-                    className="bg-amber-500/40 rounded-l-lg flex items-center justify-center text-[10px] font-bold text-amber-300 transition-all"
+                    className="bg-blue-500/40 rounded-l-lg flex items-center justify-center text-[10px] font-bold text-blue-200 transition-all"
                     style={{ width: `${coinFreq * 100}%` }}
                   >
                     {coinFreq > 0.1 ? `Pile ${(coinFreq * 100).toFixed(0)}%` : ''}
@@ -136,11 +136,11 @@ export default function MonteCarloSim() {
                   <span className="text-[10px] text-slate-500">Écart à P=0.5 :</span>
                   <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${Math.abs(coinFreq - 0.5) < 0.02 ? 'bg-green-500' : Math.abs(coinFreq - 0.5) < 0.05 ? 'bg-amber-500' : 'bg-red-500'}`}
+                      className={`h-full rounded-full transition-all ${Math.abs(coinFreq - 0.5) < 0.02 ? 'bg-green-500' : Math.abs(coinFreq - 0.5) < 0.05 ? 'bg-blue-500' : 'bg-slate-500'}`}
                       style={{ width: `${Math.max(2, Math.min(100, (1 - Math.abs(coinFreq - 0.5) * 10) * 100))}%` }}
                     />
                   </div>
-                  <span className={`text-[10px] font-mono font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : Math.abs(coinFreq - 0.5) < 0.05 ? 'text-amber-400' : 'text-red-400'}`}>
+                  <span className={`text-[10px] font-mono font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : Math.abs(coinFreq - 0.5) < 0.05 ? 'text-blue-300' : 'text-slate-200'}`}>
                     {Math.abs(coinFreq - 0.5) < 0.02 ? '✓ Convergence' : `±${(Math.abs(coinFreq - 0.5) * 100).toFixed(1)}%`}
                   </span>
                 </div>
@@ -163,14 +163,14 @@ export default function MonteCarloSim() {
                     {diceCounts.map((count, i) => {
                       const freq = count / totalTrials;
                       const deviation = Math.abs(freq - 1/6);
-                      const barColor = deviation < 0.02 ? 'bg-green-500/50' : deviation < 0.05 ? 'bg-amber-500/40' : 'bg-red-500/40';
+                      const barColor = deviation < 0.02 ? 'bg-green-500/50' : deviation < 0.05 ? 'bg-blue-500/40' : 'bg-slate-500/40';
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-1">
                           <div
                             className={`w-full ${barColor} rounded-t-lg transition-all`}
                             style={{ height: `${Math.max(2, freq * 300)}px` }}
                           />
-                          <span className="text-[10px] text-slate-400">{i + 1}</span>
+                          <span className="text-[10px] text-slate-300">{i + 1}</span>
                           <span className="text-[9px] text-slate-600">{(freq * 100).toFixed(0)}%</span>
                         </div>
                       );
@@ -183,7 +183,7 @@ export default function MonteCarloSim() {
                   return (
                     <div className="text-center text-[10px] text-slate-600 mt-2">
                       Théorique : 1/6 ≈ 16.7% par face.
-                      <span className={`ml-1 font-bold ${maxDev < 0.02 ? 'text-green-400' : maxDev < 0.05 ? 'text-amber-400' : 'text-red-400'}`}>
+                      <span className={`ml-1 font-bold ${maxDev < 0.02 ? 'text-green-400' : maxDev < 0.05 ? 'text-blue-300' : 'text-slate-200'}`}>
                         Écart max : {(maxDev * 100).toFixed(1)}%
                         {maxDev < 0.02 ? ' ✓' : ''}
                       </span>
@@ -196,7 +196,7 @@ export default function MonteCarloSim() {
             {/* Pi visualization */}
             {mode === 'pi' && totalTrials > 0 && (
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400 font-mono">
+                <div className="text-3xl font-bold text-blue-300 font-mono">
                   π ≈ {piEstimate.toFixed(6)}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">
@@ -204,7 +204,7 @@ export default function MonteCarloSim() {
                 </div>
                 <div className="w-full h-2 bg-slate-700 rounded-full mt-2 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all"
                     style={{ width: `${Math.min(100, (1 - Math.abs(piEstimate - Math.PI) / Math.PI) * 100)}%` }}
                   />
                 </div>

@@ -99,7 +99,7 @@ export default function FamillePage() {
               Le soutien scolaire a évolué. Votre exigence aussi.
             </h2>
             <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl border border-red-500/30 bg-red-500/5 p-6">
+              <div className="rounded-3xl border border-slate-500/30 bg-slate-500/10 p-6">
                 <h3 className="text-xl font-semibold text-white">L&apos;Ancienne Méthode</h3>
                 <ul className="mt-4 space-y-2 text-slate-300">
                   <li>• Un suivi opaque (pas de dashboard).</li>
@@ -268,7 +268,7 @@ export default function FamillePage() {
                     ))}
                   </div>
                   <p className="mt-4 text-slate-200">{item.quote}</p>
-                  <div className="mt-4 text-sm text-slate-400">
+                  <div className="mt-4 text-sm text-slate-300">
                     {item.name} · {item.role}
                   </div>
                 </div>

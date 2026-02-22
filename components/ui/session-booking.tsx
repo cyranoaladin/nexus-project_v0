@@ -386,11 +386,11 @@ export default function SessionBooking({
 
           {error && (
             <div
-              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center"
+              className="mb-4 p-3 bg-slate-100 border border-slate-200 rounded-lg flex items-center"
               data-testid="booking-error"
             >
-              <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
-              <span className="text-red-700 text-sm">{error}</span>
+              <AlertCircle className="w-4 h-4 text-slate-600 mr-2" />
+              <span className="text-slate-700 text-sm">{error}</span>
             </div>
           )}
 
@@ -442,8 +442,8 @@ export default function SessionBooking({
                         </SelectContent>
                       </Select>
                     ) : (
-                      <div className="mt-1 p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
-                        <p className="text-sm text-yellow-800">Aucun coach disponible pour cette matière</p>
+                      <div className="mt-1 p-3 border border-blue-200 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-800">Aucun coach disponible pour cette matière</p>
                       </div>
                     )}
                   </div>
@@ -632,12 +632,12 @@ export default function SessionBooking({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ex: Révision des équations du second degré"
-                    className={`mt-1 ${titleError ? 'border-red-300' : ''}`}
+                    className={`mt-1 ${titleError ? 'border-slate-300' : ''}`}
                     maxLength={100}
                     data-testid="booking-title"
                   />
                   {titleError && (
-                    <p className="text-xs text-red-600 mt-1">{titleError}</p>
+                    <p className="text-xs text-slate-600 mt-1">{titleError}</p>
                   )}
                 </div>
 
@@ -651,13 +651,13 @@ export default function SessionBooking({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Objectifs de la session, points spécifiques à travailler..."
-                    className={`mt-1 ${descriptionError ? 'border-red-300' : ''}`}
+                    className={`mt-1 ${descriptionError ? 'border-slate-300' : ''}`}
                     rows={3}
                     maxLength={500}
                     data-testid="booking-description"
                   />
                   {descriptionError && (
-                    <p className="text-xs text-red-600 mt-1">{descriptionError}</p>
+                    <p className="text-xs text-slate-600 mt-1">{descriptionError}</p>
                   )}
                 </div>
 

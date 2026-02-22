@@ -113,8 +113,8 @@ export default function TrajectoirePage() {
           <Link href={backLink} className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-200 mb-6">
             <ArrowLeft className="h-4 w-4" /> Retour au tableau de bord
           </Link>
-          <div className="rounded-xl border border-red-500/30 bg-surface-card p-8 text-center">
-            <p className="text-red-400">{error}</p>
+          <div className="rounded-xl border border-slate-500/30 bg-surface-card p-8 text-center">
+            <p className="text-slate-300">{error}</p>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@ export default function TrajectoirePage() {
                       {milestone.completed ? (
                         <CheckCircle2 className="h-5 w-5 text-green-400" />
                       ) : isPast ? (
-                        <Clock className="h-5 w-5 text-amber-400" />
+                        <Clock className="h-5 w-5 text-blue-300" />
                       ) : (
                         <Circle className="h-5 w-5 text-neutral-600" />
                       )}
@@ -249,7 +249,7 @@ export default function TrajectoirePage() {
                         milestone.completed
                           ? 'border-green-500/20 bg-green-500/5'
                           : isPast
-                            ? 'border-amber-500/20 bg-amber-500/5'
+                            ? 'border-blue-500/20 bg-blue-500/5'
                             : 'border-neutral-800 bg-surface-card'
                       }`}
                     >

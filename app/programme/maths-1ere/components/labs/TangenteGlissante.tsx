@@ -53,8 +53,8 @@ export default function TangenteGlissante({
   const tangent = (x: number) => fpa * (x - a) + fa;
 
   const variation = fpa > 0.01 ? '↗ Croissante' : fpa < -0.01 ? '↘ Décroissante' : '→ Extremum';
-  const variationColor = fpa > 0.01 ? 'text-green-400' : fpa < -0.01 ? 'text-red-400' : 'text-amber-400';
-  const variationBg = fpa > 0.01 ? 'bg-green-500/10 border-green-500/20' : fpa < -0.01 ? 'bg-red-500/10 border-red-500/20' : 'bg-amber-500/10 border-amber-500/20';
+  const variationColor = fpa > 0.01 ? 'text-green-400' : fpa < -0.01 ? 'text-slate-200' : 'text-blue-300';
+  const variationBg = fpa > 0.01 ? 'bg-green-500/10 border-green-500/20' : fpa < -0.01 ? 'bg-slate-500/10 border-slate-500/20' : 'bg-blue-500/10 border-blue-500/20';
 
   return (
     <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl overflow-hidden">
@@ -84,7 +84,7 @@ export default function TangenteGlissante({
               onChange={(e) => setA(parseFloat(e.target.value))}
               className="flex-1 h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="text-xs font-mono text-slate-400 w-12 text-right">{a.toFixed(2)}</span>
+            <span className="text-xs font-mono text-slate-300 w-12 text-right">{a.toFixed(2)}</span>
           </div>
 
           {/* Info bar */}
@@ -167,11 +167,10 @@ export default function TangenteGlissante({
           <p className="text-[10px] text-slate-600 text-center">
             Déplacez le curseur pour voir la tangente glisser le long de la courbe.
             Les zones <span className="text-green-400">vertes</span> sur f&apos;(x) indiquent f croissante,
-            les zones <span className="text-red-400">rouges</span> f décroissante.
+            les zones <span className="text-slate-200">sombres</span> f décroissante.
           </p>
         </div>
       )}
     </div>
   );
 }
-

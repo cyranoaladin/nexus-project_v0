@@ -27,7 +27,7 @@ const ariaFeatures: AriaFeature[] = [
 
 export function AriaComparison() {
   return (
-    <section className="py-20 bg-gradient-to-br from-purple-50 to-pink-50">
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-slate-100">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
@@ -36,7 +36,7 @@ export function AriaComparison() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="mb-4 bg-purple-50 text-purple-700 border-purple-200">
+          <Badge variant="outline" className="mb-4 bg-blue-50 text-blue-700 border-blue-200">
             <Brain className="w-4 h-4 mr-2" />
             Intelligence Artificielle
           </Badge>
@@ -120,9 +120,9 @@ export function AriaComparison() {
               transition={{ duration: 0.5, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full border-2 border-purple-200">
+              <Card className="h-full border-2 border-blue-200">
                 <CardHeader className="text-center pb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-slate-700 flex items-center justify-center mx-auto mb-4">
                     <Crown className="w-8 h-8 text-white" />
                   </div>
                   <CardTitle className="text-xl font-bold text-bleu-nuit mb-2">
@@ -131,11 +131,11 @@ export function AriaComparison() {
                   <p className="text-sm text-gris-noble mb-4">
                     Pourquoi choisir ARIA+ ?
                   </p>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <p className="text-sm font-semibold text-purple-800">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-800">
                       +300% de fonctionnalités
                     </p>
-                    <p className="text-xs text-purple-600">
+                    <p className="text-xs text-blue-600">
                       Accès illimité à toutes les matières
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export function AriaComparison() {
                               feature.aria ? (
                                 <Check className="w-5 h-5 text-green-500 mx-auto" />
                               ) : (
-                                <X className="w-5 h-5 text-red-500 mx-auto" />
+                                <X className="w-5 h-5 text-slate-500 mx-auto" />
                               )
                             ) : (
                               <span className="text-xs text-blue-600 font-medium">
@@ -197,7 +197,7 @@ export function AriaComparison() {
                               feature.ariaPlus ? (
                                 <Check className="w-5 h-5 text-green-500 mx-auto" />
                               ) : (
-                                <X className="w-5 h-5 text-red-500 mx-auto" />
+                                <X className="w-5 h-5 text-slate-500 mx-auto" />
                               )
                             ) : (
                               <span className="text-xs text-or-stellaire font-medium">

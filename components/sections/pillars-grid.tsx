@@ -34,7 +34,7 @@ export default function PillarsGrid() {
               <h3 className="mt-2 text-2xl font-bold text-white font-display">
                 Pilotez avec vision.
               </h3>
-              <ul className="mt-6 space-y-3 text-slate-400 text-sm">
+              <ul className="mt-6 space-y-3 text-slate-300 text-sm">
                 <li>• Certification Sécurisée (Smart Credentials)</li>
                 <li>• Audit de Maturité Numérique</li>
                 <li>• Différenciation concurrentielle</li>
@@ -79,7 +79,7 @@ export default function PillarsGrid() {
               <h3 className="mt-2 text-2xl font-bold text-white font-display">
                 Élevez les compétences.
               </h3>
-              <ul className="mt-6 space-y-3 text-slate-400 text-sm">
+              <ul className="mt-6 space-y-3 text-slate-300 text-sm">
                 <li>• Formation Staff (IA & Web3)</li>
                 <li>• Cursus Élèves "Elite Track" (Code / Web3)</li>
                 <li>• Coaching Orientation</li>

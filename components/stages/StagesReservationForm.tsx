@@ -172,7 +172,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             value={formData.academyId}
             onChange={(e) => handleInputChange('academyId', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
-              errors.academyId ? 'border-red-500' : 'border-slate-300'
+              errors.academyId ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
           >
             <option value="">-- Sélectionnez une académie --</option>
@@ -183,7 +183,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             ))}
           </select>
           {errors.academyId && (
-            <p className="text-red-600 text-sm mt-1">{errors.academyId}</p>
+            <p className="text-slate-600 text-sm mt-1">{errors.academyId}</p>
           )}
           {selectedAcademy && (
             <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -205,12 +205,12 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             value={formData.parent}
             onChange={(e) => handleInputChange('parent', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
-              errors.parent ? 'border-red-500' : 'border-slate-300'
+              errors.parent ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="Ex: Mohamed Ben Ali"
           />
           {errors.parent && (
-            <p className="text-red-600 text-sm mt-1">{errors.parent}</p>
+            <p className="text-slate-600 text-sm mt-1">{errors.parent}</p>
           )}
         </div>
 
@@ -224,12 +224,12 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             value={formData.phone}
             onChange={(e) => handleInputChange('phone', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
-              errors.phone ? 'border-red-500' : 'border-slate-300'
+              errors.phone ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="+216 99 19 28 29"
           />
           {errors.phone && (
-            <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+            <p className="text-slate-600 text-sm mt-1">{errors.phone}</p>
           )}
         </div>
 
@@ -243,12 +243,12 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             value={formData.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
-              errors.email ? 'border-red-500' : 'border-slate-300'
+              errors.email ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="votre@email.com"
           />
           {errors.email && (
-            <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+            <p className="text-slate-600 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
@@ -262,12 +262,12 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             value={formData.classe}
             onChange={(e) => handleInputChange('classe', e.target.value)}
             className={`w-full px-4 py-3 rounded-lg border-2 ${
-              errors.classe ? 'border-red-500' : 'border-slate-300'
+              errors.classe ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
             placeholder="Ex: Terminale / Première"
           />
           {errors.classe && (
-            <p className="text-red-600 text-sm mt-1">{errors.classe}</p>
+            <p className="text-slate-600 text-sm mt-1">{errors.classe}</p>
           )}
         </div>
 
@@ -300,11 +300,11 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
                   <label htmlFor="payment-card" className="font-semibold text-slate-900 cursor-pointer">
                     💳 Paiement par carte bancaire
                   </label>
-                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
-                    <p className="text-sm text-yellow-800 font-semibold">
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-300 rounded-lg">
+                    <p className="text-sm text-blue-800 font-semibold">
                       ⏳ Bientôt disponible
                     </p>
-                    <p className="text-xs text-yellow-700 mt-1">
+                    <p className="text-xs text-blue-700 mt-1">
                       Le paiement en ligne par carte bancaire sera disponible prochainement.
                     </p>
                   </div>
@@ -374,7 +374,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             </div>
           </div>
           {errors.paymentMethod && (
-            <p className="text-red-600 text-sm mt-2">{errors.paymentMethod}</p>
+            <p className="text-slate-600 text-sm mt-2">{errors.paymentMethod}</p>
           )}
         </div>
       </div>

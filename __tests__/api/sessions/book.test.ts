@@ -8,6 +8,7 @@ import { POST } from '@/app/api/sessions/book/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
+import { requireFeatureApi } from '@/lib/access';
 
 // Mock guards
 jest.mock('@/lib/guards', () => ({
@@ -30,6 +31,11 @@ jest.mock('@/lib/entitlement', () => ({
   getUserEntitlements: jest.fn().mockResolvedValue([
     { id: 'ent-1', productCode: 'PLATFORM', label: 'Platform', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['platform_access'] },
   ]),
+}));
+
+jest.mock('@/lib/access', () => ({
+  ...jest.requireActual('@/lib/access'),
+  requireFeatureApi: jest.fn(),
 }));
 
 // Mock prisma
@@ -119,6 +125,7 @@ describe('POST /api/sessions/book', () => {
     jest.clearAllMocks();
     (requireAnyRole as jest.Mock).mockResolvedValue(mockParentSession);
     ((isErrorResponse as any) as jest.Mock).mockReturnValue(false);
+    (requireFeatureApi as jest.Mock).mockResolvedValue(null);
     
     // Reset prisma.$transaction to prevent mock bleed between tests
     (prisma.$transaction as jest.Mock).mockReset();

@@ -344,8 +344,8 @@ export default function DashboardParent() {
                 </div>
 
                 {/* Note importante */}
-                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                  <p className="text-xs sm:text-sm text-amber-200">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-xs sm:text-sm text-slate-200">
                     <strong>Note :</strong> Les demandes d'achat de crédits sont envoyées à l'assistant pour approbation.
                   </p>
                 </div>

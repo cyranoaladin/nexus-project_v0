@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export function StagesIntensifsSection() {
   return (
-    <section className="py-20 bg-slate-900">
+    <section className="py-16 md:py-20 bg-slate-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* En-tête */}
         <motion.div
@@ -108,7 +108,7 @@ export function StagesIntensifsSection() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-red-500 hover:bg-red-600 text-white font-semibold group"
+                  className="bg-blue-700 hover:bg-blue-800 text-white font-semibold group"
                 >
                   <Link href="/contact">
                     Je réserve ma place
@@ -116,7 +116,7 @@ export function StagesIntensifsSection() {
                   </Link>
                 </Button>
 
-                <p className="text-xs text-slate-500 mt-3">
+                <p className="text-xs text-slate-600 mt-3">
                   Places limitées - Inscription sur entretien préalable
                 </p>
               </div>

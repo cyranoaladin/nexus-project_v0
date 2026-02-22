@@ -67,7 +67,7 @@ const OfferSection = () => {
                 {/* Left Photo Card */}
                 <div
                     data-reveal="left"
-                    className="w-full h-[50vh] lg:h-[72vh] bg-surface-card overflow-hidden rounded-[18px] border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-0.5 relative"
+                    className="w-full min-h-[300px] h-[42vh] md:h-[50vh] lg:h-[72vh] bg-surface-card overflow-hidden rounded-[18px] border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-0.5 relative"
                 >
                     <img
                         src="/images/classroom.jpg"
@@ -93,7 +93,7 @@ const OfferSection = () => {
                 {/* Right Offer Card */}
                 <div
                     data-reveal="right"
-                    className="w-full h-[50vh] lg:h-[72vh] rounded-[18px] border border-white/10 bg-neutral-950/80 backdrop-blur-xl p-6 flex flex-col"
+                    className="w-full min-h-[320px] h-auto md:h-[50vh] lg:h-[72vh] rounded-[18px] border border-white/10 bg-neutral-950/80 backdrop-blur-xl p-6 flex flex-col"
                 >
                     {/* Tabs */}
                     <div className="flex border-b border-white/10">

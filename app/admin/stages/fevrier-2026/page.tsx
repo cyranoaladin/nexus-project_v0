@@ -53,10 +53,10 @@ type SortDirection = 'asc' | 'desc';
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
-    PENDING: { bg: 'bg-amber-100', text: 'text-amber-800', icon: <Clock className="w-3 h-3" /> },
+    PENDING: { bg: 'bg-blue-100', text: 'text-blue-800', icon: <Clock className="w-3 h-3" /> },
     CONFIRMED: { bg: 'bg-green-100', text: 'text-green-800', icon: <CheckCircle className="w-3 h-3" /> },
     PAID: { bg: 'bg-blue-100', text: 'text-blue-800', icon: <DollarSign className="w-3 h-3" /> },
-    CANCELLED: { bg: 'bg-red-100', text: 'text-red-800', icon: <X className="w-3 h-3" /> },
+    CANCELLED: { bg: 'bg-slate-100', text: 'text-slate-800', icon: <X className="w-3 h-3" /> },
   };
   const c = config[status] || config.PENDING;
   return (
@@ -88,7 +88,7 @@ function KPICard({
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
           <p className="text-3xl font-black text-slate-900 mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-slate-300 mt-1">{subtitle}</p>}
         </div>
         <div className={`p-3 rounded-lg ${color}`}>{icon}</div>
       </div>
@@ -120,49 +120,49 @@ function DetailModal({
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Parent</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Parent</p>
               <p className="text-sm font-semibold text-slate-900">{reservation.parentName}</p>
             </div>
             {reservation.studentName && (
               <div>
-                <p className="text-xs font-medium text-slate-400 uppercase">Élève</p>
+                <p className="text-xs font-medium text-slate-300 uppercase">Élève</p>
                 <p className="text-sm font-semibold text-slate-900">{reservation.studentName}</p>
               </div>
             )}
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Email</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Email</p>
               <p className="text-sm text-slate-700">{reservation.email}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Téléphone</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Téléphone</p>
               <p className="text-sm text-slate-700">{reservation.phone}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Classe</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Classe</p>
               <p className="text-sm text-slate-700">{reservation.classe}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Académie</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Académie</p>
               <p className="text-sm text-slate-700">{reservation.academyTitle}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Prix</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Prix</p>
               <p className="text-sm font-bold text-blue-600">{reservation.price} TND</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Paiement</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Paiement</p>
               <p className="text-sm text-slate-700">{reservation.paymentMethod || 'Non spécifié'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Statut</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Statut</p>
               <StatusBadge status={reservation.status} />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">Telegram</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Telegram</p>
               <p className="text-sm text-slate-700">{reservation.telegramSent ? '✅ Envoyé' : '❌ Non envoyé'}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-xs font-medium text-slate-400 uppercase">Date d&apos;inscription</p>
+              <p className="text-xs font-medium text-slate-300 uppercase">Date d&apos;inscription</p>
               <p className="text-sm text-slate-700">
                 {new Date(reservation.createdAt).toLocaleDateString('fr-FR', {
                   weekday: 'long',
@@ -178,7 +178,7 @@ function DetailModal({
 
           {reservation.scoringResult && (
             <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-              <p className="text-xs font-medium text-slate-400 uppercase mb-2">Résultat Scoring</p>
+              <p className="text-xs font-medium text-slate-300 uppercase mb-2">Résultat Scoring</p>
               <pre className="text-xs text-slate-700 overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(reservation.scoringResult, null, 2)}
               </pre>
@@ -429,7 +429,7 @@ export default function AdminStagesFevrier2026Page() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <Shield className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Accès Refusé</h1>
           <p className="text-slate-600 mb-6">
             Cette page est réservée aux administrateurs Nexus Réussite.
@@ -486,12 +486,12 @@ export default function AdminStagesFevrier2026Page() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="mb-6 p-4 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-slate-500 flex-shrink-0" />
+            <p className="text-sm text-slate-700">{error}</p>
             <button
               onClick={fetchReservations}
-              className="ml-auto text-sm font-medium text-red-600 hover:text-red-800"
+              className="ml-auto text-sm font-medium text-slate-600 hover:text-slate-800"
             >
               Réessayer
             </button>
@@ -518,15 +518,15 @@ export default function AdminStagesFevrier2026Page() {
             title="Académies"
             value={kpis.academies.length}
             subtitle="avec inscriptions"
-            icon={<Building2 className="w-6 h-6 text-purple-600" />}
-            color="bg-purple-50"
+            icon={<Building2 className="w-6 h-6 text-blue-600" />}
+            color="bg-blue-50"
           />
           <KPICard
             title="Taux Confirmation"
             value={kpis.total > 0 ? `${Math.round((kpis.confirmed / kpis.total) * 100)}%` : '—'}
             subtitle={`${kpis.confirmed}/${kpis.total}`}
-            icon={<CheckCircle className="w-6 h-6 text-amber-600" />}
-            color="bg-amber-50"
+            icon={<CheckCircle className="w-6 h-6 text-blue-600" />}
+            color="bg-blue-50"
           />
         </div>
 
@@ -555,7 +555,7 @@ export default function AdminStagesFevrier2026Page() {
         <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6 shadow-sm">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
               <input
                 type="text"
                 placeholder="Rechercher (nom, email, tél, classe)..."
@@ -705,7 +705,7 @@ export default function AdminStagesFevrier2026Page() {
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Non passé</span>
+                          <span className="text-xs text-slate-300 italic">Non passé</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">

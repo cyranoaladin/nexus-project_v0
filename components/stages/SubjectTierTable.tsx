@@ -14,7 +14,7 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
   };
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-16 md:py-20 bg-white">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
           {/* Titre */}
@@ -41,7 +41,7 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
                   <h3 className="text-2xl font-black text-slate-900 uppercase tracking-wide">
                     {subject.subject === 'maths' ? '📐 Mathématiques' : '💻 NSI'}
                   </h3>
-                  <p className="text-sm text-slate-500 mt-1">Première & Terminale</p>
+                  <p className="text-sm text-slate-600 mt-1">Première & Terminale</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
@@ -59,12 +59,12 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
                   </div>
 
                   {/* Pallier 2 */}
-                  <div className="bg-white rounded-2xl p-6 border-2 border-purple-200">
-                    <h4 className="text-lg font-bold text-purple-900 mb-4">Pallier 2 : Excellence</h4>
+                  <div className="bg-white rounded-2xl p-6 border-2 border-brand-secondary/40">
+                    <h4 className="text-lg font-bold text-blue-900 mb-4">Pallier 2 : Excellence</h4>
                     <ul className="space-y-2">
                       {subject.pallier2.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                          <span className="text-purple-600 mt-0.5">•</span>
+                          <span className="text-brand-secondary mt-0.5">•</span>
                           <span>{item}</span>
                         </li>
                       ))}
