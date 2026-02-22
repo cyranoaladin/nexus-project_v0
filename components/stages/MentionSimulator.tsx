@@ -19,11 +19,11 @@ export function MentionSimulator() {
     } else if (average >= 14) {
       return { mention: 'Bien (B)', color: 'text-blue-600', emoji: '⭐' };
     } else if (average >= 12) {
-      return { mention: 'Assez Bien (AB)', color: 'text-yellow-600', emoji: '✓' };
+      return { mention: 'Assez Bien (AB)', color: 'text-slate-700', emoji: '✓' };
     } else if (average >= 10) {
-      return { mention: 'Passable', color: 'text-orange-600', emoji: '📄' };
+      return { mention: 'Passable', color: 'text-slate-600', emoji: '📄' };
     } else {
-      return { mention: 'Non admis', color: 'text-red-600', emoji: '❌' };
+      return { mention: 'Non admis', color: 'text-slate-700', emoji: '❌' };
     }
   };
 
@@ -44,14 +44,14 @@ export function MentionSimulator() {
   const pallier2Gain = projectedPallier2 - currentAverage;
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-purple-900 via-blue-900 to-slate-900 text-white">
+    <section className="py-16 md:py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4">
               Simulateur d'impact sur la mention
             </h2>
-            <p className="text-lg md:text-xl text-blue-200 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-200 max-w-3xl mx-auto">
               Visualisez l'impact potentiel d'un stage sur votre mention au Bac
             </p>
           </div>
@@ -73,7 +73,7 @@ export function MentionSimulator() {
                   className="w-full h-4 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
                 
-                <div className="flex justify-between text-sm text-blue-200">
+                <div className="flex justify-between text-sm text-slate-200">
                   <span>5/20</span>
                   <div className="text-center">
                     <div className="text-5xl font-black text-white mb-2">
@@ -89,7 +89,7 @@ export function MentionSimulator() {
 
               <button
                 onClick={handleCalculate}
-                className="mt-8 w-full py-4 px-6 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-black text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                className="mt-8 w-full py-4 px-6 rounded-full bg-gradient-to-r from-blue-700 to-slate-700 hover:from-blue-800 hover:to-slate-800 text-white font-black text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
               >
                 Calculer l'impact potentiel 🎯
               </button>
@@ -101,23 +101,23 @@ export function MentionSimulator() {
 
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-black mb-2">Projections basées sur nos statistiques</h3>
-                  <p className="text-sm text-blue-200">
+                  <p className="text-sm text-slate-200">
                     Progression moyenne observée : +4,2 points | Résultats selon travail personnel
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur rounded-2xl p-6 border-2 border-blue-400/50">
+                  <div className="bg-gradient-to-br from-blue-700/25 to-slate-700/25 backdrop-blur rounded-2xl p-6 border-2 border-blue-300/40">
                     <div className="text-center mb-4">
                       <div className="pill-stage-strong mb-3">
                         Pallier 1 : Essentiel
                       </div>
-                      <div className="text-xs text-blue-200 mb-4">Progression moyenne : +2,5 points</div>
+                      <div className="text-xs text-slate-200 mb-4">Progression moyenne : +2,5 points</div>
                     </div>
 
                     <div className="bg-white/10 backdrop-blur rounded-xl p-6 mb-4">
                       <div className="text-center">
-                        <div className="text-sm text-blue-200 mb-2">Moyenne projetée</div>
+                        <div className="text-sm text-slate-200 mb-2">Moyenne projetée</div>
                         <div className="text-5xl font-black text-white mb-3">
                           {projectedPallier1.toFixed(1)}/20
                         </div>
@@ -133,7 +133,7 @@ export function MentionSimulator() {
                         <div className="text-2xl font-black text-green-400">
                           +{pallier1Gain.toFixed(1)} pts
                         </div>
-                        <div className="text-xs text-blue-200">Gain potentiel</div>
+                        <div className="text-xs text-slate-200">Gain potentiel</div>
                       </div>
                     </div>
 
@@ -147,17 +147,17 @@ export function MentionSimulator() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-purple-600/30 to-pink-600/30 backdrop-blur rounded-2xl p-6 border-2 border-purple-400/50">
+                  <div className="bg-gradient-to-br from-slate-700/30 to-blue-700/20 backdrop-blur rounded-2xl p-6 border-2 border-slate-300/35">
                     <div className="text-center mb-4">
                       <div className="pill-stage-strong mb-3">
                         Pallier 2 : Excellence
                       </div>
-                      <div className="text-xs text-purple-200 mb-4">Progression moyenne : +4,5 points</div>
+                      <div className="text-xs text-slate-200 mb-4">Progression moyenne : +4,5 points</div>
                     </div>
 
                     <div className="bg-white/10 backdrop-blur rounded-xl p-6 mb-4">
                       <div className="text-center">
-                        <div className="text-sm text-purple-200 mb-2">Moyenne projetée</div>
+                        <div className="text-sm text-slate-200 mb-2">Moyenne projetée</div>
                         <div className="text-5xl font-black text-white mb-3">
                           {projectedPallier2.toFixed(1)}/20
                         </div>
@@ -173,7 +173,7 @@ export function MentionSimulator() {
                         <div className="text-2xl font-black text-green-400">
                           +{pallier2Gain.toFixed(1)} pts
                         </div>
-                        <div className="text-xs text-purple-200">Gain potentiel</div>
+                        <div className="text-xs text-slate-200">Gain potentiel</div>
                       </div>
                     </div>
 
@@ -188,11 +188,11 @@ export function MentionSimulator() {
                   </div>
                 </div>
 
-                <div className="mt-8 p-6 bg-yellow-500/20 backdrop-blur rounded-2xl border-2 border-yellow-400/50">
+                <div className="mt-8 p-6 bg-slate-500/20 backdrop-blur rounded-2xl border-2 border-slate-300/45">
                   <div className="flex items-start gap-4">
                     <div className="text-3xl">⚠️</div>
                     <div>
-                      <h4 className="font-bold text-yellow-300 mb-2">Important à savoir</h4>
+                      <h4 className="font-bold text-slate-100 mb-2">Important à savoir</h4>
                       <ul className="text-sm text-white space-y-1">
                         <li>• Ces projections sont basées sur nos statistiques moyennes (+4,2 pts)</li>
                         <li>• Les résultats réels dépendent du travail personnel et de l'implication</li>
@@ -207,7 +207,7 @@ export function MentionSimulator() {
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-blue-200 mb-4">
+            <p className="text-sm text-slate-200 mb-4">
               💡 Vous hésitez entre les deux palliers ?
             </p>
             <a

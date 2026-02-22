@@ -70,13 +70,13 @@ export function OperationsCard() {
       icon: Inbox,
       label: 'Demandes en attente',
       value: totalPending,
-      color: totalPending > 0 ? 'text-amber-400' : 'text-emerald-400',
+      color: totalPending > 0 ? 'text-blue-300' : 'text-emerald-400',
     },
     {
       icon: CreditCard,
       label: 'Paiements à valider',
       value: data?.pendingPayments ?? 0,
-      color: (data?.pendingPayments ?? 0) > 0 ? 'text-red-400' : 'text-neutral-400',
+      color: (data?.pendingPayments ?? 0) > 0 ? 'text-slate-300' : 'text-neutral-400',
     },
     {
       icon: Calendar,

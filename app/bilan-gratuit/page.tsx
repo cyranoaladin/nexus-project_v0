@@ -292,7 +292,7 @@ function BilanGratuitForm() {
               <span className="text-xs md:text-sm font-medium text-slate-200">
                 Étape {currentStep} sur {totalSteps}
               </span>
-              <span className="text-xs md:text-sm text-slate-400">
+              <span className="text-xs md:text-sm text-slate-300">
                 {Math.round((currentStep / totalSteps) * 100)}% complété
               </span>
             </div>

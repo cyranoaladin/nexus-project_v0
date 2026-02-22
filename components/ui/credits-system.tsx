@@ -20,7 +20,7 @@ interface CreditsSystemProps {
 
 export function CreditsSystem({ balance, transactions }: CreditsSystemProps) {
   return (
-    <Card className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
+    <Card className="bg-gradient-to-r from-blue-600 to-slate-700 text-white border-0 shadow-lg">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -49,12 +49,12 @@ export function CreditsSystem({ balance, transactions }: CreditsSystemProps) {
               transactions.slice(0, 3).map((tx) => (
                 <div key={tx.id} className="flex justify-between items-center text-sm">
                   <div className="flex items-center gap-3">
-                    <div className={`p-1.5 rounded-full ${tx.type === 'CREDIT' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                    <div className={`p-1.5 rounded-full ${tx.type === 'CREDIT' ? 'bg-green-500/20' : 'bg-slate-1000/20'}`}>
                       {tx.type === 'CREDIT' ? <Zap className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                     </div>
                     <span className="truncate max-w-[150px]">{tx.description}</span>
                   </div>
-                  <span className={`font-mono font-medium ${tx.type === 'CREDIT' ? 'text-green-300' : 'text-red-300'}`}>
+                  <span className={`font-mono font-medium ${tx.type === 'CREDIT' ? 'text-green-300' : 'text-slate-200'}`}>
                     {tx.type === 'CREDIT' ? '+' : '-'}{tx.amount}
                   </span>
                 </div>

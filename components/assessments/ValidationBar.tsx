@@ -45,10 +45,10 @@ export function ValidationBar({
         {/* Progress bar */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-300">
               Question {currentQuestion} sur {totalQuestions}
             </span>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-300">
               {Math.round(overallProgress)}% complété
             </span>
           </div>
@@ -80,7 +80,7 @@ export function ValidationBar({
             {progress.map((segment, index) => (
               <div key={index} className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-slate-300">
                   {segment.category} ({segment.completed}/{segment.total})
                 </span>
               </div>
@@ -97,7 +97,7 @@ export function ValidationBar({
             disabled={isNSP}
             className={`
               flex-1 border-2 border-dashed
-              ${isNSP ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-600 text-slate-400'}
+              ${isNSP ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-slate-600 text-slate-300'}
             `}
           >
             <HelpCircle className="w-4 h-4 mr-2" />
@@ -132,9 +132,9 @@ export function ValidationBar({
         {/* Keyboard shortcuts hint */}
         <div className="mt-3 text-center">
           <p className="text-xs text-slate-500">
-            Raccourcis : <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">A-D</kbd> pour répondre,{' '}
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">N</kbd> pour NSP,{' '}
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">Entrée</kbd> pour valider
+            Raccourcis : <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">A-D</kbd> pour répondre,{' '}
+            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">N</kbd> pour NSP,{' '}
+            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">Entrée</kbd> pour valider
           </p>
         </div>
       </div>

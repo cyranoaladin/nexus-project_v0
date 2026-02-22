@@ -44,7 +44,7 @@ const getCategoryColor = (category: string) => {
     case 'PROGRESSION':
       return 'text-green-600 bg-green-50 border-green-200';
     case 'ARIA':
-      return 'text-purple-600 bg-purple-50 border-purple-200';
+      return 'text-blue-600 bg-blue-50 border-blue-200';
     default:
       return 'text-gray-600 bg-gray-50 border-gray-200';
   }
@@ -114,7 +114,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
       <Card className={className}>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-blue-500" />
             <span>Mes Badges</span>
           </CardTitle>
         </CardHeader>
@@ -132,7 +132,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-blue-500" />
             <span>Mes Badges</span>
             <Badge variant="outline" className="ml-2">
               {badges.length}
@@ -175,7 +175,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
                       animate={{ scale: 1 }}
                       className="absolute -top-1 -right-1"
                     >
-                      <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5">
+                      <Badge className="bg-slate-1000 text-white text-xs px-1.5 py-0.5">
                         Nouveau !
                       </Badge>
                     </motion.div>

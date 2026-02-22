@@ -122,7 +122,7 @@ export function ROIComparison() {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4">
               Cours particulier ou stage ?
             </h2>
-            <p className="text-lg md:text-xl text-blue-200 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-200 max-w-3xl mx-auto">
               Comparaison objective pour faire le bon choix
             </p>
           </div>
@@ -133,24 +133,24 @@ export function ROIComparison() {
                 key={option.id}
                 className={`rounded-3xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 ${
                   option.recommended
-                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-yellow-400 shadow-2xl scale-105 lg:scale-110'
+                    ? 'bg-gradient-to-br from-blue-700 to-slate-700 border-brand-secondary shadow-2xl scale-100 lg:scale-105'
                     : 'bg-white/5 backdrop-blur border-white/20 hover:border-blue-400'
                 }`}
               >
                 {option.recommended && (
-                  <div className="bg-yellow-400 text-slate-900 text-xs font-black uppercase px-4 py-2 rounded-full inline-block mb-4">
+                  <div className="bg-brand-secondary text-white text-xs font-black uppercase px-4 py-2 rounded-full inline-block mb-4">
                     ⭐ Meilleur rapport qualité/prix
                   </div>
                 )}
 
                 <h3 className="text-2xl font-black mb-1">{option.title}</h3>
-                <p className={`text-sm mb-4 ${option.recommended ? 'text-blue-100' : 'text-slate-400'}`}>
+                <p className={`text-sm mb-4 ${option.recommended ? 'text-slate-100' : 'text-slate-300'}`}>
                   {option.subtitle}
                 </p>
 
                 <div className="mb-6">
                   <div className="text-4xl font-black mb-1">{option.price}</div>
-                  <div className={`text-sm ${option.recommended ? 'text-blue-200' : 'text-slate-400'}`}>
+                  <div className={`text-sm ${option.recommended ? 'text-slate-200' : 'text-slate-300'}`}>
                     {option.priceDetail}
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export function ROIComparison() {
                           : 'border-slate-700'
                       }`}
                     >
-                      <span className={option.recommended ? 'text-blue-100' : 'text-slate-400'}>
+                      <span className={option.recommended ? 'text-slate-100' : 'text-slate-300'}>
                         {feature.label}
                       </span>
                       <span className={`font-semibold ${feature.highlight ? 'text-green-400' : ''}`}>
@@ -190,14 +190,14 @@ export function ROIComparison() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="text-xs font-bold uppercase tracking-wider mb-2 text-red-400">
+                  <div className="text-xs font-bold uppercase tracking-wider mb-2 text-slate-300">
                     ✗ Inconvénients
                   </div>
                   <ul className="space-y-1">
                     {option.cons.map((con, idx) => (
                       <li key={idx} className="text-xs flex items-start gap-2">
-                        <span className="text-red-400 mt-0.5">•</span>
-                        <span className={option.recommended ? 'text-blue-100' : 'text-slate-400'}>
+                        <span className="text-slate-300 mt-0.5">•</span>
+                        <span className={option.recommended ? 'text-slate-100' : 'text-slate-300'}>
                           {con}
                         </span>
                       </li>
@@ -221,7 +221,7 @@ export function ROIComparison() {
               <div className="text-3xl">💡</div>
               <div>
                 <h4 className="font-bold text-lg mb-2">Notre recommandation</h4>
-                <p className="text-sm text-blue-100 leading-relaxed">
+                <p className="text-sm text-slate-200 leading-relaxed">
                   Pour un même budget, les stages offrent un meilleur ROI grâce à :
                   <strong> cadre structuré, émulation de groupe, épreuves blanches et bilans individualisés</strong>.
                   Le cours particulier reste pertinent pour du soutien très ciblé en complément.

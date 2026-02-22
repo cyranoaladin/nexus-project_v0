@@ -178,7 +178,7 @@ export default function PaiementsAssistantePage() {
               const isValidating = validatingId === payment.id
 
               return (
-                <Card key={payment.id} className="border-amber-500/20 bg-amber-500/5">
+                <Card key={payment.id} className="border-blue-500/20 bg-blue-500/5">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
@@ -198,7 +198,7 @@ export default function PaiementsAssistantePage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-amber-200">
+                        <div className="text-2xl font-bold text-slate-200">
                           {payment.amount} TND
                         </div>
                         <p className="text-neutral-300 text-sm">{payment.description}</p>

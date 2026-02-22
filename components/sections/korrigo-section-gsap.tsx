@@ -19,19 +19,19 @@ const KorrigoSectionGSAP = () => {
             icon: BarChart3,
             title: 'Suivi de progression',
             description: 'Graphiques simples pour visualiser les progrès.',
-            color: 'bg-purple-500/10'
+            color: 'bg-brand-secondary/10'
         },
         {
             icon: Users,
             title: 'Suivi parent',
             description: 'Un tableau de bord lisible pour piloter sans stress.',
-            color: 'bg-amber-500/10'
+            color: 'bg-slate-500/10'
         },
         {
             icon: Zap,
             title: 'Plan d’action',
             description: 'Objectifs clairs et actions concrètes semaine après semaine.',
-            color: 'bg-emerald-500/10'
+            color: 'bg-blue-400/10'
         },
         {
             icon: Shield,
@@ -43,7 +43,7 @@ const KorrigoSectionGSAP = () => {
             icon: Clock,
             title: 'Disponible 24/7',
             description: 'Accès permanent pour réviser quand il faut.',
-            color: 'bg-pink-500/10'
+            color: 'bg-slate-400/10'
         }
     ];
 
@@ -51,7 +51,7 @@ const KorrigoSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="korrigo"
-            className="bg-surface-dark py-20 px-4 md:px-6 lg:px-12 relative overflow-hidden"
+            className="bg-surface-dark py-16 md:py-20 px-4 md:px-6 lg:px-12 relative overflow-hidden"
         >
             <div className="pointer-events-none absolute inset-0 opacity-40">
                 <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-brand-accent/10 blur-[120px]" />

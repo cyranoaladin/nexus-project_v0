@@ -277,7 +277,7 @@ export default function DashboardCoach() {
                             {student.grade}
                           </Badge>
                           {student.isNew && (
-                            <Badge variant="default" className="text-xs bg-purple-500/15 text-purple-200 border border-purple-500/20">
+                            <Badge variant="default" className="text-xs bg-blue-500/15 text-blue-200 border border-blue-500/20">
                               Nouveau
                             </Badge>
                           )}
@@ -328,7 +328,7 @@ export default function DashboardCoach() {
                 <span className="text-xs">Gérer mon planning</span>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">
-                <MessageCircle className="w-5 h-5 text-purple-300" aria-hidden="true" />
+                <MessageCircle className="w-5 h-5 text-blue-300" aria-hidden="true" />
                 <span className="text-xs">Messages élèves</span>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-white/10 text-neutral-200 hover:text-white">

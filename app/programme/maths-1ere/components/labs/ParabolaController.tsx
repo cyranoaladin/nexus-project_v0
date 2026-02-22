@@ -29,8 +29,8 @@ export default function ParabolaController() {
   }, [a, b, delta, alpha]);
 
   const isDegenerate = Math.abs(a) < 0.001;
-  const deltaColor = isDegenerate ? 'text-slate-400' : delta > 0 ? 'text-green-400' : delta === 0 ? 'text-amber-400' : 'text-red-400';
-  const deltaBg = isDegenerate ? 'bg-slate-500/10 border-slate-500/30' : delta > 0 ? 'bg-green-500/10 border-green-500/30' : delta === 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30';
+  const deltaColor = isDegenerate ? 'text-slate-300' : delta > 0 ? 'text-green-400' : delta === 0 ? 'text-blue-300' : 'text-slate-200';
+  const deltaBg = isDegenerate ? 'bg-slate-500/10 border-slate-500/30' : delta > 0 ? 'bg-green-500/10 border-green-500/30' : delta === 0 ? 'bg-blue-500/10 border-blue-500/30' : 'bg-slate-500/10 border-slate-500/30';
 
   const f = (x: number) => a * x * x + b * x + c;
 
@@ -54,16 +54,16 @@ export default function ParabolaController() {
           <div className="grid grid-cols-3 gap-4">
             <SliderControl label="a" value={a} onChange={setA} min={-5} max={5} step={0.1} color="text-cyan-400" />
             <SliderControl label="b" value={b} onChange={setB} min={-10} max={10} step={0.5} color="text-blue-400" />
-            <SliderControl label="c" value={c} onChange={setC} min={-10} max={10} step={0.5} color="text-purple-400" />
+            <SliderControl label="c" value={c} onChange={setC} min={-10} max={10} step={0.5} color="text-blue-300" />
           </div>
 
           {/* Degenerate case warning (a ≈ 0) */}
           {isDegenerate && (
-            <div className="rounded-xl p-3 border bg-amber-500/10 border-amber-500/30">
+            <div className="rounded-xl p-3 border bg-blue-500/10 border-blue-500/30">
               <div className="flex items-center gap-2">
-                <span className="text-amber-400 font-bold text-xs">⚠️ a ≈ 0 : ce n&apos;est plus une parabole !</span>
+                <span className="text-blue-300 font-bold text-xs">⚠️ a ≈ 0 : ce n&apos;est plus une parabole !</span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-slate-300 mt-1">
                 Quand a = 0, f(x) = bx + c est une <strong className="text-white">fonction affine</strong> (droite).
                 Le discriminant, le sommet et la notion de concavité n&apos;ont plus de sens.
                 {b !== 0 ? ` La droite coupe l'axe des x en x = ${(-c / b).toFixed(2)}.` : c === 0 ? ' La droite est confondue avec l\'axe des x.' : ' La droite est horizontale (y = ' + c.toFixed(1) + ').'}
@@ -76,7 +76,7 @@ export default function ParabolaController() {
             <div className={`rounded-xl p-3 border ${deltaBg}`}>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <span className="text-xs font-bold text-slate-400">Δ = b² − 4ac = </span>
+                  <span className="text-xs font-bold text-slate-300">Δ = b² − 4ac = </span>
                   <span className={`font-bold font-mono ${deltaColor}`}>{delta.toFixed(2)}</span>
                 </div>
                 <div className={`text-xs font-bold ${deltaColor}`}>
@@ -142,7 +142,7 @@ function SliderControl({ label, value, onChange, min, max, step, color }: {
     <div>
       <div className="flex justify-between items-center mb-1">
         <span className={`text-xs font-bold ${color}`}>{label}</span>
-        <span className="text-xs font-mono text-slate-400">{value}</span>
+        <span className="text-xs font-mono text-slate-300">{value}</span>
       </div>
       <input
         type="range"

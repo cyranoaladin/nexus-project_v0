@@ -124,7 +124,7 @@ export default function Enrouleur() {
 
     // sin projection on y-axis
     if (mode === 'sin' || mode === 'both') {
-      ctx.fillStyle = '#f97316';
+      ctx.fillStyle = '#3b82f6';
       ctx.beginPath();
       ctx.arc(circleCx, py, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -132,7 +132,7 @@ export default function Enrouleur() {
 
     // cos projection on x-axis
     if (mode === 'cos' || mode === 'both') {
-      ctx.fillStyle = '#a855f7';
+      ctx.fillStyle = '#60a5fa';
       ctx.beginPath();
       ctx.arc(px, circleCy, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -188,7 +188,7 @@ export default function Enrouleur() {
 
     // Draw sin curve (full)
     if (mode === 'sin' || mode === 'both') {
-      ctx.strokeStyle = 'rgba(249, 115, 22, 0.2)';
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       for (let i = 0; i <= graphWidth; i++) {
@@ -200,7 +200,7 @@ export default function Enrouleur() {
       ctx.stroke();
 
       // Draw traced portion (up to current θ)
-      ctx.strokeStyle = '#f97316';
+      ctx.strokeStyle = '#3b82f6';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       const tClamp = Math.min(t, maxTheta);
@@ -216,7 +216,7 @@ export default function Enrouleur() {
       // Current point on sin graph
       const sinGx = graphLeft + (tClamp / maxTheta) * graphWidth;
       const sinGy = graphCy - Math.sin(t) * graphAmp;
-      ctx.fillStyle = '#f97316';
+      ctx.fillStyle = '#3b82f6';
       ctx.beginPath();
       ctx.arc(sinGx, sinGy, 5, 0, Math.PI * 2);
       ctx.fill();
@@ -224,7 +224,7 @@ export default function Enrouleur() {
 
     // Draw cos curve (full)
     if (mode === 'cos' || mode === 'both') {
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.2)';
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.2)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       for (let i = 0; i <= graphWidth; i++) {
@@ -236,7 +236,7 @@ export default function Enrouleur() {
       ctx.stroke();
 
       // Draw traced portion
-      ctx.strokeStyle = '#a855f7';
+      ctx.strokeStyle = '#60a5fa';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       const tClamp = Math.min(t, maxTheta);
@@ -252,7 +252,7 @@ export default function Enrouleur() {
       // Current point on cos graph
       const cosGx = graphLeft + (tClamp / maxTheta) * graphWidth;
       const cosGy = graphCy - Math.cos(t) * graphAmp;
-      ctx.fillStyle = '#a855f7';
+      ctx.fillStyle = '#60a5fa';
       ctx.beginPath();
       ctx.arc(cosGx, cosGy, 5, 0, Math.PI * 2);
       ctx.fill();
@@ -261,11 +261,11 @@ export default function Enrouleur() {
     // Legend
     ctx.font = 'bold 11px monospace';
     if (mode === 'sin' || mode === 'both') {
-      ctx.fillStyle = '#f97316';
+      ctx.fillStyle = '#3b82f6';
       ctx.fillText(`sin(θ) = ${Math.sin(t).toFixed(3)}`, graphLeft + 4, graphTop + 14);
     }
     if (mode === 'cos' || mode === 'both') {
-      ctx.fillStyle = '#a855f7';
+      ctx.fillStyle = '#60a5fa';
       ctx.fillText(`cos(θ) = ${Math.cos(t).toFixed(3)}`, graphLeft + 4, graphTop + (mode === 'both' ? 28 : 14));
     }
 
@@ -314,14 +314,14 @@ export default function Enrouleur() {
 
         if (mode === 'sin' || mode === 'both') {
           const rmGy = graphCy - rm.sin * graphAmp;
-          ctx.fillStyle = isNear ? '#f97316' : 'rgba(249, 115, 22, 0.25)';
+          ctx.fillStyle = isNear ? '#3b82f6' : 'rgba(59, 130, 246, 0.25)';
           ctx.beginPath();
           ctx.arc(rmGx, rmGy, isNear ? 4 : 2.5, 0, Math.PI * 2);
           ctx.fill();
 
           // Value label when near
           if (isNear) {
-            ctx.fillStyle = '#f97316';
+            ctx.fillStyle = '#3b82f6';
             ctx.font = 'bold 9px monospace';
             ctx.fillText(`${rm.sin.toFixed(3)}`, rmGx + 6, rmGy - 6);
           }
@@ -329,13 +329,13 @@ export default function Enrouleur() {
 
         if (mode === 'cos' || mode === 'both') {
           const rmGy = graphCy - rm.cos * graphAmp;
-          ctx.fillStyle = isNear ? '#a855f7' : 'rgba(168, 85, 247, 0.25)';
+          ctx.fillStyle = isNear ? '#60a5fa' : 'rgba(96, 165, 250, 0.25)';
           ctx.beginPath();
           ctx.arc(rmGx, rmGy, isNear ? 4 : 2.5, 0, Math.PI * 2);
           ctx.fill();
 
           if (isNear) {
-            ctx.fillStyle = '#a855f7';
+            ctx.fillStyle = '#60a5fa';
             ctx.font = 'bold 9px monospace';
             ctx.fillText(`${rm.cos.toFixed(3)}`, rmGx + 6, rmGy - 6);
           }
@@ -389,15 +389,15 @@ export default function Enrouleur() {
   }, [theta, expanded, playing, draw]);
 
   return (
-    <div className="bg-slate-900/50 border border-purple-500/20 rounded-2xl overflow-hidden">
+    <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">🎡</span>
-          <span className="font-bold text-purple-300 text-sm">L&apos;Enrouleur</span>
-          <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
+          <span className="font-bold text-blue-200 text-sm">L&apos;Enrouleur</span>
+          <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
         <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
       </button>
@@ -415,8 +415,8 @@ export default function Enrouleur() {
                 key={m.id}
                 onClick={() => setMode(m.id)}
                 className={`flex-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${mode === m.id
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                  : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                  ? 'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+                  : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                   }`}
               >
                 {m.label}
@@ -429,7 +429,7 @@ export default function Enrouleur() {
             <button
               onClick={() => setPlaying(!playing)}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${playing
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                ? 'bg-slate-500/20 text-slate-200 border border-slate-500/30'
                 : 'bg-green-500/20 text-green-400 border border-green-500/30'
                 }`}
             >
@@ -453,7 +453,7 @@ export default function Enrouleur() {
                 step={0.1}
                 value={speed}
                 onChange={(e) => setSpeed(parseFloat(e.target.value))}
-                className="w-full h-1 bg-slate-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                className="w-full h-1 bg-slate-700 rounded-full appearance-none cursor-pointer accent-blue-500"
               />
             </div>
           </div>
@@ -463,7 +463,7 @@ export default function Enrouleur() {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-bold text-cyan-400">θ</span>
-                <span className="text-xs font-mono text-slate-400">{(theta / Math.PI).toFixed(2)}π rad = {(theta * 180 / Math.PI).toFixed(0)}°</span>
+                <span className="text-xs font-mono text-slate-300">{(theta / Math.PI).toFixed(2)}π rad = {(theta * 180 / Math.PI).toFixed(0)}°</span>
               </div>
               <input
                 type="range"
@@ -482,13 +482,13 @@ export default function Enrouleur() {
             <span className="bg-slate-800 px-2 py-1 rounded text-cyan-300">
               θ = <span className="font-bold">{(theta / Math.PI).toFixed(2)}π</span>
             </span>
-            <span className="bg-slate-800 px-2 py-1 rounded text-orange-300">
+            <span className="bg-slate-800 px-2 py-1 rounded text-slate-200">
               sin(θ) = <span className="font-bold">{Math.sin(theta).toFixed(4)}</span>
             </span>
-            <span className="bg-slate-800 px-2 py-1 rounded text-purple-300">
+            <span className="bg-slate-800 px-2 py-1 rounded text-blue-200">
               cos(θ) = <span className="font-bold">{Math.cos(theta).toFixed(4)}</span>
             </span>
-            <span className="bg-slate-800 px-2 py-1 rounded text-slate-400">
+            <span className="bg-slate-800 px-2 py-1 rounded text-slate-300">
               sin² + cos² = <span className="font-bold text-green-400">{(Math.sin(theta) ** 2 + Math.cos(theta) ** 2).toFixed(4)}</span>
             </span>
           </div>

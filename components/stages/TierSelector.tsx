@@ -74,7 +74,7 @@ export function TierSelector() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl shadow-xl p-8 md:p-12 border-2 border-blue-200">
+          <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-3xl shadow-xl p-6 md:p-12 border-2 border-blue-200">
             <div className="space-y-8">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-4">
@@ -85,7 +85,7 @@ export function TierSelector() {
                     onClick={() => setBudget(500)}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       budget === 500
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
+                        ? 'bg-blue-700 text-white border-blue-700 shadow-lg scale-[1.02]'
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
@@ -95,7 +95,7 @@ export function TierSelector() {
                     onClick={() => setBudget(950)}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       budget === 950
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
+                        ? 'bg-blue-700 text-white border-blue-700 shadow-lg scale-[1.02]'
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
@@ -113,7 +113,7 @@ export function TierSelector() {
                     onClick={() => setSubject('maths')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       subject === 'maths'
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
+                        ? 'bg-blue-700 text-white border-blue-700 shadow-lg scale-[1.02]'
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
@@ -123,7 +123,7 @@ export function TierSelector() {
                     onClick={() => setSubject('nsi')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       subject === 'nsi'
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
+                        ? 'bg-blue-700 text-white border-blue-700 shadow-lg scale-[1.02]'
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
@@ -148,7 +148,7 @@ export function TierSelector() {
                   />
                   <div className="flex justify-between text-sm text-slate-600">
                     <span>5/20</span>
-                    <span className="text-2xl font-black text-blue-600">{average}/20</span>
+                    <span className="text-2xl font-black text-blue-700">{average}/20</span>
                     <span>20/20</span>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export function TierSelector() {
             </div>
 
             {showRecommendation && (
-              <div className="mt-8 p-6 md:p-8 bg-white rounded-2xl shadow-lg border-2 border-blue-400 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="mt-8 p-6 md:p-8 bg-white rounded-2xl shadow-lg border-2 border-blue-300 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`text-4xl ${isPallier1 ? 'animate-bounce' : 'animate-pulse'}`}>
                     {isPallier1 ? '🎯' : '🚀'}
@@ -185,7 +185,7 @@ export function TierSelector() {
                   <ul className="space-y-2">
                     {recommendation.reasons.map((reason, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-green-700 mt-0.5">✓</span>
+                        <span className="text-blue-700 mt-0.5">✓</span>
                         <span>{reason}</span>
                       </li>
                     ))}
@@ -199,7 +199,7 @@ export function TierSelector() {
                   {recommendation.ctaText}
                 </a>
 
-                <p className="mt-4 text-xs text-center text-slate-500">
+                <p className="mt-4 text-xs text-center text-slate-600">
                   💡 En cas de doute, réservez une consultation gratuite pour un conseil personnalisé
                 </p>
               </div>

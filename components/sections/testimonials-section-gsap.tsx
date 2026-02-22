@@ -16,7 +16,7 @@ const TestimonialsSectionGSAP = () => {
             content: "Le plan était clair dès la première semaine. On voit les progrès et les points à travailler.",
             tags: ["Suivi", "Clarté"],
             rating: 5,
-            gradient: "from-blue-500/10 to-cyan-500/10",
+            gradient: "from-blue-500/10 to-slate-500/10",
             border: "border-blue-500/20"
         },
         {
@@ -26,8 +26,8 @@ const TestimonialsSectionGSAP = () => {
             content: "ARIA m’aide à réviser quand je bloque, et le coach vérifie tout en cours.",
             tags: ["IA", "Coaching"],
             rating: 5,
-            gradient: "from-purple-500/10 to-pink-500/10",
-            border: "border-purple-500/20"
+            gradient: "from-brand-secondary/10 to-blue-500/10",
+            border: "border-brand-secondary/20"
         },
         {
             id: 3,
@@ -36,8 +36,8 @@ const TestimonialsSectionGSAP = () => {
             content: "Les rapports sont simples à lire. On sait où on va et pourquoi.",
             tags: ["Confiance", "Reporting"],
             rating: 5,
-            gradient: "from-emerald-500/10 to-green-500/10",
-            border: "border-emerald-500/20"
+            gradient: "from-blue-500/10 to-slate-500/10",
+            border: "border-blue-500/20"
         },
         {
             id: 4,
@@ -46,8 +46,8 @@ const TestimonialsSectionGSAP = () => {
             content: "J’ai repris confiance en maths. Les exercices sont ciblés et je progresse vite.",
             tags: ["Confiance", "Résultats"],
             rating: 5,
-            gradient: "from-orange-500/10 to-yellow-500/10",
-            border: "border-orange-500/20"
+            gradient: "from-slate-500/10 to-blue-500/10",
+            border: "border-slate-500/20"
         },
         {
             id: 5,
@@ -56,7 +56,7 @@ const TestimonialsSectionGSAP = () => {
             content: "Le suivi parent fait la différence. On ne découvre plus les problèmes trop tard.",
             tags: ["Prévention", "Suivi"],
             rating: 5,
-            gradient: "from-blue-500/10 to-indigo-500/10",
+            gradient: "from-blue-500/10 to-slate-500/10",
             border: "border-blue-500/20"
         },
     ];
@@ -65,7 +65,7 @@ const TestimonialsSectionGSAP = () => {
         <section
             ref={sectionRef}
             id="testimonials"
-            className="relative bg-surface-darker overflow-hidden py-24"
+            className="relative bg-surface-darker overflow-hidden py-16 md:py-24"
         >
 
             {/* Dynamic Background */}
@@ -85,7 +85,7 @@ const TestimonialsSectionGSAP = () => {
                             Résultats concrets
                         </h2>
                     </div>
-                    <div className="hidden md:flex items-center gap-2 text-gray-400 text-sm">
+                    <div className="hidden md:flex items-center gap-2 text-slate-300 text-sm">
                         <span className="animate-pulse">●</span> Glisser pour découvrir
                     </div>
                 </div>
@@ -100,7 +100,7 @@ const TestimonialsSectionGSAP = () => {
                 {/* Intro Card */}
                 <div data-reveal="fade" className="shrink-0 w-[70vw] md:w-[20vw] snap-center flex flex-col justify-center">
                     <Quote className="w-16 h-16 text-nexus-gray/20 mb-6" />
-                    <p className="text-xl text-gray-400 font-light leading-relaxed">
+                    <p className="text-xl text-slate-300 font-light leading-relaxed">
                         Des parents rassurés, des élèves confiants, et des résultats visibles.
                     </p>
                 </div>
@@ -115,7 +115,7 @@ const TestimonialsSectionGSAP = () => {
                         {/* Stars */}
                         <div className="flex gap-1 mb-6">
                             {[...Array(item.rating)].map((_, i) => (
-                                <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                <Star key={i} className="w-4 h-4 text-brand-secondary fill-brand-secondary" />
                             ))}
                         </div>
 
@@ -138,7 +138,7 @@ const TestimonialsSectionGSAP = () => {
 
                             <div className="flex gap-2">
                                 {item.tags.map((tag, idx) => (
-                                    <span key={idx} className="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-gray-400 border border-white/5">
+                                    <span key={idx} className="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-slate-300 border border-white/5">
                                         {tag}
                                     </span>
                                 ))}
@@ -149,7 +149,7 @@ const TestimonialsSectionGSAP = () => {
 
                 {/* Call to Action Card */}
                 <div className="shrink-0 w-[80vw] md:w-[25vw] snap-center flex items-center justify-center">
-                    <Link href="/bilan-gratuit" className="group relative px-8 py-20 rounded-3xl border border-white/10 hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 w-full text-center block">
+                    <Link href="/bilan-gratuit" className="group relative px-8 py-12 md:py-20 rounded-3xl border border-white/10 hover:border-brand-accent/50 hover:bg-brand-accent/5 transition-all duration-500 w-full text-center block">
                         <span className="block font-display text-3xl font-bold text-white mb-4">
                             Démarrer un bilan gratuit
                         </span>

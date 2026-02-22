@@ -51,9 +51,9 @@ interface SessionManagementProps {
 const STATUS_COLORS = {
   SCHEDULED: 'bg-blue-100 text-blue-800',
   CONFIRMED: 'bg-green-100 text-green-800',
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+  IN_PROGRESS: 'bg-blue-100 text-blue-800',
   COMPLETED: 'bg-emerald-100 text-emerald-800',
-  CANCELLED: 'bg-red-100 text-red-800',
+  CANCELLED: 'bg-slate-100 text-slate-800',
   NO_SHOW: 'bg-gray-100 text-gray-800'
 };
 
@@ -262,7 +262,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300 w-4 h-4" />
               <Input
                 placeholder="Rechercher une session..."
                 value={searchTerm}
@@ -331,9 +331,9 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center">
-              <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
-              <span className="text-red-700 text-sm">{error}</span>
+            <div className="mb-4 p-3 bg-slate-100 border border-slate-200 rounded-lg flex items-center">
+              <AlertCircle className="w-4 h-4 text-slate-600 mr-2" />
+              <span className="text-slate-700 text-sm">{error}</span>
             </div>
           )}
 
@@ -542,7 +542,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                   <div>
                     <label className="text-sm font-medium text-gray-700">Évaluation</label>
                     <div className="flex items-center">
-                      <span className="text-lg font-bold text-yellow-600">{selectedSession.rating}/5</span>
+                      <span className="text-lg font-bold text-blue-600">{selectedSession.rating}/5</span>
                       <span className="text-gray-500 ml-2">⭐</span>
                     </div>
                   </div>

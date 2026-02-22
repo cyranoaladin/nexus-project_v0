@@ -34,12 +34,24 @@ describe('ADMIN access', () => {
 // ─── ASSISTANTE access ───────────────────────────────────────────────────────
 
 describe('ASSISTANTE access', () => {
-  it('allowed for admin_facturation', () => {
+  it('denied for admin_facturation without entitlement', () => {
     const result = resolveAccess({
       role: 'ASSISTANTE',
       userId: 'assist-1',
       featureKey: 'admin_facturation',
       activeFeatures: [],
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('missing_entitlement');
+    expect(result.missing).toContain('admin_facturation');
+  });
+
+  it('allowed for admin_facturation with entitlement', () => {
+    const result = resolveAccess({
+      role: 'ASSISTANTE',
+      userId: 'assist-1',
+      featureKey: 'admin_facturation',
+      activeFeatures: ['admin_facturation'],
     });
     expect(result.allowed).toBe(true);
   });
@@ -154,7 +166,7 @@ describe('ELEVE access', () => {
     expect(result.allowed).toBe(true);
   });
 
-  it('denied for credits_use without platform_access', () => {
+  it('denied for credits_use without credits_use entitlement', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
@@ -162,15 +174,15 @@ describe('ELEVE access', () => {
       activeFeatures: [],
     });
     expect(result.allowed).toBe(false);
-    expect(result.missing).toContain('platform_access');
+    expect(result.missing).toContain('credits_use');
   });
 
-  it('allowed for credits_use with platform_access', () => {
+  it('allowed for credits_use with entitlement', () => {
     const result = resolveAccess({
       role: 'ELEVE',
       userId: 'eleve-1',
       featureKey: 'credits_use',
-      activeFeatures: ['platform_access'],
+      activeFeatures: ['credits_use'],
     });
     expect(result.allowed).toBe(true);
   });

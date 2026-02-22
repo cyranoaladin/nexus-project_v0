@@ -42,23 +42,23 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-slate-200 bg-slate-100">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-800">
+            <CardTitle className="flex items-center gap-2 text-slate-800">
               <AlertCircle className="h-5 w-5" aria-hidden="true" />
               Une erreur est survenue
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-red-700">
+            <p className="text-sm text-slate-700">
               Désolé, quelque chose s&apos;est mal passé. Veuillez réessayer.
             </p>
             {this.state.error && process.env.NODE_ENV === 'development' && (
-              <details className="text-xs text-red-600">
+              <details className="text-xs text-slate-600">
                 <summary className="cursor-pointer font-medium mb-2">
                   Détails de l&apos;erreur (développement)
                 </summary>
-                <pre className="bg-red-100 p-2 rounded overflow-auto">
+                <pre className="bg-slate-100 p-2 rounded overflow-auto">
                   {this.state.error.toString()}
                   {this.state.error.stack}
                 </pre>

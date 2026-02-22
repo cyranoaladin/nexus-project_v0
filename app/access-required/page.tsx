@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { ShieldAlert, ArrowLeft, Mail, Package } from 'lucide-react';
 import { getFeatureDefinition } from '@/lib/access/features';
+import { auth } from '@/auth';
 
 /**
  * Access Required page — shown when a user lacks entitlements for a feature.
@@ -17,6 +18,7 @@ interface AccessRequiredContentProps {
 }
 
 async function AccessRequiredContent({ searchParams }: AccessRequiredContentProps) {
+  const session = await auth();
   const params = await searchParams;
   const featureKey = params.feature ?? '';
   const reason = params.reason ?? 'denied';
@@ -36,14 +38,23 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
   };
 
   const message = reasonMessages[reason] ?? reasonMessages.denied;
+  const role = session?.user?.role;
+  const roleDashboardMap: Record<string, string> = {
+    ADMIN: '/dashboard/admin',
+    ASSISTANTE: '/dashboard/assistante',
+    COACH: '/dashboard/coach',
+    PARENT: '/dashboard/parent',
+    ELEVE: '/dashboard/eleve',
+  };
+  const dashboardHref = role ? (roleDashboardMap[role] ?? '/dashboard') : '/dashboard';
 
   return (
     <div className="min-h-screen bg-surface-darker flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="bg-surface-card border border-white/10 rounded-2xl p-8 shadow-premium text-center">
           {/* Icon */}
-          <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6">
-            <ShieldAlert className="w-8 h-8 text-amber-300" />
+          <div className="mx-auto w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
+            <ShieldAlert className="w-8 h-8 text-blue-200" />
           </div>
 
           {/* Title */}
@@ -75,7 +86,7 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
               <ul className="space-y-1">
                 {missing.map((feat) => (
                   <li key={feat} className="text-sm text-neutral-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                     {feat.replace(/_/g, ' ')}
                   </li>
                 ))}
@@ -92,16 +103,16 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
               Voir les offres
             </Link>
 
-            <a
-              href="mailto:contact@nexusreussite.academy?subject=Demande%20d%27acc%C3%A8s%20-%20${encodeURIComponent(featureLabel)}"
+            <Link
+              href="/contact"
               className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg border border-white/10 text-neutral-200 hover:text-white hover:border-white/20 transition-colors"
             >
               <Mail className="w-4 h-4" />
               Contacter Nexus
-            </a>
+            </Link>
 
             <Link
-              href="/dashboard"
+              href={dashboardHref}
               className="flex items-center justify-center gap-2 w-full py-2 px-4 text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

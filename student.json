@@ -1,8 +1,8 @@
 {
   "cookies": [
     {
-      "name": "next-auth.csrf-token",
-      "value": "8886ae42db9289284edba3d10c978518ee47c642b00029b9d9c0d1ec18c296b2%7Cd243eb01120498cbf1a9d073e219b67b1042ad41613c2b7dd5c15c79079dec88",
+      "name": "authjs.csrf-token",
+      "value": "8421288b07fbb86498d71993e0398e60edbb32605e4e63a0445b7a9c5a844208%7C46724e2afc4e364e7f4bfb80fc8241d19f6f0343c5abf98770ca8885a00c584d",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
@@ -11,8 +11,8 @@
       "sameSite": "Lax"
     },
     {
-      "name": "next-auth.callback-url",
-      "value": "http%3A%2F%2Flocalhost%3A3000%2Fdashboard%2Feleve",
+      "name": "authjs.callback-url",
+      "value": "http%3A%2F%2Flocalhost%3A3000",
       "domain": "localhost",
       "path": "/",
       "expires": -1,
@@ -21,12 +21,12 @@
       "sameSite": "Lax"
     },
     {
-      "name": "next-auth.session-token",
-      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..dqKMO1pzMt3r3vIp.VGkVIKfW_-ghG0XYYvnF0XpSoFzUOrl7U8NwEMuVp6dV7-trwe8ILPwQuvuQteZ_AY2cevbFYj-zq8z8u-HnToi0fNOXjRmOzu1ThPCwvE6KGu7n_4yABX1OYiE2bOcipCbrRQngGzs5MahrgNX-kRV7cMCMCEsl_-zJC1xdJgeJmD0Njwt-vUEgZMuXobupuwhAdiX_C0q2phpHu2ssEemzUmN7c0NfjSg4P1pNP2MXZlvIdAy7O4UOwfKIK6WczgL5VN3lCUKb71J6fA.aPHZNMddRKIqbb_cfX9xkw",
+      "name": "authjs.session-token",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiSFhzVnA5bUtNd0o1LXJDeVJPLUJwaDdYbDZoN0JiUndGTTd6czlrUWx2bTdYQ3Z6bTJRZUJPWFVuMWtBVlh6RXYxa2N1RG56UmNwdkdxbm82QlY1bWcifQ..WjheORQ7SKLzmhDLHSXSUg.nfQSeWysrllwPsFetpoW8wrzaV7gSfVayD0bJcWnMYHs7QgjlCe8fV0BCm1MBh2BHKpI535ArQorNT48LfpVCkNuORSrHD90-EmYp8krt6Ok24YQk5BZrMkBd3mIHgZNBN_KMHdeXIKqlLS0s87NymJhXqPSUXjhAWHEyDpt5ARETpdgJ7InEjolDGguFBRBQyNvdVsHa0pSSwdxtyaxK_YMiAaQLu0ca20Fd-tWP8oRo4woV7KsaNZj6ywsWgTEUVVNs9lBr6fWJjk-tJcrUGhsYA_Lo1DNZJJBX6PvlAk6WXGORGboiCHgDaZ-3zjm.f-xvth2vdIK7iTO8eRgcx5IJXpCmdVNXRLQ_D70n_cg",
       "domain": "localhost",
       "path": "/",
-      "expires": -1,
-      "httpOnly": false,
+      "expires": 1774352738.830423,
+      "httpOnly": true,
       "secure": false,
       "sameSite": "Lax"
     }

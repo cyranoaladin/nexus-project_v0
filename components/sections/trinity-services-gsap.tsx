@@ -14,9 +14,9 @@ const TrinityServicesGSAP = () => {
             title: "Coachs Agrégés et Certifiés",
             description: "Des professeurs experts pour structurer, corriger et faire progresser.",
             features: ["Cours particuliers ciblés", "Méthodologie Bac", "Feedback actionnable"],
-            color: "text-emerald-400",
-            bg: "bg-emerald-400/10",
-            border: "border-emerald-400/20"
+            color: "text-blue-300",
+            bg: "bg-blue-400/10",
+            border: "border-blue-400/20"
         },
         {
             id: "ia",
@@ -34,14 +34,14 @@ const TrinityServicesGSAP = () => {
             title: "Suivi parent",
             description: "Un tableau de bord clair pour piloter la progression et les résultats.",
             features: ["Rapports réguliers", "Objectifs visibles", "Alertes de progression"],
-            color: "text-purple-400",
-            bg: "bg-purple-400/10",
-            border: "border-purple-400/20"
+            color: "text-brand-secondary",
+            bg: "bg-brand-secondary/10",
+            border: "border-brand-secondary/20"
         }
     ];
 
     return (
-        <section ref={sectionRef} id="trinity" className="relative bg-surface-darker py-24 overflow-hidden">
+        <section ref={sectionRef} id="trinity" className="relative bg-surface-darker py-16 md:py-24 overflow-hidden">
 
             {/* Background Gradients */}
             <div className="absolute inset-0 pointer-events-none">
@@ -58,7 +58,7 @@ const TrinityServicesGSAP = () => {
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white max-w-3xl mx-auto leading-tight">
                         3 leviers, un seul objectif : <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-slate-300">
                             la mention au Bac
                         </span>
                     </h2>
@@ -81,7 +81,7 @@ const TrinityServicesGSAP = () => {
                             <h3 className="font-display text-2xl font-bold text-white mb-4">
                                 {service.title}
                             </h3>
-                            <p className="text-neutral-400 leading-relaxed mb-8 h-20">
+                            <p className="text-neutral-300 leading-relaxed mb-8 h-20">
                                 {service.description}
                             </p>
 
@@ -100,7 +100,7 @@ const TrinityServicesGSAP = () => {
 
                 {/* Bottom Connect */}
                 <div className="mt-16 text-center">
-                    <p className="text-neutral-500 text-sm font-mono mb-4">
+                    <p className="text-neutral-400 text-sm font-mono mb-4">
                         UN PARCOURS CLAIR ET MESURABLE
                     </p>
                     <div className="h-px w-24 bg-gradient-to-r from-transparent via-neutral-700 to-transparent mx-auto" />

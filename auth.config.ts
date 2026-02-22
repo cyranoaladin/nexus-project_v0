@@ -15,17 +15,49 @@ export const authConfig = {
                           nextUrl.pathname.startsWith('/coach');
       
       const isOnAuth = nextUrl.pathname.startsWith('/auth');
+      const role = (auth?.user as any)?.role;
+
+      const roleDashboardMap: Record<string, string> = {
+        ADMIN: '/dashboard/admin',
+        ASSISTANTE: '/dashboard/assistante',
+        COACH: '/dashboard/coach',
+        PARENT: '/dashboard/parent',
+        ELEVE: '/dashboard/eleve',
+      };
 
       if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
+        if (!isLoggedIn) {
+          return false; // Redirect unauthenticated users to login page
+        }
+
+        // Allow common authenticated dashboards
+        if (nextUrl.pathname === '/dashboard' || nextUrl.pathname.startsWith('/dashboard/trajectoire')) {
+          return true;
+        }
+
+        // Enforce role-based dashboard prefixes
+        const rolePrefixMap: Record<string, string> = {
+          ADMIN: '/dashboard/admin',
+          ASSISTANTE: '/dashboard/assistante',
+          COACH: '/dashboard/coach',
+          PARENT: '/dashboard/parent',
+          ELEVE: '/dashboard/eleve',
+        };
+
+        const expectedPrefix = role ? rolePrefixMap[role] : undefined;
+        if (expectedPrefix && !nextUrl.pathname.startsWith(expectedPrefix)) {
+          const fallback = roleDashboardMap[role] ?? '/dashboard';
+          return Response.redirect(new URL(fallback, nextUrl));
+        }
+
+        return true;
       } else if (isLoggedIn && isOnAuth) {
         // Redirect logged-in users away from auth pages to their dashboard
-        const role = (auth.user as any).role;
         let redirectPath = '/dashboard';
         
         switch (role) {
             case 'ADMIN': redirectPath = '/dashboard/admin'; break;
+            case 'ASSISTANTE': redirectPath = '/dashboard/assistante'; break;
             case 'COACH': redirectPath = '/dashboard/coach'; break;
             case 'PARENT': redirectPath = '/dashboard/parent'; break;
             case 'ELEVE': redirectPath = '/dashboard/eleve'; break;

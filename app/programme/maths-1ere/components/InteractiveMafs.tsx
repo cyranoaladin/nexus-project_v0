@@ -84,13 +84,13 @@ export default function InteractiveMafs({
 
   const colorMap: Record<string, string> = {
     blue: Theme.blue,
-    red: Theme.red,
+    red: Theme.indigo,
     green: Theme.green,
-    orange: Theme.orange,
-    pink: Theme.pink,
+    orange: Theme.blue,
+    pink: Theme.indigo,
     indigo: Theme.indigo,
-    violet: Theme.violet,
-    yellow: Theme.yellow,
+    violet: Theme.indigo,
+    yellow: Theme.blue,
   };
 
   const getColor = (c?: string) => (c && colorMap[c]) || Theme.blue;
@@ -188,7 +188,7 @@ export default function InteractiveMafs({
                 <Point
                   x={point[0]}
                   y={point[1]}
-                  color={Theme.orange}
+                  color={Theme.blue}
                 />
               )}
             </Mafs>
@@ -197,7 +197,7 @@ export default function InteractiveMafs({
           {/* Interactive point info */}
           {interactivePoint && (
             <div className="mt-2 flex items-center gap-4">
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-300">
                 {interactivePoint.label ?? 'Point'} :
               </span>
               <div className="flex gap-2">
@@ -231,7 +231,7 @@ export default function InteractiveMafs({
               {elements
                 .filter((e): e is GraphElement & { type: 'function' } => e.type === 'function')
                 .map((el, i) => (
-                  <div key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <div key={i} className="flex items-center gap-1.5 text-xs text-slate-300">
                     <div
                       className="w-3 h-0.5 rounded"
                       style={{ backgroundColor: getColor(el.color) }}

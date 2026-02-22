@@ -175,9 +175,9 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
         {/* CTA Section — no print */}
         <div className="no-print">
           {reservation.status === 'PENDING' && (
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 sm:p-8 text-center text-white">
+            <div className="bg-gradient-to-r from-blue-700 to-slate-700 rounded-2xl p-6 sm:p-8 text-center text-white">
               <h2 className="text-xl font-black mb-2">Prêt pour le stage ?</h2>
-              <p className="text-sm text-blue-100 mb-6 max-w-md mx-auto">
+              <p className="text-sm text-slate-100 mb-6 max-w-md mx-auto">
                 Ton bilan est prêt. Confirme ta présence pour que nous puissions
                 te placer dans le groupe le plus adapté à ton profil.
               </p>
@@ -203,7 +203,7 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
         </div>
 
         {/* Footer info */}
-        <div className="text-center text-xs text-slate-400 py-4">
+        <div className="text-center text-xs text-slate-500 py-4">
           <div className="mb-2 flex items-center justify-center">
             <Image
               src="/images/logo_nexus_reussite.png"

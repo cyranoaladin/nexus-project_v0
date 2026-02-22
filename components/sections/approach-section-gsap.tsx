@@ -19,20 +19,20 @@ const ApproachSectionGSAP = () => {
             icon: Target,
             title: "Plan sur‑mesure",
             description: "Coachs + IA ARIA + rythme adapté pour avancer vite.",
-            color: "text-purple-400",
-            gradient: "from-purple-500/10 to-transparent"
+            color: "text-brand-secondary",
+            gradient: "from-brand-secondary/10 to-transparent"
         },
         {
             icon: Shield,
             title: "Résultats suivis",
             description: "Progression visible, ajustements en continu, parent informé.",
-            color: "text-emerald-400",
-            gradient: "from-emerald-500/10 to-transparent"
+            color: "text-blue-300",
+            gradient: "from-blue-500/10 to-transparent"
         }
     ];
 
     return (
-        <section ref={sectionRef} id="approach" className="relative py-28 bg-neutral-950 overflow-hidden">
+        <section ref={sectionRef} id="approach" className="relative py-16 md:py-24 bg-neutral-950 overflow-hidden">
             <div className="pointer-events-none absolute inset-0 opacity-40">
                 <div className="absolute top-[-5%] left-[-5%] h-72 w-72 rounded-full bg-brand-accent/10 blur-[120px]" />
                 <div className="absolute bottom-[-5%] right-[-5%] h-72 w-72 rounded-full bg-blue-500/10 blur-[120px]" />
@@ -41,7 +41,7 @@ const ApproachSectionGSAP = () => {
 
                 {/* Header */}
                 <div className="text-center mb-20">
-                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-gray-400 mb-4 block">
+                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-300 mb-4 block">
                         Un parcours simple
                     </span>
                     <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
@@ -66,7 +66,7 @@ const ApproachSectionGSAP = () => {
                                 {item.title}
                             </h3>
 
-                            <p className="text-gray-400 leading-relaxed mb-6">
+                            <p className="text-slate-300 leading-relaxed mb-6">
                                 {item.description}
                             </p>
 

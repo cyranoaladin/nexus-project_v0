@@ -13,7 +13,7 @@ export function LanguageSwitcher() {
         className={`px-3 py-1 rounded-full transition-all ${
           language === 'fr'
             ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
-            : 'text-slate-400 hover:text-white'
+            : 'text-slate-300 hover:text-white'
         }`}
       >
         FR
@@ -22,8 +22,8 @@ export function LanguageSwitcher() {
         onClick={() => setLanguage('en')}
         className={`px-3 py-1 rounded-full transition-all ${
           language === 'en'
-            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20'
-            : 'text-slate-400 hover:text-white'
+            ? 'bg-blue-700 text-white shadow-md shadow-blue-900/20'
+            : 'text-slate-300 hover:text-white'
         }`}
       >
         EN

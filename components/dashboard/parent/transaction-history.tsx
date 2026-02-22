@@ -27,7 +27,7 @@ export function TransactionHistory({ transactions }: { transactions: Transaction
             case 'COMPLETED':
                 return <Badge className="bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/20 border border-emerald-500/20"><CheckCircle className="w-3 h-3 mr-1" /> Payé</Badge>;
             case 'PENDING':
-                return <Badge className="bg-amber-500/15 text-amber-200 hover:bg-amber-500/20 border border-amber-500/20"><Clock className="w-3 h-3 mr-1" /> En attente</Badge>;
+                return <Badge className="bg-blue-500/15 text-slate-200 hover:bg-blue-500/20 border border-blue-500/20"><Clock className="w-3 h-3 mr-1" /> En attente</Badge>;
             case 'FAILED':
                 return <Badge className="bg-rose-500/15 text-rose-200 hover:bg-rose-500/20 border border-rose-500/20"><XCircle className="w-3 h-3 mr-1" /> Échoué</Badge>;
             default:

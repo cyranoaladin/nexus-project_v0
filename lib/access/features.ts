@@ -91,8 +91,8 @@ export const FEATURES: Record<FeatureKey, FeatureDefinition> = {
     label: 'Analytics Premium',
     description: 'Tableaux de bord avancés et analyses détaillées',
     requires: ['advanced_analytics'],
-    fallback: 'REDIRECT',
-    rolesExempt: ['ADMIN', 'ASSISTANTE'],
+    fallback: 'HIDE',
+    rolesExempt: ['ADMIN'],
   },
   priority_support: {
     label: 'Support Prioritaire',
@@ -104,16 +104,16 @@ export const FEATURES: Record<FeatureKey, FeatureDefinition> = {
   credits_use: {
     label: 'Utilisation de Crédits',
     description: 'Consommer des crédits pour réserver des sessions',
-    requires: ['platform_access'],
+    requires: ['credits_use'],
     fallback: 'REDIRECT',
     rolesExempt: ['ADMIN', 'ASSISTANTE'],
   },
   admin_facturation: {
     label: 'Facturation Admin',
     description: 'Gestion des factures et de la facturation',
-    requires: [],
+    requires: ['admin_facturation'],
     fallback: 'REDIRECT',
-    rolesExempt: ['ADMIN', 'ASSISTANTE'],
+    rolesExempt: ['ADMIN'],
   },
 } as const;
 

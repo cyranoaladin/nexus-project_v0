@@ -92,11 +92,11 @@ export default function AdminTestsPage() {
     if (!result) return null;
 
     return (
-      <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+      <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-slate-100'}>
         <div className="flex items-start gap-2">
           {result.success ?
             <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" /> :
-            <XCircle className="h-4 w-4 text-red-600 mt-0.5" />
+            <XCircle className="h-4 w-4 text-slate-600 mt-0.5" />
           }
           <div className="flex-1">
             <p className="font-semibold text-sm">{title}</p>
@@ -223,9 +223,9 @@ export default function AdminTestsPage() {
                 </div>
               )}
 
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-                <p className="text-sm text-amber-200 font-medium">En attente d&apos;activation des clés API ClicToPay</p>
-                <p className="text-xs text-amber-300/70 mt-1">Les tests de connexion seront disponibles après configuration.</p>
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <p className="text-sm text-slate-200 font-medium">En attente d&apos;activation des clés API ClicToPay</p>
+                <p className="text-xs text-blue-200/70 mt-1">Les tests de connexion seront disponibles après configuration.</p>
               </div>
 
               <div className="space-y-2">

@@ -131,7 +131,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     mode: 'EXTEND',
     defaultDurationDays: 30,
     grantsCredits: 4,
-    features: ['platform_access'],
+    features: ['platform_access', 'credits_use'],
   },
   ABONNEMENT_HYBRIDE: {
     code: 'ABONNEMENT_HYBRIDE',
@@ -140,7 +140,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     mode: 'EXTEND',
     defaultDurationDays: 30,
     grantsCredits: 8,
-    features: ['platform_access', 'hybrid_sessions'],
+    features: ['platform_access', 'hybrid_sessions', 'credits_use'],
   },
   ABONNEMENT_IMMERSION: {
     code: 'ABONNEMENT_IMMERSION',
@@ -149,7 +149,7 @@ export const PRODUCT_REGISTRY: Record<ProductCode, ProductDefinition> = {
     mode: 'EXTEND',
     defaultDurationDays: 30,
     grantsCredits: 16,
-    features: ['platform_access', 'hybrid_sessions', 'immersion_mode'],
+    features: ['platform_access', 'hybrid_sessions', 'immersion_mode', 'credits_use'],
   },
 
   // Credit packs

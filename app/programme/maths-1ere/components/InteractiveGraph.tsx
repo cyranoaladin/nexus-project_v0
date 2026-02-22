@@ -17,14 +17,14 @@ export default function InteractiveGraph({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-slate-900/50 border border-indigo-500/20 rounded-2xl overflow-hidden">
+    <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">📐</span>
-          <span className="font-bold text-indigo-300 text-sm">
+          <span className="font-bold text-blue-300 text-sm">
             {title ?? 'Graphique interactif GeoGebra'}
           </span>
         </div>

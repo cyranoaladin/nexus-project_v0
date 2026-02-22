@@ -22,9 +22,9 @@ const OFFERS_PREVIEW = [
     ],
     cta: 'Découvrir notre IA',
     iconPath: '/images/Icon_NexusCortex.png',
-    iconColor: 'text-purple-600',
-    buttonColor: 'bg-purple-600 hover:bg-purple-700',
-    gradientBg: 'from-purple-50 to-white',
+    iconColor: 'text-blue-700',
+    buttonColor: 'bg-blue-700 hover:bg-blue-800',
+    gradientBg: 'from-blue-50 to-white',
     isPopular: false
   },
   {
@@ -40,9 +40,9 @@ const OFFERS_PREVIEW = [
     ],
     cta: 'Explorer les prestations à la carte',
     iconPath: '/images/Icon_StudioFlex.png',
-    iconColor: 'text-orange-500',
-    buttonColor: 'bg-orange-500 hover:bg-orange-600',
-    gradientBg: 'from-orange-50 to-white',
+    iconColor: 'text-brand-secondary',
+    buttonColor: 'bg-brand-secondary hover:bg-brand-accent-dark',
+    gradientBg: 'from-slate-50 to-white',
     isPopular: true
   },
   {
@@ -58,9 +58,9 @@ const OFFERS_PREVIEW = [
     ],
     cta: 'Voir tous nos stages',
     iconPath: '/images/Icon_AcademiesNexus.png',
-    iconColor: 'text-purple-600',
-    buttonColor: 'bg-purple-600 hover:bg-purple-700',
-    gradientBg: 'from-purple-50 to-white',
+    iconColor: 'text-blue-700',
+    buttonColor: 'bg-blue-700 hover:bg-blue-800',
+    gradientBg: 'from-blue-50 to-white',
     isPopular: false
   },
   {
@@ -76,16 +76,16 @@ const OFFERS_PREVIEW = [
     ],
     cta: 'Découvrir les parcours annuels',
     iconPath: '/images/Icon_ProgrammeOdyssee.png',
-    iconColor: 'text-orange-500',
-    buttonColor: 'bg-orange-500 hover:bg-orange-600',
-    gradientBg: 'from-orange-50 to-white',
+    iconColor: 'text-brand-secondary',
+    buttonColor: 'bg-brand-secondary hover:bg-brand-accent-dark',
+    gradientBg: 'from-slate-50 to-white',
     isPopular: false
   }
 ];
 
 export function OffersPreviewSection() {
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+    <section className="py-16 md:py-20 bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
@@ -94,7 +94,7 @@ export function OffersPreviewSection() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <Badge variant="outline" className="marketing-badge mb-4 bg-orange-50 text-orange-600 border-orange-200 normal-case">
+          <Badge variant="outline" className="marketing-badge mb-4 bg-blue-50 text-blue-700 border-blue-200 normal-case">
             <ArrowRight className="w-4 h-4 mr-2" />
             Nos Solutions
           </Badge>
@@ -128,7 +128,7 @@ export function OffersPreviewSection() {
                   {/* Badge "Le plus populaire" pour Le Studio Flex */}
                   {offer.isPopular && (
                     <div className="absolute -top-3 -right-3 z-10">
-                      <Badge className="bg-orange-500 text-white px-3 py-1 font-semibold shadow-lg">
+                      <Badge className="bg-brand-secondary text-white px-3 py-1 font-semibold shadow-lg">
                         Le plus populaire
                       </Badge>
                     </div>
@@ -151,7 +151,7 @@ export function OffersPreviewSection() {
 
                       <div className="text-center">
                         {/* Titre principal avec Poppins Bold et taille augmentée */}
-                        <h3 className="font-heading text-2xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-300">
+                        <h3 className="font-heading text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">
                           {offer.title}
                         </h3>
 
@@ -213,7 +213,7 @@ export function OffersPreviewSection() {
             <Button
               variant="outline"
               size="lg"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-bold"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold"
             >
               Voir Toutes Nos Offres
               <ArrowRight className="ml-2 h-5 w-5" />

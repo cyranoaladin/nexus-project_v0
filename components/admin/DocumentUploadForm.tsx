@@ -128,7 +128,7 @@ export function DocumentUploadForm() {
           {!selectedUser ? (
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-400" />
+                <Search className="h-4 w-4 text-slate-300" />
               </div>
               <input
                 type="text"
@@ -139,7 +139,7 @@ export function DocumentUploadForm() {
               />
               {isSearching && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <Loader2 className="h-4 w-4 text-slate-400 animate-spin" />
+                  <Loader2 className="h-4 w-4 text-slate-300 animate-spin" />
                 </div>
               )}
 
@@ -156,7 +156,7 @@ export function DocumentUploadForm() {
                       }}
                       className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-slate-50 flex items-center gap-3"
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${user.role === 'ELEVE' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${user.role === 'ELEVE' ? 'bg-blue-500' : 'bg-emerald-500'}`}>
                         {user.firstName?.[0]}{user.lastName?.[0]}
                       </div>
                       <div>
@@ -175,7 +175,7 @@ export function DocumentUploadForm() {
           ) : (
             <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg">
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${selectedUser.role === 'ELEVE' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${selectedUser.role === 'ELEVE' ? 'bg-blue-500' : 'bg-emerald-500'}`}>
                   {selectedUser.firstName?.[0]}{selectedUser.lastName?.[0]}
                 </div>
                 <div>
@@ -188,7 +188,7 @@ export function DocumentUploadForm() {
               <button
                 type="button"
                 onClick={() => setSelectedUser(null)}
-                className="text-slate-400 hover:text-red-500 transition-colors"
+                className="text-slate-300 hover:text-slate-500 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -209,7 +209,7 @@ export function DocumentUploadForm() {
             >
               <input {...getInputProps()} />
               <div className="flex flex-col items-center gap-2">
-                <UploadCloud className="w-10 h-10 text-slate-400" />
+                <UploadCloud className="w-10 h-10 text-slate-300" />
                 <p className="text-sm font-medium text-slate-700">
                   {isDragActive ? "Déposez le fichier ici..." : "Glissez-déposez un fichier ici, ou cliquez pour sélectionner"}
                 </p>
@@ -236,7 +236,7 @@ export function DocumentUploadForm() {
               <button
                 type="button"
                 onClick={() => setFile(null)}
-                className="text-slate-400 hover:text-red-500 transition-colors"
+                className="text-slate-300 hover:text-slate-500 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

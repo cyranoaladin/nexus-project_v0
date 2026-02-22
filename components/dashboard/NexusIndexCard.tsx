@@ -37,14 +37,14 @@ function getScoreMessage(score: number): string {
 const LEVEL_CONFIG = {
   excellent: { label: 'Excellent', color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/30' },
   bon: { label: 'Bon', color: 'text-blue-400', bg: 'bg-blue-500/10', ring: 'ring-blue-500/30' },
-  en_progression: { label: 'En progression', color: 'text-amber-400', bg: 'bg-amber-500/10', ring: 'ring-amber-500/30' },
-  a_renforcer: { label: 'À renforcer', color: 'text-orange-400', bg: 'bg-orange-500/10', ring: 'ring-orange-500/30' },
+  en_progression: { label: 'En progression', color: 'text-blue-300', bg: 'bg-blue-500/10', ring: 'ring-blue-500/30' },
+  a_renforcer: { label: 'À renforcer', color: 'text-slate-300', bg: 'bg-slate-500/10', ring: 'ring-slate-500/30' },
   debutant: { label: 'Débutant', color: 'text-neutral-400', bg: 'bg-neutral-500/10', ring: 'ring-neutral-500/30' },
 } as const;
 
 const TREND_CONFIG = {
   up: { icon: TrendingUp, label: 'En progression', color: 'text-emerald-400' },
-  down: { icon: TrendingDown, label: 'À surveiller', color: 'text-red-400' },
+  down: { icon: TrendingDown, label: 'À surveiller', color: 'text-slate-300' },
   stable: { icon: Minus, label: 'Stable', color: 'text-neutral-400' },
 } as const;
 

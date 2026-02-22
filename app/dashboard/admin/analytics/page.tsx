@@ -239,10 +239,10 @@ export default function AnalyticsPage() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-neutral-200">Sessions</CardTitle>
-              <TrendingUp className="h-4 w-4 text-purple-300" />
+              <TrendingUp className="h-4 w-4 text-blue-300" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-200">
+              <div className="text-2xl font-bold text-blue-200">
                 {analyticsData?.summary.totalSessions || 0}
               </div>
               <p className="text-xs text-neutral-400 mt-1">
@@ -254,10 +254,10 @@ export default function AnalyticsPage() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-neutral-200">Abonnements</CardTitle>
-              <CreditCard className="h-4 w-4 text-amber-300" />
+              <CreditCard className="h-4 w-4 text-blue-200" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-amber-300">
+              <div className="text-2xl font-bold text-blue-200">
                 {analyticsData?.summary.totalSubscriptions || 0}
               </div>
               <p className="text-xs text-neutral-400 mt-1">
@@ -337,7 +337,7 @@ export default function AnalyticsPage() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-purple-300" />
+                <TrendingUp className="w-5 h-5 mr-2 text-blue-300" />
                 Sessions {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -363,7 +363,7 @@ export default function AnalyticsPage() {
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-purple-200">{item.count}</p>
+                        <p className="font-bold text-blue-200">{item.count}</p>
                       </div>
                     </div>
                   ))
@@ -381,7 +381,7 @@ export default function AnalyticsPage() {
           <Card className="bg-surface-card border border-white/10 shadow-premium">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2 text-amber-300" />
+                <CreditCard className="w-5 h-5 mr-2 text-blue-200" />
                 Transactions Crédits {getPeriodText(period)}
               </CardTitle>
             </CardHeader>
@@ -395,7 +395,7 @@ export default function AnalyticsPage() {
                         <p className="text-sm text-neutral-400">{item.type}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-amber-300">{item.amount}</p>
+                        <p className="font-bold text-blue-200">{item.amount}</p>
                         <p className="text-xs text-neutral-400">{item.count} transactions</p>
                       </div>
                     </div>

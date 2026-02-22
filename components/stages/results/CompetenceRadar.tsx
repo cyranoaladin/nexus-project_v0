@@ -37,7 +37,7 @@ export default function CompetenceRadar({ radarData }: CompetenceRadarProps) {
       <h2 className="text-lg font-bold text-slate-900 mb-1">Radar de Compétences</h2>
       <p className="text-sm text-slate-500 mb-6">
         Vue d&apos;ensemble de ton profil par domaine. La <strong className="text-blue-600">précision</strong> mesure
-        tes bonnes réponses, la <strong className="text-purple-600">confiance</strong> mesure ta couverture.
+        tes bonnes réponses, la <strong className="text-brand-secondary">confiance</strong> mesure ta couverture.
       </p>
 
       <div className="w-full h-[350px] sm:h-[400px] print:h-[350px]">
@@ -65,8 +65,8 @@ export default function CompetenceRadar({ radarData }: CompetenceRadarProps) {
             <Radar
               name="Confiance"
               dataKey="Confiance"
-              stroke="#8b5cf6"
-              fill="#8b5cf6"
+              stroke="#6b86a3"
+              fill="#6b86a3"
               fillOpacity={0.1}
               strokeWidth={2}
               strokeDasharray="4 4"
@@ -95,7 +95,7 @@ export default function CompetenceRadar({ radarData }: CompetenceRadarProps) {
             <tr className="border-b border-slate-300">
               <th className="text-left py-1 font-semibold text-slate-700">Domaine</th>
               <th className="text-right py-1 font-semibold text-blue-700">Précision</th>
-              <th className="text-right py-1 font-semibold text-purple-700">Confiance</th>
+              <th className="text-right py-1 font-semibold text-slate-700">Confiance</th>
             </tr>
           </thead>
           <tbody>
@@ -103,7 +103,7 @@ export default function CompetenceRadar({ radarData }: CompetenceRadarProps) {
               <tr key={d.subject} className="border-b border-slate-100">
                 <td className="py-1 text-slate-700">{d.subject}</td>
                 <td className="py-1 text-right font-bold text-blue-700">{Math.round(d.score)}%</td>
-                <td className="py-1 text-right font-bold text-purple-700">{Math.round(d.confidence)}%</td>
+                <td className="py-1 text-right font-bold text-slate-700">{Math.round(d.confidence)}%</td>
               </tr>
             ))}
           </tbody>

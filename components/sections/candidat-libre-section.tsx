@@ -17,7 +17,7 @@ export function CandidatLibreSection() {
   ]
 
   return (
-    <section className="py-20 bg-blue-50">
+    <section className="py-16 md:py-20 bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -48,7 +48,7 @@ export function CandidatLibreSection() {
         >
           <Card className="bg-white border-2 border-slate-900 shadow-2xl relative overflow-hidden">
             {/* Badge Premium */}
-            <div className="absolute top-0 right-0 bg-red-500 text-white px-4 py-2 text-sm font-semibold">
+            <div className="absolute top-0 right-0 bg-brand-secondary text-white px-4 py-2 text-sm font-semibold">
               🏆 Accompagnement Annuel Complet
             </div>
             

@@ -110,7 +110,7 @@ export function StudentReportForm({
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md text-sm">
+                        <div className="bg-slate-100 border border-slate-200 text-slate-700 p-3 rounded-md text-sm">
                             {error}
                         </div>
                     )}
@@ -125,7 +125,7 @@ export function StudentReportForm({
                                     checked={formData.attendance}
                                     onCheckedChange={(checked) => handleChange('attendance', checked)}
                                 />
-                                <span className={formData.attendance ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
+                                <span className={formData.attendance ? "text-green-600 font-medium" : "text-slate-500 font-medium"}>
                                     {formData.attendance ? "Présent" : "Absent"}
                                 </span>
                             </div>

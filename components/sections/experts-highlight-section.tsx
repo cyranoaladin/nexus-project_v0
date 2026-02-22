@@ -89,7 +89,7 @@ export function ExpertsHighlightSection() {
     >
       {/* Superposition sombre pour la lisibilité */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-blue-900/70 to-indigo-900/80"
+        className="absolute inset-0 bg-gradient-to-br from-slate-950/85 via-blue-950/75 to-slate-900/85"
         style={{ zIndex: 1 }}
       ></div>
 

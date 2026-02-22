@@ -17,7 +17,7 @@ export function TechNavbar() {
                 </Link>
                 
                 {/* Desktop Menu */}
-                <div className="hidden xl:flex gap-8 text-sm font-medium text-slate-400 items-center">
+                <div className="hidden xl:flex gap-8 text-sm font-medium text-slate-300 items-center">
                     <Link href="#consulting" className="hover:text-white transition-colors">{t.nav.consulting}</Link>
                     <Link href="#factory" className="hover:text-white transition-colors">{t.nav.factory}</Link>
                     <Link href="/studio" className="hover:text-white transition-colors">{t.nav.studio}</Link>
@@ -39,7 +39,7 @@ export function TechNavbar() {
                 {/* Mobile Menu Toggle (Placeholder for now) */}
                 <div className="md:hidden flex items-center gap-4">
                     <LanguageSwitcher />
-                    <button className="text-slate-400 hover:text-white">
+                    <button className="text-slate-300 hover:text-white">
                         <Menu size={24} />
                     </button>
                 </div>

@@ -129,7 +129,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
           aria-describedby={errors.summary ? "summary-error" : undefined}
         />
         {errors.summary && (
-          <p id="summary-error" className="text-red-500 text-xs md:text-sm mt-1" role="alert">
+          <p id="summary-error" className="text-slate-500 text-xs md:text-sm mt-1" role="alert">
             {errors.summary.message}
           </p>
         )}
@@ -149,7 +149,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
           aria-describedby={errors.topicsCovered ? "topics-error" : undefined}
         />
         {errors.topicsCovered && (
-          <p id="topics-error" className="text-red-500 text-xs md:text-sm mt-1" role="alert">
+          <p id="topics-error" className="text-slate-500 text-xs md:text-sm mt-1" role="alert">
             {errors.topicsCovered.message}
           </p>
         )}
@@ -172,8 +172,8 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
                 "flex items-center justify-center cursor-pointer transition-all",
                 "w-10 h-10 md:w-12 md:h-12 rounded-lg border-2",
                 performanceRating >= rating
-                  ? "border-yellow-500 bg-yellow-50"
-                  : "border-gray-300 bg-white hover:border-yellow-300"
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 bg-white hover:border-blue-300"
               )}
             >
               <RadioGroupItem value={String(rating)} className="sr-only" />
@@ -181,7 +181,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
                 className={cn(
                   "w-5 h-5 md:w-6 md:h-6 transition-colors",
                   performanceRating >= rating
-                    ? "fill-yellow-500 text-yellow-500"
+                    ? "fill-blue-500 text-blue-500"
                     : "text-gray-300"
                 )}
                 aria-hidden="true"
@@ -191,7 +191,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
           ))}
         </RadioGroup>
         {errors.performanceRating && (
-          <p id="rating-error" className="text-red-500 text-xs md:text-sm mt-1" role="alert">
+          <p id="rating-error" className="text-slate-500 text-xs md:text-sm mt-1" role="alert">
             {errors.performanceRating.message}
           </p>
         )}
@@ -211,7 +211,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
           aria-describedby={errors.progressNotes ? "progress-error" : undefined}
         />
         {errors.progressNotes && (
-          <p id="progress-error" className="text-red-500 text-xs md:text-sm mt-1" role="alert">
+          <p id="progress-error" className="text-slate-500 text-xs md:text-sm mt-1" role="alert">
             {errors.progressNotes.message}
           </p>
         )}
@@ -231,7 +231,7 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
           aria-describedby={errors.recommendations ? "recommendations-error" : undefined}
         />
         {errors.recommendations && (
-          <p id="recommendations-error" className="text-red-500 text-xs md:text-sm mt-1" role="alert">
+          <p id="recommendations-error" className="text-slate-500 text-xs md:text-sm mt-1" role="alert">
             {errors.recommendations.message}
           </p>
         )}

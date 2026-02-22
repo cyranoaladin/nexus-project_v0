@@ -141,20 +141,20 @@ export default function AriaAddonDialog({ studentId, studentName, onRequestCompl
             />
           </div>
 
-          <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg">
+          <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <Brain className="w-4 h-4 text-purple-200 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-purple-200">
+              <Brain className="w-4 h-4 text-blue-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-200">
                 <p className="font-medium mb-1">Service ARIA+ :</p>
                 <p>Assistant IA intelligent disponible 24h/24 pour aider votre enfant dans ses études.</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
+          <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-200 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-amber-200">
+              <AlertCircle className="w-4 h-4 text-slate-200 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-slate-200">
                 <p className="font-medium mb-1">Information importante :</p>
                 <p>Votre demande sera envoyée à l'assistant pour approbation. Le service sera activé après validation.</p>
               </div>

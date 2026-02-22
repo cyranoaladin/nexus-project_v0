@@ -50,13 +50,13 @@ interface DetailedAnalysisProps {
 }
 
 const TAG_CONFIG: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
-  'Maîtrisé': { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: <CheckCircle className="w-4 h-4 text-green-600" /> },
+  'Maîtrisé': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: <CheckCircle className="w-4 h-4 text-blue-600" /> },
   'En progression': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: <TrendingUp className="w-4 h-4 text-blue-600" /> },
-  'Bases Fragiles': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: <AlertTriangle className="w-4 h-4 text-amber-600" /> },
-  'Confusions': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: <XCircle className="w-4 h-4 text-red-600" /> },
-  'Insuffisant': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: <XCircle className="w-4 h-4 text-red-600" /> },
-  'Notion non abordée': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: <HelpCircle className="w-4 h-4 text-slate-400" /> },
-  'À découvrir': { bg: 'bg-slate-50', text: 'text-slate-500', border: 'border-slate-200', icon: <BookOpen className="w-4 h-4 text-slate-400" /> },
+  'Bases Fragiles': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300', icon: <AlertTriangle className="w-4 h-4 text-slate-600" /> },
+  'Confusions': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300', icon: <XCircle className="w-4 h-4 text-slate-600" /> },
+  'Insuffisant': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300', icon: <XCircle className="w-4 h-4 text-slate-600" /> },
+  'Notion non abordée': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: <HelpCircle className="w-4 h-4 text-slate-500" /> },
+  'À découvrir': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: <BookOpen className="w-4 h-4 text-slate-500" /> },
 };
 
 function getTagConfig(tag: string) {
@@ -90,9 +90,9 @@ function CategoryCard({ cat }: { cat: CategoryScore }) {
         <div className="h-2 bg-white/60 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-700 ${
-              cat.precision >= 70 ? 'bg-green-500' :
+              cat.precision >= 70 ? 'bg-blue-600' :
               cat.precision >= 50 ? 'bg-blue-500' :
-              cat.precision >= 30 ? 'bg-amber-500' : 'bg-red-500'
+              cat.precision >= 30 ? 'bg-slate-500' : 'bg-slate-700'
             }`}
             style={{ width: `${barWidth}%` }}
           />
@@ -101,10 +101,10 @@ function CategoryCard({ cat }: { cat: CategoryScore }) {
 
       {/* Stats row */}
       <div className="flex items-center gap-4 text-xs">
-        <span className="text-green-700 font-semibold">{cat.correctAnswers} ✓</span>
-        <span className="text-red-600 font-semibold">{cat.incorrectAnswers} ✗</span>
-        <span className="text-slate-400">{cat.nspAnswers} NSP</span>
-        <span className="ml-auto text-slate-500">
+        <span className="text-blue-700 font-semibold">{cat.correctAnswers} ✓</span>
+        <span className="text-slate-700 font-semibold">{cat.incorrectAnswers} ✗</span>
+        <span className="text-slate-500">{cat.nspAnswers} NSP</span>
+        <span className="ml-auto text-slate-600">
           {Math.round(cat.precision)}% précision
         </span>
       </div>
@@ -118,14 +118,14 @@ function CategoryCard({ cat }: { cat: CategoryScore }) {
       )}
 
       {cat.tag === 'Bases Fragiles' && (
-        <p className="text-xs text-amber-700 mt-2 italic leading-relaxed">
+        <p className="text-xs text-slate-700 mt-2 italic leading-relaxed">
           Attention : tu réussis des questions difficiles mais échoues sur des bases.
           Il faut consolider les fondamentaux en {cat.category}.
         </p>
       )}
 
       {cat.tag === 'Confusions' && cat.incorrectAnswers > 0 && (
-        <p className="text-xs text-red-600 mt-2 italic leading-relaxed">
+        <p className="text-xs text-slate-700 mt-2 italic leading-relaxed">
           Des confusions détectées en {cat.category} ({cat.incorrectAnswers} erreur{cat.incorrectAnswers > 1 ? 's' : ''}).
           Le stage permettra de clarifier ces notions.
         </p>
@@ -152,54 +152,54 @@ export default function DetailedAnalysis({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {/* Strengths */}
-          <div className="bg-green-50 rounded-xl p-4 border border-green-100">
-            <h3 className="text-sm font-bold text-green-800 mb-2 flex items-center gap-2">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+            <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
               Points forts
             </h3>
             {strengths.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {strengths.map((s) => (
-                  <span key={s} className="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-700 rounded-full">
+                  <span key={s} className="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full">
                     {s}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-green-600 italic">Pas encore de point fort identifié — le stage va t&apos;aider !</p>
+              <p className="text-xs text-blue-600 italic">Pas encore de point fort identifié — le stage va t&apos;aider !</p>
             )}
           </div>
 
           {/* Weaknesses */}
-          <div className="bg-red-50 rounded-xl p-4 border border-red-100">
-            <h3 className="text-sm font-bold text-red-800 mb-2 flex items-center gap-2">
+          <div className="bg-slate-100 rounded-xl p-4 border border-slate-300">
+            <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Points de vigilance
             </h3>
             {weaknesses.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {weaknesses.map((w) => (
-                  <span key={w} className="text-xs font-semibold px-2.5 py-1 bg-red-100 text-red-700 rounded-full">
+                  <span key={w} className="text-xs font-semibold px-2.5 py-1 bg-slate-200 text-slate-700 rounded-full">
                     {w}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-red-600 italic">Aucun point de vigilance majeur — continue comme ça !</p>
+              <p className="text-xs text-slate-700 italic">Aucun point de vigilance majeur — continue comme ça !</p>
             )}
           </div>
         </div>
 
         {/* Bases Fragiles alerts */}
         {basesFragiles.length > 0 && (
-          <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-            <h3 className="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2">
+          <div className="bg-slate-100 rounded-xl p-4 border border-slate-300">
+            <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Bases Fragiles détectées
             </h3>
             <div className="space-y-1">
               {basesFragiles.map((bf, i) => (
-                <p key={i} className="text-xs text-amber-700 leading-relaxed">
+                <p key={i} className="text-xs text-slate-700 leading-relaxed">
                   • {bf.message}
                 </p>
               ))}
@@ -212,27 +212,27 @@ export default function DetailedAnalysis({
       {nsiErrors && nsiErrors.totalErrors > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 print:shadow-none print:border-slate-300">
           <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Code2 className="w-5 h-5 text-emerald-600" />
+            <Code2 className="w-5 h-5 text-blue-600" />
             Analyse des erreurs NSI
           </h2>
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-100">
-              <Bug className="w-5 h-5 text-yellow-600 mx-auto mb-1" />
-              <p className="text-2xl font-black text-yellow-700">{nsiErrors.syntaxErrors}</p>
-              <p className="text-[10px] text-yellow-600 uppercase font-medium">Syntaxe</p>
-              <p className="text-[10px] text-yellow-500 mt-1">Erreurs de forme</p>
+            <div className="bg-slate-100 rounded-xl p-4 text-center border border-slate-300">
+              <Bug className="w-5 h-5 text-slate-600 mx-auto mb-1" />
+              <p className="text-2xl font-black text-slate-700">{nsiErrors.syntaxErrors}</p>
+              <p className="text-[10px] text-slate-600 uppercase font-medium">Syntaxe</p>
+              <p className="text-[10px] text-slate-500 mt-1">Erreurs de forme</p>
             </div>
-            <div className="bg-orange-50 rounded-xl p-4 text-center border border-orange-100">
-              <AlertTriangle className="w-5 h-5 text-orange-600 mx-auto mb-1" />
-              <p className="text-2xl font-black text-orange-700">{nsiErrors.logicErrors}</p>
-              <p className="text-[10px] text-orange-600 uppercase font-medium">Logique</p>
-              <p className="text-[10px] text-orange-500 mt-1">Erreurs d&apos;algo</p>
+            <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-100">
+              <AlertTriangle className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+              <p className="text-2xl font-black text-blue-700">{nsiErrors.logicErrors}</p>
+              <p className="text-[10px] text-blue-600 uppercase font-medium">Logique</p>
+              <p className="text-[10px] text-blue-500 mt-1">Erreurs d&apos;algo</p>
             </div>
-            <div className="bg-red-50 rounded-xl p-4 text-center border border-red-100">
-              <XCircle className="w-5 h-5 text-red-600 mx-auto mb-1" />
-              <p className="text-2xl font-black text-red-700">{nsiErrors.conceptualErrors}</p>
-              <p className="text-[10px] text-red-600 uppercase font-medium">Conceptuel</p>
-              <p className="text-[10px] text-red-500 mt-1">Notions à revoir</p>
+            <div className="bg-slate-100 rounded-xl p-4 text-center border border-slate-300">
+              <XCircle className="w-5 h-5 text-slate-600 mx-auto mb-1" />
+              <p className="text-2xl font-black text-slate-700">{nsiErrors.conceptualErrors}</p>
+              <p className="text-[10px] text-slate-600 uppercase font-medium">Conceptuel</p>
+              <p className="text-[10px] text-slate-500 mt-1">Notions à revoir</p>
             </div>
           </div>
         </div>

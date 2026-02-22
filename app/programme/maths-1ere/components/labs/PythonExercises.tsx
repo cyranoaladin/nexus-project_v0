@@ -172,7 +172,7 @@ export default function PythonExercises() {
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
                   selectedEx === ex.id
                     ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                    : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                 }`}
               >
                 {'★'.repeat(ex.difficulty)} {ex.titre}

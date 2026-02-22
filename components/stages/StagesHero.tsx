@@ -18,22 +18,22 @@ export function StagesHero({ stats }: StagesHeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-20 md:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-16 md:py-24">
       {/* Background effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-secondary/20 rounded-full blur-3xl" />
 
       <div className="container relative z-10 mx-auto px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center">
           {/* Slogan */}
-          <p className="text-sm md:text-base text-yellow-300 font-semibold mb-2 uppercase tracking-wider">
+          <p className="text-sm md:text-base text-slate-200 font-semibold mb-2 uppercase tracking-wider">
             Nexus Réussite, le déclic vers ta réussite !
           </p>
 
           {/* H1 */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight mb-6">
             STAGE DE FÉVRIER —<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-slate-300">
               LE BOOST DÉCISIF
             </span><br />
             POUR FAIRE LA DIFFÉRENCE !<br />
@@ -50,11 +50,11 @@ export function StagesHero({ stats }: StagesHeroProps) {
           </div>
 
           {/* Sous-texte */}
-          <p className="text-lg md:text-xl text-blue-100 mb-4 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-slate-200 mb-4 max-w-3xl mx-auto leading-relaxed">
             Février n'est pas une pause : c'est un moment clé. C'est là que se jouent la dynamique de fin d'année, la confiance et la maîtrise avant la dernière ligne droite des dossiers d'admission et du Bac.
           </p>
 
-          <p className="text-base md:text-lg text-blue-200 mb-10 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-slate-200 mb-10 max-w-2xl mx-auto">
             Une semaine structurée pour consolider, combler les lacunes, et transformer le travail en points décisifs.
           </p>
 
@@ -83,7 +83,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
             {stats.map((stat, idx) => (
               <div key={idx} className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6">
                 <div className="text-4xl md:text-5xl font-black text-white mb-2">{stat.value}</div>
-                <div className="text-sm text-blue-200 uppercase tracking-wider font-semibold">{stat.label}</div>
+                <div className="text-sm text-slate-200 uppercase tracking-wider font-semibold">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -91,7 +91,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
           {/* Testimonial */}
           <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto mb-10 hover:bg-white/10 transition-all">
             <p className="text-lg italic text-white mb-2">"Une semaine qui a changé mon orientation"</p>
-            <p className="text-sm text-blue-200">— Sarah, Terminale</p>
+            <p className="text-sm text-slate-200">— Sarah, Terminale</p>
           </div>
 
           {/* Badges */}

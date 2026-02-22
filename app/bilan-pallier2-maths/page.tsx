@@ -145,7 +145,7 @@ function LevelSelector({ value, onChange, max = 4, disabled = false }: { value: 
     <div className="flex gap-0.5">
       {Array.from({ length: max + 1 }, (_, i) => (
         <button key={i} type="button" onClick={() => !disabled && onChange(i)} disabled={disabled}
-          className={`w-6 h-6 rounded text-xs font-medium ${value === i ? "bg-brand-accent text-white" : disabled ? "bg-white/5 text-slate-600" : "bg-white/10 text-slate-400 hover:bg-white/20"}`}>
+          className={`w-6 h-6 rounded text-xs font-medium ${value === i ? "bg-brand-accent text-white" : disabled ? "bg-white/5 text-slate-600" : "bg-white/10 text-slate-300 hover:bg-white/20"}`}>
           {i}
         </button>
       ))}
@@ -178,7 +178,7 @@ function CompetencyRow({ competency, onUpdate }: { competency: CompetencyItem; o
         </Select>
         <div className="flex-1 min-w-[140px]"><Label className="text-xs text-slate-200">{competency.skillLabel}</Label></div>
         <div className="flex items-center gap-1"><span className="text-xs text-slate-500 w-4">M</span><LevelSelector value={competency.mastery ?? 0} onChange={v => onUpdate("mastery", v)} disabled={isNotStudied} /></div>
-        <button onClick={() => setShowDetails(!showDetails)} className="text-slate-400 hover:text-brand-accent"><ChevronDown className={`w-4 h-4 ${showDetails ? "rotate-180" : ""}`} /></button>
+        <button onClick={() => setShowDetails(!showDetails)} className="text-slate-300 hover:text-brand-accent"><ChevronDown className={`w-4 h-4 ${showDetails ? "rotate-180" : ""}`} /></button>
       </div>
       <AnimatePresence>
         {showDetails && (
@@ -490,11 +490,11 @@ export default function BilanPallier2MathsPage() {
             <p className="text-slate-300">Votre positionnement personnalisé en {trackLabel} — {isTerminale ? 'Préparation BAC 2026' : 'Préparation épreuve anticipée 2026'}</p>
           </motion.div>
           <div className="mb-6">
-            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{effectiveTotalSteps}</span><span className="text-slate-400">{Math.round((currentStep / effectiveTotalSteps) * 100)}%</span></div>
+            <div className="flex justify-between text-sm mb-2"><span className="text-slate-200">Étape {currentStep}/{effectiveTotalSteps}</span><span className="text-slate-300">{Math.round((currentStep / effectiveTotalSteps) * 100)}%</span></div>
             <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-brand-accent h-2 rounded-full" style={{ width: `${(currentStep / effectiveTotalSteps) * 100}%` }} /></div>
             <div className="flex justify-center gap-2 mt-4 flex-wrap">
               {Array.from({ length: effectiveTotalSteps + 1 }, (_, i) => i).map(s => (
-                <button key={s} onClick={() => s <= currentStep && setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-400"}`}>
+                <button key={s} onClick={() => s <= currentStep && setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-300"}`}>
                   {currentStep > s ? "✓" : s}
                 </button>
               ))}
@@ -512,9 +512,9 @@ export default function BilanPallier2MathsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {([
                         { discipline: 'maths' as const, level: 'premiere' as const, label: 'Maths — Première Spé', desc: '6 domaines • 35 compétences • 12 chapitres', icon: Sigma, color: 'border-blue-500/40 hover:border-blue-500' },
-                        { discipline: 'maths' as const, level: 'terminale' as const, label: 'Maths — Terminale Spé', desc: '5 domaines • 35 compétences • 11 chapitres', icon: Calculator, color: 'border-purple-500/40 hover:border-purple-500' },
+                        { discipline: 'maths' as const, level: 'terminale' as const, label: 'Maths — Terminale Spé', desc: '5 domaines • 35 compétences • 11 chapitres', icon: Calculator, color: 'border-blue-500/40 hover:border-blue-500' },
                         { discipline: 'nsi' as const, level: 'premiere' as const, label: 'NSI — Première Spé', desc: '5 domaines • 20 compétences • 7 chapitres', icon: Code2, color: 'border-green-500/40 hover:border-green-500' },
-                        { discipline: 'nsi' as const, level: 'terminale' as const, label: 'NSI — Terminale Spé', desc: '6 domaines • 23 compétences • 6 chapitres', icon: BrainCircuit, color: 'border-orange-500/40 hover:border-orange-500' },
+                        { discipline: 'nsi' as const, level: 'terminale' as const, label: 'NSI — Terminale Spé', desc: '6 domaines • 23 compétences • 6 chapitres', icon: BrainCircuit, color: 'border-slate-500/40 hover:border-slate-500' },
                       ]).map(opt => {
                         const isSelected = formData.discipline === opt.discipline && formData.level === opt.level;
                         return (
@@ -522,11 +522,11 @@ export default function BilanPallier2MathsPage() {
                             onClick={() => handleProgrammeSelect(opt.discipline, opt.level)}
                             className={`p-4 rounded-xl border-2 text-left transition-all ${isSelected ? 'border-brand-accent bg-brand-accent/10 ring-2 ring-brand-accent/30' : `${opt.color} bg-white/5`}`}>
                             <div className="flex items-center gap-3 mb-2">
-                              <opt.icon className={`w-6 h-6 ${isSelected ? 'text-brand-accent' : 'text-slate-400'}`} />
+                              <opt.icon className={`w-6 h-6 ${isSelected ? 'text-brand-accent' : 'text-slate-300'}`} />
                               <span className={`font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>{opt.label}</span>
                               {isSelected && <CheckCircle className="w-5 h-5 text-brand-accent ml-auto" />}
                             </div>
-                            <p className="text-xs text-slate-400">{opt.desc}</p>
+                            <p className="text-xs text-slate-300">{opt.desc}</p>
                           </button>
                         );
                       })}
@@ -534,7 +534,7 @@ export default function BilanPallier2MathsPage() {
                     {hasChosenProgramme && definitionMeta && (
                       <div className="mt-4 p-3 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
                         <p className="text-sm text-brand-accent font-medium">✓ {definitionMeta.label}</p>
-                        <p className="text-xs text-slate-400 mt-1">{definitionMeta.domains.length} domaines • {definitionMeta.chapters.length} chapitres officiels</p>
+                        <p className="text-xs text-slate-300 mt-1">{definitionMeta.domains.length} domaines • {definitionMeta.chapters.length} chapitres officiels</p>
                       </div>
                     )}
                   </CardContent>
@@ -577,10 +577,10 @@ export default function BilanPallier2MathsPage() {
                     {definitionMeta && definitionMeta.chapters.length > 0 ? (
                       <div className="space-y-3">
                         <Label className="text-slate-200 text-base font-semibold">Chapitres du programme officiel</Label>
-                        <p className="text-xs text-slate-400 mb-2">Pour chaque chapitre, indiquez votre avancement. Cliquez pour changer le statut.</p>
-                        <div className="flex gap-4 text-xs text-slate-400 mb-3">
+                        <p className="text-xs text-slate-300 mb-2">Pour chaque chapitre, indiquez votre avancement. Cliquez pour changer le statut.</p>
+                        <div className="flex gap-4 text-xs text-slate-300 mb-3">
                           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500/60 inline-block" /> Vu</span>
-                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500/60 inline-block" /> En cours</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500/60 inline-block" /> En cours</span>
                           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-slate-600 inline-block" /> Pas encore</span>
                         </div>
                         {/* Group chapters by domain */}
@@ -600,8 +600,8 @@ export default function BilanPallier2MathsPage() {
                                 {chapters.map(ch => {
                                   const status = chapterStatuses[ch.chapterId] || 'notYet';
                                   const nextStatus: ChapterStatus = status === 'notYet' ? 'seen' : status === 'seen' ? 'inProgress' : 'notYet';
-                                  const bgColor = status === 'seen' ? 'bg-green-500/15 border-green-500/30' : status === 'inProgress' ? 'bg-yellow-500/15 border-yellow-500/30' : 'bg-white/5 border-white/10';
-                                  const dotColor = status === 'seen' ? 'bg-green-500' : status === 'inProgress' ? 'bg-yellow-500' : 'bg-slate-600';
+                                  const bgColor = status === 'seen' ? 'bg-green-500/15 border-green-500/30' : status === 'inProgress' ? 'bg-blue-500/15 border-blue-500/30' : 'bg-white/5 border-white/10';
+                                  const dotColor = status === 'seen' ? 'bg-green-500' : status === 'inProgress' ? 'bg-blue-500' : 'bg-slate-600';
                                   const statusLabel = status === 'seen' ? 'Vu' : status === 'inProgress' ? 'En cours' : 'Pas encore';
                                   return (
                                     <button key={ch.chapterId} type="button"
@@ -629,9 +629,9 @@ export default function BilanPallier2MathsPage() {
                           const total = definitionMeta.chapters.length;
                           const pct = total > 0 ? Math.round(((seen + inProg) / total) * 100) : 0;
                           return (
-                            <div className={`p-3 rounded-lg border ${pct >= 50 ? 'bg-green-500/10 border-green-500/20' : pct >= 30 ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                            <div className={`p-3 rounded-lg border ${pct >= 50 ? 'bg-green-500/10 border-green-500/20' : pct >= 30 ? 'bg-blue-500/10 border-blue-500/20' : 'bg-slate-500/10 border-slate-500/20'}`}>
                               <p className="text-sm text-slate-200">Couverture : <strong>{seen + inProg}/{total}</strong> chapitres ({pct}%)</p>
-                              <p className="text-xs text-slate-400">{seen} vus • {inProg} en cours • {notYet} pas encore</p>
+                              <p className="text-xs text-slate-300">{seen} vus • {inProg} en cours • {notYet} pas encore</p>
                             </div>
                           );
                         })()}
@@ -654,7 +654,7 @@ export default function BilanPallier2MathsPage() {
                   <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-white/5">
                     <div>
                       <p className="text-sm text-slate-200 font-medium">Filtrage par chapitres cochés</p>
-                      <p className="text-xs text-slate-400">{showAllSkills ? 'Toutes les compétences du programme sont affichées' : 'Seules les compétences des chapitres vus/en cours + prérequis fondamentaux sont affichées'}</p>
+                      <p className="text-xs text-slate-300">{showAllSkills ? 'Toutes les compétences du programme sont affichées' : 'Seules les compétences des chapitres vus/en cours + prérequis fondamentaux sont affichées'}</p>
                     </div>
                     <button type="button" onClick={() => setShowAllSkills(p => !p)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showAllSkills ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30' : 'bg-white/10 text-slate-300 border border-white/10'}`}>

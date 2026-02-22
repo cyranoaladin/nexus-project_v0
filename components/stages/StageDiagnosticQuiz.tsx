@@ -183,15 +183,15 @@ function ProgressBar({
         <div
           className={`h-full rounded-full transition-all duration-500 ease-out ${
             isInNSI
-              ? 'bg-gradient-to-r from-blue-500 via-blue-500 to-emerald-500'
+              ? 'bg-gradient-to-r from-blue-600 via-blue-700 to-slate-700'
               : 'bg-gradient-to-r from-blue-400 to-blue-600'
           }`}
           style={{ width: `${progressPercent}%` }}
         />
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-slate-400">Maths ({totalMaths})</span>
-        <span className="text-[10px] text-slate-400">NSI ({totalNSI})</span>
+        <span className="text-[10px] text-slate-300">Maths ({totalMaths})</span>
+        <span className="text-[10px] text-slate-300">NSI ({totalNSI})</span>
       </div>
     </div>
   );
@@ -203,7 +203,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="max-w-2xl mx-auto text-center py-8">
       <div className="mb-8">
-        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <div className="w-20 h-20 bg-gradient-to-br from-blue-700 to-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
           <Brain className="w-10 h-10 text-white" />
         </div>
         <h1 className="text-3xl font-black text-slate-900 mb-3">
@@ -214,14 +214,14 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
         </p>
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8 text-left">
+      <div className="bg-slate-100 border border-slate-300 rounded-xl p-6 mb-8 text-left">
         <div className="flex items-start gap-3">
-          <BookOpen className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+          <BookOpen className="w-6 h-6 text-slate-700 flex-shrink-0 mt-0.5" />
           <div>
-            <h2 className="font-bold text-amber-900 mb-2">
+            <h2 className="font-bold text-slate-900 mb-2">
               Ce n&apos;est pas une note, c&apos;est un outil.
             </h2>
-            <p className="text-sm text-amber-800 leading-relaxed">
+            <p className="text-sm text-slate-700 leading-relaxed">
               Ce diagnostic nous permet d&apos;adapter ton groupe de travail à ton vrai niveau.
               Il n&apos;y a <strong>aucune pénalité</strong> pour les mauvaises réponses.
               L&apos;important est d&apos;être <strong>honnête</strong> : si tu ne connais pas une notion,
@@ -243,16 +243,16 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
           <p className="text-xs text-slate-500">POO, SQL, Algo, Réseaux...</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <Clock className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+          <Clock className="w-8 h-8 text-slate-600 mx-auto mb-2" />
           <p className="text-sm font-semibold text-slate-900">~25 minutes</p>
           <p className="text-xs text-slate-500">Pas de chrono, prends ton temps</p>
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
+      <div className="bg-slate-100 border border-slate-300 rounded-xl p-4 mb-8">
         <div className="flex items-center gap-2 justify-center">
-          <HelpCircle className="w-5 h-5 text-blue-600" />
-          <p className="text-sm text-blue-800">
+          <HelpCircle className="w-5 h-5 text-slate-700" />
+          <p className="text-sm text-slate-700">
             Le bouton <strong>&quot;Je n&apos;ai pas encore vu cette notion&quot;</strong> est là pour toi.
             L&apos;utiliser est un signe de maturité, pas de faiblesse.
           </p>
@@ -261,7 +261,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
       <button
         onClick={onStart}
-        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-700 to-slate-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
       >
         Commencer le diagnostic
         <ArrowRight className="w-5 h-5" />
@@ -288,10 +288,10 @@ function TransitionScreen({ onContinue }: { onContinue: () => void }) {
         Place maintenant à la partie <strong>Numérique et Sciences Informatiques</strong>.
       </p>
 
-      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-8">
+      <div className="bg-slate-100 border border-slate-300 rounded-xl p-4 mb-8">
         <div className="flex items-center gap-2 justify-center">
-          <Code2 className="w-5 h-5 text-emerald-600" />
-          <p className="text-sm text-emerald-800">
+          <Code2 className="w-5 h-5 text-slate-700" />
+          <p className="text-sm text-slate-700">
             20 questions sur la POO, les bases de données, l&apos;algorithmique et les réseaux.
           </p>
         </div>
@@ -299,7 +299,7 @@ function TransitionScreen({ onContinue }: { onContinue: () => void }) {
 
       <button
         onClick={onContinue}
-        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-slate-700 to-blue-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
       >
         Continuer vers NSI
         <ArrowRight className="w-5 h-5" />
@@ -313,7 +313,7 @@ function TransitionScreen({ onContinue }: { onContinue: () => void }) {
 function SuccessScreen({ result }: { result: SubmitResult }) {
   return (
     <div className="max-w-lg mx-auto text-center py-12">
-      <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+      <div className="w-20 h-20 bg-gradient-to-br from-slate-700 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
         <Trophy className="w-10 h-10 text-white" />
       </div>
       <h2 className="text-2xl font-black text-slate-900 mb-3">
@@ -331,26 +331,26 @@ function SuccessScreen({ result }: { result: SubmitResult }) {
             <p className="text-xs text-slate-500">Score global</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-4">
-            <Brain className="w-6 h-6 text-purple-500 mx-auto mb-1" />
+            <Brain className="w-6 h-6 text-slate-600 mx-auto mb-1" />
             <p className="text-2xl font-black text-slate-900">{Math.round(result.confidenceIndex || 0)}%</p>
             <p className="text-xs text-slate-500">Indice de confiance</p>
           </div>
         </div>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 text-left">
+      <div className="bg-slate-100 border border-slate-300 rounded-xl p-6 mb-8 text-left">
         <h3 className="font-bold text-blue-900 mb-2">Prochaines étapes</h3>
-        <ul className="text-sm text-blue-800 space-y-2">
+        <ul className="text-sm text-slate-700 space-y-2">
           <li className="flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="w-4 h-4 text-slate-700 flex-shrink-0 mt-0.5" />
             <span>Ton bilan personnalisé sera disponible sous 24h.</span>
           </li>
           <li className="flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="w-4 h-4 text-slate-700 flex-shrink-0 mt-0.5" />
             <span>Tu seras placé dans un groupe adapté à ton niveau.</span>
           </li>
           <li className="flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="w-4 h-4 text-slate-700 flex-shrink-0 mt-0.5" />
             <span>Un coach te contactera pour préparer le stage.</span>
           </li>
         </ul>
@@ -397,14 +397,14 @@ function QuestionCard({
         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
           {question.competence}
         </span>
-        <span className="text-xs text-slate-400 ml-auto">
+        <span className="text-xs text-slate-300 ml-auto">
           {'★'.repeat(question.weight)}{'☆'.repeat(3 - question.weight)}
         </span>
       </div>
 
       {/* Question text */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-400 mb-1">Question {questionNumber}</h3>
+        <h3 className="text-sm font-medium text-slate-300 mb-1">Question {questionNumber}</h3>
         <RichText
           content={question.questionText}
           className="text-lg font-semibold text-slate-900 leading-relaxed"
@@ -452,11 +452,11 @@ function QuestionCard({
           className={`w-full text-center p-3 rounded-xl border-2 transition-all duration-200 ${
             isNSP
               ? 'border-slate-400 bg-slate-100 text-slate-700'
-              : 'border-transparent bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-500'
+              : 'border-transparent bg-slate-50 text-slate-300 hover:bg-slate-100 hover:text-slate-500'
           }`}
         >
           <div className="flex items-center justify-center gap-2">
-            <HelpCircle className={`w-4 h-4 ${isNSP ? 'text-slate-600' : 'text-slate-400'}`} />
+            <HelpCircle className={`w-4 h-4 ${isNSP ? 'text-slate-600' : 'text-slate-300'}`} />
             <span className="text-sm font-medium">
               Je n&apos;ai pas encore vu cette notion
             </span>
@@ -650,7 +650,7 @@ export default function StageDiagnosticQuiz({
 
             {/* Navigation */}
             <div className="flex items-center justify-between">
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 Raccourcis : <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-mono">A</kbd>{' '}
                 <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-mono">B</kbd>{' '}
                 <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px] font-mono">C</kbd>{' '}
@@ -667,7 +667,7 @@ export default function StageDiagnosticQuiz({
                     ? isLastQuestion
                       ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02]'
                       : 'bg-slate-900 text-white hover:bg-black'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-200 text-slate-300 cursor-not-allowed'
                 }`}
               >
                 {isLastQuestion ? (
@@ -689,7 +689,7 @@ export default function StageDiagnosticQuiz({
         {/* ── Submitting ─────────────────────────────────────────────── */}
         {phase === 'submitting' && (
           <div className="max-w-md mx-auto text-center py-16">
-            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-6" />
+            <Loader2 className="w-12 h-12 text-slate-700 animate-spin mx-auto mb-6" />
             <h2 className="text-xl font-bold text-slate-900 mb-2">
               Analyse en cours...
             </h2>
@@ -707,7 +707,7 @@ export default function StageDiagnosticQuiz({
         {/* ── Error ──────────────────────────────────────────────────── */}
         {phase === 'error' && (
           <div className="max-w-md mx-auto text-center py-16">
-            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <span className="text-3xl">⚠️</span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">

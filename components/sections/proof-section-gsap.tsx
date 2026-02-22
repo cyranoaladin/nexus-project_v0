@@ -44,21 +44,21 @@ const ProofSectionGSAP = () => {
             value: 500,
             suffix: '+',
             label: 'Élèves accompagnés',
-            color: 'bg-purple-500/10'
+            color: 'bg-brand-secondary/10'
         },
         {
             icon: Award,
             value: 95,
             suffix: '%',
             label: 'Taux de satisfaction',
-            color: 'bg-amber-500/10'
+            color: 'bg-blue-400/10'
         },
         {
             icon: Target,
             value: 89,
             suffix: '%',
             label: 'Objectifs atteints',
-            color: 'bg-emerald-500/10'
+            color: 'bg-slate-500/10'
         }
     ];
 
@@ -75,7 +75,7 @@ const ProofSectionGSAP = () => {
                     <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
                         L'Impact en Chiffres
                     </h2>
-                    <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-neutral-300 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                         Des résultats concrets et mesurables pour nos partenaires et élèves.
                     </p>
                 </div>
@@ -92,7 +92,7 @@ const ProofSectionGSAP = () => {
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-4">
                         Prêt à transformer votre établissement ?
                     </h3>
-                    <p className="text-neutral-400 text-base md:text-lg mb-6 max-w-2xl mx-auto">
+                    <p className="text-neutral-300 text-base md:text-lg mb-6 max-w-2xl mx-auto">
                         Rejoignez les établissements qui ont choisi l'excellence avec Nexus Réussite.
                     </p>
                     <Button>

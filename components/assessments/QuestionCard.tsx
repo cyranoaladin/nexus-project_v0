@@ -18,12 +18,12 @@ import 'katex/dist/katex.min.css';
 // Dynamic import of KaTeX to reduce bundle size
 const TeX = dynamic(() => import('react-katex').then((mod) => mod.InlineMath), {
   ssr: false,
-  loading: () => <span className="text-slate-400">Loading formula...</span>,
+  loading: () => <span className="text-slate-300">Loading formula...</span>,
 });
 
 const BlockTeX = dynamic(() => import('react-katex').then((mod) => mod.BlockMath), {
   ssr: false,
-  loading: () => <span className="text-slate-400">Loading formula...</span>,
+  loading: () => <span className="text-slate-300">Loading formula...</span>,
 });
 
 interface QuestionCardProps {
@@ -92,7 +92,7 @@ export function QuestionCard({
             {question.category}
           </span>
           {question.weight && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-300">
               {question.weight === 1 && '⭐ Facile'}
               {question.weight === 2 && '⭐⭐ Moyen'}
               {question.weight === 3 && '⭐⭐⭐ Difficile'}
@@ -165,8 +165,8 @@ export function QuestionCard({
             w-full p-3 rounded-lg border-2 transition-all
             ${
               isNSP
-                ? 'border-amber-500 bg-amber-500/10 text-amber-400'
-                : 'border-slate-600 bg-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                ? 'border-blue-500 bg-blue-500/10 text-blue-300'
+                : 'border-slate-600 bg-transparent text-slate-300 hover:border-slate-500 hover:text-slate-200'
             }
           `}
         >

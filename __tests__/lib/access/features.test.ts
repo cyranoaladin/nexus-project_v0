@@ -55,11 +55,11 @@ describe('FEATURES registry', () => {
     expect(uniqueKeys.size).toBe(allKeys.length);
   });
 
-  it('admin_facturation has no entitlement requirements', () => {
+  it('admin_facturation requires dedicated entitlement', () => {
     const def = FEATURES.admin_facturation;
-    expect(def.requires).toHaveLength(0);
+    expect(def.requires).toContain('admin_facturation');
     expect(def.rolesExempt).toContain('ADMIN');
-    expect(def.rolesExempt).toContain('ASSISTANTE');
+    expect(def.rolesExempt).not.toContain('ASSISTANTE');
   });
 
   it('aria features require corresponding entitlement', () => {
@@ -72,8 +72,8 @@ describe('FEATURES registry', () => {
     expect(FEATURES.aria_nsi.rolesExempt).toContain('ADMIN');
   });
 
-  it('credits_use requires platform_access', () => {
-    expect(FEATURES.credits_use.requires).toContain('platform_access');
+  it('credits_use requires credits_use entitlement', () => {
+    expect(FEATURES.credits_use.requires).toContain('credits_use');
   });
 });
 

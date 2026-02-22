@@ -165,7 +165,7 @@ export default function ToileAraignee() {
 
     // Cobweb path
     if (cobwebPath.length > 1) {
-      ctx.strokeStyle = '#f97316'; // orange-500
+      ctx.strokeStyle = '#3b82f6'; // blue-500
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(toCanvasX(cobwebPath[0][0]), toCanvasY(cobwebPath[0][1]));
@@ -175,7 +175,7 @@ export default function ToileAraignee() {
       ctx.stroke();
 
       // Draw u_0 point
-      ctx.fillStyle = '#f97316';
+      ctx.fillStyle = '#3b82f6';
       ctx.beginPath();
       ctx.arc(toCanvasX(u0), toCanvasY(0), 5, 0, Math.PI * 2);
       ctx.fill();
@@ -194,7 +194,7 @@ export default function ToileAraignee() {
     ctx.fillText('y = f(x)', 8, 16);
     ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
     ctx.fillText('y = x', 8, 30);
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = '#3b82f6';
     ctx.fillText(`u₀ = ${u0.toFixed(2)}`, 8, 44);
 
     // Tick labels on axes
@@ -246,7 +246,7 @@ export default function ToileAraignee() {
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
                   presetIdx === i
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
+                    : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                 }`}
               >
                 {p.label}
@@ -258,8 +258,8 @@ export default function ToileAraignee() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-bold text-orange-400">u₀</span>
-                <span className="text-xs font-mono text-slate-400">{u0.toFixed(2)}</span>
+                <span className="text-xs font-bold text-slate-300">u₀</span>
+                <span className="text-xs font-mono text-slate-300">{u0.toFixed(2)}</span>
               </div>
               <input
                 type="range"
@@ -268,13 +268,13 @@ export default function ToileAraignee() {
                 step={0.01}
                 value={u0}
                 onChange={(e) => setU0(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer accent-orange-500"
+                className="w-full h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer accent-blue-500"
               />
             </div>
             <div>
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-bold text-blue-400">Itérations</span>
-                <span className="text-xs font-mono text-slate-400">{steps}</span>
+                <span className="text-xs font-mono text-slate-300">{steps}</span>
               </div>
               <input
                 type="range"
@@ -291,7 +291,7 @@ export default function ToileAraignee() {
           {/* Info bar */}
           <div className="flex flex-wrap gap-2 text-xs">
             <span className="bg-slate-800 px-2 py-1 rounded text-cyan-300 font-mono">{preset.fnLabel}</span>
-            <span className="bg-slate-800 px-2 py-1 rounded text-orange-300">
+            <span className="bg-slate-800 px-2 py-1 rounded text-slate-200">
               u₀ = {u0.toFixed(2)}
             </span>
             <span className="bg-slate-800 px-2 py-1 rounded text-slate-300">
@@ -303,7 +303,7 @@ export default function ToileAraignee() {
               </span>
             )}
             {!isConverging && steps > 5 && (
-              <span className="bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-red-400 font-bold">
+              <span className="bg-slate-500/10 border border-slate-500/20 px-2 py-1 rounded text-slate-200 font-bold">
                 ✗ Diverge / Cycle
               </span>
             )}

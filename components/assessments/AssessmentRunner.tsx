@@ -271,7 +271,7 @@ export function AssessmentRunner({
             <h1 className="text-4xl font-bold">
               Évaluation {subject === Subject.MATHS ? 'Mathématiques' : 'NSI'}
             </h1>
-            <p className="text-xl text-slate-400">
+            <p className="text-xl text-slate-300">
               {grade === 'PREMIERE' ? 'Première' : 'Terminale'}
             </p>
           </div>
@@ -311,7 +311,7 @@ export function AssessmentRunner({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-lg text-slate-400">Chargement des questions...</p>
+          <p className="text-lg text-slate-300">Chargement des questions...</p>
         </div>
       </div>
     );
@@ -322,12 +322,12 @@ export function AssessmentRunner({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto" />
+          <CheckCircle2 className="w-16 h-16 text-blue-500 mx-auto" />
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">
               Bravo ! Partie {currentQuestion.category} terminée
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg text-slate-300">
               Place à : {nextQuestion.category}
             </p>
           </div>
@@ -341,7 +341,7 @@ export function AssessmentRunner({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-lg text-slate-400">Envoi de vos réponses...</p>
+          <p className="text-lg text-slate-300">Envoi de vos réponses...</p>
         </div>
       </div>
     );
@@ -351,10 +351,10 @@ export function AssessmentRunner({
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-2xl w-full text-center space-y-6">
-          <CheckCircle2 className="w-20 h-20 text-green-500 mx-auto" />
+          <CheckCircle2 className="w-20 h-20 text-blue-500 mx-auto" />
           <div className="space-y-2">
             <h1 className="text-4xl font-bold">Évaluation terminée !</h1>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg text-slate-300">
               Vos réponses ont été enregistrées avec succès
             </p>
           </div>
@@ -372,10 +372,10 @@ export function AssessmentRunner({
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-2xl w-full text-center space-y-6">
-          <AlertCircle className="w-20 h-20 text-red-500 mx-auto" />
+          <AlertCircle className="w-20 h-20 text-slate-300 mx-auto" />
           <div className="space-y-2">
             <h1 className="text-4xl font-bold">Une erreur est survenue</h1>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg text-slate-300">
               Impossible de charger l'évaluation
             </p>
           </div>
