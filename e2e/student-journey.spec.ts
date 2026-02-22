@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { loginAsUser } from './helpers/auth';
 
 const BASE_URL = '/programme/maths-1ere';
 const STORE_KEY = 'nexus-maths-lab-v2';
@@ -37,7 +38,11 @@ function buildPersistedState(totalXP: number, completedChapters: string[] = []) 
 }
 
 test.describe('Student journey - Maths 1ere', () => {
-  test.fixme('MathJax critique: pas de LaTeX brut visible + rendu MathJax présent', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsUser(page, 'parent', { navigate: false, targetPath: BASE_URL });
+  });
+
+  test('MathJax critique: pas de LaTeX brut visible + rendu MathJax présent', async ({ page }) => {
     // FIXME: Maths Lab SPA hydration (MathJax) unreliable in CI headless Chrome.
     test.setTimeout(30_000);
     await page.goto(BASE_URL);
@@ -63,7 +68,7 @@ test.describe('Student journey - Maths 1ere', () => {
       .toBeGreaterThan(0);
   });
 
-  test.fixme('Workflow élève: lab fonctions + question correcte + persistance XP/chapitres', async ({ page }) => {
+  test('Workflow élève: lab fonctions + question correcte + persistance XP/chapitres', async ({ page }) => {
     // FIXME: Maths Lab SPA hydration + interactive elements unreliable in CI.
     test.setTimeout(45_000);
     await page.goto(BASE_URL);
@@ -116,7 +121,7 @@ test.describe('Student journey - Maths 1ere', () => {
     expect(persisted?.completedChapters).toContain('second-degre');
   });
 
-  test.fixme('Navigation interne sans 404 + titres de chapitres valides', async ({ page }) => {
+  test('Navigation interne sans 404 + titres de chapitres valides', async ({ page }) => {
     // FIXME: Depends on full Maths Lab hydration — flaky in CI.
     test.setTimeout(30_000);
     await page.goto(BASE_URL);
@@ -180,7 +185,7 @@ test.describe('Student journey - Maths 1ere', () => {
     expect(completed.xp).toBeGreaterThanOrEqual(50);
   });
 
-  test.fixme('Résilience offline: pas de crash en hors-ligne puis retour online', async ({ page }) => {
+  test('Résilience offline: pas de crash en hors-ligne puis retour online', async ({ page }) => {
     // FIXME: Maths Lab SPA hydration unreliable in CI headless Chrome.
     await page.goto(BASE_URL);
     await expect(page.getByText(/NEXUS MATHS LAB/i)).toBeVisible();

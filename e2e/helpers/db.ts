@@ -1,5 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { CREDS } from './credentials';
+import { Page } from '@playwright/test';
+import { loginAsUser } from './auth';
+import fs from 'fs';
+import path from 'path';
+import jwt from 'jsonwebtoken';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -324,6 +329,386 @@ export async function ensureActiveAriaSubscriptionForStudentEmail(
       ariaCost: 0,
     },
   });
+}
+
+export async function setParentSubscription(
+  email: string,
+  status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED',
+  plan: string
+): Promise<void> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({
+    where: { email },
+    include: {
+      parentProfile: {
+        include: { children: true },
+      },
+    },
+  });
+  if (!parentUser?.parentProfile) throw new Error(`Parent not found for ${email}`);
+
+  for (const child of parentUser.parentProfile.children) {
+    await client.subscription.updateMany({
+      where: { studentId: child.id },
+      data: { status: 'CANCELLED' },
+    });
+    await client.subscription.create({
+      data: {
+        studentId: child.id,
+        planName: plan,
+        monthlyPrice: plan === 'IMMERSION' ? 750 : plan === 'HYBRIDE' ? 450 : 150,
+        creditsPerMonth: plan === 'IMMERSION' ? 12 : plan === 'HYBRIDE' ? 8 : 0,
+        status,
+        startDate: new Date(),
+        endDate: status === 'EXPIRED' ? new Date(Date.now() - 24 * 60 * 60 * 1000) : null,
+      },
+    });
+  }
+}
+
+export async function clearParentSubscription(email: string): Promise<void> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({
+    where: { email },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  if (!parentUser?.parentProfile) throw new Error(`Parent not found for ${email}`);
+
+  await client.subscription.deleteMany({
+    where: { studentId: { in: parentUser.parentProfile.children.map((c) => c.id) } },
+  });
+}
+
+export async function createPendingSubscriptionRequest(parentEmail: string): Promise<{ id: string }> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({
+    where: { email: parentEmail },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  if (!parentUser?.parentProfile?.children?.length) {
+    throw new Error(`No child found for ${parentEmail}`);
+  }
+  const child = parentUser.parentProfile.children[0];
+  const req = await client.subscriptionRequest.create({
+    data: {
+      studentId: child.id,
+      requestType: 'PLAN_CHANGE',
+      planName: 'HYBRIDE',
+      monthlyPrice: 450,
+      status: 'PENDING',
+      requestedBy: parentUser.id,
+      requestedByEmail: parentEmail,
+    },
+  });
+  return { id: req.id };
+}
+
+export async function createPendingPayment(parentEmail: string): Promise<{ id: string }> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({ where: { email: parentEmail } });
+  if (!parentUser) throw new Error(`User not found for ${parentEmail}`);
+  const payment = await client.payment.create({
+    data: {
+      userId: parentUser.id,
+      type: 'SUBSCRIPTION',
+      amount: 450,
+      description: 'E2E pending payment',
+      status: 'PENDING',
+      method: 'bank_transfer',
+      metadata: { parentEmail },
+    },
+  });
+  return { id: payment.id };
+}
+
+export async function createTestInvoice(parentEmail: string): Promise<{ id: string }> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({ where: { email: parentEmail } });
+  if (!parentUser) throw new Error(`User not found for ${parentEmail}`);
+
+  const yearMonth = Number(new Date().toISOString().slice(0, 7).replace('-', ''));
+  const seq = await client.invoiceSequence.upsert({
+    where: { yearMonth },
+    update: { current: { increment: 1 } },
+    create: { yearMonth, current: 1 },
+  });
+  const number = `${yearMonth}-${String(seq.current).padStart(4, '0')}`;
+
+  const invoice = await client.invoice.create({
+    data: {
+      number,
+      status: 'PAID',
+      customerName: `${parentUser.firstName || ''} ${parentUser.lastName || ''}`.trim() || parentEmail,
+      customerEmail: parentEmail,
+      subtotal: 450000,
+      total: 450000,
+      taxTotal: 0,
+      discountTotal: 0,
+      paymentMethod: 'BANK_TRANSFER',
+      paidAt: new Date(),
+      paidAmount: 450000,
+      paymentReference: `E2E-${Date.now()}`,
+      createdByUserId: parentUser.id,
+      beneficiaryUserId: parentUser.id,
+      items: {
+        create: [
+          {
+            label: 'Abonnement Hybride',
+            qty: 1,
+            unitPrice: 450000,
+            total: 450000,
+            productCode: 'HYBRIDE',
+          },
+        ],
+      },
+    },
+  });
+  return { id: invoice.id };
+}
+
+export async function createTestDocument(ownerEmail: string, filename: string): Promise<string> {
+  const client = getPrisma();
+  const owner = await client.user.findUnique({ where: { email: ownerEmail } });
+  if (!owner) throw new Error(`User not found for ${ownerEmail}`);
+
+  const docId = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const storageDir = path.resolve(process.cwd(), 'storage', 'documents');
+  fs.mkdirSync(storageDir, { recursive: true });
+  const absolutePath = path.join(storageDir, `${docId}-${filename}`);
+  fs.writeFileSync(absolutePath, '%PDF-1.4\n% E2E test document\n');
+
+  const doc = await client.userDocument.create({
+    data: {
+      title: filename,
+      originalName: filename,
+      mimeType: filename.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream',
+      sizeBytes: fs.statSync(absolutePath).size,
+      localPath: absolutePath,
+      userId: owner.id,
+      uploadedById: owner.id,
+    },
+  });
+  return doc.id;
+}
+
+export async function createScheduledSession(studentEmail: string, coachEmail: string): Promise<string> {
+  const client = getPrisma();
+  const studentUser = await client.user.findUnique({
+    where: { email: studentEmail },
+    include: { student: { include: { parent: true } } },
+  });
+  const coachUser = await client.user.findUnique({ where: { email: coachEmail } });
+  if (!studentUser?.student || !coachUser) {
+    throw new Error(`Missing student or coach for ${studentEmail} / ${coachEmail}`);
+  }
+
+  const parentUser = await client.user.findFirst({
+    where: { parentProfile: { id: studentUser.student.parentId } },
+  });
+
+  const now = new Date();
+  const scheduledDate = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  const booking = await client.sessionBooking.create({
+    data: {
+      studentId: studentUser.id,
+      coachId: coachUser.id,
+      parentId: parentUser?.id ?? null,
+      subject: 'MATHEMATIQUES',
+      title: 'Session E2E',
+      scheduledDate,
+      startTime: '14:00',
+      endTime: '15:00',
+      duration: 60,
+      status: 'SCHEDULED',
+      type: 'INDIVIDUAL',
+      modality: 'ONLINE',
+      meetingUrl: `https://meet.jit.si/nexus-${Date.now()}`,
+      creditsUsed: 1,
+    },
+  });
+  return booking.id;
+}
+
+export async function createSessionNotification(userEmail: string, message: string): Promise<void> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({ where: { email: userEmail } });
+  if (!user) throw new Error(`User not found for ${userEmail}`);
+  await client.notification.create({
+    data: {
+      userId: user.id,
+      userRole: user.role,
+      type: 'E2E',
+      title: 'Notification E2E',
+      message,
+      data: { source: 'e2e' },
+      read: false,
+    },
+  });
+}
+
+export async function getStudentCredits(studentEmail: string): Promise<number> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({
+    where: { email: studentEmail },
+    include: { student: true },
+  });
+  if (!user?.student) throw new Error(`Student not found for ${studentEmail}`);
+  return user.student.credits;
+}
+
+export async function getAvailableSlotId(): Promise<string> {
+  const client = getPrisma();
+  const slot = await client.coachAvailability.findFirst({
+    where: { isAvailable: true },
+    orderBy: { createdAt: 'desc' },
+  });
+  if (slot) return slot.id;
+
+  const coach = await client.user.findFirst({ where: { role: 'COACH' } });
+  if (!coach) throw new Error('No coach available to create slot');
+  const created = await client.coachAvailability.create({
+    data: {
+      coachId: coach.id,
+      dayOfWeek: 1,
+      startTime: '14:00',
+      endTime: '15:00',
+      isAvailable: true,
+      isRecurring: true,
+      validFrom: new Date('2000-01-01T00:00:00Z'),
+    },
+  });
+  return created.id;
+}
+
+export async function createJWTForUser(payload: { id: string; role: string }): Promise<string> {
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'e2e-dev-secret';
+  return jwt.sign(payload, secret, { expiresIn: '1h' });
+}
+
+export async function getAuthToken(email: string): Promise<string> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({ where: { email } });
+  if (!user) throw new Error(`User not found for ${email}`);
+  return createJWTForUser({ id: user.id, role: user.role });
+}
+
+export async function seedManyUsers(count: number): Promise<void> {
+  const client = getPrisma();
+  const baseTs = Date.now();
+  for (let i = 0; i < count; i += 1) {
+    const email = `e2e.bulk.user.${baseTs}.${i}@test.local`;
+    await client.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        role: i % 3 === 0 ? 'COACH' : i % 3 === 1 ? 'PARENT' : 'ELEVE',
+        firstName: `Bulk${i}`,
+        lastName: 'E2E',
+      },
+    });
+  }
+}
+
+export async function loginAsParentWithNoChildren(page: Page): Promise<void> {
+  const client = getPrisma();
+  await loginAsUser(page, 'parent');
+  const parent = await client.user.findUnique({
+    where: { email: CREDS.parent.email },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  if (!parent?.parentProfile) return;
+
+  for (const child of parent.parentProfile.children) {
+    await client.subscription.deleteMany({ where: { studentId: child.id } });
+    await client.student.delete({ where: { id: child.id } }).catch(() => undefined);
+  }
+}
+
+export async function loginAsParentWithTwoChildren(page: Page): Promise<void> {
+  const client = getPrisma();
+  await loginAsUser(page, 'parent');
+  const parent = await client.user.findUnique({
+    where: { email: CREDS.parent.email },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  if (!parent?.parentProfile) throw new Error('Parent profile missing');
+  const existingCount = parent.parentProfile.children.length;
+  if (existingCount >= 2) return;
+
+  for (let i = existingCount; i < 2; i += 1) {
+    const email = `e2e.parent.child.${Date.now()}.${i}@test.local`;
+    const user = await client.user.create({
+      data: {
+        email,
+        role: 'ELEVE',
+        firstName: `Child${i + 1}`,
+        lastName: 'E2E',
+      },
+    });
+    await client.student.create({
+      data: {
+        userId: user.id,
+        parentId: parent.parentProfile.id,
+        grade: i === 0 ? 'Première' : 'Terminale',
+        credits: i === 0 ? 2 : 6,
+      },
+    });
+  }
+}
+
+export async function loginAsUserWithEntitlement(
+  page: Page,
+  creds: { email: string; password: string },
+  featureKey: string
+): Promise<void> {
+  await clearEntitlementsByUserEmail(creds.email);
+  await setEntitlementByUserEmail(creds.email, featureKey);
+  if (creds.email === CREDS.parent.email) return loginAsUser(page, 'parent');
+  if (creds.email === CREDS.student.email) return loginAsUser(page, 'student');
+  if (creds.email === CREDS.coach.email) return loginAsUser(page, 'coach');
+  if (creds.email === CREDS.admin.email) return loginAsUser(page, 'admin');
+  await loginAsUser(page, 'student');
+}
+
+export async function createInvoiceForUser(email: string): Promise<string> {
+  const invoice = await createTestInvoice(email);
+  return invoice.id;
+}
+
+export async function setStudentCreditsWithExpiry(email: string, amount: number, expiresAt: Date): Promise<void> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({
+    where: { email },
+    include: { student: true },
+  });
+  if (!user?.student) throw new Error(`Student not found for ${email}`);
+
+  await client.student.update({
+    where: { id: user.student.id },
+    data: { credits: amount },
+  });
+
+  await client.creditTransaction.create({
+    data: {
+      studentId: user.student.id,
+      type: 'MANUAL_ADJUST',
+      amount,
+      description: 'E2E credits with expiry',
+      expiresAt,
+    },
+  });
+}
+
+export async function getStudentId(email: string): Promise<string> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({
+    where: { email },
+    include: { student: true },
+  });
+  if (!user?.student) throw new Error(`Student not found for ${email}`);
+  return user.student.id;
 }
 
 export async function disconnectPrisma() {

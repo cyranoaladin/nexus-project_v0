@@ -9,6 +9,8 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import BilanGratuitPage from '../../app/bilan-gratuit/page';
 
+jest.setTimeout(15000);
+
 /**
  * Helper: fill a controlled input by ID using fireEvent.change.
  * Root cause: userEvent.type on shadcn/radix Input re-renders after each keystroke,

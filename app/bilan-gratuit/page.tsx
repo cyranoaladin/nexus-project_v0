@@ -324,6 +324,7 @@ function BilanGratuitForm() {
                       <Label htmlFor="parentFirstName" className="text-sm md:text-base">Prénom *</Label>
                       <Input
                         id="parentFirstName"
+                        data-testid="input-parent-firstname"
                         type="text"
                         value={formData.parentFirstName}
                         onChange={(e) => handleInputChange('parentFirstName', e.target.value)}
@@ -331,13 +332,14 @@ function BilanGratuitForm() {
                         placeholder="Votre prénom"
                       />
                       {errors.parentFirstName && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
+                        <p data-testid="error-parent-firstname" className="text-error text-xs md:text-sm mt-1">{errors.parentFirstName}</p>
                       )}
                     </div>
                     <div>
                       <Label htmlFor="parentLastName" className="text-sm md:text-base">Nom *</Label>
                       <Input
                         id="parentLastName"
+                        data-testid="input-parent-lastname"
                         type="text"
                         value={formData.parentLastName}
                         onChange={(e) => handleInputChange('parentLastName', e.target.value)}
@@ -345,7 +347,7 @@ function BilanGratuitForm() {
                         placeholder="Votre nom"
                       />
                       {errors.parentLastName && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentLastName}</p>
+                        <p data-testid="error-parent-lastname" className="text-error text-xs md:text-sm mt-1">{errors.parentLastName}</p>
                       )}
                     </div>
                   </div>
@@ -355,6 +357,7 @@ function BilanGratuitForm() {
                       <Label htmlFor="parentEmail" className="text-sm md:text-base">Email *</Label>
                       <Input
                         id="parentEmail"
+                        data-testid="input-parent-email"
                         type="email"
                         value={formData.parentEmail}
                         onChange={(e) => handleInputChange('parentEmail', e.target.value)}
@@ -362,13 +365,14 @@ function BilanGratuitForm() {
                         placeholder="votre@email.com"
                       />
                       {errors.parentEmail && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentEmail}</p>
+                        <p data-testid="error-parent-email" className="text-error text-xs md:text-sm mt-1">{errors.parentEmail}</p>
                       )}
                     </div>
                     <div>
                       <Label htmlFor="parentPhone" className="text-sm md:text-base">Téléphone *</Label>
                       <Input
                         id="parentPhone"
+                        data-testid="input-parent-tel"
                         type="tel"
                         value={formData.parentPhone}
                         onChange={(e) => handleInputChange('parentPhone', e.target.value)}
@@ -376,7 +380,7 @@ function BilanGratuitForm() {
                         placeholder="+216 99 19 28 29"
                       />
                       {errors.parentPhone && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.parentPhone}</p>
+                        <p data-testid="error-parent-tel" className="text-error text-xs md:text-sm mt-1">{errors.parentPhone}</p>
                       )}
                     </div>
                   </div>
@@ -385,6 +389,7 @@ function BilanGratuitForm() {
                     <Label htmlFor="parentPassword" className="text-sm md:text-base">Mot de passe *</Label>
                     <Input
                       id="parentPassword"
+                      data-testid="input-parent-password"
                       type="password"
                       value={formData.parentPassword}
                       onChange={(e) => handleInputChange('parentPassword', e.target.value)}
@@ -392,13 +397,14 @@ function BilanGratuitForm() {
                       placeholder="Minimum 8 caractères"
                     />
                     {errors.parentPassword && (
-                      <p className="text-error text-xs md:text-sm mt-1">{errors.parentPassword}</p>
+                      <p data-testid="error-parent-password" className="text-error text-xs md:text-sm mt-1">{errors.parentPassword}</p>
                     )}
                   </div>
 
                   <div className="flex justify-end pt-4">
                     <Button
                       onClick={nextStep}
+                      data-testid="btn-next-step"
                       disabled={Object.keys(errors).length > 0}
                       className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
                     >
@@ -430,6 +436,7 @@ function BilanGratuitForm() {
                       <Label htmlFor="studentFirstName" className="text-sm md:text-base">Prénom de l'élève *</Label>
                       <Input
                         id="studentFirstName"
+                        data-testid="input-child-firstname"
                         type="text"
                         value={formData.studentFirstName}
                         onChange={(e) => handleInputChange('studentFirstName', e.target.value)}
@@ -437,7 +444,7 @@ function BilanGratuitForm() {
                         placeholder="Prénom de l'élève"
                       />
                       {errors.studentFirstName && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
+                        <p data-testid="error-child-firstname" className="text-error text-xs md:text-sm mt-1">{errors.studentFirstName}</p>
                       )}
                     </div>
                     <div>
@@ -460,7 +467,7 @@ function BilanGratuitForm() {
                     <div>
                       <Label id="studentGradeLabel" htmlFor="studentGrade" className="text-sm md:text-base">Niveau *</Label>
                       <Select aria-label="Niveau" aria-labelledby="studentGradeLabel" value={formData.studentGrade} onValueChange={(value) => handleInputChange('studentGrade', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.studentGrade ? 'border-error' : ''}`}>
+                        <SelectTrigger data-testid="select-child-level" className={`mt-1 ${errors.studentGrade ? 'border-error' : ''}`}>
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -472,7 +479,7 @@ function BilanGratuitForm() {
                         </SelectContent>
                       </Select>
                       {errors.studentGrade && (
-                        <p className="text-error text-xs md:text-sm mt-1">{errors.studentGrade}</p>
+                        <p data-testid="error-child-level" className="text-error text-xs md:text-sm mt-1">{errors.studentGrade}</p>
                       )}
                     </div>
                     <div>
@@ -492,7 +499,7 @@ function BilanGratuitForm() {
                     <div>
                       <Label id="currentLevelLabel" htmlFor="currentLevel" className="text-sm md:text-base">Niveau actuel *</Label>
                       <Select aria-label="Niveau actuel" aria-labelledby="currentLevelLabel" value={formData.currentLevel} onValueChange={(value) => handleInputChange('currentLevel', value)}>
-                        <SelectTrigger className={`mt-1 ${errors.currentLevel ? 'border-error' : ''}`}>
+                        <SelectTrigger data-testid="select-current-level" className={`mt-1 ${errors.currentLevel ? 'border-error' : ''}`}>
                           <SelectValue placeholder="Sélectionnez le niveau" />
                         </SelectTrigger>
                         <SelectContent>
@@ -510,7 +517,7 @@ function BilanGratuitForm() {
                     <div>
                       <Label id="preferredModalityLabel" htmlFor="preferredModality" className="text-sm md:text-base">Modalité préférée</Label>
                       <Select aria-label="Modalité préférée" aria-labelledby="preferredModalityLabel" value={formData.preferredModality} onValueChange={(value) => handleInputChange('preferredModality', value)}>
-                        <SelectTrigger className="mt-1">
+                        <SelectTrigger data-testid="select-preferred-modality" className="mt-1">
                           <SelectValue placeholder="Sélectionnez la modalité" />
                         </SelectTrigger>
                         <SelectContent>
@@ -556,6 +563,7 @@ function BilanGratuitForm() {
                         <div key={subject.value} className="flex items-center space-x-2">
                           <Checkbox
                             id={subject.value}
+                            data-testid={`checkbox-subject-${subject.value}`}
                             checked={selectedSubjects.includes(subject.value)}
                             onCheckedChange={() => toggleSubject(subject.value)}
                           />
@@ -566,7 +574,7 @@ function BilanGratuitForm() {
                       ))}
                     </div>
                     {selectedSubjects.length === 0 && (
-                      <p className="text-error text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
+                      <p data-testid="error-child-subjects" className="text-error text-xs md:text-sm mt-1">Veuillez sélectionner au moins une matière</p>
                     )}
                   </div>
 
@@ -575,6 +583,7 @@ function BilanGratuitForm() {
                     <div className="flex items-start space-x-2">
                       <Checkbox
                         id="acceptTerms"
+                        data-testid="checkbox-accept-terms"
                         checked={formData.acceptTerms}
                         onCheckedChange={(checked) => handleInputChange('acceptTerms', checked)}
                       />
@@ -618,6 +627,7 @@ function BilanGratuitForm() {
                     </Button>
                     <Button
                       onClick={onSubmit}
+                      data-testid="btn-submit-bilan"
                       disabled={isSubmitting || Object.keys(errors).length > 0 || selectedSubjects.length === 0 || !formData.acceptTerms}
                       className="px-6 md:px-8 py-2 md:py-3 text-sm md:text-base"
                     >

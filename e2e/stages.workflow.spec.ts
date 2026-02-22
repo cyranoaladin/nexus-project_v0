@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const RESERVATION = {
+const RESERVATION_TEMPLATE = {
   parent: 'Parent E2E Stages',
   studentName: 'Eleve Stage E2E',
   email: 'stage.e2e.contract@test.com',
@@ -13,6 +13,12 @@ const RESERVATION = {
 };
 
 test.describe.serial('Stages workflow', () => {
+  const uniqueEmail = `stage.e2e.contract+${Date.now()}@test.com`;
+  const RESERVATION = {
+    ...RESERVATION_TEMPLATE,
+    email: uniqueEmail,
+  };
+
   test('/stages -> /stages/fevrier-2026', async ({ page }) => {
     await page.goto('/stages');
     await expect(page).toHaveURL(/\/stages\/fevrier-2026/);

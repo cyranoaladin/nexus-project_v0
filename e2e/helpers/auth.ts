@@ -8,7 +8,9 @@ interface LoginOptions {
     targetPath?: string;
 }
 
+// Keep E2E auth deterministic: do not rely on app NEXTAUTH_URL from random shells.
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL_HOST = new URL(BASE_URL).hostname;
 
 const CREDENTIALS = CREDS;
 
@@ -50,7 +52,9 @@ async function fetchCsrf(page: Page, attempts = 3) {
     let lastError: unknown;
     for (let i = 0; i < attempts; i += 1) {
         try {
-            const response = await page.request.get(`${BASE_URL}/api/auth/csrf`);
+            const response = await page.request.get(`${BASE_URL}/api/auth/csrf`, {
+                timeout: 15_000,
+            });
             const contentType = response.headers()['content-type'] || '';
             if (!response.ok() || !contentType.includes('application/json')) {
                 const body = await response.text();
@@ -60,7 +64,8 @@ async function fetchCsrf(page: Page, attempts = 3) {
             return { json, response };
         } catch (error) {
             lastError = error;
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            const backoffMs = Math.min(500 * (i + 1), 3000);
+            await new Promise((resolve) => setTimeout(resolve, backoffMs));
         }
     }
     throw lastError instanceof Error ? lastError : new Error('Failed to fetch CSRF token');
@@ -69,7 +74,7 @@ async function fetchCsrf(page: Page, attempts = 3) {
 async function setAuthCookies(page: Page, email: string, password: string, targetPath: string) {
     let lastError: unknown;
 
-    for (let i = 0; i < 5; i += 1) {
+    for (let i = 0; i < 2; i += 1) {
         try {
             const { json: csrfJson, response: csrfResponse } = await fetchCsrf(page);
             const csrfCookies = parseSetCookie(getSetCookieHeaders(csrfResponse));
@@ -110,7 +115,7 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
                 .map((cookie) => ({
                     name: cookie.name,
                     value: cookie.value,
-                    domain: 'localhost',
+                    domain: BASE_URL_HOST,
                     path: cookie.path || '/',
                 }))
                 .filter((cookie) => cookie.name && cookie.value);
@@ -119,11 +124,33 @@ async function setAuthCookies(page: Page, email: string, password: string, targe
             return;
         } catch (error) {
             lastError = error;
-            await new Promise((resolve) => setTimeout(resolve, 750));
+            const backoffMs = Math.min(750 * (i + 1), 4000);
+            await new Promise((resolve) => setTimeout(resolve, backoffMs));
         }
     }
 
     throw lastError instanceof Error ? lastError : new Error('Failed to set auth cookies');
+}
+
+async function waitForAuthenticatedSession(page: Page, expectedEmail: string, attempts = 20) {
+    for (let i = 0; i < attempts; i += 1) {
+        const res = await page.request.get(`${BASE_URL}/api/auth/session`, {
+            timeout: 10_000,
+            failOnStatusCode: false,
+        });
+        if (res.ok()) {
+            try {
+                const session = (await res.json()) as { user?: { email?: string } };
+                if (session?.user?.email?.toLowerCase() === expectedEmail.toLowerCase()) {
+                    return;
+                }
+            } catch {
+                // ignore malformed JSON and retry
+            }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    throw new Error(`Unable to establish authenticated session for ${expectedEmail}`);
 }
 
 /**
@@ -137,7 +164,17 @@ export async function loginAsUser(
     const { navigate = true, targetPath = ROLE_PATHS[userType] } = options;
     const { email, password } = CREDENTIALS[userType];
 
-    await setAuthCookies(page, email, password, targetPath);
+    try {
+        await setAuthCookies(page, email, password, targetPath);
+        await waitForAuthenticatedSession(page, email);
+    } catch {
+        // Fallback to UI login when callback flow changes.
+        await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+        await page.getByTestId('input-email').fill(email);
+        await page.getByTestId('input-password').fill(password);
+        await page.getByTestId('btn-signin').click();
+        await waitForAuthenticatedSession(page, email);
+    }
 
     if (navigate) {
         await page.goto(targetPath, { waitUntil: 'domcontentloaded' });

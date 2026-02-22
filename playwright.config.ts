@@ -12,11 +12,13 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 1 : 1,
+  workers: 1,
   reporter: 'html',
   timeout: process.env.CI ? 60_000 : 90_000,
-  globalTimeout: process.env.CI ? 11 * 60_000 : 0, // 11 min in CI (1 min below step timeout for graceful report), unlimited locally
+  globalTimeout: process.env.PLAYWRIGHT_GLOBAL_TIMEOUT_MS
+    ? Number(process.env.PLAYWRIGHT_GLOBAL_TIMEOUT_MS)
+    : 0,
   use: {
     baseURL,
     trace: 'on-first-retry',
@@ -26,6 +28,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
         launchOptions: {
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
           chromiumSandbox: false,

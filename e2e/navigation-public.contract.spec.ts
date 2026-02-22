@@ -44,17 +44,35 @@ test.describe('Navigation publique - contrat', () => {
   test('formulaire contact home appelle /api/contact', async ({ page }) => {
     await page.goto('/');
 
-    const maybeName = page.locator('input[name="name"], input[name="nom"]').first();
-    if (!(await maybeName.isVisible().catch(() => false))) {
-      test.skip(true, 'Formulaire contact intégré non présent sur la homepage dans cette build');
+    let nameInput = page
+      .locator('input[name="name"], input[name="nom"], [data-testid="input-contact-nom"]')
+      .first();
+    if (!(await nameInput.isVisible().catch(() => false))) {
+      await page.goto('/contact');
+      nameInput = page
+        .locator('input[name="name"], input[name="nom"], [data-testid="input-contact-nom"]')
+        .first();
     }
+    await expect(nameInput).toBeVisible({ timeout: 10000 });
 
-    await maybeName.fill('E2E Navigation');
-    await page.locator('input[name="email"]').first().fill('e2e.navigation@test.com');
-    await page.locator('textarea[name="message"], textarea[name="content"]').first().fill('Test contact contractuel');
+    const emailInput = page
+      .locator('input[name="email"], [data-testid="input-contact-email"]')
+      .first();
+    const messageInput = page
+      .locator('textarea[name="message"], textarea[name="content"], [data-testid="input-contact-message"]')
+      .first();
+    await expect(emailInput).toBeVisible({ timeout: 10000 });
+    await expect(messageInput).toBeVisible({ timeout: 10000 });
+
+    await nameInput.fill('E2E Navigation');
+    await emailInput.fill('e2e.navigation@test.com');
+    await messageInput.fill('Test contact contractuel');
 
     const contactRequest = page.waitForRequest((req) => req.url().includes('/api/contact') && req.method() === 'POST');
-    await page.locator('button[type="submit"]').last().click();
+    await page
+      .locator('button[type="submit"], [data-testid="btn-submit-contact"]')
+      .last()
+      .click();
     await contactRequest;
   });
 

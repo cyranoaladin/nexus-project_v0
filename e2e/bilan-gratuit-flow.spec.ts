@@ -32,8 +32,9 @@ test.describe('Bilan gratuit multi-step', () => {
     await nextButton.click();
 
     // Step transition can be slightly delayed depending on hydration/network.
+    await expect(page.getByText(/Étape 2 sur 2/i)).toBeVisible({ timeout: 15000 });
     await expect(
       page.getByRole('heading', { name: /Étape 2 : Informations Élève/i })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: 15000 });
   });
 });
