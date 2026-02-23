@@ -1,6 +1,6 @@
 # Nexus Réussite — Plateforme de Pilotage Éducatif
 
-> **Source de vérité unique** — Dernière mise à jour : 21 février 2026 (post-refactor tests)
+> **Source de vérité unique** — Dernière mise à jour : 23 février 2026
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 
@@ -37,13 +37,13 @@
 |--------|-------------|---------|
 | **Framework** | Next.js (App Router, standalone) | 15.5 |
 | **UI** | React + TypeScript strict | 18.3 / 5.x |
-| **Styling** | Tailwind CSS v4 + Radix UI + Framer Motion | 4.1 |
+| **Styling** | Tailwind CSS v4 + Radix UI + CVA variants + Framer Motion | 4.1 |
 | **Auth** | NextAuth v5 (Auth.js) — Credentials + JWT | 5.0.0-beta.30 |
 | **ORM** | Prisma Client | 6.13 |
 | **DB** | PostgreSQL + pgvector | 15+ |
 | **IA / LLM** | Ollama (LLaMA 3.2, Qwen 2.5) via OpenAI SDK | — |
-| **RAG** | ChromaDB + FastAPI Ingestor | — |
-| **Email** | Nodemailer (SMTP) | 7.x |
+| **RAG** | pgvector + FastAPI Ingestor v2 (migré depuis ChromaDB) | — |
+| **Email** | Nodemailer (SMTP Hostinger) + Telegram Bot | 7.x |
 | **Validation** | Zod | 3.23 |
 | **State** | Zustand | 5.x |
 | **Charts** | Recharts | 3.7 |
@@ -86,105 +86,140 @@
 
 ```
 nexus-project_v0/
-├── app/                            # Next.js App Router
-│   ├── page.tsx                    # Homepage (landing, GSAP animations)
+├── app/                            # Next.js App Router (74 pages)
+│   ├── page.tsx                    # Homepage (landing, 9 sections GSAP)
 │   ├── layout.tsx                  # Root layout (providers, fonts, SEO, JSON-LD)
-│   ├── globals.css                 # Design tokens + global styles
+│   ├── globals.css                 # Design tokens HSL + global styles (35K)
 │   ├── sitemap.ts                  # Dynamic sitemap generation
 │   ├── robots.ts                   # Robots.txt (disallow /dashboard, /api, /auth)
 │   │
-│   ├── auth/                       # Pages d'authentification
+│   ├── auth/                       # Pages d'authentification (4 pages)
 │   │   ├── signin/                 # Connexion (email + password)
 │   │   ├── activate/               # Activation compte élève (token)
 │   │   ├── mot-de-passe-oublie/    # Demande reset password
 │   │   └── reset-password/         # Nouveau mot de passe (token)
 │   │
-│   ├── dashboard/                  # Dashboards protégés par rôle
+│   ├── dashboard/                  # Dashboards protégés par rôle (32 pages)
 │   │   ├── layout.tsx              # Layout partagé (sidebar, navigation)
-│   │   ├── admin/                  # ADMIN (stats, users, analytics, factures)
-│   │   ├── assistante/             # ASSISTANTE (élèves, coachs, paiements)
-│   │   ├── coach/                  # COACH (sessions, disponibilités)
-│   │   ├── parent/                 # PARENT (enfants, crédits, abonnements)
-│   │   ├── eleve/                  # ELEVE (sessions, ressources, ARIA)
-│   │   └── trajectoire/            # Trajectoire de progression
+│   │   ├── page.tsx                # Redirect vers /dashboard/{role}
+│   │   ├── admin/                  # ADMIN: 8 pages (stats, users, analytics, factures, tests, docs)
+│   │   ├── assistante/             # ASSISTANTE: 9 pages (élèves, coachs, paiements, crédits, docs)
+│   │   ├── coach/                  # COACH: 4 pages (sessions, étudiants, disponibilités)
+│   │   ├── parent/                 # PARENT: 7 pages (enfants, abo, paiement, ressources + modales)
+│   │   ├── eleve/                  # ELEVE: 4 pages (sessions, ressources, booking)
+│   │   └── trajectoire/            # Trajectoire de progression (tous rôles)
 │   │
-│   ├── api/                        # 80+ API routes
+│   ├── api/                        # 81 API routes
 │   │   ├── auth/                   # NextAuth + reset-password
-│   │   ├── admin/                  # Admin (dashboard, users, invoices, analytics)
-│   │   ├── assistant/              # Assistante (dashboard, students, coaches)
-│   │   ├── parent/                 # Parent (dashboard, children, credits)
-│   │   ├── student/                # Student (dashboard, sessions, trajectory)
-│   │   ├── coach/                  # Coach (dashboard, sessions)
-│   │   ├── aria/                   # ARIA IA (chat, feedback)
-│   │   ├── assessments/            # Diagnostic engine
-│   │   ├── payments/               # Paiements (bank-transfer, validate)
-│   │   ├── sessions/               # Session booking (book, cancel, video)
-│   │   ├── invoices/               # Facturation
+│   │   ├── admin/                  # Admin (12 routes: dashboard, users, invoices, analytics, docs, SSN)
+│   │   ├── assistant/              # Assistante (8 routes: dashboard, students, coaches, credits)
+│   │   ├── parent/                 # Parent (5 routes: dashboard, children, credits, subscriptions)
+│   │   ├── student/                # Student (8 routes: dashboard, sessions, credits, trajectory, docs)
+│   │   ├── coach/                  # Coach (3 routes: dashboard, sessions, reports)
+│   │   ├── aria/                   # ARIA IA (3 routes: chat, conversations, feedback)
+│   │   ├── assessments/            # Évaluations (6 routes: submit, result, status, export, predict)
+│   │   ├── payments/               # Paiements (5 routes: bank-transfer, validate, clictopay)
+│   │   ├── sessions/               # Session booking (3 routes: book, cancel, video)
+│   │   ├── invoices/               # Facturation (PDF, reçu)
 │   │   ├── diagnostics/            # Diagnostic definitions
+│   │   ├── subscriptions/          # Changement abo, add-on ARIA
+│   │   ├── notify/                 # Email notifications (CSRF + rate limit)
 │   │   └── health/                 # Healthcheck
 │   │
-│   ├── bilan-gratuit/              # Formulaire bilan stratégique (lead gen)
-│   ├── bilan-pallier2-maths/       # Quiz diagnostique multi-matières
+│   ├── bilan-gratuit/              # Formulaire bilan stratégique (lead gen + assessment)
+│   ├── bilan-pallier2-maths/       # Quiz diagnostique multi-matières (4 définitions)
+│   │   ├── resultat/[id]/          # Résultats 3 audiences (signed tokens, polling LLM)
+│   │   └── dashboard/              # Admin suivi diagnostics
+│   ├── assessments/[id]/           # Processing + résultats (SSN, radar, heatmap)
 │   ├── offres/                     # Page tarifs & formules
-│   ├── stages/                     # Stages intensifs (vacances)
-│   ├── programme/                  # 24 sous-pages programmes éducatifs
+│   ├── stages/                     # Stages intensifs (diagnostic QCM, bilans, dashboard)
+│   ├── programme/                  # Programmes interactifs (maths-1ere: 22 composants, maths-terminale)
+│   ├── admin/                      # Pages admin hors sidebar (directeur, stages)
 │   ├── accompagnement-scolaire/    # Services soutien scolaire
 │   ├── plateforme-aria/            # Vitrine ARIA
 │   ├── equipe/                     # Équipe pédagogique
 │   ├── contact/                    # Formulaire contact
+│   ├── session/video/              # Visioconférence Jitsi Meet
 │   └── access-required/            # Page refus d'accès (entitlement)
 │
 ├── auth.ts                         # NextAuth config (Credentials, JWT, authorize)
 ├── auth.config.ts                  # Callbacks (authorized, jwt, session, redirect)
 ├── middleware.ts                    # Edge middleware (auth guard)
 │
-├── lib/                            # Logique métier
+├── lib/                            # Logique métier (132 fichiers)
 │   ├── prisma.ts                   # Prisma client singleton
 │   ├── rbac.ts                     # RBAC policy map (35+ policies, 11 resources)
+│   ├── guards.ts                   # Guards serveur (requireRole, requireAnyRole)
 │   ├── credits.ts                  # Système de crédits (debit, refund, balance)
 │   ├── session-booking.ts          # Service réservation sessions
 │   ├── constants.ts                # Constantes métier (plans, pricing, crédits)
-│   ├── access/                     # Feature gating (entitlements)
-│   │   ├── features.ts             # 10 feature keys
-│   │   ├── rules.ts                # Résolution d'accès
-│   │   └── guard.ts                # Guards serveur/API
+│   ├── access/                     # Feature gating (10 features, 3 fichiers)
+│   │   ├── features.ts             # 10 feature keys + fallback modes
+│   │   ├── rules.ts                # Résolution d'accès (pure function)
+│   │   └── guard.ts                # Guards serveur/API (requireFeature, requireFeatureApi)
 │   ├── entitlement/                # Moteur entitlements (activate, suspend)
 │   │   ├── engine.ts               # Mode-aware: SINGLE, EXTEND, STACK
 │   │   └── types.ts                # Product registry + codes
-│   ├── invoice/                    # Moteur facturation (PDF, numérotation)
-│   ├── diagnostics/                # Définitions diagnostiques (4 matières)
-│   ├── assessments/                # Scoring engine
+│   ├── invoice/                    # Moteur facturation (11 fichiers: PDF, séquence, email, storage)
+│   ├── diagnostics/                # Diagnostic engine (17 fichiers)
+│   │   ├── score-diagnostic.ts     # Scoring V2 + TrustScore + priorities
+│   │   ├── bilan-renderer.ts       # 3 renderers (élève, parents, nexus)
+│   │   ├── signed-token.ts         # HMAC-SHA256 signed tokens
+│   │   ├── definitions/            # 4 définitions compilées (maths/NSI × 1ère/Tle)
+│   │   └── types.ts                # Types diagnostiques
+│   ├── assessments/                # Assessment engine (31 fichiers: questions, scoring, generators)
+│   ├── core/                       # Core engines (SSN, ML predict, UAI, cohort stats)
+│   │   ├── ssn/computeSSN.ts       # Score Scolaire Normalisé
+│   │   ├── ml/predictSSN.ts        # Ridge regression + stabilité trend
+│   │   ├── uai/computeUAI.ts       # Unified Academic Index
+│   │   └── statistics/             # Cohort stats + normalize
 │   ├── aria.ts                     # Client ARIA (Ollama via OpenAI SDK)
 │   ├── aria-streaming.ts           # Streaming responses
+│   ├── ollama-client.ts            # Client Ollama natif (health, generate, chat)
+│   ├── rag-client.ts               # Client RAG Ingestor (search, stats, context)
+│   ├── bilan-generator.ts          # Pipeline RAG→LLM (3 bilans séquentiels)
 │   ├── scoring-engine.ts           # Scoring stages (25 tests)
 │   ├── trajectory.ts               # Moteur trajectoire élève
+│   ├── nexus-index.ts              # Nexus Index (score composite)
 │   ├── badges.ts                   # Gamification
 │   ├── next-step-engine.ts         # Recommandations prochaines étapes
-│   ├── email.ts                    # Templates email
-│   └── validation/                 # Schémas Zod
+│   ├── email/                      # SMTP mailer (Hostinger) + templates
+│   ├── telegram/                   # Telegram Bot client (notifications)
+│   ├── theme/                      # Design system (tokens.ts + variants.ts CVA)
+│   ├── middleware/                  # Logger, rate limit, error handling
+│   ├── validation/                 # Schémas Zod (6 fichiers)
+│   ├── services/                   # Student activation service
+│   └── pdf/                        # Assessment PDF template (react-pdf)
 │
-├── components/                     # Composants React
-│   ├── ui/                         # 60+ primitives (shadcn/ui + custom)
-│   ├── sections/                   # 32 sections landing page
-│   ├── dashboard/                  # 16 composants dashboard
-│   ├── stages/                     # 24 composants stages
-│   ├── assessments/                # 8 composants évaluation
-│   ├── layout/                     # CorporateNavbar, CorporateFooter
-│   ├── navigation/                 # 8 composants navigation
+├── components/                     # Composants React (158 fichiers)
+│   ├── ui/                         # 60+ primitives (shadcn/ui + ARIA chat + session booking)
+│   ├── sections/                   # 32 sections landing page (GSAP animations)
+│   ├── dashboard/                  # 16 composants dashboard (KPIs, trajectoire, synthèse)
+│   ├── stages/                     # 24 composants stages (quiz, réservation, bilan)
+│   ├── assessments/                # 9 composants évaluation (SSN, radar, heatmap, simulation)
+│   ├── admin/                      # DocumentUploadForm (coffre-fort)
+│   ├── layout/                     # CorporateNavbar, CorporateFooter, DashboardLayout
+│   ├── navigation/                 # 9 composants navigation (sidebar, mobile, config par rôle)
 │   └── providers.tsx               # SessionProvider wrapper
 │
 ├── prisma/
-│   ├── schema.prisma               # ~1286 lignes, 38 modèles, 20 enums
-│   ├── migrations/                 # 16 migrations
-│   └── seed.ts                     # Seed production (9 users, 5 coachs)
+│   ├── schema.prisma               # 1286 lignes, 38 modèles, 20 enums
+│   ├── migrations/                 # 16 migrations (init → pgvector → user_documents)
+│   └── seed.ts                     # Seed production (9 users, 5 coachs, profils)
 │
-├── __tests__/                      # 216 fichiers tests (Jest)
-├── e2e/                            # 19 fichiers E2E (Playwright)
-├── scripts/                        # 35 scripts utilitaires
+├── programmes/                     # Pipeline programmes éducatifs
+│   ├── generated/                  # JSON générés depuis PDFs (4 fichiers)
+│   └── mapping/                    # YAML source de vérité (4 fichiers)
+│
+├── tools/programmes/               # Scripts ETL (generate, compile)
+├── __tests__/                      # 226 fichiers tests (Jest)
+├── e2e/                            # 38 fichiers E2E (Playwright)
+├── scripts/                        # 41 scripts utilitaires
+├── docs/                           # 49 fichiers documentation
 ├── .github/workflows/ci.yml        # CI pipeline (7 jobs)
 ├── docker-compose.prod.yml         # Docker Compose production
 ├── Dockerfile.prod                 # Dockerfile production (standalone)
-└── package.json                    # 176 lignes, 80+ dépendances
+└── package.json                    # 80+ dépendances
 ```
 
 ---
@@ -209,7 +244,7 @@ Payment ──▶ ClicToPayTransaction
 StageReservation (standalone, scoringResult JSON)
 ```
 
-### Modèles Principaux (38)
+### Modèles Principaux (38 modèles, 16 migrations)
 
 | Modèle | Description | Relations clés |
 |--------|-------------|----------------|
@@ -337,18 +372,32 @@ Admin/Assistante/Parent
 - **Élèves non activés** : Bloqués au login
 - **Robots.txt** : Interdit `/dashboard`, `/api`, `/auth`, `/session`
 
-## 6. Sitemap Complet
+## 6. Sitemap Complet (74 pages)
 
-### Pages Publiques
+> Détail complet dans [NAVIGATION_MAP.md](./NAVIGATION_MAP.md)
+
+### Pages Publiques (30 pages)
 
 ```
-/                              Homepage (landing, GSAP animations)
+/                              Homepage (landing, 9 sections GSAP)
 ├── /offres                    Tarifs & formules d'abonnement
 ├── /stages                    → redirect /stages/fevrier-2026
-│   └── /stages/fevrier-2026   Stage intensif + QCM diagnostique
+│   ├── /stages/fevrier-2026   Stage intensif + réservation
+│   │   ├── /diagnostic        QCM 50 questions (30 Maths + 20 NSI)
+│   │   └── /bilan/[id]       Résultats scoring stage
+│   └── /stages/dashboard-excellence
 ├── /bilan-gratuit             Formulaire bilan stratégique (lead gen)
-│   └── /bilan-gratuit/confirmation
+│   ├── /confirmation
+│   └── /assessment            Évaluation en ligne
 ├── /bilan-pallier2-maths      Quiz diagnostique multi-matières
+│   ├── /confirmation
+│   ├── /dashboard             Admin suivi diagnostics
+│   └── /resultat/[id]        Bilans 3 audiences (signed tokens)
+├── /assessments/[id]
+│   ├── /processing            Page d'attente scoring
+│   └── /result                SSN, radar, heatmap, simulation
+├── /programme/maths-1ere      Programme interactif (22 composants)
+├── /programme/maths-terminale Programme interactif
 ├── /accompagnement-scolaire   Services soutien scolaire
 ├── /plateforme-aria           Présentation IA ARIA
 ├── /famille                   Page famille
@@ -359,7 +408,8 @@ Admin/Assistante/Parent
 ├── /contact                   Formulaire de contact
 ├── /conditions                CGU
 ├── /mentions-legales          Mentions légales
-└── /programme/                24 sous-pages programmes éducatifs
+├── /maths-1ere                Page legacy
+└── /access-required           Page refus d'accès (entitlement)
 ```
 
 ### Redirections
@@ -372,20 +422,33 @@ Admin/Assistante/Parent
 | `/academies-hiver` | `/stages` | 301 |
 | `/plateforme` | `/plateforme-aria` | 301 |
 | `/education` | `/accompagnement-scolaire` | 301 |
+| `/dashboard` | `/dashboard/{role}` | redirect |
 
-### Pages Authentifiées
+### Pages Authentifiées (40 pages)
 
 ```
-/auth/signin · /auth/activate · /auth/mot-de-passe-oublie · /auth/reset-password
+Auth (4) :
+  /auth/signin · /auth/activate · /auth/mot-de-passe-oublie · /auth/reset-password
 
-/dashboard/admin           + /users /analytics /activities /subscriptions /facturation /tests
-/dashboard/assistante      + /students /coaches /subscriptions /subscription-requests
-                             /credit-requests /credits /paiements /docs
-/dashboard/coach           (onglets: Tableau de Bord, Disponibilités)
-/dashboard/parent          + /children /abonnements /paiement
-/dashboard/eleve           + /sessions /mes-sessions /ressources
-/dashboard/trajectoire     Trajectoire de progression
-/access-required           Page refus d'accès (entitlement)
+Admin (8+3) :
+  /dashboard/admin + /users /analytics /activities /subscriptions /facturation /tests /documents
+  /admin/directeur · /admin/stages/fevrier-2026
+
+Assistante (9) :
+  /dashboard/assistante + /students /coaches /subscriptions /subscription-requests
+    /credit-requests /credits /paiements /docs
+
+Coach (4) :
+  /dashboard/coach + /sessions /students /availability
+
+Parent (7) :
+  /dashboard/parent + /children /abonnements /paiement /paiement/confirmation /ressources
+
+Élève (4) :
+  /dashboard/eleve + /mes-sessions /sessions /ressources
+
+Commun :
+  /dashboard (redirect) · /dashboard/trajectoire · /session/video
 ```
 
 ## 7. Workflows Utilisateur par Rôle
@@ -428,53 +491,29 @@ Email activation → /auth/activate?token=xxx → choix mot de passe
 
 ---
 
-## 8. API Routes (80+)
+## 8. API Routes (81 endpoints)
 
-### Authentification
+> Détail complet dans [NAVIGATION_MAP.md](./NAVIGATION_MAP.md#8-api-routes-81-endpoints)
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET/POST | `/api/auth/[...nextauth]` | Handlers NextAuth v5 |
-| POST | `/api/auth/reset-password` | Reset password (demande + exécution) |
+### Par domaine
 
-### Admin (`/api/admin/`)
-
-`dashboard` · `analytics` · `activities` · `users` · `users/[id]` · `subscriptions` · `invoices` · `invoices/[id]` · `invoices/[id]/pdf` · `documents` · `recompute-ssn` · `test-email` · `directeur`
-
-### Assistante (`/api/assistant/`)
-
-`dashboard` · `students` · `activate-student` · `coaches` · `coaches/[id]` · `subscriptions` · `subscription-requests` · `credit-requests`
-
-### Parent (`/api/parent/`)
-
-`dashboard` · `children` · `credit-request` · `subscriptions` · `subscription-requests`
-
-### Élève (`/api/student/`)
-
-`dashboard` · `activate` · `sessions` · `credits` · `documents` · `nexus-index` · `resources` · `trajectory`
-
-### Coach (`/api/coach/`)
-
-`dashboard` · `sessions`
-
-### Transversales
-
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| POST | `/api/aria/chat` | Chat IA (entitlement-gated) |
-| POST | `/api/aria/feedback` | Feedback réponse IA |
-| POST | `/api/sessions/book` | Réservation session (entitlement-gated) |
-| POST | `/api/sessions/cancel` | Annulation session |
-| POST | `/api/payments/bank-transfer/confirm` | Déclaration virement |
-| GET | `/api/payments/pending` | Paiements en attente (staff) |
-| GET | `/api/payments/check-pending` | Anti-double paiement |
-| POST | `/api/payments/validate` | Validation/rejet paiement |
-| GET | `/api/health` | Healthcheck |
-| POST | `/api/bilan-gratuit` | Inscription bilan gratuit |
-| POST | `/api/contact` | Formulaire contact |
-| POST | `/api/reservation` | Réservation stage |
-| POST | `/api/stages/submit-diagnostic` | Soumission QCM stage |
-| GET | `/api/notifications` | Notifications |
+| Domaine | Routes | Endpoints clés |
+|---------|--------|----------------|
+| **Auth** | 2 | NextAuth handlers, reset-password |
+| **Admin** | 12 | dashboard, users CRUD, invoices, analytics, documents, SSN, test-email, directeur |
+| **Assistante** | 8 | dashboard, students, activate-student, coaches, subscriptions, credit-requests |
+| **Parent** | 5 | dashboard, children, credit-request, subscriptions, subscription-requests |
+| **Élève** | 8 | dashboard, activate, sessions, credits, documents, nexus-index, resources, trajectory |
+| **Coach** | 3 | dashboard, sessions, session reports |
+| **ARIA** | 3 | chat (🔑), conversations, feedback |
+| **Assessments** | 6 | submit, result, status, export, predict, test |
+| **Sessions** | 3 | book (🔑), cancel, video (Jitsi) |
+| **Coaches** | 2 | availability, available |
+| **Paiements** | 5 | bank-transfer/confirm, check-pending, pending, validate, clictopay/init |
+| **Facturation** | 3 | invoice PDF, receipt PDF, document download |
+| **Abonnements** | 2 | change, aria-addon |
+| **Diagnostics** | 5 | definitions, bilan-gratuit, bilan-pallier2-maths (+retry), submit-diagnostic |
+| **Transversales** | 14 | health, contact, reservation (+verify), notifications, notify/email, messages, me/next-step, analytics/event, badges, programme progress |
 
 ---
 
@@ -495,6 +534,13 @@ Email activation → /auth/activate?token=xxx → choix mot de passe
 | **Grand Oral** | 750 TND |
 | **Bac de Français** | 1 200 TND |
 | **Orientation Parcoursup** | 900 TND |
+
+### Tarifs Horaires
+
+| Type | Prix/heure |
+|------|-----------|
+| **Individuel** | 60 TND |
+| **Groupe** | 40 TND |
 
 ### Coûts en Crédits
 
@@ -525,28 +571,44 @@ Activation mode-aware lors du paiement :
 
 ## 10. ARIA — IA Pédagogique
 
-ARIA est l'assistant IA 24/7, alimenté par **Ollama** avec **RAG** sur contenus pédagogiques via **ChromaDB**.
+ARIA est l'assistant IA 24/7, alimenté par **Ollama** avec **RAG** sur contenus pédagogiques via **pgvector** (migré depuis ChromaDB).
 
 ```
 Élève → POST /api/aria/chat
     ├── requireFeatureApi('aria_maths' | 'aria_nsi')
-    ├── RAG Search (ChromaDB: ressources_pedagogiques_terminale)
+    ├── RAG Search (pgvector via FastAPI Ingestor v2.3)
+    │   └── 211 chunks (142 Maths + 69 NSI, 4 PDFs + 4 compétences MD)
     ├── Ollama (OPENAI_BASE_URL=http://ollama:11434/v1)
-    │   └── llama3.2 (2GB) ou qwen2.5:32b (19GB)
+    │   └── llama3.2 (2GB, défaut) — CPU inference (~3min pour bilans)
+    ├── Streaming response (lib/aria-streaming.ts)
     └── Sauvegarde AriaConversation + AriaMessage
+
+Bilan Pipeline (POST /api/bilan-pallier2-maths) :
+    ├── Scoring V2 (TrustScore + priorities)
+    ├── RAG Search (domaines faibles, types d'erreurs, préparation exam)
+    ├── 3 appels Ollama séquentiels (élève, parents, nexus) — ~3min total
+    └── Stockage DB (status: ANALYZED, analysisResult JSON)
 ```
 
 | Modèle | Taille | Usage |
 |--------|--------|-------|
-| `llama3.2:latest` | 2 GB | Chat pédagogique (défaut) |
-| `qwen2.5:32b` | 19 GB | Analyses approfondies |
-| `nomic-embed-text` | 274 MB | Embeddings RAG |
+| `llama3.2:latest` | 2 GB | Chat pédagogique + bilans (défaut) |
+| `phi3:mini` | 2.2 GB | Alternative légère |
+| `nomic-embed-text:v1.5` | 274 MB | Embeddings RAG |
+
+### RAG Ingestor v2.3
+
+- **Backend** : pgvector (migré depuis ChromaDB)
+- **18 endpoints** : search, ingest, admin CRUD, collections, metrics
+- **Auto-classifier** : `classify_education_content()` via llama3.2
+- **Filtres** : subject, level, type, doc_type, domain (ChromaDB `$and` queries)
+- **Client** : `lib/rag-client.ts` (ragSearchBySubject, ragCollectionStats, buildRAGContext)
 
 ---
 
 ## 11. Diagnostic & Évaluation
 
-### Moteur Multi-Matières
+### Moteur Multi-Matières (`lib/diagnostics/`)
 
 Pipeline : PDF programme → JSON généré → YAML mapping (vérité) → JSON compilé → TS definitions
 
@@ -557,7 +619,37 @@ Pipeline : PDF programme → JSON généré → YAML mapping (vérité) → JSON
 | `nsi-premiere-p2` | 5 (données, traitement, algo, python, architecture) | ~28 |
 | `nsi-terminale-p2` | 6 (structures, algo avancé, BDD, réseaux, OS, python) | ~30 |
 
-### Scoring Engine (`lib/scoring-engine.ts`)
+### Scoring V2 (`lib/diagnostics/score-diagnostic.ts`)
+
+- **TrustScore** (0-100) + trustLevel (high/medium/low)
+- **RiskIndex** rebalancé : 60% proof + 40% declarative
+- **Détection d'incohérences** : 4 règles automatiques
+- **Priorités calculées** : TopPriorities, QuickWins, HighRisk
+- **Couverture programme** : chapitres vus/total, ratio, skills évalués
+
+### Bilan Renderer (`lib/diagnostics/bilan-renderer.ts`)
+
+3 renderers déterministes Markdown :
+- **renderEleveBilan** : tutoiement, scores, priorités, micro-plan 5/15/30 min, prérequis
+- **renderParentsBilan** : vouvoiement, labels qualitatifs (pas de scores bruts)
+- **renderNexusBilan** : tables techniques, TrustScore, domain map, verbatims, couverture
+
+### Signed Tokens (`lib/diagnostics/signed-token.ts`)
+
+- HMAC-SHA256 signed tokens avec expiry
+- Accès par audience (élève, parents) via `?t=<signedToken>`
+- Audience Nexus rejetée (requiert auth staff)
+- Idempotency-Key header support
+
+### Assessment Engine (`lib/assessments/`, `lib/core/`)
+
+- **SSN** (Score Scolaire Normalisé) : `lib/core/ssn/computeSSN.ts`
+- **UAI** (Unified Academic Index) : `lib/core/uai/computeUAI.ts`
+- **ML Predict** : Ridge regression + stabilité trend (`lib/core/ml/predictSSN.ts`)
+- **Cohort Stats** : normalisation, percentiles (`lib/core/statistics/`)
+- **Composants** : SSNCard, ResultRadar, SkillHeatmap, SimulationPanel
+
+### Scoring Engine Stages (`lib/scoring-engine.ts`)
 
 - Score global pondéré par domaine
 - Indice de confiance et de précision
@@ -568,10 +660,12 @@ Pipeline : PDF programme → JSON généré → YAML mapping (vérité) → JSON
 ### Stages Intensifs
 
 - **Réservation** : `/api/reservation` (Zod → upsert → Telegram notification)
-- **QCM** : 50 questions (30 Maths + 20 NSI), 3 niveaux de poids
+- **QCM** : 50 questions (30 Maths + 20 NSI), 3 niveaux de poids (W1=15, W2=20, W3=15)
 - **Interface** : Machine à état (intro → quiz → transition → submitting → success)
 - **Rendu LaTeX** : KaTeX dynamique pour formules mathématiques
 - **Raccourcis clavier** : A/B/C/D, N=NSP, Enter=Suivant
+- **Bilans** : `/stages/fevrier-2026/bilan/[reservationId]`
+- **Dashboard Admin** : `/admin/stages/fevrier-2026` (KPIs, table, CSV export)
 
 ---
 
@@ -621,6 +715,13 @@ Konnect et Wise ont été **supprimés**. Le système actuel :
 
 **ClicToPay** (Banque Zitouna) : Skeleton API (501), en cours d'intégration.
 
+### Notifications
+
+- **Email** : SMTP Hostinger (`lib/email/mailer.ts`) — templates bilan_ack, internal
+- **Telegram** : Bot @nexusreussitebot (`lib/telegram/client.ts`) — réservations, paiements
+- **In-app** : `GET /api/notifications` — cloche notification dans sidebar
+- **Sécurité** : CSRF check, rate limit, body size 64KB max (`POST /api/notify/email`)
+
 ---
 
 ## 14. Tests
@@ -629,9 +730,9 @@ Konnect et Wise ont été **supprimés**. Le système actuel :
 
 | Type | Framework | Suites | Tests |
 |------|-----------|--------|-------|
-| **Unitaires + API** | Jest + jsdom | 206 | 2 593 |
-| **DB Intégration** | Jest + node + PostgreSQL | 7 | 68 |
-| **E2E** | Playwright + Chromium | 19 | 207 |
+| **Unitaires + API** | Jest + jsdom | 161+ | 2 250+ |
+| **DB Intégration** | Jest + node + PostgreSQL | 65+ | 468+ |
+| **E2E** | Playwright + Chromium | 38 fichiers | 207+ |
 
 ### Commandes
 
@@ -701,23 +802,43 @@ npx playwright test --project=chromium  # E2E Chromium only
 ### Infrastructure Production
 
 ```
-Serveur: 88.99.254.59 (Hetzner Dedicated)
+Serveur: 88.99.254.59 (Hetzner Dedicated, i7-8700 12 cores, 62GB RAM)
 Domaine: https://nexusreussite.academy
+SSL: Let's Encrypt (auto-renew)
+Reverse Proxy: Nginx → 127.0.0.1:3001
 
-Conteneurs Docker (13 healthy):
-├── nexus-next-app     (port 3001→3000, standalone)
-├── nexus-postgres-db  (port 5435→5432)
-├── ollama             (qwen2.5:32b + llama3.2 + nomic-embed-text)
-├── chromadb           (collection: ressources_pedagogiques_terminale)
-├── rag-ingestor       (FastAPI, port 8001)
-└── ... (redis, etc.)
+Conteneurs Docker (13+ healthy):
+├── nexus-next-app     (port 3001→3000, standalone, Next.js 15.5)
+├── nexus-postgres-db  (port 5435→5432, PostgreSQL 15-alpine)
+├── ollama             (llama3.2:latest 2GB + phi3:mini 2.2GB + nomic-embed-text 274MB)
+├── chromadb           (collection: ressources_pedagogiques_terminale, 211 chunks)
+├── rag-ingestor       (FastAPI v2.3, port 8001, pgvector backend)
+├── prometheus + grafana (monitoring RAG)
+└── Korrigo (7 conteneurs séparés — NE PAS TOUCHER)
+
+Réseaux Docker:
+├── nexus_nexus-network  (app ↔ DB)
+├── rag_v2_net           (ollama ↔ ingestor ↔ chroma)
+└── infra_rag_net        (nexus-next-app ↔ ollama/ingestor, bridge externe)
 ```
 
 ### Docker
 
 - **`Dockerfile.prod`** : Multi-stage build, standalone output, `HOSTNAME=0.0.0.0`
-- **`docker-compose.prod.yml`** : Orchestration complète (app, DB, Ollama, ChromaDB, ingestor)
+- **`docker-compose.prod.yml`** : Orchestration Nexus (app + DB)
+- **RAG Compose** : `/opt/rag-service/infra/docker-compose.v2.yml` (ollama, ingestor, chroma, prometheus, grafana)
 - Healthcheck : `curl http://127.0.0.1:3000/api/health`
+
+```bash
+# Nexus
+docker compose -f docker-compose.prod.yml up -d next-app
+
+# RAG (sur le serveur)
+cd /opt/rag-service/infra
+docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [service]
+```
+
+> **Important** : `docker compose restart` ne recharge PAS le `.env`. Utiliser `docker compose up -d next-app` pour recréer le conteneur avec les nouvelles variables.
 
 ### Seed Production (9 users)
 
@@ -758,13 +879,24 @@ Conteneurs Docker (13 healthy):
 | `RAG_SEARCH_TIMEOUT` | Timeout RAG (ms) | `10000` |
 | `UPSTASH_REDIS_REST_URL` | Redis rate limiting | (vide = désactivé) |
 | `UPSTASH_REDIS_REST_TOKEN` | Token Redis | — |
-| `SMTP_HOST` | Serveur SMTP | — |
-| `SMTP_PORT` | Port SMTP | `587` |
+| `SMTP_HOST` | Serveur SMTP | `smtp.hostinger.com` |
+| `SMTP_PORT` | Port SMTP (STARTTLS, pas 465) | `587` |
+| `SMTP_SECURE` | TLS implicite | `false` |
 | `SMTP_USER` | User SMTP | — |
 | `SMTP_PASS` | Password SMTP | — |
+| `MAIL_FROM` | Expéditeur emails | `Nexus Réussite <contact@nexusreussite.academy>` |
+| `MAIL_REPLY_TO` | Reply-to emails | `contact@nexusreussite.academy` |
+| `INTERNAL_NOTIFICATION_EMAIL` | Email notifications internes | `contact@nexusreussite.academy` |
+| `MAIL_DISABLED` | Désactiver emails | `false` |
 | `TELEGRAM_BOT_TOKEN` | Bot Telegram (notifications) | — |
 | `TELEGRAM_CHAT_ID` | Chat ID Telegram | — |
+| `TELEGRAM_DISABLED` | Désactiver Telegram | `false` |
 | `AUTH_TRUST_HOST` | Trust host header (CI/proxy) | `true` |
+| `LLM_MODE` | Mode LLM (live/mock) | `live` |
+| `NEXT_TELEMETRY_DISABLED` | Désactiver télémétrie Next.js | `1` |
+| `LOG_LEVEL` | Niveau de log | `info` |
+| `RATE_LIMIT_WINDOW_MS` | Fenêtre rate limit (ms) | `60000` |
+| `RATE_LIMIT_MAX_REQUESTS` | Max requêtes par fenêtre | `100` |
 | `NODE_ENV` | Environnement | `production` |
 
 ---
