@@ -145,13 +145,14 @@ export default function UsersManagementPage() {
 
     try {
       const response = await fetch('/api/admin/users', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           id: editingUser.id,
-          ...formData
+          ...formData,
+          password: formData.password || undefined
         }),
       });
 
@@ -323,7 +324,7 @@ export default function UsersManagementPage() {
                   Ajouter Utilisateur
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
                 <DialogHeader>
                   <DialogTitle>
                     {editingUser ? 'Modifier Utilisateur' : 'Ajouter Utilisateur'}
