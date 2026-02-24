@@ -18,7 +18,7 @@ for (const url of PAGES) {
 
     test(`Pas de scroll horizontal`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'load' });
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const hasOverflow = await page.evaluate(() => {
         return document.documentElement.scrollWidth > document.documentElement.clientWidth;
@@ -28,7 +28,7 @@ for (const url of PAGES) {
 
     test(`Menu hamburger visible`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'load' });
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       // Desktop nav should be hidden, hamburger should be visible
       const hamburger = page.locator('button').filter({ hasText: /menu/i }).first()
@@ -48,7 +48,7 @@ for (const url of PAGES) {
 
     test(`Touch targets ≥ 44px`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'load' });
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState('domcontentloaded');
 
       const smallTargets = await page.evaluate(() => {
         const interactive = document.querySelectorAll('a, button, input, select, textarea, [role="button"]');
@@ -79,7 +79,7 @@ test.describe('MOBILE — Hamburger menu functionality', () => {
 
   test('Menu ouvre et affiche les liens de navigation', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and click hamburger
     const hamburger = page.locator('button').filter({ hasText: /menu/i }).first();

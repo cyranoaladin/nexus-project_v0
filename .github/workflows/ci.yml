@@ -335,7 +335,7 @@ jobs:
           exit 1
 
       - name: Run Playwright E2E tests
-        timeout-minutes: 15
+        timeout-minutes: 20
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000

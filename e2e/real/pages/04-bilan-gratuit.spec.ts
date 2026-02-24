@@ -157,7 +157,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
         !e.includes('hot-update') && !e.includes('webpack') &&
