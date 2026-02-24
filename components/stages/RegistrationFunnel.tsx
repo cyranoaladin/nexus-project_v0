@@ -57,18 +57,18 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
 
           <div className="mb-8">
             <div className="flex items-center justify-center gap-4">
-              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-slate-300'}`}>
+              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-slate-500'}`}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 ${
-                  step >= 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-200 text-slate-600 border-slate-300'
+                  step >= 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-100 text-slate-600 border-slate-300'
                 }`}>
                   1
                 </div>
                 <span className="font-semibold hidden md:inline">Choix académie</span>
               </div>
               <div className={`h-px w-16 ${step >= 2 ? 'bg-blue-600' : 'bg-slate-300'}`}></div>
-              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-slate-300'}`}>
+              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-slate-500'}`}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 ${
-                  step >= 2 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-200 text-slate-600 border-slate-300'
+                  step >= 2 ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-100 text-slate-600 border-slate-300'
                 }`}>
                   2
                 </div>

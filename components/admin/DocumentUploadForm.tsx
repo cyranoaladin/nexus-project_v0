@@ -128,7 +128,7 @@ export function DocumentUploadForm() {
           {!selectedUser ? (
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-300" />
+                <Search className="h-4 w-4 text-slate-400" />
               </div>
               <input
                 type="text"
@@ -139,7 +139,7 @@ export function DocumentUploadForm() {
               />
               {isSearching && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <Loader2 className="h-4 w-4 text-slate-300 animate-spin" />
+                  <Loader2 className="h-4 w-4 text-slate-400 animate-spin" />
                 </div>
               )}
 
@@ -188,7 +188,7 @@ export function DocumentUploadForm() {
               <button
                 type="button"
                 onClick={() => setSelectedUser(null)}
-                className="text-slate-300 hover:text-slate-500 transition-colors"
+                className="text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -209,7 +209,7 @@ export function DocumentUploadForm() {
             >
               <input {...getInputProps()} />
               <div className="flex flex-col items-center gap-2">
-                <UploadCloud className="w-10 h-10 text-slate-300" />
+                <UploadCloud className="w-10 h-10 text-slate-400" />
                 <p className="text-sm font-medium text-slate-700">
                   {isDragActive ? "Déposez le fichier ici..." : "Glissez-déposez un fichier ici, ou cliquez pour sélectionner"}
                 </p>
@@ -236,7 +236,7 @@ export function DocumentUploadForm() {
               <button
                 type="button"
                 onClick={() => setFile(null)}
-                className="text-slate-300 hover:text-slate-500 transition-colors"
+                className="text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -286,11 +286,11 @@ h1, h2, h3 {
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-7 py-3 text-sm font-semibold text-white transition hover:bg-brand-secondary/90;
+    @apply inline-flex items-center justify-center rounded-full bg-blue-700 px-7 py-3 text-sm font-semibold text-white transition hover:bg-blue-800;
   }
 
   .btn-secondary-lg {
-    @apply inline-flex items-center justify-center rounded-full bg-brand-secondary px-8 py-4 text-base font-semibold text-white transition hover:bg-brand-secondary/90;
+    @apply inline-flex items-center justify-center rounded-full bg-blue-700 px-8 py-4 text-base font-semibold text-white transition hover:bg-blue-800;
   }
 
   .btn-stage {

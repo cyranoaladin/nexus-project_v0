@@ -792,7 +792,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
               disabled={store.totalXP < 100}
               className={`text-xs font-bold px-4 py-2 rounded-lg transition-all ${store.totalXP >= 100
                 ? 'bg-blue-600 text-white hover:bg-blue-500'
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                : 'bg-neutral-800 text-neutral-500 border border-neutral-700 cursor-not-allowed'
                 }`}
             >
               Acheter (100 XP)
