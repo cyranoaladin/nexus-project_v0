@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
+import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,6 +42,8 @@ function PaiementContent() {
   const [confirmingVirement, setConfirmingVirement] = useState(false);
   const [hasPendingPayment, setHasPendingPayment] = useState(false);
   const [pendingCheckDone, setPendingCheckDone] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [immediateExecution, setImmediateExecution] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -126,6 +129,9 @@ function PaiementContent() {
           studentId: orderDetails.studentId,
           amount: orderDetails.price,
           description: orderDetails.description,
+          termsAccepted: true,
+          termsVersion: CGV_VERSION,
+          immediateExecution,
         }),
       });
 
@@ -148,7 +154,7 @@ function PaiementContent() {
     } finally {
       setConfirmingVirement(false);
     }
-  }, [orderDetails, router]);
+  }, [orderDetails, router, immediateExecution]);
 
   if (status === "loading") {
     return <PaiementPageLoading />;
@@ -282,9 +288,9 @@ function PaiementContent() {
               <button
                 type="button"
                 onClick={() => setVirementModalOpen(true)}
-                disabled={hasPendingPayment}
+                disabled={hasPendingPayment || !termsAccepted}
                 className={`w-full text-left p-4 border rounded-lg transition-colors ${
-                  hasPendingPayment
+                  hasPendingPayment || !termsAccepted
                     ? 'border-white/10 bg-white/5 opacity-50 cursor-not-allowed'
                     : 'border-brand-primary/40 bg-brand-primary/5 hover:bg-brand-primary/10 cursor-pointer'
                 }`}
@@ -308,12 +314,16 @@ function PaiementContent() {
                 </div>
               </button>
 
-              <p className="text-xs text-neutral-400 text-center">
-                En procédant au paiement, vous acceptez nos{' '}
-                <Link href="/conditions" className="text-brand-primary hover:underline">
-                  conditions générales de vente
-                </Link>
-              </p>
+              {/* Bloc légal obligatoire (conformité ClicToPay) */}
+              <LegalAcceptance
+                accepted={termsAccepted}
+                onAcceptedChange={setTermsAccepted}
+                showImmediateExecution
+                immediateExecution={immediateExecution}
+                onImmediateExecutionChange={setImmediateExecution}
+                price={orderDetails?.price}
+                currency="TND"
+              />
             </CardContent>
           </Card>
         </div>
