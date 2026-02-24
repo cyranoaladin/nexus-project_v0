@@ -214,7 +214,7 @@ export function NextStepCard() {
           <div className="flex items-center gap-2 mb-0.5">
             <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">Action prioritaire</p>
             {isHighPriority && (
-              <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-slate-1000/15 text-slate-300' : 'bg-blue-500/15 text-blue-300'}`}>
+              <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-red-500/15 text-red-400' : 'bg-blue-500/15 text-blue-300'}`}>
                 Priorité
               </span>
             )}

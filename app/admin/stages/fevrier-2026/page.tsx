@@ -88,7 +88,7 @@ function KPICard({
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
           <p className="text-3xl font-black text-slate-900 mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-slate-300 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
         </div>
         <div className={`p-3 rounded-lg ${color}`}>{icon}</div>
       </div>
@@ -120,49 +120,49 @@ function DetailModal({
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Parent</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Parent</p>
               <p className="text-sm font-semibold text-slate-900">{reservation.parentName}</p>
             </div>
             {reservation.studentName && (
               <div>
-                <p className="text-xs font-medium text-slate-300 uppercase">Élève</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">Élève</p>
                 <p className="text-sm font-semibold text-slate-900">{reservation.studentName}</p>
               </div>
             )}
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Email</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Email</p>
               <p className="text-sm text-slate-700">{reservation.email}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Téléphone</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Téléphone</p>
               <p className="text-sm text-slate-700">{reservation.phone}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Classe</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Classe</p>
               <p className="text-sm text-slate-700">{reservation.classe}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Académie</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Académie</p>
               <p className="text-sm text-slate-700">{reservation.academyTitle}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Prix</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Prix</p>
               <p className="text-sm font-bold text-blue-600">{reservation.price} TND</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Paiement</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Paiement</p>
               <p className="text-sm text-slate-700">{reservation.paymentMethod || 'Non spécifié'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Statut</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Statut</p>
               <StatusBadge status={reservation.status} />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase">Telegram</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Telegram</p>
               <p className="text-sm text-slate-700">{reservation.telegramSent ? '✅ Envoyé' : '❌ Non envoyé'}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-xs font-medium text-slate-300 uppercase">Date d&apos;inscription</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">Date d&apos;inscription</p>
               <p className="text-sm text-slate-700">
                 {new Date(reservation.createdAt).toLocaleDateString('fr-FR', {
                   weekday: 'long',
@@ -178,7 +178,7 @@ function DetailModal({
 
           {reservation.scoringResult && (
             <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-              <p className="text-xs font-medium text-slate-300 uppercase mb-2">Résultat Scoring</p>
+              <p className="text-xs font-medium text-slate-500 uppercase mb-2">Résultat Scoring</p>
               <pre className="text-xs text-slate-700 overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(reservation.scoringResult, null, 2)}
               </pre>
@@ -407,7 +407,7 @@ export default function AdminStagesFevrier2026Page() {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <ChevronDown className="w-3 h-3 text-slate-300" />;
+    if (sortField !== field) return <ChevronDown className="w-3 h-3 text-slate-400" />;
     return sortDirection === 'asc' ? (
       <ChevronUp className="w-3 h-3 text-blue-600" />
     ) : (
@@ -555,7 +555,7 @@ export default function AdminStagesFevrier2026Page() {
         <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6 shadow-sm">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Rechercher (nom, email, tél, classe)..."
@@ -657,7 +657,7 @@ export default function AdminStagesFevrier2026Page() {
                 ) : filteredReservations.length === 0 ? (
                   <tr>
                     <td colSpan={10} className="px-4 py-12 text-center">
-                      <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                       <p className="text-sm text-slate-500">
                         {reservations.length === 0
                           ? 'Aucune inscription pour le moment.'
@@ -705,7 +705,7 @@ export default function AdminStagesFevrier2026Page() {
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-300 italic">Non passé</span>
+                          <span className="text-xs text-slate-500 italic">Non passé</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
