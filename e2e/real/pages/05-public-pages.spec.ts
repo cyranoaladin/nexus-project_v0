@@ -45,7 +45,7 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
     });
 
     test(`H1 visible et pertinent`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       const h1 = page.locator('h1').first();
       const isVisible = await h1.isVisible().catch(() => false);
       if (isVisible) {
@@ -58,7 +58,7 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
     });
 
     test(`Zéro erreur console critique`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       await page.waitForTimeout(2000);
       const realErrors = consoleErrors.filter(
         (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
@@ -73,7 +73,7 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
     });
 
     test(`Zéro erreur réseau (4xx/5xx)`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       await page.waitForTimeout(2000);
       const realErrors = networkErrors.filter(
         (e) => !e.includes('hot-update') && !e.includes('_next/webpack') && !e.includes('_next/static')

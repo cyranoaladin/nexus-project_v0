@@ -23,14 +23,14 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
   });
 
   test('Champs email et password présents avec data-testid', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await expect(page.getByTestId('input-email')).toBeVisible();
     await expect(page.getByTestId('input-password')).toBeVisible();
     await expect(page.getByTestId('btn-signin')).toBeVisible();
   });
 
   test('Page distingue visuellement parent et élève', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     const bodyText = (await page.textContent('body')) || '';
     const mentionsParent = bodyText.toLowerCase().includes('parent');
     const mentionsEleve = bodyText.toLowerCase().includes('élève') || bodyText.toLowerCase().includes('eleve');
@@ -39,7 +39,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // REAL AUTH — Admin login
   test('CONNEXION RÉELLE — Admin → /dashboard/admin', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('admin@nexus-reussite.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
@@ -50,7 +50,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // REAL AUTH — Parent login
   test('CONNEXION RÉELLE — Parent → /dashboard/parent', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('parent@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
@@ -61,7 +61,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // REAL AUTH — Student login
   test('CONNEXION RÉELLE — Élève → /dashboard/eleve', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('student@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
@@ -72,7 +72,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // REAL AUTH — Coach login
   test('CONNEXION RÉELLE — Coach → /dashboard/coach', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('helios@nexus-reussite.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
@@ -83,7 +83,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // Wrong password
   test('Mauvais password → message erreur, reste sur /auth/signin', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('admin@nexus-reussite.com');
     await page.getByTestId('input-password').fill('WRONG_PASSWORD');
     await page.getByTestId('btn-signin').click();
@@ -97,7 +97,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // Email inexistant
   test('Email inexistant → message erreur générique', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('nexiste.pas@jamais.com');
     await page.getByTestId('input-password').fill('test1234');
     await page.getByTestId('btn-signin').click();
@@ -109,7 +109,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // Role separation — Parent cannot access /dashboard/eleve
   test('Séparation rôles — Parent connecté ne peut pas accéder à /dashboard/eleve', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('parent@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
@@ -123,7 +123,7 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
 
   // Role separation — Student cannot access /dashboard/admin
   test('Séparation rôles — Élève connecté ne peut pas accéder à /dashboard/admin', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'load' });
     await page.getByTestId('input-email').fill('student@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();

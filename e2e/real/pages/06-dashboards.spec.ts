@@ -7,7 +7,7 @@ import { test, expect, Page } from '@playwright/test';
 
 /** Helper: login via UI and navigate to dashboard */
 async function loginAndGo(page: Page, email: string, password: string, expectedUrl: string) {
-  await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+  await page.goto('/auth/signin', { waitUntil: 'load' });
   await page.getByTestId('input-email').fill(email);
   await page.getByTestId('input-password').fill(password);
   await page.getByTestId('btn-signin').click();
