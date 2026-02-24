@@ -367,7 +367,7 @@ export function CorporateNavbar() {
       {/* Full Screen Menu Overlay */}
       <div
         id="primary-menu"
-        className={`fixed inset-0 z-[100] transition-all duration-500 motion-reduce:transition-none ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        className={`fixed inset-0 z-[100] transition-all duration-500 motion-reduce:transition-none ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
           }`}
       >
         {/* Backdrop */}

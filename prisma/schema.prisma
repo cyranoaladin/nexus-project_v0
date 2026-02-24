@@ -141,6 +141,10 @@ model ParentProfile {
   city    String?
   country String? @default("Tunisie")
 
+  // Bilan gratuit tracking
+  bilanGratuitCompletedAt DateTime?
+  bilanGratuitDismissedAt DateTime?
+
   // Relations
   children Student[]
 

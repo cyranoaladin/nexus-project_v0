@@ -189,7 +189,18 @@ export default function SignInPage() {
                   </Button>
                 </form>
 
-                <div className="mt-8 pt-6 border-t border-white/10">
+                <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
+                  <p className="text-sm text-neutral-300">
+                    <span className="font-semibold text-brand-accent">Parent ?</span>{" "}
+                    Connectez-vous avec votre adresse email personnelle.
+                  </p>
+                  <p className="text-sm text-neutral-300">
+                    <span className="font-semibold text-emerald-400">Élève ?</span>{" "}
+                    Connectez-vous avec l&apos;email élève reçu lors de votre inscription.
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-white/10">
                   <div className="text-center space-y-4">
                     <p className="text-sm text-neutral-300">
                       Pas encore de compte ?
