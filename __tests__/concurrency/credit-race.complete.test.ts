@@ -27,10 +27,10 @@ describe('Credit Debit Race Condition', () => {
     const rid = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const { parentProfile } = await createTestParent({ email: `parent.credit.${rid}@test.com` });
     parentId = parentProfile.id;
-    const { studentUser } = await createTestStudent(parentProfile.id, {
+    const { student } = await createTestStudent(parentProfile.id, {
       user: { email: `student.credit.${rid}@test.com` },
     });
-    studentId = studentUser.id;
+    studentId = student.id;
 
     // Allocate credits
     await prisma.creditTransaction.create({
