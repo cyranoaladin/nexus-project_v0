@@ -120,8 +120,20 @@ export async function ragSearchBySubject(
 
 /**
  * Check if the RAG service is healthy.
+ * Returns a boolean for backward compatibility.
  */
 export async function ragHealthCheck(): Promise<boolean> {
+  const result = await ragHealthCheckDetailed();
+  return result.healthy;
+}
+
+/**
+ * Detailed RAG health check with error info (for admin diagnostic pages).
+ */
+export async function ragHealthCheckDetailed(): Promise<{
+  healthy: boolean;
+  error?: string;
+}> {
   const baseUrl = getIngestorUrl();
   const HEALTH_TIMEOUT_MS = 5000;
   const controller = new AbortController();
@@ -132,11 +144,14 @@ export async function ragHealthCheck(): Promise<boolean> {
       method: 'GET',
       signal: controller.signal,
     });
-    if (!response.ok) return false;
+    if (!response.ok) {
+      return { healthy: false, error: `HTTP ${response.status}` };
+    }
     const data = (await response.json()) as { status: string };
-    return data.status === 'healthy';
-  } catch {
-    return false;
+    return { healthy: data.status === 'healthy' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { healthy: false, error: message };
   } finally {
     clearTimeout(timeoutId);
   }

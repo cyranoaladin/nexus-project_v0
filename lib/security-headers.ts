@@ -17,6 +17,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: https: blob:",
         "connect-src 'self' https://api.openai.com wss:",
+        "frame-src https://www.google.com https://maps.google.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",

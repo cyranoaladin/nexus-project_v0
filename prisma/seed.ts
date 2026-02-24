@@ -33,6 +33,81 @@ async function main() {
     },
   });
 
+  // 1b. Named Demo Users (for testing & demo)
+  const namedCoaches = [
+    { email: 'helios@nexus-reussite.com', firstName: 'Helios', lastName: 'Nexus', pseudonym: 'Coach Helios', subjects: [Subject.MATHEMATIQUES, Subject.NSI] },
+    { email: 'zenon@nexus-reussite.com', firstName: 'Zenon', lastName: 'Nexus', pseudonym: 'Coach Zenon', subjects: [Subject.MATHEMATIQUES, Subject.PHYSIQUE_CHIMIE] },
+  ];
+
+  for (const coach of namedCoaches) {
+    const user = await prisma.user.upsert({
+      where: { email: coach.email },
+      update: { activatedAt: new Date() },
+      create: {
+        email: coach.email,
+        password: hashedPassword,
+        firstName: coach.firstName,
+        lastName: coach.lastName,
+        role: 'COACH',
+        activatedAt: new Date(),
+      },
+    });
+    await prisma.coachProfile.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: {
+        userId: user.id,
+        pseudonym: coach.pseudonym,
+        subjects: coach.subjects,
+        title: 'Professeur Certifié',
+        description: 'Expert en pédagogie différenciée.',
+      },
+    });
+  }
+
+  // Named parent + student demo pair
+  const demoParentUser = await prisma.user.upsert({
+    where: { email: 'parent@example.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'parent@example.com',
+      password: hashedPassword,
+      firstName: 'Marie',
+      lastName: 'Dupont',
+      role: 'PARENT',
+      activatedAt: new Date(),
+    },
+  });
+  const demoParentProfile = await prisma.parentProfile.upsert({
+    where: { userId: demoParentUser.id },
+    update: {},
+    create: { userId: demoParentUser.id },
+  });
+
+  const demoStudentUser = await prisma.user.upsert({
+    where: { email: 'student@example.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'student@example.com',
+      password: hashedPassword,
+      firstName: 'Ahmed',
+      lastName: 'Dupont',
+      role: 'ELEVE',
+      activatedAt: new Date(),
+    },
+  });
+  await prisma.student.upsert({
+    where: { userId: demoStudentUser.id },
+    update: {},
+    create: {
+      userId: demoStudentUser.id,
+      parentId: demoParentProfile.id,
+      grade: 'TERMINALE',
+      credits: 5,
+    },
+  });
+  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com)');
+
   // 2. Coaches (10)
   const subjectsList = Object.values(Subject);
   
