@@ -20,10 +20,27 @@ for (const url of PAGES) {
       await page.goto(url, { waitUntil: 'load' });
       await page.waitForLoadState('domcontentloaded');
 
-      const hasOverflow = await page.evaluate(() => {
-        return document.documentElement.scrollWidth > document.documentElement.clientWidth;
+      const result = await page.evaluate(() => {
+        const docWidth = document.documentElement.clientWidth;
+        const scrollWidth = document.documentElement.scrollWidth;
+        const overflowing: string[] = [];
+        if (scrollWidth > docWidth) {
+          document.querySelectorAll('*').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.right > docWidth + 1) {
+              const tag = el.tagName;
+              const id = el.id ? `#${el.id}` : '';
+              const cls = (el.className?.toString?.() || '').split(' ').slice(0, 3).join('.');
+              overflowing.push(`${tag}${id}.${cls} right=${Math.round(rect.right)} w=${Math.round(rect.width)}`);
+            }
+          });
+        }
+        return { docWidth, scrollWidth, hasOverflow: scrollWidth > docWidth, overflowing: overflowing.slice(0, 10) };
       });
-      expect(hasOverflow, `${url} a un scroll horizontal à 390px`).toBe(false);
+      if (result.overflowing.length > 0) {
+        console.log(`${url} overflow debug: docWidth=${result.docWidth} scrollWidth=${result.scrollWidth}`, result.overflowing);
+      }
+      expect(result.hasOverflow, `${url} a un scroll horizontal à 390px`).toBe(false);
     });
 
     test(`Menu hamburger visible`, async ({ page }) => {

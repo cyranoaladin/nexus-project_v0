@@ -247,7 +247,7 @@ function BilanGratuitForm() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-darker">
+    <div className="min-h-screen bg-surface-darker overflow-x-hidden">
       <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
 
