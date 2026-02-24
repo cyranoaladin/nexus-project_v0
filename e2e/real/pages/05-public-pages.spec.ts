@@ -59,7 +59,7 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
 
     test(`Zéro erreur console critique`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'load' });
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('domcontentloaded');
       const realErrors = consoleErrors.filter(
         (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
           !e.includes('hot-update') && !e.includes('webpack') &&
@@ -74,7 +74,7 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
 
     test(`Zéro erreur réseau (4xx/5xx)`, async ({ page }) => {
       await page.goto(url, { waitUntil: 'load' });
-      await page.waitForTimeout(2000);
+      await page.waitForLoadState('domcontentloaded');
       const realErrors = networkErrors.filter(
         (e) => !e.includes('hot-update') && !e.includes('_next/webpack') && !e.includes('_next/static')
       );

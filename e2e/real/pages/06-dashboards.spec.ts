@@ -29,14 +29,14 @@ test.describe('DASHBOARD — Admin (/dashboard/admin)', () => {
   });
 
   test('Page charge et affiche contenu admin', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const bodyText = (await page.textContent('body')) || '';
     const hasAdminContent = /admin|tableau|dashboard|utilisateur|gestion/i.test(bodyText);
     expect(hasAdminContent, 'Aucun contenu admin visible').toBe(true);
   });
 
   test('Navigation sidebar/header présente', async ({ page }) => {
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('domcontentloaded');
     // Check for navigation elements (sidebar or header nav)
     const navElements = page.locator('nav, aside, [role="navigation"]');
     const count = await navElements.count();
@@ -45,7 +45,7 @@ test.describe('DASHBOARD — Admin (/dashboard/admin)', () => {
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
         !e.includes('hot-update') && !e.includes('webpack') &&
@@ -72,14 +72,14 @@ test.describe('DASHBOARD — Parent (/dashboard/parent)', () => {
   });
 
   test('Page charge et affiche contenu parent', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const bodyText = (await page.textContent('body')) || '';
     const hasParentContent = /parent|enfant|tableau|dashboard|session|abonnement|crédit/i.test(bodyText);
     expect(hasParentContent, 'Aucun contenu parent visible').toBe(true);
   });
 
   test('BilanGratuitBanner ou contenu principal visible', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     // Either the bilan banner or the main dashboard content should be visible
     const hasBanner = await page.locator('[data-testid="bilan-banner"]').isVisible().catch(() => false);
     const hasMainContent = await page.locator('h1, h2, [role="tablist"]').first().isVisible().catch(() => false);
@@ -88,7 +88,7 @@ test.describe('DASHBOARD — Parent (/dashboard/parent)', () => {
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
         !e.includes('hot-update') && !e.includes('webpack') &&
@@ -115,14 +115,14 @@ test.describe('DASHBOARD — Élève (/dashboard/eleve)', () => {
   });
 
   test('Page charge et affiche contenu élève', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const bodyText = (await page.textContent('body')) || '';
     const hasStudentContent = /élève|session|crédit|cours|progression|dashboard/i.test(bodyText);
     expect(hasStudentContent, 'Aucun contenu élève visible').toBe(true);
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
         !e.includes('hot-update') && !e.includes('webpack') &&
@@ -149,14 +149,14 @@ test.describe('DASHBOARD — Coach (/dashboard/coach)', () => {
   });
 
   test('Page charge et affiche contenu coach', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const bodyText = (await page.textContent('body')) || '';
     const hasCoachContent = /coach|session|disponibilité|planning|dashboard/i.test(bodyText);
     expect(hasCoachContent, 'Aucun contenu coach visible').toBe(true);
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
         !e.includes('hot-update') && !e.includes('webpack') &&

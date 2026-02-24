@@ -88,11 +88,9 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-password').fill('WRONG_PASSWORD');
     await page.getByTestId('btn-signin').click();
 
-    await page.waitForTimeout(3000);
-    expect(page.url()).toContain('/auth/signin');
-
     const errorMsg = page.getByText(/incorrect|invalide|erreur|error|échoué/i);
-    await expect(errorMsg, 'Aucun message d\'erreur pour mauvais password').toBeVisible({ timeout: 5000 });
+    await expect(errorMsg, 'Aucun message d\'erreur pour mauvais password').toBeVisible({ timeout: 10000 });
+    expect(page.url()).toContain('/auth/signin');
   });
 
   // Email inexistant
@@ -102,9 +100,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-password').fill('test1234');
     await page.getByTestId('btn-signin').click();
 
-    await page.waitForTimeout(3000);
+    await expect(page.getByText(/incorrect|invalide|erreur|error|échoué/i)).toBeVisible({ timeout: 10000 });
     expect(page.url()).toContain('/auth/signin');
-    await expect(page.getByText(/incorrect|invalide|erreur|error|échoué/i)).toBeVisible({ timeout: 5000 });
   });
 
   // Role separation — Parent cannot access /dashboard/eleve
@@ -117,8 +114,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.waitForURL('**/dashboard/parent**', { timeout: 30000 });
 
     // Try accessing eleve dashboard
-    await page.goto('/dashboard/eleve');
-    await page.waitForTimeout(2000);
+    await page.goto('/dashboard/eleve', { waitUntil: 'load' });
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url(), 'Parent a accédé au dashboard élève !').not.toContain('/dashboard/eleve');
   });
 
@@ -131,8 +128,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.waitForLoadState('load');
     await page.waitForURL('**/dashboard/eleve**', { timeout: 30000 });
 
-    await page.goto('/dashboard/admin');
-    await page.waitForTimeout(2000);
+    await page.goto('/dashboard/admin', { waitUntil: 'load' });
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url(), 'Élève a accédé au dashboard admin !').not.toContain('/dashboard/admin');
   });
 });

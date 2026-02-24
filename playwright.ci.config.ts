@@ -14,7 +14,7 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   fullyParallel: false,
   forbidOnly: true,
-  retries: 1,
+  retries: 0,
   workers: 1,
   reporter: [['html', { open: 'never' }]],
   timeout: 60_000,
