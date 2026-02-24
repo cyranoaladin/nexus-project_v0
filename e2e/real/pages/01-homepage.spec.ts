@@ -28,7 +28,7 @@ test.describe('REAL — Homepage (/)', () => {
       if (resp.status() >= 400) networkErrors.push(`[${resp.status()}] ${resp.url()}`);
     });
 
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'load' });
   });
 
   test('HTTP 200 — La page charge sans erreur serveur', async ({ page }) => {

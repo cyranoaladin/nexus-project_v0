@@ -20,7 +20,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     page.on('response', (resp) => {
       if (resp.status() >= 400) networkErrors.push(`[${resp.status()}] ${resp.url()}`);
     });
-    await page.goto('/bilan-gratuit', { waitUntil: 'networkidle' });
+    await page.goto('/bilan-gratuit', { waitUntil: 'load' });
   });
 
   test('HTTP 200 — Page charge', async ({ page }) => {

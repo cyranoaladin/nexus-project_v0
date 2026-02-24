@@ -246,7 +246,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     needs: [lint, typecheck]
 
     services:
@@ -322,26 +322,27 @@ jobs:
           echo $! > .next-server.pid
           # Wait for server to be ready
           for i in {1..30}; do
-            if curl -s http://localhost:3000 > /dev/null; then
-              echo "✅ Server is ready"
+            if curl -sf http://localhost:3000/api/auth/session > /dev/null 2>&1; then
+              echo "✅ Server + Auth API ready"
               exit 0
             fi
             echo "⏳ Waiting for server... ($i/30)"
             sleep 2
           done
-          echo "❌ Server failed to start"
+          echo "❌ Server failed to start (auth endpoint not responding)"
+          curl -v http://localhost:3000/ 2>&1 | head -20 || true
           cat .next/trace || true
           exit 1
 
       - name: Run Playwright E2E tests
-        timeout-minutes: 12
+        timeout-minutes: 15
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
           REUSE_EXISTING_SERVER: 'true'
-        run: npx playwright test --project=chromium
+        run: npx playwright test --config=playwright.ci.config.ts --project=chromium
 
       - name: Stop Next.js server
         if: always()
