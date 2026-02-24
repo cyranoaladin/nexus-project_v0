@@ -211,7 +211,7 @@ function ARIAInteractiveModule() {
           <Button
             disabled={additionalSubjects === 0}
             className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${additionalSubjects === 0
-                ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                ? 'bg-neutral-800 text-neutral-500 border border-neutral-700 cursor-not-allowed'
                 : isPackBetter
                   ? 'bg-brand-secondary hover:bg-brand-accent-dark text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'

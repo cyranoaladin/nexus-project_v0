@@ -15,7 +15,7 @@ function getFileIcon(mimeType: string) {
   if (mimeType.includes('image')) return <ImageIcon className="w-8 h-8 text-green-500" />;
   if (mimeType.includes('word') || mimeType.includes('document')) return <FileText className="w-8 h-8 text-blue-500" />;
   if (mimeType.includes('sheet') || mimeType.includes('excel')) return <FileText className="w-8 h-8 text-emerald-600" />;
-  return <File className="w-8 h-8 text-slate-300" />;
+  return <File className="w-8 h-8 text-slate-400" />;
 }
 
 function formatSize(bytes: number) {
@@ -58,7 +58,7 @@ export default async function StudentResourcesPage() {
       {documents.length === 0 ? (
         <div className="text-center py-20 bg-slate-50 rounded-xl border border-dashed border-slate-300">
           <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-            <File className="w-8 h-8 text-slate-300" />
+            <File className="w-8 h-8 text-slate-400" />
           </div>
           <h3 className="text-lg font-medium text-slate-900">Aucun document disponible</h3>
           <p className="text-slate-500 mt-1">Vos ressources apparaîtront ici dès qu'elles seront partagées.</p>

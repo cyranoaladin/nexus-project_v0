@@ -667,7 +667,7 @@ export default function StageDiagnosticQuiz({
                     ? isLastQuestion
                       ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02]'
                       : 'bg-slate-900 text-white hover:bg-black'
-                    : 'bg-slate-200 text-slate-300 cursor-not-allowed'
+                    : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
                 {isLastQuestion ? (
