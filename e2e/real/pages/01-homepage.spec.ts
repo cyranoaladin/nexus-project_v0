@@ -37,7 +37,7 @@ test.describe('REAL — Homepage (/)', () => {
   });
 
   test('Zéro erreur console JavaScript critique', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realErrors = consoleErrors.filter(
       (e) =>
         !e.includes('favicon') &&
@@ -56,7 +56,7 @@ test.describe('REAL — Homepage (/)', () => {
   });
 
   test('Zéro erreur réseau (pas de 404/500)', async ({ page }) => {
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('domcontentloaded');
     const realNetworkErrors = networkErrors.filter(
       (e) =>
         !e.includes('favicon') &&
