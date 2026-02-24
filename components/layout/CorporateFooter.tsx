@@ -113,7 +113,7 @@ const CorporateFooter = () => {
                         <Link href="/mentions-legales" className="text-neutral-400 text-xs hover:text-white transition-colors">
                             Mentions Légales
                         </Link>
-                        <Link href="/conditions" className="text-neutral-400 text-xs hover:text-white transition-colors">
+                        <Link href="/conditions-generales" className="text-neutral-400 text-xs hover:text-white transition-colors">
                             Conditions Générales
                         </Link>
                         <Link href="/contact" className="text-neutral-400 text-xs hover:text-white transition-colors">

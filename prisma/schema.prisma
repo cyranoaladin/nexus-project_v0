@@ -427,6 +427,12 @@ model Payment {
   externalId String? // ID de transaction externe
   metadata   Json? // Données supplémentaires
 
+  // Acceptation CGV (preuve d'acceptation avant paiement)
+  termsVersion String?   // ex: "CGV v1.0 – 2026-03-01"
+  termsAcceptedAt DateTime? // timestamp de l'acceptation
+  termsAcceptedIp String?   // IP du client au moment de l'acceptation
+  immediateExecution Boolean @default(false) // renonciation rétractation accès immédiat
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
