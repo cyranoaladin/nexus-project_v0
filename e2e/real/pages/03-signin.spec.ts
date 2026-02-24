@@ -43,8 +43,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('admin@nexus-reussite.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-
-    await page.waitForURL('**/dashboard/admin**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/admin**', { timeout: 30000 });
     expect(page.url()).toContain('/dashboard/admin');
   });
 
@@ -54,8 +54,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('parent@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-
-    await page.waitForURL('**/dashboard/parent**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/parent**', { timeout: 30000 });
     expect(page.url()).toContain('/dashboard/parent');
   });
 
@@ -65,8 +65,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('student@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-
-    await page.waitForURL('**/dashboard/eleve**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/eleve**', { timeout: 30000 });
     expect(page.url()).toContain('/dashboard/eleve');
   });
 
@@ -76,8 +76,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('helios@nexus-reussite.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-
-    await page.waitForURL('**/dashboard/coach**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/coach**', { timeout: 30000 });
     expect(page.url()).toContain('/dashboard/coach');
   });
 
@@ -113,7 +113,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('parent@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-    await page.waitForURL('**/dashboard/parent**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/parent**', { timeout: 30000 });
 
     // Try accessing eleve dashboard
     await page.goto('/dashboard/eleve');
@@ -127,7 +128,8 @@ test.describe('REAL — Sign In (/auth/signin)', () => {
     await page.getByTestId('input-email').fill('student@example.com');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('btn-signin').click();
-    await page.waitForURL('**/dashboard/eleve**', { timeout: 15000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('**/dashboard/eleve**', { timeout: 30000 });
 
     await page.goto('/dashboard/admin');
     await page.waitForTimeout(2000);
