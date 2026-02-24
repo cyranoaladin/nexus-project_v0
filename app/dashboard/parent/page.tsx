@@ -18,6 +18,7 @@ import InvoiceDetailsDialog from "./invoice-details-dialog"
 import SessionBooking from "@/components/ui/session-booking"
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage"
 import { StudentSelector } from "@/components/dashboard/StudentSelector"
+import { BilanGratuitBanner } from "@/components/dashboard/BilanGratuitBanner"
 
 interface ParentDashboardData {
   parent: {
@@ -187,6 +188,9 @@ export default function DashboardParent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {activeTab === 'dashboard' && (
           <>
+            {/* Bilan Gratuit Banner */}
+            <BilanGratuitBanner />
+
             {/* Child Selector + Add Child */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">

@@ -162,15 +162,25 @@ export async function ollamaGenerate(
 
 /**
  * Check if Ollama is healthy and list available models.
+ * @param timeoutMs - Health check timeout in ms (default: 5000)
  */
-export async function ollamaHealthCheck(): Promise<{
+export async function ollamaHealthCheck(timeoutMs = 5000): Promise<{
   healthy: boolean;
   models: string[];
+  error?: string;
 }> {
   const baseUrl = getOllamaUrl();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const response = await fetch(`${baseUrl}/api/tags`, { method: 'GET' });
-    if (!response.ok) return { healthy: false, models: [] };
+    const response = await fetch(`${baseUrl}/api/tags`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      return { healthy: false, models: [], error: `HTTP ${response.status}` };
+    }
     const data = (await response.json()) as {
       models: Array<{ name: string }>;
     };
@@ -178,7 +188,43 @@ export async function ollamaHealthCheck(): Promise<{
       healthy: true,
       models: data.models.map((m) => m.name),
     };
-  } catch {
-    return { healthy: false, models: [] };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { healthy: false, models: [], error: message };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Generate text with a graceful fallback when Ollama is unavailable.
+ * Returns a user-friendly French message instead of throwing.
+ */
+export async function generateWithFallback(
+  prompt: string,
+  model?: string,
+): Promise<{ content: string; fromFallback: boolean }> {
+  const health = await ollamaHealthCheck();
+  if (!health.healthy) {
+    console.warn('[Ollama] Service unavailable, returning fallback message');
+    return {
+      content:
+        "Le service d'analyse IA est temporairement indisponible. " +
+        'Votre bilan sera généré dès que le service sera rétabli.',
+      fromFallback: true,
+    };
+  }
+
+  try {
+    const content = await ollamaGenerate(prompt, model);
+    return { content, fromFallback: false };
+  } catch (error) {
+    console.warn('[Ollama] Generation failed, returning fallback:', error);
+    return {
+      content:
+        "Le service d'analyse IA a rencontré une erreur. " +
+        'Votre bilan sera régénéré automatiquement.',
+      fromFallback: true,
+    };
   }
 }
