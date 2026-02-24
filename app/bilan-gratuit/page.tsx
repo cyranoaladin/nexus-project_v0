@@ -604,7 +604,7 @@ function BilanGratuitForm() {
                   </div>
 
                   {/* Honeypot — hidden from humans, bots fill it */}
-                  <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+                  <div aria-hidden="true" style={{ position: 'absolute', left: 0, top: 0, width: 0, height: 0, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}>
                     <label htmlFor="website">Website</label>
                     <input
                       type="text"

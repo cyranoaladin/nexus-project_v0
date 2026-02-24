@@ -37,12 +37,85 @@ async function main() {
   console.log('✅ Database cleared\n');
 
   // =============================================================================
-  // PASSWORD HASH
+  // PASSWORD HASHES
   // =============================================================================
   const hashedPassword = await bcrypt.hash('password123', 10);
+  const hashedAdmin123 = await bcrypt.hash('admin123', 10);
 
   // =============================================================================
-  // CREATE USERS
+  // PLAYWRIGHT-EXPECTED USERS (03-signin + 06-dashboards specs)
+  // These users match the emails/passwords hardcoded in Playwright E2E tests.
+  // =============================================================================
+  console.log('🎭 Creating Playwright-expected users (admin123)...');
+
+  const pwAdmin = await prisma.user.create({
+    data: {
+      email: 'admin@nexus-reussite.com',
+      password: hashedAdmin123,
+      role: UserRole.ADMIN,
+      firstName: 'Admin',
+      lastName: 'Nexus',
+      activatedAt: new Date(),
+    },
+  });
+  console.log(`  ✓ PW Admin: ${pwAdmin.email}`);
+
+  const pwParent = await prisma.user.create({
+    data: {
+      email: 'parent@example.com',
+      password: hashedAdmin123,
+      role: UserRole.PARENT,
+      firstName: 'Marie',
+      lastName: 'Dupont',
+      activatedAt: new Date(),
+      parentProfile: { create: {} },
+    },
+    include: { parentProfile: true },
+  });
+  console.log(`  ✓ PW Parent: ${pwParent.email}`);
+
+  const pwStudent = await prisma.user.create({
+    data: {
+      email: 'student@example.com',
+      password: hashedAdmin123,
+      role: UserRole.ELEVE,
+      firstName: 'Ahmed',
+      lastName: 'Dupont',
+      activatedAt: new Date(),
+    },
+  });
+  await prisma.student.create({
+    data: {
+      userId: pwStudent.id,
+      parentId: pwParent.parentProfile!.id,
+      grade: 'Terminale',
+      credits: 5,
+    },
+  });
+  console.log(`  ✓ PW Student: ${pwStudent.email}`);
+
+  const pwCoach = await prisma.user.create({
+    data: {
+      email: 'helios@nexus-reussite.com',
+      password: hashedAdmin123,
+      role: UserRole.COACH,
+      firstName: 'Helios',
+      lastName: 'Nexus',
+      activatedAt: new Date(),
+      coachProfile: {
+        create: {
+          pseudonym: 'Coach Helios',
+          title: 'Agrégé',
+          description: 'Expert en mathématiques',
+          subjects: ['MATHEMATIQUES', 'NSI'],
+        },
+      },
+    },
+  });
+  console.log(`  ✓ PW Coach: ${pwCoach.email}\n`);
+
+  // =============================================================================
+  // CREATE USERS (original E2E test users)
   // =============================================================================
   console.log('👥 Creating test users...');
 
