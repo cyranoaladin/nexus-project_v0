@@ -18,8 +18,8 @@ import { GET, POST } from '@/app/api/programme/maths-terminale/progress/route';
 import { auth } from '@/auth';
 import { createClient } from '@supabase/supabase-js';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
+const mockAuth = auth as jest.Mock;
+const mockCreateClient = createClient as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

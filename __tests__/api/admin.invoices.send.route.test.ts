@@ -33,9 +33,9 @@ import { canPerformStatusAction } from '@/lib/invoice';
 import { sendInvoiceEmail } from '@/lib/invoice/send-email';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockCanPerform = canPerformStatusAction as jest.MockedFunction<typeof canPerformStatusAction>;
-const mockSendEmail = sendInvoiceEmail as jest.MockedFunction<typeof sendInvoiceEmail>;
+const mockAuth = auth as jest.Mock;
+const mockCanPerform = canPerformStatusAction as jest.Mock;
+const mockSendEmail = sendInvoiceEmail as jest.Mock;
 
 let prisma: any;
 

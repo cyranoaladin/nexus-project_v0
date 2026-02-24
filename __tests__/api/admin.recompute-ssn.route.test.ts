@@ -24,9 +24,9 @@ import { recomputeSSNBatch } from '@/lib/core/ssn/computeSSN';
 import { computeCohortStatsWithAudit } from '@/lib/core/statistics/cohort';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockRecompute = recomputeSSNBatch as jest.MockedFunction<typeof recomputeSSNBatch>;
-const mockAudit = computeCohortStatsWithAudit as jest.MockedFunction<typeof computeCohortStatsWithAudit>;
+const mockAuth = auth as jest.Mock;
+const mockRecompute = recomputeSSNBatch as jest.Mock;
+const mockAudit = computeCohortStatsWithAudit as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -14,8 +14,8 @@ jest.mock('@/lib/diagnostics/definitions', () => ({
 import { GET } from '@/app/api/diagnostics/definitions/route';
 import { listDefinitions, getDefinitionOrNull } from '@/lib/diagnostics/definitions';
 
-const mockListDefinitions = listDefinitions as jest.MockedFunction<typeof listDefinitions>;
-const mockGetDefinitionOrNull = getDefinitionOrNull as jest.MockedFunction<typeof getDefinitionOrNull>;
+const mockListDefinitions = listDefinitions as jest.Mock;
+const mockGetDefinitionOrNull = getDefinitionOrNull as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

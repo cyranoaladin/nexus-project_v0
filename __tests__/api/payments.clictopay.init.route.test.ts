@@ -14,7 +14,7 @@ import { POST } from '@/app/api/payments/clictopay/init/route';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockAuth = auth as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
