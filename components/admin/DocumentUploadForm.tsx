@@ -245,15 +245,24 @@ export function DocumentUploadForm() {
         </div>
 
         {/* 3. Submit */}
-        <div className="pt-4 border-t border-slate-100 flex justify-end">
+        <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+          {(!file || !selectedUser) && !isUploading && (
+            <p className="text-xs text-slate-400">
+              {!selectedUser && !file
+                ? 'Sélectionnez un destinataire et déposez un fichier pour continuer.'
+                : !selectedUser
+                  ? 'Sélectionnez un destinataire pour continuer.'
+                  : 'Déposez un fichier pour continuer.'}
+            </p>
+          )}
           <button
             type="submit"
             disabled={!file || !selectedUser || isUploading}
             className={cn(
-              "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors",
+              "inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all",
               !file || !selectedUser || isUploading
-                ? "bg-slate-300 cursor-not-allowed"
-                : "bg-primary-600 hover:bg-primary-700 shadow-sm"
+                ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                : "bg-primary-600 hover:bg-primary-700 text-white shadow-sm hover:shadow-md"
             )}
           >
             {isUploading ? (
@@ -264,7 +273,7 @@ export function DocumentUploadForm() {
             ) : (
               <>
                 <CheckCircle className="w-4 h-4" />
-                Confirmer l'upload
+                Confirmer le dépôt
               </>
             )}
           </button>
