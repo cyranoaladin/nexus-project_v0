@@ -17,7 +17,7 @@ for (const url of PAGES) {
     test.use({ viewport: MOBILE_VIEWPORT });
 
     test(`Pas de scroll horizontal`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       await page.waitForTimeout(1000);
 
       const hasOverflow = await page.evaluate(() => {
@@ -27,7 +27,7 @@ for (const url of PAGES) {
     });
 
     test(`Menu hamburger visible`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       await page.waitForTimeout(1000);
 
       // Desktop nav should be hidden, hamburger should be visible
@@ -47,7 +47,7 @@ for (const url of PAGES) {
     });
 
     test(`Touch targets ≥ 44px`, async ({ page }) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
       await page.waitForTimeout(1000);
 
       const smallTargets = await page.evaluate(() => {
@@ -78,7 +78,7 @@ test.describe('MOBILE — Hamburger menu functionality', () => {
   test.use({ viewport: MOBILE_VIEWPORT });
 
   test('Menu ouvre et affiche les liens de navigation', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'load' });
     await page.waitForTimeout(1000);
 
     // Find and click hamburger
