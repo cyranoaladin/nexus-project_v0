@@ -19,6 +19,11 @@ const confirmBankTransferSchema = z.object({
   studentId: z.string().trim().optional().nullable(),
   amount: z.number().positive(),
   description: z.string().trim().min(1).max(500),
+  termsAccepted: z.literal(true, {
+    errorMap: () => ({ message: 'L\'acceptation des CGV est obligatoire avant paiement.' }),
+  }),
+  termsVersion: z.string().trim().min(1),
+  immediateExecution: z.boolean().optional().default(false),
 });
 
 export async function POST(request: NextRequest) {
@@ -64,6 +69,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Extract client IP for audit trail
+    const forwarded = request.headers.get('x-forwarded-for');
+    const clientIp = forwarded?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown';
+
     // Créer le Payment en statut PENDING
     const payment = await prisma.payment.create({
       data: {
@@ -74,6 +83,10 @@ export async function POST(request: NextRequest) {
         description: data.description,
         status: 'PENDING',
         method: 'bank_transfer',
+        termsVersion: data.termsVersion,
+        termsAcceptedAt: new Date(),
+        termsAcceptedIp: clientIp,
+        immediateExecution: data.immediateExecution,
         metadata: {
           itemKey: data.key,
           itemType: data.type,
