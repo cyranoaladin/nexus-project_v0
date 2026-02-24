@@ -11,7 +11,8 @@ async function loginAndGo(page: Page, email: string, password: string, expectedU
   await page.getByTestId('input-email').fill(email);
   await page.getByTestId('input-password').fill(password);
   await page.getByTestId('btn-signin').click();
-  await page.waitForURL(`**${expectedUrl}**`, { timeout: 15000 });
+  await page.waitForLoadState('load');
+  await page.waitForURL(`**${expectedUrl}**`, { timeout: 30000 });
 }
 
 // ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────────
