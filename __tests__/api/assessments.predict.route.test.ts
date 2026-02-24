@@ -19,8 +19,8 @@ import { auth } from '@/auth';
 import { predictSSNForStudent } from '@/lib/core/ml/predictSSN';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockPredict = predictSSNForStudent as jest.MockedFunction<typeof predictSSNForStudent>;
+const mockAuth = auth as jest.Mock;
+const mockPredict = predictSSNForStudent as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

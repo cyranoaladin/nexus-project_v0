@@ -16,8 +16,8 @@ import { GET, POST } from '@/app/api/student/activate/route';
 import { verifyActivationToken, completeStudentActivation } from '@/lib/services/student-activation.service';
 import { NextRequest } from 'next/server';
 
-const mockVerify = verifyActivationToken as jest.MockedFunction<typeof verifyActivationToken>;
-const mockComplete = completeStudentActivation as jest.MockedFunction<typeof completeStudentActivation>;
+const mockVerify = verifyActivationToken as jest.Mock;
+const mockComplete = completeStudentActivation as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

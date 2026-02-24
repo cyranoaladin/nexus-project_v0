@@ -13,7 +13,7 @@ jest.mock('@/auth', () => ({
 import { GET } from '@/app/api/student/documents/route';
 import { auth } from '@/auth';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockAuth = auth as jest.Mock;
 
 let prisma: any;
 

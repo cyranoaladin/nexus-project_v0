@@ -31,9 +31,9 @@ import { verifyAccessToken } from '@/lib/invoice';
 import { buildInvoiceScopeWhere } from '@/lib/invoice/not-found';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockVerifyToken = verifyAccessToken as jest.MockedFunction<typeof verifyAccessToken>;
-const mockBuildScope = buildInvoiceScopeWhere as jest.MockedFunction<typeof buildInvoiceScopeWhere>;
+const mockAuth = auth as jest.Mock;
+const mockVerifyToken = verifyAccessToken as jest.Mock;
+const mockBuildScope = buildInvoiceScopeWhere as jest.Mock;
 
 let prisma: any;
 

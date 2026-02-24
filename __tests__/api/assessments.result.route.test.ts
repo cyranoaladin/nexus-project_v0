@@ -38,7 +38,7 @@ import { GET } from '@/app/api/assessments/[id]/result/route';
 import { isCompletedAssessmentStatus } from '@/lib/core/assessment-status';
 import { NextRequest } from 'next/server';
 
-const mockIsCompleted = isCompletedAssessmentStatus as jest.MockedFunction<typeof isCompletedAssessmentStatus>;
+const mockIsCompleted = isCompletedAssessmentStatus as jest.Mock;
 
 let prisma: any;
 

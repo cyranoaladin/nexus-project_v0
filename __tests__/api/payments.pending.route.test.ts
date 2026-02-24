@@ -6,6 +6,8 @@
  * Source: app/api/payments/pending/route.ts, app/api/payments/check-pending/route.ts
  */
 
+export {};
+
 const mockAuth = jest.fn();
 jest.mock('@/auth', () => ({
   auth: () => mockAuth(),
@@ -41,32 +43,28 @@ describe('GET /api/payments/pending', () => {
   it('should return 401 for unauthenticated request', async () => {
     mockAuth.mockResolvedValue(null);
     const { GET } = await import('@/app/api/payments/pending/route');
-    const request = new Request('http://localhost/api/payments/pending');
-    const response = await GET(request);
+    const response = await GET();
     expect(response.status).toBe(401);
   });
 
   it('should return 403 for ELEVE role', async () => {
     mockAuth.mockResolvedValue(mockSession('ELEVE'));
     const { GET } = await import('@/app/api/payments/pending/route');
-    const request = new Request('http://localhost/api/payments/pending');
-    const response = await GET(request);
+    const response = await GET();
     expect([401, 403]).toContain(response.status);
   });
 
   it('should allow ADMIN to list pending payments', async () => {
     mockAuth.mockResolvedValue(mockSession('ADMIN'));
     const { GET } = await import('@/app/api/payments/pending/route');
-    const request = new Request('http://localhost/api/payments/pending');
-    const response = await GET(request);
+    const response = await GET();
     expect(response.status).toBe(200);
   });
 
   it('should allow ASSISTANTE to list pending payments', async () => {
     mockAuth.mockResolvedValue(mockSession('ASSISTANTE'));
     const { GET } = await import('@/app/api/payments/pending/route');
-    const request = new Request('http://localhost/api/payments/pending');
-    const response = await GET(request);
+    const response = await GET();
     expect(response.status).toBe(200);
   });
 });
@@ -80,7 +78,7 @@ describe('GET /api/payments/check-pending', () => {
     mockAuth.mockResolvedValue(null);
     const { GET } = await import('@/app/api/payments/check-pending/route');
     const request = new Request('http://localhost/api/payments/check-pending');
-    const response = await GET(request);
+    const response = await GET(request as any);
     // Route may return 401 or 200 with hasPending=false depending on implementation
     expect([200, 401]).toContain(response.status);
   });
@@ -89,7 +87,7 @@ describe('GET /api/payments/check-pending', () => {
     mockAuth.mockResolvedValue(mockSession('PARENT'));
     const { GET } = await import('@/app/api/payments/check-pending/route');
     const request = new Request('http://localhost/api/payments/check-pending');
-    const response = await GET(request);
+    const response = await GET(request as any);
     expect(response.status).toBe(200);
   });
 
@@ -100,7 +98,7 @@ describe('GET /api/payments/check-pending', () => {
 
     const { GET } = await import('@/app/api/payments/check-pending/route');
     const request = new Request('http://localhost/api/payments/check-pending');
-    const response = await GET(request);
+    const response = await GET(request as any);
     const body = await response.json();
     expect(body.hasPending).toBe(false);
   });

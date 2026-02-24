@@ -21,8 +21,8 @@ import { auth } from '@/auth';
 import { reportSubmissionSchema } from '@/lib/validation/session-report';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockSafeParse = (reportSubmissionSchema as any).safeParse as jest.MockedFunction<any>;
+const mockAuth = auth as jest.Mock;
+const mockSafeParse = (reportSubmissionSchema as any).safeParse as jest.Mock;
 
 let prisma: any;
 

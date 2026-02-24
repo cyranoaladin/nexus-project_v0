@@ -6,6 +6,8 @@
  * Source: app/api/payments/bank-transfer/confirm/route.ts
  */
 
+export {};
+
 const mockAuth = jest.fn();
 jest.mock('@/auth', () => ({
   auth: () => mockAuth(),
@@ -61,7 +63,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: 15000, subscriptionId: 'sub-1' }),
     });
-    const response = await POST(request);
+    const response = await POST(request as any);
 
     // Assert
     expect(response.status).toBe(401);
@@ -78,7 +80,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: 15000, subscriptionId: 'sub-1' }),
     });
-    const response = await POST(request);
+    const response = await POST(request as any);
 
     // Assert
     expect([401, 403]).toContain(response.status);
