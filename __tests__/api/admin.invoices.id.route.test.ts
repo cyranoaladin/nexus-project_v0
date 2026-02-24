@@ -27,9 +27,9 @@ import { auth } from '@/auth';
 import { validateTransition, canPerformStatusAction } from '@/lib/invoice';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockCanPerform = canPerformStatusAction as jest.MockedFunction<typeof canPerformStatusAction>;
-const mockValidateTransition = validateTransition as jest.MockedFunction<typeof validateTransition>;
+const mockAuth = auth as jest.Mock;
+const mockCanPerform = canPerformStatusAction as jest.Mock;
+const mockValidateTransition = validateTransition as jest.Mock;
 
 let prisma: any;
 

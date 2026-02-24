@@ -19,8 +19,8 @@ import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockInitiate = initiateStudentActivation as jest.MockedFunction<typeof initiateStudentActivation>;
+const mockAuth = auth as jest.Mock;
+const mockInitiate = initiateStudentActivation as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

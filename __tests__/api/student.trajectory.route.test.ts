@@ -24,9 +24,9 @@ import { resolveStudentScope } from '@/lib/scopes';
 import { getActiveTrajectory } from '@/lib/trajectory';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockResolveScope = resolveStudentScope as jest.MockedFunction<typeof resolveStudentScope>;
-const mockGetTrajectory = getActiveTrajectory as jest.MockedFunction<typeof getActiveTrajectory>;
+const mockAuth = auth as jest.Mock;
+const mockResolveScope = resolveStudentScope as jest.Mock;
+const mockGetTrajectory = getActiveTrajectory as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

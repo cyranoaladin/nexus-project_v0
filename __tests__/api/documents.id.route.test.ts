@@ -23,8 +23,8 @@ import { auth } from '@/auth';
 import { readFile } from 'fs/promises';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockReadFile = readFile as jest.MockedFunction<typeof readFile>;
+const mockAuth = auth as jest.Mock;
+const mockReadFile = readFile as jest.Mock;
 
 let prisma: any;
 

@@ -36,8 +36,8 @@ import { POST } from '@/app/api/admin/documents/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
 
-const mockRequireAnyRole = requireAnyRole as jest.MockedFunction<typeof requireAnyRole>;
-const mockIsErrorResponse = isErrorResponse as jest.MockedFunction<typeof isErrorResponse>;
+const mockRequireAnyRole = requireAnyRole as jest.Mock;
+const mockIsErrorResponse = isErrorResponse as unknown as jest.Mock;
 
 let prisma: any;
 

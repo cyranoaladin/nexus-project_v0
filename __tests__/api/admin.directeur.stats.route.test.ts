@@ -14,7 +14,7 @@ import { GET } from '@/app/api/admin/directeur/stats/route';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockAuth = auth as jest.Mock;
 
 let prisma: any;
 

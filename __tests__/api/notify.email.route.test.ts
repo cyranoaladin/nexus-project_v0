@@ -31,7 +31,7 @@ import { POST } from '@/app/api/notify/email/route';
 import { sendMail } from '@/lib/email/mailer';
 import { NextRequest } from 'next/server';
 
-const mockSendMail = sendMail as jest.MockedFunction<typeof sendMail>;
+const mockSendMail = sendMail as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

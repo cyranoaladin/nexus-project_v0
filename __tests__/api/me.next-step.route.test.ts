@@ -18,8 +18,8 @@ import { GET } from '@/app/api/me/next-step/route';
 import { auth } from '@/auth';
 import { getNextStep } from '@/lib/next-step-engine';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockGetNextStep = getNextStep as jest.MockedFunction<typeof getNextStep>;
+const mockAuth = auth as jest.Mock;
+const mockGetNextStep = getNextStep as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();

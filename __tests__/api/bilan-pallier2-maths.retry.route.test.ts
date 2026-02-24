@@ -67,9 +67,9 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { generateBilans } from '@/lib/bilan-generator';
 import { NextRequest, NextResponse } from 'next/server';
 
-const mockRequireAnyRole = requireAnyRole as jest.MockedFunction<typeof requireAnyRole>;
-const mockIsErrorResponse = isErrorResponse as jest.MockedFunction<typeof isErrorResponse>;
-const mockGenerateBilans = generateBilans as jest.MockedFunction<typeof generateBilans>;
+const mockRequireAnyRole = requireAnyRole as jest.Mock;
+const mockIsErrorResponse = isErrorResponse as unknown as jest.Mock;
+const mockGenerateBilans = generateBilans as jest.Mock;
 
 let prisma: any;
 
