@@ -542,20 +542,44 @@ jobs:
       - name: Check all jobs status
         run: |
           # Security scan is allowed to fail (continue-on-error)
-          if [ "${{ needs.lint.result }}" != "success" ] || \
-             [ "${{ needs.typecheck.result }}" != "success" ] || \
-             [ "${{ needs.unit.result }}" != "success" ] || \
-             [ "${{ needs.integration.result }}" != "success" ] || \
-             [ "${{ needs.e2e.result }}" != "success" ] || \
-             [ "${{ needs.build.result }}" != "success" ]; then
+          # E2E cancelled by concurrency (cancel-in-progress) is acceptable
+          FAIL=0
+
+          # Required jobs: must be 'success'
+          for result_pair in \
+            "lint:${{ needs.lint.result }}" \
+            "typecheck:${{ needs.typecheck.result }}" \
+            "unit:${{ needs.unit.result }}" \
+            "integration:${{ needs.integration.result }}" \
+            "build:${{ needs.build.result }}"; do
+            job="${result_pair%%:*}"
+            result="${result_pair#*:}"
+            if [ "$result" != "success" ]; then
+              echo "❌ $job: $result"
+              FAIL=1
+            else
+              echo "✅ $job: $result"
+            fi
+          done
+
+          # E2E: allow 'cancelled' (from cancel-in-progress on newer push)
+          E2E_RESULT="${{ needs.e2e.result }}"
+          if [ "$E2E_RESULT" = "success" ]; then
+            echo "✅ e2e: $E2E_RESULT"
+          elif [ "$E2E_RESULT" = "cancelled" ]; then
+            echo "⚠️  e2e: $E2E_RESULT (cancelled by newer push — acceptable)"
+          else
+            echo "❌ e2e: $E2E_RESULT"
+            FAIL=1
+          fi
+
+          # Security: informational only
+          echo "ℹ️  security: ${{ needs.security.result }} (allowed to fail)"
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo ""
             echo "❌ CI Pipeline Failed"
-            echo "Lint: ${{ needs.lint.result }}"
-            echo "TypeCheck: ${{ needs.typecheck.result }}"
-            echo "Unit: ${{ needs.unit.result }}"
-            echo "Integration: ${{ needs.integration.result }}"
-            echo "E2E: ${{ needs.e2e.result }}"
-            echo "Security: ${{ needs.security.result }} (allowed to fail)"
-            echo "Build: ${{ needs.build.result }}"
             exit 1
           fi
+          echo ""
           echo "✅ All CI checks passed!"
