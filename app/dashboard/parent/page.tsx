@@ -32,6 +32,7 @@ interface ParentDashboardData {
     userId: string;
     firstName: string;
     lastName: string;
+    email: string;
     grade: string;
     school: string;
     credits: number;
@@ -192,7 +193,7 @@ export default function DashboardParent() {
             <BilanGratuitBanner />
 
             {/* Child Selector + Add Child */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
                 <StudentSelector
                   selectedId={selectedChild}
@@ -204,6 +205,19 @@ export default function DashboardParent() {
                 <p className="text-[11px] text-neutral-500">Chaque trajectoire est pilotée individuellement.</p>
               )}
             </div>
+
+            {/* Info connexion élève */}
+            {currentChild?.email && (
+              <div className="mb-6 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-blue-300 shrink-0" />
+                  <span className="text-neutral-300">Email de connexion de {currentChild.firstName} :</span>
+                </div>
+                <code className="text-xs sm:text-sm font-mono bg-white/5 px-2 py-1 rounded text-blue-200 break-all">
+                  {currentChild.email}
+                </code>
+              </div>
+            )}
 
             <DashboardPilotage role="PARENT" studentId={selectedChild}>
             {/* Dashboard Grid */}
