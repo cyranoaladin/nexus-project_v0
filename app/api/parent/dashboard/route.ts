@@ -119,11 +119,7 @@ export async function GET() {
         userId: child.user.id,
         firstName: child.user.firstName || '',
         lastName: child.user.lastName || '',
-        // name: ... (Frontend uses firstName/lastName in interface usually?)
-        // Page.tsx uses: firstName, lastName.
-        // Interface says: firstName, lastName in parent object.
-        // Children objects in Page.tsx interface: id, firstName, lastName, ...
-        // So we must match that.
+        email: child.user.email || '', // Email élève pour connexion
 
         grade: child.grade,
         school: child.school,
