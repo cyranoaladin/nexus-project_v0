@@ -9,9 +9,9 @@ module.exports = {
       max_memory_restart: '1G',
       env: {
         NODE_ENV: 'production',
-        PORT: 3005,
-        AUTH_TRUST_HOST: 'true',
-        NEXTAUTH_URL: 'http://127.0.0.1:3005',
+        PORT: process.env.PORT || 3001,
+        AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST || 'true',
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
       },
     },
   ],
