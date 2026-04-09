@@ -32,20 +32,22 @@ test.describe('Homepage (/) — Tous les éléments interactifs', () => {
     }
   });
 
-  test('CTA Hero "Bilan gratuit" fonctionne', async ({ page }) => {
-    const bilanLink = page.getByRole('link', { name: /bilan gratuit/i }).first();
-    if (await bilanLink.isVisible()) {
-      await bilanLink.click();
-      await expect(page).toHaveURL('/bilan-gratuit');
-    }
+  test('CTA Hero "Découvrir les Stages Printemps" fonctionne', async ({ page }) => {
+    const stagesLink = page.locator('#hero a[href="/stages"]').first();
+    await expect(stagesLink).toBeVisible();
+    await stagesLink.click();
+    await expect(page).toHaveURL(/\/stages$/);
   });
 
-  test('CTA Hero "Voir nos offres" fonctionne', async ({ page }) => {
-    const offresLink = page.getByRole('link', { name: /voir nos offres|nos offres|découvrir/i }).first();
-    if (await offresLink.isVisible()) {
-      await offresLink.click();
-      await expect(page).toHaveURL(/offres/);
-    }
+  test('CTA Hero "Essayer la plateforme EAF gratuitement" ouvre le sous-domaine EAF', async ({ page, context }) => {
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator('#hero a[href="https://eaf.nexusreussite.academy"]').first().click(),
+    ]);
+
+    await newPage.waitForLoadState('domcontentloaded');
+    await expect(newPage).toHaveURL(/https:\/\/eaf\.nexusreussite\.academy/);
+    await newPage.close();
   });
 
   test('tous les liens footer sont fonctionnels (pas de 404)', async ({ page }) => {
