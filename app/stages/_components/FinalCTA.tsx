@@ -1,4 +1,4 @@
-import { ArrowRight, Phone, Target } from "lucide-react";
+import { ArrowRight, MessageCircle, Phone } from "lucide-react";
 
 import CTAButton from "./CTAButton";
 import {
@@ -13,44 +13,55 @@ export default function FinalCTA() {
   return (
     <section
       id="reservation"
-      className="relative overflow-hidden bg-nexus-bg px-4 py-24 sm:px-6 lg:px-8"
+      className="relative overflow-hidden bg-nexus-bg px-4 py-28 sm:px-6 lg:px-8"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(16,185,129,0.22),transparent_42%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12),transparent_52%)]" />
 
-      <div className="relative mx-auto max-w-4xl text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm text-white/58">
-          <Target className="h-4 w-4 text-nexus-green" aria-hidden="true" />
-          Dernier bloc avant réservation
-        </div>
-        <h2 className="mt-5 font-display text-h2 font-bold text-white">
-          Le 2 mai, vous repartez avec un plan de révision prêt à exécuter.
-        </h2>
-        <p className="mt-5 text-base leading-8 text-white/60">
-          Méthode posée, points faibles identifiés, entraînements faits. Il ne reste ensuite qu'à
-          capitaliser. 6 élèves max, places dans l'ordre des inscriptions.
+      <div className="relative mx-auto max-w-3xl text-center">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">
+          Stages Printemps 2026 · 18 avril — 2 mai
         </p>
 
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <CTAButton href={WHATSAPP_URL} external className="sm:min-w-[250px]">
-            Sécuriser ma mention
+        <h2 className="mt-4 font-display text-h2 font-bold text-white">
+          Le 2 mai, vous repartez avec une méthode posée, des points faibles identifiés et un plan
+          de révision prêt à exécuter.
+        </h2>
+
+        <p className="mt-5 text-base leading-8 text-white/56">
+          Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de
+          zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places
+          sont pleines.
+        </p>
+
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <CTAButton href={WHATSAPP_URL} external className="sm:min-w-[260px]">
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            Réserver ma place
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </CTAButton>
-          <CTAButton href={PHONE_LINK} variant="outline" className="sm:min-w-[250px]">
+          <CTAButton href={PHONE_LINK} variant="outline" className="sm:min-w-[200px]">
             <Phone className="h-4 w-4" aria-hidden="true" />
-            Bilan gratuit
+            Nous appeler
           </CTAButton>
         </div>
 
-        <div className="mt-8 space-y-2 text-sm leading-7 text-white/55">
+        {/* Micro-footer */}
+        <div className="mt-14 space-y-2 text-sm leading-7 text-white/36">
           <p>{CONTACT_ADDRESS}</p>
           <p>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="transition-colors hover:text-white/65"
+            >
               {CONTACT_EMAIL}
-            </a>{" "}
-            •{" "}
-            <a href={PHONE_LINK} className="hover:text-white">
+            </a>
+            {" · "}
+            <a href={PHONE_LINK} className="transition-colors hover:text-white/65">
               {PHONE}
             </a>
+          </p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/22">
+            Excellence pédagogique · Petits groupes · Système français
           </p>
         </div>
       </div>

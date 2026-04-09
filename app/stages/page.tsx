@@ -1,16 +1,16 @@
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 
-import AcademiesSection from "./_components/AcademiesSection";
-import FAQSection from "./_components/FAQSection";
-import FinalCTA from "./_components/FinalCTA";
-import GrandOralSection from "./_components/GrandOralSection";
-import MarketComparison from "./_components/MarketComparison";
-import PricingTable from "./_components/PricingTable";
-import SocialProof from "./_components/SocialProof";
 import StagesHeader from "./_components/StagesHeader";
 import StagesHero from "./_components/StagesHero";
+import TrustSignals from "./_components/TrustSignals";
 import UrgencyTimeline from "./_components/UrgencyTimeline";
+import WhyNexus from "./_components/WhyNexus";
+import ChooseStage from "./_components/ChooseStage";
+import AcademiesSection from "./_components/AcademiesSection";
+import GrandOralSection from "./_components/GrandOralSection";
+import FAQSection from "./_components/FAQSection";
+import FinalCTA from "./_components/FinalCTA";
 
 export default function StagesPage() {
   return (
@@ -20,12 +20,12 @@ export default function StagesPage() {
       <main id="main-content" className="pt-24 md:pt-28">
         <StagesHeader />
         <StagesHero />
+        <TrustSignals />
         <UrgencyTimeline />
-        <MarketComparison />
+        <WhyNexus />
+        <ChooseStage />
         <AcademiesSection />
         <GrandOralSection />
-        <PricingTable />
-        <SocialProof />
         <FAQSection />
         <FinalCTA />
       </main>
