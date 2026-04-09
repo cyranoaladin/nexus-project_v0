@@ -50,10 +50,10 @@ export interface PricingRow {
 export const PACKS: Pack[] = [
   {
     id: "premiere-combo",
-    badge: "🔥 BEST-SELLER",
+    badge: "Best-seller",
     badgeColor: "#f59e0b",
     highlight: true,
-    icon: "🎯",
+    icon: "target",
     title: 'Pack « Doublé Anticipé »',
     subtitle: "PREMIÈRE — Français + Maths",
     hours: "40h",
@@ -75,7 +75,7 @@ export const PACKS: Pack[] = [
   },
   {
     id: "premiere-francais",
-    icon: "📖",
+    icon: "book-open",
     title: "Français Première",
     subtitle: "PREMIÈRE — Mono-matière",
     hours: "22h",
@@ -96,7 +96,7 @@ export const PACKS: Pack[] = [
   },
   {
     id: "premiere-maths",
-    icon: "📐",
+    icon: "sigma",
     title: "Maths Première",
     subtitle: "PREMIÈRE — Mono-matière",
     hours: "22h",
@@ -117,7 +117,7 @@ export const PACKS: Pack[] = [
   },
   {
     id: "terminale-maths",
-    icon: "∫",
+    icon: "calculator",
     title: "Maths Terminale",
     subtitle: "TERMINALE — Excellence Bac",
     hours: "30h",
@@ -139,10 +139,10 @@ export const PACKS: Pack[] = [
   },
   {
     id: "terminale-nsi-fullstack",
-    badge: "⚡ URGENCE 18 MAI",
+    badge: "Urgence 18 mai",
     badgeColor: "#ef4444",
     highlight: true,
-    icon: "💻",
+    icon: "code-2",
     title: 'Pack « Full Stack NSI »',
     subtitle: "TERMINALE — Pratique + Écrit + Oral",
     hours: "40h",
@@ -164,7 +164,7 @@ export const PACKS: Pack[] = [
   },
   {
     id: "terminale-nsi-ecrit",
-    icon: "🖥️",
+    icon: "monitor-smartphone",
     title: "NSI Terminale — Écrit",
     subtitle: "TERMINALE — Mono-matière",
     hours: "22h",
@@ -185,7 +185,7 @@ export const PACKS: Pack[] = [
   },
   {
     id: "grand-oral",
-    icon: "🎤",
+    icon: "mic",
     title: "Pack Grand Oral",
     subtitle: 'TERMINALE — « L\'Art de Convaincre »',
     hours: "10h",
@@ -275,7 +275,7 @@ export const GRAND_ORAL_DAYS: GrandOralDay[] = [
     description:
       "Audit des questions. Construction de l'accroche. Livrable : structure validée + intro percutante.",
     skill: "Hook maîtrisé",
-    icon: "🎯",
+    icon: "target",
   },
   {
     day: 2,
@@ -283,7 +283,7 @@ export const GRAND_ORAL_DAYS: GrandOralDay[] = [
     description:
       "Technique du « Pont » pour Maths/NSI. Script complet sans notes.",
     skill: "Récit fluide",
-    icon: "📖",
+    icon: "book-open",
   },
   {
     day: 3,
@@ -291,7 +291,7 @@ export const GRAND_ORAL_DAYS: GrandOralDay[] = [
     description:
       "Posture, voix, silences stratégiques. Enregistrement vidéo + débriefing.",
     skill: "Zéro trac",
-    icon: "🎭",
+    icon: "camera",
   },
   {
     day: 4,
@@ -299,7 +299,7 @@ export const GRAND_ORAL_DAYS: GrandOralDay[] = [
     description:
       "Questions pièges. Humilité intelligente. Défense du projet d'orientation.",
     skill: "Répartie",
-    icon: "⚔️",
+    icon: "message-circle",
   },
   {
     day: 5,
@@ -307,7 +307,7 @@ export const GRAND_ORAL_DAYS: GrandOralDay[] = [
     description:
       "Passage conditions réelles (20 min). Feedback final + Guide de Survie PDF.",
     skill: "Confiance totale",
-    icon: "🏆",
+    icon: "trophy",
   },
 ];
 
