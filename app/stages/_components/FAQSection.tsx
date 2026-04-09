@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { HelpCircle, Plus } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 
 import { FAQS } from "../_data/packs";
 
 export default function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
@@ -20,30 +20,40 @@ export default function FAQSection() {
           </h2>
         </div>
 
-        <div className="mt-10 space-y-4">
+        <div className="mt-12 space-y-3">
           {FAQS.map((item, index) => {
             const isOpen = index === openIndex;
-
             return (
-              <article key={item.question} className="rounded-[22px] border border-white/8 bg-white/[0.03]">
+              <article
+                key={item.question}
+                className="overflow-hidden rounded-[20px] border border-white/8 bg-white/[0.025]"
+              >
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                  aria-expanded={isOpen}
                 >
-                  <span className="flex items-center gap-3">
-                    <HelpCircle className="h-4 w-4 shrink-0 text-nexus-green" aria-hidden="true" />
-                    <span className="font-display text-lg font-bold text-white">{item.question}</span>
+                  <span className="font-display text-base font-semibold text-white">
+                    {item.question}
                   </span>
-                  <Plus
-                    className={`h-5 w-5 shrink-0 text-white/62 transition-transform duration-200 ${
-                      isOpen ? "rotate-45" : ""
+                  <span
+                    className={`shrink-0 rounded-full border p-1.5 transition-colors duration-150 ${
+                      isOpen
+                        ? "border-nexus-green/35 bg-nexus-green/10"
+                        : "border-white/10 bg-white/[0.04]"
                     }`}
-                    aria-hidden="true"
-                  />
+                  >
+                    {isOpen ? (
+                      <Minus className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
+                    ) : (
+                      <Plus className="h-3.5 w-3.5 text-white/45" aria-hidden="true" />
+                    )}
+                  </span>
                 </button>
+
                 {isOpen ? (
-                  <div className="border-t border-white/8 px-5 py-5 text-sm leading-7 text-white/62">
+                  <div className="border-t border-white/6 px-6 py-5 text-sm leading-7 text-white/58">
                     {item.answer}
                   </div>
                 ) : null}
