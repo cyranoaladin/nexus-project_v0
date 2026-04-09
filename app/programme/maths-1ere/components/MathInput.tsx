@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { Calculator, Keyboard } from 'lucide-react';
 
 /**
  * MathLive-powered math input component.
@@ -136,7 +137,7 @@ export default function MathInput({
     <div className={`bg-slate-900/50 border border-blue-500/20 rounded-xl overflow-hidden ${className}`}>
       <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800/50 border-b border-slate-700/30">
         <div className="flex items-center gap-2">
-          <span className="text-sm">🔢</span>
+          <Calculator className="h-4 w-4 text-blue-300" aria-hidden="true" />
           <span className="text-xs font-bold text-blue-300">Saisie mathématique</span>
         </div>
         {loaded && (
@@ -145,7 +146,10 @@ export default function MathInput({
             className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
             title="Clavier mathématique virtuel"
           >
-            ⌨ Clavier
+            <span className="inline-flex items-center gap-1">
+              <Keyboard className="h-3.5 w-3.5" aria-hidden="true" />
+              Clavier
+            </span>
           </button>
         )}
       </div>

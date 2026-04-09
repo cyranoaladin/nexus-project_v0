@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Pause, Play, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronUp, Circle, Orbit, Pause, Play, RotateCcw } from 'lucide-react';
 
 /**
  * CdC §4.2.3 — "L'Enrouleur"
@@ -396,7 +396,7 @@ export default function Enrouleur() {
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🎡</span>
+          <Orbit className="h-5 w-5 text-blue-300" aria-hidden="true" />
           <span className="font-bold text-blue-200 text-sm">L&apos;Enrouleur</span>
           <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
@@ -408,9 +408,9 @@ export default function Enrouleur() {
           {/* Mode selector */}
           <div className="flex gap-2">
             {([
-              { id: 'sin' as DisplayMode, label: '🟠 sin(θ)', color: 'orange' },
-              { id: 'cos' as DisplayMode, label: '🟣 cos(θ)', color: 'purple' },
-              { id: 'both' as DisplayMode, label: '🔵 sin + cos', color: 'blue' },
+              { id: 'sin' as DisplayMode, label: 'sin(θ)', colorClass: 'text-orange-400' },
+              { id: 'cos' as DisplayMode, label: 'cos(θ)', colorClass: 'text-violet-400' },
+              { id: 'both' as DisplayMode, label: 'sin + cos', colorClass: 'text-blue-400' },
             ]).map((m) => (
               <button
                 key={m.id}
@@ -420,7 +420,10 @@ export default function Enrouleur() {
                   : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                   }`}
               >
-                {m.label}
+                <span className="inline-flex items-center gap-1.5">
+                  <Circle className={`h-3 w-3 fill-current ${m.colorClass}`} aria-hidden="true" />
+                  {m.label}
+                </span>
               </button>
             ))}
           </div>

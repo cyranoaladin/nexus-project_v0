@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, CalendarClock, Check, ChevronLeft, Clock3, Lock as LockIcon, RefreshCw, Rocket } from 'lucide-react';
+import { BookOpen, CalendarClock, Check, ChevronLeft, Clock3, Lock as LockIcon, RefreshCw, Rocket, Star } from 'lucide-react';
 import { programmeData } from '../data';
 import { useMathsLabStore } from '../store';
 import { resolveUiIcon } from '@/lib/ui-icons';
@@ -93,6 +93,20 @@ function buildTreeNodes(): TreeNode[] {
   }
 
   return nodes;
+}
+
+function DifficultyStars({ value }: { value: number }) {
+  return (
+    <span className="inline-flex items-center gap-0.5 text-amber-300" aria-label={`Difficulté ${value} sur 5`}>
+      {Array.from({ length: 5 }, (_, index) => (
+        <Star
+          key={index}
+          className={`h-3 w-3 ${index < value ? 'fill-current' : 'text-slate-600'}`}
+          aria-hidden="true"
+        />
+      ))}
+    </span>
+  );
 }
 
 const colorClasses: Record<string, { bg: string; border: string; text: string; glow: string }> = {
@@ -243,7 +257,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                           {node.titre}
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                          <span>{'★'.repeat(node.difficulte)}{'☆'.repeat(5 - node.difficulte)}</span>
+                          <DifficultyStars value={node.difficulte} />
                           <span>{node.pointsXP} XP</span>
                           {isDueToday && <span className="text-orange-300 font-bold animate-pulse">À réviser aujourd'hui</span>}
                           {!isDueToday && isDueSoon && <span className="text-blue-300 font-bold">À réviser bientôt</span>}
