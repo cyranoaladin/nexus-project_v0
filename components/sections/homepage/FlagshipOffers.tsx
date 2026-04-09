@@ -1,5 +1,6 @@
 import CTAButton from "@/components/sections/homepage/CTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
+import { BookOpen, CalendarRange, Check, Lightbulb, Sparkles } from "lucide-react";
 import {
   COMPARISON_ROWS,
   EAF_EXAM_DATE,
@@ -77,13 +78,19 @@ export default function FlagshipOffers() {
           <OfferCard theme="stage">
             <div className="flex items-start justify-between gap-4">
               <span className="rounded-full bg-nexus-green/12 px-3 py-1 text-xs font-mono uppercase tracking-[0.16em] text-nexus-green">
-                🌿 Stages
+                <span className="inline-flex items-center gap-2">
+                  <CalendarRange className="h-3.5 w-3.5" aria-hidden="true" />
+                  Stages
+                </span>
               </span>
               <CountdownChip targetDate={STAGE_START_DATE} label="avant le début" tone="stage" />
             </div>
 
             <h3 className="mt-6 font-display text-3xl font-bold text-white">
-              📅 Stages de Printemps 2026
+              <span className="inline-flex items-center gap-3">
+                <CalendarRange className="h-8 w-8 text-nexus-green" aria-hidden="true" />
+                Stages de Printemps 2026
+              </span>
             </h3>
             <p className="mt-2 font-mono text-sm uppercase tracking-[0.14em] text-white/45">
               18 Avril — 02 Mai • Première & Terminale
@@ -95,7 +102,7 @@ export default function FlagshipOffers() {
             <ul className="mt-6 space-y-3 text-sm text-white/70">
               {stageFeatures.map((feature) => (
                 <li key={feature} className="flex gap-3">
-                  <span className="text-nexus-green">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 text-nexus-green" aria-hidden="true" />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -125,13 +132,19 @@ export default function FlagshipOffers() {
           <OfferCard theme="eaf">
             <div className="flex items-start justify-between gap-4">
               <span className="rounded-full bg-nexus-purple/12 px-3 py-1 text-xs font-mono uppercase tracking-[0.16em] text-nexus-purple">
-                📖 Plateforme EAF
+                <span className="inline-flex items-center gap-2">
+                  <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                  Plateforme EAF
+                </span>
               </span>
               <CountdownChip targetDate={EAF_EXAM_DATE} label="avant l'épreuve EAF" tone="eaf" />
             </div>
 
             <h3 className="mt-6 font-display text-3xl font-bold text-white">
-              🤖 Nexus Réussite — Préparation EAF
+              <span className="inline-flex items-center gap-3">
+                <Sparkles className="h-8 w-8 text-nexus-purple" aria-hidden="true" />
+                Nexus Réussite — Préparation EAF
+              </span>
             </h3>
             <p className="mt-2 font-mono text-sm uppercase tracking-[0.14em] text-white/45">
               Bac de Français 2026 • Oral + Écrit + Langue
@@ -143,7 +156,7 @@ export default function FlagshipOffers() {
             <ul className="mt-6 space-y-3 text-sm text-white/70">
               {eafFeatures.map((feature) => (
                 <li key={feature} className="flex gap-3">
-                  <span className="text-nexus-purple">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 text-nexus-purple" aria-hidden="true" />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -195,7 +208,10 @@ export default function FlagshipOffers() {
         </div>
 
         <p className="mt-5 text-sm text-white/60">
-          💡 Les deux se complètent parfaitement : le stage pour la structure et l'intensif, la plateforme pour l'entraînement quotidien.
+          <span className="inline-flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-nexus-amber" aria-hidden="true" />
+            Les deux se complètent parfaitement : le stage pour la structure et l'intensif, la plateforme pour l'entraînement quotidien.
+          </span>
         </p>
       </div>
     </section>

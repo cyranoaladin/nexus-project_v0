@@ -784,7 +784,9 @@ function NexusTab({ diagnostic, scoring }: { diagnostic: DiagnosticResult; scori
                 <div className="p-4 bg-surface-elevated rounded-[14px] border border-white/[0.06]">
                   <p className="text-neutral-400 text-[10px] uppercase tracking-[0.14em] font-mono mb-1">Mini-test</p>
                   <p className={`text-lg font-bold font-display ${scoreTextColor((examPrep.miniTest.score / 6) * 100)}`}>{examPrep.miniTest.score}/6</p>
-                  <p className="text-neutral-400 text-[10px] font-mono">{examPrep.miniTest.timeUsedMinutes}min · {examPrep.miniTest.completedInTime ? "✓ terminé" : "✗ non terminé"}</p>
+                  <p className="text-neutral-400 text-[10px] font-mono">
+                    {examPrep.miniTest.timeUsedMinutes}min · {examPrep.miniTest.completedInTime ? "Terminé" : "Non terminé"}
+                  </p>
                 </div>
               )}
               {examPrep.selfRatings && Object.entries(examPrep.selfRatings).map(([key, val]) => (

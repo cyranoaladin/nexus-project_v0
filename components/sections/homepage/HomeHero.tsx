@@ -1,14 +1,15 @@
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import { Check } from "lucide-react";
 import {
   EAF_URL,
   STAGES_URL,
 } from "@/components/sections/homepage/content";
 
 const reassuranceItems = [
-  "✓ 6 élèves max par groupe",
-  "✓ Enseignants agrégés",
-  "✓ Freemium sans carte bancaire",
-  "✓ Sources BO 2026",
+  "6 élèves max par groupe",
+  "Enseignants agrégés",
+  "Freemium sans carte bancaire",
+  "Sources BO 2026",
 ];
 
 export default function HomeHero() {
@@ -44,7 +45,8 @@ export default function HomeHero() {
 
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-sm text-white/68">
             {reassuranceItems.map((item) => (
-              <span key={item} className="font-body">
+              <span key={item} className="inline-flex items-center gap-2 font-body">
+                <Check className="h-4 w-4 text-nexus-green" aria-hidden="true" />
                 {item}
               </span>
             ))}

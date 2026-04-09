@@ -2,8 +2,10 @@
 
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { BookOpen, CalendarClock, Check, ChevronLeft, Clock3, Lock as LockIcon, RefreshCw, Rocket } from 'lucide-react';
 import { programmeData } from '../data';
 import { useMathsLabStore } from '../store';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 /**
  * Skill Tree DAG visualization.
@@ -137,7 +139,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">🌳</span>
+        <BookOpen className="h-5 w-5 text-cyan-400" aria-hidden="true" />
         <h3 className="font-bold text-white text-sm">Arbre de Compétences</h3>
         <span className="text-xs text-slate-500">
           {store.completedChapters.length}/{nodes.length} débloqués
@@ -147,7 +149,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
       {/* New student guidance */}
       {isNewStudent && (
         <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 text-xs text-slate-300">
-          <span className="text-cyan-400 font-bold">🚀 Par où commencer ?</span>{' '}
+          <span className="text-cyan-400 font-bold inline-flex items-center gap-1.5"><Rocket className="h-3.5 w-3.5" aria-hidden="true" />Par où commencer ?</span>{' '}
           Les chapitres sans prérequis sont accessibles dès maintenant :
           <span className="text-white font-medium ml-1">
             {entryPoints.slice(0, 4).map((n) => n.titre).join(', ')}
@@ -166,7 +168,10 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
           return (
             <div key={catKey} className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/30">
               <div className={`flex items-center gap-2 mb-2 ${colors.text}`}>
-                <span>{cat.icon}</span>
+                {(() => {
+                  const CategoryIcon = resolveUiIcon(cat.icon);
+                  return <CategoryIcon className="h-4 w-4" aria-hidden="true" />;
+                })()}
                 <span className="text-xs font-bold">{cat.titre}</span>
               </div>
 
@@ -202,7 +207,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                         !isLocked && onSelectChapter({ catKey: node.catKey, chapId: node.id })
                       }
                       disabled={isLocked}
-                      title={isLocked ? `🔒 Prérequis manquant(s) : ${missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}` : ''}
+                      title={isLocked ? `Prérequis manquant(s) : ${missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}` : ''}
                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
                         isLocked
                           ? 'opacity-40 cursor-not-allowed'
@@ -229,7 +234,7 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                             : `${colors.bg} ${colors.text}`
                         }`}
                       >
-                        {isLocked ? '🔒' : isCompleted ? '✓' : isDueToday ? '⏰' : isDueSoon ? '🗓️' : isDue ? '🔄' : node.row + 1}
+                        {isLocked ? <LockIcon className="h-3.5 w-3.5" aria-hidden="true" /> : isCompleted ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : isDueToday ? <Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> : isDueSoon ? <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" /> : isDue ? <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> : node.row + 1}
                       </div>
 
                       {/* Node info */}
@@ -244,8 +249,8 @@ export default function SkillTree({ onSelectChapter, selectedChapterId }: SkillT
                           {!isDueToday && isDueSoon && <span className="text-blue-300 font-bold">À réviser bientôt</span>}
                           {!isDueToday && !isDueSoon && isDue && <span className="text-blue-300 font-bold">À réviser</span>}
                           {isLocked && missingPrereqs.length > 0 && (
-                            <span className="text-slate-300 truncate max-w-[120px]">
-                              ← {missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}
+                            <span className="text-slate-300 truncate max-w-[120px] inline-flex items-center gap-1">
+                              <ChevronLeft className="h-3 w-3" aria-hidden="true" />{missingPrereqs.map((p) => idToTitle.get(p) ?? p).join(', ')}
                             </span>
                           )}
                         </div>

@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ArrowLeft, CalendarRange, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface RegistrationFunnelProps {
   academies: Academy[];
@@ -36,10 +38,10 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
   ];
 
   const badges = [
-    { icon: '✓', label: 'Enseignants experts', color: 'text-green-400' },
-    { icon: '✓', label: 'Groupes de 6 max', color: 'text-green-400' },
-    { icon: '✓', label: 'Cadre structuré', color: 'text-green-400' },
-    { icon: '✓', label: 'Bilans individualisés', color: 'text-green-400' }
+    { label: 'Enseignants experts', color: 'text-green-400' },
+    { label: 'Groupes de 6 max', color: 'text-green-400' },
+    { label: 'Cadre structuré', color: 'text-green-400' },
+    { label: 'Bilans individualisés', color: 'text-green-400' }
   ];
 
   return (
@@ -94,7 +96,12 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                       {isPallier1 ? 'Pallier 1' : 'Pallier 2'}
                     </div>
 
-                    <div className="text-2xl mb-2">{academy.badge.split(' ')[0]}</div>
+                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-900">
+                      {(() => {
+                        const AcademyIcon = resolveUiIcon(academy.badge.split(' ')[0]);
+                        return <AcademyIcon className="h-5 w-5" aria-hidden="true" />;
+                      })()}
+                    </div>
                     <h3 className="text-lg font-bold text-slate-900 mb-2">{academy.title}</h3>
                     <p className="text-sm text-slate-600 mb-4">{academy.objective}</p>
 
@@ -126,14 +133,20 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   onClick={() => setStep(1)}
                   className="text-blue-700 hover:text-blue-800 font-semibold mb-6 flex items-center gap-2 text-sm"
                 >
-                  ← Changer d'académie
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  Changer d'académie
                 </button>
 
                 <div className="bg-white rounded-2xl p-6 mb-6 shadow-md">
                   <h3 className="text-2xl font-black text-slate-900 mb-4">Votre sélection</h3>
                   
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="text-4xl">{selectedAcademy.badge.split(' ')[0]}</div>
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-900">
+                      {(() => {
+                        const AcademyIcon = resolveUiIcon(selectedAcademy.badge.split(' ')[0]);
+                        return <AcademyIcon className="h-6 w-6" aria-hidden="true" />;
+                      })()}
+                    </div>
                     <div className="flex-1">
                       <h4 className="text-xl font-bold text-slate-900 mb-1">{selectedAcademy.title}</h4>
                       <p className="text-sm text-slate-600 mb-3">{selectedAcademy.objective}</p>
@@ -160,11 +173,14 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 mb-6 shadow-md">
-                  <h4 className="font-bold text-slate-900 mb-4">✅ Inclus dans votre stage</h4>
+                  <h4 className="font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" aria-hidden="true" />
+                    Inclus dans votre stage
+                  </h4>
                   <ul className="space-y-2">
                     {includedItems.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-green-700 font-bold mt-0.5">✓</span>
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-700" aria-hidden="true" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -172,11 +188,14 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 mb-8 shadow-md">
-                  <h4 className="font-bold text-slate-900 mb-4">🎯 Garanties Nexus Réussite</h4>
+                  <h4 className="font-bold text-slate-900 mb-4 inline-flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-blue-700" aria-hidden="true" />
+                    Garanties Nexus Réussite
+                  </h4>
                   <div className="grid grid-cols-2 gap-4">
                     {badges.map((badge, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm">
-                        <span className={badge.color}>{badge.icon}</span>
+                        <CheckCircle2 className={`h-4 w-4 ${badge.color}`} aria-hidden="true" />
                         <span className="text-slate-700">{badge.label}</span>
                       </div>
                     ))}
@@ -187,7 +206,10 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                   onClick={handleConfirmRegistration}
                   className="w-full btn-stage-gradient mb-4"
                 >
-                  Réserver ma consultation gratuite 📅
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarRange className="h-4 w-4" aria-hidden="true" />
+                    Réserver ma consultation gratuite
+                  </span>
                 </button>
 
                 <p className="text-xs text-center text-slate-700">

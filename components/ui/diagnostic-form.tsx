@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Lightbulb } from 'lucide-react';
+import { ArrowRight, Check, ClipboardList, Lightbulb, Rocket, Target } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -248,7 +248,10 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                   transition={{ duration: 0.5 }}
                 >
                   <h4 className="text-md font-semibold text-bleu-nuit mb-2">
-                    📋 Résumé de vos choix :
+                    <span className="inline-flex items-center gap-2">
+                      <ClipboardList className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                      Résumé de vos choix :
+                    </span>
                   </h4>
                   <div className="space-y-1 text-sm text-gris-noble">
                     <p>• <strong>Classe :</strong> {formData.classe}</p>
@@ -271,7 +274,10 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                     </div>
                     <div>
                       <h4 className="text-xl font-bold text-bleu-nuit">
-                        🎯 Votre recommandation personnalisée
+                        <span className="inline-flex items-center gap-2">
+                          <Target className="h-5 w-5 text-green-700" aria-hidden="true" />
+                          Votre recommandation personnalisée
+                        </span>
                       </h4>
                       <p className="text-sm text-gris-noble">
                         Basée sur vos réponses, voici notre proposition sur mesure
@@ -282,7 +288,10 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                   <div className="space-y-6" aria-live="polite">
                     <div className="p-4 bg-white rounded-lg border border-green-200">
                       <h5 className="font-bold text-bleu-nuit mb-2 text-lg">
-                        🚀 {recommendation.parcours}
+                        <span className="inline-flex items-center gap-2">
+                          <Rocket className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                          {recommendation.parcours}
+                        </span>
                       </h5>
                       <p className="text-gris-noble text-sm leading-relaxed">
                         {recommendation.description}
@@ -292,7 +301,10 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                     {recommendation.academie && (
                       <div className="p-4 bg-white rounded-lg border border-blue-200">
                         <h6 className="font-semibold text-bleu-nuit mb-2">
-                          🎓 {recommendation.academie}
+                          <span className="inline-flex items-center gap-2">
+                            <ClipboardList className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                            {recommendation.academie}
+                          </span>
                         </h6>
                         <p className="text-gris-noble text-sm">
                           {recommendation.academieDescription}
@@ -319,7 +331,8 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
 
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
-                      💡 <strong>Conseil :</strong> Cette recommandation est basée sur votre profil.
+                      <Lightbulb className="mr-2 inline h-4 w-4" aria-hidden="true" />
+                      <strong>Conseil :</strong> Cette recommandation est basée sur votre profil.
                       Pour un accompagnement encore plus personnalisé, contactez-nous pour un diagnostic approfondi.
                     </p>
                   </div>

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { AlertTriangle, CheckCircle2, Search } from 'lucide-react';
 
 interface PrerequisQuestion {
   question: string;
@@ -39,7 +40,7 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete }: D
   if (phase === 'intro') {
     return (
       <div className="bg-gradient-to-r from-slate-800/80 to-slate-900 border border-blue-500/20 rounded-2xl p-5 mb-4">
-        <div className="flex items-center gap-2 mb-2"><span className="text-xl">🔍</span><h3 className="font-bold text-blue-200 text-sm">Pour prendre un bon départ</h3><span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{questions.length} questions</span></div>
+        <div className="flex items-center gap-2 mb-2"><Search className="h-5 w-5 text-blue-300" aria-hidden="true" /><h3 className="font-bold text-blue-200 text-sm">Pour prendre un bon départ</h3><span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{questions.length} questions</span></div>
         <p className="text-xs text-slate-400 mb-4">Vérifie tes prérequis avant ce chapitre. Diagnostic non noté.</p>
         <div className="flex gap-2">
           <button onClick={() => setPhase('quiz')} className="text-xs px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500" aria-label={`Commencer le diagnostic du chapitre ${chapId}`}>Commencer le diagnostic</button>
@@ -68,7 +69,7 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete }: D
 
   return (
     <div className={`border rounded-2xl p-5 mb-4 ${score >= questions.length * 0.7 ? 'bg-green-500/5 border-green-500/30' : 'bg-slate-500/5 border-slate-500/30'}`}>
-      <div className="flex items-center gap-2 mb-2"><span className="text-xl">{score >= questions.length * 0.7 ? '✅' : '⚠️'}</span><h3 className="font-bold text-white text-sm">Diagnostic : {score}/{questions.length}</h3></div>
+      <div className="flex items-center gap-2 mb-2">{score >= questions.length * 0.7 ? <CheckCircle2 className="h-5 w-5 text-green-400" aria-hidden="true" /> : <AlertTriangle className="h-5 w-5 text-slate-300" aria-hidden="true" />}<h3 className="font-bold text-white text-sm">Diagnostic : {score}/{questions.length}</h3></div>
       {score >= questions.length * 0.7 ? <p className="text-xs text-green-300">Pré-requis solides. Tu peux avancer.</p> : <p className="text-xs text-slate-300">Quelques prérequis à consolider avant de poursuivre.</p>}
       <button onClick={() => setDismissed(true)} className="mt-3 text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600" aria-label="Continuer vers le cours">Continuer vers le cours</button>
     </div>

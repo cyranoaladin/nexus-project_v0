@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Trophy, Users, Calendar, Award } from "lucide-react"
+import { Check, Sparkles, Trophy, Users, Calendar, Award } from "lucide-react"
 import Link from "next/link"
 
 export function CandidatLibreSection() {
@@ -48,9 +48,10 @@ export function CandidatLibreSection() {
         >
           <Card className="bg-white border-2 border-slate-900 shadow-2xl relative overflow-hidden">
             {/* Badge Premium */}
-            <div className="absolute top-0 right-0 bg-brand-secondary text-white px-4 py-2 text-sm font-semibold">
-              🏆 Accompagnement Annuel Complet
-            </div>
+              <div className="absolute top-0 right-0 inline-flex items-center gap-2 bg-brand-secondary text-white px-4 py-2 text-sm font-semibold">
+                <Trophy className="h-4 w-4" aria-hidden="true" />
+                Accompagnement Annuel Complet
+              </div>
             
             <CardHeader className="text-center pb-6 pt-12">
               <CardTitle className="font-heading text-2xl font-bold text-slate-900 mb-4">
@@ -89,8 +90,9 @@ export function CandidatLibreSection() {
 
               {/* Avantages Exclusifs */}
               <div className="bg-slate-50 rounded-xl p-6">
-                <h4 className="font-semibold text-slate-900 mb-4 text-center">
-                  ✨ Avantages Exclusifs Candidat Libre
+                <h4 className="inline-flex items-center gap-2 font-semibold text-slate-900 mb-4 text-center">
+                  <Sparkles className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                  Avantages Exclusifs Candidat Libre
                 </h4>
                 <div className="grid md:grid-cols-3 gap-4 text-center">
                   <div className="space-y-2">

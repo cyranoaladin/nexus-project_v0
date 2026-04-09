@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { CheckCircle2, Lightbulb } from 'lucide-react';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface MaterialCategory {
   title: string;
@@ -41,7 +43,14 @@ export function RequiredMaterials({ materials }: RequiredMaterialsProps) {
                 className="bg-white rounded-3xl shadow-xl p-8 border-2 border-slate-200 hover:border-blue-400 transition-all"
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="text-5xl">{subjectMaterial.icon}</div>
+                  {(() => {
+                    const SubjectIcon = resolveUiIcon(subjectMaterial.icon);
+                    return (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-50 text-blue-700">
+                        <SubjectIcon className="h-8 w-8" aria-hidden="true" />
+                      </div>
+                    );
+                  })()}
                   <div>
                     <h3 className="text-2xl font-black text-slate-900">{subjectMaterial.subject}</h3>
                     <p className="text-sm text-slate-600">{subjectMaterial.description}</p>
@@ -52,7 +61,14 @@ export function RequiredMaterials({ materials }: RequiredMaterialsProps) {
                   {subjectMaterial.categories.map((category, catIdx) => (
                     <div key={catIdx} className="bg-slate-50 rounded-2xl p-6">
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl">{category.icon}</span>
+                        {(() => {
+                          const CategoryIcon = resolveUiIcon(category.icon);
+                          return (
+                            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm">
+                              <CategoryIcon className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                          );
+                        })()}
                         <h4 className="font-bold text-slate-900">{category.title}</h4>
                       </div>
 
@@ -68,7 +84,7 @@ export function RequiredMaterials({ materials }: RequiredMaterialsProps) {
                       {category.note && (
                         <div className="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
                           <p className="text-xs text-slate-700 flex items-start gap-2">
-                            <span className="text-blue-600">💡</span>
+                            <Lightbulb className="mt-0.5 h-4 w-4 text-blue-600" aria-hidden="true" />
                             <span>{category.note}</span>
                           </p>
                         </div>
@@ -82,7 +98,7 @@ export function RequiredMaterials({ materials }: RequiredMaterialsProps) {
 
           <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl border-2 border-green-200">
             <div className="flex items-start gap-4">
-              <div className="text-3xl">✅</div>
+              <CheckCircle2 className="h-8 w-8 text-green-700" aria-hidden="true" />
               <div>
                 <h4 className="font-bold text-slate-900 mb-2">Tout est fourni par Nexus Réussite</h4>
                 <p className="text-sm text-slate-700">

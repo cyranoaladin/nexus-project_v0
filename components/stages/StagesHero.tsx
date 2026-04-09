@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { CalendarRange, CheckCircle2, Quote } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 import type { Stat } from '@/data/stages/fevrier2026';
 
@@ -62,12 +63,15 @@ export function StagesHero({ stats }: StagesHeroProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <a
               href="#reservation"
-              onClick={handlePrimaryCTA}
-              className="btn-stage"
-              aria-label="Réserver une consultation gratuite"
-            >
-              📅 Réserver une consultation gratuite
-            </a>
+            onClick={handlePrimaryCTA}
+            className="btn-stage"
+            aria-label="Réserver une consultation gratuite"
+          >
+            <span className="inline-flex items-center gap-2">
+              <CalendarRange className="h-4 w-4" aria-hidden="true" />
+              Réserver une consultation gratuite
+            </span>
+          </a>
             <a
               href="#academies"
               onClick={handleSecondaryCTA}
@@ -90,22 +94,25 @@ export function StagesHero({ stats }: StagesHeroProps) {
 
           {/* Testimonial */}
           <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto mb-10 hover:bg-white/10 transition-all">
-            <p className="text-lg italic text-white mb-2">"Une semaine qui a changé mon orientation"</p>
+            <p className="inline-flex items-center gap-2 text-lg italic text-white mb-2">
+              <Quote className="h-4 w-4 text-blue-200" aria-hidden="true" />
+              "Une semaine qui a changé mon orientation"
+            </p>
             <p className="text-sm text-slate-200">— Sarah, Terminale</p>
           </div>
 
           {/* Badges */}
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="pill-stage">
-              <span className="text-green-400">✓</span>
+              <CheckCircle2 className="h-4 w-4 text-green-400" aria-hidden="true" />
               <span>6 élèves max par groupe</span>
             </div>
             <div className="pill-stage">
-              <span className="text-green-400">✓</span>
+              <CheckCircle2 className="h-4 w-4 text-green-400" aria-hidden="true" />
               <span>Enseignants experts (Agrégés et Certifiés)</span>
             </div>
             <div className="pill-stage">
-              <span className="text-green-400">✓</span>
+              <CheckCircle2 className="h-4 w-4 text-green-400" aria-hidden="true" />
               <span>Cadre structuré + bilans</span>
             </div>
           </div>

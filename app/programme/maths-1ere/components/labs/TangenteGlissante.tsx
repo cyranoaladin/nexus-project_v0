@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronUp, Sigma } from 'lucide-react';
 import { Mafs, Coordinates, Plot, Theme, Point, Line, Text as MafsText } from 'mafs';
 import 'mafs/core.css';
 
@@ -63,11 +64,11 @@ export default function TangenteGlissante({
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">📐</span>
+          <Sigma className="h-5 w-5 text-blue-300" aria-hidden="true" />
           <span className="font-bold text-blue-300 text-sm">{title}</span>
           <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (

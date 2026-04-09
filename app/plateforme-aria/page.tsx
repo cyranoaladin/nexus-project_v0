@@ -23,18 +23,19 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { resolveSubjectIcon } from "@/lib/ui-icons";
 
 const ARIA_SUBJECTS = [
-  { name: "Mathématiques", icon: "📐", desc: "Analyse, algèbre, probabilités, géométrie" },
-  { name: "NSI", icon: "💻", desc: "Algorithmique, structures de données, Python, SQL" },
-  { name: "Physique-Chimie", icon: "⚗️", desc: "Mécanique, thermodynamique, chimie organique" },
-  { name: "Français", icon: "📖", desc: "Commentaire, dissertation, oral du bac" },
-  { name: "Philosophie", icon: "🤔", desc: "Dissertation, explication de texte" },
-  { name: "Histoire-Géo", icon: "🌍", desc: "Composition, étude de documents" },
-  { name: "SVT", icon: "🧬", desc: "Génétique, écologie, géologie" },
-  { name: "SES", icon: "📊", desc: "Économie, sociologie, science politique" },
-  { name: "Anglais", icon: "🇬🇧", desc: "Compréhension, expression, méthodologie" },
-  { name: "Espagnol", icon: "🇪🇸", desc: "Compréhension, expression, civilisation" },
+  { name: "Mathématiques", value: "MATHEMATIQUES", desc: "Analyse, algèbre, probabilités, géométrie" },
+  { name: "NSI", value: "NSI", desc: "Algorithmique, structures de données, Python, SQL" },
+  { name: "Physique-Chimie", value: "PHYSIQUE_CHIMIE", desc: "Mécanique, thermodynamique, chimie organique" },
+  { name: "Français", value: "FRANCAIS", desc: "Commentaire, dissertation, oral du bac" },
+  { name: "Philosophie", value: "PHILOSOPHIE", desc: "Dissertation, explication de texte" },
+  { name: "Histoire-Géo", value: "HISTOIRE_GEO", desc: "Composition, étude de documents" },
+  { name: "SVT", value: "SVT", desc: "Génétique, écologie, géologie" },
+  { name: "SES", value: "SES", desc: "Économie, sociologie, science politique" },
+  { name: "Anglais", value: "ANGLAIS", desc: "Compréhension, expression, méthodologie" },
+  { name: "Espagnol", value: "ESPAGNOL", desc: "Compréhension, expression, civilisation" },
 ];
 
 const ARIA_FEATURES = [
@@ -237,8 +238,8 @@ export default function PlateformeAriaPage() {
                         Pour résoudre ax² + bx + c = 0, on calcule le discriminant Δ = b² - 4ac.
                         <br />• Si Δ &gt; 0 : deux solutions x₁ = (-b-√Δ)/2a et x₂ = (-b+√Δ)/2a
                         <br />• Si Δ = 0 : une solution double x = -b/2a
-                        <br />• Si Δ &lt; 0 : pas de solution réelle
-                        <br /><br />Voulez-vous un exemple concret ? 😊
+                        <br />· Si Δ &lt; 0 : pas de solution réelle
+                        <br /><br />Voulez-vous un exemple concret ?
                       </div>
                     </div>
                   </div>
@@ -302,14 +303,21 @@ export default function PlateformeAriaPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {ARIA_SUBJECTS.map((subject) => (
-                <div
-                  key={subject.name}
-                  className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-4 border border-blue-100 text-center hover:shadow-md transition-shadow"
-                >
-                  <span className="text-3xl mb-2 block">{subject.icon}</span>
-                  <h3 className="font-semibold text-slate-900 text-sm mb-1">{subject.name}</h3>
-                  <p className="text-xs text-slate-700 leading-relaxed">{subject.desc}</p>
-                </div>
+                (() => {
+                  const SubjectIcon = resolveSubjectIcon(subject.value);
+                  return (
+                    <div
+                      key={subject.name}
+                      className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-4 border border-blue-100 text-center hover:shadow-md transition-shadow"
+                    >
+                      <span className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                        <SubjectIcon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <h3 className="font-semibold text-slate-900 text-sm mb-1">{subject.name}</h3>
+                      <p className="text-xs text-slate-700 leading-relaxed">{subject.desc}</p>
+                    </div>
+                  );
+                })()
               ))}
             </div>
           </div>

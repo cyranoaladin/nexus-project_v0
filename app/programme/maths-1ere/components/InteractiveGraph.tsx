@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ChevronDown, ChevronUp, Sigma } from 'lucide-react';
 
 /**
  * GeoGebra applet embed component.
@@ -23,14 +24,12 @@ export default function InteractiveGraph({
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">📐</span>
+          <Sigma className="h-5 w-5 text-blue-300" aria-hidden="true" />
           <span className="font-bold text-blue-300 text-sm">
             {title ?? 'Graphique interactif GeoGebra'}
           </span>
         </div>
-        <span className="text-slate-500 text-sm">
-          {expanded ? '▲ Réduire' : '▼ Ouvrir'}
-        </span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (

@@ -1,7 +1,40 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { type ReactNode, useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  AlertTriangle,
+  BarChart3,
+  BookOpen,
+  Brain,
+  Calculator,
+  Check,
+  CheckCircle2,
+  Clock3,
+  ExternalLink,
+  FileText,
+  Flame,
+  GraduationCap,
+  LayoutDashboard,
+  Lightbulb,
+  Maximize2,
+  Medal,
+  MessageSquare,
+  PanelLeft,
+  PenSquare,
+  Printer,
+  Puzzle,
+  RefreshCw,
+  Search,
+  Snowflake,
+  Sparkles,
+  Target,
+  Trophy,
+  Wrench,
+  X,
+  XCircle,
+  Zap,
+} from 'lucide-react';
 import {
   programmeData,
   quizData,
@@ -27,6 +60,7 @@ import {
   saveProgress,
   type MathsLabRow,
 } from '../lib/supabase';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 const PythonIDE = dynamic(() => import('./PythonIDE'), { ssr: false });
 const InteractiveMafs = dynamic(() => import('./InteractiveMafs'), { ssr: false });
@@ -566,6 +600,7 @@ function Navbar() {
   const store = useMathsLabStore();
   const niveau = store.getNiveau();
   const xpProgress = store.getXPProgress();
+  const LevelBadgeIcon = resolveUiIcon(niveau.badge);
 
   useEffect(() => {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -597,7 +632,7 @@ function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             {/* XP Badge */}
             <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
-              <span className="text-lg">{niveau.badge}</span>
+              <LevelBadgeIcon className="h-4 w-4 text-cyan-300" aria-hidden="true" />
               <div>
                 <div className="text-xs font-bold text-white">{niveau.nom}</div>
                 <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
@@ -609,16 +644,21 @@ function Navbar() {
             {/* Combo */}
             {store.comboCount >= 3 && (
               <div className="flex items-center gap-1 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/30">
-                <span className="text-sm">⚡</span>
+                <Zap className="h-3.5 w-3.5 text-blue-300" aria-hidden="true" />
                 <span className="text-xs font-bold text-blue-300">x{store.getComboMultiplier()}</span>
               </div>
             )}
             {/* Streak */}
             {store.streak > 0 && (
               <div className="flex items-center gap-1 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/30">
-                <span className="text-sm">🔥</span>
+                <Flame className="h-3.5 w-3.5 text-blue-300" aria-hidden="true" />
                 <span className="text-xs font-bold text-blue-300">{store.streak}j</span>
-                {store.streakFreezes > 0 && <span className="text-[10px] text-blue-400">❄️{store.streakFreezes}</span>}
+                {store.streakFreezes > 0 && (
+                  <span className="flex items-center gap-1 text-[10px] text-blue-400">
+                    <Snowflake className="h-3 w-3" aria-hidden="true" />
+                    {store.streakFreezes}
+                  </span>
+                )}
               </div>
             )}
             {/* Date */}
@@ -638,6 +678,7 @@ function Header({ displayName }: { displayName: string }) {
   const [greeting, setGreeting] = useState('Bonjour');
   const store = useMathsLabStore();
   const niveau = store.getNiveau();
+  const LevelBadgeIcon = resolveUiIcon(niveau.badge);
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -657,8 +698,9 @@ function Header({ displayName }: { displayName: string }) {
                 {greeting} {displayName}, prêt pour ta session ?{' '}
               </h1>
               <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-space), Space Grotesk, sans-serif' }}>
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  {niveau.nom} {niveau.badge}
+                <span className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                  <LevelBadgeIcon className="h-5 w-5 text-cyan-300" aria-hidden="true" />
+                  {niveau.nom}
                 </span>
               </h2>
               <p className="text-slate-300 text-lg max-w-2xl">
@@ -677,11 +719,11 @@ function Header({ displayName }: { displayName: string }) {
 }
 
 // ─── Tab Bar ─────────────────────────────────────────────────────────────────
-const tabs: { id: TabName; label: string; icon: React.ReactNode }[] = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg> },
-  { id: 'cours', label: 'Fiches de Cours', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> },
-  { id: 'entrainement', label: 'Quiz & Exos', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg> },
-  { id: 'formulaire', label: 'Formulaire', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6M9 16h6M9 8h6M5 4h14v16H5z" /></svg> },
+const tabs: { id: TabName; label: string; icon: ReactNode }[] = [
+  { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { id: 'cours', label: 'Fiches de cours', icon: <BookOpen className="w-5 h-5" /> },
+  { id: 'entrainement', label: 'Quiz & exos', icon: <PenSquare className="w-5 h-5" /> },
+  { id: 'formulaire', label: 'Formulaire', icon: <FileText className="w-5 h-5" /> },
 ];
 
 function TabBar({ currentTab, onSwitch }: { currentTab: TabName; onSwitch: (tab: TabName) => void }) {
@@ -740,8 +782,29 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
 
         {/* Stats Cards */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StatCard icon="⚡" iconBg="bg-blue-500/20 text-blue-400" label="Série" value={`${store.streak}`} unit="jours" subtitle={store.streakFreezes > 0 ? `❄️ ${store.streakFreezes} gel(s)` : 'Consécutifs'} />
-          <StatCard icon="🏆" iconBg="bg-blue-500/20 text-blue-300" label="XP Total" value={`${store.totalXP}`} unit="XP" subtitle={`${niveau.badge} ${niveau.nom}`} />
+          <StatCard
+            icon={<Zap className="h-5 w-5" aria-hidden="true" />}
+            iconBg="bg-blue-500/20 text-blue-400"
+            label="Série"
+            value={`${store.streak}`}
+            unit="jours"
+            subtitle={
+              store.streakFreezes > 0 ? (
+                <span className="inline-flex items-center gap-1">
+                  <Snowflake className="h-3.5 w-3.5" aria-hidden="true" />
+                  {store.streakFreezes} gel(s)
+                </span>
+              ) : 'Consécutifs'
+            }
+          />
+          <StatCard
+            icon={<Trophy className="h-5 w-5" aria-hidden="true" />}
+            iconBg="bg-blue-500/20 text-blue-300"
+            label="XP Total"
+            value={`${store.totalXP}`}
+            unit="XP"
+            subtitle={niveau.nom}
+          />
 
           {/* XP Progress to next level */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-500/10 rounded-2xl p-6 sm:col-span-2">
@@ -760,14 +823,17 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
       {/* Daily Challenge */}
       <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-500/20 rounded-2xl p-6 mb-8">
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xl">🎯</span>
+          <Target className="h-5 w-5 text-blue-200" aria-hidden="true" />
           <h3 className="font-bold text-blue-200">Défi du jour</h3>
           <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">+{todayChallenge.xp} XP</span>
         </div>
         <p className="text-white font-medium mb-3">{todayChallenge.question}</p>
         {dcSubmitted ? (
           <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
-            <p className="text-green-400 font-bold text-sm">✓ Défi complété ! Réponse : {todayChallenge.reponse}</p>
+            <p className="flex items-center gap-2 text-green-400 font-bold text-sm">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              Défi complété. Réponse : {todayChallenge.reponse}
+            </p>
           </div>
         ) : (
           <div className="flex gap-3">
@@ -782,7 +848,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
         {/* Streak Freeze Shop */}
         <div className="bg-slate-800/70 border border-blue-500/20 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">❄️</span>
+            <Snowflake className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <h3 className="font-bold text-blue-300 text-sm">Gel de Série</h3>
           </div>
           <p className="text-xs text-slate-300 mb-3">Protège ta série si tu rates un jour. Coût : 100 XP.</p>
@@ -804,21 +870,26 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
         {/* Badges */}
         <div className="bg-slate-800/70 border border-blue-500/20 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">🏅</span>
+            <Medal className="h-5 w-5 text-blue-200" aria-hidden="true" />
             <h3 className="font-bold text-blue-200 text-sm">Badges ({store.badges.length}/{badgeDefinitions.length})</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {badgeDefinitions.map((b) => (
-              <div
-                key={b.id}
-                className={`text-lg p-1.5 rounded-lg transition-all ${store.badges.includes(b.id)
-                  ? 'bg-blue-500/20 border border-blue-500/30'
-                  : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
-                  }`}
-                title={`${b.nom}: ${b.description}`}
-              >
-                {b.icon}
-              </div>
+              (() => {
+                const BadgeIcon = resolveUiIcon(b.icon);
+                return (
+                  <div
+                    key={b.id}
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all ${store.badges.includes(b.id)
+                      ? 'bg-blue-500/20 border border-blue-500/30'
+                      : 'bg-slate-900/50 border border-slate-700 opacity-30 grayscale'
+                      }`}
+                    title={`${b.nom}: ${b.description}`}
+                  >
+                    <BadgeIcon className="h-4 w-4 text-blue-200" aria-hidden="true" />
+                  </div>
+                );
+              })()
             ))}
           </div>
         </div>
@@ -828,7 +899,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
       {store.getDueReviews().length > 0 && (
         <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-500/20 rounded-2xl p-5 mb-8">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">🔄</span>
+            <RefreshCw className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <h3 className="font-bold text-blue-300 text-sm">Révisions du jour (SRS)</h3>
             <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">
               {store.getDueReviews().length} chapitre(s)
@@ -853,9 +924,10 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
                   onClick={() => {
                     onSwitchTab('cours');
                   }}
-                  className="text-xs px-3 py-2 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-medium"
+                  className="inline-flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-medium"
                 >
-                  📖 {chapTitle}
+                  <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                  {chapTitle}
                 </motion.button>
               );
             })}
@@ -876,7 +948,7 @@ function Dashboard({ onSwitchTab }: { onSwitchTab: (tab: TabName) => void }) {
   );
 }
 
-function StatCard({ icon, iconBg, label, value, unit, subtitle }: { icon: string; iconBg: string; label: string; value: string; unit: string; subtitle: string }) {
+function StatCard({ icon, iconBg, label, value, unit, subtitle }: { icon: ReactNode; iconBg: string; label: string; value: string; unit: string; subtitle: ReactNode }) {
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-500/10 rounded-2xl p-6 transition-all hover:border-cyan-500/30 hover:-translate-y-0.5">
       <div className="flex justify-between items-start mb-2">
@@ -893,9 +965,12 @@ function StatCard({ icon, iconBg, label, value, unit, subtitle }: { icon: string
 
 function ThemeCard({ cat, completedCount }: { cat: Categorie; completedCount: number }) {
   const colors = getColorClasses(cat.couleur);
+  const ThemeIcon = resolveUiIcon(cat.icon);
   return (
     <div className={`bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 p-4 rounded-xl border-t-2 ${colors.border}`}>
-      <div className="text-2xl mb-2">{cat.icon}</div>
+      <div className="mb-2">
+        <ThemeIcon className="h-6 w-6 text-white" aria-hidden="true" />
+      </div>
       <div className="font-bold text-white text-sm">{cat.titre}</div>
       <div className="text-xs text-slate-300 mt-1">{completedCount}/{cat.chapitres.length} chapitres</div>
       <div className="w-full h-1 bg-slate-700 rounded-full mt-2 overflow-hidden">
@@ -985,7 +1060,7 @@ function CoursView({ selectedChapter, onSelectChapter, typeset, focusMode, onTog
               animate="animate"
               className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl p-12 text-center h-full flex flex-col items-center justify-center text-slate-500 min-h-[400px]"
             >
-              <div className="text-6xl mb-4 opacity-50">📚</div>
+              <BookOpen className="mb-4 h-14 w-14 opacity-50" aria-hidden="true" />
               <h3 className="text-xl font-bold text-slate-300 mb-2">Sélectionnez une fiche</h3>
               <p>Cliquez sur un chapitre dans l&apos;arbre de compétences pour commencer.</p>
             </motion.div>
@@ -1047,17 +1122,18 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
           {chap.competences && chap.competences.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {chap.competences.map((c) => {
-                const compMap: Record<string, { label: string; color: string }> = {
-                  chercher: { label: '🔍 Chercher', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-                  modeliser: { label: '🧩 Modéliser', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-                  representer: { label: '📊 Représenter', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
-                  raisonner: { label: '🧠 Raisonner', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
-                  calculer: { label: '🔢 Calculer', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-                  communiquer: { label: '💬 Communiquer', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
+                const compMap: Record<string, { label: string; color: string; icon: ReactNode }> = {
+                  chercher: { label: 'Chercher', icon: <Search className="h-3 w-3" aria-hidden="true" />, color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+                  modeliser: { label: 'Modéliser', icon: <Puzzle className="h-3 w-3" aria-hidden="true" />, color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+                  representer: { label: 'Représenter', icon: <BarChart3 className="h-3 w-3" aria-hidden="true" />, color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
+                  raisonner: { label: 'Raisonner', icon: <Brain className="h-3 w-3" aria-hidden="true" />, color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
+                  calculer: { label: 'Calculer', icon: <Calculator className="h-3 w-3" aria-hidden="true" />, color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
+                  communiquer: { label: 'Communiquer', icon: <MessageSquare className="h-3 w-3" aria-hidden="true" />, color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
                 };
-                const info = compMap[c] ?? { label: c, color: 'bg-slate-500/10 text-slate-300 border-slate-500/20' };
+                const info = compMap[c] ?? { label: c, icon: <Sparkles className="h-3 w-3" aria-hidden="true" />, color: 'bg-slate-500/10 text-slate-300 border-slate-500/20' };
                 return (
-                  <span key={c} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${info.color}`}>
+                  <span key={c} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${info.color}`}>
+                    {info.icon}
                     {info.label}
                   </span>
                 );
@@ -1072,16 +1148,19 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
               store.markPrintedFiche();
               store.earnBadge('imprimeur');
             }}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 print:hidden"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 print:hidden"
             aria-label="Imprimer cette fiche de cours"
           >
-            🖨️ Imprimer
+            <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+            Imprimer
           </button>
-          <button onClick={onToggleFocus} className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">
-            {focusMode ? '◧ Sidebar' : '⛶ Focus'}
+          <button onClick={onToggleFocus} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all">
+            {focusMode ? <PanelLeft className="h-3.5 w-3.5" aria-hidden="true" /> : <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />}
+            {focusMode ? 'Sidebar' : 'Focus'}
           </button>
-          <button onClick={() => store.toggleChapterComplete(chapId)} className={`px-4 py-2 rounded-xl font-bold transition-all text-sm ${isCompleted ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
-            {isCompleted ? '✓ Maîtrisé' : 'Marquer comme lu'}
+          <button onClick={() => store.toggleChapterComplete(chapId)} className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all text-sm ${isCompleted ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+            {isCompleted && <Check className="h-4 w-4" aria-hidden="true" />}
+            {isCompleted ? 'Maîtrisé' : 'Marquer comme lu'}
           </button>
         </div>
       </div>
@@ -1099,13 +1178,19 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* Rappel */}
         <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-6">
-          <h3 className="font-bold text-white mb-2 flex items-center gap-2">📌 L&apos;essentiel du cours</h3>
+          <h3 className="font-bold text-white mb-2 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+            L&apos;essentiel du cours
+          </h3>
           <p className="text-slate-300 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: chap.contenu.rappel }} />
         </div>
 
         {/* Methode */}
         <div className="bg-blue-900/20 border border-blue-500/30 rounded-2xl p-6">
-          <h3 className="font-bold text-blue-300 mb-3">🛠️ Méthode & Formules</h3>
+          <h3 className="font-bold text-blue-300 mb-3 flex items-center gap-2">
+            <Wrench className="h-4 w-4" aria-hidden="true" />
+            Méthode & Formules
+          </h3>
           <div className="font-mono text-sm bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 overflow-x-auto text-blue-100">
             {'$$' + chap.contenu.methode + '$$'}
           </div>
@@ -1143,13 +1228,15 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.contenu.erreursClassiques && chap.contenu.erreursClassiques.length > 0 && (
           <div className="bg-slate-900/40 border-2 border-slate-500/30 rounded-2xl p-5 shadow-lg shadow-slate-500/5">
             <h3 className="font-bold text-slate-200 mb-3 flex items-center gap-2 text-base">
-              <span className="w-8 h-8 rounded-full bg-slate-500/20 flex items-center justify-center text-lg">⚠️</span>
+              <span className="w-8 h-8 rounded-full bg-slate-500/20 flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 text-slate-200" aria-hidden="true" />
+              </span>
               Erreurs classiques — À éviter au Bac !
             </h3>
             <ul className="space-y-2">
               {chap.contenu.erreursClassiques.map((err, i) => (
                 <li key={i} className="flex gap-2 text-sm text-slate-300 bg-slate-500/5 rounded-lg p-2">
-                  <span className="text-slate-200 font-bold shrink-0 text-base">✗</span>
+                  <X className="mt-0.5 h-4 w-4 shrink-0 text-slate-200" aria-hidden="true" />
                   <span dangerouslySetInnerHTML={{ __html: err }} />
                 </li>
               ))}
@@ -1159,7 +1246,7 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* Astuce */}
         <div className="flex gap-4 items-start p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-          <div className="text-2xl">💡</div>
+          <Lightbulb className="mt-0.5 h-5 w-5 text-blue-300" aria-hidden="true" />
           <div>
             <div className="font-bold text-blue-300 text-sm mb-1">Astuce du prof</div>
             <div className="text-slate-300 text-sm" dangerouslySetInnerHTML={{ __html: chap.contenu.astuce }} />
@@ -1170,7 +1257,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {chap.contenu.methodologieBac && (
           <div className="bg-emerald-900/15 border-2 border-emerald-500/30 rounded-2xl p-5 shadow-lg shadow-emerald-500/5">
             <h3 className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-base">
-              <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">🎓</span>
+              <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <GraduationCap className="h-4 w-4" aria-hidden="true" />
+              </span>
               Méthodologie Bac — Comment réussir
             </h3>
             <p className="text-slate-300 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: chap.contenu.methodologieBac }} />
@@ -1184,20 +1273,26 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
 
         {/* Exercice with Coup de Pouce */}
         <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700">
-          <h3 className="font-bold text-white mb-3">📝 Exercice d&apos;application</h3>
+          <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+            <PenSquare className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+            Exercice d&apos;application
+          </h3>
           <p className="mb-4 text-slate-300" dangerouslySetInnerHTML={{ __html: chap.contenu.exercice.question }} />
 
           {/* 3-level hint system with XP malus indicator */}
           {chap.contenu.coupDePouce && (
             <div className="flex flex-wrap gap-2 mb-4">
-              <button onClick={() => setHintLevel(hintLevel >= 1 ? 0 : 1)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 1 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
-                💡 Indice <span className="opacity-60">(-10% XP)</span>
+              <button onClick={() => setHintLevel(hintLevel >= 1 ? 0 : 1)} className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 1 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
+                <Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />
+                Indice <span className="opacity-60">(-10% XP)</span>
               </button>
-              <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
-                🔍 Début de raisonnement <span className="opacity-60">(-30% XP)</span>
+              <button onClick={() => setHintLevel(hintLevel >= 2 ? 1 : 2)} className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 2 ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
+                <Search className="h-3.5 w-3.5" aria-hidden="true" />
+                Début de raisonnement <span className="opacity-60">(-30% XP)</span>
               </button>
-              <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-slate-500/20 text-slate-200 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
-                📖 Correction détaillée <span className="opacity-60">(-100% XP)</span>
+              <button onClick={() => setHintLevel(hintLevel >= 3 ? 2 : 3)} className={`inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${hintLevel >= 3 ? 'bg-slate-500/20 text-slate-200 border border-slate-500/30' : 'bg-slate-800 text-slate-300 hover:text-white'}`}>
+                <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                Correction détaillée <span className="opacity-60">(-100% XP)</span>
               </button>
             </div>
           )}
@@ -1348,7 +1443,10 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         <div className="bg-slate-900/50 border border-blue-500/20 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-blue-300 text-sm flex items-center gap-2">🔄 Révision espacée (SRS)</h3>
+              <h3 className="font-bold text-blue-300 text-sm flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                Révision espacée (SRS)
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
                 {store.srsQueue[chapId]
                   ? `Prochaine révision : ${store.srsQueue[chapId].nextReview} (intervalle : ${store.srsQueue[chapId].interval}j)`
@@ -1358,21 +1456,24 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
             <div className="flex gap-2">
               <button
                 onClick={() => store.recordSRSReview(chapId, 2)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-slate-500/10 text-slate-200 border border-slate-500/20 hover:bg-slate-500/20 transition-all font-bold"
+                className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg bg-slate-500/10 text-slate-200 border border-slate-500/20 hover:bg-slate-500/20 transition-all font-bold"
               >
-                😰 Difficile
+                <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                Difficile
               </button>
               <button
                 onClick={() => store.recordSRSReview(chapId, 3)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-bold"
+                className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20 hover:bg-blue-500/20 transition-all font-bold"
               >
-                🤔 Moyen
+                <Brain className="h-3.5 w-3.5" aria-hidden="true" />
+                Moyen
               </button>
               <button
                 onClick={() => store.recordSRSReview(chapId, 5)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all font-bold"
+                className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all font-bold"
               >
-                😎 Facile
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                Facile
               </button>
             </div>
           </div>
@@ -1383,11 +1484,15 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         {/* External Resources */}
         {chap.ressourcesExt && chap.ressourcesExt.length > 0 && (
           <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-5">
-            <h3 className="font-bold text-white mb-3 flex items-center gap-2">🔗 Ressources externes</h3>
+            <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+              <ExternalLink className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+              Ressources externes
+            </h3>
             <div className="space-y-2">
               {chap.ressourcesExt.map((res, i) => (
                 <a key={i} href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 hover:underline">
-                  <span>→</span> {res.label}
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                  {res.label}
                 </a>
               ))}
             </div>
@@ -1565,14 +1670,20 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
                 onClick={() => setMode('theme')}
                 className={`rounded-2xl border p-4 text-left transition-all ${mode === 'theme' ? 'border-cyan-500 bg-cyan-500/10' : 'border-slate-700 hover:border-cyan-500/50'}`}
               >
-                <p className="text-lg font-bold text-white">⚡ Session thématique</p>
+                <p className="flex items-center gap-2 text-lg font-bold text-white">
+                  <Zap className="h-5 w-5 text-cyan-300" aria-hidden="true" />
+                  Session thématique
+                </p>
                 <p className="text-slate-300 text-sm">Entraînement ciblé avec correction immédiate.</p>
               </button>
               <button
                 onClick={() => setMode('exam')}
                 className={`rounded-2xl border p-4 text-left transition-all ${mode === 'exam' ? 'border-blue-500 bg-blue-500/10' : 'border-slate-700 hover:border-blue-500/50'}`}
               >
-                <p className="text-lg font-bold text-white">🎯 Simulation EAM</p>
+                <p className="flex items-center gap-2 text-lg font-bold text-white">
+                  <Target className="h-5 w-5 text-blue-300" aria-hidden="true" />
+                  Simulation EAM
+                </p>
                 <p className="text-slate-300 text-sm">12 questions mixtes, 20 minutes, sans correction pendant l'épreuve.</p>
               </button>
             </div>
@@ -1626,12 +1737,16 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
               <span>Question {index + 1} / {questions.length}</span>
               <div className="flex items-center gap-3">
                 {!isExam && store.comboCount >= 3 && (
-                  <span className="text-blue-300 font-bold text-xs">⚡ Combo x{store.getComboMultiplier()}</span>
+                  <span className="inline-flex items-center gap-1 text-blue-300 font-bold text-xs">
+                    <Zap className="h-3.5 w-3.5" aria-hidden="true" />
+                    Combo x{store.getComboMultiplier()}
+                  </span>
                 )}
                 <span>{current.categorie}</span>
                 {isExam && (
-                  <span role="timer" aria-live="polite" className={`font-bold ${examTimerClass}`}>
-                    ⏱ {formatTimer(timeLeft)}
+                  <span role="timer" aria-live="polite" className={`inline-flex items-center gap-1 font-bold ${examTimerClass}`}>
+                    <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                    {formatTimer(timeLeft)}
                   </span>
                 )}
               </div>
@@ -1652,7 +1767,13 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
 
         {phase === 'feedback' && current && (
           <div className="w-full text-center">
-            <div className="text-6xl mb-4">{isCorrect ? '✅' : '❌'}</div>
+            <div className="mb-4 flex justify-center">
+              {isCorrect ? (
+                <CheckCircle2 className="h-14 w-14 text-emerald-400" aria-hidden="true" />
+              ) : (
+                <XCircle className="h-14 w-14 text-red-400" aria-hidden="true" />
+              )}
+            </div>
             <h3 className="text-2xl font-bold text-white mb-2">{isCorrect ? 'Correct !' : 'Oups...'}</h3>
             <div className="bg-slate-900/50 p-4 rounded-xl mb-6 text-left">
               <p className="text-slate-300 text-sm font-bold mb-1">Explication :</p>
@@ -1673,7 +1794,11 @@ function QuizView({ onSwitchTab, typeset }: { onSwitchTab: (tab: TabName) => voi
             )}
             <p className="text-sm text-cyan-400 mb-4">+{score * (isExam ? 15 : 10)} XP gagnés !</p>
             <p className="text-slate-300 mb-6">
-              {score === questions.length ? 'Parfait ! 🌟' : score > questions.length / 2 ? 'Bien joué ! 👍' : 'Entraîne-toi encore 💪'}
+              {score === questions.length
+                ? 'Parfait, score maximal.'
+                : score > questions.length / 2
+                  ? 'Bonne progression, continue.'
+                  : 'Entraîne-toi encore pour consolider les automatismes.'}
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center mb-6">

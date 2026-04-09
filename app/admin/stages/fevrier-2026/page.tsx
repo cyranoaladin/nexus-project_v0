@@ -18,6 +18,7 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
+  XCircle,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -159,7 +160,7 @@ function DetailModal({
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 uppercase">Telegram</p>
-              <p className="text-sm text-slate-700">{reservation.telegramSent ? '✅ Envoyé' : '❌ Non envoyé'}</p>
+              <p className="text-sm text-slate-700 inline-flex items-center gap-1.5">{reservation.telegramSent ? <CheckCircle className="h-4 w-4 text-green-600" aria-hidden="true" /> : <XCircle className="h-4 w-4 text-slate-500" aria-hidden="true" />}{reservation.telegramSent ? 'Envoyé' : 'Non envoyé'}</p>
             </div>
             <div className="col-span-2">
               <p className="text-xs font-medium text-slate-500 uppercase">Date d&apos;inscription</p>

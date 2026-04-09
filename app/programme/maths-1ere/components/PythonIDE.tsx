@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { AlertTriangle, CheckCircle2, Code2, Play, RotateCcw, XCircle } from 'lucide-react';
 
 /**
  * Pyodide-powered Python IDE component.
@@ -99,7 +100,7 @@ export default function PythonIDE({
       const errorResult = stderr.trimEnd();
 
       if (errorResult) {
-        setOutput(`❌ Erreur:\n${errorResult}`);
+        setOutput(`Erreur:\n${errorResult}`);
         setIsCorrect(false);
       } else {
         setOutput(result || '(aucune sortie)');
@@ -112,7 +113,7 @@ export default function PythonIDE({
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setOutput(`❌ Erreur:\n${message}`);
+      setOutput(`Erreur:\n${message}`);
       setIsCorrect(false);
     } finally {
       setIsRunning(false);
@@ -151,7 +152,7 @@ export default function PythonIDE({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/50">
         <div className="flex items-center gap-2">
-          <span className="text-lg">🐍</span>
+          <Code2 className="h-5 w-5 text-green-400" aria-hidden="true" />
           <span className="text-sm font-bold text-green-400">Python IDE</span>
           {isLoading && (
             <span className="text-xs text-slate-500 flex items-center gap-1">
@@ -169,7 +170,7 @@ export default function PythonIDE({
             }}
             className="text-xs px-3 py-1 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
           >
-            ↺ Reset
+            <span className="inline-flex items-center gap-1.5"><RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />Reset</span>
           </button>
           <button
             onClick={runCode}
@@ -180,7 +181,7 @@ export default function PythonIDE({
                 : 'bg-green-600 text-white hover:bg-green-500'
             }`}
           >
-            {isRunning ? '⏳ Exécution...' : '▶ Exécuter'}
+            <span className="inline-flex items-center gap-1.5">{!isRunning && <Play className="h-3.5 w-3.5" aria-hidden="true" />}{isRunning ? 'Exécution...' : 'Exécuter'}</span>
           </button>
         </div>
       </div>
@@ -217,10 +218,11 @@ export default function PythonIDE({
         }`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold text-slate-500">Sortie :</span>
-            {isCorrect === true && <span className="text-xs text-green-400 font-bold">✓ Correct !</span>}
+            {isCorrect === true && <span className="text-xs text-green-400 font-bold inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />Correct</span>}
             {isCorrect === false && expectedOutput && (
-              <span className="text-xs text-slate-300 font-bold">✗ Attendu : {expectedOutput}</span>
+              <span className="text-xs text-slate-300 font-bold inline-flex items-center gap-1"><XCircle className="h-3.5 w-3.5" aria-hidden="true" />Attendu : {expectedOutput}</span>
             )}
+            {isCorrect === false && !expectedOutput && <span className="text-xs text-slate-300 font-bold inline-flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />Erreur d'exécution</span>}
           </div>
           {output}
         </div>

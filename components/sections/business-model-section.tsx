@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Award, Calendar, Check, CreditCard, Sparkles, Zap } from "lucide-react";
+import { Award, Calendar, Check, CreditCard, Lightbulb, Sparkles, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -341,8 +341,9 @@ export function BusinessModelSection() {
           viewport={{ once: true }}
           className="card-dark bg-gradient-to-r from-blue-50 to-slate-50 p-8 mb-16"
         >
-          <h3 className="font-heading font-bold text-2xl text-gray-900 mb-6 text-center">
-            💡 Règles du Système de Crédits
+          <h3 className="font-heading font-bold text-2xl text-gray-900 mb-6 text-center inline-flex items-center gap-2">
+            <Lightbulb className="h-6 w-6 text-brand-secondary" aria-hidden="true" />
+            Règles du Système de Crédits
           </h3>
           <div className="text-gray-700 space-y-4 max-w-4xl mx-auto">
             <p className="text-lg leading-relaxed">

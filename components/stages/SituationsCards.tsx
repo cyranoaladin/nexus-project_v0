@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import { AlertTriangle, CheckCircle2, CircleHelp } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface Situation {
   id: string;
@@ -43,21 +45,28 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                 className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-200 hover:border-blue-400 flex flex-col"
               >
                 <div className="bg-gradient-to-br from-blue-700 to-slate-700 p-6 text-white">
-                  <div className="text-4xl mb-3">{situation.icon}</div>
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                    {(() => {
+                      const SituationIcon = resolveUiIcon(situation.icon);
+                      return <SituationIcon className="h-6 w-6" aria-hidden="true" />;
+                    })()}
+                  </div>
                   <h3 className="text-xl font-bold">{situation.title}</h3>
                 </div>
 
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="mb-4">
-                    <div className="text-xs uppercase tracking-wider text-slate-700 font-semibold mb-2">
-                      ❌ Problème
+                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-slate-700 font-semibold mb-2">
+                      <AlertTriangle className="h-3.5 w-3.5 text-rose-500" aria-hidden="true" />
+                      Problème
                     </div>
                     <p className="text-sm text-slate-700">{situation.problem}</p>
                   </div>
 
                   <div className="mb-4">
-                    <div className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
-                      ❓ Votre question
+                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
+                      <CircleHelp className="h-3.5 w-3.5" aria-hidden="true" />
+                      Votre question
                     </div>
                     <p className="text-sm font-medium text-slate-800 italic">
                       "{situation.question}"
@@ -65,8 +74,9 @@ export function SituationsCards({ situations }: SituationsCardsProps) {
                   </div>
 
                   <div className="mb-6 flex-1">
-                    <div className="text-xs uppercase tracking-wider text-blue-700 font-semibold mb-2">
-                      ✅ Notre réponse
+                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-blue-700 font-semibold mb-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600" aria-hidden="true" />
+                      Notre réponse
                     </div>
                     <p className="text-sm text-slate-700">{situation.solution}</p>
                   </div>

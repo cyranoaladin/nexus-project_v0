@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bell, Check } from "lucide-react";
+import { Bell, CalendarRange, Check, ClipboardList, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Notification {
@@ -97,13 +97,13 @@ export default function NotificationBell() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'SUBSCRIPTION_REQUEST':
-        return '📋';
+        return ClipboardList;
       case 'CREDIT_REQUEST':
-        return '💳';
+        return CreditCard;
       case 'SESSION_REQUEST':
-        return '📅';
+        return CalendarRange;
       default:
-        return '🔔';
+        return Bell;
     }
   };
 
@@ -176,10 +176,13 @@ export default function NotificationBell() {
                     : 'bg-blue-50 border border-blue-200'
                     }`}
                 >
+                  {(() => {
+                    const NotificationIcon = getNotificationIcon(notification.type);
+                    return (
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3 flex-1">
-                      <span className="text-lg">
-                        {getNotificationIcon(notification.type)}
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-700">
+                        <NotificationIcon className="h-4 w-4" aria-hidden="true" />
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-medium ${notification.read ? 'text-gray-600' : 'text-gray-900'
@@ -206,6 +209,8 @@ export default function NotificationBell() {
                       </Button>
                     )}
                   </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

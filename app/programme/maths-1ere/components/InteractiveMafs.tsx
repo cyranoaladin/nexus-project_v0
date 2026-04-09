@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Mafs, Coordinates, Plot, Theme, Text as MafsText, Point, Line, Circle } from 'mafs';
+import { BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
 import 'mafs/core.css';
 
 /**
@@ -102,13 +103,11 @@ export default function InteractiveMafs({
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">📊</span>
+          <BarChart3 className="h-5 w-5 text-cyan-300" aria-hidden="true" />
           <span className="font-bold text-cyan-300 text-sm">{title}</span>
           <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">Mafs</span>
         </div>
-        <span className="text-slate-500 text-sm">
-          {expanded ? '▲ Réduire' : '▼ Ouvrir'}
-        </span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (

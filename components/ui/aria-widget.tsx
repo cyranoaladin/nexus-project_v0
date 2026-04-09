@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Send, Sparkles, X } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { resolveSubjectIcon } from '@/lib/ui-icons';
 
 interface AriaWidgetProps {
   isOpen: boolean;
@@ -20,16 +21,16 @@ interface ChatMessage {
 }
 
 const SUBJECT_OPTIONS = [
-  { value: 'MATHEMATIQUES', label: 'Mathématiques', icon: '📐' },
-  { value: 'NSI', label: 'NSI', icon: '💻' },
-  { value: 'FRANCAIS', label: 'Français', icon: '📖' },
-  { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', icon: '🔬' },
-  { value: 'SVT', label: 'SVT', icon: '🌿' },
-  { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', icon: '🌍' },
-  { value: 'PHILOSOPHIE', label: 'Philosophie', icon: '🧠' },
-  { value: 'ANGLAIS', label: 'Anglais', icon: '🇬🇧' },
-  { value: 'ESPAGNOL', label: 'Espagnol', icon: '🇪🇸' },
-  { value: 'SES', label: 'SES', icon: '📊' },
+  { value: 'MATHEMATIQUES', label: 'Mathématiques' },
+  { value: 'NSI', label: 'NSI' },
+  { value: 'FRANCAIS', label: 'Français' },
+  { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie' },
+  { value: 'SVT', label: 'SVT' },
+  { value: 'HISTOIRE_GEO', label: 'Histoire-Géo' },
+  { value: 'PHILOSOPHIE', label: 'Philosophie' },
+  { value: 'ANGLAIS', label: 'Anglais' },
+  { value: 'ESPAGNOL', label: 'Espagnol' },
+  { value: 'SES', label: 'SES' },
 ] as const;
 
 export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps) {
@@ -196,17 +197,24 @@ export function AriaWidget({ isOpen, onClose, defaultSubject }: AriaWidgetProps)
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {SUBJECT_OPTIONS.map((subject) => (
-                  <button
-                    key={subject.value}
-                    onClick={() => handleSelectSubject(subject.value)}
-                    data-testid={`aria-subject-${subject.value.toLowerCase()}`}
-                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
-                  >
-                    <span className="text-xl">{subject.icon}</span>
-                    <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors">
-                      {subject.label}
-                    </span>
-                  </button>
+                  (() => {
+                    const SubjectIcon = resolveSubjectIcon(subject.value);
+                    return (
+                      <button
+                        key={subject.value}
+                        onClick={() => handleSelectSubject(subject.value)}
+                        data-testid={`aria-subject-${subject.value.toLowerCase()}`}
+                        className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
+                      >
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-brand-accent">
+                          <SubjectIcon className="h-4.5 w-4.5" aria-hidden="true" />
+                        </span>
+                        <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors">
+                          {subject.label}
+                        </span>
+                      </button>
+                    );
+                  })()
                 ))}
               </div>
             </div>

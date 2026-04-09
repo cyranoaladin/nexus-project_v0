@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import type { Testimonial } from '@/data/stages/fevrier2026';
 
 interface SocialProofProps {
@@ -42,7 +43,7 @@ export function SocialProof({ testimonials }: SocialProofProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 font-bold">✓</span>
+                  <CheckCircle2 className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">Bilans individualisés</h4>
@@ -51,7 +52,7 @@ export function SocialProof({ testimonials }: SocialProofProps) {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 font-bold">✓</span>
+                  <CheckCircle2 className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">Épreuves blanches</h4>
@@ -60,7 +61,7 @@ export function SocialProof({ testimonials }: SocialProofProps) {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 font-bold">✓</span>
+                  <CheckCircle2 className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">Cadre exigeant</h4>
@@ -69,7 +70,7 @@ export function SocialProof({ testimonials }: SocialProofProps) {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-blue-600 font-bold">✓</span>
+                  <CheckCircle2 className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">Progression mesurée</h4>

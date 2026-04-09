@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { CalendarRange, ChevronDown, MoonStar, Sparkles, Sun } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 
 interface DaySchedule {
@@ -86,16 +87,20 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                     className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`text-2xl ${isOpen ? 'animate-bounce' : ''}`}>
-                        {day.highlight ? '⭐' : '📅'}
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-900 shadow-sm ${isOpen ? 'animate-bounce' : ''}`}>
+                        {day.highlight ? (
+                          <Sparkles className="h-5 w-5 text-blue-700" aria-hidden="true" />
+                        ) : (
+                          <CalendarRange className="h-5 w-5 text-slate-700" aria-hidden="true" />
+                        )}
                       </div>
                       <div className="text-left">
                         <h3 className="text-lg font-bold text-slate-900">{day.day}</h3>
                         <p className="text-sm text-slate-600">{day.date}</p>
                       </div>
                     </div>
-                    <div className={`text-2xl transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                      ▼
+                    <div className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                      <ChevronDown className="h-5 w-5 text-slate-600" aria-hidden="true" />
                     </div>
                   </button>
 
@@ -104,7 +109,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                         <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-5 border border-slate-200">
                           <div className="flex items-center gap-2 mb-4">
-                            <span className="text-2xl">🌅</span>
+                            <Sun className="h-5 w-5 text-blue-700" aria-hidden="true" />
                             <h4 className="font-bold text-slate-900">Matin (9h-12h30)</h4>
                           </div>
                           <ul className="space-y-2">
@@ -119,7 +124,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
 
                         <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-xl p-5 border border-blue-200">
                           <div className="flex items-center gap-2 mb-4">
-                            <span className="text-2xl">🌆</span>
+                            <MoonStar className="h-5 w-5 text-brand-secondary" aria-hidden="true" />
                             <h4 className="font-bold text-slate-900">Après-midi (14h-17h30)</h4>
                           </div>
                           <ul className="space-y-2">
@@ -141,7 +146,7 @@ export function DetailedSchedule({ schedule }: DetailedScheduleProps) {
 
           <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-slate-50 rounded-2xl border-2 border-blue-200">
             <div className="flex items-start gap-4">
-              <div className="text-3xl">🕌</div>
+              <MoonStar className="mt-0.5 h-7 w-7 text-blue-700" aria-hidden="true" />
               <div>
                 <h4 className="font-bold text-slate-900 mb-2">Adaptation Ramadan</h4>
                 <p className="text-sm text-slate-700">

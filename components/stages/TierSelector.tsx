@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { BarChart3, Check, Code2, Lightbulb, Rocket, Target } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 
 interface TierRecommendation {
@@ -117,7 +118,10 @@ export function TierSelector() {
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
-                    📊 Mathématiques
+                    <span className="inline-flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" aria-hidden="true" />
+                      Mathématiques
+                    </span>
                   </button>
                   <button
                     onClick={() => setSubject('nsi')}
@@ -127,7 +131,10 @@ export function TierSelector() {
                         : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
                     }`}
                   >
-                    💻 NSI
+                    <span className="inline-flex items-center gap-2">
+                      <Code2 className="h-4 w-4" aria-hidden="true" />
+                      NSI
+                    </span>
                   </button>
                 </div>
               </div>
@@ -158,15 +165,22 @@ export function TierSelector() {
                 onClick={handleCalculate}
                 className="w-full btn-stage-gradient"
               >
-                Obtenir ma recommandation 🎯
+                <span className="inline-flex items-center gap-2">
+                  <Target className="h-4 w-4" aria-hidden="true" />
+                  Obtenir ma recommandation
+                </span>
               </button>
             </div>
 
             {showRecommendation && (
               <div className="mt-8 p-6 md:p-8 bg-white rounded-2xl shadow-lg border-2 border-blue-300 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`text-4xl ${isPallier1 ? 'animate-bounce' : 'animate-pulse'}`}>
-                    {isPallier1 ? '🎯' : '🚀'}
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${isPallier1 ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-900'} ${isPallier1 ? 'animate-bounce' : 'animate-pulse'}`}>
+                    {isPallier1 ? (
+                      <Target className="h-7 w-7" aria-hidden="true" />
+                    ) : (
+                      <Rocket className="h-7 w-7" aria-hidden="true" />
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-2xl font-black text-slate-900 mb-2">
@@ -185,7 +199,7 @@ export function TierSelector() {
                   <ul className="space-y-2">
                     {recommendation.reasons.map((reason, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-blue-700 mt-0.5">✓</span>
+                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-700" aria-hidden="true" />
                         <span>{reason}</span>
                       </li>
                     ))}
@@ -200,7 +214,10 @@ export function TierSelector() {
                 </a>
 
                 <p className="mt-4 text-xs text-center text-slate-600">
-                  💡 En cas de doute, réservez une consultation gratuite pour un conseil personnalisé
+                  <span className="inline-flex items-center gap-2">
+                    <Lightbulb className="h-3.5 w-3.5 text-blue-700" aria-hidden="true" />
+                    En cas de doute, réservez une consultation gratuite pour un conseil personnalisé
+                  </span>
                 </p>
               </div>
             )}

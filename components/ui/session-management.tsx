@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, BookOpen, Filter, Search, Eye, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Calendar, Clock, User, BookOpen, Filter, Search, Eye, CheckCircle, XCircle, AlertCircle, Loader2, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Session {
@@ -543,7 +543,7 @@ export default function SessionManagement({ assistantId }: SessionManagementProp
                     <label className="text-sm font-medium text-gray-700">Évaluation</label>
                     <div className="flex items-center">
                       <span className="text-lg font-bold text-blue-600">{selectedSession.rating}/5</span>
-                      <span className="text-gray-500 ml-2">⭐</span>
+                      <Star className="ml-2 h-4 w-4 fill-current text-amber-400" aria-hidden="true" />
                     </div>
                   </div>
                 )}

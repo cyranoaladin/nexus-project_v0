@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Calendar, Clock, User, Video } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BookOpen, Calendar, Clock, User, Video } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -152,7 +152,7 @@ export default function MesSessions() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-hidden="true" />
           <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
           <p className="text-neutral-400 text-sm">{error}</p>
           <Button 

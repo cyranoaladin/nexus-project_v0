@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { CheckCircle2, ChevronDown, ChevronUp, Target } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 
 const PRESETS = [
@@ -129,11 +130,11 @@ export default function NewtonSolver() {
     <div className="bg-slate-900/50 border border-green-500/20 rounded-2xl overflow-hidden">
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors" aria-label="Afficher le lab méthode de Newton">
         <div className="flex items-center gap-2">
-          <span className="text-lg">🎯</span>
+          <Target className="h-5 w-5 text-green-300" aria-hidden="true" />
           <span className="font-bold text-green-300 text-sm">Méthode de Newton — Visualisation</span>
           <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
       {expanded && (
         <div className="p-4 pt-0 space-y-3">
@@ -151,7 +152,7 @@ export default function NewtonSolver() {
               <span key={i} className="bg-slate-800 px-2 py-1 rounded text-slate-200 font-mono">$x_{i}$ = {x.toFixed(8)}</span>
             ))}
           </div>
-          {err < 1e-10 && <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-2 text-center text-green-400 text-xs font-bold">✓ Convergé ! $|f(x_n)| &lt; 10^-10$</div>}
+          {err < 1e-10 && <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-2 text-center text-green-400 text-xs font-bold inline-flex items-center justify-center gap-2 w-full"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Convergé : $|f(x_n)| &lt; 10^-10$</div>}
           <div className="rounded-xl overflow-hidden border border-slate-700/50"><canvas ref={canvasRef} width={560} height={320} className="w-full" /></div>
         </div>
       )}

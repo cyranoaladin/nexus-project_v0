@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { ChevronDown, ChevronUp, Code2, Star } from 'lucide-react';
 
 const PythonIDE = dynamic(() => import('../PythonIDE'), { ssr: false });
 
@@ -154,11 +155,11 @@ export default function PythonExercises() {
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🐍</span>
+          <Code2 className="h-5 w-5 text-green-300" aria-hidden="true" />
           <span className="font-bold text-green-300 text-sm">Exercices Python</span>
           <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">{exercises.length} exercices</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (
@@ -175,7 +176,7 @@ export default function PythonExercises() {
                     : 'bg-slate-800 text-slate-300 hover:text-white border border-transparent'
                 }`}
               >
-                {'★'.repeat(ex.difficulty)} {ex.titre}
+                <span className="inline-flex items-center gap-1.5">{Array.from({ length: ex.difficulty }).map((_, idx) => <Star key={idx} className="h-3 w-3 fill-current" aria-hidden="true" />)}<span>{ex.titre}</span></span>
               </button>
             ))}
           </div>

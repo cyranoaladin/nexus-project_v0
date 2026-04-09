@@ -6,6 +6,7 @@ import {
   Code2,
   ChevronRight,
   CheckCircle,
+  AlertTriangle,
   Loader2,
   BookOpen,
   HelpCircle,
@@ -708,7 +709,7 @@ export default function StageDiagnosticQuiz({
         {phase === 'error' && (
           <div className="max-w-md mx-auto text-center py-16">
             <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <span className="text-3xl">⚠️</span>
+              <AlertTriangle className="h-8 w-8 text-slate-700" aria-hidden="true" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">
               Erreur lors de l&apos;envoi

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, ChevronUp, Sprout } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 
 export default function EulerExponentielle() {
@@ -97,11 +98,14 @@ export default function EulerExponentielle() {
     <div className="bg-slate-900/50 border border-orange-500/20 rounded-2xl overflow-hidden">
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors" aria-label="Afficher le lab Euler exponentielle">
         <div className="flex items-center gap-2">
-          <span className="text-lg">🌱</span>
+          <Sprout className="h-4 w-4 text-orange-300" aria-hidden="true" />
           <span className="font-bold text-orange-300 text-sm">Construction de e^x par Euler</span>
           <span className="text-[10px] bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        <span className="inline-flex items-center gap-2 text-slate-500 text-sm">
+          {expanded ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+          {expanded ? 'Réduire' : 'Ouvrir'}
+        </span>
       </button>
       {expanded && (
         <div className="p-4 pt-0 space-y-3">

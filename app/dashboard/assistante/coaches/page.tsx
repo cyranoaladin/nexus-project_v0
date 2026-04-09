@@ -472,7 +472,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             id="tag"
             value={formData.tag}
             onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-            placeholder="🎓 Agrégés et Certifiés, 🎯 Stratège, etc."
+            placeholder="Agrégés et certifiés, Stratège, etc."
           />
         </div>
       </div>

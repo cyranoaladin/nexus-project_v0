@@ -53,7 +53,7 @@ export async function GET(
       name: sb.badge.name,
       description: sb.badge.description,
       category: sb.badge.category,
-      icon: sb.badge.icon ?? '🏅',
+      icon: sb.badge.icon ?? 'medal',
       unlockedAt: sb.earnedAt,
       isNew: isRecent(sb.earnedAt),
     }));

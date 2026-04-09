@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Check, Lightbulb, Sparkles, X } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 
 interface ComparisonOption {
@@ -139,7 +140,10 @@ export function ROIComparison() {
               >
                 {option.recommended && (
                   <div className="bg-brand-secondary text-white text-xs font-black uppercase px-4 py-2 rounded-full inline-block mb-4">
-                    ⭐ Meilleur rapport qualité/prix
+                    <span className="inline-flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                      Meilleur rapport qualité/prix
+                    </span>
                   </div>
                 )}
 
@@ -176,8 +180,9 @@ export function ROIComparison() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="text-xs font-bold uppercase tracking-wider mb-2 text-green-400">
-                    ✓ Avantages
+                  <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2 text-green-400">
+                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                    Avantages
                   </div>
                   <ul className="space-y-1">
                     {option.pros.map((pro, idx) => (
@@ -190,8 +195,9 @@ export function ROIComparison() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="text-xs font-bold uppercase tracking-wider mb-2 text-slate-300">
-                    ✗ Inconvénients
+                  <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2 text-slate-300">
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    Inconvénients
                   </div>
                   <ul className="space-y-1">
                     {option.cons.map((con, idx) => (
@@ -218,7 +224,7 @@ export function ROIComparison() {
 
           <div className="mt-12 p-6 bg-white/10 backdrop-blur rounded-2xl border border-white/20 max-w-4xl mx-auto">
             <div className="flex items-start gap-4">
-              <div className="text-3xl">💡</div>
+              <Lightbulb className="mt-0.5 h-7 w-7 text-blue-200" aria-hidden="true" />
               <div>
                 <h4 className="font-bold text-lg mb-2">Notre recommandation</h4>
                 <p className="text-sm text-slate-200 leading-relaxed">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, PenSquare, XCircle } from 'lucide-react';
 import type { Exercice, ExerciceQCM, ExerciceNumerique, ExerciceOrdonnancement } from '../data';
 import { useMathJax } from './MathJaxProvider';
 import { areEquivalentAnswers } from '../lib/math-engine';
@@ -71,7 +72,7 @@ function QCMExercise({
       ) : (
         <div className={`p-3 rounded-xl text-sm ${selected === exercice.correct ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
           <p className={`font-bold mb-1 ${selected === exercice.correct ? 'text-green-400' : 'text-slate-300'}`}>
-            {selected === exercice.correct ? '✓ Correct !' : '✗ Incorrect'}
+            {selected === exercice.correct ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Incorrect</span>}
           </p>
           <p className="text-slate-300">{exercice.explication}</p>
         </div>
@@ -129,22 +130,22 @@ function NumericExercise({
 
       // Sign error: student answered -expected
       if (expected !== 0 && Math.abs(numVal + expected) <= tol) {
-        hint = '⚠️ Attention au signe ! Votre réponse a le signe opposé.';
+        hint = 'Attention au signe : votre réponse a le signe opposé.';
       }
       // Factor error: student is off by an integer factor
       else if (expected !== 0 && numVal !== 0) {
         const ratio = numVal / expected;
         if (Math.abs(ratio - Math.round(ratio)) < 0.01 && Math.abs(ratio) >= 2 && Math.abs(ratio) <= 10) {
-          hint = `⚠️ Vérifiez le coefficient ! Votre réponse semble être ×${Math.round(ratio)} la réponse attendue.`;
+          hint = `Vérifiez le coefficient : votre réponse semble être ×${Math.round(ratio)} la réponse attendue.`;
         }
         // Inverse error: student swapped numerator/denominator
         const invRatio = expected / numVal;
         if (!hint && Math.abs(invRatio - Math.round(invRatio)) < 0.01 && Math.abs(invRatio) >= 2 && Math.abs(invRatio) <= 10) {
-          hint = '⚠️ Vérifiez l\'ordre ! Vous avez peut-être inversé numérateur et dénominateur.';
+          hint = 'Vérifiez l\'ordre : vous avez peut-être inversé numérateur et dénominateur.';
         }
         // Off by one
         if (!hint && Math.abs(numVal - expected) === 1) {
-          hint = '⚠️ Presque ! Vous êtes à 1 près. Attention aux bornes et aux indices.';
+          hint = 'Presque : vous êtes à 1 près. Attention aux bornes et aux indices.';
         }
       }
 
@@ -181,13 +182,13 @@ function NumericExercise({
         <div className="space-y-2">
           <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
             <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-              {isCorrect ? '✓ Correct !' : `✗ Incorrect — Réponse attendue : ${exercice.reponse}`}
+              {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Incorrect — Réponse attendue : {exercice.reponse}</span>}
             </p>
             <p className="text-slate-300">{exercice.explication}</p>
           </div>
           {errorHint && (
             <div className="p-3 rounded-xl text-sm bg-blue-500/10 border border-blue-500/30">
-              <p className="text-blue-300 font-bold">{errorHint}</p>
+              <p className="text-blue-300 font-bold inline-flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" aria-hidden="true" />{errorHint}</p>
             </div>
           )}
         </div>
@@ -283,8 +284,8 @@ function OrderingExercise({
               <span className="flex-1 text-sm text-slate-300">{item}</span>
               {!submitted && (
                 <div className="flex flex-col gap-0.5">
-                  <button onClick={() => moveItem(i, i - 1)} className="text-slate-500 hover:text-white text-xs leading-none" aria-label="Monter">▲</button>
-                  <button onClick={() => moveItem(i, i + 1)} className="text-slate-500 hover:text-white text-xs leading-none" aria-label="Descendre">▼</button>
+                  <button onClick={() => moveItem(i, i - 1)} className="text-slate-500 hover:text-white text-xs leading-none" aria-label="Monter"><ChevronUp className="h-4 w-4" aria-hidden="true" /></button>
+                  <button onClick={() => moveItem(i, i + 1)} className="text-slate-500 hover:text-white text-xs leading-none" aria-label="Descendre"><ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
                 </div>
               )}
             </div>
@@ -301,7 +302,7 @@ function OrderingExercise({
       ) : (
         <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
           <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-            {isCorrect ? '✓ Ordre correct !' : '✗ Ordre incorrect'}
+            {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Ordre correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Ordre incorrect</span>}
           </p>
           <p className="text-slate-300">{exercice.explication}</p>
         </div>
@@ -340,7 +341,8 @@ export default function ExerciseEngine({
     <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-white flex items-center gap-2">
-          🧪 Exercices interactifs
+          <PenSquare className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+          Exercices interactifs
         </h3>
         <div className="flex items-center gap-2">
           {exercices.map((_, i) => (
