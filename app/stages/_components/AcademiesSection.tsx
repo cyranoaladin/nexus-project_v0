@@ -66,7 +66,7 @@ export default function AcademiesSection() {
             </p>
             <div className="mt-4 inline-flex items-center gap-2 text-sm text-nexus-green">
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              Les packs en surbrillance sont ceux qui convertissent le mieux en résultats.
+              Les packs mis en avant couvrent plusieurs échéances avec un tarif optimisé.
             </div>
           </div>
         </div>

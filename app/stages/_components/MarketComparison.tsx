@@ -1,11 +1,5 @@
 import { BadgeDollarSign, CheckCircle2, TrendingDown, Users } from "lucide-react";
 
-import { PRICING_ROWS } from "../_data/packs";
-
-function formatPrice(price: number) {
-  return `${price} TND`;
-}
-
 export default function MarketComparison() {
   return (
     <section className="bg-nexus-bg px-4 py-20 sm:px-6 lg:px-8">
@@ -42,8 +36,8 @@ export default function MarketComparison() {
           </div>
 
           <div className="relative rounded-[28px] border border-nexus-green/22 bg-nexus-green/8 p-7">
-            <span className="absolute right-6 top-6 rounded-full border border-nexus-amber/30 bg-nexus-amber/12 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-nexus-amber">
-              Économisez 38%
+            <span className="absolute right-6 top-6 rounded-full border border-nexus-green/30 bg-nexus-green/12 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-nexus-green">
+              Tarif préférentiel
             </span>
             <div className="flex items-center gap-3">
               <div className="rounded-full border border-nexus-green/25 bg-black/10 p-2.5">
@@ -94,49 +88,9 @@ export default function MarketComparison() {
           })}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-[28px] border border-white/8 bg-white/[0.015]">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm text-white/70">
-              <thead className="bg-white/[0.04] font-mono text-[11px] uppercase tracking-[0.16em] text-white/52">
-                <tr>
-                  <th className="px-5 py-4">Formule</th>
-                  <th className="px-5 py-4">Durée</th>
-                  <th className="px-5 py-4">Early Bird</th>
-                  <th className="px-5 py-4">Normal</th>
-                  <th className="px-5 py-4">Classique</th>
-                </tr>
-              </thead>
-              <tbody>
-                {PRICING_ROWS.map((row) => (
-                  <tr key={row.label} className="border-t border-white/6">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <span>{row.label}</span>
-                        {row.popular ? (
-                          <span className="rounded-full bg-nexus-green/12 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-nexus-green">
-                            Populaire
-                          </span>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 font-mono text-white/58">{row.hours}</td>
-                    <td className="px-5 py-4 font-display text-lg font-bold text-nexus-green">
-                      {formatPrice(row.earlyBird)}
-                    </td>
-                    <td className="px-5 py-4 text-white">{formatPrice(row.normal)}</td>
-                    <td className="px-5 py-4 text-nexus-red line-through decoration-nexus-red/70">
-                      {row.classic} TND
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <p className="mt-6 text-sm leading-7 text-white/64">
-          Moins cher, moins d'élèves, plus de structure. C'est là que le retour sur investissement
-          change.
+        <p className="mt-8 text-sm leading-7 text-white/64">
+          Moins d'élèves, plus de structure, plus d'entraînements corrigés. C'est là que le retour
+          sur investissement pédagogique change réellement.
         </p>
       </div>
     </section>
