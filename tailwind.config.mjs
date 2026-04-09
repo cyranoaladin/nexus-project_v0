@@ -31,6 +31,14 @@ const config = {
           500: '#A58D65',
           600: '#87704F',
         },
+        'nexus-green': '#10b981',
+        'nexus-green-dark': '#059669',
+        'nexus-purple': '#a78bfa',
+        'nexus-purple-dark': '#7c3aed',
+        'nexus-red': '#ef4444',
+        'nexus-amber': '#f59e0b',
+        'nexus-bg': '#050a14',
+        'nexus-bg-alt': '#0a1628',
 
         // ===== SHADCN UI COLORS (Keep for compatibility) =====
         border: "hsl(var(--border))",

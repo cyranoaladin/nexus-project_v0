@@ -1,35 +1,33 @@
 import { render, screen } from '@testing-library/react';
-import HomePage from '@/app/page';
+import HomePage, { metadata } from '@/app/page';
 
-// Mock the components since we are testing the page composition
 jest.mock('@/components/layout/CorporateNavbar', () => ({
-    CorporateNavbar: () => <div data-testid="navbar">Navbar</div>,
+  CorporateNavbar: () => <div data-testid="navbar">Navbar</div>,
 }));
 jest.mock('@/components/layout/CorporateFooter', () => ({
-    CorporateFooter: () => <div data-testid="footer">Footer</div>,
+  CorporateFooter: () => <div data-testid="footer">Footer</div>,
 }));
-jest.mock('@/components/sections/hero-section-gsap', () => () => <div data-testid="hero">Hero</div>);
-jest.mock('@/components/sections/trinity-services-gsap', () => () => <div data-testid="trinity">Trinity</div>);
-jest.mock('@/components/sections/paths-section-gsap', () => () => <div data-testid="paths">Paths</div>);
-jest.mock('@/components/sections/approach-section-gsap', () => () => <div data-testid="approach">Approach</div>);
-jest.mock('@/components/sections/dna-section-gsap', () => () => <div data-testid="dna">DNA</div>);
-jest.mock('@/components/sections/offer-section-gsap', () => () => <div data-testid="offer">Offer</div>);
-jest.mock('@/components/sections/testimonials-section-gsap', () => () => <div data-testid="testimonials">Testimonials</div>);
-jest.mock('@/components/sections/contact-section-gsap', () => () => <div data-testid="contact">Contact</div>);
 
 describe('HomePage', () => {
-    it('renders all sections in correct order', () => {
-        render(<HomePage />);
+  it('renders the new homepage hub sections and flagship links', () => {
+    render(<HomePage />);
 
-        expect(screen.getByTestId('navbar')).toBeInTheDocument();
-        expect(screen.getByTestId('hero')).toBeInTheDocument();
-        expect(screen.getByTestId('trinity')).toBeInTheDocument();
-        expect(screen.getByTestId('paths')).toBeInTheDocument();
-        expect(screen.getByTestId('approach')).toBeInTheDocument();
-        expect(screen.getByTestId('dna')).toBeInTheDocument();
-        expect(screen.getByTestId('offer')).toBeInTheDocument();
-        expect(screen.getByTestId('testimonials')).toBeInTheDocument();
-        expect(screen.getByTestId('contact')).toBeInTheDocument();
-        expect(screen.getByTestId('footer')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('navbar')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /nexus réussite,/i })).toBeInTheDocument();
+    expect(screen.getByText(/la dernière ligne droite vers la mention/i)).toBeInTheDocument();
+    expect(screen.getByText(/l'ia qui t'entraîne sans jamais rédiger à ta place/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Première' })).toBeInTheDocument();
+    expect(screen.getByText(/ils ont transformé leurs résultats/i)).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /découvrir les stages printemps/i })[0]).toHaveAttribute('href', '/stages');
+    expect(screen.getAllByRole('link', { name: /essayer la plateforme eaf gratuitement/i })[0]).toHaveAttribute(
+      'href',
+      'https://eaf.nexusreussite.academy'
+    );
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
+  });
+
+  it('exports homepage metadata for the two-offer hub', () => {
+    expect(metadata.title).toBe('Nexus Réussite — Stages Printemps 2026 & Préparation EAF | Tunis');
+    expect(metadata.description).toContain('Stages intensifs Première & Terminale');
+  });
 });

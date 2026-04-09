@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -83,7 +84,10 @@ export default function RootLayout({
           Aller au contenu principal
         </a>
         <Providers>
-          {children}
+          <PromoBanner />
+          <div className="promo-layout-shell">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>
