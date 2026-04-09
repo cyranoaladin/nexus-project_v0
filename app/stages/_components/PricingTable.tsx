@@ -1,3 +1,5 @@
+import { BadgeDollarSign, Clock3 } from "lucide-react";
+
 import { PRICING_ROWS } from "../_data/packs";
 
 export default function PricingTable() {
@@ -9,8 +11,18 @@ export default function PricingTable() {
             Grille tarifaire complète
           </p>
           <h2 className="mt-3 font-display text-h2 font-bold text-white">
-            Early Bird jusqu'au 12 avril. Colonne « Classique » = coût réel à 40 TND/h sur le marché.
+            Un tableau clair pour décider vite, sans perdre de temps dans les calculs.
           </h2>
+          <div className="mt-4 flex flex-wrap gap-3 text-sm text-white/58">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5">
+              <Clock3 className="h-4 w-4 text-nexus-green" aria-hidden="true" />
+              Early Bird jusqu'au 12 avril
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5">
+              <BadgeDollarSign className="h-4 w-4 text-nexus-red" aria-hidden="true" />
+              Colonne Classique = coût réel du marché à 40 TND/h
+            </span>
+          </div>
         </div>
 
         <div className="mt-10 overflow-x-auto rounded-[28px] border border-white/8 bg-white/[0.02]">
