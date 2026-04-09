@@ -15,7 +15,7 @@ ssh "$REMOTE_HOST" "set -e
   git pull origin main
   echo 'Après : \$(git rev-parse --short HEAD)'
   npm ci
-  npm run build
+  NODE_OPTIONS='--max-old-space-size=8192' npm run build
   pm2 restart $PM2_PROCESS
   sleep 3
   pm2 list
