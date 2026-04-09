@@ -1,12 +1,15 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Stages Intensifs Février - Préparation Bac & Brevet | Nexus Réussite",
-  description: "Stages intensifs vacances février 2026: Maths, NSI, Grand Oral. Groupes 6 élèves max, professeurs Agrégés et Certifiés. De 490 à 990 TND. Préparation Parcoursup et Mention TB.",
-  keywords: ["stage février", "stage intensif maths", "préparation bac", "stage NSI", "cours vacances Tunisie", "rattrapage scolaire"],
+  title: "Stages Printemps 2026 — La Dernière Ligne Droite | Nexus Réussite",
+  description:
+    "Stages intensifs Première & Terminale : Maths, Français, NSI, Grand Oral. 6 élèves max, enseignants agrégés. Épreuves blanches incluses. Du 18 avril au 2 mai 2026 à Tunis.",
+  keywords:
+    "stage bac 2026, stage maths terminale tunis, épreuve pratique NSI, bac français première, grand oral terminale, stage printemps tunis, nexus réussite",
   openGraph: {
-    title: "Stages Février 2026 - Objectif Mention | Nexus Réussite",
-    description: "Stages intensifs 20-32h avec professeurs Agrégés et Certifiés. Préparation Parcoursup, Bac et TeSciA. Groupes 6 élèves maximum.",
+    title: "Stages Printemps 2026 — Nexus Réussite",
+    description:
+      "On ne révise plus, on valide. Simulations réelles, 6 élèves max, agrégés.",
     type: "website",
   },
 };
