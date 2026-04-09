@@ -54,10 +54,10 @@ function PaiementContent() {
     }
 
     // Récupérer les détails de la commande depuis les paramètres URL
-    const plan = searchParams.get('plan');
-    const addon = searchParams.get('addon');
-    const pack = searchParams.get('pack');
-    const student = searchParams.get('student');
+    const plan = searchParams?.get('plan');
+    const addon = searchParams?.get('addon');
+    const pack = searchParams?.get('pack');
+    const student = searchParams?.get('student');
 
     let details: OrderDetails | null = null;
 
