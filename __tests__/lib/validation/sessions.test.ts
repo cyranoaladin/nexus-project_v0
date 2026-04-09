@@ -13,11 +13,28 @@ import { ZodError } from 'zod';
 
 describe('Session Validation Schemas', () => {
   describe('bookFullSessionSchema', () => {
+    const formatLocalDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const getNextWeekdayDate = (targetDay: number) => {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      const delta = (targetDay - date.getDay() + 7) % 7 || 7;
+      date.setDate(date.getDate() + delta);
+      return formatLocalDate(date);
+    };
+
+    const nextMonday = getNextWeekdayDate(1);
+
     const validInput = {
       coachId: 'cm4abc123def456ghi789jkl',
       studentId: 'cm4xyz789abc456def123ghi',
       subject: 'MATHEMATIQUES',
-      scheduledDate: '2026-03-15',
+      scheduledDate: nextMonday,
       startTime: '14:00',
       endTime: '15:00',
       duration: 60,
@@ -40,7 +57,7 @@ describe('Session Validation Schemas', () => {
         coachId: 'cm4abc123def456ghi789jkl',
         studentId: 'cm4xyz789abc456def123ghi',
         subject: 'MATHEMATIQUES',
-        scheduledDate: '2026-03-15',
+        scheduledDate: nextMonday,
         startTime: '14:00',
         endTime: '15:00',
         duration: 60,

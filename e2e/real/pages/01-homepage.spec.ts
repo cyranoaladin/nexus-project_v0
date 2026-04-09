@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test';
  * - "Connexion" dropdown → Se connecter, S'inscrire
  * - CTA "Bilan gratuit" (lien direct desktop)
  *
- * Hero CTA : Button asChild → Link href="/bilan-gratuit" et Link href="/offres"
+ * Hero CTA : Button asChild → Link href="/stages" et lien externe EAF
  */
 
 test.describe('REAL — Homepage (/)', () => {
@@ -144,22 +144,28 @@ test.describe('REAL — Homepage (/)', () => {
     }
   });
 
-  // HERO — CTA "Bilan gratuit"
-  test('Hero CTA "Bilan gratuit" navigue vers /bilan-gratuit', async ({ page }) => {
-    const heroCTA = page.locator('#hero a[href="/bilan-gratuit"]').first();
-    await expect(heroCTA, 'CTA Bilan gratuit absent du Hero').toBeVisible();
+  // HERO — CTA stages
+  test('Hero CTA "Découvrir les Stages Printemps" navigue vers /stages', async ({ page }) => {
+    const heroCTA = page.locator('#hero a[href="/stages"]').first();
+    await expect(heroCTA, 'CTA Stages absent du Hero').toBeVisible();
     await heroCTA.click();
-    await page.waitForURL('**/bilan-gratuit**', { timeout: 10000 });
-    expect(page.url()).toContain('/bilan-gratuit');
+    await page.waitForURL('**/stages**', { timeout: 10000 });
+    expect(page.url()).toContain('/stages');
   });
 
-  // HERO — CTA "Voir nos offres"
-  test('Hero CTA "Voir nos offres" navigue vers /offres', async ({ page }) => {
-    const offresCTA = page.locator('#hero a[href="/offres"]').first();
-    await expect(offresCTA, 'CTA Voir nos offres absent du Hero').toBeVisible();
-    await offresCTA.click();
-    await page.waitForURL('**/offres**', { timeout: 10000 });
-    expect(page.url()).toContain('/offres');
+  // HERO — CTA EAF externe
+  test('Hero CTA "Essayer la plateforme EAF gratuitement" ouvre le sous-domaine EAF', async ({ page, context }) => {
+    const eafCTA = page.locator('#hero a[href="https://eaf.nexusreussite.academy"]').first();
+    await expect(eafCTA, 'CTA EAF absent du Hero').toBeVisible();
+
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      eafCTA.click(),
+    ]);
+
+    await newPage.waitForLoadState('domcontentloaded');
+    expect(newPage.url()).toContain('https://eaf.nexusreussite.academy');
+    await newPage.close();
   });
 
   // FOOTER — Tous les liens internes
