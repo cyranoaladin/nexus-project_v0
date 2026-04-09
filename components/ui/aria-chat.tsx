@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageCircle, X, Send, Bot, ThumbsUp, ThumbsDown } from "lucide-react"
+import { MessageCircle, X, Send, Bot, Sparkles, ThumbsUp, ThumbsDown } from "lucide-react"
 import Image from "next/image"
 import { Subject } from "@/types/enums"
 import Link from "next/link"
@@ -233,7 +233,7 @@ export function AriaChat() {
             <div>
               <p className="text-sm font-medium text-gray-900">ARIA</p>
               <p className="text-xs text-gray-600 whitespace-nowrap">
-                Essayez-moi gratuitement 👋
+                Essayez-moi gratuitement
               </p>
             </div>
           </div>
@@ -288,9 +288,12 @@ export function AriaChat() {
                         height={80}
                         className="mx-auto mb-4 rounded-full"
                       />
-                      <h3 className="font-heading font-semibold text-lg text-bleu-nuit mb-2">
-                        Bonjour ! Je suis ARIA 👋
-                      </h3>
+                      <div className="mb-2 flex items-center justify-center gap-2 text-bleu-nuit">
+                        <Sparkles className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                        <h3 className="font-heading text-lg font-semibold">
+                          Bonjour, je suis ARIA
+                        </h3>
+                      </div>
                       <p className="text-sm text-bleu-nuit/80 leading-relaxed">
                         Posez-moi une question pour commencer !<br />
                         <span className="text-xs text-blue-600 font-medium">
@@ -309,9 +312,12 @@ export function AriaChat() {
                         height={80}
                         className="mx-auto mb-4 rounded-full"
                       />
-                      <h3 className="font-heading font-semibold text-lg text-bleu-nuit mb-2">
-                        Bonjour {session?.user.firstName} ! 👋
-                      </h3>
+                      <div className="mb-2 flex items-center justify-center gap-2 text-bleu-nuit">
+                        <Sparkles className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                        <h3 className="font-heading text-lg font-semibold">
+                          Bonjour {session?.user.firstName}
+                        </h3>
+                      </div>
                       <p className="text-sm text-bleu-nuit/80 leading-relaxed">
                         Je suis ARIA, votre assistant IA personnel.<br />
                         Choisissez une matière et posez-moi votre question !
@@ -380,9 +386,12 @@ export function AriaChat() {
 
                   {!isAuthenticated && messages.length >= 2 && (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-                      <p className="text-sm text-blue-800 mb-4 font-medium">
-                        Connectez-vous pour continuer ! 🎉
-                      </p>
+                      <div className="mb-4 flex items-center justify-center gap-2 text-blue-800">
+                        <Sparkles className="h-4 w-4" aria-hidden="true" />
+                        <p className="text-sm font-medium">
+                          Connectez-vous pour continuer
+                        </p>
+                      </div>
                       <Button asChild size="default" className="w-full bg-blue-600 hover:bg-blue-700">
                         <Link href="/auth/signin">
                           Se Connecter

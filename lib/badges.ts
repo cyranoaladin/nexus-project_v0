@@ -7,35 +7,35 @@ const BADGE_DEFINITIONS = [
     name: 'Premiers Pas',
     description: 'Terminer le tour de bienvenue',
     category: 'ASSIDUITE',
-    icon: '👋',
+    icon: 'handshake',
     condition: 'first_login'
   },
   {
     name: 'Chauffage...',
     description: 'Première connexion de la semaine',
     category: 'ASSIDUITE',
-    icon: '🔥',
+    icon: 'flame',
     condition: 'weekly_first_login'
   },
   {
     name: 'Série en Cours',
     description: 'Se connecter 3 jours d\'affilée',
     category: 'ASSIDUITE',
-    icon: '📈',
+    icon: 'trendingUp',
     condition: 'login_streak_3'
   },
   {
     name: 'Force de la Nature',
     description: 'Se connecter 5 jours d\'affilée',
     category: 'ASSIDUITE',
-    icon: '💪',
+    icon: 'award',
     condition: 'login_streak_5'
   },
   {
     name: 'Noctambule du Savoir',
     description: 'Compléter un module après 22h',
     category: 'ASSIDUITE',
-    icon: '🌙',
+    icon: 'moon',
     condition: 'late_night_study'
   },
   
@@ -44,35 +44,35 @@ const BADGE_DEFINITIONS = [
     name: 'Décollage Réussi',
     description: 'Terminer le premier module',
     category: 'PROGRESSION',
-    icon: '🚀',
+    icon: 'rocket',
     condition: 'first_module_completed'
   },
   {
     name: 'Score Parfait',
     description: 'Obtenir 100% à un quiz de 10+ questions',
     category: 'PROGRESSION',
-    icon: '💯',
+    icon: 'award',
     condition: 'perfect_quiz_score'
   },
   {
     name: 'Maître du Chapitre',
     description: 'Terminer tous les modules d\'un chapitre',
     category: 'PROGRESSION',
-    icon: '👑',
+    icon: 'crown',
     condition: 'chapter_master'
   },
   {
     name: 'Spécialiste en Devenir',
     description: 'Terminer 50% des modules d\'une matière',
     category: 'PROGRESSION',
-    icon: '🎯',
+    icon: 'target',
     condition: 'subject_50_percent'
   },
   {
     name: 'Grand Maître',
     description: 'Terminer 100% des modules d\'une matière',
     category: 'PROGRESSION',
-    icon: '🏆',
+    icon: 'trophy',
     condition: 'subject_master'
   },
   
@@ -81,35 +81,35 @@ const BADGE_DEFINITIONS = [
     name: 'Dialogue avec le Futur',
     description: 'Poser la première question à ARIA',
     category: 'CURIOSITE',
-    icon: '🤖',
+    icon: 'bot',
     condition: 'first_aria_question'
   },
   {
     name: 'Esprit Vif',
     description: 'Poser 25 questions à ARIA',
     category: 'CURIOSITE',
-    icon: '⚡',
+    icon: 'zap',
     condition: 'aria_questions_25'
   },
   {
     name: 'Explorateur de Connaissances',
     description: 'Poser 100 questions à ARIA dans une matière',
     category: 'CURIOSITE',
-    icon: '🔍',
+    icon: 'search',
     condition: 'aria_questions_100_subject'
   },
   {
     name: 'Polyglotte Numérique',
     description: 'Utiliser ARIA pour 3 matières différentes',
     category: 'CURIOSITE',
-    icon: '🌐',
+    icon: 'globe',
     condition: 'aria_3_subjects'
   },
   {
     name: 'Architecte du Feedback',
     description: 'Donner 10 feedbacks sur ARIA',
     category: 'CURIOSITE',
-    icon: '🏗️',
+    icon: 'construction',
     condition: 'aria_feedback_10'
   }
 ]

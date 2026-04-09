@@ -17,6 +17,7 @@ import {
   Trophy,
   Clock,
   BarChart3,
+  Star,
 } from 'lucide-react';
 import {
   MATHS_QUESTIONS,
@@ -398,8 +399,14 @@ function QuestionCard({
         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
           {question.competence}
         </span>
-        <span className="text-xs text-slate-300 ml-auto">
-          {'★'.repeat(question.weight)}{'☆'.repeat(3 - question.weight)}
+        <span className="ml-auto inline-flex items-center gap-1 text-amber-400" aria-label={`Niveau ${question.weight} sur 3`}>
+          {Array.from({ length: 3 }, (_, index) => (
+            <Star
+              key={index}
+              className={`h-3.5 w-3.5 ${index < question.weight ? 'fill-current' : 'text-slate-300'}`}
+              aria-hidden="true"
+            />
+          ))}
         </span>
       </div>
 
