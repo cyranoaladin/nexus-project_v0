@@ -21,7 +21,7 @@ if [ -f "ecosystem.config.js" ]; then
     # Start new instance
     npx pm2 start ecosystem.config.js --env production
     
-    echo "✅ Server started on port 3005."
+    echo "✅ Server started on port 3001."
     echo "📊 Monitor logs with: npx pm2 logs"
 else
     echo "❌ Error: ecosystem.config.js not found."

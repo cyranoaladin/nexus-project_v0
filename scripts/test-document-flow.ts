@@ -6,7 +6,7 @@ import * as path from 'path';
 const prisma = new PrismaClient();
 
 async function runTest() {
-  const baseUrl = 'http://localhost:3005';
+  const baseUrl = 'http://localhost:3001';
   console.log('🚀 Démarrage du Test de Flux Documentaire...');
 
   try {
