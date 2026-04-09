@@ -19,8 +19,8 @@ export default function PricingTable() {
               Early Bird jusqu'au 12 avril
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5">
-              <BadgeDollarSign className="h-4 w-4 text-nexus-red" aria-hidden="true" />
-              Colonne Classique = coût réel du marché à 40 TND/h
+              <BadgeDollarSign className="h-4 w-4 text-white/40" aria-hidden="true" />
+              Colonne Classique = tarif équivalent en cours individuel
             </span>
           </div>
         </div>

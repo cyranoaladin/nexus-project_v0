@@ -7,14 +7,14 @@ const timelineItems = [
     kind: "nsi" as const,
     date: "18 mai",
     title: "Épreuve pratique NSI",
-    description: "Les 30 sujets officiels. C'est l'échéance la plus proche, donc la plus stratégique.",
+    description: "Épreuve sur ordinateur, format officiel 2026. C'est l'échéance la plus proche : chaque semaine compte.",
     accent: "text-nexus-red border-nexus-red/25 bg-nexus-red/8",
   },
   {
     kind: "eaf" as const,
     date: "8 juin",
-    title: "Bac Français & Maths de Première",
-    description: "Écrit, oral, automatismes et méthode. Les points se gagnent maintenant, pas la veille.",
+    title: "Épreuves Anticipées de Première",
+    description: "Français et Maths écrits le 8 juin. Nouvelle épreuve de Maths : 2h, sans calculatrice, avec automatismes et exercices. La méthode se construit maintenant.",
     accent: "text-nexus-amber border-nexus-amber/25 bg-nexus-amber/8",
   },
   {

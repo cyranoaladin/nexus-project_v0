@@ -16,10 +16,11 @@ export default function GrandOralSection() {
             <Mic className="h-4 w-4" aria-hidden="true" />
             Pack Grand Oral — 10h intensives
           </span>
-          <h2 className="mt-5 font-display text-h2 font-bold text-white">L'Art de Convaincre</h2>
+          <h2 className="mt-5 font-display text-h2 font-bold text-white">Préparation complète au Grand Oral</h2>
           <p className="mt-4 max-w-xl text-base leading-8 text-white/60">
-            20 minutes pour changer la perception d'un jury. Le fond compte, mais la maîtrise
-            compte tout autant.
+            20 minutes d'épreuve (10 min d'exposé + 10 min d'échange avec le jury), précédées de
+            20 minutes de préparation. Un format exigeant qui se travaille : les questions, la
+            structure, l'argumentation et la gestion du jury ne s'improvisent pas.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -41,9 +42,10 @@ export default function GrandOralSection() {
               Objectif concret
             </div>
             <p className="mt-4">
-              Arriver avec une accroche solide, une structure maîtrisée, un corps calme et une
-              réponse propre aux questions du jury. Le pack est pensé comme un entraînement de
-              passage, pas comme un cours théorique sur la prise de parole.
+              Repartir avec deux questions solidement construites, une structure d'exposé maîtrisée
+              et une capacité réelle à tenir l'échange avec le jury. Le pack est un entraînement
+              de passage : on travaille le fond, la forme et la gestion des 10 minutes d'échange,
+              pas seulement la posture.
             </p>
           </div>
 

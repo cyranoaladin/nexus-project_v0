@@ -23,10 +23,11 @@ export default function FinalCTA() {
           Dernier bloc avant réservation
         </div>
         <h2 className="mt-5 font-display text-h2 font-bold text-white">
-          Le 2 mai, tes révisions sont terminées.
+          Le 2 mai, vous repartez avec un plan de révision prêt à exécuter.
         </h2>
         <p className="mt-5 text-base leading-8 text-white/60">
-          Il ne reste ensuite qu'à capitaliser. 6 élèves max, inscription dans l'ordre d'arrivée.
+          Méthode posée, points faibles identifiés, entraînements faits. Il ne reste ensuite qu'à
+          capitaliser. 6 élèves max, places dans l'ordre des inscriptions.
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">

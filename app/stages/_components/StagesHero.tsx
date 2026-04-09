@@ -12,10 +12,10 @@ import CTAButton from "./CTAButton";
 import { TARGET_DATES, WHATSAPP_URL } from "../_lib/constants";
 
 const stats = [
-  { value: "98%", label: "satisfaction observée" },
-  { value: "+4.2 pts", label: "progression moyenne" },
   { value: "6 max", label: "élèves par groupe" },
   { value: "Agrégés", label: "et certifiés" },
+  { value: "100%", label: "groupes avec épreuve blanche" },
+  { value: "Bilan", label: "individualisé inclus" },
 ];
 
 const reassuranceItems = [
