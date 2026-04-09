@@ -29,7 +29,7 @@ export default function CTAButton({
   className,
 }: CTAButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-display font-bold tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5",
+    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-display font-bold tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5",
     variantClasses[variant],
     className
   );
