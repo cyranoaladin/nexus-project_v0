@@ -1,14 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Printer } from 'lucide-react';
 import { useMathJax } from './MathJaxProvider';
 import { useMathsLabStore } from '../store';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
-type FormulaSection = { id: string; titre: string; formules: { nom: string; f: string; fp: string }[] };
+type FormulaSection = { id: string; titre: string; icon: string; formules: { nom: string; f: string; fp: string }[] };
 
 const sections: FormulaSection[] = [
   {
     id: 'derivation',
-    titre: '📐 Dérivation',
+    titre: 'Dérivation',
+    icon: 'sigma',
     formules: [
       { nom: 'Constante', f: '$k$', fp: '$0$' },
       { nom: 'Puissance', f: '$x^n$', fp: '$nx^{n-1}$' },
@@ -25,7 +28,8 @@ const sections: FormulaSection[] = [
   },
   {
     id: 'suites',
-    titre: '📈 Suites',
+    titre: 'Suites',
+    icon: 'trendingUp',
     formules: [
       { nom: 'Terme général arith.', f: '$u_n = u_0 + nr$', fp: 'raison $r$' },
       { nom: 'Somme arith.', f: '$\\sum_{k=0}^n k = \\frac{n(n+1)}{2}$', fp: '' },
@@ -36,7 +40,8 @@ const sections: FormulaSection[] = [
   },
   {
     id: 'second-degre',
-    titre: '📉 Second Degré',
+    titre: 'Second Degré',
+    icon: 'trendingDown',
     formules: [
       { nom: 'Discriminant', f: '$\\Delta = b^2 - 4ac$', fp: '' },
       { nom: 'Racines', f: '$x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$', fp: '$\\Delta > 0$' },
@@ -47,7 +52,8 @@ const sections: FormulaSection[] = [
   },
   {
     id: 'trigo',
-    titre: '🔄 Trigonométrie',
+    titre: 'Trigonométrie',
+    icon: 'sparkles',
     formules: [
       { nom: 'Relation fondamentale', f: '$\\cos^2(x) + \\sin^2(x) = 1$', fp: '' },
       { nom: 'Parité', f: '$\\cos(-x) = \\cos(x)$', fp: '$\\sin(-x)=-\\sin(x)$' },
@@ -59,7 +65,8 @@ const sections: FormulaSection[] = [
   },
   {
     id: 'proba',
-    titre: '🎲 Probabilités',
+    titre: 'Probabilités',
+    icon: 'barChart',
     formules: [
       { nom: 'Probas cond.', f: '$P_A(B) = \\frac{P(A \\cap B)}{P(A)}$', fp: '' },
       { nom: 'Probas totales', f: '$P(B)=P(A)P_A(B)+P(\\bar{A})P_{\\bar{A}}(B)$', fp: '' },
@@ -71,7 +78,8 @@ const sections: FormulaSection[] = [
   },
   {
     id: 'geo',
-    titre: '📐 Géométrie',
+    titre: 'Géométrie',
+    icon: 'sigma',
     formules: [
       { nom: 'Produit scalaire', f: '$\\vec{u}\\cdot\\vec{v}=xx\'+yy\'$', fp: '$\\vec{u}(x;y),\\vec{v}(x\';y\')$' },
       { nom: 'Norme', f: '$||\\vec{u}||=\\sqrt{x^2+y^2}$', fp: '' },
@@ -109,13 +117,19 @@ export default function FormulaireView() {
             setActiveSection(s.id);
             markFormulaireViewed();
           }} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeSection === s.id ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400' : 'bg-slate-800/50 text-slate-300 hover:text-white border border-transparent'}`} aria-label={`Afficher section ${s.titre}`}>
-            {s.titre}
+            <span className="inline-flex items-center gap-2">
+              {(() => {
+                const SectionIcon = resolveUiIcon(s.icon);
+                return <SectionIcon className="h-4 w-4" aria-hidden="true" />;
+              })()}
+              {s.titre}
+            </span>
           </button>
         ))}
       </div>
 
       <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700/10 rounded-3xl overflow-hidden">
-        <div className="p-4 border-b border-slate-700/30"><h3 className="font-bold text-white">{currentSection.titre}</h3></div>
+        <div className="p-4 border-b border-slate-700/30"><h3 className="font-bold text-white inline-flex items-center gap-2">{(() => { const SectionIcon = resolveUiIcon(currentSection.icon); return <SectionIcon className="h-4 w-4" aria-hidden="true" />; })()}{currentSection.titre}</h3></div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -139,7 +153,7 @@ export default function FormulaireView() {
           window.print();
           earnBadge('imprimeur');
         }} className="text-sm px-6 py-2 rounded-xl bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center gap-2 mx-auto print:hidden" aria-label="Imprimer le formulaire">
-          🖨️ Imprimer le formulaire
+          <Printer className="h-4 w-4" aria-hidden="true" />Imprimer le formulaire
         </button>
       </div>
     </div>

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, GraduationCap, Loader2, Calculator, Target, TrendingUp, ChevronDown, AlertTriangle, BarChart3, Code2, Lightbulb, Sigma, FileText, BrainCircuit, BookOpen } from "lucide-react";
+import { Check, CheckCircle, GraduationCap, Loader2, Calculator, Target, TrendingUp, ChevronDown, AlertTriangle, BarChart3, Code2, Lightbulb, Sigma, FileText, BrainCircuit, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { toast, Toaster } from "sonner";
@@ -495,7 +495,7 @@ export default function BilanPallier2MathsPage() {
             <div className="flex justify-center gap-2 mt-4 flex-wrap">
               {Array.from({ length: effectiveTotalSteps + 1 }, (_, i) => i).map(s => (
                 <button key={s} onClick={() => s <= currentStep && setCurrentStep(s)} className={`w-8 h-8 rounded-full text-xs font-medium ${currentStep === s ? "bg-brand-accent text-white" : currentStep > s ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-300"}`}>
-                  {currentStep > s ? "✓" : s}
+                  {currentStep > s ? <Check className="mx-auto h-4 w-4" aria-hidden="true" /> : s}
                 </button>
               ))}
             </div>
@@ -533,7 +533,10 @@ export default function BilanPallier2MathsPage() {
                     </div>
                     {hasChosenProgramme && definitionMeta && (
                       <div className="mt-4 p-3 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
-                        <p className="text-sm text-brand-accent font-medium">✓ {definitionMeta.label}</p>
+                        <p className="flex items-center gap-2 text-sm text-brand-accent font-medium">
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                          {definitionMeta.label}
+                        </p>
                         <p className="text-xs text-slate-300 mt-1">{definitionMeta.domains.length} domaines • {definitionMeta.chapters.length} chapitres officiels</p>
                       </div>
                     )}
@@ -658,7 +661,7 @@ export default function BilanPallier2MathsPage() {
                     </div>
                     <button type="button" onClick={() => setShowAllSkills(p => !p)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showAllSkills ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30' : 'bg-white/10 text-slate-300 border border-white/10'}`}>
-                      {showAllSkills ? '✓ Tout le programme' : 'Afficher tout'}
+                      {showAllSkills ? 'Tout le programme' : 'Afficher tout'}
                     </button>
                   </div>
                 )}

@@ -189,7 +189,7 @@ export default function DirecteurDashboardPage() {
           <MetricCard
             title="SSN Moyen"
             value={kpis.averageSSN !== null ? `${kpis.averageSSN}` : '—'}
-            subtitle={isLowSample ? `⚠ Indicatif (N=${kpis.completedAssessments})` : 'Score Standardisé Nexus'}
+            subtitle={isLowSample ? `Indicatif (N=${kpis.completedAssessments})` : 'Score Standardisé Nexus'}
             icon={<Target className="w-5 h-5" />}
             variant="success"
           />

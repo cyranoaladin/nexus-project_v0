@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Badge } from "./badge";
 import { Button } from "./button";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
+import { resolveUiIcon } from "@/lib/ui-icons";
 
 interface UserBadge {
   id: string;
@@ -76,7 +77,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           name: 'Premiers Pas',
           description: 'Première connexion à la plateforme',
           category: 'ASSIDUITE',
-          icon: '👋',
+          icon: 'handshake',
           unlockedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
         },
         {
@@ -84,7 +85,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           name: 'Dialogue avec le Futur',
           description: 'Première question posée à ARIA',
           category: 'ARIA',
-          icon: '🤖',
+          icon: 'bot',
           unlockedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
         },
         {
@@ -92,7 +93,7 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
           name: 'Série en Cours',
           description: 'Connexion 3 jours d\'affilée',
           category: 'ASSIDUITE',
-          icon: '📈',
+          icon: 'trendingUp',
           unlockedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
           isNew: true
         }
@@ -166,8 +167,8 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`flex items-center space-x-3 p-3 rounded-lg border ${getCategoryColor(badge.category)} relative`}
+                        transition={{ delay: index * 0.1 }}
+                        className={`flex items-center space-x-3 p-3 rounded-lg border ${getCategoryColor(badge.category)} relative`}
                 >
                   {badge.isNew && (
                     <motion.div
@@ -181,7 +182,14 @@ export function BadgeWidget({ studentId, className = "" }: BadgeWidgetProps) {
                     </motion.div>
                   )}
 
-                  <div className="text-2xl">{badge.icon}</div>
+                  {(() => {
+                    const BadgeIcon = resolveUiIcon(badge.icon);
+                    return (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/70 shadow-sm">
+                        <BadgeIcon className="h-5 w-5 text-current" aria-hidden="true" />
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">

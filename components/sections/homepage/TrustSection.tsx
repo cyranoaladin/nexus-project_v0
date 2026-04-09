@@ -1,4 +1,5 @@
 import { TRUST_COMMITMENTS, TRUST_METRICS } from "@/components/sections/homepage/content";
+import { resolveUiIcon } from "@/lib/ui-icons";
 
 export default function TrustSection() {
   return (
@@ -24,7 +25,14 @@ export default function TrustSection() {
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {TRUST_COMMITMENTS.map((item) => (
             <article key={item.title} className="rounded-[22px] border border-white/6 bg-white/[0.02] p-6">
-              <div className="text-2xl">{item.icon}</div>
+              {(() => {
+                const CommitmentIcon = resolveUiIcon(item.icon);
+                return (
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-nexus-green">
+                <CommitmentIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+                );
+              })()}
               <h3 className="mt-4 font-display text-xl font-bold text-white">{item.title}</h3>
               <p className="mt-3 text-sm leading-7 text-white/55">{item.description}</p>
             </article>

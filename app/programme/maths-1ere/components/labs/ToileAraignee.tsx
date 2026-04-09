@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, GitBranch } from 'lucide-react';
 
 /**
  * CdC §4.1.1 — "La Toile d'Araignée"
@@ -228,11 +229,11 @@ export default function ToileAraignee() {
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🕸️</span>
+          <GitBranch className="h-5 w-5 text-cyan-300" aria-hidden="true" />
           <span className="font-bold text-cyan-300 text-sm">La Toile d&apos;Araignée</span>
           <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (
@@ -299,12 +300,12 @@ export default function ToileAraignee() {
             </span>
             {fixedPoint !== null && (
               <span className="bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-green-400 font-bold">
-                ✓ Converge vers ℓ ≈ {fixedPoint.toFixed(4)}
+                <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Converge vers ℓ ≈ {fixedPoint.toFixed(4)}</span>
               </span>
             )}
             {!isConverging && steps > 5 && (
               <span className="bg-slate-500/10 border border-slate-500/20 px-2 py-1 rounded text-slate-200 font-bold">
-                ✗ Diverge / Cycle
+                <span className="inline-flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" aria-hidden="true" />Diverge / cycle</span>
               </span>
             )}
           </div>

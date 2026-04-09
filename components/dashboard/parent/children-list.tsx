@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trophy, School } from "lucide-react";
+import { resolveUiIcon } from "@/lib/ui-icons";
 
 interface ChildData {
     id: string;
@@ -75,7 +76,10 @@ export function ChildrenList({ childrenData }: { childrenData: ChildData[] }) {
                                     <div className="flex flex-wrap gap-2">
                                         {child.badges.map((badge) => (
                                             <div key={badge.id} className="flex items-center bg-white/5 border border-white/10 px-2 py-1 rounded-full text-xs text-neutral-200" title={badge.category}>
-                                                <span className="mr-1">{badge.icon || "🏅"}</span>
+                                                {(() => {
+                                                    const BadgeIcon = resolveUiIcon(badge.icon);
+                                                    return <BadgeIcon className="mr-1 h-3.5 w-3.5 text-brand-accent" aria-hidden="true" />;
+                                                })()}
                                                 {badge.name}
                                             </div>
                                         ))}

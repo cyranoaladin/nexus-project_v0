@@ -3,13 +3,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   Award,
+  Bot,
   Check,
   CheckCircle2,
   ChevronRight,
+  Mic,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
@@ -18,7 +23,8 @@ import { track } from "@/lib/analytics";
 
 const packs = [
   {
-    badge: "🎤 ESSENTIEL POUR LE BAC",
+    badgeLabel: "Essentiel pour le Bac",
+    badgeIcon: Mic,
     title: "Pack Grand Oral",
     price: "300",
     duration: "8 heures intensives",
@@ -33,7 +39,8 @@ const packs = [
     cta: "Ajouter à mon programme",
   },
   {
-    badge: "🎯 POUR L'ORIENTATION",
+    badgeLabel: "Pour l'orientation",
+    badgeIcon: Target,
     title: "Pack Parcoursup",
     price: "450",
     duration: "6 heures stratégiques",
@@ -48,7 +55,8 @@ const packs = [
     cta: "Ajouter à mon programme",
   },
   {
-    badge: "⚡ ACCÉLÉRATION",
+    badgeLabel: "Accélération",
+    badgeIcon: Zap,
     title: "Académie Intensive",
     price: "750",
     duration: "15 heures en vacances",
@@ -67,7 +75,8 @@ const packs = [
     cta: "Voir le calendrier",
   },
   {
-    badge: "🤖 IA AVANCÉE",
+    badgeLabel: "IA avancée",
+    badgeIcon: Bot,
     title: "ARIA+ Premium Seul",
     price: "50",
     duration: "Accès illimité",
@@ -419,7 +428,7 @@ export default function OffresPage() {
               {/* ACCÈS PLATEFORME */}
               <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "plateforme" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
                 <div className="marketing-badge bg-white/10 text-neutral-200 normal-case">
-                  📱 ACCÈS DIGITAL
+                  Accès digital
                 </div>
                 {recommendedPlan === "plateforme" && (
                   <div className="mt-3 text-xs font-semibold text-brand-accent">
@@ -464,7 +473,7 @@ export default function OffresPage() {
               {/* HYBRIDE — Recommandée */}
               <div className={`rounded-3xl border bg-white/5 p-8 shadow-2xl relative ${recommendedPlan === "hybride" ? "border-brand-accent/60 shadow-brand-accent/20" : "border-brand-accent/40 shadow-brand-accent/10"} hover:border-brand-accent/60 transition-colors`}>
                 <div className="marketing-badge bg-brand-accent/10 text-brand-accent normal-case">
-                  ⭐ RECOMMANDÉE
+                  Recommandée
                 </div>
                 {recommendedPlan === "hybride" && (
                   <div className="mt-3 text-xs font-semibold text-brand-accent">
@@ -510,7 +519,7 @@ export default function OffresPage() {
               {/* IMMERSION */}
               <div className={`rounded-3xl border bg-white/5 p-8 ${recommendedPlan === "immersion" ? "border-brand-accent/60 shadow-2xl shadow-brand-accent/10" : "border-white/10"} hover:border-brand-accent/30 transition-colors`}>
                 <div className="marketing-badge bg-white/10 text-neutral-200 normal-case">
-                  🚀 PREMIUM
+                  Premium
                 </div>
                 {recommendedPlan === "immersion" && (
                   <div className="mt-3 text-xs font-semibold text-brand-accent">
@@ -590,7 +599,10 @@ export default function OffresPage() {
                   key={pack.title}
                   className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-brand-accent/40 transition"
                 >
-                  <div className="marketing-badge text-brand-accent normal-case">{pack.badge}</div>
+                  <div className="marketing-badge text-brand-accent normal-case inline-flex items-center gap-2">
+                    <pack.badgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                    {pack.badgeLabel}
+                  </div>
                   <h3 className="mt-3 text-xl font-semibold text-white">{pack.title}</h3>
                   <div className="mt-2 text-2xl font-bold text-white">
                     {pack.price} <span className="text-sm text-neutral-300">TND</span>
@@ -623,14 +635,20 @@ export default function OffresPage() {
                       <div className="font-semibold text-white mb-2">Prochains stages</div>
                       <ul className="space-y-1">
                         {pack.extra.map((item) => (
-                          <li key={item}>• {item}</li>
+                          <li key={item} className="flex items-center gap-2">
+                            <Check className="h-3.5 w-3.5 text-brand-accent" aria-hidden="true" />
+                            {item}
+                          </li>
                         ))}
                       </ul>
                     </div>
                   )}
 
                   {pack.note && (
-                    <p className="mt-4 text-xs text-neutral-400">⚠️ {pack.note}</p>
+                    <p className="mt-4 inline-flex items-start gap-2 text-xs text-neutral-400">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-brand-accent" aria-hidden="true" />
+                      {pack.note}
+                    </p>
                   )}
 
                   <Link href={`/bilan-gratuit?programme=${encodeURIComponent(pack.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))}`} className="mt-4 w-full rounded-full border border-brand-accent/40 px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-accent/10 transition text-center block">
@@ -958,7 +976,10 @@ export default function OffresPage() {
                 </Link>
               </div>
               <div className="mt-6 text-sm text-brand-accent">
-                ⚠️ Places limitées chaque mois · Priorité donnée après bilan
+                <span className="inline-flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                  Places limitées chaque mois · Priorité donnée après bilan
+                </span>
               </div>
             </div>
           </div>

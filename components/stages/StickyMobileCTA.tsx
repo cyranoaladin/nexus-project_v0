@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { CalendarRange } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 
 export function StickyMobileCTA() {
@@ -30,7 +31,10 @@ export function StickyMobileCTA() {
         className="btn-stage-gradient w-full text-center"
         aria-label="Réserver un bilan gratuit"
       >
-        📅 Bilan Gratuit
+        <span className="inline-flex items-center gap-2">
+          <CalendarRange className="h-4 w-4" aria-hidden="true" />
+          Bilan Gratuit
+        </span>
       </a>
     </div>
   );

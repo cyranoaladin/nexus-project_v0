@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, ChevronUp, Pause, Play, RotateCcw } from 'lucide-react';
 
 /**
  * CdC §4.2.3 — "L'Enrouleur"
@@ -399,7 +400,7 @@ export default function Enrouleur() {
           <span className="font-bold text-blue-200 text-sm">L&apos;Enrouleur</span>
           <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (
@@ -433,13 +434,13 @@ export default function Enrouleur() {
                 : 'bg-green-500/20 text-green-400 border border-green-500/30'
                 }`}
             >
-              {playing ? '⏸ Pause' : '▶ Animer'}
+              <span className="inline-flex items-center gap-1.5">{playing ? <Pause className="h-3.5 w-3.5" aria-hidden="true" /> : <Play className="h-3.5 w-3.5" aria-hidden="true" />}{playing ? 'Pause' : 'Animer'}</span>
             </button>
             <button
               onClick={() => { setTheta(0); thetaRef.current = 0; }}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all"
             >
-              ↺ Reset
+              <span className="inline-flex items-center gap-1.5"><RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />Reset</span>
             </button>
             <div className="flex-1">
               <div className="flex justify-between items-center mb-0.5">

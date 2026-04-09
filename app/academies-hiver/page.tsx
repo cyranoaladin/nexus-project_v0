@@ -2,15 +2,17 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ShieldCheck, Star, TrendingUp } from "lucide-react";
+import { ArrowRight, CheckCircle2, Construction, Eye, GraduationCap, Lock, Rocket, Settings2, ShieldCheck, Star, Target, TrendingUp } from "lucide-react";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { resolveUiIcon } from "@/lib/ui-icons";
 
 const ACADEMIES = [
   // TERMINALE
   {
     id: "maths-bac-garanti",
-    title: "🛡️ MATHS : PROTOCOLE SÉCURITÉ",
+    icon: "shield",
+    title: "MATHS : PROTOCOLE SÉCURITÉ",
     badge: "SÉCURITÉ DOSSIER",
     price: 590,
     early: 502,
@@ -33,7 +35,8 @@ const ACADEMIES = [
   },
   {
     id: "maths-mention-max",
-    title: "👑 MATHS : MAJOR & TESCIA",
+    icon: "award",
+    title: "MATHS : MAJOR & TESCIA",
     badge: "VISER L'ÉLITE",
     price: 990,
     early: 842,
@@ -56,7 +59,8 @@ const ACADEMIES = [
   },
   {
     id: "nsi-commando",
-    title: "💻 NSI : CRASH-TEST ECE",
+    icon: "code",
+    title: "NSI : CRASH-TEST ECE",
     badge: "URGENCE BAC",
     price: 590,
     early: 502,
@@ -81,7 +85,8 @@ const ACADEMIES = [
   // PREMIERE
   {
     id: "maths-strategiques",
-    title: "🏗️ MATHS : REBOOT & FONDATIONS",
+    icon: "construction",
+    title: "MATHS : REBOOT & FONDATIONS",
     badge: "PACK PREMIÈRE",
     price: 490,
     early: 417,
@@ -104,7 +109,8 @@ const ACADEMIES = [
   },
   {
     id: "maths-premiere-excellence",
-    title: "🚀 MATHS : HORS-NORME (PRÉPA)",
+    icon: "rocket",
+    title: "MATHS : HORS-NORME (PRÉPA)",
     badge: "OBJECTIF MENTION",
     price: 990,
     early: 842,
@@ -127,7 +133,8 @@ const ACADEMIES = [
   },
   {
     id: "nsi-decouverte",
-    title: "🌐 NSI : START-UP & WEB",
+    icon: "globe",
+    title: "NSI : START-UP & WEB",
     badge: "CODING STARTER",
     price: 490,
     early: 417,
@@ -150,7 +157,8 @@ const ACADEMIES = [
   },
   {
     id: "nsi-premiere-avance",
-    title: "🤖 NSI : ENGINEERING & MAKER",
+    icon: "cpu",
+    title: "NSI : ENGINEERING & MAKER",
     badge: "FUTUR INGÉNIEUR",
     price: 990,
     early: 842,
@@ -185,7 +193,8 @@ const TESTIMONIALS = [
 
 const PROGRAMS = [
   {
-    title: "🛡️ MATHS : PROTOCOLE SÉCURITÉ (Terminale)",
+    icon: "shield",
+    title: "MATHS : PROTOCOLE SÉCURITÉ (Terminale)",
     blocks: [
       "J1-J2 : Analyse & Fonctions (Suites, Logarithmes, Continuité)",
       "J3-J4 : Géométrie dans l'Espace & Calcul Vectoriel",
@@ -195,7 +204,8 @@ const PROGRAMS = [
     total: "24h (20h Maths + 4h Python)"
   },
   {
-    title: "👑 MATHS : MAJOR & TESCIA (Terminale)",
+    icon: "award",
+    title: "MATHS : MAJOR & TESCIA (Terminale)",
     blocks: [
       "Module 1 : Arithmétique (Congruences, Divisibilité)",
       "Module 2 : Équations Différentielles & Primitives",
@@ -205,7 +215,8 @@ const PROGRAMS = [
     total: "32h Excellence"
   },
   {
-    title: "💻 NSI : CRASH-TEST ECE (Terminale)",
+    icon: "code",
+    title: "NSI : CRASH-TEST ECE (Terminale)",
     blocks: [
       "Jour 1-2 : Structures de Données (Arbres, Graphes, Piles/Files)",
       "Jour 3 : Bases de Données (SQL, Modèle Relationnel)",
@@ -215,7 +226,8 @@ const PROGRAMS = [
     total: "24h Pratique"
   },
   {
-    title: "🏗️ MATHS : REBOOT & FONDATIONS (Première)",
+    icon: "construction",
+    title: "MATHS : REBOOT & FONDATIONS (Première)",
     blocks: [
       "Bloc 1 : Maîtrise de la Dérivation & Applications",
       "Bloc 2 : Produit Scalaire & Géométrie",
@@ -225,7 +237,8 @@ const PROGRAMS = [
     total: "20h Fondations"
   },
   {
-    title: "🚀 MATHS : HORS-NORME / PRÉPA (Première)",
+    icon: "rocket",
+    title: "MATHS : HORS-NORME / PRÉPA (Première)",
     blocks: [
       "Module 1 : Analyse Avancée & Optimisation",
       "Module 2 : Géométrie Vectorielle & Produit Scalaire",
@@ -235,7 +248,8 @@ const PROGRAMS = [
     total: "30h Excellence"
   },
   {
-    title: "🌐 NSI : START-UP & WEB (Première)",
+    icon: "globe",
+    title: "NSI : START-UP & WEB (Première)",
     blocks: [
       "J1-J2 : Web (HTML/CSS) & Interactions",
       "J3 : Python Fondamental (Types, Boucles, Cond.)",
@@ -245,7 +259,8 @@ const PROGRAMS = [
     total: "20h Pratique"
   },
   {
-    title: "🤖 NSI : ENGINEERING & MAKER (Première)",
+    icon: "cpu",
+    title: "NSI : ENGINEERING & MAKER (Première)",
     blocks: [
       "Bloc 1 : Algorithmes Gloutons & Tris",
       "Bloc 2 : Projet Web Dynamique (Serveur/Client)",
@@ -495,7 +510,7 @@ export default function AcademiesHiverPage() {
                 </h1>
                 <div className="mt-8 space-y-4">
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-xl">🎓</span>
+                    <GraduationCap className="h-5 w-5 text-blue-200" aria-hidden="true" />
                     <div>
                       <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Terminale</div>
                     <div className="text-slate-200 text-sm leading-relaxed">
@@ -504,7 +519,7 @@ export default function AcademiesHiverPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-xl">🏗️</span>
+                    <Construction className="h-5 w-5 text-blue-200" aria-hidden="true" />
                     <div>
                       <div className="text-sm font-bold text-white uppercase tracking-wider mb-1">Première</div>
                       <div className="text-slate-200 text-sm leading-relaxed">
@@ -598,7 +613,7 @@ export default function AcademiesHiverPage() {
                 <div className="bg-slate-900/50 rounded-3xl p-8 border border-white/10 relative overflow-hidden group hover:border-blue-500/30 transition-colors">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-[60px] rounded-full group-hover:bg-blue-500/30 transition-colors" />
                   <h3 className="text-2xl font-black text-white mb-4 flex items-center gap-3">
-                    <span className="text-3xl">🎯</span>
+                    <Target className="h-7 w-7 text-blue-400" aria-hidden="true" />
                     <div>
                       OBJECTIF <br /><span className="text-blue-400">PARCOURSUP & MENTION</span>
                     </div>
@@ -626,7 +641,7 @@ export default function AcademiesHiverPage() {
                 <div className="bg-slate-900/50 rounded-3xl p-8 border border-white/10 relative overflow-hidden group hover:border-brand-secondary/30 transition-colors">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/20 blur-[60px] rounded-full group-hover:bg-brand-secondary/30 transition-colors" />
                   <h3 className="text-2xl font-black text-white mb-4 flex items-center gap-3">
-                    <span className="text-3xl">🏗️</span>
+                    <Construction className="h-7 w-7 text-blue-300" aria-hidden="true" />
                     <div>
                       OBJECTIF <br /><span className="text-blue-300">SOCLE & ÉPREUVE BAC</span>
                     </div>
@@ -663,7 +678,9 @@ export default function AcademiesHiverPage() {
               <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {/* Colonne 1 */}
                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/50 transition duration-300">
-                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-2xl mb-4 text-blue-400">👁️</div>
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 text-blue-400">
+                    <Eye className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   <h4 className="text-xl font-bold text-white mb-2">100% Focus</h4>
                   <p className="text-slate-300 text-sm leading-relaxed">
                     En classe, un prof vous consacre 1 min/heure. Chez Nexus, c'est 15 min/heure. Nous voyons tout, nous corrigeons tout en direct.
@@ -672,7 +689,9 @@ export default function AcademiesHiverPage() {
 
                 {/* Colonne 2 */}
                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-brand-secondary/50 transition duration-300">
-                  <div className="w-12 h-12 bg-brand-secondary/10 rounded-xl flex items-center justify-center text-2xl mb-4 text-blue-300">⚙️</div>
+                  <div className="w-12 h-12 bg-brand-secondary/10 rounded-xl flex items-center justify-center mb-4 text-blue-300">
+                    <Settings2 className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   <h4 className="text-xl font-bold text-white mb-2">Différenciation Totale</h4>
                   <p className="text-slate-300 text-sm leading-relaxed">
                     L'un avance vite ? On le challenge (Concours). L'autre bloque ? On le débloque (Soutien). Le cours s'adapte à vous, pas l'inverse.
@@ -681,7 +700,9 @@ export default function AcademiesHiverPage() {
 
                 {/* Colonne 3 */}
                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-brand-secondary/50 transition duration-300">
-                  <div className="w-12 h-12 bg-brand-secondary/10 rounded-xl flex items-center justify-center text-2xl mb-4 text-blue-300">🚀</div>
+                  <div className="w-12 h-12 bg-brand-secondary/10 rounded-xl flex items-center justify-center mb-4 text-blue-300">
+                    <Rocket className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   <h4 className="text-xl font-bold text-white mb-2">L'Effet Escouade</h4>
                   <p className="text-slate-300 text-sm leading-relaxed">
                     Ni la solitude du cours particulier, ni l'anonymat de la classe. L'énergie d'un groupe d'élite qui vise la même Mention.
@@ -701,7 +722,7 @@ export default function AcademiesHiverPage() {
                     date: "16-26 Fév.",
                     title: "Dernier Sprint",
                     text: "Vos dernières notes fixent la moyenne du T2.",
-                    icon: "⚡",
+                    icon: "zap",
                     color: "from-blue-600 to-slate-500",
                     glow: "shadow-blue-500/50"
                   },
@@ -709,7 +730,7 @@ export default function AcademiesHiverPage() {
                     date: "Fin Février",
                     title: "Conseils de Classe",
                     text: "Les moyennes se figent, les appréciations s'écrivent.",
-                    icon: "🔒",
+                    icon: "shield",
                     color: "from-brand-secondary to-blue-500",
                     glow: "shadow-blue-500/50"
                   },
@@ -717,7 +738,7 @@ export default function AcademiesHiverPage() {
                     date: "Mars-Avril",
                     title: "Parcoursup",
                     text: "Examen des dossiers et concours (TESCIA).",
-                    icon: "🚀",
+                    icon: "rocket",
                     color: "from-slate-500 to-blue-700",
                     glow: "shadow-blue-500/50"
                   },
@@ -727,7 +748,10 @@ export default function AcademiesHiverPage() {
                     <div className="relative bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 hover:-translate-y-2 md:hover:-translate-y-4 transition-all duration-500 hover:border-white/20 hover:bg-slate-800/80">
                       {/* Top Glow Node */}
                       <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center font-bold text-xl shadow-lg ${item.glow} z-20`}>
-                        {item.icon}
+                        {(() => {
+                          const TimelineIcon = resolveUiIcon(item.icon);
+                          return <TimelineIcon className="h-5 w-5" aria-hidden="true" />;
+                        })()}
                       </div>
 
                       <div className={`text-center mt-6`}>
@@ -749,7 +773,7 @@ export default function AcademiesHiverPage() {
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {[
                 {
-                  icon: "📉",
+                  icon: "trendingDown",
                   title: "Besoin de remonter ?",
                   subtitle: "Moyenne < 12",
                   text: "Visez le 14+ pour sécuriser le dossier.",
@@ -759,7 +783,7 @@ export default function AcademiesHiverPage() {
                   check: "text-slate-300"
                 },
                 {
-                  icon: "🎯",
+                  icon: "target",
                   title: "Viser l'Excellence",
                   subtitle: "Objectif Prépa",
                   text: "Passer de 15 à 18 pour viser Louis-le-Grand.",
@@ -769,7 +793,7 @@ export default function AcademiesHiverPage() {
                   check: "text-blue-400"
                 },
                 {
-                  icon: "🚨",
+                  icon: "alert",
                   title: "Urgence NSI",
                   subtitle: "Épreuve Pratique",
                   text: "Ne perdez pas de points bêtement au Bac.",
@@ -784,7 +808,12 @@ export default function AcademiesHiverPage() {
                     <div className="absolute top-0 right-0 p-32 bg-white/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-white/10 transition-colors" />
 
                     <div className="relative z-10 flex flex-col h-full items-start">
-                      <div className="text-4xl mb-6 bg-white/5 p-4 rounded-2xl border border-white/5 shadow-inner">{item.icon}</div>
+                      <div className="mb-6 flex h-16 w-16 items-center justify-center bg-white/5 p-4 rounded-2xl border border-white/5 shadow-inner">
+                        {(() => {
+                          const NeedIcon = resolveUiIcon(item.icon);
+                          return <NeedIcon className="h-7 w-7" aria-hidden="true" />;
+                        })()}
+                      </div>
 
                       <div className="text-xs font-bold uppercase tracking-wide text-slate-300 mb-2">{item.subtitle}</div>
                       <h4 className="text-2xl font-black text-white mb-4">{item.title}</h4>
@@ -897,13 +926,17 @@ export default function AcademiesHiverPage() {
                       <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border backdrop-blur-md ${academy.tone === 'premium'
                         ? 'bg-brand-secondary/10 border-brand-secondary/30 text-blue-200'
                         : 'bg-blue-900/10 border-blue-900/20 text-blue-800'}`}>
-                        <span className="text-sm">🔒</span>
+                        <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                         <span className="text-xs font-bold uppercase tracking-wide">Escouade : 6 Éleves Max</span>
                       </div>
                     </div>
 
-                    <h3 className={`text-3xl font-black tracking-tight mb-2 ${academy.tone === 'premium' ? 'text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400' : 'text-slate-900'}`}>
-                      {academy.title}
+                    <h3 className={`inline-flex items-center gap-3 text-3xl font-black tracking-tight mb-2 ${academy.tone === 'premium' ? 'text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400' : 'text-slate-900'}`}>
+                      {(() => {
+                        const AcademyIcon = resolveUiIcon(academy.icon);
+                        return <AcademyIcon className={`h-7 w-7 ${academy.tone === 'premium' ? 'text-blue-300' : 'text-blue-700'}`} aria-hidden="true" />;
+                      })()}
+                      <span>{academy.title}</span>
                     </h3>
                     <div className={`text-sm font-bold uppercase tracking-widest mb-8 flex items-center gap-2 ${academy.tone === 'premium' ? 'text-blue-400' : 'text-slate-300'}`}>
                       <div className={`h-px w-8 ${academy.tone === 'premium' ? 'bg-blue-500' : 'bg-slate-300'}`} />
@@ -1057,7 +1090,13 @@ export default function AcademiesHiverPage() {
                     <div className="absolute inset-0 bg-blue-500/20 blur-xl group-hover:bg-blue-500/30 transition-colors rounded-full" />
                     <div className="relative text-center">
                       <div className="text-xs uppercase tracking-wide text-blue-200 mb-2">Recommandation</div>
-                      <div className="text-2xl font-black text-white leading-none mb-1">{recommendation.title.split(" ")[0]}</div>
+                      <div className="mb-2 flex justify-center">
+                        {(() => {
+                          const RecommendationIcon = resolveUiIcon(recommendation.icon);
+                          return <RecommendationIcon className="h-8 w-8 text-white" aria-hidden="true" />;
+                        })()}
+                      </div>
+                      <div className="text-sm font-black text-white leading-none mb-1">{recommendation.title}</div>
                       <div className="text-sm font-bold text-slate-300 mb-4">{recommendation.tier === "premium" ? "Excellence" : "Essentiel"}</div>
                       <button className="text-xs font-bold text-slate-900 bg-white px-6 py-3 rounded-full hover:scale-105 transition-transform">
                         Voir l'offre
@@ -1142,7 +1181,13 @@ export default function AcademiesHiverPage() {
                   <div className="relative z-10 flex flex-col h-full">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-4 mb-8">
-                      <h3 className="text-2xl font-black text-slate-900 leading-tight min-h-[64px] flex items-center">{prog.title}</h3>
+                      <h3 className="text-2xl font-black text-slate-900 leading-tight min-h-[64px] flex items-center gap-3">
+                        {(() => {
+                          const ProgramIcon = resolveUiIcon(prog.icon);
+                          return <ProgramIcon className="h-6 w-6 text-nexus-blue" aria-hidden="true" />;
+                        })()}
+                        {prog.title}
+                      </h3>
                       <div className="h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-colors duration-500 shadow-sm">
                         <span className="font-bold text-lg">{idx + 1}</span>
                       </div>

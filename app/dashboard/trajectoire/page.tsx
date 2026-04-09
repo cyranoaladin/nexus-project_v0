@@ -270,7 +270,7 @@ export default function TrajectoirePage() {
                       )}
                       {milestone.completed && milestone.completedAt && (
                         <p className="text-[11px] text-green-500/70 mt-1.5">
-                          ✓ Validé le {new Date(milestone.completedAt).toLocaleDateString('fr-FR', {
+                          Validé le {new Date(milestone.completedAt).toLocaleDateString('fr-FR', {
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric',

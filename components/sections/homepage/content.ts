@@ -20,19 +20,19 @@ export const TRUST_METRICS = [
 
 export const TRUST_COMMITMENTS = [
   {
-    icon: "🎓",
+    icon: "graduation",
     title: "Enseignants agrégés et certifiés",
     description:
       "Chaque intervenant est un professionnel du système éducatif français.",
   },
   {
-    icon: "🔒",
+    icon: "shield",
     title: "Anti-copie par design",
     description:
       "La plateforme EAF ne rédige jamais à la place de l'élève. Le travail reste authentique.",
   },
   {
-    icon: "📊",
+    icon: "barChart",
     title: "Progression mesurée",
     description:
       "Bilans individualisés en stages et tableau de bord clair sur la plateforme EAF.",
@@ -46,7 +46,7 @@ export const TESTIMONIALS = [
     result: "8/20 → 16/20 · Mention Bien",
     quote:
       "Les simulations d'oral m'ont permis de prendre confiance. Le jour J, j'avais l'impression d'avoir déjà passé l'épreuve dix fois.",
-    tags: ["📖 Plateforme EAF", "📅 Stage"],
+    tags: ["Plateforme EAF", "Stage"],
   },
   {
     name: "Yassine R.",
@@ -54,7 +54,7 @@ export const TESTIMONIALS = [
     result: "19/20",
     quote:
       "J'ai eu 19/20 au Grand Oral alors que je perdais tous mes moyens en public. Le coaching a tout changé.",
-    tags: ["📅 Stage Grand Oral"],
+    tags: ["Stage Grand Oral"],
   },
   {
     name: "Sarah L.",
@@ -62,7 +62,7 @@ export const TESTIMONIALS = [
     result: "9/20 → 14/20 · Mention AB",
     quote:
       "ChatGPT me donnait des réponses génériques. Nexus corrige avec le barème réel et mes parents suivent tout depuis leur tableau de bord.",
-    tags: ["📖 Plateforme EAF"],
+    tags: ["Plateforme EAF"],
   },
   {
     name: "Lina M.",
@@ -70,7 +70,7 @@ export const TESTIMONIALS = [
     result: "Préparation pratique sécurisée",
     quote:
       "Le focus épreuve pratique m'a sauvée. Arrivée le jour J en connaissant déjà les pièges des sujets.",
-    tags: ["📅 Stage NSI"],
+    tags: ["Stage NSI"],
   },
 ];
 

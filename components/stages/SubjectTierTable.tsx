@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { BookOpen, Code2, Info, Pin } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 import type { SubjectTierContent } from '@/data/stages/fevrier2026';
 
@@ -38,8 +39,13 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
             {subjectsContent.map((subject) => (
               <div key={subject.subject} className="bg-slate-50 rounded-3xl p-8 border border-slate-200">
                 <div className="mb-8">
-                  <h3 className="text-2xl font-black text-slate-900 uppercase tracking-wide">
-                    {subject.subject === 'maths' ? '📐 Mathématiques' : '💻 NSI'}
+                  <h3 className="inline-flex items-center gap-3 text-2xl font-black text-slate-900 uppercase tracking-wide">
+                    {subject.subject === 'maths' ? (
+                      <BookOpen className="h-6 w-6 text-blue-700" aria-hidden="true" />
+                    ) : (
+                      <Code2 className="h-6 w-6 text-blue-700" aria-hidden="true" />
+                    )}
+                    {subject.subject === 'maths' ? 'Mathématiques' : 'NSI'}
                   </h3>
                   <p className="text-sm text-slate-600 mt-1">Première & Terminale</p>
                 </div>
@@ -77,12 +83,16 @@ export function SubjectTierTable({ subjectsContent }: SubjectTierTableProps) {
 
           {/* NSI specific note */}
           <div className="mt-12 bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg max-w-4xl mx-auto">
-            <h4 className="text-base font-bold text-blue-900 mb-2">📌 Concernant l'épreuve pratique et le Grand Oral</h4>
+            <h4 className="inline-flex items-center gap-2 text-base font-bold text-blue-900 mb-2">
+              <Pin className="h-4 w-4" aria-hidden="true" />
+              Concernant l'épreuve pratique et le Grand Oral
+            </h4>
             <p className="text-sm text-blue-800 mb-2">
               Pas d'inquiétude. Ils seront travaillés spécifiquement lors des <strong>vacances de printemps</strong> via un pack dédié.
             </p>
-            <p className="text-sm text-blue-700 italic">
-              ℹ️ Les candidats libres ne passent pas l'épreuve pratique.
+            <p className="inline-flex items-center gap-2 text-sm text-blue-700 italic">
+              <Info className="h-4 w-4" aria-hidden="true" />
+              Les candidats libres ne passent pas l'épreuve pratique.
             </p>
           </div>
 
