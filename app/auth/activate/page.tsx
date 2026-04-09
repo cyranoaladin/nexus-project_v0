@@ -9,7 +9,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 function ActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token') ?? null;
 
   const [status, setStatus] = useState<'loading' | 'valid' | 'invalid' | 'submitting' | 'success' | 'error'>('loading');
   const [studentName, setStudentName] = useState('');

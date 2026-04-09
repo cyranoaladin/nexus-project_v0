@@ -14,8 +14,8 @@ import { Shield, Loader2 } from 'lucide-react';
 
 function DiagnosticContent() {
   const searchParams = useSearchParams();
-  const emailParam = searchParams.get('email') || '';
-  const reservationId = searchParams.get('rid') || undefined;
+  const emailParam = searchParams?.get('email') || '';
+  const reservationId = searchParams?.get('rid') || undefined;
 
   const [email, setEmail] = useState(emailParam);
   const [started, setStarted] = useState(false);

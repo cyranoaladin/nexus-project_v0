@@ -13,8 +13,8 @@ import { Suspense } from "react";
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
-  const diagnosticId = searchParams.get('id');
-  const publicShareId = searchParams.get('share');
+  const diagnosticId = searchParams?.get('id');
+  const publicShareId = searchParams?.get('share');
   const bilanLinkId = publicShareId || diagnosticId;
 
   return (
