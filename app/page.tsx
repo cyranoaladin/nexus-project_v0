@@ -1,23 +1,37 @@
-'use client';
-
-import React from 'react';
+import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import HomeHero from '@/components/sections/homepage/HomeHero';
+import FlagshipOffers from '@/components/sections/homepage/FlagshipOffers';
+import TrustSection from '@/components/sections/homepage/TrustSection';
+import DecisionHelper from '@/components/sections/homepage/DecisionHelper';
+import HomepageTestimonials from '@/components/sections/homepage/HomepageTestimonials';
+import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
 
-// Sections Imports
-import HeroSectionGSAP from '@/components/sections/hero-section-gsap';
-import TrinityServicesGSAP from '@/components/sections/trinity-services-gsap';
-import PathsSectionGSAP from '@/components/sections/paths-section-gsap';
-import ApproachSectionGSAP from '@/components/sections/approach-section-gsap';
-import DNASectionGSAP from '@/components/sections/dna-section-gsap';
-import OfferSectionGSAP from '@/components/sections/offer-section-gsap';
-import TestimonialsSectionGSAP from '@/components/sections/testimonials-section-gsap';
-import ContactSectionGSAP from '@/components/sections/contact-section-gsap';
+export const metadata: Metadata = {
+  title: 'Nexus Réussite — Stages Printemps 2026 & Préparation EAF | Tunis',
+  description:
+    'Stages intensifs Première & Terminale (Maths, Français, NSI, Grand Oral) et plateforme IA de préparation au Bac de Français. 6 élèves max, enseignants agrégés. Du 18 avril au 2 mai 2026.',
+  keywords:
+    'nexus réussite, stage bac tunis, préparation EAF, bac français 2026, stage maths terminale, NSI épreuve pratique, grand oral, AEFE tunis',
+  openGraph: {
+    title: 'Nexus Réussite — Stages & Plateforme EAF',
+    description:
+      'Deux solutions pour viser la mention : stages intensifs + plateforme IA anti-copie.',
+    type: 'website',
+    url: 'https://nexusreussite.academy',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nexus Réussite — Stages & Plateforme EAF',
+    description:
+      'Deux solutions pour viser la mention : stages intensifs + plateforme IA anti-copie.',
+  },
+};
 
 export default function HomePage() {
-
   return (
     <div className="relative bg-surface-darker min-h-screen font-sans selection:bg-brand-primary/30 selection:text-white">
       {/* Grain Overlay */}
@@ -44,26 +58,21 @@ export default function HomePage() {
       {/* SEO fallback for crawlers that don't execute JS */}
       <noscript>
         <div className="sr-only">
-          <h1>Nexus Réussite — Plateforme de Pilotage Éducatif</h1>
-          <p>Coachs Agrégés et Certifiés + IA pédagogique ARIA 24/7 + Dashboard parent en temps réel. Le seul programme qui s'engage sur les résultats de votre enfant au Baccalauréat.</p>
-          <p>Formules d'accompagnement : Accès Plateforme (150 TND/mois), Hybride (450 TND/mois), Immersion (750 TND/mois). Stages intensifs vacances. Garantie Mention ou mois offerts.</p>
-          <a href="/bilan-gratuit">Commencer mon Bilan Stratégique Gratuit</a>
-          <a href="/offres">Voir les offres</a>
-          <a href="/stages">Voir les stages</a>
+          <h1>Nexus Réussite, le déclic vers ta réussite !</h1>
+          <p>Deux solutions complémentaires pour viser la mention : les Stages Printemps 2026 et la Plateforme EAF Nexus Réussite.</p>
+          <a href="/stages">Découvrir les Stages Printemps</a>
+          <a href="https://eaf.nexusreussite.academy">Essayer la plateforme EAF gratuitement</a>
         </div>
       </noscript>
 
       {/* Main Content */}
       <main id="main-content" className="relative z-10 w-full overflow-hidden">
-        {/* The Narrative Flow */}
-        <HeroSectionGSAP />
-        <TrinityServicesGSAP />
-        <PathsSectionGSAP />
-        <ApproachSectionGSAP />
-        <DNASectionGSAP />
-        <OfferSectionGSAP />
-        <TestimonialsSectionGSAP />
-        <ContactSectionGSAP />
+        <HomeHero />
+        <FlagshipOffers />
+        <TrustSection />
+        <DecisionHelper />
+        <HomepageTestimonials />
+        <HomepageFinalCTA />
       </main>
 
       <CorporateFooter />
