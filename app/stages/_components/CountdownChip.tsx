@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Clock3 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,12 +46,14 @@ export default function CountdownChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]",
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]",
         toneClasses[tone],
         className
       )}
     >
-      ⏱ J-{days} {label}
+      <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+      <span>J-{days}</span>
+      <span className="text-current/85">{label}</span>
     </span>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { BookOpen, CalendarRange, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EAF_URL, STAGES_URL } from "@/components/sections/homepage/content";
 
@@ -48,16 +48,18 @@ export default function PromoBanner() {
   const mobileSlides = useMemo(
     () => [
       {
-        copy: "🌿 Stages Printemps — 18 avr au 2 mai",
+        copy: "Stages Printemps — 18 avr au 2 mai",
         cta: "Réserver →",
         href: STAGES_URL,
         external: false,
+        icon: CalendarRange,
       },
       {
-        copy: "📖 Plateforme EAF — Bac Français avec l'IA",
+        copy: "Plateforme EAF — Bac Français avec l'IA",
         cta: "Essayer →",
         href: EAF_URL,
         external: true,
+        icon: BookOpen,
       },
     ],
     []
@@ -68,6 +70,7 @@ export default function PromoBanner() {
   }
 
   const activeSlide = mobileSlides[mobileIndex];
+  const ActiveIcon = activeSlide.icon;
 
   return (
     <div className="relative z-[60] border-b border-nexus-green/15 bg-gradient-to-r from-nexus-bg-alt via-surface-darker to-nexus-bg-alt text-white animate-in slide-in-from-top-2 duration-300">
@@ -87,6 +90,7 @@ export default function PromoBanner() {
               key={mobileIndex}
               className="flex items-center gap-2 text-center font-body text-xs text-neutral-100 transition-all duration-500"
             >
+              <ActiveIcon className="h-3.5 w-3.5 shrink-0 text-nexus-green" aria-hidden="true" />
               <span>{activeSlide.copy}</span>
               {activeSlide.external ? (
                 <a
@@ -109,12 +113,18 @@ export default function PromoBanner() {
           </div>
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-3 pr-8 text-center text-neutral-200">
-            <span>🌿 Stages Printemps (18 avr – 2 mai) : places limitées à 6</span>
+            <span className="inline-flex items-center gap-2">
+              <CalendarRange className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
+              Stages Printemps (18 avr – 2 mai) : places limitées à 6
+            </span>
             <Link href={STAGES_URL} className="font-display font-bold text-white hover:text-nexus-green">
               Réserver →
             </Link>
             <span className="text-white/25">|</span>
-            <span>📖 Plateforme EAF : prépare ton Bac Français avec l'IA</span>
+            <span className="inline-flex items-center gap-2">
+              <BookOpen className="h-3.5 w-3.5 text-nexus-purple" aria-hidden="true" />
+              Plateforme EAF : prépare ton Bac Français avec l'IA
+            </span>
             <a
               href={EAF_URL}
               target="_blank"
