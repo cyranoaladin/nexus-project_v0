@@ -66,7 +66,7 @@ const MODALITY_OPTIONS = [
 
 function BilanGratuitForm() {
   const searchParams = useSearchParams();
-  const programme = searchParams.get('programme');
+  const programme = searchParams?.get('programme');
   const programmeLabels: Record<string, string> = {
     plateforme: 'Accès Plateforme (150 TND/mois)',
     hybride: 'Hybride (450 TND/mois)',

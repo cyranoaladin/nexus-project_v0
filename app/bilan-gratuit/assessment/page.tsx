@@ -52,10 +52,10 @@ function mapGrade(bilanGrade: string): Grade {
 function AssessmentContent() {
   const searchParams = useSearchParams();
 
-  const subjectParam = searchParams.get("subject") || "MATHEMATIQUES";
-  const gradeParam = searchParams.get("grade") || "premiere";
-  const nameParam = searchParams.get("name") || "Élève";
-  const emailParam = searchParams.get("email") || "";
+  const subjectParam = searchParams?.get("subject") || "MATHEMATIQUES";
+  const gradeParam = searchParams?.get("grade") || "premiere";
+  const nameParam = searchParams?.get("name") || "Élève";
+  const emailParam = searchParams?.get("email") || "";
 
   const [ready, setReady] = useState(false);
 
