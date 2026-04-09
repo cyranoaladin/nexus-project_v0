@@ -13,6 +13,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { Question } from '@/lib/assessments/questions/types';
 import { CodeBlock } from './CodeBlock';
+import { CircleHelp, Lightbulb, Star } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 
 // Dynamic import of KaTeX to reduce bundle size
@@ -92,10 +93,15 @@ export function QuestionCard({
             {question.category}
           </span>
           {question.weight && (
-            <span className="text-xs text-slate-300">
-              {question.weight === 1 && '⭐ Facile'}
-              {question.weight === 2 && '⭐⭐ Moyen'}
-              {question.weight === 3 && '⭐⭐⭐ Difficile'}
+            <span className="inline-flex items-center gap-1 text-xs text-slate-300">
+              {Array.from({ length: question.weight }).map((_, index) => (
+                <Star key={index} className="h-3.5 w-3.5 fill-current text-amber-300" aria-hidden="true" />
+              ))}
+              <span>
+                {question.weight === 1 && 'Facile'}
+                {question.weight === 2 && 'Moyen'}
+                {question.weight === 3 && 'Difficile'}
+              </span>
             </span>
           )}
         </div>
@@ -171,7 +177,7 @@ export function QuestionCard({
           `}
         >
           <div className="flex items-center justify-center gap-2">
-            <span className="text-lg">🤷</span>
+            <CircleHelp className="h-4 w-4" aria-hidden="true" />
             <span className="font-medium">Je n'ai pas encore vu cette notion</span>
           </div>
         </button>
@@ -185,12 +191,15 @@ export function QuestionCard({
               onClick={() => setHintVisible(true)}
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
-              💡 Afficher l'indice
+              <span className="inline-flex items-center gap-2">
+                <Lightbulb className="h-4 w-4" aria-hidden="true" />
+                Afficher l'indice
+              </span>
             </button>
           ) : (
             <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
               <div className="flex items-start gap-2">
-                <span className="text-lg">💡</span>
+                <Lightbulb className="h-4 w-4 text-blue-400" aria-hidden="true" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-blue-400 mb-1">Indice</p>
                   <p className="text-sm text-slate-300">{question.hint}</p>

@@ -1,6 +1,22 @@
 "use client";
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import {
+  BarChart3,
+  CalendarRange,
+  CheckCircle2,
+  Clock3,
+  Compass,
+  Flame,
+  GraduationCap,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Target,
+  Users,
+} from "lucide-react";
+import { resolveUiIcon } from "@/lib/ui-icons";
 
 const FEATURED = ["marc", "sophie", "yassine", "helene"];
 
@@ -360,40 +376,40 @@ const quizQuestions = [
     key: "profile",
     question: "Quel mot décrit le mieux votre enfant ?",
     options: [
-      { value: "logique", label: "Logique et structuré", icon: "🔢" },
-      { value: "curieux", label: "Curieux et expérimental", icon: "🔬" },
-      { value: "creatif", label: "Créatif et solutionneur", icon: "💻" },
-      { value: "expressif", label: "Expressif et communicant", icon: "🎤" },
+      { value: "logique", label: "Logique et structuré", icon: "sigma" },
+      { value: "curieux", label: "Curieux et expérimental", icon: "science" },
+      { value: "creatif", label: "Créatif et solutionneur", icon: "code" },
+      { value: "expressif", label: "Expressif et communicant", icon: "mic" },
     ],
   },
   {
     key: "goal",
     question: "Son objectif principal est :",
     options: [
-      { value: "bac", label: "Réussir le Bac", icon: "🎓" },
-      { value: "mention", label: "Obtenir une mention", icon: "🏅" },
-      { value: "parcoursup", label: "Réussir Parcoursup", icon: "🧭" },
-      { value: "combine", label: "Tout cela à la fois", icon: "✨" },
+      { value: "bac", label: "Réussir le Bac", icon: "graduation" },
+      { value: "mention", label: "Obtenir une mention", icon: "medal" },
+      { value: "parcoursup", label: "Réussir Parcoursup", icon: "compass" },
+      { value: "combine", label: "Tout cela à la fois", icon: "sparkles" },
     ],
   },
   {
     key: "challenge",
     question: "Son principal défi est :",
     options: [
-      { value: "methodo", label: "Méthodologie", icon: "📘" },
-      { value: "comprehension", label: "Compréhension", icon: "🧠" },
-      { value: "temps", label: "Manque de temps", icon: "⏱️" },
-      { value: "confiance", label: "Manque de confiance", icon: "💬" },
+      { value: "methodo", label: "Méthodologie", icon: "book" },
+      { value: "comprehension", label: "Compréhension", icon: "brain" },
+      { value: "temps", label: "Manque de temps", icon: "calendar" },
+      { value: "confiance", label: "Manque de confiance", icon: "message" },
     ],
   },
   {
     key: "style",
     question: "Quel style d'apprentissage lui convient ?",
     options: [
-      { value: "visuel", label: "Visuel et structuré", icon: "🧩" },
-      { value: "pratique", label: "Pratique et concret", icon: "🧪" },
-      { value: "oral", label: "Oral et interactif", icon: "🎙️" },
-      { value: "autonome", label: "Autonome avec guidance", icon: "🚀" },
+      { value: "visuel", label: "Visuel et structuré", icon: "cpu" },
+      { value: "pratique", label: "Pratique et concret", icon: "science" },
+      { value: "oral", label: "Oral et interactif", icon: "mic" },
+      { value: "autonome", label: "Autonome avec guidance", icon: "rocket" },
     ],
   },
 ];
@@ -526,13 +542,19 @@ export default function EquipePage() {
                     onClick={() => mentorsRef.current?.scrollIntoView({ behavior: "smooth" })}
                     className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
                   >
-                    🎯 Trouver mon mentor idéal
+                    <span className="inline-flex items-center gap-2">
+                      <Target className="h-4 w-4" aria-hidden="true" />
+                      Trouver mon mentor idéal
+                    </span>
                   </button>
                   <button
                     onClick={() => allExpertsRef.current?.scrollIntoView({ behavior: "smooth" })}
                     className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
                   >
-                    👥 Voir toute l&apos;équipe
+                    <span className="inline-flex items-center gap-2">
+                      <Users className="h-4 w-4" aria-hidden="true" />
+                      Voir toute l&apos;équipe
+                    </span>
                   </button>
                 </div>
               </div>
@@ -602,7 +624,10 @@ export default function EquipePage() {
                         onClick={() => handleQuiz(option.value)}
                         className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-200 hover:border-gold-500/40 transition"
                       >
-                        <span className="mr-2">{option.icon}</span>
+                        {(() => {
+                          const OptionIcon = resolveUiIcon(option.icon);
+                          return <OptionIcon className="mr-2 inline h-4 w-4 text-gold-400" aria-hidden="true" />;
+                        })()}
                         {option.label}
                       </button>
                     ))}
@@ -687,8 +712,9 @@ export default function EquipePage() {
                       </div>
                     </div>
                     {index === 0 && (
-                      <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
-                        🔥 PLUS DEMANDÉ
+                      <span className="inline-flex items-center gap-2 rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
+                        <Flame className="h-3.5 w-3.5" aria-hidden="true" />
+                        Plus demandé
                       </span>
                     )}
                   </div>
@@ -720,7 +746,10 @@ export default function EquipePage() {
                       href="/contact"
                       className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
                     >
-                      📅 Réserver un diagnostic
+                      <span className="inline-flex items-center gap-2">
+                        <CalendarRange className="h-4 w-4" aria-hidden="true" />
+                        Réserver un diagnostic
+                      </span>
                     </a>
                     <a href="/contact?sujet=profil-mentor" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
                       Voir le profil complet
@@ -735,7 +764,10 @@ export default function EquipePage() {
                 onClick={() => allExpertsRef.current?.scrollIntoView({ behavior: "smooth" })}
                 className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
               >
-                👥 Voir tous nos experts spécialisés
+                <span className="inline-flex items-center gap-2">
+                  <Users className="h-4 w-4" aria-hidden="true" />
+                  Voir tous nos experts spécialisés
+                </span>
               </button>
             </div>
           </div>
@@ -773,7 +805,10 @@ export default function EquipePage() {
                     : "border-white/10 text-slate-300"
                   }`}
               >
-                🟢 Disponible
+                <span className="inline-flex items-center gap-2">
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  Disponible
+                </span>
               </button>
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "all" }))}
@@ -813,8 +848,14 @@ export default function EquipePage() {
                   </div>
 
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-300">
-                    <span>⭐ {mentor.rating.toFixed(1)}</span>
-                    <span className="text-blue-300">🟢 {mentor.availability} places</span>
+                    <span className="inline-flex items-center gap-2">
+                      <Star className="h-3.5 w-3.5 fill-current text-gold-400" aria-hidden="true" />
+                      {mentor.rating.toFixed(1)}
+                    </span>
+                    <span className="inline-flex items-center gap-2 text-blue-300">
+                      <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                      {mentor.availability} places
+                    </span>
                   </div>
 
                   <div className="mt-4 flex gap-2">
@@ -860,11 +901,11 @@ export default function EquipePage() {
                 <h3 className="text-xl font-semibold text-white">Professeur Classique</h3>
                 <div className="mt-2 text-sm text-slate-300">~60 TND/h</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-300">
-                  <li>✅ Diplôme variable</li>
-                  <li>✅ Suivi limité aux cours</li>
-                  <li>✅ Disponibilité restreinte</li>
-                  <li>✅ Pas de garantie</li>
-                  <li>✅ Aucun dashboard</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Diplôme variable</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Suivi limité aux cours</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Disponibilité restreinte</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Pas de garantie</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Aucun dashboard</li>
                 </ul>
               </div>
               <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-6">
@@ -874,11 +915,11 @@ export default function EquipePage() {
                 </div>
                 <div className="mt-2 text-sm text-slate-300">60 TND/h*</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                  <li>🎓 100% Agrégés/Certifiés</li>
-                  <li>📊 Dashboard + IA ARIA 24/7</li>
-                  <li>⏰ Disponibilité illimitée</li>
-                  <li>🛡️ Garantie résultats</li>
-                  <li>🧭 Coaching orientation inclus</li>
+                  <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-gold-400" aria-hidden="true" /> 100% Agrégés/Certifiés</li>
+                  <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Dashboard + IA ARIA 24/7</li>
+                  <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Disponibilité illimitée</li>
+                  <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" aria-hidden="true" /> Garantie résultats</li>
+                  <li className="inline-flex items-center gap-2"><Compass className="h-4 w-4 text-gold-400" aria-hidden="true" /> Coaching orientation inclus</li>
                 </ul>
                 <div className="mt-4 text-xs text-slate-300">
                   *Tarifs horaires de référence : cours individuel 60 TND/h, cours en groupe 40 TND/h
@@ -897,19 +938,20 @@ export default function EquipePage() {
                   <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
                     Essayez sans le moindre risque
                   </h2>
-                  <div className="mt-2 inline-flex items-center rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
-                    🛡️ GARANTIE SATISFACTION
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
+                    <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                    Garantie satisfaction
                   </div>
                   <ul className="mt-6 space-y-2 text-sm text-slate-300">
-                    <li>✅ Diagnostic personnalisé avec l&apos;expert</li>
-                    <li>✅ Analyse des difficultés précises</li>
-                    <li>✅ Plan d&apos;action sur mesure</li>
-                    <li>✅ Accès ARIA 7 jours gratuit</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Diagnostic personnalisé avec l&apos;expert</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Analyse des difficultés précises</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Plan d&apos;action sur mesure</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Accès ARIA 7 jours gratuit</li>
                   </ul>
                 </div>
                 <div className="flex-1 rounded-2xl border border-white/10 bg-black/20 p-6">
                   <div className="flex items-center gap-3">
-                    <div className="text-3xl">💯</div>
+                    <Sparkles className="h-8 w-8 text-gold-400" aria-hidden="true" />
                     <div>
                       <strong className="text-white">Si le courant ne passe pas</strong>
                       <p className="text-sm text-slate-300">
@@ -926,13 +968,19 @@ export default function EquipePage() {
                       href="/contact"
                       className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
                     >
-                      📅 Réserver mon cours d&apos;essai
+                      <span className="inline-flex items-center gap-2">
+                        <CalendarRange className="h-4 w-4" aria-hidden="true" />
+                        Réserver mon cours d&apos;essai
+                      </span>
                     </a>
                     <a
                       href="/contact"
                       className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
                     >
-                      💬 Demander conseil à ARIA
+                      <span className="inline-flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                        Demander conseil à ARIA
+                      </span>
                     </a>
                   </div>
                 </div>

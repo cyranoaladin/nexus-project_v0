@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 
 export default function ArchimedePi() {
@@ -89,7 +90,7 @@ export default function ArchimedePi() {
           <span className="font-bold text-cyan-300 text-sm">Méthode d'Archimède — Approximation de π</span>
           <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
       {expanded && (
         <div className="p-4 pt-0 space-y-3">

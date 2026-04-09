@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import SessionBooking from "@/components/ui/session-booking";
 import { AriaWidget } from "@/components/ui/aria-widget";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
+import { resolveSubjectIcon } from "@/lib/ui-icons";
 
 interface DashboardData {
   student: {
@@ -297,29 +298,36 @@ export default function DashboardEleve() {
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
-                    { value: 'MATHEMATIQUES', label: 'Maths', icon: '📐', color: 'text-sky-300' },
-                    { value: 'NSI', label: 'NSI', icon: '💻', color: 'text-blue-300' },
-                    { value: 'FRANCAIS', label: 'Français', icon: '📖', color: 'text-blue-200' },
-                    { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', icon: '🔬', color: 'text-emerald-300' },
-                    { value: 'PHILOSOPHIE', label: 'Philosophie', icon: '🧠', color: 'text-rose-300' },
-                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', icon: '🌍', color: 'text-slate-200' },
+                    { value: 'MATHEMATIQUES', label: 'Maths', color: 'text-sky-300' },
+                    { value: 'NSI', label: 'NSI', color: 'text-blue-300' },
+                    { value: 'FRANCAIS', label: 'Français', color: 'text-blue-200' },
+                    { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', color: 'text-emerald-300' },
+                    { value: 'PHILOSOPHIE', label: 'Philosophie', color: 'text-rose-300' },
+                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', color: 'text-slate-200' },
                   ].map((subject) => (
-                    <button
-                      key={subject.value}
-                      onClick={() => openAriaWithSubject(subject.value)}
-                      className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
-                    >
-                      <span className="text-lg">{subject.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
-                          {subject.label}
-                        </span>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Sparkles className="w-3 h-3 text-brand-accent/50" />
-                          <span className="text-[10px] text-neutral-500">ARIA</span>
-                        </div>
-                      </div>
-                    </button>
+                    (() => {
+                      const SubjectIcon = resolveSubjectIcon(subject.value);
+                      return (
+                        <button
+                          key={subject.value}
+                          onClick={() => openAriaWithSubject(subject.value)}
+                          className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
+                        >
+                          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-brand-accent">
+                            <SubjectIcon className="h-4.5 w-4.5" aria-hidden="true" />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
+                              {subject.label}
+                            </span>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Sparkles className="w-3 h-3 text-brand-accent/50" />
+                              <span className="text-[10px] text-neutral-500">ARIA</span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })()
                   ))}
                 </div>
               </CardContent>

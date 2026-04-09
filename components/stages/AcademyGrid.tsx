@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { BookOpen, CalendarRange, CircleHelp, Rocket, Sparkles } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface AcademyGridProps {
   academies: Academy[];
@@ -84,14 +86,25 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 {/* Ribbon for Pallier 2 */}
                 {academy.tier === 'pallier2' && (
                   <div className="absolute -top-3 -right-3 pill-stage-strong shadow-lg">
-                    ⭐ EXCELLENCE
+                    <span className="inline-flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                      Excellence
+                    </span>
                   </div>
                 )}
 
                 {/* Badge principal (Objectif) */}
                 <div className="mb-3">
                   <span className="pill-stage-strong shadow-md">
-                    {academy.badge}
+                    {(() => {
+                      const BadgeIcon = resolveUiIcon(academy.badge.split(' ')[0]);
+                      return (
+                        <span className="inline-flex items-center gap-2">
+                          <BadgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                          {academy.badge.replace(/^[^\s]+\s*/, '')}
+                        </span>
+                      );
+                    })()}
                   </span>
                 </div>
 
@@ -105,7 +118,14 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                     <span className={`text-xs font-bold uppercase ${
                       academy.tier === 'pallier1' ? 'text-blue-700' : 'text-blue-800'
                     }`}>
-                      {academy.tier === 'pallier1' ? '📚 Pallier 1' : '🚀 Pallier 2'}
+                      <span className="inline-flex items-center gap-2">
+                        {academy.tier === 'pallier1' ? (
+                          <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <Rocket className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        {academy.tier === 'pallier1' ? 'Pallier 1' : 'Pallier 2'}
+                      </span>
                     </span>
                     <span className={`text-xs font-semibold ${
                       academy.tier === 'pallier1' ? 'text-blue-600' : 'text-brand-secondary'
@@ -143,7 +163,10 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                 {/* Niveau badge */}
                 <div className="mb-4">
                   <span className="pill-stage-strong">
-                    📖 Niveau: <span className="capitalize">{academy.level}</span>
+                    <span className="inline-flex items-center gap-2">
+                      <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                      Niveau : <span className="capitalize">{academy.level}</span>
+                    </span>
                   </span>
                 </div>
 
@@ -188,14 +211,20 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                     className={`block w-full ${academy.tier === 'pallier1' ? 'btn-stage-sm' : 'btn-stage-gradient'}`}
                     aria-label="Réserver une consultation gratuite"
                   >
-                    📅 Réserver une consultation
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarRange className="h-4 w-4" aria-hidden="true" />
+                      Réserver une consultation
+                    </span>
                   </a>
                   <a
                     href="#faq"
                     className="block w-full text-center rounded-full bg-white/10 border border-white/20 text-white px-6 py-2 text-xs font-semibold transition-all hover:bg-white/15"
                     aria-label="Voir les questions fréquentes"
                   >
-                    ❓ Questions fréquentes
+                    <span className="inline-flex items-center gap-2">
+                      <CircleHelp className="h-4 w-4" aria-hidden="true" />
+                      Questions fréquentes
+                    </span>
                   </a>
                 </div>
               </div>

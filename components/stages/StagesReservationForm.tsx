@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Building2, CalendarRange, CheckCircle2, ClipboardList, CreditCard, Hourglass, Lightbulb, ShieldCheck } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface StagesReservationFormProps {
   academies: Academy[];
@@ -130,7 +132,11 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
     return (
       <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
         <Toaster position="top-right" richColors />
-        <div className="text-5xl mb-4">✅</div>
+        <div className="mb-4 flex justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700">
+            <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
+          </div>
+        </div>
         <h3 className="text-2xl font-black text-green-900 mb-3">
           Demande envoyée avec succès !
         </h3>
@@ -138,7 +144,10 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           Nous vous contactons dans les <strong>24h</strong> pour finaliser votre réservation.
         </p>
         <div className="bg-white/80 rounded-xl p-4 mb-6 text-left max-w-sm mx-auto">
-          <h4 className="font-bold text-green-900 text-sm mb-2">📋 Prochaines étapes :</h4>
+          <h4 className="inline-flex items-center gap-2 font-bold text-green-900 text-sm mb-2">
+            <ClipboardList className="h-4 w-4" aria-hidden="true" />
+            Prochaines étapes :
+          </h4>
           <ol className="text-sm text-green-800 space-y-1 list-decimal list-inside">
             <li>Un conseiller vous appelle sous 24h</li>
             <li>Confirmation de votre place</li>
@@ -159,7 +168,10 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-white/20">
       <Toaster position="top-right" richColors />
       <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 text-center">
-        📋 Formulaire de Réservation Rapide
+        <span className="inline-flex items-center gap-3">
+          <ClipboardList className="h-7 w-7 text-blue-700" aria-hidden="true" />
+          Formulaire de Réservation Rapide
+        </span>
       </h3>
 
       <div className="space-y-4">
@@ -188,7 +200,14 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
           {selectedAcademy && (
             <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-900">
-                <strong>{selectedAcademy.badge}</strong> • {selectedAcademy.durationHours}h • {selectedAcademy.groupSizeMax} élèves max
+                <strong className="inline-flex items-center gap-2">
+                  {(() => {
+                    const AcademyIcon = resolveUiIcon(selectedAcademy.badge.split(' ')[0]);
+                    return <AcademyIcon className="h-4 w-4" aria-hidden="true" />;
+                  })()}
+                  {selectedAcademy.badge.replace(/^[^\s]+\s*/, '')}
+                </strong>{' '}
+                • {selectedAcademy.durationHours}h • {selectedAcademy.groupSizeMax} élèves max
               </p>
               <p className="text-xs text-blue-700 mt-1">{selectedAcademy.objective}</p>
             </div>
@@ -297,12 +316,14 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
                   className="mt-1 mr-3"
                 />
                 <div className="flex-1">
-                  <label htmlFor="payment-card" className="font-semibold text-slate-900 cursor-pointer">
-                    💳 Paiement par carte bancaire
+                  <label htmlFor="payment-card" className="inline-flex items-center gap-2 font-semibold text-slate-900 cursor-pointer">
+                    <CreditCard className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                    Paiement par carte bancaire
                   </label>
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-300 rounded-lg">
-                    <p className="text-sm text-blue-800 font-semibold">
-                      ⏳ Bientôt disponible
+                    <p className="inline-flex items-center gap-2 text-sm text-blue-800 font-semibold">
+                      <Hourglass className="h-4 w-4" aria-hidden="true" />
+                      Bientôt disponible
                     </p>
                     <p className="text-xs text-blue-700 mt-1">
                       Le paiement en ligne par carte bancaire sera disponible prochainement.
@@ -332,13 +353,15 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
                   className="mt-1 mr-3"
                 />
                 <div className="flex-1">
-                  <label htmlFor="payment-transfer" className="font-semibold text-slate-900 cursor-pointer">
-                    🏦 Virement bancaire
+                  <label htmlFor="payment-transfer" className="inline-flex items-center gap-2 font-semibold text-slate-900 cursor-pointer">
+                    <Building2 className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                    Virement bancaire
                   </label>
                   {formData.paymentMethod === 'transfer' && (
                     <div className="mt-3 p-4 bg-white border-2 border-blue-200 rounded-lg">
-                      <h4 className="font-bold text-blue-900 mb-3 text-sm">
-                        📋 Coordonnées bancaires
+                      <h4 className="inline-flex items-center gap-2 font-bold text-blue-900 mb-3 text-sm">
+                        <ClipboardList className="h-4 w-4" aria-hidden="true" />
+                        Coordonnées bancaires
                       </h4>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between items-start">
@@ -364,7 +387,10 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
                       </div>
                       <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
                         <p className="text-xs text-blue-800">
-                          💡 <strong>Important:</strong> Merci d'indiquer le nom de l'élève en référence du virement.
+                          <span className="inline-flex items-center gap-2">
+                            <Lightbulb className="h-4 w-4" aria-hidden="true" />
+                            <span><strong>Important:</strong> Merci d'indiquer le nom de l'élève en référence du virement.</span>
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -394,13 +420,19 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
               Envoi en cours...
             </span>
           ) : (
-            '📅 Confirmer ma réservation'
+            <span className="inline-flex items-center gap-2">
+              <CalendarRange className="h-4 w-4" aria-hidden="true" />
+              Confirmer ma réservation
+            </span>
           )}
         </button>
       </div>
 
       <p className="text-xs text-slate-500 text-center mt-4">
-        ✅ Vos données sont protégées et utilisées uniquement pour traiter votre demande.
+        <span className="inline-flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-green-600" aria-hidden="true" />
+          Vos données sont protégées et utilisées uniquement pour traiter votre demande.
+        </span>
       </p>
     </form>
   );

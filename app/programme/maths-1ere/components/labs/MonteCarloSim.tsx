@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { BarChart3, CheckCircle2, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 
 /**
  * CdC §4.4.2 — Simulation de Monte-Carlo
@@ -63,11 +64,11 @@ export default function MonteCarloSim() {
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🎲</span>
+          <BarChart3 className="h-5 w-5 text-blue-200" aria-hidden="true" />
           <span className="font-bold text-blue-200 text-sm">Simulation de Monte-Carlo</span>
           <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (
@@ -75,9 +76,9 @@ export default function MonteCarloSim() {
           {/* Mode selector */}
           <div className="flex gap-2">
             {([
-              { id: 'coin' as SimMode, label: '🪙 Pile ou Face', desc: 'P = 0.5' },
-              { id: 'dice' as SimMode, label: '🎲 Lancer de dé', desc: 'P = 1/6' },
-              { id: 'pi' as SimMode, label: '🔵 Estimation de π', desc: 'Monte-Carlo' },
+              { id: 'coin' as SimMode, label: 'Pile ou face', desc: 'P = 0.5' },
+              { id: 'dice' as SimMode, label: 'Lancer de dé', desc: 'P = 1/6' },
+              { id: 'pi' as SimMode, label: 'Estimation de π', desc: 'Monte-Carlo' },
             ]).map((m) => (
               <button
                 key={m.id}
@@ -99,7 +100,7 @@ export default function MonteCarloSim() {
             <button onClick={() => simulate(10)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+10</button>
             <button onClick={() => simulate(100)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+100</button>
             <button onClick={() => simulate(1000)} disabled={running} className="text-xs px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+1000</button>
-            <button onClick={reset} className="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 transition-all ml-auto">↺ Reset</button>
+            <button onClick={reset} className="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 transition-all ml-auto inline-flex items-center gap-1.5"><RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />Reset</button>
           </div>
 
           {/* Results */}
@@ -141,7 +142,7 @@ export default function MonteCarloSim() {
                     />
                   </div>
                   <span className={`text-[10px] font-mono font-bold ${Math.abs(coinFreq - 0.5) < 0.02 ? 'text-green-400' : Math.abs(coinFreq - 0.5) < 0.05 ? 'text-blue-300' : 'text-slate-200'}`}>
-                    {Math.abs(coinFreq - 0.5) < 0.02 ? '✓ Convergence' : `±${(Math.abs(coinFreq - 0.5) * 100).toFixed(1)}%`}
+                    {Math.abs(coinFreq - 0.5) < 0.02 ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />Convergence</span> : `±${(Math.abs(coinFreq - 0.5) * 100).toFixed(1)}%`}
                   </span>
                 </div>
                 <div className="text-center text-[10px] text-slate-600 mt-1">
@@ -185,7 +186,7 @@ export default function MonteCarloSim() {
                       Théorique : 1/6 ≈ 16.7% par face.
                       <span className={`ml-1 font-bold ${maxDev < 0.02 ? 'text-green-400' : maxDev < 0.05 ? 'text-blue-300' : 'text-slate-200'}`}>
                         Écart max : {(maxDev * 100).toFixed(1)}%
-                        {maxDev < 0.02 ? ' ✓' : ''}
+                        {maxDev < 0.02 ? ' Convergence' : ''}
                       </span>
                     </div>
                   );

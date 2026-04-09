@@ -1,6 +1,7 @@
 import React from 'react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { ClipboardList } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -49,7 +50,10 @@ export default function ConditionsGeneralesPage() {
 
             {/* ═══════════ BLOC CHECKOUT ═══════════ */}
             <section id="checkout-legal" className="p-6 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/5">
-              <h2 className="text-xl font-bold mb-3 text-white">📋 À lire avant paiement (résumé obligatoire)</h2>
+              <h2 className="inline-flex items-center gap-2 text-xl font-bold mb-3 text-white">
+                <ClipboardList className="h-5 w-5 text-cyan-300" aria-hidden="true" />
+                À lire avant paiement (résumé obligatoire)
+              </h2>
               <p className="mb-3 text-sm">
                 Avant toute validation de paiement sur la Plateforme, le Client est informé que :
               </p>

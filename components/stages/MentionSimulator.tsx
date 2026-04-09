@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, FileText, Lightbulb, Rocket, Target, TrendingUp, Trophy, Sparkles } from 'lucide-react';
 import { analytics } from '@/lib/analytics-stages';
 
 interface MentionResult {
   mention: string;
   color: string;
-  emoji: string;
+  icon: LucideIcon;
 }
 
 export function MentionSimulator() {
@@ -15,15 +17,15 @@ export function MentionSimulator() {
 
   const getMention = (average: number): MentionResult => {
     if (average >= 16) {
-      return { mention: 'Très Bien (TB)', color: 'text-green-600', emoji: '🏆' };
+      return { mention: 'Très Bien (TB)', color: 'text-green-600', icon: Trophy };
     } else if (average >= 14) {
-      return { mention: 'Bien (B)', color: 'text-blue-600', emoji: '⭐' };
+      return { mention: 'Bien (B)', color: 'text-blue-600', icon: Sparkles };
     } else if (average >= 12) {
-      return { mention: 'Assez Bien (AB)', color: 'text-slate-700', emoji: '✓' };
+      return { mention: 'Assez Bien (AB)', color: 'text-slate-700', icon: CheckCircle2 };
     } else if (average >= 10) {
-      return { mention: 'Passable', color: 'text-slate-600', emoji: '📄' };
+      return { mention: 'Passable', color: 'text-slate-600', icon: FileText };
     } else {
-      return { mention: 'Non admis', color: 'text-slate-700', emoji: '❌' };
+      return { mention: 'Non admis', color: 'text-slate-700', icon: AlertTriangle };
     }
   };
 
@@ -39,6 +41,9 @@ export function MentionSimulator() {
   
   const projectedPallier2 = currentAverage + 4.5;
   const mentionPallier2 = getMention(projectedPallier2);
+  const CurrentMentionIcon = currentMention.icon;
+  const Pallier1MentionIcon = mentionPallier1.icon;
+  const Pallier2MentionIcon = mentionPallier2.icon;
 
   const pallier1Gain = projectedPallier1 - currentAverage;
   const pallier2Gain = projectedPallier2 - currentAverage;
@@ -79,8 +84,9 @@ export function MentionSimulator() {
                     <div className="text-5xl font-black text-white mb-2">
                       {currentAverage.toFixed(1)}/20
                     </div>
-                    <div className={`text-xl font-bold ${currentMention.color.replace('text-', 'text-white/')}`}>
-                      {currentMention.emoji} {currentMention.mention}
+                    <div className={`inline-flex items-center gap-2 text-xl font-bold ${currentMention.color.replace('text-', 'text-white/')}`}>
+                      <CurrentMentionIcon className="h-5 w-5" aria-hidden="true" />
+                      {currentMention.mention}
                     </div>
                   </div>
                   <span>20/20</span>
@@ -91,7 +97,10 @@ export function MentionSimulator() {
                 onClick={handleCalculate}
                 className="mt-8 w-full py-4 px-6 rounded-full bg-gradient-to-r from-blue-700 to-slate-700 hover:from-blue-800 hover:to-slate-800 text-white font-black text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
               >
-                Calculer l'impact potentiel 🎯
+                <span className="inline-flex items-center gap-2">
+                  <Target className="h-5 w-5" aria-hidden="true" />
+                  Calculer l'impact potentiel
+                </span>
               </button>
             </div>
 
@@ -121,14 +130,15 @@ export function MentionSimulator() {
                         <div className="text-5xl font-black text-white mb-3">
                           {projectedPallier1.toFixed(1)}/20
                         </div>
-                        <div className={`text-2xl font-bold ${mentionPallier1.color.replace('text-', 'text-white/')}`}>
-                          {mentionPallier1.emoji} {mentionPallier1.mention}
+                        <div className={`inline-flex items-center gap-2 text-2xl font-bold ${mentionPallier1.color.replace('text-', 'text-white/')}`}>
+                          <Pallier1MentionIcon className="h-6 w-6" aria-hidden="true" />
+                          {mentionPallier1.mention}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-center gap-3 mb-4">
-                      <div className="text-3xl">📈</div>
+                      <TrendingUp className="h-8 w-8 text-green-400" aria-hidden="true" />
                       <div>
                         <div className="text-2xl font-black text-green-400">
                           +{pallier1Gain.toFixed(1)} pts
@@ -161,14 +171,15 @@ export function MentionSimulator() {
                         <div className="text-5xl font-black text-white mb-3">
                           {projectedPallier2.toFixed(1)}/20
                         </div>
-                        <div className={`text-2xl font-bold ${mentionPallier2.color.replace('text-', 'text-white/')}`}>
-                          {mentionPallier2.emoji} {mentionPallier2.mention}
+                        <div className={`inline-flex items-center gap-2 text-2xl font-bold ${mentionPallier2.color.replace('text-', 'text-white/')}`}>
+                          <Pallier2MentionIcon className="h-6 w-6" aria-hidden="true" />
+                          {mentionPallier2.mention}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-center gap-3 mb-4">
-                      <div className="text-3xl">🚀</div>
+                      <Rocket className="h-8 w-8 text-green-400" aria-hidden="true" />
                       <div>
                         <div className="text-2xl font-black text-green-400">
                           +{pallier2Gain.toFixed(1)} pts
@@ -190,7 +201,7 @@ export function MentionSimulator() {
 
                 <div className="mt-8 p-6 bg-slate-500/20 backdrop-blur rounded-2xl border-2 border-slate-300/45">
                   <div className="flex items-start gap-4">
-                    <div className="text-3xl">⚠️</div>
+                    <AlertTriangle className="mt-0.5 h-7 w-7 text-amber-300" aria-hidden="true" />
                     <div>
                       <h4 className="font-bold text-slate-100 mb-2">Important à savoir</h4>
                       <ul className="text-sm text-white space-y-1">
@@ -208,7 +219,10 @@ export function MentionSimulator() {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-slate-200 mb-4">
-              💡 Vous hésitez entre les deux palliers ?
+              <span className="inline-flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-blue-200" aria-hidden="true" />
+                Vous hésitez entre les deux palliers ?
+              </span>
             </p>
             <a
               href="#reservation"

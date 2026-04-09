@@ -1,4 +1,5 @@
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import { Mail, MessageCircle, Phone } from "lucide-react";
 import {
   CONTACT_ADDRESS,
   CONTACT_EMAIL,
@@ -33,7 +34,10 @@ export default function HomepageFinalCTA() {
 
         <div className="mt-8 space-y-2 text-sm text-white/60">
           <p>
-            📞 Besoin de conseils ? WhatsApp :{" "}
+            <span className="inline-flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 text-nexus-green" aria-hidden="true" />
+              Besoin de conseils ? WhatsApp :
+            </span>{" "}
             <a
               href={WHATSAPP_URL}
               target="_blank"
@@ -44,11 +48,13 @@ export default function HomepageFinalCTA() {
             </a>{" "}
             •{" "}
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-white hover:text-nexus-purple">
+              <Mail className="mr-1 inline h-4 w-4" aria-hidden="true" />
               {CONTACT_EMAIL}
             </a>
           </p>
           <p>
             <a href={PHONE_URL} className="text-white hover:text-nexus-green">
+              <Phone className="mr-1 inline h-4 w-4" aria-hidden="true" />
               {PHONE_LABEL}
             </a>{" "}
             • {CONTACT_ADDRESS}

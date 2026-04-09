@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { ChevronDown, ChevronUp, Lightbulb, Mic } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 
 const GRAND_ORAL_BY_CHAP: Record<string, { sujet: string; accroche: string; lien: string }[]> = {
@@ -48,14 +49,14 @@ export default function GrandOralSuggestions({ chapId }: { chapId: string }) {
           if (suggestions.length >= 3) store.earnBadge('grand-oral-ready');
         }
       }} className="w-full flex items-center justify-between p-4 hover:bg-slate-800/30 transition-colors" aria-label="Afficher les suggestions Grand Oral">
-        <div className="flex items-center gap-2"><span className="text-lg">🎤</span><span className="font-bold text-purple-300 text-sm">Idées pour le Grand Oral</span><span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">{suggestions.length} sujet{suggestions.length > 1 ? 's' : ''}</span></div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲' : '▼'}</span>
+        <div className="flex items-center gap-2"><Mic className="h-5 w-5 text-purple-300" aria-hidden="true" /><span className="font-bold text-purple-300 text-sm">Idées pour le Grand Oral</span><span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">{suggestions.length} sujet{suggestions.length > 1 ? 's' : ''}</span></div>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
       {expanded && (
         <div className="p-4 pt-0 space-y-3">
           {suggestions.map((s, i) => (
             <div key={s.sujet} className="bg-slate-800/50 rounded-xl p-4 border border-purple-500/10">
-              <h4 className="font-bold text-white text-sm mb-1">💡 {s.sujet}</h4>
+              <h4 className="font-bold text-white text-sm mb-1 inline-flex items-center gap-2"><Lightbulb className="h-4 w-4 text-purple-300" aria-hidden="true" />{s.sujet}</h4>
               <p className="text-slate-300 text-xs mb-2">{s.accroche}</p>
               <div className="flex flex-wrap gap-1">{s.lien.split(' - ').map((tag, j) => <span key={`${tag}-${j}`} className="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-300 rounded-full">{tag}</span>)}</div>
             </div>

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { sessionBookingSchema } from "@/lib/validations";
 import { ServiceType, Subject } from "@/types/enums";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Calendar, Clock, CreditCard, Loader2, User } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Calendar, Clock, CreditCard, Loader2, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -141,7 +141,7 @@ export default function SessionsPage() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-hidden="true" />
           <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
           <p className="text-neutral-400 text-sm">{error}</p>
           <Button 
@@ -354,8 +354,9 @@ export default function SessionsPage() {
                         {selectedDuration} minutes = {selectedDuration / 60} session{selectedDuration / 60 > 1 ? 's' : ''}
                       </p>
                       {selectedCost > availableCredits && (
-                        <p className="text-rose-200 text-xs mt-2 font-medium">
-                          ⚠️ Solde insuffisant
+                        <p className="inline-flex items-center gap-2 text-rose-200 text-xs mt-2 font-medium">
+                          <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                          Solde insuffisant
                         </p>
                       )}
                     </div>

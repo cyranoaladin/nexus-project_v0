@@ -126,13 +126,13 @@ export interface NiveauEleve {
 }
 
 export const niveaux: NiveauEleve[] = [
-  { nom: 'Novice', xpMin: 0, badge: '🌱' },
-  { nom: 'Initié', xpMin: 200, badge: '📗' },
-  { nom: 'Expert', xpMin: 500, badge: '🔥' },
-  { nom: 'Champion', xpMin: 750, badge: '⚡' },
-  { nom: 'Maître', xpMin: 1000, badge: '🎓' },
-  { nom: 'Légende', xpMin: 2000, badge: '🏆' },
-  { nom: 'Invincible', xpMin: 3500, badge: '💫' },
+  { nom: 'Novice', xpMin: 0, badge: 'sprout' },
+  { nom: 'Initié', xpMin: 200, badge: 'book' },
+  { nom: 'Expert', xpMin: 500, badge: 'flame' },
+  { nom: 'Champion', xpMin: 750, badge: 'zap' },
+  { nom: 'Maître', xpMin: 1000, badge: 'graduation' },
+  { nom: 'Légende', xpMin: 2000, badge: 'trophy' },
+  { nom: 'Invincible', xpMin: 3500, badge: 'sparkles' },
 ];
 
 export function getNiveau(xp: number): NiveauEleve {
@@ -228,7 +228,7 @@ export const programmeData: Record<string, Categorie> = {
   // ═══════════════════════════════════════════════════════════════════════════
   algebre: {
     titre: 'Algèbre & Suites',
-    icon: '📈',
+    icon: 'trendingUp',
     couleur: 'cyan',
     chapitres: [
       // ── Logique & Raisonnement ────────────────────────────────────────
@@ -457,7 +457,7 @@ export const programmeData: Record<string, Categorie> = {
   // ═══════════════════════════════════════════════════════════════════════════
   analyse: {
     titre: 'Analyse (Fonctions)',
-    icon: '📉',
+    icon: 'trendingDown',
     couleur: 'blue',
     chapitres: [
       // ── Dérivation ──────────────────────────────────────────────────────
@@ -730,7 +730,7 @@ export const programmeData: Record<string, Categorie> = {
   // ═══════════════════════════════════════════════════════════════════════════
   geometrie: {
     titre: 'Géométrie',
-    icon: '📐',
+    icon: 'sigma',
     couleur: 'purple',
     chapitres: [
       // ── Produit Scalaire ────────────────────────────────────────────────
@@ -1004,7 +1004,7 @@ export const programmeData: Record<string, Categorie> = {
   // ═══════════════════════════════════════════════════════════════════════════
   probabilites: {
     titre: 'Probabilités',
-    icon: '🎲',
+    icon: 'barChart',
     couleur: 'amber',
     chapitres: [
       // ── Probabilités Conditionnelles ────────────────────────────────────
@@ -1125,7 +1125,7 @@ export const programmeData: Record<string, Categorie> = {
   // ═══════════════════════════════════════════════════════════════════════════
   algorithmique: {
     titre: 'Algorithmique & Python',
-    icon: '💻',
+    icon: 'code',
     couleur: 'green',
     chapitres: [
       {
@@ -1662,25 +1662,25 @@ export interface BadgeDefinition {
 }
 
 export const badgeDefinitions: BadgeDefinition[] = [
-  { id: 'stakhanoviste', nom: 'Stakhanoviste', description: '7 jours de suite', icon: '🏅', condition: 'streak >= 7' },
-  { id: 'sherlock', nom: 'Sherlock', description: 'Résoudre un exercice difficile sans indice', icon: '🧠', condition: 'hard_no_hint' },
-  { id: 'fusee', nom: 'Fusée Ariane', description: 'Aucune erreur sur un chapitre complet', icon: '🚀', condition: 'perfect_chapter' },
-  { id: 'debugger', nom: 'De-bugger', description: 'Réussir le premier exercice Python du premier coup', icon: '🐛', condition: 'first_python' },
-  { id: 'combo-king', nom: 'Combo King', description: '10 bonnes réponses d\'affilée', icon: '⚡', condition: 'combo >= 10' },
-  { id: 'marathonien', nom: 'Marathonien', description: '30 jours de streak', icon: '🏆', condition: 'streak >= 30' },
-  { id: 'expert-discriminant', nom: 'Expert du Discriminant', description: 'Maîtriser le chapitre Second Degré', icon: '🎯', condition: 'mastered:second-degre' },
-  { id: 'maitre-suites', nom: 'Maître des Suites', description: 'Maîtriser le chapitre Suites', icon: '📊', condition: 'mastered:suites' },
-  { id: 'as-derivation', nom: 'As de la Dérivation', description: 'Maîtriser le chapitre Dérivation', icon: '📐', condition: 'mastered:derivation' },
-  { id: 'geometre', nom: 'Géomètre', description: 'Maîtriser tous les chapitres de Géométrie', icon: '📏', condition: 'mastered:geometrie-all' },
-  { id: 'probabiliste', nom: 'Probabiliste', description: 'Maîtriser Probabilités et Variables Aléatoires', icon: '🎲', condition: 'mastered:probabilites-all' },
-  { id: 'polymathe', nom: 'Polymathe', description: 'Compléter tous les chapitres du programme', icon: '👑', condition: 'all_chapters_completed' },
-  { id: 'modelisateur', nom: 'Modélisateur', description: 'Réussir 5 exercices en Suites ou Probabilités', icon: '🧮', condition: 'exercises_count:suites,probabilites-cond,variables-aleatoires >= 5' },
-  { id: 'archimede', nom: 'Archimède', description: "Ouvrir le lab d'approximation de π", icon: '🔴', condition: 'lab_archimede_opened' },
-  { id: 'euler-fan', nom: "Fan d'Euler", description: 'Construire e^x avec 50 pas dans le lab Euler', icon: '🌱', condition: 'euler_steps_50' },
-  { id: 'newton-rapide', nom: 'Newton Express', description: 'Converger en moins de 5 itérations avec Newton', icon: '🎯', condition: 'newton_converge_5' },
-  { id: 'fibonacci-master', nom: 'Maître Fibonacci', description: 'Maîtriser le chapitre Suites remarquables', icon: '🌻', condition: 'mastered:algo-fibonacci-syracuse' },
-  { id: 'grand-oral-ready', nom: 'Grand Oral Ready', description: 'Consulter 3 sujets Grand Oral différents', icon: '🎤', condition: 'grand_oral_3' },
-  { id: 'formulaire', nom: 'Memento', description: 'Consulter le formulaire pour la première fois', icon: '📋', condition: 'formulaire_viewed' },
-  { id: 'imprimeur', nom: 'Imprimeur', description: 'Imprimer une fiche de cours', icon: '🖨️', condition: 'printed_fiche' },
-  { id: 'diagnostic-ace', nom: 'Diagnostic Ace', description: 'Obtenir 100% à 3 diagnostics de prérequis', icon: '🩺', condition: 'diagnostic_perfect_3' },
+  { id: 'stakhanoviste', nom: 'Stakhanoviste', description: '7 jours de suite', icon: 'medal', condition: 'streak >= 7' },
+  { id: 'sherlock', nom: 'Sherlock', description: 'Résoudre un exercice difficile sans indice', icon: 'brain', condition: 'hard_no_hint' },
+  { id: 'fusee', nom: 'Fusée Ariane', description: 'Aucune erreur sur un chapitre complet', icon: 'rocket', condition: 'perfect_chapter' },
+  { id: 'debugger', nom: 'De-bugger', description: 'Réussir le premier exercice Python du premier coup', icon: 'code', condition: 'first_python' },
+  { id: 'combo-king', nom: 'Combo King', description: '10 bonnes réponses d\'affilée', icon: 'zap', condition: 'combo >= 10' },
+  { id: 'marathonien', nom: 'Marathonien', description: '30 jours de streak', icon: 'trophy', condition: 'streak >= 30' },
+  { id: 'expert-discriminant', nom: 'Expert du Discriminant', description: 'Maîtriser le chapitre Second Degré', icon: 'target', condition: 'mastered:second-degre' },
+  { id: 'maitre-suites', nom: 'Maître des Suites', description: 'Maîtriser le chapitre Suites', icon: 'barChart', condition: 'mastered:suites' },
+  { id: 'as-derivation', nom: 'As de la Dérivation', description: 'Maîtriser le chapitre Dérivation', icon: 'sigma', condition: 'mastered:derivation' },
+  { id: 'geometre', nom: 'Géomètre', description: 'Maîtriser tous les chapitres de Géométrie', icon: 'sigma', condition: 'mastered:geometrie-all' },
+  { id: 'probabiliste', nom: 'Probabiliste', description: 'Maîtriser Probabilités et Variables Aléatoires', icon: 'barChart', condition: 'mastered:probabilites-all' },
+  { id: 'polymathe', nom: 'Polymathe', description: 'Compléter tous les chapitres du programme', icon: 'award', condition: 'all_chapters_completed' },
+  { id: 'modelisateur', nom: 'Modélisateur', description: 'Réussir 5 exercices en Suites ou Probabilités', icon: 'calculator', condition: 'exercises_count:suites,probabilites-cond,variables-aleatoires >= 5' },
+  { id: 'archimede', nom: 'Archimède', description: "Ouvrir le lab d'approximation de π", icon: 'target', condition: 'lab_archimede_opened' },
+  { id: 'euler-fan', nom: "Fan d'Euler", description: 'Construire e^x avec 50 pas dans le lab Euler', icon: 'sprout', condition: 'euler_steps_50' },
+  { id: 'newton-rapide', nom: 'Newton Express', description: 'Converger en moins de 5 itérations avec Newton', icon: 'target', condition: 'newton_converge_5' },
+  { id: 'fibonacci-master', nom: 'Maître Fibonacci', description: 'Maîtriser le chapitre Suites remarquables', icon: 'sparkles', condition: 'mastered:algo-fibonacci-syracuse' },
+  { id: 'grand-oral-ready', nom: 'Grand Oral Ready', description: 'Consulter 3 sujets Grand Oral différents', icon: 'mic', condition: 'grand_oral_3' },
+  { id: 'formulaire', nom: 'Memento', description: 'Consulter le formulaire pour la première fois', icon: 'award', condition: 'formulaire_viewed' },
+  { id: 'imprimeur', nom: 'Imprimeur', description: 'Imprimer une fiche de cours', icon: 'printer', condition: 'printed_fiche' },
+  { id: 'diagnostic-ace', nom: 'Diagnostic Ace', description: 'Obtenir 100% à 3 diagnostics de prérequis', icon: 'syringe', condition: 'diagnostic_perfect_3' },
 ];

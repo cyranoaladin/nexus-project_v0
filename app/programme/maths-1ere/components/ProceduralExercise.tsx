@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowRight, CheckCircle2, Sigma, XCircle } from 'lucide-react';
 import { GENERATORS } from '../lib/exercise-generator';
 import { useMathJax } from './MathJaxProvider';
 import { areEquivalentAnswers } from '../lib/math-engine';
@@ -53,7 +54,7 @@ export default function ProceduralExercise({ chapId }: { chapId: string }) {
     <div className="bg-slate-900/50 border border-green-500/20 rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-lg">🎲</span>
+          <Sigma className="h-5 w-5 text-green-300" aria-hidden="true" />
           <h3 className="font-bold text-green-300 text-sm">Exercice procédural</h3>
           <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Paramètres aléatoires</span>
         </div>
@@ -74,13 +75,13 @@ export default function ProceduralExercise({ chapId }: { chapId: string }) {
         {!submitted ? (
           <button onClick={handleSubmit} disabled={!answer.trim()} className="bg-green-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-green-500 disabled:opacity-40 text-sm" aria-label="Valider la réponse procédurale">Valider</button>
         ) : (
-          <button onClick={newExercise} className="bg-slate-700 text-white font-bold py-2 px-5 rounded-xl hover:bg-slate-600 text-sm" aria-label="Générer un nouvel exercice procédural">Suivant →</button>
+          <button onClick={newExercise} className="bg-slate-700 text-white font-bold py-2 px-5 rounded-xl hover:bg-slate-600 text-sm inline-flex items-center gap-1.5" aria-label="Générer un nouvel exercice procédural">Suivant <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         )}
       </div>
       {submitted && (
         <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
           <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-            {isCorrect ? '✓ Correct !' : `✗ Réponse : ${exercise.reponse}`}
+            {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Réponse : {exercise.reponse}</span>}
           </p>
           <p className="text-slate-300 text-xs">{exercise.explication}</p>
         </div>

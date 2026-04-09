@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { AlertTriangle, Calculator, ChevronDown, ChevronUp } from 'lucide-react';
 import { Mafs, Coordinates, Plot, Theme, Text as MafsText, Point } from 'mafs';
 import 'mafs/core.css';
 
@@ -41,11 +42,11 @@ export default function ParabolaController() {
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🎛️</span>
+          <Calculator className="h-5 w-5 text-cyan-300" aria-hidden="true" />
           <span className="font-bold text-cyan-300 text-sm">Le Contrôleur de Parabole</span>
           <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">Lab Interactif</span>
         </div>
-        <span className="text-slate-500 text-sm">{expanded ? '▲ Réduire' : '▼ Ouvrir'}</span>
+        {expanded ? <ChevronUp className="h-4 w-4 text-slate-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 text-slate-500" aria-hidden="true" />}
       </button>
 
       {expanded && (
@@ -61,7 +62,7 @@ export default function ParabolaController() {
           {isDegenerate && (
             <div className="rounded-xl p-3 border bg-blue-500/10 border-blue-500/30">
               <div className="flex items-center gap-2">
-                <span className="text-blue-300 font-bold text-xs">⚠️ a ≈ 0 : ce n&apos;est plus une parabole !</span>
+                <span className="text-blue-300 font-bold text-xs inline-flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" aria-hidden="true" />a ≈ 0 : ce n&apos;est plus une parabole</span>
               </div>
               <p className="text-[11px] text-slate-300 mt-1">
                 Quand a = 0, f(x) = bx + c est une <strong className="text-white">fonction affine</strong> (droite).
@@ -80,7 +81,7 @@ export default function ParabolaController() {
                   <span className={`font-bold font-mono ${deltaColor}`}>{delta.toFixed(2)}</span>
                 </div>
                 <div className={`text-xs font-bold ${deltaColor}`}>
-                  {delta > 0 ? '✓ 2 racines distinctes' : delta === 0 ? '• 1 racine double' : '✗ Pas de racine réelle'}
+                  {delta > 0 ? '2 racines distinctes' : delta === 0 ? '1 racine double' : 'Pas de racine réelle'}
                 </div>
               </div>
               <div className="text-xs text-slate-500 mt-1">

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Activity,
+  AlertTriangle,
   BarChart3,
   CreditCard,
   Database,
@@ -120,7 +121,7 @@ export default function DashboardAdmin() {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 text-rose-300">⚠️</div>
+          <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-hidden="true" />
           <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
           <p className="text-neutral-400 text-sm">{error}</p>
         </div>

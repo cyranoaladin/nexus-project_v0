@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { Award, Sparkles } from "lucide-react"
 import { formatDate } from "@/lib/utils"
+import { resolveUiIcon } from "@/lib/ui-icons"
 
 interface BadgeData {
   id: string;
@@ -113,6 +114,9 @@ export function BadgeDisplay({ badges }: BadgeDisplayProps) {
                         ease: "easeOut"
                       }}
                     >
+                      {(() => {
+                        const BadgeIcon = resolveUiIcon(badge.icon);
+                        return (
                       <div
                         className={`relative p-4 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
                           categoryColors[badge.category as keyof typeof categoryColors] || "bg-neutral-50 border-neutral-200"
@@ -128,8 +132,8 @@ export function BadgeDisplay({ badges }: BadgeDisplayProps) {
                         )}
                         
                         <div className="text-center">
-                          <div className="text-4xl mb-3" role="img" aria-label={badge.name}>
-                            {badge.icon || "🏆"}
+                          <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/70 shadow-sm">
+                            <BadgeIcon className="h-7 w-7 text-current" aria-hidden="true" />
                           </div>
                           <h4 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[2.5rem]">
                             {badge.name}
@@ -142,6 +146,8 @@ export function BadgeDisplay({ badges }: BadgeDisplayProps) {
                           </p>
                         </div>
                       </div>
+                        );
+                      })()}
                     </motion.div>
                   ))}
                 </AnimatePresence>

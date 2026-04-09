@@ -1,4 +1,5 @@
 import { TESTIMONIALS } from "@/components/sections/homepage/content";
+import { Quote, Star } from "lucide-react";
 
 function tagClass(tag: string) {
   if (tag.includes("EAF")) {
@@ -24,8 +25,13 @@ export default function HomepageTestimonials() {
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {TESTIMONIALS.map((testimonial) => (
             <article key={testimonial.name} className="flex h-full flex-col rounded-[24px] border border-white/8 bg-white/[0.025] p-6">
-              <div className="text-nexus-amber">★★★★★</div>
+              <div className="mt-4 flex items-center gap-1 text-nexus-amber">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star key={index} className="h-4 w-4 fill-current" aria-hidden="true" />
+                ))}
+              </div>
               <p className="mt-4 flex-1 text-sm italic leading-7 text-white/70">
+                <Quote className="mr-2 inline h-4 w-4 text-white/35" aria-hidden="true" />
                 « {testimonial.quote} »
               </p>
               <div className="mt-6">

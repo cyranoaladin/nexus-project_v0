@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import CTAButton from "@/components/sections/homepage/CTAButton";
 import {
   EAF_URL,
@@ -255,12 +256,16 @@ export default function DecisionHelper() {
                     {recommendation.cta}
                   </CTAButton>
                   <CTAButton href={WHATSAPP_URL} variant="stage-outline">
-                    📞 Consultation gratuite
+                    <span className="inline-flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      Consultation gratuite
+                    </span>
                   </CTAButton>
                 </div>
 
-                <a href="/stages#tarifs" className="mt-5 inline-flex text-sm text-white/55 hover:text-white">
-                  Voir toutes les formules →
+                <a href="/stages#tarifs" className="mt-5 inline-flex items-center gap-2 text-sm text-white/55 hover:text-white">
+                  Voir toutes les formules
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             </div>

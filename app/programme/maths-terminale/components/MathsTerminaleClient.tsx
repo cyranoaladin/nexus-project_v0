@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { type LucideIcon, BarChart3, BookOpen, Dumbbell, Target, Wrench } from 'lucide-react';
 import {
   bacSubjectsTerminale,
   badgesTerminale,
@@ -24,6 +25,14 @@ const VectorProjector = dynamic(() => import('../../maths-1ere/components/labs/V
 
 type TabName = 'dashboard' | 'cours' | 'entrainement' | 'bac' | 'outils';
 type AutoEval = 'acquis' | 'a_revoir' | 'incompris';
+
+const tabItems: Array<{ id: TabName; label: string; Icon: LucideIcon }> = [
+  { id: 'dashboard', label: 'Dashboard', Icon: BarChart3 },
+  { id: 'cours', label: 'Cours & Méthodes', Icon: BookOpen },
+  { id: 'entrainement', label: 'Entraînement', Icon: Dumbbell },
+  { id: 'bac', label: 'Prépa Bac', Icon: Target },
+  { id: 'outils', label: 'Outils', Icon: Wrench },
+];
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -176,21 +185,18 @@ export default function MathsTerminaleClient({
 
       <main className="mx-auto w-full max-w-7xl px-4 py-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          {[
-            ['dashboard', '📊 Dashboard'],
-            ['cours', '📚 Cours & Méthodes'],
-            ['entrainement', '🏋️ Entraînement'],
-            ['bac', '🎯 Prépa Bac'],
-            ['outils', '🧰 Outils'],
-          ].map(([id, label]) => (
+          {tabItems.map(({ id, label, Icon }) => (
             <button
               key={id}
-              onClick={() => setCurrentTab(id as TabName)}
+              onClick={() => setCurrentTab(id)}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
                 currentTab === id ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'bg-white/5 text-white/70 hover:text-white'
               }`}
             >
-              {label}
+              <span className="inline-flex items-center gap-2">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {label}
+              </span>
             </button>
           ))}
           <label className="ml-auto flex cursor-pointer items-center gap-2 rounded-xl border border-indigo-400/40 bg-indigo-500/10 px-3 py-2 text-xs font-semibold text-indigo-200">
