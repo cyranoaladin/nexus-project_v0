@@ -13,7 +13,7 @@ const reassuranceItems = [
 
 export default function HomeHero() {
   return (
-    <section className="relative overflow-hidden bg-nexus-bg px-6 pb-20 pt-28 sm:px-8 sm:pt-32 lg:px-12 lg:pb-28">
+    <section id="hero" className="relative overflow-hidden bg-nexus-bg px-6 pb-20 pt-28 sm:px-8 sm:pt-32 lg:px-12 lg:pb-28">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.14),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(167,139,250,0.14),transparent_30%)]" />
       <div className="absolute inset-0 opacity-[0.14]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
 
