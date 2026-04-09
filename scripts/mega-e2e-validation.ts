@@ -1,7 +1,7 @@
 /**
  * MEGA E2E VALIDATION SCRIPT — Nexus Go-Live H-24
  *
- * Validates ALL critical business flows against the live production server (port 3005)
+ * Validates ALL critical business flows against the live production server (port 3001)
  * and the real PostgreSQL database via Prisma.
  *
  * Flows tested:
@@ -19,7 +19,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const prisma = new PrismaClient();
-const BASE_URL = 'http://localhost:3005';
+const BASE_URL = 'http://localhost:3001';
 const DOCUMENTS_DIR = path.join(process.cwd(), 'storage', 'documents');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -692,7 +692,7 @@ async function main() {
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════════╗');
   console.log('║     NEXUS GO-LIVE — MEGA E2E VALIDATION SCRIPT             ║');
-  console.log('║     Target: http://localhost:3005 (PM2 Production)          ║');
+  console.log('║     Target: http://localhost:3001 (PM2 Production)          ║');
   console.log('║     Date: ' + new Date().toISOString().slice(0, 19) + '                          ║');
   console.log('╚══════════════════════════════════════════════════════════════╝');
 
