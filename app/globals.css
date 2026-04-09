@@ -9,6 +9,7 @@
 @import "tailwindcss";
 
 :root {
+  --promo-banner-offset: 0px;
   /* Base colors */
   --background: #FFFFFF;
   --foreground: #0F172A;
@@ -123,6 +124,10 @@ html {
 
 body {
   letter-spacing: -0.01em;
+}
+
+.promo-layout-shell header.fixed.top-0.left-0.right-0.z-50 {
+  top: var(--promo-banner-offset, 0px);
 }
 
 h1, h2, h3 {
