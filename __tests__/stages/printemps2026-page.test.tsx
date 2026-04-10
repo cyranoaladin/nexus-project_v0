@@ -16,11 +16,14 @@ describe('Stages Printemps 2026 page', () => {
 
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
     expect(screen.getAllByText(/stages printemps 2026/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { level: 1, name: /la dernière ligne droite/i })).toBeInTheDocument();
-    expect(screen.getByText(/vers la mention/i)).toBeInTheDocument();
-    expect(screen.getByText(/pack « doublé anticipé »/i)).toBeInTheDocument();
-    expect(screen.getByText(/pack « full stack nsi »/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /découvrir les académies/i })).toHaveAttribute('href', '#academies');
+    expect(
+      screen.getByRole('heading', { level: 1, name: /préparez les échéances de mai et juin/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/pack doublé première/i)).toBeInTheDocument();
+    expect(screen.getByText(/pack nsi terminale/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /voir les formules disponibles/i })
+    ).toHaveAttribute('href', '#offres');
     expect(screen.getAllByRole('link', { name: /réserver ma place/i }).length).toBeGreaterThan(0);
     expect(screen.getByTestId('footer')).toBeInTheDocument();
   });
@@ -29,14 +32,16 @@ describe('Stages Printemps 2026 page', () => {
     render(<StagesPage />);
 
     expect(
-      screen.getByText(/stages intensifs pensés pour transformer les vacances de printemps/i)
+      screen.getByText(/des groupes de 6 élèves maximum/i)
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /choisir le bon stage doit prendre moins d'une minute/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/comparer les formules, voir les places, réserver sans friction/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/moins cher, moins d'élèves, plus de structure. c'est là que le retour sur investissement change/i)
+      screen.getByText(/comparez les formules, vérifiez les places disponibles/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/un stage nexus coûte moins qu'un équivalent en cours individuels/i)
     ).toBeInTheDocument();
   });
 

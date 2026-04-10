@@ -132,7 +132,11 @@ export function BadgeDisplay({ badges }: BadgeDisplayProps) {
                         )}
                         
                         <div className="text-center">
-                          <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/70 shadow-sm">
+                          <div
+                            role="img"
+                            aria-label={badge.name}
+                            className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/70 shadow-sm"
+                          >
                             <BadgeIcon className="h-7 w-7 text-current" aria-hidden="true" />
                           </div>
                           <h4 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[2.5rem]">
