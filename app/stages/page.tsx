@@ -6,9 +6,7 @@ import StagesHero from "./_components/StagesHero";
 import TrustSignals from "./_components/TrustSignals";
 import UrgencyTimeline from "./_components/UrgencyTimeline";
 import WhyNexus from "./_components/WhyNexus";
-import ChooseStage from "./_components/ChooseStage";
-import AcademiesSection from "./_components/AcademiesSection";
-import GrandOralSection from "./_components/GrandOralSection";
+import OffersSection from "./_components/OffersSection";
 import FAQSection from "./_components/FAQSection";
 import FinalCTA from "./_components/FinalCTA";
 
@@ -23,9 +21,7 @@ export default function StagesPage() {
         <TrustSignals />
         <UrgencyTimeline />
         <WhyNexus />
-        <ChooseStage />
-        <AcademiesSection />
-        <GrandOralSection />
+        <OffersSection />
         <FAQSection />
         <FinalCTA />
       </main>
