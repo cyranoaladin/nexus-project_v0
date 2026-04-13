@@ -40,6 +40,9 @@ function ctaVariant(emphasis: Emphasis): "green" | "purple" | "outline" {
 
 const isSecondary = (e: Emphasis) => e === "standard" || e === "secondaire";
 
+const PRICING_NOTE =
+  "Le tarif affiché correspond au palier standard de la formule. Un ajustement à la baisse peut s\u2019appliquer si le groupe se complète avant son lancement.";
+
 export default function OfferAccordionCard({
   offer,
   isOpen,
@@ -142,6 +145,9 @@ export default function OfferAccordionCard({
           <p className="mt-1.5 text-xs leading-5 text-white/40">
             {offer.accrocheCourte}
           </p>
+          <p className="mt-1.5 text-[10px] leading-4 text-white/28">
+            {PRICING_NOTE}
+          </p>
         </div>
       ) : null}
 
@@ -189,6 +195,11 @@ export default function OfferAccordionCard({
             <div className="mt-5">
               <OfferPriceBlock offer={offer} />
             </div>
+
+            {/* Pricing note */}
+            <p className="mt-2.5 max-w-md text-[11px] leading-[1.45] text-white/30">
+              {PRICING_NOTE}
+            </p>
 
             {/* CTA (open state) */}
             <div className="mt-5">
