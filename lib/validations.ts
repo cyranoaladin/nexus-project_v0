@@ -71,7 +71,7 @@ export const stageReservationSchema = z.object({
   price: z.number()
     .min(0, 'Prix invalide')
     .max(5000, 'Prix invalide'),
-  paymentMethod: z.enum(['card', 'transfer']).optional(),
+  paymentMethod: z.enum(['card', 'transfer', 'bank_transfer']).optional(),
 });
 
 export type StageReservationData = z.infer<typeof stageReservationSchema>;

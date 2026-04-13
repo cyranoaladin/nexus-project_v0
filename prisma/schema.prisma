@@ -891,7 +891,7 @@ model StageReservation {
   paymentMethod String?  // "card" | "transfer" | null
 
   // Pipeline status
-  status String @default("PENDING") // PENDING, CONFIRMED, CANCELLED, PAID
+  status String @default("PENDING") // PENDING, PENDING_BANK_TRANSFER, CONFIRMED, CANCELLED, PAID
 
   // Scoring (filled after QCM diagnostic)
   scoringResult Json? // { globalScore, confidenceIndex, radarData, strengths, weaknesses }

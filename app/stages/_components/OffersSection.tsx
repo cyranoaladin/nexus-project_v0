@@ -6,11 +6,13 @@ import { BadgeCheck, BarChart3, Sparkles, Users, Wallet } from "lucide-react";
 import {
   type CategoryFilter,
   type Level,
+  type Offer,
   CATEGORY_FILTERS,
   getOffersByLevel,
 } from "../_data/offers";
 import OfferAccordionCard from "./OfferAccordionCard";
 import ComparisonStrip from "./ComparisonStrip";
+import StageReservationModal from "./StageReservationModal";
 
 const LEVELS: { id: Level; label: string }[] = [
   { id: "premiere", label: "Première" },
@@ -93,6 +95,15 @@ export default function OffersSection() {
   );
 
   const effectiveOpenId = openOfferId;
+
+  // ── Reservation modal ──
+  const [reservationOffer, setReservationOffer] = useState<Offer | null>(null);
+  const [reservationOpen, setReservationOpen] = useState(false);
+
+  const handleReserve = useCallback((offer: Offer) => {
+    setReservationOffer(offer);
+    setReservationOpen(true);
+  }, []);
 
   return (
     <section id="offres" className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
@@ -178,6 +189,7 @@ export default function OffersSection() {
               offer={offer}
               isOpen={effectiveOpenId === offer.id}
               onToggle={() => handleToggle(offer.id)}
+              onReserve={handleReserve}
             />
           ))}
 
@@ -236,6 +248,13 @@ export default function OffersSection() {
           Contactez-nous pour une formule personnalisée.
         </p>
       </div>
+
+      {/* Reservation modal */}
+      <StageReservationModal
+        offer={reservationOffer}
+        open={reservationOpen}
+        setOpen={setReservationOpen}
+      />
     </section>
   );
 }

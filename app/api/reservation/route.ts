@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
-import { sendStageDiagnosticInvitation } from '@/lib/email';
+import { sendStageDiagnosticInvitation, sendStageBankTransferConfirmation } from '@/lib/email';
 import { auth } from '@/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
@@ -27,6 +27,7 @@ async function notifyTelegram(data: {
   price: number;
   email: string;
   isUpdate: boolean;
+  paymentMethod?: string | null;
 }): Promise<boolean> {
   try {
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -34,6 +35,9 @@ async function notifyTelegram(data: {
     if (!token || !chatId) return false;
 
     const tag = data.isUpdate ? '🔄 MISE À JOUR RÉSERVATION' : '🚨 NOUVEAU LEAD CHAUD (Site Web)';
+    const paymentTag = data.paymentMethod === 'bank_transfer'
+      ? '\n🏦 *Paiement :* Virement bancaire (en attente de vérification)'
+      : '';
     const message = `
 ${tag} 🚨
 ➖➖➖➖➖➖➖➖➖➖➖
@@ -42,7 +46,7 @@ ${tag} 🚨
 📧 *Email :* ${sanitizeTelegram(data.email)}
 🎓 *Classe :* ${sanitizeTelegram(data.classe)}
 🏫 *Intérêt :* ${sanitizeTelegram(data.academyTitle)}
-💰 *Montant :* ${sanitizeTelegram(String(data.price))} TND
+💰 *Montant :* ${sanitizeTelegram(String(data.price))} TND${paymentTag}
 ➖➖➖➖➖➖➖➖➖➖➖
 _Ce prospect attend votre appel !_
 `;
@@ -151,6 +155,7 @@ export async function POST(request: NextRequest) {
       });
       console.log(`[reservation] Updated existing: id=${existing.id}`);
     } else {
+      const isBankTransfer = data.paymentMethod === 'bank_transfer';
       const reservation = await prisma.stageReservation.create({
         data: {
           parentName: data.parent,
@@ -162,7 +167,7 @@ export async function POST(request: NextRequest) {
           academyTitle: data.academyTitle,
           price: data.price,
           paymentMethod: data.paymentMethod || null,
-          status: 'PENDING',
+          status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
         },
       });
       console.log(`[reservation] Created: id=${reservation.id}`);
@@ -177,6 +182,7 @@ export async function POST(request: NextRequest) {
       price: data.price,
       email: data.email,
       isUpdate,
+      paymentMethod: data.paymentMethod,
     });
 
     // 5. Update telegram tracking
@@ -191,19 +197,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 6. Email notification: Template A (diagnostic invitation) — non-blocking
+    // 6. Email notification — non-blocking
     if (!isUpdate) {
       try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-        const diagnosticUrl = `${baseUrl}/stages/fevrier-2026/diagnostic?email=${encodeURIComponent(data.email)}`;
-        
-        await sendStageDiagnosticInvitation(
-          data.email,
-          data.parent,
-          data.studentName || null,
-          data.academyTitle,
-          diagnosticUrl
-        );
+        if (data.paymentMethod === 'bank_transfer') {
+          // Bank transfer confirmation email
+          await sendStageBankTransferConfirmation(
+            data.email,
+            data.parent,
+            data.studentName || null,
+            data.academyTitle,
+            data.price
+          );
+        } else {
+          // Template A: diagnostic invitation
+          const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+          const diagnosticUrl = `${baseUrl}/stages/fevrier-2026/diagnostic?email=${encodeURIComponent(data.email)}`;
+          await sendStageDiagnosticInvitation(
+            data.email,
+            data.parent,
+            data.studentName || null,
+            data.academyTitle,
+            diagnosticUrl
+          );
+        }
       } catch (emailError) {
         // Non-blocking: log but don't fail the request
         console.error('[reservation] Email failed:', emailError instanceof Error ? emailError.message : 'unknown');
@@ -296,6 +313,86 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[reservation] GET error:', error instanceof Error ? error.message : 'unknown');
+    return NextResponse.json(
+      { success: false, error: 'Erreur interne du serveur' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/reservation
+ *
+ * Staff-only: validate or reject a bank transfer reservation.
+ * Body: { reservationId, action: 'approve' | 'reject', note? }
+ * - approve → sets status to CONFIRMED
+ * - reject  → sets status to CANCELLED
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await auth();
+    const userRole = session?.user?.role;
+
+    if (!session || (userRole !== 'ADMIN' && userRole !== 'ASSISTANTE')) {
+      return NextResponse.json(
+        { success: false, error: 'Accès non autorisé.' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { reservationId, action, note } = body as {
+      reservationId?: string;
+      action?: 'approve' | 'reject';
+      note?: string;
+    };
+
+    if (!reservationId || !action || !['approve', 'reject'].includes(action)) {
+      return NextResponse.json(
+        { success: false, error: 'Paramètres invalides. Requis: reservationId, action (approve|reject).' },
+        { status: 400 }
+      );
+    }
+
+    const reservation = await prisma.stageReservation.findUnique({
+      where: { id: reservationId },
+    });
+
+    if (!reservation) {
+      return NextResponse.json(
+        { success: false, error: 'Réservation non trouvée.' },
+        { status: 404 }
+      );
+    }
+
+    if (reservation.status !== 'PENDING_BANK_TRANSFER' && reservation.status !== 'PENDING') {
+      return NextResponse.json(
+        { success: false, error: `Réservation déjà traitée (statut: ${reservation.status}).` },
+        { status: 409 }
+      );
+    }
+
+    const newStatus = action === 'approve' ? 'CONFIRMED' : 'CANCELLED';
+
+    await prisma.stageReservation.update({
+      where: { id: reservationId },
+      data: {
+        status: newStatus,
+        updatedAt: new Date(),
+      },
+    });
+
+    console.log(`[reservation] ${action}: id=${reservationId} by=${session.user.id} note=${note ?? 'none'}`);
+
+    return NextResponse.json({
+      success: true,
+      message: action === 'approve'
+        ? 'Réservation validée — formule activée.'
+        : 'Réservation rejetée.',
+      newStatus,
+    });
+  } catch (error) {
+    console.error('[reservation] PATCH error:', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
