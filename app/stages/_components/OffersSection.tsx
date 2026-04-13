@@ -18,10 +18,10 @@ const LEVELS: { id: Level; label: string }[] = [
 ];
 
 const REASSURANCE_ITEMS = [
-  { icon: Users, label: "Groupes limités à 3 élèves" },
+  { icon: Users, label: "Groupes limités à 6 élèves maximum" },
   { icon: BadgeCheck, label: "Cadre structuré et suivi clair" },
   { icon: BarChart3, label: "Formules progressives et lisibles" },
-  { icon: Wallet, label: "Tarifs plus avantageux sur les parcours combinés" },
+  { icon: Wallet, label: "Parcours combinés plus avantageux que des inscriptions séparées" },
 ] as const;
 
 export default function OffersSection() {
@@ -92,11 +92,11 @@ export default function OffersSection() {
             Formules de préparation
           </p>
           <h2 className="mt-3 font-display text-h2 font-bold text-white">
-            Choisissez la formule adaptée à votre niveau
+            Choisissez la formule la plus adaptée à votre profil
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-white/54">
-            Des parcours lisibles, structurés et dégressifs quand vous combinez
-            plusieurs matières.
+            Des formules claires, structurées et plus avantageuses lorsque
+            plusieurs matières sont préparées ensemble.
           </p>
         </div>
 
@@ -188,14 +188,14 @@ export default function OffersSection() {
                 Pourquoi le pack est plus intéressant ?
               </h3>
               <p className="mt-2 text-sm leading-7 text-white/58">
-                Un seul cadre, un seul rythme, une seule logique de travail. Au
-                lieu de multiplier les inscriptions séparées, choisissez une
-                formule plus lisible et plus avantageuse — pour l'élève comme
-                pour la famille.
+                Un seul cadre, un seul rythme, une seule organisation de
+                travail. Les parcours combinés permettent d'avancer avec plus
+                de cohérence, tout en restant plus avantageux que plusieurs
+                inscriptions séparées.
               </p>
               <p className="mt-2 text-sm leading-7 text-white/46">
-                Les parcours combinés permettent d'avancer avec plus de
-                cohérence et une meilleure visibilité.
+                Moins de logistique pour la famille, plus de lisibilité pour
+                l'élève.
               </p>
             </div>
           </div>
