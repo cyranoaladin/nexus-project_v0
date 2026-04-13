@@ -8,7 +8,13 @@ import {
   calculateSubjectCost,
   MAX_STUDENTS,
 } from "./business-config";
-import { type Offer, type HoursBreakdown, ALL_OFFERS } from "../_data/offers";
+import {
+  type Offer,
+  type HoursBreakdown,
+  type PortfolioRole,
+  type ProfitabilityProfile,
+  ALL_OFFERS,
+} from "../_data/offers";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -32,8 +38,9 @@ export interface OfferAudit {
   breakdownSum: number;
   breakdownValid: boolean;
   openingThreshold: number;
-  isLeadMagnet: boolean;
-  isCoreMarginDriver: boolean;
+  roleInPortfolio: PortfolioRole;
+  profitabilityProfile: ProfitabilityProfile;
+  marketingPriority: number;
   priceReference?: number;
   saving?: number;
   savingValid: boolean;
@@ -62,7 +69,7 @@ function sumBreakdown(breakdown: HoursBreakdown): number {
 
 // ── Single offer audit ───────────────────────────────────────
 
-const STUDENT_SCENARIOS = [2, 3, 4, 6] as const;
+const STUDENT_SCENARIOS = [2, 3, 4, 5, 6] as const;
 
 export function auditOffer(offer: Offer): OfferAudit {
   const breakdownSum = sumBreakdown(offer.hoursBreakdown);
@@ -107,8 +114,9 @@ export function auditOffer(offer: Offer): OfferAudit {
     breakdownSum,
     breakdownValid,
     openingThreshold: offer.openingThreshold,
-    isLeadMagnet: offer.isLeadMagnet ?? false,
-    isCoreMarginDriver: offer.isCoreMarginDriver ?? false,
+    roleInPortfolio: offer.roleInPortfolio,
+    profitabilityProfile: offer.profitabilityProfile,
+    marketingPriority: offer.marketingPriority,
     priceReference: offer.priceReference,
     saving: offer.saving,
     savingValid,
@@ -136,11 +144,7 @@ export function printAuditSummary(): void {
   let hasIssues = false;
 
   for (const a of audits) {
-    const tag = a.isLeadMagnet
-      ? " [LEAD MAGNET]"
-      : a.isCoreMarginDriver
-      ? " [MARGIN DRIVER]"
-      : "";
+    const tag = ` [${a.roleInPortfolio.toUpperCase()}] [${a.profitabilityProfile}] mktPrio=${a.marketingPriority}`;
 
     console.log(`\n  ${a.id}${tag}`);
     console.log(`  ${a.title} | ${a.hours}h | ${a.price} TND`);
