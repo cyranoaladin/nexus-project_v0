@@ -1,6 +1,15 @@
 /**
  * Security Headers Middleware
- * Configures security headers for all responses
+ *
+ * Single source of truth for security headers applied at the application level.
+ * Nginx is configured to NOT set CSP (to avoid double/conflicting headers).
+ * Nginx only sets HSTS, X-Content-Type-Options, and basic security headers.
+ *
+ * CSP exceptions documented:
+ * - 'unsafe-inline' on style-src: required by Next.js inline styles, Radix UI,
+ *   and TailwindCSS v4 runtime. Cannot be removed without breaking the UI.
+ * - Jitsi frame-src: required for video conferencing embeds.
+ * - wss: on connect-src: required for WebSocket connections (Jitsi, real-time).
  */
 
 import { NextResponse } from 'next/server';
@@ -9,18 +18,24 @@ import { NextResponse } from 'next/server';
  * Apply security headers to response
  */
 export function applySecurityHeaders(response: NextResponse): NextResponse {
-    // Content Security Policy
+    // Content Security Policy — application-level (authoritative)
+    const isDev = process.env.NODE_ENV === 'development';
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net",
+        // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need
+        // custom Document + middleware per-request nonce — tracked as future improvement.
+        // 'unsafe-eval' is added ONLY in development for React Fast Refresh / HMR.
+        `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://cdn.jsdelivr.net`,
+        // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: https: blob:",
         "connect-src 'self' https://api.openai.com wss:",
-        "frame-src https://www.google.com https://maps.google.com",
+        "frame-src https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
+        "object-src 'none'",
     ].join('; ');
 
     response.headers.set('Content-Security-Policy', csp);
@@ -31,14 +46,11 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         'max-age=31536000; includeSubDomains; preload'
     );
 
-    // X-Frame-Options
+    // X-Frame-Options (legacy fallback for CSP frame-ancestors)
     response.headers.set('X-Frame-Options', 'DENY');
 
     // X-Content-Type-Options
     response.headers.set('X-Content-Type-Options', 'nosniff');
-
-    // X-XSS-Protection
-    response.headers.set('X-XSS-Protection', '1; mode=block');
 
     // Referrer-Policy
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');

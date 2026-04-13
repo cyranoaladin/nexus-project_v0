@@ -235,12 +235,12 @@ export const FAQS: FAQItem[] = [
   {
     question: "Comment choisir entre un pack et une formule mono-matière ?",
     answer:
-      "Si l'élève a deux matières à préparer dans les mêmes délais, le pack est plus cohérent : une seule dynamique de travail, un tarif inférieur, et des épreuves blanches dans les deux matières. La formule mono-matière convient mieux quand une seule discipline concentre l'enjeu — par exemple, un élève qui gère bien le Français mais a besoin de renforcer uniquement les Maths.",
+      "Si l'élève a deux matières ou plus à préparer, le pack (duo ou trio) est plus cohérent : un seul cadre de travail, une progression coordonnée et un tarif dégressif. La formule mono-matière convient quand une seule discipline concentre l'enjeu — par exemple, un élève qui gère bien le Français mais a besoin de renforcer uniquement les Maths.",
   },
   {
     question: "Le Grand Oral est-il inclus dans les stages ?",
     answer:
-      "Il est inclus dans le Pack NSI Terminale Complet, sous la forme d'une préparation aux questions de spécialité. Pour tous les autres stages, il s'ajoute en option à 250 TND (au lieu de 300 TND en solo). La combinaison stage + Grand Oral est fréquemment choisie par les élèves de Terminale.",
+      "Il est inclus dans les packs Trio (Maths + NSI + Grand Oral ou Maths + Physique-Chimie + Grand Oral) à un tarif avantageux. Il peut aussi être choisi seul comme module complémentaire à 199 TND. La combinaison d'un pack duo avec le Grand Oral est fréquemment choisie par les élèves de Terminale.",
   },
   {
     question: "Que comprend exactement la préparation NSI ? La partie pratique est-elle travaillée ?",
