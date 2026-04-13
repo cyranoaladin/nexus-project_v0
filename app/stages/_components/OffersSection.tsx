@@ -18,7 +18,7 @@ const LEVELS: { id: Level; label: string }[] = [
 ];
 
 const REASSURANCE_ITEMS = [
-  { icon: Users, label: "Ouverture à partir de 2 ou 3 élèves — groupes limités à 6 maximum" },
+  { icon: Users, label: "Ouverture à partir de 2 ou 3 élèves selon la formule — groupes limités à 6 maximum" },
   { icon: BadgeCheck, label: "Cadre structuré et suivi clair" },
   { icon: BarChart3, label: "Formules progressives et lisibles" },
   { icon: Wallet, label: "Parcours combinés plus avantageux que des inscriptions séparées" },
@@ -28,7 +28,7 @@ export default function OffersSection() {
   const [level, setLevel] = useState<Level>("premiere");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [openOfferId, setOpenOfferId] = useState<string | null>(
-    "p-duo-fr-maths"
+    "p-mono-maths"
   );
 
   const offers = useMemo(() => {
@@ -39,9 +39,20 @@ export default function OffersSection() {
     return all.filter((o) => o.category === category);
   }, [level, category]);
 
-  const DEFAULT_OPEN: Record<Level, string> = {
-    premiere: "p-duo-fr-maths",
-    terminale: "t-duo-maths-nsi",
+  // Per-level + per-filter default open card (best lead offer in each filter)
+  const DEFAULT_OPEN: Record<Level, Record<CategoryFilter, string>> = {
+    premiere: {
+      all: "p-mono-maths",
+      mono: "p-mono-maths",
+      duo: "p-duo-fr-maths",
+      trio: "p-trio-fr-maths-nsi",
+    },
+    terminale: {
+      all: "t-mono-maths",
+      mono: "t-mono-maths",
+      duo: "t-duo-maths-nsi",
+      trio: "t-trio-maths-nsi-go",
+    },
   };
 
   // When level changes, reset filter and open the flagship offer
@@ -49,16 +60,17 @@ export default function OffersSection() {
     (newLevel: Level) => {
       setLevel(newLevel);
       setCategory("all");
-      setOpenOfferId(DEFAULT_OPEN[newLevel]);
+      setOpenOfferId(DEFAULT_OPEN[newLevel].all);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  // When category changes, open the flagship if it's in the filtered set, else first
+  // When category changes, open the best lead for that filter
   const handleCategoryChange = useCallback(
     (newCat: CategoryFilter) => {
       setCategory(newCat);
+      const preferred = DEFAULT_OPEN[level][newCat];
       const allOffers = getOffersByLevel(level);
       const filtered =
         newCat === "all"
@@ -66,9 +78,8 @@ export default function OffersSection() {
           : newCat === "trio"
           ? allOffers.filter((o) => o.category === "trio" || o.category === "complement")
           : allOffers.filter((o) => o.category === newCat);
-      const flagship = DEFAULT_OPEN[level];
-      const hasFlag = filtered.some((o) => o.id === flagship);
-      setOpenOfferId(hasFlag ? flagship : filtered[0]?.id ?? null);
+      const hasPreferred = filtered.some((o) => o.id === preferred);
+      setOpenOfferId(hasPreferred ? preferred : filtered[0]?.id ?? null);
     },
     [level]
   );
