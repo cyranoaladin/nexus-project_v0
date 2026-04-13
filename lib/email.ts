@@ -353,6 +353,107 @@ export async function sendStageDiagnosticInvitation(
 }
 
 /**
+ * Template BT: Email de confirmation — Virement bancaire stage
+ * Envoyé immédiatement après une réservation par virement bancaire
+ */
+export async function sendStageBankTransferConfirmation(
+  email: string,
+  parentName: string,
+  studentName: string | null,
+  academyTitle: string,
+  price: number
+) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    to: email,
+    subject: 'Réservation enregistrée – en attente de virement bancaire',
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 40px 30px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 800;">Réservation enregistrée</h1>
+          <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 15px;">En attente de virement bancaire</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 40px 30px; background: white;">
+          <p style="color: #475569; line-height: 1.7; margin: 0 0 20px 0;">
+            Bonjour ${parentName},
+          </p>
+
+          <p style="color: #475569; line-height: 1.7; margin: 0 0 20px 0;">
+            Votre demande a bien été enregistrée pour la formule
+            <strong style="color: #1e293b;">${academyTitle}</strong>${studentName ? ` (élève : ${studentName})` : ''}.
+          </p>
+
+          <!-- Amount -->
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; text-align: center; margin: 24px 0; border: 1px solid #bbf7d0;">
+            <p style="color: #64748b; margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Montant à virer</p>
+            <p style="color: #166534; margin: 0; font-size: 32px; font-weight: 900;">${price} TND</p>
+          </div>
+
+          <p style="color: #475569; line-height: 1.7; margin: 0 0 20px 0;">
+            Pour finaliser l'activation de votre formule, merci d'effectuer le virement bancaire
+            en indiquant <strong style="color: #1e293b;">l'email du compte ou l'identifiant utilisateur</strong> en motif.
+          </p>
+
+          <p style="color: #475569; line-height: 1.7; margin: 0 0 24px 0;">
+            L'accès sera activé après vérification du règlement.
+          </p>
+
+          <!-- Bank details -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; margin: 24px 0;">
+            <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px;">🏦 Coordonnées bancaires</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top; width: 120px;">Identifiant</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">871456</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Titulaire</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">STE M&amp;M ACADEMY SUARL</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Nature</td><td style="color: #1e293b; padding: 6px 0;">Comptes chèques entreprises</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">RIB</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">RIB25079000000156908404</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">IBAN</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">TN5925079000000156908404</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">BIC</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">BZITTNTT</td></tr>
+            </table>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
+
+          <p style="color: #64748b; font-size: 13px; margin: 0;">
+            Des questions ? Contactez-nous :<br>
+            📞 +216 99 19 28 29<br>
+            📧 contact@nexusreussite.academy
+          </p>
+
+          <p style="color: #475569; font-size: 14px; margin: 24px 0 0 0;">
+            Cordialement,<br>
+            <strong>L'équipe Nexus Réussite</strong>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 20px 30px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+            ${academyTitle}<br>
+            Nexus Réussite © ${new Date().getFullYear()}
+          </p>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    const transporter = createTransporter();
+    await transporter.sendMail(mailOptions);
+    console.log('[Stage] Bank transfer confirmation email sent to:', email);
+  } catch (error) {
+    console.error('[Stage] Bank transfer email error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Stage] Email non envoyé en mode développement');
+      return;
+    }
+    throw error;
+  }
+}
+
+/**
  * Template B: Email post-diagnostic
  * Envoyé après la soumission du diagnostic avec le lien vers le bilan
  */

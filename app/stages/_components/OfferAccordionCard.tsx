@@ -5,13 +5,12 @@ import { ArrowRight, Check, ChevronDown, Clock, User } from "lucide-react";
 
 import type { Emphasis, Offer } from "../_data/offers";
 import OfferPriceBlock from "./OfferPriceBlock";
-import CTAButton from "./CTAButton";
-import { WHATSAPP_URL } from "../_lib/constants";
 
 type OfferAccordionCardProps = {
   offer: Offer;
   isOpen: boolean;
   onToggle: () => void;
+  onReserve?: (offer: Offer) => void;
 };
 
 function emphasisBorder(emphasis: Emphasis): string {
@@ -47,6 +46,7 @@ export default function OfferAccordionCard({
   offer,
   isOpen,
   onToggle,
+  onReserve,
 }: OfferAccordionCardProps) {
   const cardId = `offer-${offer.id}`;
   const panelId = `panel-${offer.id}`;
@@ -203,15 +203,20 @@ export default function OfferAccordionCard({
 
             {/* CTA (open state) */}
             <div className="mt-5">
-              <CTAButton
-                href={WHATSAPP_URL}
-                external
-                variant={ctaVariant(offer.emphasis)}
-                className="w-full sm:w-auto"
+              <button
+                type="button"
+                onClick={() => onReserve?.(offer)}
+                className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-display font-bold tracking-[0.02em] transition-all duration-200 hover:-translate-y-0.5 w-full sm:w-auto ${
+                  ctaVariant(offer.emphasis) === "green"
+                    ? "bg-gradient-to-r from-nexus-green to-nexus-green-dark text-white shadow-[0_18px_55px_rgba(16,185,129,0.25)] hover:brightness-110"
+                    : ctaVariant(offer.emphasis) === "purple"
+                    ? "bg-gradient-to-r from-nexus-purple to-nexus-purple-dark text-white shadow-[0_18px_55px_rgba(167,139,250,0.25)] hover:brightness-110"
+                    : "border border-white/18 text-white/82 hover:bg-white/[0.06] hover:text-white"
+                }`}
               >
                 {offer.ctaOpen}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </CTAButton>
+              </button>
             </div>
           </div>
         </div>
