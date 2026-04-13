@@ -15,17 +15,17 @@ export interface Offer {
   title: string;
   hours: number;
   price: number;
-  /** Reference price (sum of separate formulas). Only for duo/trio. */
   priceReference?: number;
-  /** Saving shown to user. Only for duo/trio. */
   saving?: number;
   emphasis: Emphasis;
-  /** Sort priority within its level — lower = higher priority */
   priority: number;
-  description: string;
-  arguments: string[];
-  cta: string;
-  /** Visible in main listing */
+  accrocheCourte: string;
+  intro: string;
+  points: string[];
+  pourQui: string;
+  avantagePack?: string;
+  ctaClosed: string;
+  ctaOpen: string;
   visible: boolean;
 }
 
@@ -45,15 +45,22 @@ const PREMIERE_OFFERS: Offer[] = [
     saving: 39,
     emphasis: "maximale",
     priority: 1,
-    description:
-      "Les deux épreuves anticipées dans un seul cadre de travail cohérent.",
-    arguments: [
-      "Une progression cohérente au lieu de deux préparations séparées",
-      "Entraînements corrigés et méthode",
-      "Bilan individualisé + plan final",
-      "Le meilleur rapport préparation / investissement",
+    accrocheCourte:
+      "Les deux épreuves anticipées dans une seule formule plus cohérente et plus lisible.",
+    intro:
+      "Une formule pensée pour préparer les deux épreuves anticipées dans un même cadre de travail, au lieu de multiplier les préparations séparées.",
+    points: [
+      "Français et Maths dans une progression cohérente",
+      "Entraînements corrigés et méthode claire",
+      "Meilleure visibilité pour l'élève et sa famille",
+      "Bilan individualisé et plan final",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Première qui veulent sécuriser l'essentiel avec une formule sérieuse, structurée et plus avantageuse que deux inscriptions séparées.",
+    avantagePack:
+      "Une seule organisation, un seul rythme, une seule logique de travail.",
+    ctaClosed: "Opter pour le duo",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -67,15 +74,20 @@ const PREMIERE_OFFERS: Offer[] = [
     price: 539,
     emphasis: "forte",
     priority: 2,
-    description:
-      "Automatismes, rapidité et format réel — pour la nouvelle épreuve sans calculatrice.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation méthodique pour la nouvelle épreuve anticipée de mathématiques.",
+    intro:
+      "Une préparation ciblée pour progresser avec méthode, au lieu d'accumuler des exercices sans vraie stratégie.",
+    points: [
       "Automatismes et rapidité sans calculatrice",
       "Entraînements au format réel",
       "Correction détaillée",
       "Bilan final",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Première qui veulent prendre de l'avance sur la nouvelle épreuve et mieux maîtriser ses exigences.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
   {
@@ -91,15 +103,22 @@ const PREMIERE_OFFERS: Offer[] = [
     saving: 88,
     emphasis: "premium",
     priority: 3,
-    description:
-      "Une préparation globale au lieu d'inscriptions dispersées.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation globale et structurée pour avancer avec plus de clarté sur l'ensemble des priorités.",
+    intro:
+      "Une formule complète pour travailler les trois matières dans un seul parcours, au lieu d'inscriptions dispersées et plus difficiles à piloter.",
+    points: [
+      "Une préparation globale et cohérente",
       "Vision claire des priorités",
       "Cadre intensif et structuré",
-      "Économie de 88 TND vs achat séparé",
       "Plan de révision final",
     ],
-    cta: "Opter pour le parcours complet",
+    pourQui:
+      "Pour les élèves de Première qui veulent une prise en charge plus complète avec une organisation simple et lisible.",
+    avantagePack:
+      "Le choix le plus complet, avec une logique de progression plus claire et un tarif plus avantageux que l'achat séparé.",
+    ctaClosed: "Choisir la formule complète",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -115,15 +134,22 @@ const PREMIERE_OFFERS: Offer[] = [
     saving: 39,
     emphasis: "forte",
     priority: 4,
-    description:
-      "Un parcours plus cohérent au lieu de deux stages isolés.",
-    arguments: [
+    accrocheCourte:
+      "Un parcours plus cohérent pour travailler les deux matières au lieu de deux stages isolés.",
+    intro:
+      "Une formule conçue pour avancer avec régularité sur deux matières complémentaires, au lieu d'empiler des révisions sans continuité.",
+    points: [
       "Travail structuré sur les deux matières",
       "Gain de temps et de rythme",
+      "Préparation plus lisible qu'un achat séparé",
       "Suivi final",
-      "Économie de 39 TND vs achat séparé",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Première à profil scientifique ou numérique qui veulent un cadre solide sur deux matières stratégiques.",
+    avantagePack:
+      "Un parcours cohérent, plus simple à suivre et plus avantageux que deux formules distinctes.",
+    ctaClosed: "Choisir ce parcours",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -137,15 +163,20 @@ const PREMIERE_OFFERS: Offer[] = [
     price: 499,
     emphasis: "secondaire",
     priority: 5,
-    description:
-      "Consolidation des bases utiles pour la suite.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation structurée pour consolider les bases utiles et gagner en méthode.",
+    intro:
+      "Une formule pensée pour progresser de façon cohérente, au lieu d'avancer par fragments sans fil conducteur.",
+    points: [
+      "Consolidation des bases utiles",
       "Méthode et entraînements guidés",
       "Travail structuré",
       "Plan final",
-      "Consolidation des bases utiles",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Première qui souhaitent renforcer leur niveau et travailler plus efficacement en NSI.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
   {
@@ -159,15 +190,20 @@ const PREMIERE_OFFERS: Offer[] = [
     price: 639,
     emphasis: "standard",
     priority: 6,
-    description:
-      "Méthode claire pour l'écrit et l'oral anticipés.",
-    arguments: [
-      "Entraînements ciblés au bon format",
+    accrocheCourte:
+      "Une préparation claire et ciblée pour l'écrit et l'oral du Français.",
+    intro:
+      "Une formule resserrée pour travailler l'essentiel avec méthode, au lieu de disperser son énergie sur des révisions floues.",
+    points: [
+      "Méthode claire pour l'écrit et l'oral",
+      "Entraînements ciblés dans le bon format",
       "Travail guidé pour gagner en régularité",
       "Plan de révision final",
-      "Méthode claire pour l'écrit et l'oral",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Première qui veulent un cadre structuré pour mieux aborder les deux épreuves anticipées de Français.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
 ];
@@ -188,15 +224,22 @@ const TERMINALE_OFFERS: Offer[] = [
     saving: 49,
     emphasis: "maximale",
     priority: 1,
-    description:
-      "Les deux piliers du parcours dans un même cadre.",
-    arguments: [
-      "Plus lisible qu'une préparation séparée",
-      "Continuité de travail",
-      "Préparation solide",
-      "Économie de 49 TND vs achat séparé",
+    accrocheCourte:
+      "Les deux piliers du parcours dans une formule plus cohérente et plus lisible qu'une préparation séparée.",
+    intro:
+      "Une formule pensée pour travailler les deux matières dans une même dynamique, au lieu de gérer deux préparations indépendantes.",
+    points: [
+      "Les deux matières dans un seul cadre de travail",
+      "Continuité de progression",
+      "Préparation plus simple à suivre",
+      "Organisation plus lisible",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Terminale à profil numérique qui veulent une préparation solide, cohérente et mieux structurée.",
+    avantagePack:
+      "Un seul parcours, un rythme plus clair, et un tarif plus avantageux que deux achats séparés.",
+    ctaClosed: "Choisir ce parcours",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -212,15 +255,22 @@ const TERMINALE_OFFERS: Offer[] = [
     saving: 49,
     emphasis: "maximale",
     priority: 2,
-    description:
-      "Une vraie ligne droite scientifique.",
-    arguments: [
-      "Cohérence de progression",
+    accrocheCourte:
+      "Une vraie ligne droite scientifique, plus lisible et plus cohérente que deux stages séparés.",
+    intro:
+      "Une formule conçue pour donner de la continuité au travail, au lieu de juxtaposer deux préparations sans lien clair.",
+    points: [
+      "Une progression cohérente sur les deux matières",
       "Préparation intensive mais lisible",
       "Cadre structuré",
-      "Économie de 49 TND vs achat séparé",
+      "Vision claire des priorités",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Terminale scientifique qui veulent travailler sérieusement dans une formule complète et mieux organisée.",
+    avantagePack:
+      "Deux matières majeures dans un seul cadre de travail, avec un meilleur équilibre entre lisibilité et intensité.",
+    ctaClosed: "Choisir ce parcours",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -236,15 +286,22 @@ const TERMINALE_OFFERS: Offer[] = [
     saving: 118,
     emphasis: "premium",
     priority: 3,
-    description:
-      "Un parcours complet au lieu d'un empilement de modules.",
-    arguments: [
+    accrocheCourte:
+      "Un parcours complet pour préparer l'écrit, la pratique et l'oral dans une seule logique de travail.",
+    intro:
+      "Une formule complète pour travailler l'écrit, la pratique et l'oral dans un même cadre, au lieu d'empiler plusieurs modules séparés.",
+    points: [
       "Écrit, pratique et oral dans une même logique",
       "Préparation cohérente",
       "Gain de temps et de lisibilité",
-      "Économie de 118 TND vs achat séparé",
+      "Travail structuré jusqu'aux échéances",
     ],
-    cta: "Opter pour le parcours complet",
+    pourQui:
+      "Pour les élèves de Terminale NSI qui veulent une formule plus complète, plus fluide à suivre et mieux optimisée.",
+    avantagePack:
+      "La formule la plus complète pour avancer avec un seul cadre, un seul rythme et un tarif plus avantageux que l'achat séparé.",
+    ctaClosed: "Opter pour le parcours complet",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -260,15 +317,22 @@ const TERMINALE_OFFERS: Offer[] = [
     saving: 118,
     emphasis: "premium",
     priority: 4,
-    description:
-      "Une préparation complète au lieu de plusieurs achats dispersés.",
-    arguments: [
-      "Cadre intensif et plus simple à suivre",
+    accrocheCourte:
+      "Une préparation complète et mieux organisée pour l'écrit scientifique et l'oral.",
+    intro:
+      "Une formule pensée pour réunir l'essentiel dans un seul parcours, au lieu de multiplier les achats et les rythmes différents.",
+    points: [
+      "Une préparation complète et plus lisible",
+      "Cadre intensif et structuré",
       "Travail utile et ciblé",
-      "Simulations + méthode",
-      "Économie de 118 TND vs achat séparé",
+      "Simulations et méthode",
     ],
-    cta: "Opter pour le parcours complet",
+    pourQui:
+      "Pour les élèves de Terminale scientifique qui veulent une formule complète, plus simple à piloter et plus avantageuse que des inscriptions séparées.",
+    avantagePack:
+      "Une seule formule pour mieux préparer l'écrit et l'oral, avec un meilleur équilibre entre organisation, clarté et budget.",
+    ctaClosed: "Opter pour le parcours complet",
+    ctaOpen: "Réserver cette formule",
     visible: true,
   },
   {
@@ -282,15 +346,20 @@ const TERMINALE_OFFERS: Offer[] = [
     price: 719,
     emphasis: "forte",
     priority: 5,
-    description:
-      "Consolidation méthodique et entraînements ciblés.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation méthodique pour consolider les acquis et mieux aborder l'épreuve écrite.",
+    intro:
+      "Une formule conçue pour travailler avec méthode et continuité, au lieu de révisions désordonnées à l'approche de l'examen.",
+    points: [
+      "Consolidation méthodique",
       "Entraînements ciblés",
       "Correction détaillée",
       "Plan final",
-      "Consolidation méthodique",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Terminale qui veulent renforcer leur maîtrise de l'épreuve écrite de mathématiques.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
   {
@@ -304,15 +373,20 @@ const TERMINALE_OFFERS: Offer[] = [
     price: 599,
     emphasis: "standard",
     priority: 6,
-    description:
-      "Travail écrit et pratique avec simulations guidées.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation structurée pour travailler à la fois l'écrit et la pratique.",
+    intro:
+      "Une formule pensée pour préparer l'épreuve avec plus de clarté, au lieu de séparer artificiellement théorie et pratique.",
+    points: [
+      "Travail écrit et pratique",
       "Simulations guidées",
       "Méthode claire",
       "Préparation structurée",
-      "Travail écrit et pratique",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Terminale NSI qui veulent un cadre sérieux pour se préparer efficacement aux deux dimensions de l'épreuve.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
   {
@@ -326,15 +400,20 @@ const TERMINALE_OFFERS: Offer[] = [
     price: 599,
     emphasis: "standard",
     priority: 7,
-    description:
-      "Révisions ciblées et entraînements utiles.",
-    arguments: [
+    accrocheCourte:
+      "Une préparation ciblée pour réviser de façon utile, rigoureuse et progressive.",
+    intro:
+      "Une formule conçue pour aller à l'essentiel avec méthode, au lieu de révisions trop larges et peu efficaces.",
+    points: [
+      "Révisions ciblées",
       "Entraînements utiles",
       "Travail méthodique",
       "Bilan final",
-      "Révisions ciblées",
     ],
-    cta: "Choisir cette formule",
+    pourQui:
+      "Pour les élèves de Terminale qui veulent consolider leur préparation en Physique-Chimie dans un cadre structuré.",
+    ctaClosed: "Choisir cette formule",
+    ctaOpen: "Réserver ma place",
     visible: true,
   },
   {
@@ -348,15 +427,20 @@ const TERMINALE_OFFERS: Offer[] = [
     price: 199,
     emphasis: "secondaire",
     priority: 8,
-    description:
-      "Construction, structuration et simulation orale.",
-    arguments: [
+    accrocheCourte:
+      "Un module court pour mieux structurer sa prise de parole et préparer l'échange avec le jury.",
+    intro:
+      "Un complément utile pour travailler l'oral avec méthode, au lieu d'improviser au dernier moment.",
+    points: [
       "Construction des questions",
       "Structuration de l'exposé",
       "Simulation orale",
       "Feedback ciblé",
     ],
-    cta: "Ajouter le Grand Oral",
+    pourQui:
+      "Pour les élèves qui veulent compléter une préparation écrite ou renforcer leur aisance à l'oral.",
+    ctaClosed: "Ajouter le Grand Oral",
+    ctaOpen: "Ajouter ce module",
     visible: true,
   },
 ];
@@ -380,23 +464,25 @@ export const CATEGORY_FILTERS: { id: CategoryFilter; label: string }[] = [
   { id: "all", label: "Toutes" },
   { id: "mono", label: "1 matière" },
   { id: "duo", label: "2 matières" },
-  { id: "trio", label: "3+ matières" },
+  { id: "trio", label: "Parcours complet" },
 ];
 
 export const COMPARISON_ITEMS = [
   {
-    category: "Mono" as const,
-    description: "Pour cibler une matière précise",
+    category: "1 matière" as const,
+    description: "Pour cibler une priorité précise.",
     icon: "target" as const,
   },
   {
-    category: "Duo" as const,
-    description: "Deux matières, un seul cadre, un tarif plus cohérent",
+    category: "2 matières" as const,
+    description:
+      "Pour préparer deux épreuves de façon plus cohérente et plus avantageuse.",
     icon: "layers" as const,
   },
   {
-    category: "Trio / Complet" as const,
-    description: "Prise en charge globale au tarif le plus avantageux",
+    category: "Parcours complet" as const,
+    description:
+      "Pour choisir une formule plus complète, avec une organisation plus lisible.",
     icon: "crown" as const,
   },
 ];
