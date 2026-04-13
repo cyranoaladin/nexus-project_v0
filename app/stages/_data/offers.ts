@@ -2,9 +2,14 @@
 // Offers data model — single source of truth for stages pricing
 // ─────────────────────────────────────────────────────────────
 
+import type { Subject } from "../_lib/business-config";
+
 export type Level = "premiere" | "terminale";
 export type OfferCategory = "mono" | "duo" | "trio" | "complement";
 export type Emphasis = "maximale" | "premium" | "forte" | "standard" | "secondaire";
+
+/** Per-subject hour breakdown — must sum to `hours` */
+export type HoursBreakdown = Partial<Record<Subject, number>>;
 
 export interface Offer {
   id: string;
@@ -27,6 +32,20 @@ export interface Offer {
   ctaClosed: string;
   ctaOpen: string;
   visible: boolean;
+
+  // ── Business model fields ──────────────────────────────
+  /** Per-subject hour allocation — sum MUST equal `hours` */
+  hoursBreakdown: HoursBreakdown;
+  /** Minimum students required to open the group */
+  openingThreshold: number;
+  /** Maximum students per group */
+  maxStudents: number;
+  /** True if this is a lead-magnet / credibility offer, not a margin driver */
+  isLeadMagnet?: boolean;
+  /** True if this is a core margin locomotive */
+  isCoreMarginDriver?: boolean;
+  /** Internal profitability notes (not rendered) */
+  profitabilityNotes?: string;
 }
 
 // ──── PREMIÈRE ────────────────────────────────────────────────
@@ -62,6 +81,11 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Opter pour le duo",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { francais: 12, maths: 18 },
+    openingThreshold: 3,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Maths absorbs 3h extra vs mono (cheapest group cost). Discount of 39 TND on maths margin. Threshold=3 because français per-student cost makes it deficit at 2.",
   },
   {
     id: "p-mono-maths",
@@ -89,6 +113,11 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { maths: 15 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Core margin driver. Maths is the only subject that carries Nexus margin.",
   },
   {
     id: "p-trio-fr-maths-nsi",
@@ -120,6 +149,11 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir la formule complète",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { francais: 12, maths: 12, nsi: 12 },
+    openingThreshold: 3,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Condensed parcours: each subject at 12h (below mono). Discount of 88 TND absorbed by maths margin. Requires 3 students for healthy margin.",
   },
   {
     id: "p-duo-maths-nsi",
@@ -151,6 +185,10 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { maths: 15, nsi: 15 },
+    openingThreshold: 3,
+    maxStudents: 6,
+    profitabilityNotes: "Exact mono sum. Discount of 39 TND absorbed by maths margin. NSI cost at 100 TND/h requires 3+ students.",
   },
   {
     id: "p-mono-nsi",
@@ -178,6 +216,11 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { nsi: 15 },
+    openingThreshold: 3,
+    maxStudents: 6,
+    isLeadMagnet: true,
+    profitabilityNotes: "Fragile at 2 students due to 100 TND/h group cost. Opens at 3 minimum.",
   },
   {
     id: "p-mono-francais",
@@ -205,6 +248,11 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { francais: 12 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isLeadMagnet: true,
+    profitabilityNotes: "Lead magnet / credibility offer. Cost is per-student (80 TND/student/90min). Zero margin by design.",
   },
 ];
 
@@ -241,6 +289,11 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { maths: 18, nsi: 12 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Exact mono sum (18+12=30). Discount of 49 TND absorbed by maths margin.",
   },
   {
     id: "t-duo-maths-pc",
@@ -272,6 +325,11 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { maths: 18, physique: 12 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Exact mono sum (18+12=30). Discount of 49 TND absorbed by maths margin.",
   },
   {
     id: "t-trio-maths-nsi-go",
@@ -303,6 +361,11 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Opter pour le parcours complet",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { maths: 20, nsi: 12, grandOral: 4 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Maths gets 2h extra vs mono (20 vs 18). Discount of 88 TND absorbed by maths margin. GO at mono hours.",
   },
   {
     id: "t-trio-maths-pc-go",
@@ -334,6 +397,11 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Opter pour le parcours complet",
     ctaOpen: "Réserver cette formule",
     visible: true,
+    hoursBreakdown: { maths: 20, physique: 12, grandOral: 4 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Maths gets 2h extra vs mono (20 vs 18). Discount of 88 TND absorbed by maths margin. GO at mono hours.",
   },
   {
     id: "t-mono-maths",
@@ -361,6 +429,11 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { maths: 18 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    isCoreMarginDriver: true,
+    profitabilityNotes: "Core Terminale margin driver. Maths at 60 TND/h group cost.",
   },
   {
     id: "t-mono-nsi",
@@ -388,6 +461,10 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { nsi: 12 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    profitabilityNotes: "NSI at 100 TND/h group cost. Zero margin at cost.",
   },
   {
     id: "t-mono-pc",
@@ -415,6 +492,10 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
+    hoursBreakdown: { physique: 12 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    profitabilityNotes: "PC at 100 TND/h group cost. Zero margin at cost.",
   },
   {
     id: "t-complement-go",
@@ -442,6 +523,10 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Ajouter le Grand Oral",
     ctaOpen: "Ajouter ce module",
     visible: true,
+    hoursBreakdown: { grandOral: 4 },
+    openingThreshold: 2,
+    maxStudents: 6,
+    profitabilityNotes: "GO at 100 TND/h group cost. Slight margin at 209 TND for 4h (cost=400/group).",
   },
 ];
 
