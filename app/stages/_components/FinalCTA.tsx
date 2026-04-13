@@ -29,7 +29,7 @@ export default function FinalCTA() {
 
         <p className="mt-5 text-base leading-8 text-white/56">
           Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de
-          zéro. Les groupes sont à 3 élèves maximum. Les inscriptions se ferment quand les places
+          zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places
           sont pleines.
         </p>
 
