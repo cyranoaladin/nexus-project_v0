@@ -18,7 +18,7 @@ const LEVELS: { id: Level; label: string }[] = [
 ];
 
 const REASSURANCE_ITEMS = [
-  { icon: Users, label: "Groupes limités à 6 élèves maximum" },
+  { icon: Users, label: "Ouverture à partir de 2 ou 3 élèves — groupes limités à 6 maximum" },
   { icon: BadgeCheck, label: "Cadre structuré et suivi clair" },
   { icon: BarChart3, label: "Formules progressives et lisibles" },
   { icon: Wallet, label: "Parcours combinés plus avantageux que des inscriptions séparées" },
