@@ -52,6 +52,9 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
     // X-Content-Type-Options
     response.headers.set('X-Content-Type-Options', 'nosniff');
 
+    // X-XSS-Protection (legacy header; kept for compatibility)
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+
     // Referrer-Policy
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
