@@ -19,8 +19,7 @@ describe('Stages Printemps 2026 page', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: /préparez les échéances de mai et juin/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/pack doublé première/i)).toBeInTheDocument();
-    expect(screen.getByText(/pack nsi terminale/i)).toBeInTheDocument();
+    expect(screen.getByText(/duo première — français \+ maths/i)).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /voir les formules disponibles/i })
     ).toHaveAttribute('href', '#offres');
@@ -35,10 +34,7 @@ describe('Stages Printemps 2026 page', () => {
       screen.getByText(/des groupes de 6 élèves maximum/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: /choisir le bon stage doit prendre moins d'une minute/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/comparez les formules, vérifiez les places disponibles/i)
+      screen.getByRole('heading', { level: 2, name: /choisissez la formule la plus adaptée/i })
     ).toBeInTheDocument();
     expect(
       screen.getByText(/un stage nexus coûte moins qu'un équivalent en cours individuels/i)

@@ -31,6 +31,7 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/nexus-src/',
     '<rootDir>/e2e/',
     '<rootDir>/__tests__/e2e/',
     '<rootDir>/__tests__/concurrency/',
