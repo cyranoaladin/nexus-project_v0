@@ -32,13 +32,15 @@ export default function CountdownChip({
   tone = "green",
   className,
 }: CountdownChipProps) {
-  const [days, setDays] = useState(() => getDaysRemaining(targetDate));
+  const [days, setDays] = useState<number | null>(null);
 
   useEffect(() => {
-    setDays(getDaysRemaining(targetDate));
-    const id = window.setInterval(() => {
+    const refresh = () => {
       setDays(getDaysRemaining(targetDate));
-    }, 60_000);
+    };
+
+    refresh();
+    const id = window.setInterval(refresh, 60_000);
 
     return () => window.clearInterval(id);
   }, [targetDate]);
@@ -52,7 +54,7 @@ export default function CountdownChip({
       )}
     >
       <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-      <span>J-{days}</span>
+      <span>{days === null ? "J-..." : `J-${days}`}</span>
       <span className="text-current/85">{label}</span>
     </span>
   );
