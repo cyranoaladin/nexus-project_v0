@@ -31,7 +31,7 @@ export default function StagesHero() {
 
         {/* Sous-titre */}
         <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-white/55 sm:text-lg">
-          Des groupes de 6 élèves maximum. Des intervenants du système français. Des entraînements
+          Des groupes de 3 élèves maximum. Des intervenants du système français. Des entraînements
           corrigés, des épreuves blanches et un plan de révision final.
         </p>
 
@@ -51,7 +51,7 @@ export default function StagesHero() {
         <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-2xl border border-white/8 bg-white/[0.025] px-6 py-4 text-sm text-white/55">
           <span className="flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
-            6 élèves maximum
+            3 élèves par groupe
           </span>
           <span className="hidden h-1 w-1 rounded-full bg-white/18 sm:block" aria-hidden="true" />
           <span>Épreuves blanches incluses</span>

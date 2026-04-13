@@ -4,7 +4,7 @@ const advantages = [
   {
     icon: Users,
     title: "Moins d'élèves par groupe",
-    copy: "6 maximum. Chaque intervention garde un niveau d'attention réel. Chaque erreur est corrigée, pas ignorée.",
+    copy: "3 maximum. Chaque intervention garde un niveau d'attention réel. Chaque erreur est corrigée, pas ignorée.",
   },
   {
     icon: PenLine,
