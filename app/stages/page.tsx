@@ -1,3 +1,3 @@
-import NexusStagesPage from "@/planning_stage_printemps";
+import NexusStagesPage from "./_components/NexusStagesPage";
 
 export default NexusStagesPage;
