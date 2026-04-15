@@ -31,18 +31,12 @@ import {
   Download,
   Heart,
   Menu,
+  X,
+  Filter,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Table as UITable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { toast } from "sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 
 // ============================================
 // DATA
@@ -54,9 +48,9 @@ const scheduleWindows = [
     value: "18 avril → 2 mai",
     icon: CalendarDays,
     note: "Hors dimanches — groupes lancés selon constitution effective.",
-    color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-blue-50",
-    iconColor: "text-blue-600",
+    color: "from-cyan-500 to-blue-500",
+    bgColor: "bg-cyan-500/10",
+    iconColor: "text-cyan-400",
   },
   {
     title: "Réservation",
@@ -64,32 +58,32 @@ const scheduleWindows = [
     icon: CreditCard,
     note: "Le solde est complété avant le démarrage.",
     color: "from-emerald-500 to-teal-500",
-    bgColor: "bg-emerald-50",
-    iconColor: "text-emerald-600",
+    bgColor: "bg-emerald-500/10",
+    iconColor: "text-emerald-400",
   },
   {
     title: "Effectif",
     value: "2 à 6 élèves",
     icon: Users,
     note: "Selon la formule et le seuil d'ouverture retenu.",
-    color: "from-violet-500 to-purple-500",
-    bgColor: "bg-violet-50",
-    iconColor: "text-violet-600",
+    color: "from-violet-500 to-fuchsia-500",
+    bgColor: "bg-violet-500/10",
+    iconColor: "text-violet-400",
   },
 ];
 
 const whiteExamSlots = {
   premiere: [
-    { title: "Français écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-blue-50 text-blue-700 border-blue-200", subject: "Français", type: "Écrit" },
-    { title: "Maths écrit blanc", date: "Mercredi 29 avril", time: "09h00 – 12h00", color: "bg-cyan-50 text-cyan-700 border-cyan-200", subject: "Maths", type: "Écrit" },
-    { title: "Français oral blanc", date: "Jeudi 30 avril", time: "13h30 – 16h30", color: "bg-indigo-50 text-indigo-700 border-indigo-200", subject: "Français", type: "Oral" },
+    { title: "Français écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-blue-500/10 text-blue-300 border-blue-500/25", subject: "Français", type: "Écrit" },
+    { title: "Maths écrit blanc", date: "Mercredi 29 avril", time: "09h00 – 12h00", color: "bg-cyan-500/10 text-cyan-300 border-cyan-500/25", subject: "Maths", type: "Écrit" },
+    { title: "Français oral blanc", date: "Jeudi 30 avril", time: "13h30 – 16h30", color: "bg-indigo-500/10 text-indigo-300 border-indigo-500/25", subject: "Français", type: "Oral" },
   ],
   terminale: [
-    { title: "NSI écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-violet-50 text-violet-700 border-violet-200", subject: "NSI", type: "Écrit" },
-    { title: "Physique-Chimie écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-pink-50 text-pink-700 border-pink-200", subject: "Physique-Chimie", type: "Écrit" },
-    { title: "Maths écrit blanc", date: "Mercredi 29 avril", time: "09h00 – 12h00", color: "bg-rose-50 text-rose-700 border-rose-200", subject: "Maths", type: "Écrit" },
-    { title: "NSI pratique blanche", date: "Jeudi 30 avril", time: "09h00 – 12h00", color: "bg-emerald-50 text-emerald-700 border-emerald-200", subject: "NSI", type: "Pratique" },
-    { title: "Ateliers Grand Oral", date: "28 avril / 30 avril / 2 mai", time: "17h00 – 19h00", color: "bg-amber-50 text-amber-700 border-amber-200", subject: "Grand Oral", type: "Atelier" },
+    { title: "NSI écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-violet-500/10 text-violet-300 border-violet-500/25", subject: "NSI", type: "Écrit" },
+    { title: "Physique-Chimie écrit blanc", date: "Mardi 28 avril", time: "09h00 – 12h00", color: "bg-pink-500/10 text-pink-300 border-pink-500/25", subject: "Physique-Chimie", type: "Écrit" },
+    { title: "Maths écrit blanc", date: "Mercredi 29 avril", time: "09h00 – 12h00", color: "bg-rose-500/10 text-rose-300 border-rose-500/25", subject: "Maths", type: "Écrit" },
+    { title: "NSI pratique blanche", date: "Jeudi 30 avril", time: "09h00 – 12h00", color: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", subject: "NSI", type: "Pratique" },
+    { title: "Ateliers Grand Oral", date: "28 avril / 30 avril / 2 mai", time: "17h00 – 19h00", color: "bg-amber-500/10 text-amber-300 border-amber-500/25", subject: "Grand Oral", type: "Atelier" },
   ],
 };
 
@@ -106,7 +100,7 @@ const offers = [
     oldPrice: null,
     featured: true,
     color: "from-cyan-500 to-blue-500",
-    bgGradient: "from-cyan-500/10 via-blue-500/5 to-transparent",
+    bgGradient: "from-cyan-500/[0.12] via-blue-500/[0.06] to-transparent",
     icon: Brain,
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Une préparation méthodique pour l'épreuve anticipée de mathématiques.",
@@ -127,7 +121,7 @@ const offers = [
     oldPrice: null,
     featured: false,
     color: "from-blue-500 to-indigo-500",
-    bgGradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
+    bgGradient: "from-blue-500/[0.12] via-indigo-500/[0.06] to-transparent",
     icon: BookOpen,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Une préparation ciblée pour l'écrit et l'oral du Français.",
@@ -148,7 +142,7 @@ const offers = [
     oldPrice: null,
     featured: false,
     color: "from-violet-500 to-fuchsia-500",
-    bgGradient: "from-violet-500/10 via-fuchsia-500/5 to-transparent",
+    bgGradient: "from-violet-500/[0.12] via-fuchsia-500/[0.06] to-transparent",
     icon: Laptop,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Consolider les bases utiles et gagner en méthode.",
@@ -169,7 +163,7 @@ const offers = [
     oldPrice: 1188,
     featured: true,
     color: "from-amber-500 to-orange-500",
-    bgGradient: "from-amber-500/15 via-orange-500/10 to-transparent",
+    bgGradient: "from-amber-500/[0.15] via-orange-500/[0.08] to-transparent",
     icon: Star,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Les deux épreuves anticipées dans une seule formule cohérente.",
@@ -190,7 +184,7 @@ const offers = [
     oldPrice: 1048,
     featured: true,
     color: "from-emerald-500 to-cyan-500",
-    bgGradient: "from-emerald-500/15 via-cyan-500/10 to-transparent",
+    bgGradient: "from-emerald-500/[0.15] via-cyan-500/[0.08] to-transparent",
     icon: Sparkles,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Un parcours cohérent pour travailler deux matières stratégiques.",
@@ -211,7 +205,7 @@ const offers = [
     oldPrice: 1697,
     featured: false,
     color: "from-fuchsia-500 to-indigo-500",
-    bgGradient: "from-fuchsia-500/15 via-indigo-500/10 to-transparent",
+    bgGradient: "from-fuchsia-500/[0.15] via-indigo-500/[0.08] to-transparent",
     icon: GraduationCap,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Une préparation globale et structurée sur l'ensemble des priorités.",
@@ -232,7 +226,7 @@ const offers = [
     oldPrice: null,
     featured: true,
     color: "from-rose-500 to-orange-500",
-    bgGradient: "from-rose-500/10 via-orange-500/5 to-transparent",
+    bgGradient: "from-rose-500/[0.12] via-orange-500/[0.06] to-transparent",
     icon: Brain,
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Consolider l'épreuve écrite avec méthode et rigueur.",
@@ -253,7 +247,7 @@ const offers = [
     oldPrice: null,
     featured: false,
     color: "from-violet-500 to-purple-500",
-    bgGradient: "from-violet-500/10 via-purple-500/5 to-transparent",
+    bgGradient: "from-violet-500/[0.12] via-purple-500/[0.06] to-transparent",
     icon: Laptop,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Travailler l'écrit et la pratique dans une même logique.",
@@ -274,7 +268,7 @@ const offers = [
     oldPrice: null,
     featured: false,
     color: "from-emerald-500 to-teal-500",
-    bgGradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
+    bgGradient: "from-emerald-500/[0.12] via-teal-500/[0.06] to-transparent",
     icon: FlaskConical,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Révisions ciblées et entraînement en Physique-Chimie.",
@@ -295,7 +289,7 @@ const offers = [
     oldPrice: null,
     featured: false,
     color: "from-amber-500 to-yellow-500",
-    bgGradient: "from-amber-500/10 via-yellow-500/5 to-transparent",
+    bgGradient: "from-amber-500/[0.12] via-yellow-500/[0.06] to-transparent",
     icon: Mic,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Structurer sa prise de parole et gagner en clarté.",
@@ -316,7 +310,7 @@ const offers = [
     oldPrice: 1328,
     featured: true,
     color: "from-emerald-500 to-cyan-500",
-    bgGradient: "from-emerald-500/15 via-cyan-500/10 to-transparent",
+    bgGradient: "from-emerald-500/[0.15] via-cyan-500/[0.08] to-transparent",
     icon: Star,
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Une formule structurante pour deux piliers majeurs.",
@@ -337,7 +331,7 @@ const offers = [
     oldPrice: 1328,
     featured: true,
     color: "from-orange-500 to-rose-500",
-    bgGradient: "from-orange-500/15 via-rose-500/10 to-transparent",
+    bgGradient: "from-orange-500/[0.15] via-rose-500/[0.08] to-transparent",
     icon: Sparkles,
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Une ligne droite scientifique jusqu'aux écrits.",
@@ -358,7 +352,7 @@ const offers = [
     oldPrice: 1537,
     featured: false,
     color: "from-indigo-500 to-fuchsia-500",
-    bgGradient: "from-indigo-500/15 via-fuchsia-500/10 to-transparent",
+    bgGradient: "from-indigo-500/[0.15] via-fuchsia-500/[0.08] to-transparent",
     icon: GraduationCap,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Un parcours complet : écrit, pratique et oral.",
@@ -379,7 +373,7 @@ const offers = [
     oldPrice: 1537,
     featured: false,
     color: "from-sky-500 to-indigo-500",
-    bgGradient: "from-sky-500/15 via-indigo-500/10 to-transparent",
+    bgGradient: "from-sky-500/[0.15] via-indigo-500/[0.08] to-transparent",
     icon: GraduationCap,
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Préparation complète pour l'écrit scientifique et l'oral.",
@@ -391,29 +385,29 @@ const offers = [
 ];
 
 const categories = [
-  { key: "all", label: "Toutes", color: "bg-slate-900", icon: Sparkles },
-  { key: "mono", label: "1 matière", color: "bg-blue-500", icon: BookOpen },
-  { key: "duo", label: "2 matières", color: "bg-violet-500", icon: Users },
-  { key: "parcours", label: "Parcours complet", color: "bg-emerald-500", icon: GraduationCap },
+  { key: "all", label: "Toutes", color: "from-white/40 to-white/20", icon: Sparkles },
+  { key: "mono", label: "1 matière", color: "from-blue-500 to-cyan-500", icon: BookOpen },
+  { key: "duo", label: "2 matières", color: "from-violet-500 to-purple-500", icon: Users },
+  { key: "parcours", label: "Parcours complet", color: "from-emerald-500 to-teal-500", icon: GraduationCap },
 ];
 
 const levelLabels = { premiere: "Première", terminale: "Terminale" };
 
 // ============================================
-// COMPONENTS
+// UI HELPERS
 // ============================================
 
 function PriceBlock({ price, oldPrice }: { price: number; oldPrice?: number | null }) {
   const savings = oldPrice ? oldPrice - price : 0;
   return (
     <div className="text-right">
-      <motion.div className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
+      <motion.div className="text-2xl font-bold tracking-tight text-white md:text-3xl" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
         {price.toLocaleString("fr-FR")} TND
       </motion.div>
       {oldPrice && (
         <motion.div className="mt-1 flex items-center justify-end gap-2" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-          <span className="text-sm text-slate-400 line-through">{oldPrice.toLocaleString("fr-FR")} TND</span>
-          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Économisez {savings.toLocaleString("fr-FR")} TND</Badge>
+          <span className="text-sm text-white/40 line-through">{oldPrice.toLocaleString("fr-FR")} TND</span>
+          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">-{savings.toLocaleString("fr-FR")} TND</span>
         </motion.div>
       )}
     </div>
@@ -423,9 +417,34 @@ function PriceBlock({ price, oldPrice }: { price: number; oldPrice?: number | nu
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <motion.div className="space-y-3" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-      <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent md:text-4xl">{title}</h2>
-      <p className="max-w-3xl text-base leading-relaxed text-slate-600 md:text-lg">{subtitle}</p>
+      <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{title}</h2>
+      <p className="max-w-3xl text-sm leading-relaxed text-white/55 md:text-base">{subtitle}</p>
     </motion.div>
+  );
+}
+
+function NexusBadge({ children, className, featured }: { children: React.ReactNode; className?: string; featured?: boolean }) {
+  return (
+    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-wider", featured ? "border-amber-500/30 bg-amber-500/15 text-amber-300" : "border-white/10 bg-white/[0.06] text-white/70", className)}>
+      {children}
+    </span>
+  );
+}
+
+function NexusButton({ children, variant = "primary", className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "outline" | "ghost" }) {
+  return (
+    <button
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 disabled:pointer-events-none disabled:opacity-50",
+        variant === "primary" && "bg-gradient-to-r from-nexus-green to-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:brightness-110",
+        variant === "outline" && "border border-white/20 bg-white/[0.04] text-white hover:bg-white/[0.08]",
+        variant === "ghost" && "text-white/70 hover:bg-white/[0.06] hover:text-white",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -476,8 +495,7 @@ export default function NexusStagesPage() {
   }, [level, category, query]);
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
-    toast.success(favorites.includes(id) ? "Retiré des favoris" : "Ajouté aux favoris");
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
   };
 
   const handleReservation = (offer: typeof offers[0]) => {
@@ -486,10 +504,6 @@ export default function NexusStagesPage() {
   };
 
   const confirmReservation = () => {
-    toast.success("Demande de réservation envoyée !", {
-      description: `Nous vous contacterons pour finaliser votre inscription au stage ${selectedOffer?.title}.`,
-      duration: 5000,
-    });
     setIsReservationOpen(false);
   };
 
@@ -510,95 +524,55 @@ export default function NexusStagesPage() {
   }, []);
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 text-slate-900">
-        
-        {/* Navigation */}
-        <motion.nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl" initial={{ y: -100 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 100 }}>
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600">
-                <GraduationCap className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">Nexus Réussite</span>
-            </div>
-            <div className="hidden items-center gap-4 md:flex">
-              <Button variant="ghost" size="sm" onClick={() => setIsTableOpen(true)} className="gap-2">
-                <TableIcon className="h-4 w-4" />
-                Tableau récapitulatif
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setIsContactOpen(true)} className="gap-2">
-                <Phone className="h-4 w-4" />
-                Contact
-              </Button>
-              <Badge variant="outline" className="rounded-full border-amber-300 bg-amber-50 text-amber-700">
-                <Sparkles className="mr-1 h-3 w-3" />
-                Stages 2026
-              </Badge>
-            </div>
-            <Sheet>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader><SheetTitle>Menu</SheetTitle></SheetHeader>
-                <div className="mt-6 flex flex-col gap-4">
-                  <Button variant="ghost" onClick={() => setIsTableOpen(true)} className="justify-start"><TableIcon className="mr-2 h-4 w-4" />Tableau récapitulatif</Button>
-                  <Button variant="ghost" onClick={() => setIsContactOpen(true)} className="justify-start"><Phone className="mr-2 h-4 w-4" />Contact</Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </motion.nav>
+    <div className="min-h-screen bg-nexus-bg font-body text-white selection:bg-nexus-green/25 selection:text-white">
+      <CorporateNavbar />
 
+      <main id="main-content" className="pt-24 md:pt-28">
         {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_50%),radial-gradient(ellipse_at_top_left,rgba(124,58,237,0.15),transparent_40%),radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.1),transparent_40%)]" />
-            <motion.div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-blue-400/20 blur-3xl" animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity }} />
-            <motion.div className="absolute -left-20 top-40 h-72 w-72 rounded-full bg-violet-400/20 blur-3xl" animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 10, repeat: Infinity }} />
-          </div>
-          
-          <div className="relative mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
+        <section className="relative overflow-hidden px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(16,185,129,0.10),transparent_42%),radial-gradient(ellipse_at_80%_70%,rgba(245,158,11,0.06),transparent_32%)]" />
+          <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:48px_48px]" />
+
+          <div className="relative mx-auto max-w-7xl">
             <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
               <motion.div className="space-y-8" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                  <Badge className="mb-4 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-4 py-1.5 text-white hover:from-blue-700 hover:to-violet-700">
-                    <Sparkles className="mr-2 h-3.5 w-3.5" />
-                    Édition 2026 — Inscriptions ouvertes
-                  </Badge>
+                  <span className="mb-4 inline-block rounded-full border border-nexus-green/25 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/65">
+                    <Sparkles className="mr-2 inline-block h-3.5 w-3.5 text-nexus-green" />
+                    Stages Printemps 2026 · 18 avril — 2 mai · Tunis
+                  </span>
                 </motion.div>
-                
+
                 <div className="space-y-5">
-                  <motion.h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-950 md:text-5xl lg:text-6xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    Préparez votre <span className="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">réussite</span> aux examens
+                  <motion.h1 className="max-w-4xl font-display text-4xl font-extrabold leading-[1.05] text-white md:text-5xl lg:text-6xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    Préparez les échéances de mai et juin avec méthode, exigence et un cadre qui fait vraiment travailler.
                   </motion.h1>
-                  <motion.p className="max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                    Stages de printemps intensifs pour les classes de Première et Terminale. Horaires précis, épreuves blanches intégrées, bilans intermédiaires transmis aux familles.
+                  <motion.p className="max-w-2xl text-base leading-8 text-white/55 sm:text-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                    Des groupes de 6 élèves maximum. Des intervenants du système français. Des entraînements corrigés, des épreuves blanches et un plan de révision final.
                   </motion.p>
                 </div>
-                
+
                 <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                  <Button size="lg" className="rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-8 text-white hover:from-blue-700 hover:to-violet-700 shadow-lg shadow-blue-500/25" onClick={() => document.getElementById("offers")?.scrollIntoView({ behavior: "smooth" })}>
-                    Explorer les offres
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button size="lg" variant="outline" className="rounded-full px-8" onClick={() => setIsTableOpen(true)}>
-                    <Calendar className="mr-2 h-4 w-4" />
+                  <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50">
+                    Voir les formules disponibles
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                  <NexusButton variant="outline" onClick={() => setIsTableOpen(true)}>
+                    <Calendar className="h-4 w-4" />
                     Voir le calendrier
-                  </Button>
+                  </NexusButton>
                 </motion.div>
 
                 <motion.div className="flex items-center gap-6 pt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
                   <div className="flex -space-x-3">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-violet-500 text-xs font-bold text-white">
+                      <div key={i} className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-nexus-bg bg-gradient-to-br from-nexus-green to-emerald-600 text-xs font-bold text-white">
                         {String.fromCharCode(64 + i)}
                       </div>
                     ))}
                   </div>
-                  <div className="text-sm text-slate-600">
-                    <span className="font-semibold text-slate-900">+500 élèves</span> accompagnés chaque année
+                  <div className="text-sm text-white/55">
+                    <span className="font-semibold text-white">+500 élèves</span> accompagnés chaque année
                   </div>
                 </motion.div>
               </motion.div>
@@ -608,20 +582,20 @@ export default function NexusStagesPage() {
                   const Icon = item.icon;
                   return (
                     <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + index * 0.1 }}>
-                      <Card className="group overflow-hidden rounded-3xl border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
-                        <CardContent className="p-5">
+                      <div className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05]">
+                        <div className="p-5">
                           <div className="flex items-start gap-4">
-                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.color} shadow-lg`}>
+                            <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg", item.color)}>
                               <Icon className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-sm font-medium text-slate-500">{item.title}</div>
-                              <div className="mt-1 text-xl font-bold text-slate-900">{item.value}</div>
-                              <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.note}</p>
+                              <div className="text-sm font-medium text-white/50">{item.title}</div>
+                              <div className="mt-1 text-xl font-bold text-white">{item.value}</div>
+                              <p className="mt-1 text-sm leading-relaxed text-white/50">{item.note}</p>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     </motion.div>
                   );
                 })}
@@ -631,7 +605,7 @@ export default function NexusStagesPage() {
         </section>
 
         {/* Stats Bar */}
-        <section className="border-y border-slate-200/60 bg-white/50 backdrop-blur-sm">
+        <section className="border-y border-white/8 bg-white/[0.02]">
           <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
             <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
               {[
@@ -641,8 +615,8 @@ export default function NexusStagesPage() {
                 { value: "95", label: "Taux de satisfaction", suffix: "%" },
               ].map((stat, i) => (
                 <motion.div key={stat.label} className="text-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent md:text-4xl">{stat.value}{stat.suffix}</div>
-                  <div className="mt-1 text-sm text-slate-600">{stat.label}</div>
+                  <div className="text-3xl font-bold text-white md:text-4xl">{stat.value}{stat.suffix}</div>
+                  <div className="mt-1 text-sm text-white/50">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -653,71 +627,78 @@ export default function NexusStagesPage() {
         <section id="offers" className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
           <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
             <div className="space-y-10">
-              <SectionTitle title="Choisissez votre formule" subtitle="Les offres sont organisées par niveau, puis filtrables par type de parcours. Chaque formule détaille ses horaires, ses épreuves blanches, ses bilans et le suivi transmis à l’élève et à sa famille." />
+              <SectionTitle title="Choisissez la formule la plus adaptée" subtitle="Les offres sont organisées par niveau, puis filtrables par type de parcours. Chaque formule détaille ses horaires, ses épreuves blanches, ses bilans et le suivi transmis à l'élève et à sa famille. Un stage Nexus coûte moins qu'un équivalent en cours individuels." />
 
               {/* Filters */}
-              <Card className="overflow-hidden rounded-3xl border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-lg shadow-slate-500/5">
-                <CardContent className="space-y-6 p-6">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="inline-flex rounded-2xl bg-slate-100 p-1.5">
-                      {Object.entries(levelLabels).map(([key, label]) => (
-                        <button
-                          key={key}
-                          onClick={() => setLevel(key as "premiere" | "terminale")}
-                          className={`relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${level === key ? "bg-white text-slate-900 shadow-md" : "text-slate-600 hover:text-slate-900"}`}
-                        >
-                          {level === key && (
-                            <motion.div layoutId="levelIndicator" className="absolute inset-0 rounded-xl bg-white shadow-md" transition={{ type: "spring", stiffness: 300 }} />
-                          )}
-                          <span className="relative z-10">{label}</span>
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="relative w-full md:max-w-sm">
-                      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                      <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher une matière ou formule..." className="rounded-2xl border-slate-200 pl-11 py-5 focus:ring-2 focus:ring-blue-500/20" />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <button
-                          key={item.key}
-                          onClick={() => setCategory(item.key)}
-                          className={`group relative inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-300 ${category === item.key ? "border-transparent text-white" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"}`}
-                        >
-                          {category === item.key && <motion.div layoutId="categoryIndicator" className={`absolute inset-0 rounded-full ${item.color}`} transition={{ type: "spring", stiffness: 300 }} />}
-                          <Icon className={`relative z-10 h-4 w-4 ${category === item.key ? "text-white" : "text-slate-500 group-hover:text-slate-700"}`} />
-                          <span className="relative z-10">{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {[
-                      { title: "1 matière", desc: "Pour cibler une priorité précise", icon: BookOpen, color: "from-blue-500 to-cyan-500" },
-                      { title: "2 matières", desc: "Préparation cohérente et avantageuse", icon: Users, color: "from-violet-500 to-purple-500" },
-                      { title: "Parcours complet", desc: "Organisation lisible et complète", icon: GraduationCap, color: "from-emerald-500 to-teal-500" },
-                    ].map((item, i) => (
-                      <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                        <Card className="group cursor-pointer overflow-hidden rounded-2xl border-slate-200/60 bg-gradient-to-br from-slate-50 to-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                          <CardContent className="p-5">
-                            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${item.color} shadow-lg transition-transform duration-300 group-hover:scale-110`}>
-                              <item.icon className="h-5 w-5 text-white" />
-                            </div>
-                            <div className="font-semibold text-slate-900">{item.title}</div>
-                            <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.desc}</p>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
+              <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="inline-flex rounded-2xl bg-white/[0.04] p-1.5">
+                    {Object.entries(levelLabels).map(([key, label]) => (
+                      <button
+                        key={key}
+                        onClick={() => setLevel(key as "premiere" | "terminale")}
+                        className={cn(
+                          "relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300",
+                          level === key ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white"
+                        )}
+                      >
+                        {level === key && <motion.div layoutId="levelIndicator" className="absolute inset-0 rounded-xl bg-white shadow-md" transition={{ type: "spring", stiffness: 300 }} />}
+                        <span className="relative z-10">{label}</span>
+                      </button>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+
+                  <div className="relative w-full md:max-w-sm">
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Rechercher une matière ou formule..."
+                      className="w-full rounded-2xl border border-white/10 bg-white/[0.04] py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/40 focus:border-nexus-green/40 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {categories.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.key}
+                        onClick={() => setCategory(item.key)}
+                        className={cn(
+                          "group relative inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-300",
+                          category === item.key ? "border-transparent text-white" : "border-white/10 bg-white/[0.04] text-white/60 hover:border-white/15 hover:bg-white/[0.06] hover:text-white"
+                        )}
+                      >
+                        {category === item.key && <motion.div layoutId="categoryIndicator" className={cn("absolute inset-0 rounded-full bg-gradient-to-r", item.color)} transition={{ type: "spring", stiffness: 300 }} />}
+                        <Icon className={cn("relative z-10 h-4 w-4", category === item.key ? "text-white" : "text-white/50 group-hover:text-white")} />
+                        <span className="relative z-10">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-3">
+                  {[
+                    { title: "1 matière", desc: "Pour cibler une priorité précise", icon: BookOpen, color: "from-blue-500 to-cyan-500" },
+                    { title: "2 matières", desc: "Préparation cohérente et avantageuse", icon: Users, color: "from-violet-500 to-purple-500" },
+                    { title: "Parcours complet", desc: "Organisation lisible et complète", icon: GraduationCap, color: "from-emerald-500 to-teal-500" },
+                  ].map((item, i) => (
+                    <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                      <div className="group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05]">
+                        <div className="p-5">
+                          <div className={cn("mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg transition-transform duration-300 group-hover:scale-110", item.color)}>
+                            <item.icon className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="font-semibold text-white">{item.title}</div>
+                          <p className="mt-1 text-sm leading-relaxed text-white/55">{item.desc}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
 
               {/* Offers List */}
               <div className="space-y-5">
@@ -735,48 +716,39 @@ export default function NexusStagesPage() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                       >
-                        <Card className={`group overflow-hidden rounded-3xl border-slate-200/60 bg-white shadow-sm transition-all duration-500 hover:shadow-xl ${offer.featured ? "ring-2 ring-amber-400/50" : ""}`}>
-                          <div className={`bg-gradient-to-r ${offer.bgGradient} p-1`}>
-                            <CardContent className="p-6">
+                        <div className={cn("group overflow-hidden rounded-3xl border bg-white/[0.03] transition-all duration-500 hover:border-white/15 hover:bg-white/[0.05]", offer.featured ? "border-amber-500/25" : "border-white/10")}>
+                          <div className={cn("bg-gradient-to-r p-px", offer.bgGradient)}>
+                            <div className="rounded-3xl bg-nexus-bg p-6">
                               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                                 <div className="flex-1 space-y-4">
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <Badge className={`rounded-full bg-gradient-to-r ${offer.color} text-white border-0`}>
-                                      {offer.badge}
-                                    </Badge>
-                                    <Badge variant="outline" className="rounded-full bg-white/70">
-                                      {offer.category === "mono" ? "1 matière" : offer.category === "duo" ? "2 matières" : "Parcours complet"}
-                                    </Badge>
+                                    <NexusBadge featured={offer.featured}>{offer.badge}</NexusBadge>
+                                    <NexusBadge>{offer.category === "mono" ? "1 matière" : offer.category === "duo" ? "2 matières" : "Parcours complet"}</NexusBadge>
                                     {offer.featured && (
-                                      <Badge className="rounded-full bg-amber-100 text-amber-700 border-amber-200">
-                                        <Star className="mr-1 h-3 w-3 fill-current" />
+                                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300">
+                                        <Star className="h-3 w-3 fill-current" />
                                         Populaire
-                                      </Badge>
+                                      </span>
                                     )}
                                   </div>
-                                  
+
                                   <div className="flex items-start gap-4">
-                                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${offer.color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                    <div className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg transition-transform duration-300 group-hover:scale-110", offer.color)}>
                                       <Icon className="h-6 w-6 text-white" />
                                     </div>
                                     <div>
-                                      <h3 className="text-xl font-bold text-slate-950 md:text-2xl">{offer.title}</h3>
-                                      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">{offer.shortPitch}</p>
+                                      <h3 className="text-xl font-bold text-white md:text-2xl">{offer.title}</h3>
+                                      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/55">{offer.shortPitch}</p>
                                     </div>
                                   </div>
                                 </div>
 
                                 <div className="flex flex-col items-end gap-3 md:min-w-[200px]">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <button onClick={() => toggleFavorite(offer.id)} className="rounded-full p-2 transition-colors hover:bg-slate-100">
-                                        <Heart className={`h-5 w-5 transition-colors ${isFavorite ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>{isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</TooltipContent>
-                                  </Tooltip>
-                                  
-                                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                                  <button onClick={() => toggleFavorite(offer.id)} className="rounded-full p-2 transition-colors hover:bg-white/[0.06]">
+                                    <Heart className={cn("h-5 w-5 transition-colors", isFavorite ? "fill-rose-500 text-rose-500" : "text-white/40")} />
+                                  </button>
+
+                                  <div className="flex items-center gap-2 text-sm text-white/55">
                                     <Clock3 className="h-4 w-4" />
                                     <span className="font-medium">{offer.hours} heures</span>
                                   </div>
@@ -784,107 +756,99 @@ export default function NexusStagesPage() {
                                 </div>
                               </div>
 
-                              <div className="mt-5 flex flex-col gap-4 border-t border-slate-200/60 pt-5 md:flex-row md:items-center md:justify-between">
+                              <div className="mt-5 flex flex-col gap-4 border-t border-white/10 pt-5 md:flex-row md:items-center md:justify-between">
                                 <div className="flex-1">
-                                  <div className="text-sm font-medium text-slate-900">{offer.threshold}</div>
-                                  <p className="text-sm text-slate-500">Tarif standard — ajustement possible si le groupe se complète</p>
+                                  <div className="text-sm font-medium text-white">{offer.threshold}</div>
+                                  <p className="text-sm text-white/40">Tarif standard — ajustement possible si le groupe se complète</p>
                                   {offer.bonus && (
-                                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm">
-                                      <Sparkles className="h-4 w-4 text-emerald-600" />
-                                      <span className="font-medium text-emerald-800">{offer.bonus.title}</span>
-                                      <span className="text-emerald-600">• {offer.bonus.value}</span>
+                                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm">
+                                      <Sparkles className="h-4 w-4 text-emerald-400" />
+                                      <span className="font-medium text-emerald-300">{offer.bonus.title}</span>
+                                      <span className="text-emerald-400/80">· {offer.bonus.value}</span>
                                     </motion.div>
                                   )}
                                 </div>
 
                                 <div className="flex flex-wrap gap-3">
-                                  <Button variant="outline" className="rounded-xl" onClick={() => setOpenId(isOpen ? null : offer.id)}>
+                                  <NexusButton variant="outline" onClick={() => setOpenId(isOpen ? null : offer.id)}>
                                     {isOpen ? "Réduire" : "Voir le détail"}
-                                    <ChevronDown className={`ml-2 h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
-                                  </Button>
-                                  <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white hover:from-blue-700 hover:to-violet-700 shadow-lg shadow-blue-500/25" onClick={() => handleReservation(offer)}>
-                                    Réserver
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                  </Button>
+                                    <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
+                                  </NexusButton>
+                                  <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50">
+                                    Réserver ma place
+                                    <ArrowRight className="h-4 w-4" />
+                                  </a>
                                 </div>
                               </div>
 
                               <AnimatePresence>
                                 {isOpen && (
                                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
-                                    <div className="mt-6 grid gap-6 border-t border-slate-200/60 pt-6 lg:grid-cols-[1.2fr_0.8fr]">
+                                    <div className="mt-6 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[1.2fr_0.8fr]">
                                       <div className="space-y-5">
                                         <div>
-                                          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
+                                          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-white/50">
                                             <CheckCircle2 className="h-4 w-4" />
                                             Ce qui est inclus
                                           </h4>
                                           <div className="grid gap-2">
                                             {offer.points.map((point, i) => (
-                                              <motion.div key={point} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
-                                                <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${offer.color}`}>
+                                              <motion.div key={point} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-3">
+                                                <div className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br", offer.color)}>
                                                   <Check className="h-3 w-3 text-white" />
                                                 </div>
-                                                <span className="text-sm text-slate-700">{point}</span>
+                                                <span className="text-sm text-white/70">{point}</span>
                                               </motion.div>
                                             ))}
                                           </div>
                                         </div>
 
                                         <div className="grid gap-4 sm:grid-cols-2">
-                                          <Card className="rounded-2xl border-slate-200/60 bg-slate-50/50">
-                                            <CardContent className="p-4">
-                                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                                                <CreditCard className="h-4 w-4 text-slate-500" />
-                                                Réservation
-                                              </div>
-                                              <p className="mt-2 text-sm leading-relaxed text-slate-600">50% à l'inscription, solde avant le démarrage</p>
-                                            </CardContent>
-                                          </Card>
-                                          <Card className="rounded-2xl border-slate-200/60 bg-slate-50/50">
-                                            <CardContent className="p-4">
-                                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                                                <BadgeCheck className="h-4 w-4 text-slate-500" />
-                                                Suivi
-                                              </div>
-                                              <div className="mt-2 space-y-1">
-                                                {offer.followUp?.slice(0, 2).map((item) => (
-                                                  <div key={item} className="flex items-start gap-2 text-xs text-slate-600">
-                                                    <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
-                                                    <span>{item}</span>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            </CardContent>
-                                          </Card>
+                                          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                              <CreditCard className="h-4 w-4 text-white/50" />
+                                              Réservation
+                                            </div>
+                                            <p className="mt-2 text-sm leading-relaxed text-white/55">50% à l&apos;inscription, solde avant le démarrage</p>
+                                          </div>
+                                          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                                              <BadgeCheck className="h-4 w-4 text-white/50" />
+                                              Suivi
+                                            </div>
+                                            <div className="mt-2 space-y-1">
+                                              {offer.followUp?.slice(0, 2).map((item) => (
+                                                <div key={item} className="flex items-start gap-2 text-xs text-white/55">
+                                                  <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
+                                                  <span>{item}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
                                         </div>
                                       </div>
 
-                                      <Card className="rounded-2xl border-slate-200/60 bg-slate-50/50">
-                                        <CardContent className="p-4">
-                                          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
-                                            <CalendarDays className="h-4 w-4" />
-                                            Planning
-                                          </h4>
-                                          <ScrollArea className="h-[280px] pr-4">
-                                            <div className="space-y-2">
-                                              {offer.planning.map((line, i) => (
-                                                <motion.div key={i} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="flex items-start gap-2 rounded-lg bg-white p-2.5 text-sm shadow-sm">
-                                                  <div className={`mt-0.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-r ${offer.color}`} />
-                                                  <span className="text-slate-700">{line}</span>
-                                                </motion.div>
-                                              ))}
-                                            </div>
-                                          </ScrollArea>
-                                        </CardContent>
-                                      </Card>
+                                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                                        <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-white/50">
+                                          <CalendarDays className="h-4 w-4" />
+                                          Planning
+                                        </h4>
+                                        <div className="max-h-[280px] space-y-2 overflow-y-auto pr-2">
+                                          {offer.planning.map((line, i) => (
+                                            <motion.div key={i} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="flex items-start gap-2 rounded-lg bg-white/[0.03] p-2.5 text-sm">
+                                              <div className={cn("mt-0.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-r", offer.color)} />
+                                              <span className="text-white/60">{line}</span>
+                                            </motion.div>
+                                          ))}
+                                        </div>
+                                      </div>
                                     </div>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
-                            </CardContent>
+                            </div>
                           </div>
-                        </Card>
+                        </div>
                       </motion.div>
                     );
                   })}
@@ -895,414 +859,230 @@ export default function NexusStagesPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <Card className="sticky top-24 overflow-hidden rounded-3xl border-slate-200/60 bg-white shadow-lg shadow-slate-500/5">
-                  <div className="bg-gradient-to-r from-blue-600 to-violet-600 p-6">
-                    <CardTitle className="flex items-center gap-2 text-lg text-white">
+                <div className="sticky top-24 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
+                  <div className="bg-gradient-to-r from-nexus-green to-emerald-600 p-6">
+                    <h3 className="flex items-center gap-2 text-lg font-bold text-white">
                       <Calendar className="h-5 w-5" />
                       Créneaux blancs clés
-                    </CardTitle>
-                    <p className="mt-1 text-sm text-blue-100">{levelLabels[level]}</p>
+                    </h3>
+                    <p className="mt-1 text-sm text-white/80">{levelLabels[level]}</p>
                   </div>
-                  <CardContent className="space-y-3 p-5">
+                  <div className="space-y-3 p-5">
                     {slots.map((slot, i) => (
-                      <motion.div key={slot.title} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className={`group cursor-pointer rounded-2xl border p-4 transition-all duration-300 hover:shadow-md ${slot.color}`} onClick={() => setSelectedSlot(selectedSlot === slot.title ? null : slot.title)}>
+                      <motion.div
+                        key={slot.title}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className={cn("group cursor-pointer rounded-2xl border p-4 transition-all duration-300 hover:border-white/20", slot.color)}
+                        onClick={() => setSelectedSlot(selectedSlot === slot.title ? null : slot.title)}
+                      >
                         <div className="flex items-start justify-between">
                           <div>
-                            <div className="text-sm font-semibold">{slot.title}</div>
-                            <div className="mt-1 text-sm opacity-80">{slot.date}</div>
-                            <div className="mt-1 text-sm font-medium">{slot.time}</div>
+                            <div className="text-sm font-semibold text-white">{slot.title}</div>
+                            <div className="mt-1 text-sm text-white/70">{slot.date}</div>
+                            <div className="mt-1 text-sm font-medium text-white/90">{slot.time}</div>
                           </div>
-                          <Badge variant="outline" className="text-xs">{slot.type}</Badge>
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/70">{slot.type}</span>
                         </div>
                         <AnimatePresence>
                           {selectedSlot === slot.title && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 border-t border-current border-opacity-20 pt-3">
-                              <Button size="sm" variant="outline" className="w-full text-xs" onClick={(e) => { e.stopPropagation(); toast.info("Inscription à l'épreuve blanche enregistrée"); }}>
-                                S'inscrire à cette épreuve
-                              </Button>
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 border-t border-white/10 pt-3">
+                              <NexusButton variant="outline" className="w-full py-2 text-xs" onClick={(e) => { e.stopPropagation(); }}>
+                                S&apos;inscrire à cette épreuve
+                              </NexusButton>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </motion.div>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                <Card className="overflow-hidden rounded-3xl border-slate-200/60 bg-gradient-to-br from-amber-50 to-orange-50">
-                  <CardContent className="p-6">
+                <div className="overflow-hidden rounded-3xl border border-amber-500/20 bg-amber-500/[0.05]">
+                  <div className="p-6">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg">
                       <Star className="h-6 w-6 text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900">Pourquoi choisir un pack ?</h3>
+                    <h3 className="text-lg font-bold text-white">Pourquoi choisir un pack ?</h3>
                     <ul className="mt-4 space-y-3">
                       {["Un seul cadre organisé", "Progression cohérente", "Tarif avantageux", "Suivi global"].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm text-slate-700">
-                          <Check className="h-4 w-4 text-amber-600" />
+                        <li key={i} className="flex items-center gap-2 text-sm text-white/70">
+                          <Check className="h-4 w-4 text-amber-400" />
                           {item}
                         </li>
                       ))}
                     </ul>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-                <Card className="overflow-hidden rounded-3xl border-slate-200/60 bg-white">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Nos engagements</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {[
-                      { icon: Users, label: "Groupes limités à 6 élèves", color: "from-blue-500 to-cyan-500" },
-                      { icon: BadgeCheck, label: "Cadre structuré et suivi clair", color: "from-emerald-500 to-teal-500" },
-                      { icon: GraduationCap, label: "Formules progressives", color: "from-violet-500 to-purple-500" },
-                      { icon: Sparkles, label: "Bonus pédagogiques inclus", color: "from-amber-500 to-orange-500" },
-                    ].map(({ icon: Icon, label, color }) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-md`}>
-                          <Icon className="h-4 w-4 text-white" />
+                <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-white">Nos engagements</h3>
+                    <div className="mt-4 space-y-4">
+                      {[
+                        { icon: Users, label: "Groupes limités à 6 élèves", color: "from-blue-500 to-cyan-500" },
+                        { icon: BadgeCheck, label: "Cadre structuré et suivi clair", color: "from-emerald-500 to-teal-500" },
+                        { icon: GraduationCap, label: "Formules progressives", color: "from-violet-500 to-purple-500" },
+                        { icon: Sparkles, label: "Bonus pédagogiques inclus", color: "from-amber-500 to-orange-500" },
+                      ].map(({ icon: Icon, label, color }) => (
+                        <div key={label} className="flex items-center gap-3">
+                          <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br shadow-md", color)}>
+                            <Icon className="h-4 w-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-white/80">{label}</span>
                         </div>
-                        <span className="text-sm font-medium text-slate-700">{label}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Summary Table Section */}
-        <section className="border-t border-slate-200/60 bg-white/50 py-16">
-          <div className="mx-auto max-w-7xl px-4 md:px-6">
-            <SectionTitle title="Tableau récapitulatif complet" subtitle="Consultez l'ensemble des créneaux, matières et niveaux en un coup d'œil. Filtrez par date ou par niveau pour planifier votre préparation." />
-            
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-8">
-              <Card className="overflow-hidden rounded-3xl border-slate-200/60 shadow-lg">
-                <div className="overflow-x-auto">
-                  <UITable>
-                    <TableHeader>
-                      <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                        <TableHead className="font-semibold">Date</TableHead>
-                        <TableHead className="font-semibold">Horaire</TableHead>
-                        <TableHead className="font-semibold">Matière</TableHead>
-                        <TableHead className="font-semibold">Type</TableHead>
-                        <TableHead className="font-semibold">Niveau</TableHead>
-                        <TableHead className="font-semibold">Formule</TableHead>
-                        <TableHead className="font-semibold text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tableData.slice(0, 15).map((row, i) => (
-                        <motion.tr key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.02 }} className="group hover:bg-blue-50/50 transition-colors">
-                          <TableCell className="font-medium">{row.date}</TableCell>
-                          <TableCell>{row.time}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="capitalize">{row.subject}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={row.type === "mono" ? "bg-blue-100 text-blue-700" : row.type === "duo" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}>
-                              {row.type === "mono" ? "1 matière" : row.type === "duo" ? "2 matières" : "Parcours"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="capitalize">{levelLabels[row.level as keyof typeof levelLabels]}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">{row.offer}</TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleReservation(offers.find(o => o.id === row.offerId)!)}>
-                              Réserver
-                            </Button>
-                          </TableCell>
-                        </motion.tr>
-                      ))}
-                    </TableBody>
-                  </UITable>
-                </div>
-                <div className="border-t border-slate-200 p-4 text-center">
-                  <Button variant="outline" onClick={() => setIsTableOpen(true)}>
-                    <TableIcon className="mr-2 h-4 w-4" />
-                    Voir le tableau complet
-                  </Button>
-                </div>
-              </Card>
+        {/* Summary Table accessible via modal only */}
+      </main>
+
+      {/* Final CTA */}
+      <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.10),transparent_52%)]" />
+        <div className="relative mx-auto max-w-3xl text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">Stages Printemps 2026 · 18 avril — 2 mai</p>
+          <h2 className="mt-4 text-2xl font-bold text-white md:text-3xl">
+            Le 2 mai, vous repartez avec une méthode posée, des points faibles identifiés et un plan de révision prêt à exécuter.
+          </h2>
+          <p className="mt-5 text-base leading-8 text-white/55">
+            Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places sont pleines.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:min-w-[260px]">
+              Réserver ma place
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a href="mailto:contact@nexusreussite.academy" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:min-w-[240px]">
+              <Mail className="h-4 w-4" aria-hidden="true" />
+              Nous contacter
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <CorporateFooter />
+
+      {/* Table Modal */}
+      <AnimatePresence>
+        {isTableOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#111826]">
+              <div className="flex items-center justify-between border-b border-white/10 p-5">
+                <h3 className="text-lg font-bold text-white">Tableau récapitulatif complet</h3>
+                <button onClick={() => setIsTableOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="overflow-auto p-5">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0">
+                    <tr className="border-b border-white/10 bg-white/[0.06]">
+                      <th className="px-4 py-3 text-left font-semibold text-white">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white">Horaire</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white">Matière</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white">Type</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white">Niveau</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white">Formule</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableData.map((row, i) => (
+                      <tr key={i} className="border-b border-white/5 transition-colors hover:bg-white/[0.03]">
+                        <td className="px-4 py-3 font-medium text-white/90">{row.date}</td>
+                        <td className="px-4 py-3 text-white/60">{row.time}</td>
+                        <td className="px-4 py-3 text-white/60">{row.subject}</td>
+                        <td className="px-4 py-3">
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-xs text-white/70">{row.type}</span>
+                        </td>
+                        <td className="px-4 py-3 text-white/60">{row.level === "premiere" ? "Première" : "Terminale"}</td>
+                        <td className="px-4 py-3 text-white/60">{row.offer}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </motion.div>
-          </div>
-        </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* CTA Section */}
-        <section className="relative overflow-hidden py-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-violet-600 to-purple-700" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')]" />
-          <motion.div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-white/10 blur-3xl" animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 8, repeat: Infinity }} />
-          
-          <div className="relative mx-auto max-w-4xl px-4 text-center md:px-6">
-            <motion.h2 className="text-3xl font-bold text-white md:text-5xl" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              Prêt à réussir votre année ?
-            </motion.h2>
-            <motion.p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-              Réservez votre place dès maintenant et bénéficiez d'un accompagnement personnalisé pour atteindre vos objectifs.
-            </motion.p>
-            <motion.div className="mt-10 flex flex-wrap justify-center gap-4" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-              <Button size="lg" className="rounded-full bg-white px-8 text-blue-600 hover:bg-blue-50" onClick={() => document.getElementById("offers")?.scrollIntoView({ behavior: "smooth" })}>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Choisir ma formule
-              </Button>
-              <Button size="lg" variant="outline" className="rounded-full border-white/30 bg-white/10 px-8 text-white hover:bg-white/20" onClick={() => setIsContactOpen(true)}>
-                <Phone className="mr-2 h-4 w-4" />
-                Nous contacter
-              </Button>
+      {/* Contact Modal */}
+      <AnimatePresence>
+        {isContactOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111826] p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">Contact</h3>
+                <button onClick={() => setIsContactOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-white/70">
+                  <Phone className="h-5 w-5 text-nexus-green" />
+                  <span>+216 XX XXX XXX</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/70">
+                  <Mail className="h-5 w-5 text-nexus-green" />
+                  <span>contact@nexusreussite.academy</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/70">
+                  <MapPin className="h-5 w-5 text-nexus-green" />
+                  <span>Tunis, Tunisie</span>
+                </div>
+              </div>
             </motion.div>
-          </div>
-        </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Footer */}
-        <footer className="border-t border-slate-200 bg-white py-12">
-          <div className="mx-auto max-w-7xl px-4 md:px-6">
-            <div className="grid gap-8 md:grid-cols-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600">
-                    <GraduationCap className="h-4 w-4 text-white" />
-                  </div>
-                  <span className="font-bold text-slate-900">Nexus Réussite</span>
-                </div>
-                <p className="mt-4 text-sm text-slate-600">Accompagnement scolaire personnalisé pour la réussite de tous les élèves.</p>
+      {/* Reservation Modal */}
+      <AnimatePresence>
+        {isReservationOpen && selectedOffer && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111826] p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">Réservation</h3>
+                <button onClick={() => setIsReservationOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <div>
-                <h4 className="font-semibold text-slate-900">Liens rapides</h4>
-                <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                  <li><button onClick={() => document.getElementById("offers")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-blue-600">Nos offres</button></li>
-                  <li><button onClick={() => setIsTableOpen(true)} className="hover:text-blue-600">Calendrier</button></li>
-                  <li><button onClick={() => setIsContactOpen(true)} className="hover:text-blue-600">Contact</button></li>
-                </ul>
+              <p className="mb-6 text-white/60">
+                Vous souhaitez réserver la formule <span className="font-semibold text-white">{selectedOffer.title}</span> à <span className="font-semibold text-white">{selectedOffer.price.toLocaleString("fr-FR")} TND</span>.
+              </p>
+              <div className="flex gap-3">
+                <NexusButton variant="outline" className="flex-1" onClick={() => setIsReservationOpen(false)}>
+                  Annuler
+                </NexusButton>
+                <NexusButton className="flex-1" onClick={confirmReservation}>
+                  Confirmer
+                </NexusButton>
               </div>
-              <div>
-                <h4 className="font-semibold text-slate-900">Contact</h4>
-                <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                  <li className="flex items-center gap-2"><Phone className="h-4 w-4" /> +216 XX XXX XXX</li>
-                  <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> contact@nexusreussite.tn</li>
-                  <li className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Tunis, Tunisie</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-slate-900">Newsletter</h4>
-                <div className="mt-4 flex gap-2">
-                  <Input placeholder="Votre email" className="rounded-xl" />
-                  <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600" onClick={() => toast.success("Inscription à la newsletter confirmée !")}>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="mt-12 border-t border-slate-200 pt-8 text-center text-sm text-slate-500">
-              © 2026 Nexus Réussite. Tous droits réservés.
-            </div>
-          </div>
-        </footer>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Scroll to Top */}
-        <AnimatePresence>
-          {showScrollTop && (
-            <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={scrollToTop} className="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-500/30 transition-transform hover:scale-110">
-              <ChevronUp className="h-5 w-5" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        {/* Reservation Dialog */}
-        <Dialog open={isReservationOpen} onOpenChange={setIsReservationOpen}>
-          <DialogContent className="max-w-lg rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">Réserver votre place</DialogTitle>
-              <DialogDescription>
-                {selectedOffer && (
-                  <span className="text-slate-600">
-                    Stage : <span className="font-semibold text-slate-900">{selectedOffer.title}</span>
-                    <br />
-                    Prix : <span className="font-semibold text-slate-900">{selectedOffer.price.toLocaleString("fr-FR")} TND</span>
-                  </span>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Nom complet</label>
-                <Input placeholder="Votre nom" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
-                <Input type="email" placeholder="votre@email.com" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Téléphone</label>
-                <Input placeholder="+216 XX XXX XXX" className="rounded-xl" />
-              </div>
-              <div className="rounded-xl bg-blue-50 p-4">
-                <div className="flex items-start gap-2">
-                  <Info className="mt-0.5 h-4 w-4 text-blue-600" />
-                  <p className="text-sm text-blue-700">
-                    Un acompte de 50% ({selectedOffer ? (selectedOffer.price / 2).toLocaleString("fr-FR") : 0} TND) sera demandé pour confirmer votre inscription.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsReservationOpen(false)}>Annuler</Button>
-              <Button className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600" onClick={confirmReservation}>
-                Confirmer la réservation
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Full Table Dialog */}
-        <Dialog open={isTableOpen} onOpenChange={setIsTableOpen}>
-          <DialogContent className="max-w-5xl max-h-[90vh] rounded-3xl p-0">
-            <DialogHeader className="p-6 pb-0">
-              <DialogTitle className="text-2xl flex items-center gap-2">
-                <TableIcon className="h-6 w-6" />
-                Tableau récapitulatif complet
-              </DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[60vh]">
-              <div className="p-6">
-                <Tabs defaultValue="all">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="all">Tous</TabsTrigger>
-                    <TabsTrigger value="premiere">Première</TabsTrigger>
-                    <TabsTrigger value="terminale">Terminale</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="all">
-                    <UITable>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Horaire</TableHead>
-                          <TableHead>Matière</TableHead>
-                          <TableHead>Niveau</TableHead>
-                          <TableHead>Formule</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {tableData.map((row, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="font-medium">{row.date}</TableCell>
-                            <TableCell>{row.time}</TableCell>
-                            <TableCell><Badge variant="outline" className="capitalize">{row.subject}</Badge></TableCell>
-                            <TableCell>{levelLabels[row.level as keyof typeof levelLabels]}</TableCell>
-                            <TableCell className="max-w-[250px] truncate">{row.offer}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </UITable>
-                  </TabsContent>
-                  <TabsContent value="premiere">
-                    <UITable>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Horaire</TableHead>
-                          <TableHead>Matière</TableHead>
-                          <TableHead>Formule</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {tableData.filter(r => r.level === "premiere").map((row, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="font-medium">{row.date}</TableCell>
-                            <TableCell>{row.time}</TableCell>
-                            <TableCell><Badge variant="outline" className="capitalize">{row.subject}</Badge></TableCell>
-                            <TableCell className="max-w-[300px] truncate">{row.offer}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </UITable>
-                  </TabsContent>
-                  <TabsContent value="terminale">
-                    <UITable>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Horaire</TableHead>
-                          <TableHead>Matière</TableHead>
-                          <TableHead>Formule</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {tableData.filter(r => r.level === "terminale").map((row, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="font-medium">{row.date}</TableCell>
-                            <TableCell>{row.time}</TableCell>
-                            <TableCell><Badge variant="outline" className="capitalize">{row.subject}</Badge></TableCell>
-                            <TableCell className="max-w-[300px] truncate">{row.offer}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </UITable>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </ScrollArea>
-            <div className="border-t border-slate-200 p-4 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsTableOpen(false)}>Fermer</Button>
-              <Button className="bg-gradient-to-r from-blue-600 to-violet-600" onClick={() => toast.info("Export Excel en préparation")}>
-                <Download className="mr-2 h-4 w-4" />
-                Exporter
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Contact Dialog */}
-        <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
-          <DialogContent className="max-w-lg rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">Contactez-nous</DialogTitle>
-              <DialogDescription>Une question ? Nous sommes là pour vous aider.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                  <Phone className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="font-medium">Téléphone</div>
-                  <div className="text-sm text-slate-600">+216 XX XXX XXX</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100">
-                  <Mail className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <div className="font-medium">Email</div>
-                  <div className="text-sm text-slate-600">contact@nexusreussite.tn</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100">
-                  <MapPin className="h-5 w-5 text-violet-600" />
-                </div>
-                <div>
-                  <div className="font-medium">Adresse</div>
-                  <div className="text-sm text-slate-600">Tunis, Tunisie</div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Ou envoyez-nous un message</label>
-                <textarea className="w-full rounded-xl border border-slate-200 p-3 text-sm min-h-[100px]" placeholder="Votre message..." />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsContactOpen(false)}>Annuler</Button>
-              <Button className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600" onClick={() => { toast.success("Message envoyé !"); setIsContactOpen(false); }}>
-                Envoyer
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </TooltipProvider>
+      {/* Scroll to top */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={scrollToTop} className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] text-white shadow-lg backdrop-blur-md transition-colors hover:bg-white/[0.12]">
+            <ChevronUp className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
