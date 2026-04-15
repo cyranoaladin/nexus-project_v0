@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 import type { Offer } from "../_data/offers";
 import BankTransferInstructions from "./BankTransferInstructions";
-import { WHATSAPP_URL } from "../_lib/constants";
+
 
 // ── Types ──────────────────────────────────────────────────
 type Step = "form" | "bank_details" | "success";

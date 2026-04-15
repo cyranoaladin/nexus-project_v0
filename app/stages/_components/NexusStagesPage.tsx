@@ -25,14 +25,9 @@ import {
   MapPin,
   Phone,
   Mail,
-  Info,
-  Table as TableIcon,
   ChevronUp,
-  Download,
   Heart,
-  Menu,
   X,
-  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
@@ -492,7 +487,7 @@ export default function NexusStagesPage() {
   useEffect(() => {
     const defaultOpen = filteredOffers[0]?.id ?? null;
     setOpenId(defaultOpen);
-  }, [level, category, query]);
+  }, [filteredOffers]);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));

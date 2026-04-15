@@ -33,8 +33,8 @@ test.describe('Stages Février 2026 Page', () => {
     const discover = page.getByRole('link', { name: /découvrir les académies/i }).first();
     await expect(discover).toHaveAttribute('href', '#academies');
 
-    const reserve = page.getByRole('link', { name: /réserver/i }).first();
-    await expect(reserve).toHaveAttribute('href', /#(academies|reservation)/);
+    const reserve = page.getByRole('link', { name: /réserver une consultation gratuite/i }).first();
+    await expect(reserve).toHaveAttribute('href', '#reservation');
   });
 
   test('clicking CTA scrolls or navigates', async ({ page }) => {
