@@ -13,6 +13,12 @@ module.exports = {
         AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST || 'true',
         NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
       },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: process.env.PORT || 3001,
+        AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST || 'true',
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
+      },
     },
   ],
 };
