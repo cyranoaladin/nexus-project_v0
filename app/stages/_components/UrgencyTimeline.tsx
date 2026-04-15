@@ -42,14 +42,14 @@ export default function UrgencyTimeline() {
             <h2 className="mt-3 font-display text-h2 font-bold text-white">
               Chaque étape a une date. Toutes sont proches.
             </h2>
-            <p className="mt-4 text-base leading-8 text-white/56">
+            <p className="mt-4 text-base leading-8 text-slate-300">
               Les stages couvrent les trois séquences critiques de l'année. L'ordre de priorité
               dépend de votre profil.
             </p>
           </div>
 
-          <div className="rounded-[26px] border border-white/8 bg-white/[0.025] p-5 text-sm leading-7 text-white/60">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/38">
+          <div className="rounded-[26px] border border-white/10 bg-[#111826] p-5 text-sm leading-7 text-slate-300">
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-500">
               Ordre de décision recommandé
             </p>
             <p className="mt-3">
@@ -66,7 +66,7 @@ export default function UrgencyTimeline() {
             return (
               <article
                 key={item.title}
-                className="rounded-[26px] border border-white/8 bg-white/[0.03] p-7 shadow-card"
+                className="rounded-[26px] border border-white/10 bg-[#141d2e] p-7 shadow-card"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div
@@ -80,7 +80,7 @@ export default function UrgencyTimeline() {
                   </p>
                 </div>
                 <h3 className="mt-5 font-display text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/56">{item.description}</p>
+                <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
               </article>
             );
           })}
