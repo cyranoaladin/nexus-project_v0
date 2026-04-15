@@ -26,6 +26,22 @@ const REASSURANCE_ITEMS = [
   { icon: Wallet, label: "Parcours combinés plus avantageux que des inscriptions séparées" },
 ] as const;
 
+// Per-level + per-filter default open card (best lead offer in each filter)
+const DEFAULT_OPEN: Record<Level, Record<CategoryFilter, string>> = {
+  premiere: {
+    all: "p-mono-maths",
+    mono: "p-mono-maths",
+    duo: "p-duo-fr-maths",
+    trio: "p-trio-fr-maths-nsi",
+  },
+  terminale: {
+    all: "t-mono-maths",
+    mono: "t-mono-maths",
+    duo: "t-duo-maths-nsi",
+    trio: "t-trio-maths-nsi-go",
+  },
+};
+
 export default function OffersSection() {
   const [level, setLevel] = useState<Level>("premiere");
   const [category, setCategory] = useState<CategoryFilter>("all");
@@ -40,22 +56,6 @@ export default function OffersSection() {
       return all.filter((o) => o.category === "trio" || o.category === "complement");
     return all.filter((o) => o.category === category);
   }, [level, category]);
-
-  // Per-level + per-filter default open card (best lead offer in each filter)
-  const DEFAULT_OPEN: Record<Level, Record<CategoryFilter, string>> = {
-    premiere: {
-      all: "p-mono-maths",
-      mono: "p-mono-maths",
-      duo: "p-duo-fr-maths",
-      trio: "p-trio-fr-maths-nsi",
-    },
-    terminale: {
-      all: "t-mono-maths",
-      mono: "t-mono-maths",
-      duo: "t-duo-maths-nsi",
-      trio: "t-trio-maths-nsi-go",
-    },
-  };
 
   // When level changes, reset filter and open the flagship offer
   const handleLevelChange = useCallback(
