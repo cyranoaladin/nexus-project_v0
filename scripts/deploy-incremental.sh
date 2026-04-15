@@ -69,7 +69,8 @@ ssh $VPS_USER@$VPS_HOST << 'EOF'
     
     # Redémarrage PM2
     echo "🔄 Redémarrage de l'application..."
-    pm2 restart nexus-app || pm2 start ecosystem.config.js
+    pm2 startOrRestart ecosystem.config.js --env production --update-env
+    pm2 save
     
     # Vérification du statut
     echo "📊 Statut de l'application:"

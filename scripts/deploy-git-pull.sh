@@ -16,7 +16,8 @@ ssh "$REMOTE_HOST" "set -e
   echo 'Après : \$(git rev-parse --short HEAD)'
   npm ci
   NODE_OPTIONS='--max-old-space-size=8192' npm run build
-  pm2 restart $PM2_PROCESS
+  pm2 startOrRestart ecosystem.config.js --env production --update-env
+  pm2 save
   sleep 3
   pm2 list
   echo '✅ Déploiement terminé'

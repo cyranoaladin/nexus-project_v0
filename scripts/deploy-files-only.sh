@@ -60,7 +60,8 @@ ssh $VPS_USER@$VPS_HOST << 'EOF'
     npm run build
     
     echo "🔄 Redémarrage PM2..."
-    pm2 restart nexus-app
+    pm2 startOrRestart ecosystem.config.js --env production --update-env
+    pm2 save
     
     echo "📊 Statut:"
     pm2 status
