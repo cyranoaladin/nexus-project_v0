@@ -417,7 +417,7 @@ function PriceBlock({ price, oldPrice }: { price: number; oldPrice?: number | nu
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <motion.div className="space-y-3" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-      <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{title}</h2>
+      <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl md:text-3xl">{title}</h2>
       <p className="max-w-3xl text-sm leading-relaxed text-white/55 md:text-base">{subtitle}</p>
     </motion.div>
   );
@@ -544,20 +544,20 @@ export default function NexusStagesPage() {
                 </motion.div>
 
                 <div className="space-y-5">
-                  <motion.h1 className="max-w-4xl font-display text-4xl font-extrabold leading-[1.05] text-white md:text-5xl lg:text-6xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                  <motion.h1 className="max-w-4xl font-display text-3xl font-extrabold leading-[1.05] text-white sm:text-4xl md:text-5xl lg:text-6xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                     Préparez les échéances de mai et juin avec méthode, exigence et un cadre qui fait vraiment travailler.
                   </motion.h1>
-                  <motion.p className="max-w-2xl text-base leading-8 text-white/55 sm:text-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                  <motion.p className="max-w-2xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                     Des groupes de 6 élèves maximum. Des intervenants du système français. Des entraînements corrigés, des épreuves blanches et un plan de révision final.
                   </motion.p>
                 </div>
 
-                <motion.div className="flex flex-wrap gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                  <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50">
+                <motion.div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                  <a href="#offres" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto">
                     Voir les formules disponibles
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </a>
-                  <NexusButton variant="outline" onClick={() => setIsTableOpen(true)}>
+                  <NexusButton variant="outline" className="w-full sm:w-auto" onClick={() => setIsTableOpen(true)}>
                     <Calendar className="h-4 w-4" />
                     Voir le calendrier
                   </NexusButton>
@@ -615,7 +615,7 @@ export default function NexusStagesPage() {
                 { value: "95", label: "Taux de satisfaction", suffix: "%" },
               ].map((stat, i) => (
                 <motion.div key={stat.label} className="text-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                  <div className="text-3xl font-bold text-white md:text-4xl">{stat.value}{stat.suffix}</div>
+                  <div className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">{stat.value}{stat.suffix}</div>
                   <div className="mt-1 text-sm text-white/50">{stat.label}</div>
                 </motion.div>
               ))}
@@ -625,7 +625,7 @@ export default function NexusStagesPage() {
 
         {/* Main Content */}
         <section id="offers" className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
-          <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+          <div className="grid gap-10 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px]">
             <div className="space-y-10">
               <SectionTitle title="Choisissez la formule la plus adaptée" subtitle="Les offres sont organisées par niveau, puis filtrables par type de parcours. Chaque formule détaille ses horaires, ses épreuves blanches, ses bilans et le suivi transmis à l'élève et à sa famille. Un stage Nexus coûte moins qu'un équivalent en cours individuels." />
 
@@ -737,13 +737,13 @@ export default function NexusStagesPage() {
                                       <Icon className="h-6 w-6 text-white" />
                                     </div>
                                     <div>
-                                      <h3 className="text-xl font-bold text-white md:text-2xl">{offer.title}</h3>
+                                      <h3 className="text-lg font-bold text-white sm:text-xl md:text-2xl">{offer.title}</h3>
                                       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/55">{offer.shortPitch}</p>
                                     </div>
                                   </div>
                                 </div>
 
-                                <div className="flex flex-col items-end gap-3 md:min-w-[200px]">
+                                <div className="flex flex-col items-start gap-3 md:min-w-[200px] md:items-end">
                                   <button onClick={() => toggleFavorite(offer.id)} className="rounded-full p-2 transition-colors hover:bg-white/[0.06]">
                                     <Heart className={cn("h-5 w-5 transition-colors", isFavorite ? "fill-rose-500 text-rose-500" : "text-white/40")} />
                                   </button>
@@ -769,15 +769,15 @@ export default function NexusStagesPage() {
                                   )}
                                 </div>
 
-                                <div className="flex flex-wrap gap-3">
-                                  <NexusButton variant="outline" onClick={() => setOpenId(isOpen ? null : offer.id)}>
+                                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                                  <NexusButton variant="outline" className="w-full sm:w-auto" onClick={() => setOpenId(isOpen ? null : offer.id)}>
                                     {isOpen ? "Réduire" : "Voir le détail"}
                                     <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
                                   </NexusButton>
-                                  <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50">
+                                  <NexusButton className="w-full sm:w-auto" onClick={() => handleReservation(offer)}>
                                     Réserver ma place
                                     <ArrowRight className="h-4 w-4" />
-                                  </a>
+                                  </NexusButton>
                                 </div>
                               </div>
 
@@ -902,7 +902,7 @@ export default function NexusStagesPage() {
 
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
                 <div className="overflow-hidden rounded-3xl border border-amber-500/20 bg-amber-500/[0.05]">
-                  <div className="p-6">
+                  <div className="p-5 sm:p-6">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg">
                       <Star className="h-6 w-6 text-white" />
                     </div>
@@ -921,7 +921,7 @@ export default function NexusStagesPage() {
 
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
                 <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
-                  <div className="p-6">
+                  <div className="p-5 sm:p-6">
                     <h3 className="text-lg font-bold text-white">Nos engagements</h3>
                     <div className="mt-4 space-y-4">
                       {[
@@ -953,18 +953,18 @@ export default function NexusStagesPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.10),transparent_52%)]" />
         <div className="relative mx-auto max-w-3xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">Stages Printemps 2026 · 18 avril — 2 mai</p>
-          <h2 className="mt-4 text-2xl font-bold text-white md:text-3xl">
+          <h2 className="mt-4 text-xl font-bold text-white sm:text-2xl md:text-3xl">
             Le 2 mai, vous repartez avec une méthode posée, des points faibles identifiés et un plan de révision prêt à exécuter.
           </h2>
           <p className="mt-5 text-base leading-8 text-white/55">
             Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places sont pleines.
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <a href="#offres" className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:min-w-[260px]">
+            <a href="#offres" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto sm:min-w-[260px]">
               Réserver ma place
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
-            <a href="mailto:contact@nexusreussite.academy" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:min-w-[240px]">
+            <a href="mailto:contact@nexusreussite.academy" className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto sm:min-w-[240px]">
               <Mail className="h-4 w-4" aria-hidden="true" />
               Nous contacter
             </a>
@@ -986,7 +986,7 @@ export default function NexusStagesPage() {
                 </button>
               </div>
               <div className="overflow-auto p-5">
-                <table className="w-full text-sm">
+                <table className="w-full min-w-[640px] text-sm">
                   <thead className="sticky top-0">
                     <tr className="border-b border-white/10 bg-white/[0.06]">
                       <th className="px-4 py-3 text-left font-semibold text-white">Date</th>
