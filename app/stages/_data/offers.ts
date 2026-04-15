@@ -16,15 +16,6 @@ export type PortfolioRole = "lead" | "secondary" | "entry";
 
 /** Profitability health indicator */
 export type ProfitabilityProfile = "strong" | "fragile" | "entry";
-export type IncludedBonusKind = "masterium" | "grand_oral_workshops";
-
-export interface IncludedBonus {
-  kind: IncludedBonusKind;
-  shortLabel: string;
-  shortSubLabel?: string;
-  detailedText: string;
-  valueLabel: string;
-}
 
 export interface Offer {
   id: string;
@@ -44,17 +35,9 @@ export interface Offer {
   points: string[];
   pourQui: string;
   avantagePack?: string;
-  includedBonus?: IncludedBonus;
   ctaClosed: string;
   ctaOpen: string;
   visible: boolean;
-
-  // ── Visual & scheduling fields ─────────────────────────
-  subjectKey: string;
-  color: string;
-  icon: string;
-  planning: string[];
-  followUp: string[];
 
   // ── Business model fields ──────────────────────────────
   /** Per-subject hour allocation — sum MUST equal `hours` */
@@ -72,25 +55,6 @@ export interface Offer {
   /** Internal profitability notes (not rendered) */
   profitabilityNotes?: string;
 }
-
-const PREMIERE_MASTERIUM_BONUS: IncludedBonus = {
-  kind: "masterium",
-  shortLabel: "Bonus inclus : accès Masterium offert",
-  shortSubLabel:
-    "Préparation à l’épreuve anticipée de Français — valeur réelle 258 TND.",
-  detailedText:
-    "Cette formule inclut également un accès offert à Masterium, notre plateforme de préparation à l’épreuve anticipée de Français.",
-  valueLabel: "Valeur réelle de l’abonnement : 258 TND.",
-};
-
-const TERMINALE_GRAND_ORAL_BONUS: IncludedBonus = {
-  kind: "grand_oral_workshops",
-  shortLabel: "Bonus inclus : 3 ateliers Grand Oral offerts",
-  shortSubLabel: "Valeur réelle 300 TND.",
-  detailedText:
-    "Cette formule inclut également 3 ateliers offerts de préparation au Grand Oral.",
-  valueLabel: "Valeur réelle : 300 TND.",
-};
 
 // ──── PREMIÈRE ────────────────────────────────────────────────
 
@@ -122,30 +86,9 @@ const PREMIERE_OFFERS: Offer[] = [
       "Pour les élèves de Première qui veulent sécuriser l'essentiel avec une formule sérieuse, structurée et plus avantageuse que deux inscriptions séparées.",
     avantagePack:
       "Une seule organisation, un seul rythme, une seule logique de travail.",
-    includedBonus: PREMIERE_MASTERIUM_BONUS,
     ctaClosed: "Opter pour le duo",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "duo-fr-maths",
-    color: "from-amber-500 to-orange-500",
-    icon: "Star",
-    planning: [
-      "Samedi 18 avril — 09h00 à 12h00 · Maths bloc 1",
-      "Lundi 20 avril — 09h00 à 12h00 · Maths bloc 2",
-      "Mardi 21 avril — 13h30 à 16h30 · Français bloc 1",
-      "Jeudi 23 avril — 09h00 à 12h00 · Maths bloc 3",
-      "Samedi 25 avril — 09h00 à 12h00 · Maths bloc 4",
-      "Lundi 27 avril — 13h30 à 16h30 · Français bloc 2",
-      "Mardi 28 avril — 09h00 à 12h00 · Français écrit blanc",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc + correction",
-      "Jeudi 30 avril — 13h30 à 16h30 · Français oral blanc",
-      "Samedi 2 mai — 09h00 à 12h00 · Maths consolidation",
-    ],
-    followUp: [
-      "Point d'étape intermédiaire",
-      "Corrigés détaillés des épreuves blanches",
-      "Bilan final avec priorités",
-    ],
     hoursBreakdown: { francais: 12, maths: 18 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -180,23 +123,6 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "maths",
-    color: "from-cyan-500 to-blue-500",
-    icon: "Brain",
-    planning: [
-      "Samedi 18 avril — 09h00 à 12h00 · Bloc 1 : diagnostic",
-      "Lundi 20 avril — 09h00 à 12h00 · Bloc 2 : fonctions",
-      "Jeudi 23 avril — 09h00 à 12h00 · Bloc 3 : probabilités",
-      "Samedi 25 avril — 09h00 à 12h00 · Bloc 4 : suites",
-      "Mercredi 29 avril — 09h00 à 11h00 · Épreuve blanche",
-      "Mercredi 29 avril — 11h00 à 12h00 · Correction",
-    ],
-    followUp: [
-      "Corrigé détaillé de l'épreuve blanche",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final individualisé",
-      "Plan de révision ciblé",
-    ],
     hoursBreakdown: { maths: 15 },
     openingThreshold: 2,
     maxStudents: 6,
@@ -232,32 +158,9 @@ const PREMIERE_OFFERS: Offer[] = [
       "Pour les élèves de Première qui veulent une prise en charge plus complète avec une organisation simple et lisible.",
     avantagePack:
       "Le choix le plus complet, avec une logique de progression plus claire et un tarif plus avantageux que l'achat séparé.",
-    includedBonus: PREMIERE_MASTERIUM_BONUS,
     ctaClosed: "Choisir la formule complète",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "trio",
-    color: "from-fuchsia-500 to-indigo-500",
-    icon: "GraduationCap",
-    planning: [
-      "Samedi 18 avril — 09h00 à 12h00 · Maths bloc 1",
-      "Lundi 20 avril — 09h00 à 12h00 · Maths bloc 2",
-      "Mardi 21 avril — 13h30 à 16h30 · Français bloc 1",
-      "Mercredi 22 avril — 09h00 à 12h00 · NSI bloc 1",
-      "Jeudi 23 avril — 09h00 à 12h00 · Maths bloc 3",
-      "Vendredi 24 avril — 09h00 à 12h00 · NSI bloc 2",
-      "Samedi 25 avril — 09h00 à 12h00 · Maths bloc 4",
-      "Lundi 27 avril — 13h30 à 16h30 · Français bloc 2",
-      "Mardi 28 avril — 09h00 à 12h00 · Français écrit blanc",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc + correction",
-      "Jeudi 30 avril — 13h30 à 16h30 · Français oral blanc",
-      "Samedi 2 mai — 09h00 à 12h00 · Maths consolidation",
-    ],
-    followUp: [
-      "Point d'étape intermédiaire",
-      "Corrigés détaillés des épreuves blanches",
-      "Bilan final multi-matières",
-    ],
     hoursBreakdown: { francais: 12, maths: 18, nsi: 6 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -293,30 +196,9 @@ const PREMIERE_OFFERS: Offer[] = [
       "Pour les élèves de Première à profil scientifique ou numérique qui veulent un cadre solide sur deux matières stratégiques.",
     avantagePack:
       "Un parcours cohérent, plus simple à suivre et plus avantageux que deux formules distinctes.",
-    includedBonus: PREMIERE_MASTERIUM_BONUS,
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "duo-maths-nsi",
-    color: "from-emerald-500 to-cyan-500",
-    icon: "Sparkles",
-    planning: [
-      "Samedi 18 avril — 09h00 à 12h00 · Maths bloc 1",
-      "Lundi 20 avril — 09h00 à 12h00 · Maths bloc 2",
-      "Mercredi 22 avril — 09h00 à 12h00 · NSI bloc 1",
-      "Jeudi 23 avril — 09h00 à 12h00 · Maths bloc 3",
-      "Vendredi 24 avril — 09h00 à 12h00 · NSI bloc 2",
-      "Samedi 25 avril — 09h00 à 12h00 · Maths bloc 4",
-      "Lundi 27 avril — 09h00 à 12h00 · NSI bloc 3",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc + correction",
-      "Vendredi 1er mai — 09h00 à 12h00 · NSI bloc 4",
-      "Samedi 2 mai — 09h00 à 12h00 · NSI bloc 5",
-    ],
-    followUp: [
-      "Point d'étape intermédiaire",
-      "Corrigé détaillé Maths + retour NSI",
-      "Bilan final sur les deux matières",
-    ],
     hoursBreakdown: { maths: 15, nsi: 15 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -351,22 +233,6 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "nsi",
-    color: "from-violet-500 to-fuchsia-500",
-    icon: "Laptop",
-    planning: [
-      "Mercredi 22 avril — 09h00 à 12h00 · Bloc 1 : Python",
-      "Vendredi 24 avril — 09h00 à 12h00 · Bloc 2 : structures",
-      "Lundi 27 avril — 09h00 à 12h00 · Bloc 3 : algorithmique",
-      "Vendredi 1er mai — 09h00 à 12h00 · Bloc 4 : sujet guidé",
-      "Samedi 2 mai — 09h00 à 12h00 · Bloc 5 : consolidation",
-    ],
-    followUp: [
-      "Sujet de synthèse corrigé",
-      "Retour individualisé",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final transmis",
-    ],
     hoursBreakdown: { nsi: 15 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -401,21 +267,6 @@ const PREMIERE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "francais",
-    color: "from-blue-500 to-indigo-500",
-    icon: "BookOpen",
-    planning: [
-      "Mardi 21 avril — 13h30 à 16h30 · Bloc 1 : méthode",
-      "Lundi 27 avril — 13h30 à 16h30 · Bloc 2 : oral",
-      "Mardi 28 avril — 09h00 à 12h00 · Écrit blanc",
-      "Jeudi 30 avril — 13h30 à 16h30 · Oral blanc",
-    ],
-    followUp: [
-      "Corrigé commenté de l'écrit blanc",
-      "Retour individualisé sur l'oral",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final et plan de révision",
-    ],
     hoursBreakdown: { francais: 12 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -456,29 +307,9 @@ const TERMINALE_OFFERS: Offer[] = [
       "Pour les élèves de Terminale à profil numérique qui veulent une préparation solide, cohérente et mieux structurée.",
     avantagePack:
       "Un seul parcours, un rythme plus clair, et un tarif plus avantageux que deux achats séparés.",
-    includedBonus: TERMINALE_GRAND_ORAL_BONUS,
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "pack-maths-nsi",
-    color: "from-emerald-500 to-cyan-500",
-    icon: "Star",
-    planning: [
-      "Samedi 18 avril — 13h30 à 16h30 · Maths bloc 1",
-      "Lundi 20 avril — 13h30 à 16h30 · Maths bloc 2",
-      "Mardi 21 avril — 09h00 à 12h00 · NSI bloc 1",
-      "Jeudi 23 avril — 13h30 à 16h30 · NSI bloc 2",
-      "Samedi 25 avril — 13h30 à 16h30 · Maths bloc 3",
-      "Mardi 28 avril — 09h00 à 12h00 · NSI écrit blanc + 13h30 à 16h30 Maths bloc 4 + 17h00 à 19h00 GO atelier 1",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc",
-      "Jeudi 30 avril — 09h00 à 12h00 · NSI pratique + débrief + 17h00 à 19h00 GO atelier 2",
-      "Samedi 2 mai — 13h30 à 16h30 · Maths correction finale + 17h00 à 19h00 GO atelier 3",
-    ],
-    followUp: [
-      "Bilan intermédiaire",
-      "Corrigés détaillés + retour pratique",
-      "Bilan final sur les deux matières",
-    ],
     hoursBreakdown: { maths: 18, nsi: 12 },
     openingThreshold: 2,
     maxStudents: 6,
@@ -514,30 +345,9 @@ const TERMINALE_OFFERS: Offer[] = [
       "Pour les élèves de Terminale scientifique qui veulent travailler sérieusement dans une formule complète et mieux organisée.",
     avantagePack:
       "Deux matières majeures dans un seul cadre de travail, avec un meilleur équilibre entre lisibilité et intensité.",
-    includedBonus: TERMINALE_GRAND_ORAL_BONUS,
     ctaClosed: "Choisir ce parcours",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "pack-maths-phys",
-    color: "from-orange-500 to-rose-500",
-    icon: "Sparkles",
-    planning: [
-      "Samedi 18 avril — 13h30 à 16h30 · Maths bloc 1",
-      "Lundi 20 avril — 13h30 à 16h30 · Maths bloc 2",
-      "Mardi 21 avril — 13h30 à 16h30 · Physique bloc 1",
-      "Vendredi 24 avril — 13h30 à 16h30 · Physique bloc 2",
-      "Samedi 25 avril — 13h30 à 16h30 · Maths bloc 3",
-      "Mardi 28 avril — 09h00 à 12h00 · Physique écrit blanc + 13h30 à 16h30 Maths bloc 4 + 17h00 à 19h00 GO atelier 1",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc",
-      "Jeudi 30 avril — 17h00 à 19h00 · GO atelier 2",
-      "Vendredi 1er mai — 13h30 à 16h30 · Physique correction",
-      "Samedi 2 mai — 13h30 à 16h30 · Maths correction finale + 17h00 à 19h00 GO atelier 3",
-    ],
-    followUp: [
-      "Bilan intermédiaire",
-      "Corrigés détaillés Maths et Physique",
-      "Bilan final avec priorités",
-    ],
     hoursBreakdown: { maths: 18, physique: 12 },
     openingThreshold: 2,
     maxStudents: 6,
@@ -576,25 +386,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Opter pour le parcours complet",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "pack-maths-nsi-go",
-    color: "from-indigo-500 to-fuchsia-500",
-    icon: "GraduationCap",
-    planning: [
-      "Samedi 18 avril — 13h30 à 16h30 · Maths bloc 1",
-      "Lundi 20 avril — 13h30 à 16h30 · Maths bloc 2",
-      "Mardi 21 avril — 09h00 à 12h00 · NSI bloc 1",
-      "Jeudi 23 avril — 13h30 à 16h30 · NSI bloc 2",
-      "Samedi 25 avril — 13h30 à 16h30 · Maths bloc 3",
-      "Mardi 28 avril — 09h00 à 12h00 · NSI écrit blanc + 13h30 à 16h30 Maths bloc 4 + 17h00 à 19h00 GO atelier 1",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc",
-      "Jeudi 30 avril — 09h00 à 12h00 · NSI pratique + débrief + 17h00 à 19h00 GO atelier 2",
-      "Samedi 2 mai — 13h30 à 16h30 · Maths correction finale + 17h00 à 19h00 GO atelier 3",
-    ],
-    followUp: [
-      "Bilan intermédiaire",
-      "Corrigés détaillés + retour pratique/oral",
-      "Bilan final complet",
-    ],
     hoursBreakdown: { maths: 18, nsi: 12, grandOral: 6 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -633,26 +424,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Opter pour le parcours complet",
     ctaOpen: "Réserver cette formule",
     visible: true,
-    subjectKey: "pack-maths-phys-go",
-    color: "from-sky-500 to-indigo-500",
-    icon: "GraduationCap",
-    planning: [
-      "Samedi 18 avril — 13h30 à 16h30 · Maths bloc 1",
-      "Lundi 20 avril — 13h30 à 16h30 · Maths bloc 2",
-      "Mardi 21 avril — 13h30 à 16h30 · Physique bloc 1",
-      "Vendredi 24 avril — 13h30 à 16h30 · Physique bloc 2",
-      "Samedi 25 avril — 13h30 à 16h30 · Maths bloc 3",
-      "Mardi 28 avril — 09h00 à 12h00 · Physique écrit blanc + 13h30 à 16h30 Maths bloc 4 + 17h00 à 19h00 GO atelier 1",
-      "Mercredi 29 avril — 09h00 à 12h00 · Maths écrit blanc",
-      "Jeudi 30 avril — 17h00 à 19h00 · GO atelier 2",
-      "Vendredi 1er mai — 13h30 à 16h30 · Physique correction",
-      "Samedi 2 mai — 13h30 à 16h30 · Maths correction finale + 17h00 à 19h00 GO atelier 3",
-    ],
-    followUp: [
-      "Bilan intermédiaire",
-      "Corrigés détaillés + retour oral",
-      "Bilan final complet",
-    ],
     hoursBreakdown: { maths: 18, physique: 12, grandOral: 6 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -687,23 +458,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "maths",
-    color: "from-rose-500 to-orange-500",
-    icon: "Brain",
-    planning: [
-      "Samedi 18 avril — 13h30 à 16h30 · Bloc 1 : diagnostic",
-      "Lundi 20 avril — 13h30 à 16h30 · Bloc 2 : fonctions",
-      "Samedi 25 avril — 13h30 à 16h30 · Bloc 3 : probabilités",
-      "Mardi 28 avril — 13h30 à 16h30 · Bloc 4 : entraînement",
-      "Mercredi 29 avril — 09h00 à 12h00 · Épreuve blanche",
-      "Samedi 2 mai — 13h30 à 16h30 · Correction finale",
-    ],
-    followUp: [
-      "Corrigé détaillé de l'épreuve blanche",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final individualisé",
-      "Conseils de méthode",
-    ],
     hoursBreakdown: { maths: 18 },
     openingThreshold: 2,
     maxStudents: 6,
@@ -738,22 +492,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "nsi",
-    color: "from-violet-500 to-purple-500",
-    icon: "Laptop",
-    planning: [
-      "Mardi 21 avril — 09h00 à 12h00 · Bloc 1 : données, SQL",
-      "Jeudi 23 avril — 13h30 à 16h30 · Bloc 2 : algorithmique",
-      "Mardi 28 avril — 09h00 à 12h00 · Écrit blanc NSI",
-      "Jeudi 30 avril — 09h00 à 10h00 · Pratique blanche",
-      "Jeudi 30 avril — 10h00 à 12h00 · Débrief",
-    ],
-    followUp: [
-      "Corrigé détaillé écrit + retour pratique",
-      "Analyse personnalisée",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final transmis",
-    ],
     hoursBreakdown: { nsi: 12 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -788,21 +526,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Choisir cette formule",
     ctaOpen: "Réserver ma place",
     visible: true,
-    subjectKey: "physique",
-    color: "from-emerald-500 to-teal-500",
-    icon: "FlaskConical",
-    planning: [
-      "Mardi 21 avril — 13h30 à 16h30 · Bloc 1 : méthode",
-      "Vendredi 24 avril — 13h30 à 16h30 · Bloc 2 : spécialité",
-      "Mardi 28 avril — 09h00 à 12h00 · Écrit blanc",
-      "Vendredi 1er mai — 13h30 à 16h30 · Correction finale",
-    ],
-    followUp: [
-      "Corrigé détaillé individualisé",
-      "Bilan intermédiaire transmis à la famille",
-      "Bilan final avec axes de progrès",
-      "Conseils de méthode",
-    ],
     hoursBreakdown: { physique: 12 },
     openingThreshold: 3,
     maxStudents: 6,
@@ -837,18 +560,6 @@ const TERMINALE_OFFERS: Offer[] = [
     ctaClosed: "Ajouter le Grand Oral",
     ctaOpen: "Ajouter ce module",
     visible: true,
-    subjectKey: "grand-oral",
-    color: "from-amber-500 to-yellow-500",
-    icon: "Mic",
-    planning: [
-      "Mardi 28 avril — 17h00 à 19h00 · Atelier 1 : questions",
-      "Jeudi 30 avril — 17h00 à 19h00 · Atelier 2 : exposé",
-    ],
-    followUp: [
-      "Retour individualisé structure + posture",
-      "Bilan intermédiaire transmis à la famille",
-      "Conseils personnalisés",
-    ],
     hoursBreakdown: { grandOral: 4 },
     openingThreshold: 3,
     maxStudents: 6,

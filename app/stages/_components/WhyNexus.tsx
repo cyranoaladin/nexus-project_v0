@@ -30,13 +30,13 @@ export default function WhyNexus() {
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-center">
           {/* Texte gauche */}
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/42">
               Pourquoi Nexus Réussite
             </p>
             <h2 className="mt-3 font-display text-h2 font-bold text-white">
               Ce n'est pas une question de prix. C'est une question de densité pédagogique.
             </h2>
-            <p className="mt-5 text-base leading-8 text-slate-300">
+            <p className="mt-5 text-base leading-8 text-white/56">
               Un stage Nexus coûte moins qu'un équivalent en cours individuels et produit plus
               qu'un cours collectif classique. C'est là que le rendement change.
             </p>
@@ -49,13 +49,13 @@ export default function WhyNexus() {
               return (
                 <article
                   key={adv.title}
-                  className="rounded-[24px] border border-white/10 bg-[#111826] p-5"
+                  className="rounded-[24px] border border-white/8 bg-white/[0.03] p-5"
                 >
                   <div className="inline-flex rounded-full border border-nexus-green/20 bg-nexus-green/10 p-2.5">
                     <Icon className="h-5 w-5 text-nexus-green" aria-hidden="true" />
                   </div>
                   <h3 className="mt-4 font-display text-base font-bold text-white">{adv.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-slate-300">{adv.copy}</p>
+                  <p className="mt-2 text-sm leading-7 text-white/54">{adv.copy}</p>
                 </article>
               );
             })}

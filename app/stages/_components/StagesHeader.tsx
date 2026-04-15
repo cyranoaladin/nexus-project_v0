@@ -12,7 +12,7 @@ export default function StagesHeader() {
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 font-display text-xs font-bold uppercase tracking-[0.18em] text-white">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-display text-xs font-bold uppercase tracking-[0.18em] text-white">
             <CalendarRange className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
             Stages Printemps 2026
           </span>
