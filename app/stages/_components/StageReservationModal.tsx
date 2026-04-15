@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import type { Offer } from "../_data/offers";
 import BankTransferInstructions from "./BankTransferInstructions";
 
 
@@ -23,8 +22,15 @@ import BankTransferInstructions from "./BankTransferInstructions";
 type Step = "form" | "bank_details" | "success";
 type PaymentMethod = "bank_transfer" | "whatsapp";
 
+interface ReservationOffer {
+  id: string;
+  title: string;
+  price: number;
+  hours: number;
+}
+
 interface Props {
-  offer: Offer | null;
+  offer: ReservationOffer | null;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }

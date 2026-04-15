@@ -32,6 +32,8 @@ import {
 import { cn } from "@/lib/utils";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import StageReservationModal from "./StageReservationModal";
+import StickyMobileCTA from "./StickyMobileCTA";
 
 // ============================================
 // DATA
@@ -498,9 +500,10 @@ export default function NexusStagesPage() {
     setIsReservationOpen(true);
   };
 
-  const confirmReservation = () => {
-    setIsReservationOpen(false);
-  };
+  const quickReserveOffer =
+    filteredOffers[0] ?? offers.find((offer) => offer.level === level) ?? offers[0] ?? null;
+
+
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -522,7 +525,7 @@ export default function NexusStagesPage() {
     <div className="min-h-screen bg-nexus-bg font-body text-white selection:bg-nexus-green/25 selection:text-white">
       <CorporateNavbar />
 
-      <main id="main-content" className="pt-24 md:pt-28">
+      <main id="main-content" className="pb-24 pt-24 md:pb-0 md:pt-28">
         {/* Hero Section */}
         <section className="relative overflow-hidden px-4 pb-20 pt-12 sm:px-6 lg:px-8">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(16,185,129,0.10),transparent_42%),radial-gradient(ellipse_at_80%_70%,rgba(245,158,11,0.06),transparent_32%)]" />
@@ -969,6 +972,14 @@ export default function NexusStagesPage() {
 
       <CorporateFooter />
 
+      <StickyMobileCTA
+        onReserve={() => {
+          if (quickReserveOffer) {
+            handleReservation(quickReserveOffer);
+          }
+        }}
+      />
+
       {/* Table Modal */}
       <AnimatePresence>
         {isTableOpen && (
@@ -1043,32 +1054,7 @@ export default function NexusStagesPage() {
         )}
       </AnimatePresence>
 
-      {/* Reservation Modal */}
-      <AnimatePresence>
-        {isReservationOpen && selectedOffer && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111826] p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Réservation</h3>
-                <button onClick={() => setIsReservationOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <p className="mb-6 text-white/60">
-                Vous souhaitez réserver la formule <span className="font-semibold text-white">{selectedOffer.title}</span> à <span className="font-semibold text-white">{selectedOffer.price.toLocaleString("fr-FR")} TND</span>.
-              </p>
-              <div className="flex gap-3">
-                <NexusButton variant="outline" className="flex-1" onClick={() => setIsReservationOpen(false)}>
-                  Annuler
-                </NexusButton>
-                <NexusButton className="flex-1" onClick={confirmReservation}>
-                  Confirmer
-                </NexusButton>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <StageReservationModal offer={selectedOffer} open={isReservationOpen} setOpen={setIsReservationOpen} />
 
       {/* Scroll to top */}
       <AnimatePresence>
