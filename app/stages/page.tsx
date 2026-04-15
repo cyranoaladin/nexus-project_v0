@@ -1,32 +1,3 @@
-import { CorporateFooter } from "@/components/layout/CorporateFooter";
-import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import NexusStagesPage from "@/planning_stage_printemps";
 
-import StagesHeader from "./_components/StagesHeader";
-import StagesHero from "./_components/StagesHero";
-import TrustSignals from "./_components/TrustSignals";
-import UrgencyTimeline from "./_components/UrgencyTimeline";
-import WhyNexus from "./_components/WhyNexus";
-import OffersSection from "./_components/OffersSection";
-import FAQSection from "./_components/FAQSection";
-import FinalCTA from "./_components/FinalCTA";
-
-export default function StagesPage() {
-  return (
-    <div className="min-h-screen bg-nexus-bg font-body text-white selection:bg-nexus-green/25 selection:text-white">
-      <CorporateNavbar />
-
-      <main id="main-content" className="pt-24 md:pt-28">
-        <StagesHeader />
-        <StagesHero />
-        <TrustSignals />
-        <UrgencyTimeline />
-        <WhyNexus />
-        <OffersSection />
-        <FAQSection />
-        <FinalCTA />
-      </main>
-
-      <CorporateFooter />
-    </div>
-  );
-}
+export default NexusStagesPage;
