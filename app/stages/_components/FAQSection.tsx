@@ -12,7 +12,7 @@ export default function FAQSection() {
     <section className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/42">
             Questions fréquentes
           </p>
           <h2 className="mt-3 font-display text-h2 font-bold text-white">
@@ -26,7 +26,7 @@ export default function FAQSection() {
             return (
               <article
                 key={item.question}
-                className="overflow-hidden rounded-[20px] border border-white/10 bg-[#111826]"
+                className="overflow-hidden rounded-[20px] border border-white/8 bg-white/[0.025]"
               >
                 <button
                   type="button"
@@ -53,7 +53,7 @@ export default function FAQSection() {
                 </button>
 
                 {isOpen ? (
-                  <div className="border-t border-white/10 px-6 py-5 text-sm leading-7 text-slate-300">
+                  <div className="border-t border-white/6 px-6 py-5 text-sm leading-7 text-white/58">
                     {item.answer}
                   </div>
                 ) : null}

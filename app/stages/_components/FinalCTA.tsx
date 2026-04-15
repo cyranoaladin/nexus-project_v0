@@ -27,7 +27,7 @@ export default function FinalCTA() {
           de révision prêt à exécuter.
         </h2>
 
-        <p className="mt-5 text-base leading-8 text-slate-300">
+        <p className="mt-5 text-base leading-8 text-white/56">
           Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de
           zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places
           sont pleines.
@@ -46,7 +46,7 @@ export default function FinalCTA() {
         </div>
 
         {/* Micro-footer */}
-        <div className="mt-14 space-y-2 text-sm leading-7 text-slate-500">
+        <div className="mt-14 space-y-2 text-sm leading-7 text-white/36">
           <p>{CONTACT_ADDRESS}</p>
           <p>
             <a
@@ -60,7 +60,7 @@ export default function FinalCTA() {
               {PHONE}
             </a>
           </p>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-600">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/22">
             Excellence pédagogique · Petits groupes · Système français
           </p>
         </div>
