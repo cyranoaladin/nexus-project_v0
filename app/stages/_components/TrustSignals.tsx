@@ -28,7 +28,7 @@ export default function TrustSignals() {
     <section className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-xl">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/42">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">
             Ce qui fait la différence
           </p>
           <h2 className="mt-3 font-display text-h2 font-bold text-white">
@@ -42,13 +42,13 @@ export default function TrustSignals() {
             return (
               <article
                 key={signal.title}
-                className="rounded-[26px] border border-white/8 bg-white/[0.03] p-6"
+                className="rounded-[26px] border border-white/10 bg-[#111826] p-6"
               >
                 <div className="inline-flex rounded-full border border-nexus-green/20 bg-nexus-green/10 p-3">
                   <Icon className="h-5 w-5 text-nexus-green" aria-hidden="true" />
                 </div>
                 <h3 className="mt-5 font-display text-lg font-bold text-white">{signal.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/56">{signal.copy}</p>
+                <p className="mt-3 text-sm leading-7 text-slate-300">{signal.copy}</p>
               </article>
             );
           })}

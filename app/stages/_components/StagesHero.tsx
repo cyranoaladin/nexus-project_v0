@@ -13,7 +13,7 @@ export default function StagesHero() {
       <div className="relative mx-auto max-w-5xl text-center">
         {/* Badge contextuel */}
         <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
-          <span className="rounded-full border border-nexus-green/22 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/65">
+          <span className="rounded-full border border-nexus-green/22 bg-white/[0.08] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-200">
             Stages Printemps 2026 · 18 avril — 2 mai · Tunis
           </span>
           <CountdownChip
@@ -30,7 +30,7 @@ export default function StagesHero() {
         </h1>
 
         {/* Sous-titre */}
-        <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-white/55 sm:text-lg">
+        <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
           Des groupes de 6 élèves maximum. Des intervenants du système français. Des entraînements
           corrigés, des épreuves blanches et un plan de révision final.
         </p>
@@ -48,7 +48,7 @@ export default function StagesHero() {
         </div>
 
         {/* Réassurance */}
-        <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-2xl border border-white/8 bg-white/[0.025] px-6 py-4 text-sm text-white/55">
+        <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-2xl border border-white/8 bg-white/[0.06] px-6 py-4 text-sm text-slate-300">
           <span className="flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
             6 élèves maximum

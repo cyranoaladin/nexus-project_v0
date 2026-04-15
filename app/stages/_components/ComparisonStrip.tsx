@@ -16,7 +16,7 @@ export default function ComparisonStrip() {
         return (
           <div
             key={item.category}
-            className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"
+            className="flex items-start gap-3 rounded-2xl border border-white/10 bg-[#111826] p-4"
           >
             <div className="shrink-0 rounded-xl border border-nexus-green/18 bg-nexus-green/8 p-2.5">
               <Icon className="h-4 w-4 text-nexus-green" aria-hidden="true" />
@@ -25,7 +25,7 @@ export default function ComparisonStrip() {
               <p className="font-display text-sm font-bold text-white">
                 {item.category}
               </p>
-              <p className="mt-0.5 text-xs leading-5 text-white/50">
+              <p className="mt-0.5 text-xs leading-5 text-slate-400">
                 {item.description}
               </p>
             </div>

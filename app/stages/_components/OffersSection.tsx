@@ -1,7 +1,18 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { BadgeCheck, BarChart3, Sparkles, Users, Wallet } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  BadgeCheck,
+  BarChart3,
+  BookOpen,
+  Check,
+  GraduationCap,
+  Search,
+  Sparkles,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import {
   type CategoryFilter,
@@ -13,35 +24,36 @@ import {
 import OfferAccordionCard from "./OfferAccordionCard";
 import ComparisonStrip from "./ComparisonStrip";
 import StageReservationModal from "./StageReservationModal";
+import WhiteExamsSidebar from "./WhiteExamsSidebar";
 
 const LEVELS: { id: Level; label: string }[] = [
   { id: "premiere", label: "Première" },
   { id: "terminale", label: "Terminale" },
 ];
 
+const CATEGORY_META: Record<
+  CategoryFilter,
+  { icon: React.ElementType; color: string; desc: string }
+> = {
+  all: { icon: Sparkles, color: "bg-slate-500", desc: "Toutes les formules" },
+  mono: { icon: BookOpen, color: "bg-blue-500", desc: "1 matière" },
+  duo: { icon: Users, color: "bg-violet-500", desc: "2 matières" },
+  trio: { icon: GraduationCap, color: "bg-emerald-500", desc: "Parcours complet" },
+};
+
 const REASSURANCE_ITEMS = [
-  { icon: Users, label: "Ouverture à partir de 2 ou 3 élèves selon la formule — groupes limités à 6 maximum" },
+  { icon: Users, label: "Ouverture à partir de 2 ou 3 élèves — groupes limités à 6" },
   { icon: BadgeCheck, label: "Cadre structuré et suivi clair" },
   { icon: BarChart3, label: "Formules progressives et lisibles" },
-  { icon: Wallet, label: "Parcours combinés plus avantageux que des inscriptions séparées" },
+  { icon: Wallet, label: "Parcours combinés plus avantageux" },
 ] as const;
 
 export default function OffersSection() {
   const [level, setLevel] = useState<Level>("premiere");
   const [category, setCategory] = useState<CategoryFilter>("all");
-  const [openOfferId, setOpenOfferId] = useState<string | null>(
-    "p-mono-maths"
-  );
+  const [query, setQuery] = useState("");
+  const [openOfferId, setOpenOfferId] = useState<string | null>("p-mono-maths");
 
-  const offers = useMemo(() => {
-    const all = getOffersByLevel(level);
-    if (category === "all") return all;
-    if (category === "trio")
-      return all.filter((o) => o.category === "trio" || o.category === "complement");
-    return all.filter((o) => o.category === category);
-  }, [level, category]);
-
-  // Per-level + per-filter default open card (best lead offer in each filter)
   const DEFAULT_OPEN: Record<Level, Record<CategoryFilter, string>> = {
     premiere: {
       all: "p-mono-maths",
@@ -57,18 +69,36 @@ export default function OffersSection() {
     },
   };
 
-  // When level changes, reset filter and open the flagship offer
+  const baseOffers = useMemo(() => getOffersByLevel(level), [level]);
+
+  const filteredOffers = useMemo(() => {
+    let list = baseOffers;
+    if (category !== "all") {
+      list =
+        category === "trio"
+          ? list.filter((o) => o.category === "trio" || o.category === "complement")
+          : list.filter((o) => o.category === category);
+    }
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      list = list.filter((o) => {
+        const hay = [o.title, o.badge, o.accrocheCourte, o.subjectKey, o.intro].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+    }
+    return list;
+  }, [baseOffers, category, query]);
+
   const handleLevelChange = useCallback(
     (newLevel: Level) => {
       setLevel(newLevel);
       setCategory("all");
+      setQuery("");
       setOpenOfferId(DEFAULT_OPEN[newLevel].all);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  // When category changes, open the best lead for that filter
   const handleCategoryChange = useCallback(
     (newCat: CategoryFilter) => {
       setCategory(newCat);
@@ -86,15 +116,9 @@ export default function OffersSection() {
     [level]
   );
 
-  // Single-open: clicking an open card closes it; clicking another opens it
-  const handleToggle = useCallback(
-    (id: string) => {
-      setOpenOfferId((prev) => (prev === id ? null : id));
-    },
-    []
-  );
-
-  const effectiveOpenId = openOfferId;
+  const handleToggle = useCallback((id: string) => {
+    setOpenOfferId((prev) => (prev === id ? null : id));
+  }, []);
 
   // ── Reservation modal ──
   const [reservationOffer, setReservationOffer] = useState<Offer | null>(null);
@@ -106,147 +130,204 @@ export default function OffersSection() {
   }, []);
 
   return (
-    <section id="offres" className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        {/* ── Section header ── */}
+    <section id="offres" className="bg-[#0B1018] px-4 py-20 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        {/* ── Header ── */}
         <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/42">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400">
             Formules de préparation
           </p>
-          <h2 className="mt-3 font-display text-h2 font-bold text-white">
-            Choisissez la formule la plus adaptée à votre profil
+          <h2 className="mt-3 font-display text-3xl font-bold text-white md:text-4xl">
+            Choisissez la formule la plus adaptée
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-white/54">
+          <p className="mx-auto mt-4 max-w-xl text-base text-slate-300">
             Des formules claires, structurées et plus avantageuses lorsque
             plusieurs matières sont préparées ensemble.
           </p>
         </div>
 
-        {/* ── Level tabs ── */}
-        <div className="mt-10 flex justify-center">
-          <div
-            className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1"
-            role="tablist"
-            aria-label="Niveau scolaire"
-          >
-            {LEVELS.map((l) => {
-              const isActive = l.id === level;
-              return (
-                <button
-                  key={l.id}
-                  type="button"
-                  role="tab"
-                  onClick={() => handleLevelChange(l.id)}
-                  className={`rounded-full px-6 py-2.5 font-display text-sm font-bold tracking-wide transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 focus-visible:ring-offset-1 focus-visible:ring-offset-nexus-bg ${
-                    isActive
-                      ? "bg-nexus-green/15 text-white shadow-sm"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                  aria-selected={isActive}
-                  tabIndex={isActive ? 0 : -1}
-                >
-                  {l.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* ── Filters card ── */}
+        <div className="mt-10 rounded-3xl border border-white/10 bg-[#111826] p-6 shadow-xl">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            {/* Level tabs */}
+            <div className="inline-flex rounded-2xl bg-white/[0.04] p-1.5">
+              {LEVELS.map((l) => {
+                const active = l.id === level;
+                return (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() => handleLevelChange(l.id)}
+                    className={`relative rounded-xl px-6 py-2.5 text-sm font-bold transition-all duration-300 ${
+                      active
+                        ? "bg-white text-slate-900 shadow-md"
+                        : "text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="levelIndicator"
+                        className="absolute inset-0 rounded-xl bg-white shadow-md"
+                        transition={{ type: "spring", stiffness: 300 }}
+                      />
+                    )}
+                    <span className="relative z-10">{l.label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* ── Category filter (segmented control) ── */}
-        <div className="mt-6 flex justify-center">
-          <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Nombre de matières">
+            {/* Search */}
+            <div className="relative w-full md:max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher une matière ou formule..."
+                className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/40 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Category pills */}
+          <div className="mt-5 flex flex-wrap gap-2">
             {CATEGORY_FILTERS.map((f) => {
-              const isActive = f.id === category;
+              const active = f.id === category;
+              const meta = CATEGORY_META[f.id];
+              const Icon = meta.icon;
               return (
                 <button
                   key={f.id}
                   type="button"
                   onClick={() => handleCategoryChange(f.id)}
-                  className={`rounded-full border px-4 py-2 text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 focus-visible:ring-offset-1 focus-visible:ring-offset-nexus-bg ${
-                    isActive
-                      ? "border-nexus-green/35 bg-nexus-green/12 text-white"
-                      : "border-white/10 bg-white/[0.04] text-white/50 hover:border-white/18 hover:text-white"
+                  className={`group relative inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
+                    active
+                      ? "border-transparent text-white"
+                      : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/15 hover:bg-white/[0.06]"
                   }`}
-                  aria-pressed={isActive}
                 >
-                  {f.label}
+                  {active && (
+                    <motion.div
+                      layoutId="categoryIndicator"
+                      className={`absolute inset-0 rounded-full ${meta.color}`}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    />
+                  )}
+                  <Icon
+                    className={`relative z-10 h-4 w-4 ${
+                      active ? "text-white" : "text-slate-400"
+                    }`}
+                  />
+                  <span className="relative z-10">{f.label}</span>
                 </button>
               );
             })}
           </div>
+
+          {/* Comparison strip */}
+          <div className="mt-6">
+            <ComparisonStrip />
+          </div>
         </div>
 
-        {/* ── Comparison strip ── */}
-        <div className="mt-8">
-          <ComparisonStrip />
+        {/* ── Main grid ── */}
+        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
+          {/* Left: offers */}
+          <div className="space-y-4">
+            {filteredOffers.map((offer) => (
+              <OfferAccordionCard
+                key={offer.id}
+                offer={offer}
+                isOpen={openOfferId === offer.id}
+                onToggle={() => handleToggle(offer.id)}
+                onReserve={handleReserve}
+              />
+            ))}
+
+            {filteredOffers.length === 0 && (
+              <div className="rounded-3xl border border-white/10 bg-[#111826] p-10 text-center text-slate-400">
+                Aucune formule ne correspond à votre recherche.
+              </div>
+            )}
+          </div>
+
+          {/* Right: sidebar */}
+          <div className="space-y-6">
+            <WhiteExamsSidebar level={level} />
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="rounded-3xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6"
+            >
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-white">
+                Pourquoi choisir un pack ?
+              </h3>
+              <ul className="mt-4 space-y-3">
+                {[
+                  "Un seul cadre organisé",
+                  "Progression cohérente",
+                  "Tarif avantageux",
+                  "Suivi global",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-slate-200">
+                    <Check className="h-4 w-4 text-amber-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="rounded-3xl border border-white/10 bg-[#111826] p-6"
+            >
+              <h3 className="text-lg font-bold text-white">Nos engagements</h3>
+              <div className="mt-4 space-y-4">
+                {REASSURANCE_ITEMS.map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
+                      <Icon className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <span className="text-sm text-slate-300">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
 
-        {/* ── Offer cards (accordion) ── */}
-        <div className="mt-8 space-y-3">
-          {offers.map((offer) => (
-            <OfferAccordionCard
-              key={offer.id}
-              offer={offer}
-              isOpen={effectiveOpenId === offer.id}
-              onToggle={() => handleToggle(offer.id)}
-              onReserve={handleReserve}
-            />
-          ))}
-
-          {offers.length === 0 ? (
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-8 text-center text-sm text-white/40">
-              Aucune formule dans cette catégorie pour ce niveau.
-            </div>
-          ) : null}
-        </div>
-
-        {/* ── Marketing block ── */}
-        <div className="mt-10 rounded-[24px] border border-nexus-green/15 bg-nexus-green/[0.04] p-6 sm:p-8">
+        {/* ── Bottom marketing block ── */}
+        <div className="mt-10 rounded-3xl border border-emerald-500/20 bg-emerald-500/[0.05] p-6 sm:p-8">
           <div className="flex items-start gap-4">
-            <div className="shrink-0 rounded-xl border border-nexus-green/20 bg-nexus-green/10 p-3">
-              <Sparkles className="h-5 w-5 text-nexus-green" aria-hidden="true" />
+            <div className="shrink-0 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3">
+              <Sparkles className="h-5 w-5 text-emerald-400" aria-hidden="true" />
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-white">
                 Pourquoi le pack est plus intéressant ?
               </h3>
-              <p className="mt-2 text-sm leading-7 text-white/58">
+              <p className="mt-2 text-sm leading-7 text-slate-300">
                 Un seul cadre, un seul rythme, une seule organisation de
-                travail. Les parcours combinés permettent d'avancer avec plus
+                travail. Les parcours combinés permettent d&apos;avancer avec plus
                 de cohérence, tout en restant plus avantageux que plusieurs
                 inscriptions séparées.
               </p>
-              <p className="mt-2 text-sm leading-7 text-white/46">
+              <p className="mt-2 text-sm leading-7 text-slate-400">
                 Moins de logistique pour la famille, plus de lisibilité pour
-                l'élève.
+                l&apos;élève.
               </p>
             </div>
           </div>
         </div>
-
-        {/* ── Reassurance block ── */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {REASSURANCE_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.label}
-                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3.5"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
-                  <Icon className="h-3.5 w-3.5 text-white/50" aria-hidden="true" />
-                </span>
-                <p className="text-xs leading-5 text-white/55">{item.label}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ── On-request note ── */}
-        <p className="mt-6 text-center text-xs text-white/30">
-          D'autres combinaisons sont possibles sur demande.
-          Contactez-nous pour une formule personnalisée.
-        </p>
       </div>
 
       {/* Reservation modal */}
