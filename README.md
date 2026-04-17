@@ -1,6 +1,6 @@
 # Nexus Réussite — Plateforme de Pilotage Éducatif
 
-> **Source de vérité unique** — Dernière mise à jour : 23 février 2026
+> **Source de vérité unique** — Dernière mise à jour : 17 avril 2026
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 
@@ -102,20 +102,21 @@ nexus-project_v0/
 │   ├── dashboard/                  # Dashboards protégés par rôle (32 pages)
 │   │   ├── layout.tsx              # Layout partagé (sidebar, navigation)
 │   │   ├── page.tsx                # Redirect vers /dashboard/{role}
-│   │   ├── admin/                  # ADMIN: 8 pages (stats, users, analytics, factures, tests, docs)
-│   │   ├── assistante/             # ASSISTANTE: 9 pages (élèves, coachs, paiements, crédits, docs)
-│   │   ├── coach/                  # COACH: 4 pages (sessions, étudiants, disponibilités)
-│   │   ├── parent/                 # PARENT: 7 pages (enfants, abo, paiement, ressources + modales)
-│   │   ├── eleve/                  # ELEVE: 4 pages (sessions, ressources, booking)
+│   │   ├── admin/                  # ADMIN: 9 pages (stats, users, analytics, factures, tests, docs, stages)
+│   │   ├── assistante/             # ASSISTANTE: 10 pages (élèves, coachs, paiements, crédits, docs, stages)
+│   │   ├── coach/                  # COACH: 5 pages (sessions, étudiants, disponibilités, stages)
+│   │   ├── parent/                 # PARENT: 8 pages (enfants, abo, paiement, ressources, stages + modales)
+│   │   ├── eleve/                  # ELEVE: 5 pages (sessions, ressources, booking, stages)
 │   │   └── trajectoire/            # Trajectoire de progression (tous rôles)
 │   │
-│   ├── api/                        # 81 API routes
-│   │   ├── auth/                   # NextAuth + reset-password
-│   │   ├── admin/                  # Admin (12 routes: dashboard, users, invoices, analytics, docs, SSN)
-│   │   ├── assistant/              # Assistante (8 routes: dashboard, students, coaches, credits)
-│   │   ├── parent/                 # Parent (5 routes: dashboard, children, credits, subscriptions)
-│   │   ├── student/                # Student (8 routes: dashboard, sessions, credits, trajectory, docs)
-│   │   ├── coach/                  # Coach (3 routes: dashboard, sessions, reports)
+│   ├── api/                        # ~100 API routes
+│   │   ├── auth/                   # NextAuth + reset-password + resend-activation
+│   │   ├── admin/                  # Admin (18 routes: dashboard, users, invoices, analytics, docs, SSN, stages CRUD)
+│   │   ├── assistant/              # Assistante (9 routes: dashboard, students, coaches, credits, stages)
+│   │   ├── parent/                 # Parent (6 routes: dashboard, children, credits, subscriptions, stages)
+│   │   ├── student/                # Student (9 routes: dashboard, sessions, credits, trajectory, docs, stages)
+│   │   ├── coach/                  # Coach (4 routes: dashboard, sessions, reports, stages)
+│   │   ├── stages/                 # Stages public (4 routes: catalogue, détail, inscription, bilans, réservations)
 │   │   ├── aria/                   # ARIA IA (3 routes: chat, conversations, feedback)
 │   │   ├── assessments/            # Évaluations (6 routes: submit, result, status, export, predict)
 │   │   ├── payments/               # Paiements (5 routes: bank-transfer, validate, clictopay)
@@ -179,6 +180,11 @@ nexus-project_v0/
 │   ├── rag-client.ts               # Client RAG Ingestor (search, stats, context)
 │   ├── bilan-generator.ts          # Pipeline RAG→LLM (3 bilans séquentiels)
 │   ├── scoring-engine.ts           # Scoring stages (25 tests)
+│   ├── stages/                     # Logique métier stages (4 fichiers)
+│   │   ├── capacity.ts             # Calcul statuts réservation (pure function)
+│   │   ├── admin-schemas.ts        # Schémas Zod CRUD admin
+│   │   ├── inscription-schema.ts   # Schéma Zod inscription publique
+│   │   └── public.ts               # Queries Prisma + sérialisation stages publics
 │   ├── trajectory.ts               # Moteur trajectoire élève
 │   ├── nexus-index.ts              # Nexus Index (score composite)
 │   ├── badges.ts                   # Gamification
@@ -195,7 +201,11 @@ nexus-project_v0/
 │   ├── ui/                         # 60+ primitives (shadcn/ui + ARIA chat + session booking)
 │   ├── sections/                   # 32 sections landing page (GSAP animations)
 │   ├── dashboard/                  # 16 composants dashboard (KPIs, trajectoire, synthèse)
-│   ├── stages/                     # 24 composants stages (quiz, réservation, bilan)
+│   ├── stages/                     # 27 composants stages (quiz, réservation, bilan)
+│   │   ├── WeeklyCalendar.tsx      # Calendrier interactif séances avec drawer détail
+│   │   ├── StageBilanCard.tsx      # Carte bilan élève/parent avec score ring
+│   │   ├── StageReservationStatus.tsx  # Badge statut coloré
+│   │   └── StageInscriptionForm.tsx    # Formulaire inscription 3 étapes (public)
 │   ├── assessments/                # 9 composants évaluation (SSN, radar, heatmap, simulation)
 │   ├── admin/                      # DocumentUploadForm (coffre-fort)
 │   ├── layout/                     # CorporateNavbar, CorporateFooter, DashboardLayout
@@ -203,9 +213,9 @@ nexus-project_v0/
 │   └── providers.tsx               # SessionProvider wrapper
 │
 ├── prisma/
-│   ├── schema.prisma               # 1286 lignes, 38 modèles, 20 enums
-│   ├── migrations/                 # 16 migrations (init → pgvector → user_documents)
-│   └── seed.ts                     # Seed production (9 users, 5 coachs, profils)
+│   ├── schema.prisma               # 1400+ lignes, 43 modèles, 22 enums
+│   ├── migrations/                 # 17 migrations (init → pgvector → add_stage_models_extended)
+│   └── seed.ts                     # Seed production (9 users, 5 coachs, profils + Stage Printemps 2026)
 │
 ├── programmes/                     # Pipeline programmes éducatifs
 │   ├── generated/                  # JSON générés depuis PDFs (4 fichiers)
@@ -241,10 +251,11 @@ User (5 rôles) ──1:1──▶ ParentProfile ──1:N──▶ Student
 
 Invoice ──▶ InvoiceItem (productCode) ──▶ Entitlement
 Payment ──▶ ClicToPayTransaction
-StageReservation (standalone, scoringResult JSON)
+StageReservation ──▶ Stage (stageId) ──▶ StageSession, StageCoach, StageDocument, StageBilan
+                 └──▶ Student (studentId)
 ```
 
-### Modèles Principaux (38 modèles, 16 migrations)
+### Modèles Principaux (43 modèles, 17 migrations)
 
 | Modèle | Description | Relations clés |
 |--------|-------------|----------------|
@@ -260,7 +271,12 @@ StageReservation (standalone, scoringResult JSON)
 | `Entitlement` | Droit d'accès produit | → user, sourceInvoice |
 | `Payment` | Paiement | → user, clicToPayTransaction |
 | `Trajectory` | Plan de progression | → student, milestones (JSON) |
-| `StageReservation` | Inscription stage | email, scoringResult (JSON) |
+| `StageReservation` | Inscription stage (étendu) | email, richStatus, activationToken, studentId, stageId |
+| `Stage`            | Stage intensif (générique) | → sessions, reservations, bilans, coaches |
+| `StageSession`     | Séance dans un stage | → stage, coach |
+| `StageCoach`       | Coach assigné à un stage | → stage, coachProfile |
+| `StageDocument`    | Ressource pédagogique stage | → stage, session |
+| `StageBilan`       | Bilan élève fin de stage | → stage, student, coach |
 
 ### Énumérations
 
@@ -273,6 +289,8 @@ StageReservation (standalone, scoringResult JSON)
 | `PaymentStatus` | `PENDING` · `COMPLETED` · `FAILED` · `REFUNDED` |
 | `InvoiceStatus` | `DRAFT` · `SENT` · `PAID` · `CANCELLED` |
 | `EntitlementStatus` | `ACTIVE` · `SUSPENDED` · `EXPIRED` · `REVOKED` |
+| `StageType` | `INTENSIF` · `SEMAINE_BLANCHE` · `BILAN` · `GRAND_ORAL` · `BAC_FRANCAIS` |
+| `StageReservationStatus` | `PENDING` · `CONFIRMED` · `WAITLISTED` · `CANCELLED` · `COMPLETED` |
 
 ---
 
@@ -360,6 +378,28 @@ Admin/Assistante/Parent
     → Redirect /auth/signin
 ```
 
+### Flux Renvoi Lien Activation
+
+```
+/auth/signin (erreur login) → lien "Compte non activé ?"
+    → Modal inline → POST /api/auth/resend-activation {email}
+    → Anti-enumeration : toujours "success"
+    → Rate limit 15 min en mémoire
+    → Si user existe + activatedAt=null → nouveau token + email
+    → Lien : /auth/activate?token=xxx&source=stage (si réservation stage CONFIRMED)
+    → Lien : /auth/activate?token=xxx (sinon)
+```
+
+### Flux Activation Stage
+
+```
+Assistante confirme réservation → POST /api/stages/[slug]/reservations/[id]/confirm
+    → Création User ELEVE (si inexistant) + activationToken HMAC-SHA256
+    → Email avec lien /auth/activate?token=xxx&source=stage (72h)
+    → Élève active → mot de passe choisi + activatedAt=now()
+    → Redirect /dashboard/eleve/stages (au lieu de /auth/signin)
+```
+
 ### Mesures de Sécurité
 
 - **Hashing** : bcryptjs (salt rounds: 10)
@@ -381,11 +421,12 @@ Admin/Assistante/Parent
 ```
 /                              Homepage (landing, 9 sections GSAP)
 ├── /offres                    Tarifs & formules d'abonnement
-├── /stages                    → redirect /stages/fevrier-2026
-│   ├── /stages/fevrier-2026   Stage intensif + réservation
-│   │   ├── /diagnostic        QCM 50 questions (30 Maths + 20 NSI)
-│   │   └── /bilan/[id]       Résultats scoring stage
-│   └── /stages/dashboard-excellence
+├── /stages                    Catalogue dynamique des stages (server component)
+│   ├── /stages/[stageSlug]   Détail stage + CTA inscription
+│   │   └── /inscription       Formulaire 3 étapes (public, validation Zod)
+│   └── /stages/fevrier-2026   Page legacy (conservée, rétrocompat)
+│       ├── /diagnostic        QCM 50 questions (30 Maths + 20 NSI)
+│       └── /bilan/[id]       Résultats scoring stage
 ├── /bilan-gratuit             Formulaire bilan stratégique (lead gen)
 │   ├── /confirmation
 │   └── /assessment            Évaluation en ligne
@@ -430,22 +471,22 @@ Admin/Assistante/Parent
 Auth (4) :
   /auth/signin · /auth/activate · /auth/mot-de-passe-oublie · /auth/reset-password
 
-Admin (8+3) :
-  /dashboard/admin + /users /analytics /activities /subscriptions /facturation /tests /documents
+Admin (9+3) :
+  /dashboard/admin + /users /analytics /activities /subscriptions /facturation /tests /documents /stages
   /admin/directeur · /admin/stages/fevrier-2026
 
-Assistante (9) :
+Assistante (10) :
   /dashboard/assistante + /students /coaches /subscriptions /subscription-requests
-    /credit-requests /credits /paiements /docs
+    /credit-requests /credits /paiements /docs /stages
 
-Coach (4) :
-  /dashboard/coach + /sessions /students /availability
+Coach (5) :
+  /dashboard/coach + /sessions /students /availability /stages
 
-Parent (7) :
-  /dashboard/parent + /children /abonnements /paiement /paiement/confirmation /ressources
+Parent (8) :
+  /dashboard/parent + /children /abonnements /paiement /paiement/confirmation /ressources /stages
 
-Élève (4) :
-  /dashboard/eleve + /mes-sessions /sessions /ressources
+Élève (5) :
+  /dashboard/eleve + /mes-sessions /sessions /ressources /stages
 
 Commun :
   /dashboard (redirect) · /dashboard/trajectoire · /session/video
@@ -491,7 +532,7 @@ Email activation → /auth/activate?token=xxx → choix mot de passe
 
 ---
 
-## 8. API Routes (81 endpoints)
+## 8. API Routes (~100 endpoints)
 
 > Détail complet dans [NAVIGATION_MAP.md](./NAVIGATION_MAP.md#8-api-routes-81-endpoints)
 
@@ -499,7 +540,10 @@ Email activation → /auth/activate?token=xxx → choix mot de passe
 
 | Domaine | Routes | Endpoints clés |
 |---------|--------|----------------|
-| **Auth** | 2 | NextAuth handlers, reset-password |
+| **Auth** | 3 | NextAuth handlers, reset-password, resend-activation |
+| **Stages (public)** | 4 | GET /api/stages, GET/POST /api/stages/[slug], POST .../inscrire |
+| **Stages (admin)** | 6 | GET/POST/PATCH/DELETE stages + sessions + coaches CRUD |
+| **Stages (staff)** | 3 | GET reservations, POST confirm, GET/POST bilans |
 | **Admin** | 12 | dashboard, users CRUD, invoices, analytics, documents, SSN, test-email, directeur |
 | **Assistante** | 8 | dashboard, students, activate-student, coaches, subscriptions, credit-requests |
 | **Parent** | 5 | dashboard, children, credit-request, subscriptions, subscription-requests |
@@ -659,13 +703,16 @@ Pipeline : PDF programme → JSON généré → YAML mapping (vérité) → JSON
 
 ### Stages Intensifs
 
-- **Réservation** : `/api/reservation` (Zod → upsert → Telegram notification)
-- **QCM** : 50 questions (30 Maths + 20 NSI), 3 niveaux de poids (W1=15, W2=20, W3=15)
-- **Interface** : Machine à état (intro → quiz → transition → submitting → success)
+- **Catalogue** : `/api/stages` (filtres type, niveau, matière, isOpen)
+- **Inscription publique** : `POST /api/stages/[slug]/inscrire` (Zod → capacité → email + Telegram)
+- **Gestion admin** : `GET/POST/PATCH/DELETE /api/admin/stages` (CRUD complet)
+- **Réservations staff** : `GET /api/stages/[slug]/reservations` + `POST .../confirm`
+- **Bilans coach** : `GET/POST /api/stages/[slug]/bilans` (upsert + publication)
+- **QCM legacy** : 50 questions (30 Maths + 20 NSI), 3 niveaux de poids (W1=15, W2=20, W3=15)
+- **Interface quiz** : Machine à état (intro → quiz → transition → submitting → success)
 - **Rendu LaTeX** : KaTeX dynamique pour formules mathématiques
-- **Raccourcis clavier** : A/B/C/D, N=NSP, Enter=Suivant
-- **Bilans** : `/stages/fevrier-2026/bilan/[reservationId]`
-- **Dashboard Admin** : `/admin/stages/fevrier-2026` (KPIs, table, CSV export)
+- **Dashboards** : WeeklyCalendar, StageBilanCard, StageReservationStatus (composants réutilisables)
+- **Seed** : Stage Printemps 2026 (`slug: printemps-2026`) avec 10 séances pré-chargées
 
 ---
 

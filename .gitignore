@@ -69,3 +69,20 @@ backup_*.sql.gz
 # But keep Prisma migration SQL files
 !prisma/migrations/**/*.sql
 e2e/.credentials.json
+
+# ─── Sécurité / RGPD ───────────────────────────────────────────────────────
+# Fichiers de session Playwright (contiennent des tokens)
+student.json
+parent.json
+admin.json
+coach.json
+assistante.json
+*.auth.json
+
+# Données stages locales (source de vérité : DB Prisma)
+data/stages/
+
+# Artefacts d'analyse serveur
+prod-tree*.txt
+.codex
+get-users-temp.mjs
