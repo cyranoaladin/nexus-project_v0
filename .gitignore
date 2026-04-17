@@ -79,8 +79,8 @@ coach.json
 assistante.json
 *.auth.json
 
-# Données stages locales (source de vérité : DB Prisma)
-data/stages/
+# Données stages locales JSON (source de vérité : DB Prisma)
+data/stages/*.json
 
 # Artefacts d'analyse serveur
 prod-tree*.txt
