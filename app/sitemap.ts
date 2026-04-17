@@ -1,8 +1,11 @@
 import { MetadataRoute } from 'next';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   // Public pages with their priorities and change frequencies
@@ -93,5 +96,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  return publicPages;
+  // Dynamic stage entries from DB
+  let stageEntries: MetadataRoute.Sitemap = [];
+  try {
+    const stages = await prisma.stage.findMany({
+      where: { isVisible: true },
+      select: { slug: true, updatedAt: true },
+    });
+    stageEntries = stages.flatMap((stage) => [
+      {
+        url: `${BASE_URL}/stages/${stage.slug}`,
+        lastModified: stage.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${BASE_URL}/stages/${stage.slug}/inscription`,
+        lastModified: stage.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      },
+    ]);
+  } catch {
+    // Fallback silencieux si DB indisponible (prerender ou CI)
+  }
+
+  return [...publicPages, ...stageEntries];
 }
