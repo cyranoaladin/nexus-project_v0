@@ -75,6 +75,8 @@ export async function GET(request: NextRequest) {
           firstName: true,
           lastName: true,
           role: true,
+          phone: true,
+          activatedAt: true,
           createdAt: true,
           student: true,
           coachProfile: true,
@@ -90,7 +92,8 @@ export async function GET(request: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      // isActive field removed - doesn't exist in User schema
+      phone: user.phone,
+      isActive: !!user.activatedAt,
       createdAt: user.createdAt,
       profile: user.student || user.coachProfile || user.parentProfile || null
     }));

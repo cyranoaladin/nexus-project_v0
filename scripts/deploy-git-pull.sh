@@ -3,7 +3,6 @@ set -euo pipefail
 
 REMOTE_HOST="root@88.99.254.59"
 REMOTE_DIR="/opt/nexus"
-PM2_PROCESS="nexus-prod"
 
 echo "🚀 Déploiement Nexus Réussite — $(date)"
 
@@ -12,13 +11,17 @@ ssh "$REMOTE_HOST" "set -e
   cd $REMOTE_DIR
   echo 'Avant : \$(git rev-parse --short HEAD)'
   git checkout main
+  git stash --include-untracked || true
   git pull origin main
+  git stash pop || true
   echo 'Après : \$(git rev-parse --short HEAD)'
   npm ci
   NODE_OPTIONS='--max-old-space-size=8192' npm run build
-  pm2 startOrRestart ecosystem.config.js --env production --update-env
-  pm2 save
+  cp -r public .next/standalone/
+  cp -r .next/static .next/standalone/.next/
+  chown -R nexus:nexus .next
+  systemctl restart nexus-app
   sleep 3
-  pm2 list
+  systemctl is-active nexus-app
   echo '✅ Déploiement terminé'
 "
