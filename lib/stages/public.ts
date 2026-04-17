@@ -195,8 +195,8 @@ function serializePublicStage(stage: PublicStageRecord) {
     description: stage.description,
     type: stage.type,
     typeLabel: stageTypeLabels[stage.type],
-    subject: stage.subject,
-    level: stage.level,
+    subject: stage.subject ?? [],
+    level: stage.level ?? [],
     startDate: stage.startDate.toISOString(),
     endDate: stage.endDate.toISOString(),
     capacity: stage.capacity,
@@ -224,7 +224,7 @@ function serializePublicStage(stage: PublicStageRecord) {
         pseudonym: session.coach.pseudonym,
         title: session.coach.title,
         description: session.coach.description,
-        subjects: session.coach.subjects,
+        subjects: (session.coach.subjects as string[]) ?? [],
       } : null,
       documents: session.documents.map((document) => ({
         ...document,
@@ -240,7 +240,7 @@ function serializePublicStage(stage: PublicStageRecord) {
         tag: assignment.coach.tag,
         description: assignment.coach.description,
         expertise: assignment.coach.expertise,
-        subjects: assignment.coach.subjects,
+        subjects: (assignment.coach.subjects as string[]) ?? [],
       },
     })),
     bilans: stage.bilans.map((bilan) => ({
