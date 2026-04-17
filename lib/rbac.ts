@@ -342,6 +342,40 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
     allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH, UserRole.PARENT, UserRole.ELEVE],
     description: 'Send a message (all authenticated users)',
   },
+
+  // ─── Stages ──────────────────────────────────────────────────────────────
+  'stages.list': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH, UserRole.PARENT, UserRole.ELEVE],
+    description: 'List all visible stages (public with auth)',
+  },
+  'stages.manage': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE],
+    description: 'Create, edit, close stages',
+  },
+  'stages.reservations.list': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE],
+    description: 'List all reservations for a stage',
+  },
+  'stages.reservations.confirm': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE],
+    description: 'Confirm a stage reservation and send activation email',
+  },
+  'stages.bilans.write': {
+    allowedRoles: [UserRole.COACH, UserRole.ADMIN],
+    description: 'Write or update a student stage bilan',
+  },
+  'stages.bilans.read': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH, UserRole.ELEVE, UserRole.PARENT],
+    description: 'Read published stage bilans',
+  },
+  'stages.documents.upload': {
+    allowedRoles: [UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH],
+    description: 'Upload documents for a stage or session',
+  },
+  'stages.enroll': {
+    allowedRoles: [UserRole.PARENT, UserRole.ELEVE, UserRole.ADMIN, UserRole.ASSISTANTE],
+    description: 'Public enrollment in a stage',
+  },
 };
 
 /**

@@ -33,6 +33,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/eleve/ressources',
       icon: 'BookOpen',
       match: 'prefix'
+    },
+    {
+      label: 'Mes Stages',
+      href: '/dashboard/eleve/stages',
+      icon: 'GraduationCap',
+      match: 'prefix'
     }
   ],
   [UserRole.PARENT]: [
@@ -65,6 +71,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/parent/ressources',
       icon: 'FileText',
       match: 'prefix'
+    },
+    {
+      label: 'Stages',
+      href: '/dashboard/parent/stages',
+      icon: 'GraduationCap',
+      match: 'prefix'
     }
   ],
   [UserRole.COACH]: [
@@ -90,6 +102,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Disponibilités',
       href: '/dashboard/coach/availability',
       icon: 'Clock',
+      match: 'prefix'
+    },
+    {
+      label: 'Mes Stages',
+      href: '/dashboard/coach/stages',
+      icon: 'GraduationCap',
       match: 'prefix'
     }
   ],
@@ -128,6 +146,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Paiements',
       href: '/dashboard/assistante/paiements',
       icon: 'DollarSign',
+      match: 'prefix'
+    },
+    {
+      label: 'Stages',
+      href: '/dashboard/assistante/stages',
+      icon: 'GraduationCap',
       match: 'prefix'
     }
   ],
