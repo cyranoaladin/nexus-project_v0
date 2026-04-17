@@ -20,9 +20,16 @@ interface ReservationData {
 interface BilanClientProps {
   reservation: ReservationData;
   scoringResult: Record<string, unknown>;
+  stageSlug?: string;
+  allowLegacyConfirmation?: boolean;
 }
 
-export default function BilanClient({ reservation, scoringResult }: BilanClientProps) {
+export default function BilanClient({
+  reservation,
+  scoringResult,
+  stageSlug = 'fevrier-2026',
+  allowLegacyConfirmation = true,
+}: BilanClientProps) {
   const sr = scoringResult;
 
   const globalScore = (sr.globalScore as number) ?? 0;
@@ -121,7 +128,7 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
               Imprimer / PDF
             </button>
             <a
-              href="/stages/fevrier-2026"
+              href={`/stages/${stageSlug}`}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-slate-900 rounded-lg hover:bg-black transition-colors"
             >
               Retour au stage
@@ -174,7 +181,7 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
 
         {/* CTA Section — no print */}
         <div className="no-print">
-          {reservation.status === 'PENDING' && (
+          {reservation.status === 'PENDING' && allowLegacyConfirmation && (
             <div className="bg-gradient-to-r from-blue-700 to-slate-700 rounded-2xl p-6 sm:p-8 text-center text-white">
               <h2 className="text-xl font-black mb-2">Prêt pour le stage ?</h2>
               <p className="text-sm text-slate-100 mb-6 max-w-md mx-auto">
@@ -188,6 +195,16 @@ export default function BilanClient({ reservation, scoringResult }: BilanClientP
                 <CheckCircle className="w-5 h-5" />
                 Confirmer ma présence
               </button>
+            </div>
+          )}
+
+          {reservation.status === 'PENDING' && !allowLegacyConfirmation && (
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
+              <CheckCircle className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <h2 className="text-lg font-bold text-blue-900 mb-1">Bilan prêt</h2>
+              <p className="text-sm text-blue-700">
+                Votre inscription est en attente de validation par notre équipe. Vous recevrez un email dès confirmation.
+              </p>
             </div>
           )}
 

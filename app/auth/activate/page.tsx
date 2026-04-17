@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, Loader2, Lock } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 
@@ -10,6 +11,8 @@ function ActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get('token') ?? null;
+  const source = searchParams?.get('source') ?? null;
+  const isStageSource = source === 'stage';
 
   const [status, setStatus] = useState<'loading' | 'valid' | 'invalid' | 'submitting' | 'success' | 'error'>('loading');
   const [studentName, setStudentName] = useState('');
@@ -75,6 +78,25 @@ function ActivateForm() {
       if (data.success) {
         setStatus('success');
         setTimeout(() => {
+          if (isStageSource) {
+            signIn('credentials', {
+              email,
+              password,
+              redirect: false,
+            })
+              .then((result) => {
+                if (result?.error) {
+                  router.push('/auth/signin?activated=true');
+                  return;
+                }
+                router.push('/dashboard/eleve/stages');
+              })
+              .catch(() => {
+                router.push('/auth/signin?activated=true');
+              });
+            return;
+          }
+
           router.push(data.redirectUrl || '/auth/signin?activated=true');
         }, 2000);
       } else {
@@ -125,7 +147,9 @@ function ActivateForm() {
             <p className="text-neutral-400 mb-2">
               Bienvenue {studentName} ! Votre compte est maintenant actif.
             </p>
-            <p className="text-neutral-500 text-sm">Redirection vers la connexion...</p>
+            <p className="text-neutral-500 text-sm">
+              {isStageSource ? 'Connexion en cours vers votre espace stages...' : 'Redirection vers la connexion...'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -137,9 +161,13 @@ function ActivateForm() {
       <Card className="w-full max-w-md bg-surface-card border border-white/10">
         <CardHeader className="text-center">
           <Lock className="w-10 h-10 text-brand-accent mx-auto mb-2" />
-          <CardTitle className="text-white text-xl">Activer votre compte</CardTitle>
+          <CardTitle className="text-white text-xl">
+            {isStageSource ? 'Activez votre compte — Stage Nexus Réussite' : 'Activer votre compte'}
+          </CardTitle>
           <p className="text-neutral-400 text-sm mt-1">
-            Bienvenue {studentName} ! Choisissez votre mot de passe pour accéder à votre espace élève.
+            {isStageSource
+              ? 'Votre inscription au stage est confirmée. Choisissez votre mot de passe pour accéder à votre emploi du temps et vos ressources.'
+              : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace élève.`}
           </p>
         </CardHeader>
         <CardContent>

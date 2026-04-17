@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
+import { getPublicStageBySlug } from '@/lib/stages/public';
 
 export async function GET(
   _req: NextRequest,
@@ -10,28 +11,7 @@ export async function GET(
   const { stageSlug } = await params;
 
   try {
-    const stage = await prisma.stage.findUnique({
-      where: { slug: stageSlug, isVisible: true },
-      include: {
-        sessions: {
-          orderBy: { startAt: 'asc' },
-          include: {
-            coach: { select: { pseudonym: true } },
-            documents: { where: { isPublic: true } },
-          },
-        },
-        coaches: {
-          include: {
-            coach: { select: { pseudonym: true, subjects: true } },
-          },
-        },
-        _count: {
-          select: {
-            reservations: { where: { status: 'CONFIRMED' } },
-          },
-        },
-      },
-    });
+    const stage = await getPublicStageBySlug(stageSlug);
 
     if (!stage) {
       return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
