@@ -66,8 +66,9 @@ describe('assistant coaches', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toHaveLength(1);
-    expect(body[0].todaySessions).toBe(1);
+    expect(body.coaches).toHaveLength(1);
+    expect(body.coaches[0].todaySessions).toBe(1);
+    expect(body.coaches[0].coachSubjects).toEqual([]);
   });
 
   it('POST validates required fields', async () => {
