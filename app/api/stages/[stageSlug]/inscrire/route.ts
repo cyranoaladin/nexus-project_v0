@@ -2,18 +2,10 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import { sendMail } from '@/lib/email/mailer';
 import { telegramSendMessage } from '@/lib/telegram/client';
-
-const inscriptionSchema = z.object({
-  firstName: z.string().min(2).max(50),
-  lastName: z.string().min(2).max(50),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  level: z.string().optional(),
-  notes: z.string().max(500).optional(),
-});
+import { computeReservationStatus } from '@/lib/stages/capacity';
+import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 
 export async function POST(
   req: NextRequest,
@@ -28,12 +20,23 @@ export async function POST(
     return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
   }
 
-  const parsed = inscriptionSchema.safeParse(body);
+  const parsed = publicStageInscriptionSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, level, notes } = parsed.data;
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    level,
+    parentFirstName,
+    parentLastName,
+    parentEmail,
+    parentPhone,
+    notes,
+  } = parsed.data;
 
   try {
     const stage = await prisma.stage.findUnique({
@@ -62,21 +65,29 @@ export async function POST(
         richStatus: { in: ['PENDING', 'CONFIRMED'] },
       },
     });
-    const richStatus = confirmedCount >= stage.capacity ? 'WAITLISTED' : 'PENDING';
+    const richStatus = computeReservationStatus(confirmedCount, stage.capacity);
+
+    const studentName = `${firstName} ${lastName}`.trim();
+    const parentName = [parentFirstName, parentLastName].filter(Boolean).join(' ').trim() || studentName;
+    const additionalNotes = [
+      notes?.trim(),
+      parentEmail ? `Email parent: ${parentEmail}` : null,
+      parentPhone ? `Téléphone parent: ${parentPhone}` : null,
+    ].filter(Boolean).join('\n');
 
     const reservation = await prisma.stageReservation.create({
       data: {
         stageId: stage.id,
         email,
-        parentName: `${firstName} ${lastName}`,
-        studentName: `${firstName} ${lastName}`,
-        phone: phone ?? '',
+        parentName,
+        studentName,
+        phone: phone?.trim() || parentPhone?.trim() || '',
         classe: level ?? '',
         academyId: stage.slug,
         academyTitle: stage.title,
         price: Number(stage.priceAmount),
         richStatus,
-        notes,
+        notes: additionalNotes || null,
       },
     });
 

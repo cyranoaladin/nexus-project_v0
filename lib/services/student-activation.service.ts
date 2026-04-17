@@ -46,6 +46,65 @@ export interface SetPasswordResult {
   redirectUrl?: string;
 }
 
+type ActivationUserRecord = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  activatedAt?: Date | null;
+  student?: { id: string } | null;
+};
+
+type ActivationReservationRecord = {
+  id: string;
+  email: string;
+  studentName: string | null;
+  parentName: string;
+  studentId: string | null;
+};
+
+function buildDisplayName(
+  firstName?: string | null,
+  lastName?: string | null,
+  fallback?: string | null
+): string {
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+  return fullName || fallback || 'Élève Nexus';
+}
+
+async function findPendingUserActivation(
+  hashedToken: string
+): Promise<ActivationUserRecord | null> {
+  return prisma.user.findFirst({
+    where: {
+      activationToken: hashedToken,
+      activationExpiry: { gt: new Date() },
+      activatedAt: null,
+    },
+    include: {
+      student: { select: { id: true } },
+    },
+  });
+}
+
+async function findPendingStageReservation(
+  hashedToken: string
+): Promise<ActivationReservationRecord | null> {
+  return prisma.stageReservation.findFirst({
+    where: {
+      activationToken: hashedToken,
+      activationTokenExpiresAt: { gt: new Date() },
+    },
+    select: {
+      id: true,
+      email: true,
+      studentName: true,
+      parentName: true,
+      studentId: true,
+    },
+  });
+}
+
 /**
  * Initiate student activation.
  * Called by assistante or parent.
@@ -137,28 +196,72 @@ export async function completeStudentActivation(
   // Hash the token to find the matching user
   const hashedToken = hashToken(token);
 
-  const user = await prisma.user.findFirst({
-    where: {
-      activationToken: hashedToken,
-      activationExpiry: { gt: new Date() }, // Not expired
-      activatedAt: null, // Not already activated
-    },
-  });
+  const user = await findPendingUserActivation(hashedToken);
 
-  if (!user) {
+  if (user) {
+    // Hash password and activate
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        activatedAt: new Date(),
+        activationToken: null,
+        activationExpiry: null,
+      },
+    });
+
+    return {
+      success: true,
+      redirectUrl: '/auth/signin?activated=true',
+    };
+  }
+
+  const reservation = await findPendingStageReservation(hashedToken);
+  if (!reservation) {
     return { success: false, error: 'Lien d\'activation invalide ou expiré' };
   }
 
-  // Hash password and activate
   const hashedPassword = await bcrypt.hash(password, 12);
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      email: reservation.email,
+      role: 'ELEVE',
+    },
+    include: {
+      student: { select: { id: true } },
+    },
+  });
 
-  await prisma.user.update({
-    where: { id: user.id },
+  const activatedAt = new Date();
+  if (existingUser) {
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        password: hashedPassword,
+        activatedAt,
+      },
+    });
+  } else {
+    await prisma.user.create({
+      data: {
+        email: reservation.email,
+        role: 'ELEVE',
+        firstName: reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0],
+        lastName: reservation.studentName?.split(' ').slice(1).join(' ') || reservation.parentName.split(' ').slice(1).join(' '),
+        password: hashedPassword,
+        activatedAt,
+      },
+    });
+  }
+
+  await prisma.stageReservation.update({
+    where: { id: reservation.id },
     data: {
-      password: hashedPassword,
-      activatedAt: new Date(),
-      activationToken: null, // Invalidate token after use
-      activationExpiry: null,
+      activationToken: null,
+      activationTokenExpiresAt: null,
+      studentId: reservation.studentId ?? existingUser?.student?.id ?? null,
     },
   });
 
@@ -179,21 +282,23 @@ export async function verifyActivationToken(
 ): Promise<{ valid: boolean; studentName?: string; email?: string }> {
   const hashedToken = hashToken(token);
 
-  const user = await prisma.user.findFirst({
-    where: {
-      activationToken: hashedToken,
-      activationExpiry: { gt: new Date() },
-      activatedAt: null,
-    },
-  });
+  const user = await findPendingUserActivation(hashedToken);
+  if (user) {
+    return {
+      valid: true,
+      studentName: buildDisplayName(user.firstName, user.lastName),
+      email: user.email,
+    };
+  }
 
-  if (!user) {
+  const reservation = await findPendingStageReservation(hashedToken);
+  if (!reservation) {
     return { valid: false };
   }
 
   return {
     valid: true,
-    studentName: `${user.firstName} ${user.lastName}`,
-    email: user.email,
+    studentName: buildDisplayName(null, null, reservation.studentName || reservation.parentName),
+    email: reservation.email,
   };
 }

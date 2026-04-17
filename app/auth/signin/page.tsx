@@ -20,6 +20,10 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showResendActivation, setShowResendActivation] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [isResendingActivation, setIsResendingActivation] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +41,9 @@ export default function SignInPage() {
 
       if (result?.error) {
         track.signinError('invalid_credentials');
-        setError("Email ou mot de passe incorrect");
+        setError("Email ou mot de passe incorrect.");
+        setShowResendActivation(true);
+        setResendEmail(email);
       } else {
         const session = await getSession();
         const role = (session?.user as { role?: string })?.role;
@@ -56,6 +62,38 @@ export default function SignInPage() {
       setError("Une erreur est survenue lors de la connexion");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendActivation = async () => {
+    const targetEmail = resendEmail || email;
+    if (!targetEmail) {
+      setResendMessage("Saisissez votre email pour recevoir un nouveau lien.");
+      return;
+    }
+
+    setIsResendingActivation(true);
+    setResendMessage("");
+
+    try {
+      const response = await fetch('/api/auth/resend-activation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+
+      const data = await response.json() as { success?: boolean; message?: string; error?: string };
+
+      if (!response.ok) {
+        setResendMessage(data.error || 'Impossible de renvoyer le lien pour le moment.');
+        return;
+      }
+
+      setResendMessage(data.message || 'Si ce compte existe, un nouveau lien a été envoyé.');
+    } catch {
+      setResendMessage('Impossible de renvoyer le lien pour le moment.');
+    } finally {
+      setIsResendingActivation(false);
     }
   };
 
@@ -166,6 +204,53 @@ export default function SignInPage() {
                       role="alert"
                     >
                       <p className="text-error text-sm font-medium">{error}</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowResendActivation((value) => !value);
+                          setResendEmail((current) => current || email);
+                        }}
+                        className="mt-2 text-sm text-brand-accent hover:underline"
+                      >
+                        Compte non activé ? Demandez un nouveau lien →
+                      </button>
+                    </div>
+                  )}
+
+                  {showResendActivation && (
+                    <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
+                      <div>
+                        <Label htmlFor="resend-email" className="text-neutral-200 font-medium">
+                          Renvoyer le lien d&apos;activation
+                        </Label>
+                        <Input
+                          id="resend-email"
+                          type="email"
+                          value={resendEmail}
+                          onChange={(e) => setResendEmail(e.target.value)}
+                          placeholder="votre.email@exemple.com"
+                          className="mt-2 h-11 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-white/20 text-neutral-100 hover:bg-white/10"
+                        disabled={isResendingActivation}
+                        onClick={handleResendActivation}
+                      >
+                        {isResendingActivation ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-label="Chargement" />
+                            Envoi en cours...
+                          </>
+                        ) : (
+                          'Renvoyer le lien d’activation'
+                        )}
+                      </Button>
+                      {resendMessage && (
+                        <p className="text-sm text-neutral-300">{resendMessage}</p>
+                      )}
                     </div>
                   )}
 
