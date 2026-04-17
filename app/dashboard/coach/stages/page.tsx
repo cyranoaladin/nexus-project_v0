@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Users, CheckCircle, AlertCircle, RefreshCw, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { Users, CheckCircle, AlertCircle, RefreshCw, Pencil, ExternalLink } from 'lucide-react';
 import { WeeklyCalendar, type CalendarSession } from '@/components/stages/WeeklyCalendar';
 import { StageBilanCard, type StageBilanData } from '@/components/stages/StageBilanCard';
 
@@ -204,13 +205,22 @@ export default function CoachStagesPage() {
                           <p className="text-white text-sm font-medium">{r.studentName ?? r.email}</p>
                           <p className="text-slate-400 text-xs">{r.email}</p>
                         </div>
-                        <button
-                          onClick={() => openBilanForm(stage.slug, r)}
-                          className={`inline-flex items-center gap-1 text-xs rounded-md px-2.5 py-1.5 transition-colors ${hasBilan ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30' : 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30'}`}
-                        >
-                          <Pencil className="h-3 w-3" />
-                          {hasBilan ? 'Modifier bilan' : 'Rédiger bilan'}
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => openBilanForm(stage.slug, r)}
+                            className={`inline-flex items-center gap-1 text-xs rounded-md px-2.5 py-1.5 transition-colors ${hasBilan ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30' : 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30'}`}
+                          >
+                            <Pencil className="h-3 w-3" />
+                            {hasBilan ? 'Modifier' : 'Rédiger'}
+                          </button>
+                          <Link
+                            href={`/dashboard/coach/stages/${stage.slug}/bilan/${r.studentId ?? r.id}`}
+                            className="inline-flex items-center gap-1 text-xs rounded-md px-2 py-1.5 border border-white/10 bg-white/5 text-slate-400 hover:text-white transition-colors"
+                            title="Ouvrir l'éditeur complet"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                        </div>
                       </div>
                     );
                   })}

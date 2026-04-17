@@ -5,6 +5,7 @@ import {
   Users, CheckCircle, Clock, AlertCircle, TrendingUp, Calendar,
   RefreshCw, ExternalLink, ChevronDown, ChevronUp,
 } from 'lucide-react';
+import Link from 'next/link';
 import { WeeklyCalendar, type CalendarSession } from '@/components/stages/WeeklyCalendar';
 import { StageReservationStatus } from '@/components/stages/StageReservationStatus';
 
@@ -143,14 +144,23 @@ export default function AssistanteStagesPage() {
           <h1 className="text-xl font-bold text-white">Gestion des Stages</h1>
           <p className="text-sm text-slate-400 mt-0.5">Réservations, confirmations et planning</p>
         </div>
-        <button
-          onClick={loadStages}
-          disabled={loadingStages}
-          className="flex items-center gap-2 text-sm text-slate-400 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors"
-        >
-          <RefreshCw className={`h-4 w-4 ${loadingStages ? 'animate-spin' : ''}`} />
-          Actualiser
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/assistante/stages/planning"
+            className="flex items-center gap-2 text-sm text-brand-accent hover:text-white border border-brand-accent/40 bg-brand-accent/10 rounded-lg px-3 py-2 transition-colors"
+          >
+            <Calendar className="h-4 w-4" />
+            Planning global
+          </Link>
+          <button
+            onClick={loadStages}
+            disabled={loadingStages}
+            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors"
+          >
+            <RefreshCw className={`h-4 w-4 ${loadingStages ? 'animate-spin' : ''}`} />
+            Actualiser
+          </button>
+        </div>
       </div>
 
       {/* KPIs */}
