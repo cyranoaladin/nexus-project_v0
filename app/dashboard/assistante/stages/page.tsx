@@ -190,7 +190,7 @@ export default function AssistanteStagesPage() {
           {stages.map((stage) => {
             const isOpen = expandedStage === stage.slug;
             const reservations = reservationsByStage[stage.slug] ?? [];
-            const sessions: CalendarSession[] = stage.sessions.map((s) => ({
+            const sessions: CalendarSession[] = (stage.sessions ?? []).map((s) => ({
               ...s,
               startAt: new Date(s.startAt),
               endAt: new Date(s.endAt),
