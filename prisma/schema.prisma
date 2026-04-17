@@ -126,6 +126,9 @@ model User {
   // ClicToPay transactions
   clicToPayTransactions ClicToPayTransaction[]
 
+  // Stage document uploads
+  stageDocumentsUploaded StageDocument[] @relation("StageDocumentUploader")
+
   @@index([role])
   @@map("users")
 }
@@ -186,6 +189,10 @@ model Student {
   progressionHistory   ProgressionHistory[]  // SSN history over time
   projectionHistory    ProjectionHistory[]   // ML predictions history
 
+  // Stage relations
+  stageReservations    StageReservation[]    @relation("StudentStageReservations")
+  stageBilans          StageBilan[]          @relation("StudentStageBilans")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -217,6 +224,11 @@ model CoachProfile {
   sessions       Session[]
   reports        StudentReport[]
   sessionReports SessionReport[]
+
+  // Stage relations
+  stageSessions    StageSession[]  @relation("CoachStageSessions")
+  stageBilans      StageBilan[]    @relation("CoachStageBilans")
+  stageAssignments StageCoach[]    @relation("CoachStageAssignments")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -877,6 +889,144 @@ model Diagnostic {
   @@map("diagnostics")
 }
 
+// ─── Stage Type enum ──────────────────────────────────────────────────────────
+enum StageType {
+  INTENSIF
+  SEMAINE_BLANCHE
+  BILAN
+  GRAND_ORAL
+  BAC_FRANCAIS
+}
+
+// ─── Stage Reservation Status enum ───────────────────────────────────────────
+enum StageReservationStatus {
+  PENDING
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+  COMPLETED
+}
+
+// ─── Stage — generic model for an intensive course ────────────────────────────
+model Stage {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  subtitle      String?
+  description   String?   @db.Text
+  type          StageType @default(INTENSIF)
+  subject       Subject[]
+  level         String[]
+  startDate     DateTime
+  endDate       DateTime
+  capacity      Int       @default(12)
+  priceAmount   Decimal   @db.Decimal(10, 2)
+  priceCurrency String    @default("TND")
+  location      String?
+  isVisible     Boolean   @default(true)
+  isOpen        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reservations StageReservation[] @relation("StageReservations")
+  sessions     StageSession[]
+  documents    StageDocument[]
+  bilans       StageBilan[]
+  coaches      StageCoach[]
+
+  @@index([slug])
+  @@index([startDate])
+  @@map("stages")
+}
+
+// ─── Stage Session — a scheduled slot in a stage ─────────────────────────────
+model StageSession {
+  id          String       @id @default(cuid())
+  stageId     String
+  stage       Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  title       String
+  subject     Subject
+  startAt     DateTime
+  endAt       DateTime
+  location    String?
+  coachId     String?
+  coach       CoachProfile? @relation("CoachStageSessions", fields: [coachId], references: [id], onDelete: SetNull)
+  description String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  documents   StageDocument[]
+
+  @@index([stageId])
+  @@index([startAt])
+  @@map("stage_sessions")
+}
+
+// ─── Stage Coach — many-to-many coach assignment ─────────────────────────────
+model StageCoach {
+  id        String       @id @default(cuid())
+  stageId   String
+  stage     Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  coachId   String
+  coach     CoachProfile @relation("CoachStageAssignments", fields: [coachId], references: [id], onDelete: Cascade)
+  role      String?
+  createdAt DateTime     @default(now())
+
+  @@unique([stageId, coachId])
+  @@map("stage_coaches")
+}
+
+// ─── Stage Document — pedagogical resource linked to a stage/session ─────────
+model StageDocument {
+  id             String        @id @default(cuid())
+  stageId        String
+  stage          Stage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stageSessionId String?
+  stageSession   StageSession? @relation(fields: [stageSessionId], references: [id], onDelete: SetNull)
+  uploadedById   String
+  uploadedBy     User          @relation("StageDocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  title          String
+  description    String?
+  fileUrl        String
+  fileType       String
+  fileSize       Int?
+  isPublic       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([stageId])
+  @@index([stageSessionId])
+  @@map("stage_documents")
+}
+
+// ─── Stage Bilan — end-of-stage report written by coach for a student ─────────
+model StageBilan {
+  id             String       @id @default(cuid())
+  stageId        String
+  stage          Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student      @relation("StudentStageBilans", fields: [studentId], references: [id], onDelete: Cascade)
+  coachId        String
+  coach          CoachProfile @relation("CoachStageBilans", fields: [coachId], references: [id], onDelete: Restrict)
+  contentEleve   String       @db.Text
+  contentParent  String       @db.Text
+  contentInterne String?      @db.Text
+  scoreGlobal    Float?
+  domainScores   Json?
+  strengths      String[]
+  areasForGrowth String[]
+  nextSteps      String?      @db.Text
+  pdfUrl         String?
+  isPublished    Boolean  @default(false)
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([stageId, studentId])
+  @@index([stageId])
+  @@index([studentId])
+  @@map("stage_bilans")
+}
+
 // Stage Reservation — Persists stage registration leads
 model StageReservation {
   id            String   @id @default(cuid())
@@ -888,7 +1038,7 @@ model StageReservation {
   academyId     String
   academyTitle  String
   price         Float
-  paymentMethod String?  // "card" | "transfer" | null
+  paymentMethod String?  // "card" | "transfer" | "bank_transfer" | null
 
   // Pipeline status
   status String @default("PENDING") // PENDING, PENDING_BANK_TRANSFER, CONFIRMED, CANCELLED, PAID
@@ -899,12 +1049,29 @@ model StageReservation {
   // Telegram notification tracking
   telegramSent Boolean @default(false)
 
+  // ── New fields (nullable for backward compat) ──────────────────────────────
+  stageId   String?
+  stage     Stage?  @relation("StageReservations", fields: [stageId], references: [id], onDelete: SetNull)
+  studentId String?
+  student   Student? @relation("StudentStageReservations", fields: [studentId], references: [id], onDelete: SetNull)
+  // Rich status mirroring new enum (kept alongside legacy String status for compat)
+  richStatus         StageReservationStatus?
+  paymentStatus      PaymentStatus?
+  paymentRef         String?
+  notes              String?                  @db.Text
+  activationToken    String?                  @unique
+  activationTokenExpiresAt DateTime?
+  confirmedAt        DateTime?
+  cancelledAt        DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([email, academyId]) // Anti-duplicate: one reservation per email per academy
   @@index([status])
   @@index([academyId])
+  @@index([stageId])
+  @@index([studentId])
   @@map("stage_reservations")
 }
 
