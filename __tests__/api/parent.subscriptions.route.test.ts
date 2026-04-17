@@ -94,7 +94,7 @@ describe('parent subscriptions', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Missing required fields: studentId, planName, monthlyPrice');
   });
 
   it('POST returns 404 when parent profile missing', async () => {

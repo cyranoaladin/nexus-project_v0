@@ -100,13 +100,11 @@ export async function POST(request: NextRequest) {
       monthlyPrice?: number;
       creditsPerMonth?: number;
     };
-    console.log('Received subscription request:', body);
     const { studentId, planName, monthlyPrice, creditsPerMonth } = body;
 
     if (!studentId || !planName || !monthlyPrice) {
-      console.log('Missing fields:', { studentId, planName, monthlyPrice });
       return NextResponse.json(
-        { error: 'Missing required fields', received: body },
+        { error: 'Missing required fields: studentId, planName, monthlyPrice' },
         { status: 400 }
       );
     }

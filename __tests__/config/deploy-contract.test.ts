@@ -43,12 +43,12 @@ describe('production deployment contract', () => {
     expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
   });
 
-  it('keeps the git-pull deploy helper aligned with the real production host and PM2 process', () => {
+  it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
     const deployScript = read('scripts/deploy-git-pull.sh');
 
     expect(deployScript).toContain('REMOTE_HOST="root@88.99.254.59"');
     expect(deployScript).toContain('REMOTE_DIR="/opt/nexus"');
-    expect(deployScript).toContain('PM2_PROCESS="nexus-prod"');
+    expect(deployScript).toContain('systemctl restart nexus-app');
     expect(deployScript).toContain('git checkout main');
     expect(deployScript).toContain('git pull origin main');
   });
