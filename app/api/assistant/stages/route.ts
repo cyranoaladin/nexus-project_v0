@@ -14,6 +14,7 @@ export async function GET() {
         _count: { select: { reservations: true } },
         reservations: { select: { richStatus: true, paymentStatus: true } },
         coaches: { include: { coach: { select: { pseudonym: true } } } },
+        sessions: { orderBy: { startAt: 'asc' } },
       },
       orderBy: { startDate: 'asc' },
     });
@@ -38,7 +39,16 @@ export async function GET() {
       ),
     };
 
-    const stagesWithoutInternalReservations = stages.map(({ reservations: _r, ...s }) => s);
+    const stagesWithoutInternalReservations = stages.map(({ reservations: _r, ...s }) => ({
+      ...s,
+      subject: s.subject ?? [],
+      level: s.level ?? [],
+      sessions: (s.sessions ?? []).map((sess) => ({
+        ...sess,
+        startAt: sess.startAt.toISOString(),
+        endAt: sess.endAt.toISOString(),
+      })),
+    }));
 
     return NextResponse.json({ stages: stagesWithoutInternalReservations, kpis });
   } catch (error) {

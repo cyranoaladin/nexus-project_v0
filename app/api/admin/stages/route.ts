@@ -12,6 +12,16 @@ type ReservationLike = {
   status: string;
 };
 
+type StageSessionLike = {
+  id: string;
+  title: string;
+  subject: string;
+  startAt: Date;
+  endAt: Date;
+  location: string | null;
+  coach: { pseudonym: string } | null;
+};
+
 type StageWithRelations = {
   id: string;
   slug: string;
@@ -31,6 +41,7 @@ type StageWithRelations = {
   isOpen: boolean;
   reservations: ReservationLike[];
   bilans: Array<{ isPublished: boolean }>;
+  sessions?: StageSessionLike[];
 };
 
 function countReservationsByStatus(reservations: ReservationLike[]) {
@@ -54,6 +65,13 @@ function serializeStage(stage: StageWithRelations) {
 
   return {
     ...stage,
+    subject: stage.subject ?? [],
+    level: stage.level ?? [],
+    sessions: (stage.sessions ?? []).map((s) => ({
+      ...s,
+      startAt: s.startAt.toISOString(),
+      endAt: s.endAt.toISOString(),
+    })),
     priceAmount: Number(stage.priceAmount),
     reservationCounts,
     confirmedCount,
@@ -76,6 +94,12 @@ export async function GET(_request: NextRequest) {
           select: {
             richStatus: true,
             status: true,
+          },
+        },
+        sessions: {
+          orderBy: { startAt: 'asc' as const },
+          include: {
+            coach: { select: { pseudonym: true } },
           },
         },
         bilans: {
