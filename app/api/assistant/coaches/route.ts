@@ -43,14 +43,14 @@ export async function GET(request: NextRequest) {
       description: coach.description,
       philosophy: coach.philosophy,
       expertise: coach.expertise,
-      subjects: coach.subjects,
+      coachSubjects: typeof coach.subjects === 'string' ? JSON.parse(coach.subjects) : (coach.subjects ?? []),
       availableOnline: coach.availableOnline,
       availableInPerson: coach.availableInPerson,
       todaySessions: coach.sessions.length,
       createdAt: coach.createdAt
     }));
 
-    return NextResponse.json(formattedCoaches);
+    return NextResponse.json({ coaches: formattedCoaches });
 
   } catch (error) {
     console.error('Error fetching coaches:', error);
