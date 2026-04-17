@@ -71,13 +71,14 @@ backup_*.sql.gz
 e2e/.credentials.json
 
 # ─── Sécurité / RGPD ───────────────────────────────────────────────────────
-# Fichiers de session Playwright (contiennent des tokens)
+# Fichiers de session Playwright + fixtures (contiennent des tokens/credentials de test)
 student.json
 parent.json
 admin.json
 coach.json
 assistante.json
 *.auth.json
+e2e/fixtures/*.json
 
 # Données stages locales JSON (source de vérité : DB Prisma)
 data/stages/*.json
