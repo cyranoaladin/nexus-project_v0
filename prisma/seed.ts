@@ -237,6 +237,118 @@ async function main() {
   }
   console.log('✅ 20 Vectorized Contents seeded');
 
+  // ── Stage Printemps 2026 ────────────────────────────────────────────────────
+  const stagePrintemps = await prisma.stage.upsert({
+    where: { slug: 'printemps-2026' },
+    update: {},
+    create: {
+      slug: 'printemps-2026',
+      title: 'Stage Intensif Printemps 2026',
+      subtitle: 'Maths & NSI — Remise à niveau & Excellence',
+      description:
+        'Stage intensif de 5 jours couvrant les chapitres clés du programme ' +
+        'de Terminale. Groupes de 6 à 12 élèves maximum. Bilan personnalisé inclus.',
+      type: 'INTENSIF',
+      subject: ['MATHEMATIQUES', 'NSI'],
+      level: ['Terminale', 'Première'],
+      startDate: new Date('2026-04-21T08:30:00.000Z'),
+      endDate: new Date('2026-04-25T17:00:00.000Z'),
+      capacity: 12,
+      priceAmount: 350,
+      priceCurrency: 'TND',
+      location: 'Nexus Réussite — Tunis',
+      isVisible: true,
+      isOpen: true,
+    },
+  });
+
+  await prisma.stageSession.createMany({
+    skipDuplicates: true,
+    data: [
+      {
+        stageId: stagePrintemps.id,
+        title: 'Analyse & Limites',
+        subject: 'MATHEMATIQUES',
+        startAt: new Date('2026-04-21T08:30:00.000Z'),
+        endAt: new Date('2026-04-21T11:30:00.000Z'),
+        location: 'Salle A',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Structures de données',
+        subject: 'NSI',
+        startAt: new Date('2026-04-21T13:00:00.000Z'),
+        endAt: new Date('2026-04-21T16:00:00.000Z'),
+        location: 'Salle Informatique',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Suites & Récurrences',
+        subject: 'MATHEMATIQUES',
+        startAt: new Date('2026-04-22T08:30:00.000Z'),
+        endAt: new Date('2026-04-22T11:30:00.000Z'),
+        location: 'Salle A',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Algorithmique & Complexité',
+        subject: 'NSI',
+        startAt: new Date('2026-04-22T13:00:00.000Z'),
+        endAt: new Date('2026-04-22T16:00:00.000Z'),
+        location: 'Salle Informatique',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Probabilités & Variables aléatoires',
+        subject: 'MATHEMATIQUES',
+        startAt: new Date('2026-04-23T08:30:00.000Z'),
+        endAt: new Date('2026-04-23T11:30:00.000Z'),
+        location: 'Salle A',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Bases de données & SQL',
+        subject: 'NSI',
+        startAt: new Date('2026-04-23T13:00:00.000Z'),
+        endAt: new Date('2026-04-23T16:00:00.000Z'),
+        location: 'Salle Informatique',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Géométrie & Produit scalaire',
+        subject: 'MATHEMATIQUES',
+        startAt: new Date('2026-04-24T08:30:00.000Z'),
+        endAt: new Date('2026-04-24T11:30:00.000Z'),
+        location: 'Salle A',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Réseaux & Architecture',
+        subject: 'NSI',
+        startAt: new Date('2026-04-24T13:00:00.000Z'),
+        endAt: new Date('2026-04-24T16:00:00.000Z'),
+        location: 'Salle Informatique',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Révision & Épreuve blanche Maths',
+        subject: 'MATHEMATIQUES',
+        startAt: new Date('2026-04-25T08:30:00.000Z'),
+        endAt: new Date('2026-04-25T11:30:00.000Z'),
+        location: 'Salle A',
+      },
+      {
+        stageId: stagePrintemps.id,
+        title: 'Révision & Épreuve blanche NSI',
+        subject: 'NSI',
+        startAt: new Date('2026-04-25T13:00:00.000Z'),
+        endAt: new Date('2026-04-25T16:00:00.000Z'),
+        location: 'Salle Informatique',
+      },
+    ],
+  });
+  console.log(`✅ Stage "${stagePrintemps.title}" seedé avec 10 séances`);
+
   console.log('🚀 Massive Seeding Complete.');
 }
 
