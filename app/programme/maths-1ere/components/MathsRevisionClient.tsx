@@ -52,6 +52,7 @@ import DiagnosticPrerequis from './DiagnosticPrerequis';
 import GrandOralSuggestions from './GrandOralSuggestions';
 import ProceduralExercise from './ProceduralExercise';
 import FormulaireView from './FormulaireView';
+import RAGSources from './RAGSources';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import {
@@ -1480,6 +1481,9 @@ function ChapterViewer({ catKey, chapId, typeset, onToggleFocus, focusMode }: {
         </div>
 
         <GrandOralSuggestions chapId={chapId} />
+
+        {/* RAG — Base de connaissances Nexus */}
+        <RAGSources chapId={chapId} chapTitre={chap.titre} />
 
         {/* External Resources */}
         {chap.ressourcesExt && chap.ressourcesExt.length > 0 && (
