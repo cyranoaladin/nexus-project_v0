@@ -167,8 +167,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -185,20 +183,20 @@ jobs:
 
       - name: Create .env.test for test database
         run: |
-          echo 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' > .env.test
-          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' >> .env.test
+          echo 'DATABASE_URL="postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public"' > .env.test
+          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public"' >> .env.test
           echo 'NODE_ENV="test"' >> .env.test
           echo 'NEXTAUTH_SECRET="test-secret-min-32-chars-long-for-ci-environment"' >> .env.test
           echo 'NEXTAUTH_URL="http://localhost:3000"' >> .env.test
 
       - name: Generate Prisma Client
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
         run: npx prisma generate
 
       - name: Reset database before migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -207,12 +205,12 @@ jobs:
 
       - name: Run database migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
         run: npx prisma migrate deploy
 
       - name: Verify database tables
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           SELECT table_name FROM information_schema.tables
@@ -222,8 +220,8 @@ jobs:
 
       - name: Run integration tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -261,8 +259,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -282,7 +278,7 @@ jobs:
 
       - name: Seed E2E test data
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -296,7 +292,7 @@ jobs:
 
       - name: Build Next.js for E2E
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -306,7 +302,7 @@ jobs:
 
       - name: Start Next.js server in background
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -337,7 +333,7 @@ jobs:
       - name: Run Playwright E2E tests
         timeout-minutes: 20
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
