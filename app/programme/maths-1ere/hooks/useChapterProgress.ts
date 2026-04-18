@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useMathsLabStore } from '../store';
+import type { HintLevel, SRSQuality } from '../store';
 
 export function useChapterProgress(chapId: string, pointsXP: number) {
   const store = useMathsLabStore();
@@ -24,13 +25,13 @@ export function useChapterProgress(chapId: string, pointsXP: number) {
     store.recordExerciseResult(targetChapId, score);
   };
 
-  const recordHintUsage = (level: number) => {
+  const recordHintUsage = (level: HintLevel) => {
     // Malus mapping logic
     // level 1: -10%, level 2: -30%, level 3: -100%
     store.recordExerciseWithHint(chapId, -1, level, pointsXP);
   };
 
-  const recordSRSReview = (quality: number) => {
+  const recordSRSReview = (quality: SRSQuality) => {
     store.recordSRSReview(chapId, quality);
   };
 

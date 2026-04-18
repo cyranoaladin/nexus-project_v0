@@ -22,7 +22,7 @@ interface DailyChallengeState {
 }
 
 /** Hint level used: 0=none, 1=indice(-10%), 2=début(-30%), 3=correction(-100%) */
-type HintLevel = 0 | 1 | 2 | 3;
+export type HintLevel = 0 | 1 | 2 | 3;
 
 /** XP malus multipliers per hint level (CdC §3.2) */
 const HINT_MALUS: Record<HintLevel, number> = {
@@ -112,7 +112,7 @@ interface MathsLabState {
   earnBadge: (badgeId: string) => void;
   recordActivity: () => void;
   evaluateBadges: () => void;
-  recordSRSReview: (chapId: string, quality: 0 | 1 | 2 | 3 | 4 | 5) => void;
+  recordSRSReview: (chapId: string, quality: SRSQuality) => void;
   recordDiagnostic: (chapId: string, score: number, total: number) => void;
   addChapterTime: (chapId: string, seconds: number) => void;
   markFormulaireViewed: () => void;
@@ -127,6 +127,8 @@ interface MathsLabState {
 }
 
 // ─── SRS Types ──────────────────────────────────────────────────────────────
+
+export type SRSQuality = 0 | 1 | 2 | 3 | 4 | 5;
 
 interface SRSItem {
   /** ISO date of next scheduled review */
