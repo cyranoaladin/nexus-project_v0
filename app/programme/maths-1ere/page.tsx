@@ -1,6 +1,9 @@
-import { MathJaxProvider } from './components/MathJaxProvider';
-import MathsRevisionClient from './components/MathsRevisionClient';
+import { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@/auth.config';
 import { redirect } from 'next/navigation';
+import MathsRevisionClient from './components/MathsRevisionClient';
+import { PrismaClient } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
@@ -71,8 +74,6 @@ export default async function MathsPremierePage() {
   const displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || 'Élève';
 
   return (
-    <MathJaxProvider>
-      <MathsRevisionClient user={{ id: userId, name: displayName }} />
-    </MathJaxProvider>
+    <MathsRevisionClient user={{ id: userId, name: displayName }} />
   );
 }

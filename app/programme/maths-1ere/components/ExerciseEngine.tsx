@@ -3,19 +3,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, PenSquare, XCircle } from 'lucide-react';
 import type { Exercice, ExerciceQCM, ExerciceNumerique, ExerciceOrdonnancement } from '../data';
-import { useMathJax } from './MathJaxProvider';
 import { areEquivalentAnswers } from '../lib/math-engine';
+import { MathRichText, MathInline } from './MathContent';
 
 // ─── QCM Exercise ───────────────────────────────────────────────────────────
 
 function QCMExercise({
   exercice,
   onCorrect,
-  typeset,
 }: {
   exercice: ExerciceQCM;
   onCorrect: () => void;
-  typeset: () => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -25,11 +23,6 @@ function QCMExercise({
     setSubmitted(false);
   }, [exercice]);
 
-  useEffect(() => {
-    const t = setTimeout(typeset, 100);
-    return () => clearTimeout(t);
-  }, [submitted, typeset]);
-
   const handleSubmit = () => {
     if (selected === null) return;
     setSubmitted(true);
@@ -38,7 +31,7 @@ function QCMExercise({
 
   return (
     <div>
-      <p className="text-slate-300 mb-4 font-medium">{exercice.question}</p>
+      <MathRichText content={exercice.question} className="text-slate-300 mb-4 font-medium" />
       <div className="space-y-2 mb-4">
         {exercice.options.map((opt, i) => {
           let cls = 'border-slate-700 hover:border-cyan-500/50';
@@ -53,10 +46,10 @@ function QCMExercise({
               key={i}
               onClick={() => !submitted && setSelected(i)}
               disabled={submitted}
-              className={`w-full text-left p-3 rounded-xl border transition-all text-sm font-mono ${cls} ${submitted ? 'cursor-default' : 'cursor-pointer'}`}
+              className={`w-full text-left p-3 rounded-xl border transition-all text-sm ${cls} ${submitted ? 'cursor-default' : 'cursor-pointer'}`}
             >
-              <span className="text-slate-500 mr-2">{String.fromCharCode(65 + i)}.</span>
-              {opt}
+              <span className="text-slate-500 mr-2 font-bold">{String.fromCharCode(65 + i)}.</span>
+              <MathRichText content={opt} className="inline-block" />
             </button>
           );
         })}
@@ -72,9 +65,17 @@ function QCMExercise({
       ) : (
         <div className={`p-3 rounded-xl text-sm ${selected === exercice.correct ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
           <p className={`font-bold mb-1 ${selected === exercice.correct ? 'text-green-400' : 'text-slate-300'}`}>
-            {selected === exercice.correct ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Incorrect</span>}
+            {selected === exercice.correct ? (
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Correct
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1">
+                <XCircle className="h-4 w-4" aria-hidden="true" /> Incorrect
+              </span>
+            )}
           </p>
-          <p className="text-slate-300">{exercice.explication}</p>
+          <MathRichText content={exercice.explication} className="text-slate-300" />
         </div>
       )}
     </div>
@@ -86,11 +87,9 @@ function QCMExercise({
 function NumericExercise({
   exercice,
   onCorrect,
-  typeset,
 }: {
   exercice: ExerciceNumerique;
   onCorrect: () => void;
-  typeset: () => void;
 }) {
   const [value, setValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -103,11 +102,6 @@ function NumericExercise({
     setIsCorrect(false);
     setErrorHint(null);
   }, [exercice]);
-
-  useEffect(() => {
-    const t = setTimeout(typeset, 100);
-    return () => clearTimeout(t);
-  }, [submitted, typeset]);
 
   const handleSubmit = () => {
     if (!value.trim()) return;
@@ -125,37 +119,29 @@ function NumericExercise({
       onCorrect();
       setErrorHint(null);
     } else {
-      // ─── Error Profiling ────────────────────────────────────────
       let hint: string | null = null;
-
-      // Sign error: student answered -expected
       if (expected !== 0 && Math.abs(numVal + expected) <= tol) {
         hint = 'Attention au signe : votre réponse a le signe opposé.';
-      }
-      // Factor error: student is off by an integer factor
-      else if (expected !== 0 && numVal !== 0) {
+      } else if (expected !== 0 && numVal !== 0) {
         const ratio = numVal / expected;
         if (Math.abs(ratio - Math.round(ratio)) < 0.01 && Math.abs(ratio) >= 2 && Math.abs(ratio) <= 10) {
           hint = `Vérifiez le coefficient : votre réponse semble être ×${Math.round(ratio)} la réponse attendue.`;
         }
-        // Inverse error: student swapped numerator/denominator
         const invRatio = expected / numVal;
         if (!hint && Math.abs(invRatio - Math.round(invRatio)) < 0.01 && Math.abs(invRatio) >= 2 && Math.abs(invRatio) <= 10) {
           hint = 'Vérifiez l\'ordre : vous avez peut-être inversé numérateur et dénominateur.';
         }
-        // Off by one
         if (!hint && Math.abs(numVal - expected) === 1) {
           hint = 'Presque : vous êtes à 1 près. Attention aux bornes et aux indices.';
         }
       }
-
       setErrorHint(hint);
     }
   };
 
   return (
     <div>
-      <p className="text-slate-300 mb-4 font-medium">{exercice.question}</p>
+      <MathRichText content={exercice.question} className="text-slate-300 mb-4 font-medium" />
       <div className="flex gap-3 mb-4">
         <input
           type="text"
@@ -181,14 +167,26 @@ function NumericExercise({
       ) : (
         <div className="space-y-2">
           <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
-            <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-              {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Incorrect — Réponse attendue : {exercice.reponse}</span>}
-            </p>
-            <p className="text-slate-300">{exercice.explication}</p>
+            <div className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
+              {isCorrect ? (
+                <span className="inline-flex items-center gap-1">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Correct
+                </span>
+              ) : (
+                <div className="inline-flex items-center gap-1 flex-wrap">
+                  <XCircle className="h-4 w-4" aria-hidden="true" /> Incorrect — Réponse attendue : 
+                  <MathInline math={String(exercice.reponse)} />
+                </div>
+              )}
+            </div>
+            <MathRichText content={exercice.explication} className="text-slate-300" />
           </div>
           {errorHint && (
             <div className="p-3 rounded-xl text-sm bg-blue-500/10 border border-blue-500/30">
-              <p className="text-blue-300 font-bold inline-flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" aria-hidden="true" />{errorHint}</p>
+              <p className="text-blue-300 font-bold inline-flex items-center gap-1.5">
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                {errorHint}
+              </p>
             </div>
           )}
         </div>
@@ -202,11 +200,9 @@ function NumericExercise({
 function OrderingExercise({
   exercice,
   onCorrect,
-  typeset,
 }: {
   exercice: ExerciceOrdonnancement;
   onCorrect: () => void;
-  typeset: () => void;
 }) {
   const [items, setItems] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -219,11 +215,6 @@ function OrderingExercise({
     setSubmitted(false);
     setIsCorrect(false);
   }, [exercice]);
-
-  useEffect(() => {
-    const t = setTimeout(typeset, 100);
-    return () => clearTimeout(t);
-  }, [submitted, typeset]);
 
   const handleDragStart = (index: number) => {
     dragItem.current = index;
@@ -262,7 +253,7 @@ function OrderingExercise({
 
   return (
     <div>
-      <p className="text-slate-300 mb-4 font-medium">{exercice.question}</p>
+      <MathRichText content={exercice.question} className="text-slate-300 mb-4 font-medium" />
       <div className="space-y-2 mb-4">
         {items.map((item, i) => {
           let borderCls = 'border-slate-700';
@@ -281,7 +272,7 @@ function OrderingExercise({
               className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${borderCls} ${!submitted ? 'cursor-grab active:cursor-grabbing hover:border-cyan-500/50' : ''}`}
             >
               <span className="text-slate-500 font-bold text-sm w-6 text-center">{i + 1}</span>
-              <span className="flex-1 text-sm text-slate-300">{item}</span>
+              <MathRichText content={item} className="flex-1 text-sm text-slate-300" />
               {!submitted && (
                 <div className="flex flex-col gap-0.5">
                   <button onClick={() => moveItem(i, i - 1)} className="text-slate-500 hover:text-white text-xs leading-none" aria-label="Monter"><ChevronUp className="h-4 w-4" aria-hidden="true" /></button>
@@ -302,9 +293,17 @@ function OrderingExercise({
       ) : (
         <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
           <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-            {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Ordre correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Ordre incorrect</span>}
+            {isCorrect ? (
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Ordre correct
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1">
+                <XCircle className="h-4 w-4" aria-hidden="true" /> Ordre incorrect
+              </span>
+            )}
           </p>
-          <p className="text-slate-300">{exercice.explication}</p>
+          <MathRichText content={exercice.explication} className="text-slate-300" />
         </div>
       )}
     </div>
@@ -323,7 +322,6 @@ export default function ExerciseEngine({
   onExerciseCorrect: (chapId: string, index: number) => void;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const typeset = useMathJax([currentIndex, chapId]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -367,13 +365,13 @@ export default function ExerciseEngine({
       </div>
 
       {ex.type === 'qcm' && (
-        <QCMExercise exercice={ex} onCorrect={handleCorrect} typeset={typeset} />
+        <QCMExercise exercice={ex} onCorrect={handleCorrect} />
       )}
       {ex.type === 'numerique' && (
-        <NumericExercise exercice={ex} onCorrect={handleCorrect} typeset={typeset} />
+        <NumericExercise exercice={ex} onCorrect={handleCorrect} />
       )}
       {ex.type === 'ordonnancement' && (
-        <OrderingExercise exercice={ex} onCorrect={handleCorrect} typeset={typeset} />
+        <OrderingExercise exercice={ex} onCorrect={handleCorrect} />
       )}
     </div>
   );
