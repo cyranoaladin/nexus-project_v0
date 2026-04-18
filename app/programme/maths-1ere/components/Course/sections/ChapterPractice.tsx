@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { type Chapitre, type Categorie } from '../../../data';
+import { type HintLevel } from '../../../store';
 import { MathInline, MathRichText } from '../../MathContent';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
@@ -37,7 +38,7 @@ interface ChapterPracticeProps {
   chapId: string;
   onRecordDiagnostic: (score: number, total: number) => void;
   onRecordExerciseResult: (chapId: string, score: number) => void;
-  onRecordHintUsage: (level: number) => void;
+  onRecordHintUsage: (level: HintLevel) => void;
 }
 
 export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
@@ -52,7 +53,7 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
   const [hintLevel, setHintLevel] = useState(0);
   const [showSolution, setShowSolution] = useState(false);
 
-  const handleHintClick = (level: number) => {
+  const handleHintClick = (level: HintLevel) => {
     const newLevel = hintLevel === level ? level - 1 : level;
     setHintLevel(newLevel);
     if (newLevel >= level) {
