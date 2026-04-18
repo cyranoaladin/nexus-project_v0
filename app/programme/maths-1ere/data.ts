@@ -241,9 +241,9 @@ export const programmeData: Record<string, Categorie> = {
         competences: ['raisonner', 'communiquer'],
         contenu: {
           rappel:
-            "Une <strong>proposition</strong> est un énoncé vrai ou faux. Connecteurs: ∧, ∨, ¬. L'implication $P \\Rightarrow Q$ est fausse seulement si $P$ est vraie et $Q$ est fausse.",
+            "Une **proposition** est un énoncé vrai ou faux. Connecteurs: $\\land$, $\\lor$, $\\neg$. L'implication $P \\Rightarrow Q$ est fausse seulement si $P$ est vraie et $Q$ est fausse.",
           methode:
-            "\\text{Contraposée de } (P \\Rightarrow Q) : (\\neg Q \\Rightarrow \\neg P) \\\\ \\text{Réciproque : } (Q \\Rightarrow P) \\\\ \\text{Négation de } (\\forall x, P(x)) : (\\exists x, \\neg P(x))",
+            "$$\\text{Contraposée de } (P \\Rightarrow Q) : (\\neg Q \\Rightarrow \\neg P) \\\\ \\text{Réciproque : } (Q \\Rightarrow P) \\\\ \\text{Négation de } (\\forall x, P(x)) : (\\exists x, \\neg P(x))$$",
           astuce:
             'Pour réfuter une proposition universelle « Pour tout $x$… », un seul contre-exemple suffit.',
           exercice: {
@@ -309,39 +309,39 @@ export const programmeData: Record<string, Categorie> = {
         competences: ['calculer', 'representer', 'raisonner'],
         contenu: {
           rappel:
-            'Fonction polynôme $f(x) = ax^2+bx+c$. Forme canonique : $a(x-\\alpha)^2+\\beta$ avec $\\alpha=-\\frac{b}{2a}$ et $\\beta=f(\\alpha)$.',
+            "Fonction polynôme $f(x) = ax^2+bx+c$. Forme canonique : $a(x-\\alpha)^2+\\beta$ avec $\\alpha=-\\frac{b}{2a}$ et $\\beta=f(\\alpha)$.",
           methode:
-            '\\Delta = b^2-4ac \\\\ \\text{Si } \\Delta > 0 : x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a} \\\\ \\text{Sommet : } S\\left(-\\frac{b}{2a}\\,;\\, f\\!\\left(-\\frac{b}{2a}\\right)\\right)',
+            "$$\\Delta = b^2-4ac \\\\ \\text{Si } \\Delta > 0 : x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a} \\\\ \\text{Sommet : } S\\left(-\\frac{b}{2a}\\,;\\, f\\!\\left(-\\frac{b}{2a}\\right)\\right)$$",
           cas: [
-            { delta: '\\Delta > 0', solution: '2 racines distinctes, du signe de $a$ à l\'extérieur.' },
-            { delta: '\\Delta = 0', solution: '1 racine double $-b/2a$, du signe de $a$ partout.' },
-            { delta: '\\Delta < 0', solution: 'Pas de racine réelle, toujours du signe de $a$.' },
+            { delta: "$\\Delta > 0$", solution: "2 racines distinctes, du signe de $a$ à l'extérieur." },
+            { delta: "$\\Delta = 0$", solution: "1 racine double $-b/2a$, du signe de $a$ partout." },
+            { delta: "$\\Delta < 0$", solution: "Pas de racine réelle, toujours du signe de $a$." },
           ],
           astuce:
-            'Si $a$ et $c$ sont de signes opposés, $\\Delta$ est forcément positif (2 solutions).',
+            "Si $a$ et $c$ sont de signes opposés, $\\Delta$ est forcément positif (2 solutions).",
           exercice: {
-            question: 'Résoudre $2x^2 - 4x - 6 = 0$.',
-            reponse: 'S=\\{-1; 3\\}',
+            question: "Résoudre $2x^2 - 4x - 6 = 0$.",
+            reponse: "$S=\\{-1; 3\\}$",
             etapes: [
-              'Calcul de $\\Delta = (-4)^2 - 4(2)(-6) = 16 + 48 = 64$.',
-              '$\\sqrt{\\Delta} = 8$.',
-              '$x_1 = (4-8)/4 = -1$, $x_2 = (4+8)/4 = 3$.',
+              "Calcul de $\\Delta = (-4)^2 - 4(2)(-6) = 16 + 48 = 64$.",
+              "$\\sqrt{\\Delta} = 8$.",
+              "$x_1 = (4-8)/4 = -1$, $x_2 = (4+8)/4 = 3$.",
             ],
           },
           erreursClassiques: [
-            'Oublier de vérifier le signe de $a$ pour le tableau de signes.',
-            'Confondre forme canonique et forme factorisée.',
-            'Écrire $\\Delta = b^2 + 4ac$ au lieu de $b^2 - 4ac$.',
+            "Oublier de vérifier le signe de $a$ pour le tableau de signes.",
+            "Confondre forme canonique et forme factorisée.",
+            "Écrire $\\Delta = b^2 + 4ac$ au lieu de $b^2 - 4ac$.",
           ],
           methodologieBac:
-            'Toujours commencer par calculer $\\Delta$, puis factoriser si possible. Conclure avec le tableau de signes en précisant les intervalles.',
+            "Toujours commencer par calculer $\\Delta$, puis factoriser si possible. Conclure avec le tableau de signes en précisant les intervalles.",
           coupDePouce: {
-            indice: 'Calculez le discriminant $\\Delta = b^2 - 4ac$.',
-            debutRaisonnement: 'Ici $a=2$, $b=-4$, $c=-6$. Donc $\\Delta = 16 + 48 = 64 > 0$.',
+            indice: "Calculez le discriminant $\\Delta = b^2 - 4ac$.",
+            debutRaisonnement: "Ici $a=2$, $b=-4$, $c=-6$. Donc $\\Delta = 16 + 48 = 64 > 0$.",
             correctionDetaillee: [
-              '$\\Delta = (-4)^2 - 4 \\times 2 \\times (-6) = 16 + 48 = 64$.',
-              '$\\sqrt{\\Delta} = 8$.',
-              '$x_1 = \\frac{4-8}{4} = -1$ et $x_2 = \\frac{4+8}{4} = 3$.',
+              "$\\Delta = (-4)^2 - 4 \\times 2 \\times (-6) = 16 + 48 = 64$.",
+              "$\\sqrt{\\Delta} = 8$.",
+              "$x_1 = \\frac{4-8}{4} = -1$ et $x_2 = \\frac{4+8}{4} = 3$.",
             ],
           },
           geogebraId: 'ygkfkpqr',
@@ -475,15 +475,16 @@ export const programmeData: Record<string, Categorie> = {
         contenu: {
           rappel:
             "Le nombre dérivé $f'(a)$ est la limite du taux de variation : $f'(a) = \\lim_{h \\to 0} \\frac{f(a+h)-f(a)}{h}$. C'est la pente de la tangente en $a$.",
-          methode: "\\text{Tangente en } a : y = f'(a)(x-a) + f(a) \\\\ (u+v)' = u'+v' \\quad (ku)' = ku' \\quad (uv)' = u'v + uv' \\quad \\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}",
+          methode:
+            "$$\\text{Tangente en } a : y = f'(a)(x-a) + f(a) \\\\ (u+v)' = u'+v' \\quad (ku)' = ku' \\quad (uv)' = u'v + uv' \\quad \\left(\\frac{u}{v}\\right)' = \\frac{u'v - uv'}{v^2}$$",
           tableau: [
-            { f: '$k$ (constante)', derivee: '$0$' },
-            { f: '$x^n$', derivee: '$nx^{n-1}$' },
-            { f: '$\\frac{1}{x}$', derivee: '$-\\frac{1}{x^2}$' },
-            { f: '$\\sqrt{x}$', derivee: '$\\frac{1}{2\\sqrt{x}}$' },
-            { f: '$e^x$', derivee: '$e^x$' },
-            { f: '$\\cos(x)$', derivee: '$-\\sin(x)$' },
-            { f: '$\\sin(x)$', derivee: '$\\cos(x)$' },
+            { f: "$k$ (constante)", derivee: "$0$" },
+            { f: "$x^n$", derivee: "$nx^{n-1}$" },
+            { f: "$\\frac{1}{x}$", derivee: "$-\\frac{1}{x^2}$" },
+            { f: "$\\sqrt{x}$", derivee: "$\\frac{1}{2\\sqrt{x}}$" },
+            { f: "$e^x$", derivee: "$e^x$" },
+            { f: "$\\cos(x)$", derivee: "$-\\sin(x)$" },
+            { f: "$\\sin(x)$", derivee: "$\\cos(x)$" },
           ],
           astuce:
             "Le signe de $f'(x)$ donne les variations de $f$ : $f'>0 \\Rightarrow f$ croissante, $f'<0 \\Rightarrow f$ décroissante.",
@@ -491,9 +492,9 @@ export const programmeData: Record<string, Categorie> = {
             question: "Dériver $f(x) = x^3 - 5x + 1$.",
             reponse: "$f'(x) = 3x^2 - 5$",
             etapes: [
-              'Dérivée de $x^3$ est $3x^2$.',
-              'Dérivée de $-5x$ est $-5$.',
-              'Dérivée de la constante 1 est 0.',
+              "Dérivée de $x^3$ est $3x^2$.",
+              "Dérivée de $-5x$ est $-5$.",
+              "Dérivée de la constante 1 est 0.",
             ],
           },
           erreursClassiques: [
@@ -504,7 +505,7 @@ export const programmeData: Record<string, Categorie> = {
           methodologieBac:
             "Pour une étude de fonction : 1) Dériver. 2) Étudier le signe de $f'$. 3) Dresser le tableau de variations. 4) Conclure sur les extrema.",
           coupDePouce: {
-            indice: 'Appliquez la formule $(x^n)\' = nx^{n-1}$ terme par terme.',
+            indice: "Appliquez la formule $(x^n)' = nx^{n-1}$ terme par terme.",
             debutRaisonnement: "$(x^3)' = 3x^2$, $(-5x)' = -5$, $(1)' = 0$.",
             correctionDetaillee: [
               "$(x^3)' = 3x^2$ (formule puissance).",
@@ -743,33 +744,33 @@ export const programmeData: Record<string, Categorie> = {
         competences: ['calculer', 'representer', 'raisonner'],
         contenu: {
           rappel:
-            'Le produit scalaire est un outil pour calculer longueurs et angles. $\\vec{u} \\cdot \\vec{v} = ||\\vec{u}|| \\times ||\\vec{v}|| \\times \\cos(\\vec{u},\\vec{v})$.',
+            "Le produit scalaire est un outil pour calculer longueurs et angles. $\\vec{u} \\cdot \\vec{v} = ||\\vec{u}|| \\times ||\\vec{v}|| \\times \\cos(\\vec{u},\\vec{v})$.",
           methode:
-            "\\text{Analytique : } \\vec{u}(x;y) \\cdot \\vec{v}(x';y') = xx'+yy' \\\\ \\text{Orthogonalité : } \\vec{u} \\perp \\vec{v} \\iff \\vec{u} \\cdot \\vec{v} = 0 \\\\ \\text{Al-Kashi : } a^2 = b^2+c^2-2bc\\cos(A)",
+            "$$\\text{Analytique : } \\vec{u}(x;y) \\cdot \\vec{v}(x';y') = xx'+yy' \\\\ \\text{Orthogonalité : } \\vec{u} \\perp \\vec{v} \\iff \\vec{u} \\cdot \\vec{v} = 0 \\\\ \\text{Al-Kashi : } a^2 = b^2+c^2-2bc\\cos(A)$$ symbols and formulas",
           astuce:
             "Utilisez Al-Kashi pour les triangles quelconques. Si $\\cos(A)=0$, le triangle est rectangle en $A$.",
           exercice: {
-            question: 'Calculer $\\vec{u}(2; -1) \\cdot \\vec{v}(3; 4)$.',
-            reponse: '2',
+            question: "Calculer $\\vec{u}(2; -1) \\cdot \\vec{v}(3; 4)$.",
+            reponse: "$2$",
             etapes: [
               "Formule $xx' + yy'$.",
-              '$2 \\times 3 + (-1) \\times 4$',
-              '$6 - 4 = 2$.',
+              "$2 \\times 3 + (-1) \\times 4$",
+              "$6 - 4 = 2$.",
             ],
           },
           erreursClassiques: [
-            "Le produit scalaire est un NOMBRE, pas un vecteur.",
+            "Le produit scalaire est un **nombre**, pas un vecteur.",
             "Ne pas confondre $\\vec{u} \\cdot \\vec{v}$ (scalaire) et $\\vec{u} \\times \\vec{v}$ (produit vectoriel, hors programme).",
-            "Oublier que $||\\vec{u}||^2 = \\vec{u} \\cdot \\vec{u}$.",
+            "Oublier que $|\\vec{u}|^2 = \\vec{u} \\cdot \\vec{u}$.",
           ],
           methodologieBac:
-            "Pour montrer une orthogonalité : calculer le produit scalaire et vérifier qu'il vaut 0. Pour trouver un angle : utiliser $\\cos(\\theta) = \\frac{\\vec{u}\\cdot\\vec{v}}{||\\vec{u}|| \\times ||\\vec{v}||}$.",
+            "Pour montrer une orthogonalité : calculer le produit scalaire et vérifier qu'il vaut 0. Pour trouver un angle : utiliser $\\cos(\\theta) = \\frac{\\vec{u}\\cdot\\vec{v}}{|\\vec{u}| \\times |\\vec{v}|}$.",
           coupDePouce: {
             indice: "Utilisez la formule analytique $xx' + yy'$.",
-            debutRaisonnement: '$2 \\times 3 + (-1) \\times 4 = ?$',
+            debutRaisonnement: "$2 \\times 3 + (-1) \\times 4 = ?$",
             correctionDetaillee: [
               "$\\vec{u} \\cdot \\vec{v} = x_u \\times x_v + y_u \\times y_v$.",
-              '$= 2 \\times 3 + (-1) \\times 4 = 6 - 4 = 2$.',
+              "$2 \\times 3 + (-1) \\times 4 = 6 - 4 = 2$.",
             ],
           },
           geogebraId: 'fhBhKMtR',
