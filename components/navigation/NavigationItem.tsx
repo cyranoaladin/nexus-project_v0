@@ -19,12 +19,19 @@ import {
   BarChart,
   Activity,
   TestTube,
+  GraduationCap,
+  FileText,
+  Receipt,
+  Coins,
+  ClipboardList,
+  FolderOpen,
   type LucideIcon
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
   Home, Calendar, Users, BookOpen, CreditCard, DollarSign,
   Clock, UserCheck, AlertCircle, BarChart, Activity, TestTube,
+  GraduationCap, FileText, Receipt, Coins, ClipboardList, FolderOpen,
 };
 
 const navigationItemVariants = cva(

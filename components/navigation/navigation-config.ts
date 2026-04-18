@@ -149,9 +149,27 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Demandes abonnements',
+      href: '/dashboard/assistante/subscription-requests',
+      icon: 'ClipboardList',
+      match: 'prefix'
+    },
+    {
       label: 'Stages',
       href: '/dashboard/assistante/stages',
       icon: 'GraduationCap',
+      match: 'prefix'
+    },
+    {
+      label: 'Crédits étudiants',
+      href: '/dashboard/assistante/credits',
+      icon: 'Coins',
+      match: 'prefix'
+    },
+    {
+      label: 'Documents',
+      href: '/dashboard/assistante/docs',
+      icon: 'FolderOpen',
       match: 'prefix'
     }
   ],
@@ -193,15 +211,21 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
-      label: 'Tests Système',
-      href: '/dashboard/admin/tests',
-      icon: 'TestTube',
+      label: 'Facturation',
+      href: '/dashboard/admin/facturation',
+      icon: 'Receipt',
       match: 'prefix'
     },
     {
       label: 'Documents',
       href: '/dashboard/admin/documents',
       icon: 'FileText',
+      match: 'prefix'
+    },
+    {
+      label: 'Tests Système',
+      href: '/dashboard/admin/tests',
+      icon: 'TestTube',
       match: 'prefix'
     }
   ]

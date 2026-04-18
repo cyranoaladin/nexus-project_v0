@@ -1,19 +1,14 @@
 export const dynamic = 'force-dynamic';
 
-import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { isErrorResponse, requireRole } from '@/lib/guards';
+import { UserRole } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const sessionOrError = await requireRole(UserRole.ADMIN);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month'; // month, quarter, year

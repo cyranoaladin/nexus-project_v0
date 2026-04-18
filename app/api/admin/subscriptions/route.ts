@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/auth';
-import { SubscriptionStatus, type Prisma } from '@prisma/client';
+import { isErrorResponse, requireRole } from '@/lib/guards';
+import { SubscriptionStatus, UserRole, type Prisma } from '@prisma/client';
 
 type SubscriptionWithStudent = Prisma.SubscriptionGetPayload<{
   include: {
@@ -18,14 +18,8 @@ type SubscriptionWithStudent = Prisma.SubscriptionGetPayload<{
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const sessionOrError = await requireRole(UserRole.ADMIN);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const { searchParams } = new URL(request.url);
     const statusParam = (searchParams.get('status') || 'ACTIVE') as SubscriptionStatus | 'ALL';
@@ -130,14 +124,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const sessionOrError = await requireRole(UserRole.ADMIN);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const body = (await request.json()) as {
       subscriptionId?: string;
