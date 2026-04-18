@@ -40,7 +40,7 @@ describe('GET /api/admin/subscriptions', () => {
 
   it('returns subscriptions with pagination', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     (prisma.subscription.findMany as jest.Mock).mockResolvedValue([
@@ -87,7 +87,7 @@ describe('PUT /api/admin/subscriptions', () => {
 
   it('returns 400 for invalid status', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     const response = await PUT(
@@ -104,7 +104,7 @@ describe('PUT /api/admin/subscriptions', () => {
 
   it('returns 400 for missing subscriptionId', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     const response = await PUT(
@@ -120,7 +120,7 @@ describe('PUT /api/admin/subscriptions', () => {
 
   it('updates subscription for valid payload', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     (prisma.subscription.update as jest.Mock).mockResolvedValue({

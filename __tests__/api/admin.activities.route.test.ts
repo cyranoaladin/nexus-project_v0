@@ -36,7 +36,7 @@ describe('GET /api/admin/activities', () => {
 
   it('returns paginated activities and filters by type', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([
@@ -72,7 +72,7 @@ describe('GET /api/admin/activities', () => {
 
   it('filters by search', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
