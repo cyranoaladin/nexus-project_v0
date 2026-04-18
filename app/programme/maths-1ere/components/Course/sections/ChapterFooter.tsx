@@ -6,12 +6,13 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { type Chapitre } from '../../../data';
+import { type SRSQuality } from '../../../store';
 import RAGSources from '../../RAGSources';
 
 interface ChapterFooterProps {
   chapId: string;
   chap: Chapitre;
-  onRecordSRSReview: (quality: number) => void;
+  onRecordSRSReview: (quality: SRSQuality) => void;
 }
 
 export const ChapterFooter: React.FC<ChapterFooterProps> = ({
