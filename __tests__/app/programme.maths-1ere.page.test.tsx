@@ -5,10 +5,6 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
-jest.mock('@/app/programme/maths-1ere/components/MathJaxProvider', () => ({
-  MathJaxProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
 jest.mock('@/app/programme/maths-1ere/components/MathsRevisionClient', () => ({
   __esModule: true,
   default: ({ user }: { user: { id: string; name?: string } }) => (

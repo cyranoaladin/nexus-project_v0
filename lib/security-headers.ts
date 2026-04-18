@@ -27,8 +27,8 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         // 'unsafe-eval' is added ONLY in development for React Fast Refresh / HMR.
         `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://cdn.jsdelivr.net`,
         // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' https://fonts.gstatic.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
         "img-src 'self' data: https: blob:",
         "connect-src 'self' https://api.openai.com wss:",
         "frame-src https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",

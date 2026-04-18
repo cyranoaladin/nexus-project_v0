@@ -102,6 +102,7 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/50" />
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{activeTab}</span>
+                <span className="ml-2 px-1.5 py-0.5 rounded bg-slate-800 text-[8px] font-bold text-slate-500 border border-slate-700">V2.0-KATEX</span>
               </div>
               <div className="hidden sm:flex items-center gap-4 border-l border-slate-800 pl-6">
                 <div className="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
