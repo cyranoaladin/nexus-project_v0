@@ -11,15 +11,9 @@ jest.mock('@/app/programme/maths-1ere/components/MathJaxProvider', () => ({
 
 jest.mock('@/app/programme/maths-1ere/components/MathsRevisionClient', () => ({
   __esModule: true,
-  default: ({
-    userId,
-    initialDisplayName,
-  }: {
-    userId: string;
-    initialDisplayName?: string;
-  }) => (
+  default: ({ user }: { user: { id: string; name?: string } }) => (
     <div data-testid="maths-revision-client">
-      {userId}:{initialDisplayName ?? 'unknown'}
+      {user.id}:{user.name ?? 'unknown'}
     </div>
   ),
 }));
