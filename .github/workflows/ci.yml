@@ -162,11 +162,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexus_test
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -183,20 +185,20 @@ jobs:
 
       - name: Create .env.test for test database
         run: |
-          echo 'DATABASE_URL="postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public"' > .env.test
-          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public"' >> .env.test
+          echo 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' > .env.test
+          echo 'TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public"' >> .env.test
           echo 'NODE_ENV="test"' >> .env.test
           echo 'NEXTAUTH_SECRET="test-secret-min-32-chars-long-for-ci-environment"' >> .env.test
           echo 'NEXTAUTH_URL="http://localhost:3000"' >> .env.test
 
       - name: Generate Prisma Client
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: npx prisma generate
 
       - name: Reset database before migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -205,12 +207,12 @@ jobs:
 
       - name: Run database migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: npx prisma migrate deploy
 
       - name: Verify database tables
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           SELECT table_name FROM information_schema.tables
@@ -220,8 +222,8 @@ jobs:
 
       - name: Run integration tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test
-          TEST_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nexus_test?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test?schema=public
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
@@ -254,11 +256,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: nexus_e2e
+        ports:
+          - 5433:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
+          --health-cmd "pg_isready -U postgres -d nexus_e2e"
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -273,12 +277,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Wait for Postgres (E2E) to be ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5433 -U postgres; then
+              echo "✅ Postgres is ready"
+              exit 0
+            fi
+            echo "⏳ Waiting for Postgres... ($i/30)"
+            sleep 2
+          done
+          echo "❌ Postgres did not become ready in time"
+          exit 1
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
       - name: Seed E2E test data
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -292,7 +309,7 @@ jobs:
 
       - name: Build Next.js for E2E
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -302,7 +319,7 @@ jobs:
 
       - name: Start Next.js server in background
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -318,22 +335,21 @@ jobs:
           echo $! > .next-server.pid
           # Wait for server to be ready
           for i in {1..30}; do
-            if curl -sf http://localhost:3000/api/auth/session > /dev/null 2>&1; then
-              echo "✅ Server + Auth API ready"
+            if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Server + Health API ready"
               exit 0
             fi
             echo "⏳ Waiting for server... ($i/30)"
             sleep 2
           done
-          echo "❌ Server failed to start (auth endpoint not responding)"
-          curl -v http://localhost:3000/ 2>&1 | head -20 || true
-          cat .next/trace || true
+          echo "❌ Server failed to start (health endpoint not responding)"
+          curl -v http://localhost:3000/api/health 2>&1 || true
           exit 1
 
       - name: Run Playwright E2E tests
         timeout-minutes: 20
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
