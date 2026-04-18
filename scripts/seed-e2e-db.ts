@@ -11,6 +11,10 @@
 
 import { PrismaClient, UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import * as dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true });
 
 const prisma = new PrismaClient();
 
@@ -113,6 +117,38 @@ async function main() {
     },
   });
   console.log(`  ✓ PW Coach: ${pwCoach.email}\n`);
+
+  const pwAssistante = await prisma.user.create({
+    data: {
+      email: 'assistante@nexus-reussite.com',
+      password: hashedAdmin123,
+      role: UserRole.ASSISTANTE,
+      firstName: 'Ines',
+      lastName: 'Assistante',
+      activatedAt: new Date(),
+    },
+  });
+  console.log(`  ✓ PW Assistante: ${pwAssistante.email}`);
+
+  const pwStudent2 = await prisma.user.create({
+    data: {
+      email: 'student2@example.com',
+      password: hashedAdmin123,
+      role: UserRole.ELEVE,
+      firstName: 'Karim',
+      lastName: 'Dupont',
+      activatedAt: new Date(),
+    },
+  });
+  await prisma.student.create({
+    data: {
+      userId: pwStudent2.id,
+      parentId: pwParent.parentProfile!.id,
+      grade: 'Première',
+      credits: 5,
+    },
+  });
+  console.log(`  ✓ PW Student2: ${pwStudent2.email}\n`);
 
   // =============================================================================
   // CREATE USERS (original E2E test users)
@@ -232,6 +268,18 @@ const student = await prisma.user.create({
     include: { coachProfile: true }
   });
   console.log(`  ✓ Coach: ${coach.email}\n`);
+
+  const assistante = await prisma.user.create({
+    data: {
+      email: `assistante.${timestamp}@test.com`,
+      password: hashedPassword,
+      role: UserRole.ASSISTANTE,
+      firstName: 'Ines',
+      lastName: 'Support',
+      activatedAt: new Date(),
+    },
+  });
+  console.log(`  ✓ Assistante: ${assistante.email}\n`);
 
   // Additional test users for RBAC matrix
   const student2 = await prisma.user.create({
@@ -452,6 +500,7 @@ const student = await prisma.user.create({
   console.log(`  Student2: student2.${timestamp}@test.com / password123`);
   console.log(`  Coach:   helios@test.com / password123`);
   console.log(`  Coach2:  coach2.${timestamp}@test.com / password123\n`);
+  console.log(`  Assistante: assistante.${timestamp}@test.com / password123\n`);
 
   // Write credentials to file for E2E tests
   const credentials = {
@@ -461,6 +510,7 @@ const student = await prisma.user.create({
     student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
     coach: { email: coachEmail, password: 'password123' }, // helios@test.com
     coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
+    assistante: { email: `assistante.${timestamp}@test.com`, password: 'password123' },
     zenon: { email: 'zenon@test.com', password: 'password123' }, // For E2E booking flow
   };
   const fs = require('fs');

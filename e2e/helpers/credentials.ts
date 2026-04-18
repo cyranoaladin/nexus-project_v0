@@ -16,7 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /** Roles available in the credentials file */
-export type CredRole = 'parent' | 'student' | 'student2' | 'coach' | 'coach2' | 'admin' | 'zenon';
+export type CredRole = 'parent' | 'student' | 'student2' | 'coach' | 'coach2' | 'admin' | 'assistante' | 'zenon';
 
 export interface Credential {
   email: string;
@@ -40,7 +40,7 @@ function loadCredentials(): CredentialsMap {
   const parsed = JSON.parse(raw) as Record<string, Credential>;
 
   // Validate required roles exist
-  const required: CredRole[] = ['parent', 'student', 'coach', 'admin', 'zenon'];
+  const required: CredRole[] = ['parent', 'student', 'coach', 'admin', 'assistante', 'zenon'];
   for (const role of required) {
     if (!parsed[role]?.email || !parsed[role]?.password) {
       throw new Error(
