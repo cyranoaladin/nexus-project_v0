@@ -1,9 +1,6 @@
 import { Metadata } from 'next';
-import { getServerSession } from 'next-auth';
-import { authConfig } from '@/auth.config';
 import { redirect } from 'next/navigation';
 import MathsRevisionClient from './components/MathsRevisionClient';
-import { PrismaClient } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
