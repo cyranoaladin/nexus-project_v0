@@ -228,14 +228,29 @@ function evaluateBadgeConditions(state: {
     } else if (cond.startsWith('mastered:')) {
       const target = cond.replace('mastered:', '');
       if (target === 'geometrie-all') {
-        earned = geoChapterIds.length > 0 && geoChapterIds.every((id) => state.completedChapters.includes(id));
+        earned = geoChapterIds.length > 0 && geoChapterIds.every((id) => state.masteredChapters.includes(id));
       } else if (target === 'probabilites-all') {
-        earned = probaChapterIds.length > 0 && probaChapterIds.every((id) => state.completedChapters.includes(id));
+        earned = probaChapterIds.length > 0 && probaChapterIds.every((id) => state.masteredChapters.includes(id));
       } else {
-        earned = state.completedChapters.includes(target);
+        earned = state.masteredChapters.includes(target);
       }
     } else if (cond === 'all_chapters_completed') {
       earned = allChapterIds.length > 0 && allChapterIds.every((id) => state.completedChapters.includes(id));
+    } else if (cond.startsWith('exercises_count:')) {
+      // e.g. exercises_count:suites,probabilites-cond,variables-aleatoires >= 5
+      const parts = cond.replace('exercises_count:', '').split(' >= ');
+      if (parts.length === 2) {
+        const chaps = parts[0].split(',');
+        const countThreshold = parseInt(parts[1], 10);
+        let total = 0;
+        for (const cId of chaps) {
+          total += state.exerciseResults[cId]?.length ?? 0;
+        }
+        earned = total >= countThreshold;
+      }
+    } else if (cond === 'diagnostic_perfect_3') {
+      const perfects = Object.values(state.diagnosticResults).filter(d => d.score === d.total && d.total > 0).length;
+      earned = perfects >= 3;
     } else if (cond === 'lab_archimede_opened') {
       earned = state.labArchimedeOpened;
     } else if (cond === 'euler_steps_50') {
@@ -248,12 +263,11 @@ function evaluateBadgeConditions(state: {
       earned = state.formulaireViewed;
     } else if (cond === 'printed_fiche') {
       earned = state.printedFiche;
-    } else if (cond === 'diagnostic_perfect_3') {
-      const perfectCount = Object.values(state.diagnosticResults).filter((r) => r.total > 0 && r.score === r.total).length;
-      earned = perfectCount >= 3;
     }
 
-    if (earned) newBadges.push(badge.id);
+    if (earned) {
+      newBadges.push(badge.id);
+    }
   }
 
   return newBadges;

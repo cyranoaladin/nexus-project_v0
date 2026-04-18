@@ -300,7 +300,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSwitchTab }) => 
 };
 
 const StatCard = ({ icon, iconBg, label, value, unit, subtitle }: any) => (
-  <div className="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-6 transition-all hover:bg-slate-800/60 group">
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    whileHover={{ y: -4 }}
+    className="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-6 transition-all hover:bg-slate-800/60 group"
+  >
     <div className="flex justify-between items-start mb-4">
       <div className={`p-2.5 rounded-xl ${iconBg} group-hover:scale-110 transition-transform`}>{icon}</div>
       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</span>
@@ -309,7 +314,7 @@ const StatCard = ({ icon, iconBg, label, value, unit, subtitle }: any) => (
       {value} <span className="text-sm font-medium text-slate-500 ml-1">{unit}</span>
     </div>
     <div className="text-xs font-medium text-slate-400">{subtitle}</div>
-  </div>
+  </motion.div>
 );
 
 const ThemeCard = ({ cat, completedCount }: { cat: Categorie; completedCount: number }) => {
@@ -317,7 +322,12 @@ const ThemeCard = ({ cat, completedCount }: { cat: Categorie; completedCount: nu
   const progress = cat.chapitres.length > 0 ? (completedCount / cat.chapitres.length) * 100 : 0;
   
   return (
-    <div className="bg-slate-800/30 border border-slate-700/20 p-5 rounded-2xl hover:border-slate-500/30 transition-all group">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02 }}
+      className="bg-slate-800/30 border border-slate-700/20 p-5 rounded-2xl hover:border-slate-500/30 transition-all group"
+    >
       <div className="mb-4">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
           cat.couleur === 'cyan' ? 'bg-cyan-500/10 text-cyan-400' :
@@ -345,6 +355,6 @@ const ThemeCard = ({ cat, completedCount }: { cat: Categorie; completedCount: nu
           style={{ width: `${progress}%` }} 
         />
       </div>
-    </div>
+    </motion.div>
   );
 };
