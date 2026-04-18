@@ -1,26 +1,21 @@
-'use client';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import { FileText, Image as ImageIcon, File, Download, Calendar, HardDrive } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, File, FileText, HardDrive, Image as ImageIcon, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-
-interface UserDoc {
-  id: string;
-  title: string;
-  originalName: string;
-  mimeType: string;
-  sizeBytes: number;
-  createdAt: string;
-}
+export const metadata = {
+  title: 'Mes Ressources | Nexus Réussite',
+  description: 'Accédez à vos documents pédagogiques et administratifs.',
+};
 
 function getFileIcon(mimeType: string) {
-  if (mimeType.includes('pdf')) return <FileText className="w-8 h-8 text-rose-400" />;
-  if (mimeType.includes('image')) return <ImageIcon className="w-8 h-8 text-emerald-400" />;
-  if (mimeType.includes('word') || mimeType.includes('document')) return <FileText className="w-8 h-8 text-sky-400" />;
-  return <File className="w-8 h-8 text-neutral-400" />;
+  if (mimeType.includes('pdf')) return <FileText className="w-8 h-8 text-slate-500" />;
+  if (mimeType.includes('image')) return <ImageIcon className="w-8 h-8 text-green-500" />;
+  if (mimeType.includes('word') || mimeType.includes('document')) return <FileText className="w-8 h-8 text-blue-500" />;
+  if (mimeType.includes('sheet') || mimeType.includes('excel')) return <FileText className="w-8 h-8 text-emerald-600" />;
+  return <File className="w-8 h-8 text-slate-400" />;
 }
 
 function formatSize(bytes: number) {
@@ -28,70 +23,87 @@ function formatSize(bytes: number) {
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-export default function ParentRessourcesPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [docs, setDocs] = useState<UserDoc[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (status === 'loading') return;
-    if (!session || session.user.role !== 'PARENT') {
-      router.push('/auth/signin');
-      return;
-    }
-    fetch('/api/student/documents')
-      .then((r) => r.json())
-      .then((data) => setDocs(data.documents ?? []))
-      .finally(() => setLoading(false));
-  }, [session, status, router]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <Loader2 className="animate-spin h-8 w-8 text-brand-primary" />
-      </div>
-    );
+export default async function StudentResourcesPage() {
+  const session = await auth();
+  
+  if (!session?.user) {
+    redirect('/auth/signin');
   }
 
+  // Fetch documents securely via Prisma (Server Component)
+  const documents = await prisma.userDocument.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/parent" className="text-neutral-400 hover:text-white">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Mes Ressources</h1>
-          <p className="text-sm text-neutral-400 mt-1">Documents partagés avec vous par l'équipe Nexus</p>
-        </div>
+    <div className="space-y-8 p-6 lg:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+          <HardDrive className="w-8 h-8 text-primary-600" />
+          Mes Ressources
+        </h1>
+        <p className="text-slate-500 text-lg">
+          Retrouvez ici tous les documents partagés par l'équipe Nexus (bilans, corrections, factures).
+        </p>
       </div>
 
-      {docs.length === 0 ? (
-        <Card className="bg-white/5 border-white/10">
-          <CardContent className="py-16 text-center">
-            <HardDrive className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
-            <p className="text-neutral-300 font-medium">Aucun document disponible</p>
-            <p className="text-neutral-500 text-sm mt-1">Les ressources partagées apparaîtront ici.</p>
-          </CardContent>
-        </Card>
+      {documents.length === 0 ? (
+        <div className="text-center py-20 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+          <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+            <File className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-medium text-slate-900">Aucun document disponible</h3>
+          <p className="text-slate-500 mt-1">Vos ressources apparaîtront ici dès qu'elles seront partagées.</p>
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {docs.map((doc) => (
-            <Card key={doc.id} className="bg-white/5 border-white/10 hover:border-brand-accent/40 transition-colors">
-              <CardContent className="p-4 flex items-start gap-3">
-                {getFileIcon(doc.mimeType)}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white truncate">{doc.title}</p>
-                  <p className="text-xs text-neutral-500 mt-0.5">{formatSize(doc.sizeBytes)}</p>
-                  <p className="text-xs text-neutral-600 mt-0.5">
-                    {new Date(doc.createdAt).toLocaleDateString('fr-FR')}
-                  </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {documents.map((doc) => (
+            <div 
+              key={doc.id} 
+              className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col"
+            >
+              <div className="p-5 flex items-start gap-4 flex-1">
+                <div className="p-3 bg-slate-50 rounded-lg group-hover:bg-primary-50 transition-colors">
+                  {getFileIcon(doc.mimeType)}
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-900 truncate" title={doc.title}>
+                    {doc.title}
+                  </h3>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {format(new Date(doc.createdAt), 'd MMM yyyy', { locale: fr })}
+                    </span>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                    <span>{formatSize(doc.sizeBytes)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-between items-center">
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  {doc.originalName.split('.').pop()?.toUpperCase() || 'FILE'}
+                </span>
+                <a 
+                  href={`/api/documents/${doc.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Télécharger
+                </a>
+              </div>
+            </div>
           ))}
         </div>
       )}
