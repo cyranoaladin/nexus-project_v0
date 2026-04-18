@@ -92,7 +92,7 @@ export default function AssistantePlanningPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/stages');
+      const res = await fetch('/api/assistant/stages');
       if (!res.ok) throw new Error('Erreur chargement');
       const data = await res.json() as { stages: StageData[] };
       const flat: SessionItem[] = (data.stages ?? []).flatMap(stage =>
