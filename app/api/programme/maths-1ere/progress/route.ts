@@ -17,6 +17,14 @@ interface ProgressPayload {
   hint_usage: Record<string, number>;
   badges: string[];
   srs_queue: Record<string, unknown>;
+  diagnostic_results?: Record<string, unknown>;
+  time_per_chapter?: Record<string, number>;
+  formulaire_viewed?: boolean;
+  grand_oral_seen?: number;
+  lab_archimede_opened?: boolean;
+  euler_max_steps?: number;
+  newton_best_iterations?: number | null;
+  printed_fiche?: boolean;
 }
 
 function parsePayload(raw: unknown): ProgressPayload | null {
@@ -38,6 +46,7 @@ function parsePayload(raw: unknown): ProgressPayload | null {
   if (!input.srs_queue || typeof input.srs_queue !== 'object') return null;
   return input as ProgressPayload;
 }
+
 
 export async function POST(request: Request) {
   const session = await auth();

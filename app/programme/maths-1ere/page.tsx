@@ -72,7 +72,7 @@ export default async function MathsPremierePage() {
 
   return (
     <MathJaxProvider>
-      <MathsRevisionClient userId={userId} initialDisplayName={displayName} />
+      <MathsRevisionClient user={{ id: userId, name: displayName }} />
     </MathJaxProvider>
   );
 }
