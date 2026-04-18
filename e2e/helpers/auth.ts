@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
 import { CREDS, type CredRole } from './credentials';
 
-type UserType = 'parent' | 'student' | 'coach' | 'admin';
+type UserType = 'parent' | 'student' | 'coach' | 'admin' | 'assistante';
 
 interface LoginOptions {
     navigate?: boolean;
@@ -17,8 +17,9 @@ const CREDENTIALS = CREDS;
 const ROLE_PATHS: Record<UserType, string> = {
     parent: '/dashboard/parent',
     student: '/dashboard/eleve',
-    coach: '/dashboard/coach',
-    admin: '/dashboard/admin',
+  coach: '/dashboard/coach',
+  admin: '/dashboard/admin',
+  assistante: '/dashboard/assistante',
 };
 
 function parseSetCookie(setCookieHeader?: string | string[]) {
