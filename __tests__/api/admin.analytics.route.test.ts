@@ -37,7 +37,7 @@ describe('GET /api/admin/analytics', () => {
 
   it('returns analytics data for admin', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
     });
 
     (prisma.payment.groupBy as jest.Mock).mockResolvedValue([
