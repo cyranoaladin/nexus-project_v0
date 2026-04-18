@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { ArrowRight, CheckCircle2, Sigma, XCircle } from 'lucide-react';
 import { GENERATORS } from '../lib/exercise-generator';
-import { useMathJax } from './MathJaxProvider';
 import { areEquivalentAnswers } from '../lib/math-engine';
 import { useMathsLabStore } from '../store';
+import { MathRichText } from './MathContent';
 
 export default function ProceduralExercise({ chapId }: { chapId: string }) {
   const generator = GENERATORS[chapId] ?? GENERATORS['second-degre'];
@@ -18,7 +18,6 @@ export default function ProceduralExercise({ chapId }: { chapId: string }) {
   const [count, setCount] = useState(0);
   const [correct, setCorrect] = useState(0);
   const store = useMathsLabStore();
-  useMathJax([exercise, submitted]);
 
   const newExercise = () => {
     setExercise(generator());
@@ -51,17 +50,29 @@ export default function ProceduralExercise({ chapId }: { chapId: string }) {
   if (!isSupportedChapter) return null;
 
   return (
-    <div className="bg-slate-900/50 border border-green-500/20 rounded-2xl p-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Sigma className="h-5 w-5 text-green-300" aria-hidden="true" />
-          <h3 className="font-bold text-green-300 text-sm">Exercice procédural</h3>
-          <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Paramètres aléatoires</span>
+    <div className="bg-slate-900/50 border border-green-500/20 rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-green-500/10 rounded-lg">
+            <Sigma className="h-5 w-5 text-green-300" aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-sm">Exercice d&apos;entraînement infini</h3>
+            <p className="text-[10px] text-green-500/70 font-bold uppercase tracking-widest">Paramètres aléatoires</p>
+          </div>
         </div>
-        {count > 0 && <span className="text-xs text-slate-500">{correct}/{count} réussis</span>}
+        {count > 0 && (
+          <div className="px-3 py-1 bg-slate-800 rounded-full text-[10px] font-bold text-slate-400 border border-slate-700">
+            {correct} / {count} réussis
+          </div>
+        )}
       </div>
-      <p className="text-slate-200 font-medium mb-4">{exercise.question}</p>
-      <div className="flex gap-3 mb-4">
+
+      <div className="text-slate-200 text-lg mb-6 leading-relaxed">
+        <MathRichText content={exercise.question} />
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <input
           type="text"
           value={answer}
@@ -69,21 +80,49 @@ export default function ProceduralExercise({ chapId }: { chapId: string }) {
           onKeyDown={(e) => e.key === 'Enter' && !submitted && handleSubmit()}
           disabled={submitted}
           placeholder="Ta réponse..."
-          className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-mono focus:border-green-500 focus:outline-none disabled:opacity-60 text-sm"
+          className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-5 py-3 text-white font-mono focus:border-green-500 focus:outline-none disabled:opacity-60 transition-all shadow-inner"
           aria-label="Réponse exercice procédural"
         />
         {!submitted ? (
-          <button onClick={handleSubmit} disabled={!answer.trim()} className="bg-green-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-green-500 disabled:opacity-40 text-sm" aria-label="Valider la réponse procédurale">Valider</button>
+          <button 
+            onClick={handleSubmit} 
+            disabled={!answer.trim()} 
+            className="bg-green-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-green-500 disabled:opacity-40 transition-all shadow-lg shadow-green-600/10"
+          >
+            Valider
+          </button>
         ) : (
-          <button onClick={newExercise} className="bg-slate-700 text-white font-bold py-2 px-5 rounded-xl hover:bg-slate-600 text-sm inline-flex items-center gap-1.5" aria-label="Générer un nouvel exercice procédural">Suivant <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+          <button 
+            onClick={newExercise} 
+            className="bg-slate-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-slate-600 transition-all inline-flex items-center justify-center gap-2"
+          >
+            Suivant <ArrowRight className="h-4 w-4" />
+          </button>
         )}
       </div>
+
       {submitted && (
-        <div className={`p-3 rounded-xl text-sm ${isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-500/10 border border-slate-500/30'}`}>
-          <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-slate-300'}`}>
-            {isCorrect ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Correct</span> : <span className="inline-flex items-center gap-1"><XCircle className="h-4 w-4" aria-hidden="true" />Réponse : {exercise.reponse}</span>}
-          </p>
-          <p className="text-slate-300 text-xs">{exercise.explication}</p>
+        <div className={`p-5 rounded-2xl border animate-in fade-in slide-in-from-top-2 duration-300 ${
+          isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className={`p-1.5 rounded-lg ${isCorrect ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {isCorrect ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            </div>
+            <div className="flex-1">
+              <p className={`font-bold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                {isCorrect ? 'Correct !' : 'Incorrect'}
+              </p>
+              {!isCorrect && (
+                <div className="text-slate-300 text-sm mb-2 font-mono">
+                  Réponse attendue : <MathRichText content={String(exercise.reponse)} />
+                </div>
+              )}
+              <div className="text-slate-400 text-xs leading-relaxed">
+                <MathRichText content={exercise.explication} />
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -389,32 +389,72 @@ export const useMathsLabStore = create<MathsLabState>()(
         set((state) => {
           const prev = state.exerciseResults[chapId] ?? [];
           if (prev.includes(exerciseIndex)) return state;
+          
+          const newResults = [...prev, exerciseIndex];
           const comboMult = get().getComboMultiplier();
           const xpGain = Math.round(10 * comboMult);
+
+          // Check for mastery
+          let masteredChapters = state.masteredChapters;
+          let totalExercises = 0;
+          for (const cat of Object.values(programmeData)) {
+            const chap = cat.chapitres.find(c => c.id === chapId);
+            if (chap) {
+              totalExercises = chap.exercices?.length ?? 0;
+              break;
+            }
+          }
+
+          if (totalExercises > 0 && newResults.length >= totalExercises && !masteredChapters.includes(chapId)) {
+            masteredChapters = [...masteredChapters, chapId];
+          }
+
           return {
             exerciseResults: {
               ...state.exerciseResults,
-              [chapId]: [...prev, exerciseIndex],
+              [chapId]: newResults,
             },
+            masteredChapters,
             totalXP: state.totalXP + xpGain,
           };
         });
         get().recordActivity();
+        get().evaluateBadges();
       },
 
       recordExerciseWithHint: (chapId: string, exerciseIndex: number, hintLevel: HintLevel, baseXP: number) => {
         const key = `${chapId}:${exerciseIndex}`;
         set((state) => {
           const prev = state.exerciseResults[chapId] ?? [];
-          if (prev.includes(exerciseIndex)) return state;
+          if (prev.includes(exerciseIndex) && exerciseIndex !== -1) return state;
+          
+          const newResults = exerciseIndex === -1 ? prev : [...prev, exerciseIndex];
           const malus = HINT_MALUS[hintLevel];
           const comboMult = get().getComboMultiplier();
           const xpGain = Math.round(baseXP * malus * comboMult);
+
+          // Check for mastery (only if not a special index)
+          let masteredChapters = state.masteredChapters;
+          if (exerciseIndex !== -1) {
+            let totalExercises = 0;
+            for (const cat of Object.values(programmeData)) {
+              const chap = cat.chapitres.find(c => c.id === chapId);
+              if (chap) {
+                totalExercises = chap.exercices?.length ?? 0;
+                break;
+              }
+            }
+            if (totalExercises > 0 && newResults.length >= totalExercises && !masteredChapters.includes(chapId)) {
+              masteredChapters = [...masteredChapters, chapId];
+            }
+          }
+
           return {
             exerciseResults: {
               ...state.exerciseResults,
-              [chapId]: [...prev, exerciseIndex],
+              [chapId]: newResults,
             },
+            masteredChapters,
             hintUsage: {
               ...state.hintUsage,
               [key]: Math.max(state.hintUsage[key] ?? 0, hintLevel) as HintLevel,
@@ -423,6 +463,7 @@ export const useMathsLabStore = create<MathsLabState>()(
           };
         });
         get().recordActivity();
+        get().evaluateBadges();
       },
 
       completeDailyChallenge: (challengeId: string, xp: number) => {
@@ -609,7 +650,7 @@ export const useMathsLabStore = create<MathsLabState>()(
     }),
     {
       name: 'nexus-maths-lab-v2',
-      version: 4,
+      version: 5,
     }
   )
 );
