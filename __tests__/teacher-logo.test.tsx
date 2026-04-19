@@ -20,20 +20,31 @@ jest.mock('../app/programme/maths-1ere/store', () => ({
     totalXP: 0,
     streak: 0,
     chapterProgress: {},
+    diagnosticResults: {},
+    getNiveau: () => ({ nom: 'Première' }),
+    getDueReviews: () => [],
     isChapterCompleted: () => false,
   }),
 }));
 
 describe('TeacherView - Logo Bilan', () => {
-  it('doit afficher le logo Nexus dans la section printable du bilan', () => {
-    render(<TeacherView studentName="Test Student" />);
+  beforeAll(() => {
+    // Mock window.print
+    Object.defineProperty(window, 'print', {
+      value: jest.fn(),
+      configurable: true,
+    });
+  });
+
+  it('doit afficher le logo Nexus dans la section printable du bilan', async () => {
+    const { findByAltText, getByText } = render(<TeacherView studentName="Test Student" />);
     
     // Aller sur l'onglet Bilan
-    const bilanTab = screen.getByText('Export Bilan');
+    const bilanTab = getByText('Export Bilan');
     bilanTab.click();
 
     // Le logo doit être présent avec le bon src
-    const logo = screen.getByAltText('Nexus Réussite');
+    const logo = await findByAltText('Nexus Réussite');
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute('src', '/images/logo_slogan_nexus.png');
   });

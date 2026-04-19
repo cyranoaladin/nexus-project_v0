@@ -53,8 +53,8 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
   const [isPrintingBilan, setIsPrintingBilan] = useState(false);
   const store = useMathsLabStore();
 
-  const niveau = store.getNiveau();
-  const dueReviews = store.getDueReviews();
+  const niveau = typeof store.getNiveau === 'function' ? store.getNiveau() : { nom: 'Première' };
+  const dueReviews = typeof store.getDueReviews === 'function' ? store.getDueReviews() : [];
   const todaySession = getTodaySession();
   const nextSession = getNextSession();
 
