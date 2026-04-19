@@ -125,18 +125,6 @@ export function createRateLimitResponse(
     return response;
 }
 
-function createRateLimitUnavailableResponse(): NextResponse {
-    return NextResponse.json(
-        {
-            ok: false,
-            error: {
-                code: 'RATELIMIT_NOT_CONFIGURED',
-                message: 'Service temporarily unavailable. Please try again later.',
-            },
-        },
-        { status: 503 }
-    );
-}
 
 /**
  * Middleware helper to check rate limits

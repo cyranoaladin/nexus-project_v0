@@ -185,7 +185,7 @@ const ThemesOverview: React.FC<{ onNavigate: (tab: ActiveTab) => void }> = ({ on
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
 

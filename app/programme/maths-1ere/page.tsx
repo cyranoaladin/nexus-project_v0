@@ -1,4 +1,3 @@
-import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import MathsRevisionClient from './components/MathsRevisionClient';
 import { auth } from '@/auth';

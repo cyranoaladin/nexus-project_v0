@@ -39,8 +39,8 @@ export function DocumentUploadForm() {
             setSearchResults(data);
             setShowResults(true);
           }
-        } catch (error) {
-          console.error('Search error', error);
+        } catch (_error) {
+          console.error('Search error', _error);
         } finally {
           setIsSearching(false);
         }
@@ -101,7 +101,7 @@ export function DocumentUploadForm() {
       setFile(null);
       setSelectedUser(null);
       setSearchQuery('');
-    } catch (error) {
+    } catch (_error) {
       toast.error("Erreur lors de l'upload");
     } finally {
       setIsUploading(false);
