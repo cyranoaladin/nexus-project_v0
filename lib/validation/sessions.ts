@@ -84,7 +84,7 @@ export const bookFullSessionSchema = z.object({
   modality: z.enum(['ONLINE', 'IN_PERSON', 'HYBRID']).default('ONLINE'),
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
   description: z.string().max(500, 'Description too long').optional(),
-  creditsToUse: z.number().min(1).max(10, 'Cannot use more than 10 credits per session'),
+  creditsToUse: z.number().min(0).max(10).optional().default(0),
 }).refine((data) => {
   // Validate that end time is after start time
   const startTime = data.startTime.split(':').map(Number);

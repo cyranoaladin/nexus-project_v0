@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, BookOpen, Snowflake, Medal, Sparkles } from 'lucide-react';
+import { RefreshCw, BookOpen, Snowflake, Medal } from 'lucide-react';
 import { useMathsLabStore, type MathsLabState } from '../../store';
 import { programmeData, badgeDefinitions } from '../../data';
 import { resolveUiIcon } from '@/lib/ui-icons';
@@ -10,7 +10,7 @@ import { HeroPedagogique } from './HeroPedagogique';
 import { SyntheseEleve } from './SyntheseEleve';
 import { FeuilleDeRoute } from './FeuilleDeRoute';
 import { SeanceDuJour } from './SeanceDuJour';
-import { STAGE_PRINTEMPS_2026, getTodaySession } from '../../config/stage';
+import { RAGFlashCard } from '../RAG/RAGFlashCard';
 
 type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -43,30 +43,8 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
         </div>
 
         <div className="space-y-6">
-          {/* Bloc RAG — Rappel Flash */}
-          <div className="rounded-3xl border border-violet-500/30 bg-violet-950/20 p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-lg bg-violet-500/20 p-2">
-                <Sparkles className="h-4 w-4 text-violet-300" />
-              </div>
-              <h3 className="font-bold text-white">Rappel Méthode IA</h3>
-            </div>
-            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              Basé sur tes derniers résultats, voici un point de vigilance pour l&apos;épreuve :
-            </p>
-            <div className="rounded-2xl bg-slate-900/60 p-4 border border-white/5">
-              <div className="text-[10px] font-black text-violet-400 uppercase mb-2">Rédaction & Justification</div>
-              <p className="text-xs text-slate-300 italic">
-                &quot;N&apos;oublie pas de toujours vérifier les conditions d&apos;application du discriminant $\Delta$. Si $a=0$, le trinôme devient une équation du premier degré.&quot;
-              </p>
-            </div>
-            <button 
-              onClick={() => onSwitchTab('enseignant')} // Redirige vers l'onglet RAG (ici sous enseignant pour démo, à ajuster)
-              className="mt-4 w-full rounded-xl bg-violet-600/20 py-2.5 text-xs font-bold text-violet-300 border border-violet-500/30 hover:bg-violet-600/30 transition-all"
-            >
-              Voir d&apos;autres conseils
-            </button>
-          </div>
+          {/* Bloc RAG — Rappel Flash dynamique */}
+          <RAGFlashCard onShowMore={() => onSwitchTab('cours')} />
 
           {/* SRS — Révisions en retard */}
           {dueReviews.length > 0 && (

@@ -11,7 +11,8 @@ interface ChildData {
     name: string;
     grade: string | null;
     school: string | null;
-    credits: number;
+    completedSessions: number;
+    subscription: string;
     badges: Array<{
         id: string;
         name: string;
@@ -55,15 +56,13 @@ export function ChildrenList({ childrenData }: { childrenData: ChildData[] }) {
                     <CardContent className="-mt-4">
                         <div className="bg-surface-elevated/60 rounded-lg p-4 border border-white/10 mb-4">
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-neutral-400">Crédits restants</span>
-                                <span className="font-bold text-brand-accent">{child.credits}</span>
+                                <span className="text-neutral-400">Séances réalisées</span>
+                                <span className="font-bold text-brand-accent">{child.completedSessions || 0}</span>
                             </div>
-                            {child.school && (
-                                <div className="flex justify-between items-center text-sm mt-2">
-                                    <span className="text-neutral-400">École</span>
-                                    <span className="font-medium text-neutral-100">{child.school}</span>
-                                </div>
-                            )}
+                            <div className="flex justify-between items-center text-sm mt-2">
+                                <span className="text-neutral-400">Abonnement</span>
+                                <span className="font-medium text-neutral-100">{child.subscription || "Aucun"}</span>
+                            </div>
                         </div>
 
                         <div className="space-y-3">

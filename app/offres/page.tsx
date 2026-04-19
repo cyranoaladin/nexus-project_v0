@@ -420,7 +420,7 @@ export default function OffresPage() {
                 3 formules, un seul objectif : la réussite
               </h2>
               <p className="mt-3 text-neutral-300">
-                Abonnement mensuel. 1 crédit = 1 heure de cours particulier en ligne.
+                Abonnement mensuel. 1 séance = 1 heure de cours particulier en ligne.
               </p>
             </div>
 
@@ -445,7 +445,7 @@ export default function OffresPage() {
                   <div className="text-3xl font-bold text-white">
                     150 <span className="text-base text-neutral-300">TND/mois</span>
                   </div>
-                  <div className="text-xs text-neutral-400 mt-1">0 crédit inclus</div>
+                  <div className="text-xs text-neutral-400 mt-1">0 séance incluse</div>
                 </div>
 
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
@@ -490,7 +490,7 @@ export default function OffresPage() {
                   <div className="text-3xl font-bold text-white">
                     450 <span className="text-base text-neutral-300">TND/mois</span>
                   </div>
-                  <div className="text-xs text-brand-accent mt-1">4 crédits inclus (4h de cours)</div>
+                  <div className="text-xs text-brand-accent mt-1">4 séances incluses (4h/mois)</div>
                 </div>
 
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
@@ -536,7 +536,7 @@ export default function OffresPage() {
                   <div className="text-3xl font-bold text-white">
                     750 <span className="text-base text-neutral-300">TND/mois</span>
                   </div>
-                  <div className="text-xs text-brand-accent mt-1">8 crédits inclus (8h de cours)</div>
+                  <div className="text-xs text-brand-accent mt-1">8 séances incluses (8h/mois)</div>
                 </div>
 
                 <div className="mt-6 space-y-3 text-sm text-neutral-200">
@@ -994,8 +994,8 @@ export default function OffresPage() {
             <div className="mt-10 grid gap-4 max-w-3xl mx-auto">
               {[
                 {
-                  q: "Qu'est-ce qu'un crédit et comment fonctionne-t-il ?",
-                  a: "1 crédit = 1 heure de cours particulier en ligne avec un coach Agrégés et Certifiés. Les crédits sont inclus dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les crédits non utilisés sont reportables 1 mois."
+                  q: "Comment fonctionnent les séances ?",
+                  a: "Chaque séance correspond à 1 heure de cours particulier en ligne avec un coach Agrégé ou Certifié. Les séances sont incluses dans votre abonnement mensuel (4 pour Hybride, 8 pour Immersion). Les séances non utilisées sont reportables d'un mois sur l'autre."
                 },
                 {
                   q: "Qui sont les coachs Nexus Réussite ?",
@@ -1007,11 +1007,11 @@ export default function OffresPage() {
                 },
                 {
                   q: "Puis-je suivre la progression de mon enfant ?",
-                  a: "Oui. Votre dashboard parent vous donne une vue en temps réel : sessions réalisées, crédits restants, rapports des coachs, et progression globale. Vous recevez aussi des notifications par email."
+                  a: "Oui. Votre dashboard parent vous donne une vue en temps réel : sessions réalisées, planning à venir, rapports des coachs, et progression globale. Vous recevez aussi des notifications par email."
                 },
                 {
                   q: "Quelles sont les conditions d'annulation ?",
-                  a: "Annulation gratuite si plus de 24h avant un cours particulier, ou plus de 48h avant un atelier de groupe. Le crédit est automatiquement restitué. L'abonnement est résiliable à tout moment."
+                  a: "Annulation gratuite si plus de 24h avant un cours particulier, ou plus de 48h avant un atelier de groupe. La séance est automatiquement recréditée sur votre forfait. L'abonnement est résiliable à tout moment."
                 },
                 {
                   q: "Comment se passent les cours en ligne ?",

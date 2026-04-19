@@ -37,8 +37,8 @@ const plans = [
     price: "90 TND/mois",
     description: "IA prédictive pour optimiser votre préparation",
     popular: false,
-    credits: "20 Crédits/mois",
-    valueBreakdown: "Inclus : 20 crédits (valeur 140 TND) + Accès ARIA (valeur 50 TND). Valeur totale : 190 TND, votre prix : 90 TND.",
+    sessions: "Coaching à la demande",
+    valueBreakdown: "Accès illimité à ARIA + Coaching personnalisé sur réservation. Support réactif 7j/7.",
     dailyCost: "soit ~3 TND/jour"
   },
   {
@@ -48,8 +48,8 @@ const plans = [
     price: "450 TND/mois",
     description: "Stages spécialisés avec nos experts",
     popular: true,
-    credits: "40 Crédits/mois",
-    valueBreakdown: "Inclus : 40 crédits (valeur 280 TND) + Accès Plateforme & Coaching (valeur 250 TND). Valeur totale : 530 TND, votre prix : 450 TND.",
+    sessions: "4 Séances de coaching/mois",
+    valueBreakdown: "Inclus : 4 séances de 60min + Coaching référent (valeur 350 TND). Valeur totale : 530 TND, votre prix : 450 TND.",
     dailyCost: "soit ~15 TND/jour"
   },
   {
@@ -59,8 +59,8 @@ const plans = [
     price: "750 TND/mois",
     description: "Accompagnement complet vers l'excellence",
     popular: false,
-    credits: "80 Crédits/mois",
-    valueBreakdown: "Inclus : 80 crédits (valeur 560 TND) + Coaching Premium & Garantie (valeur 390 TND). Valeur totale : 950 TND, votre prix : 750 TND.",
+    sessions: "8 Séances de coaching/mois",
+    valueBreakdown: "Inclus : 8 séances de 60min + Coaching Premium (valeur 650 TND) + Garantie de réussite. Valeur totale : 950 TND, votre prix : 750 TND.",
     dailyCost: "soit ~25 TND/jour"
   }
 ];
@@ -136,7 +136,7 @@ export function OffersComparison() {
                         </p>
                         <div className="bg-blue-50 p-2 rounded border border-blue-200">
                           <p className="text-xs font-semibold text-blue-800">
-                            {plan.credits}
+                            {plan.sessions}
                           </p>
                           <p className="text-xs text-blue-600 leading-tight">
                             {plan.valueBreakdown}

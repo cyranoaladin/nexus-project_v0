@@ -196,22 +196,6 @@ export default function DashboardAssistante() {
                   )}
                 </Button>
               </Link>
-              <Link href="/dashboard/assistante/credit-requests">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white relative">
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Demandes de Crédits
-                  {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                    >
-                      {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
-                        ? '9+'
-                        : dashboardData?.stats?.pendingCreditRequests ?? 0}
-                    </Badge>
-                  )}
-                </Button>
-              </Link>
               <Link href="/dashboard/assistante/docs">
                 <Button variant="ghost" className="text-neutral-300 hover:text-white">
                   <Settings className="w-4 h-4 mr-2" />
@@ -260,22 +244,6 @@ export default function DashboardAssistante() {
                       {(dashboardData?.stats?.pendingSubscriptionRequests ?? 0) > 9
                         ? '9+'
                         : dashboardData?.stats?.pendingSubscriptionRequests ?? 0}
-                    </Badge>
-                  )}
-                </Button>
-              </Link>
-              <Link href="/dashboard/assistante/credit-requests">
-                <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white relative">
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Demandes de Crédits
-                  {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                    >
-                      {(dashboardData?.stats?.pendingCreditRequests ?? 0) > 9
-                        ? '9+'
-                        : dashboardData?.stats?.pendingCreditRequests ?? 0}
                     </Badge>
                   )}
                 </Button>
@@ -336,24 +304,6 @@ export default function DashboardAssistante() {
                       </Badge>
                     </div>
                   )}
-                  {(dashboardData?.stats?.pendingCreditRequests || 0) > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-surface-card rounded-lg border border-white/10">
-                      <div>
-                        <p className="font-medium text-white text-sm md:text-base">Demandes de crédits</p>
-                        <p className="text-xs md:text-sm text-neutral-400">À approuver</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="destructive">
-                          {dashboardData?.stats?.pendingCreditRequests || 0}
-                        </Badge>
-                        <Link href="/dashboard/assistante/credit-requests">
-                          <Button variant="outline" size="sm" className="text-xs border-white/10 text-neutral-200 hover:text-white">
-                            Voir
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  )}
                   {(dashboardData?.stats?.pendingSubscriptionRequests || 0) > 0 && (
                     <div className="flex items-center justify-between p-3 bg-surface-card rounded-lg border border-white/10">
                       <div>
@@ -397,13 +347,6 @@ export default function DashboardAssistante() {
                   </Button>
                 </Link>
                 
-                <Link href="/dashboard/assistante/credits">
-                  <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">
-                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-emerald-300" />
-                    <span className="text-xs md:text-sm font-medium">Gérer les Crédits</span>
-                    <span className="text-xs text-neutral-400 text-center">Ajouter/Retirer des crédits</span>
-                  </Button>
-                </Link>
                 
                 <Link href="/dashboard/assistante/students">
                   <Button variant="outline" className="h-auto p-3 md:p-4 flex flex-col items-center space-y-2 w-full border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40">

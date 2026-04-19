@@ -123,7 +123,6 @@ export async function GET() {
 
         grade: child.grade,
         school: child.school,
-        credits: child.credits,
 
         // Subscription details from DB
         subscription: subscription?.planName ?? 'Aucun',
@@ -131,7 +130,6 @@ export async function GET() {
           id: subscription.id,
           planName: subscription.planName,
           monthlyPrice: subscription.monthlyPrice,
-          creditsPerMonth: subscription.creditsPerMonth,
           status: subscription.status,
           startDate: subscription.startDate?.toISOString(),
           endDate: subscription.endDate?.toISOString() ?? null,

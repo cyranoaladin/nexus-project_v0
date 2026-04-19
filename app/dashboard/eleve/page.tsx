@@ -23,16 +23,6 @@ interface DashboardData {
     grade: string;
     school: string;
   };
-  credits: {
-    balance: number;
-    transactions: Array<{
-      id: string;
-      type: string;
-      amount: number;
-      description: string;
-      createdAt: string;
-    }>;
-  };
   nextSession: {
     id: string;
     title: string;
@@ -395,7 +385,6 @@ export default function DashboardEleve() {
         {activeTab === 'booking' && dashboardData && (
           <SessionBooking
             studentId={session!.user.id}
-            userCredits={dashboardData.credits.balance}
             onBookingComplete={(sessionId) => {
               // Refresh dashboard data after booking
               window.location.reload();

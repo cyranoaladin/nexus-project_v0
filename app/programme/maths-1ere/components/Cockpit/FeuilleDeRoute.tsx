@@ -44,10 +44,12 @@ export const FeuilleDeRoute: React.FC<FeuilleDeRouteProps> = ({ onNavigate }) =>
       couleur: 'text-cyan-400',
       couleurFond: 'bg-cyan-500/10',
       couleurBord: 'border-cyan-500/30',
-      etapes: STAGE_PRINTEMPS_2026.seances.map((s) => ({
-        label: `${formatDateFr(s.date).split(' ').slice(0, 2).join(' ')} — ${s.theme}`,
-        done: new Date(s.date + 'T23:59:59') < new Date(),
-      })),
+      etapes: STAGE_PRINTEMPS_2026.seances
+        .filter((s) => s.matiere === 'Mathématiques')
+        .map((s) => ({
+          label: `${formatDateFr(s.date).split(' ').slice(0, 2).join(' ')} — ${s.theme}`,
+          done: new Date(s.date + 'T23:59:59') < new Date(),
+        })),
     },
     {
       id: 'apres',

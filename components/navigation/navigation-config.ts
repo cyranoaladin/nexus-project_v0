@@ -137,12 +137,6 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
-      label: 'Demandes Crédits',
-      href: '/dashboard/assistante/credit-requests',
-      icon: 'AlertCircle',
-      match: 'prefix'
-    },
-    {
       label: 'Paiements',
       href: '/dashboard/assistante/paiements',
       icon: 'DollarSign',
@@ -158,12 +152,6 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Stages',
       href: '/dashboard/assistante/stages',
       icon: 'GraduationCap',
-      match: 'prefix'
-    },
-    {
-      label: 'Crédits étudiants',
-      href: '/dashboard/assistante/credits',
-      icon: 'Coins',
       match: 'prefix'
     },
     {

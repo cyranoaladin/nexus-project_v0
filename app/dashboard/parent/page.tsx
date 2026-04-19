@@ -35,7 +35,6 @@ interface ParentDashboardData {
     email: string;
     grade: string;
     school: string;
-    credits: number;
     subscription: string;
     subscriptionDetails: {
       planName: string;
@@ -347,11 +346,6 @@ export default function DashboardParent() {
                   <div className="text-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                     <h3 className="font-semibold text-white mb-2 text-sm sm:text-base">Actions</h3>
                     <div className="space-y-2">
-                      <CreditPurchaseDialog
-                        studentId={currentChild?.id ?? ''}
-                        studentName={`${currentChild?.firstName ?? ''} ${currentChild?.lastName ?? ''}`}
-                        onPurchaseComplete={refreshDashboardData}
-                      />
                       <AriaAddonDialog
                         studentId={currentChild?.id ?? ''}
                         studentName={`${currentChild?.firstName} ${currentChild?.lastName}`}
@@ -359,13 +353,6 @@ export default function DashboardParent() {
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Note importante */}
-                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                  <p className="text-xs sm:text-sm text-slate-200">
-                    <strong>Note :</strong> Les demandes d'achat de crédits sont envoyées à l'assistant pour approbation.
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -377,7 +364,6 @@ export default function DashboardParent() {
           <SessionBooking
             studentId={currentChild?.userId}
             parentId={session?.user?.id}
-            userCredits={currentChild?.credits}
             onBookingComplete={(sessionId) => {
               refreshDashboardData();
               setActiveTab('dashboard');

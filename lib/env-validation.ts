@@ -41,6 +41,7 @@ const ENV_CONTRACT: EnvVar[] = [
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },
   { name: 'RAG_INGESTOR_URL', level: 'RECOMMENDED', description: 'RAG Ingestor service URL (fallback: Docker service name in prod)' },
+  { name: 'RAG_API_TOKEN', level: 'RECOMMENDED', description: 'Bearer token for Nexus RAG API (https://rag-api.nexusreussite.academy)' },
   { name: 'SMTP_HOST', level: 'RECOMMENDED', description: 'SMTP server for transactional emails' },
   { name: 'SMTP_FROM', level: 'RECOMMENDED', description: 'Sender email address for transactional emails' },
   { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
