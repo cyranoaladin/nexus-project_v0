@@ -48,7 +48,7 @@ services:
     container_name: nexus-migrate-prod
     restart: "no"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
     command: ["npx", "prisma", "migrate", "deploy"]
     depends_on:
       postgres:
@@ -71,7 +71,7 @@ services:
       NEXT_TELEMETRY_DISABLED: 1
 
       # Database
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
 
       # NextAuth (REQUIRED)
       NEXTAUTH_URL: ${NEXTAUTH_URL}  # e.g., https://nexus.example.com
@@ -111,9 +111,8 @@ services:
       NEXT_PUBLIC_APP_URL: ${NEXTAUTH_URL}
 
     # SECURITY: Only expose port for nginx reverse proxy, not publicly
-    # For direct access during setup, temporarily uncomment:
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3001:3000"
 
     depends_on:
       postgres:
@@ -138,30 +137,30 @@ services:
       start_period: 40s
 
   # ========================================
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy (DISABLED - Managed by Host Nginx)
   # ========================================
-  nginx:
-    image: nginx:alpine
-    container_name: nexus-nginx-prod
-    restart: unless-stopped
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro  # Mount SSL certificates here
-      - logs_data:/var/log/nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      nexus-app:
-        condition: service_healthy
-    networks:
-      - nexus-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fk https://localhost/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nexus-nginx-prod
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #     - logs_data:/var/log/nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     nexus-app:
+  #       condition: service_healthy
+  #   networks:
+  #     - nexus-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -fk https://localhost/api/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
 
 # =============================================================================
 # Volumes (Persistent Data)

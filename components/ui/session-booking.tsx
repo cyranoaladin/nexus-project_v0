@@ -30,7 +30,6 @@ interface AvailableSlot {
 interface SessionBookingProps {
   studentId: string;
   parentId?: string;
-  userCredits: number;
   onBookingComplete?: (sessionId: string) => void;
 }
 
@@ -62,7 +61,6 @@ const MODALITIES = [
 export default function SessionBooking({ 
   studentId, 
   parentId, 
-  userCredits,
   onBookingComplete 
 }: SessionBookingProps) {
   const [step, setStep] = useState(1);
@@ -77,7 +75,6 @@ export default function SessionBooking({
   const [modality, setModality] = useState('ONLINE');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [creditsToUse, setCreditsToUse] = useState(1);
   
   // Data
   const [coaches, setCoaches] = useState<Coach[]>([]);
@@ -221,10 +218,6 @@ export default function SessionBooking({
       return 'Veuillez corriger les erreurs de saisie';
     }
 
-    if (creditsToUse > userCredits) {
-      return 'Crédits insuffisants';
-    }
-
     if (isDateInPast(selectedSlot.date)) {
       return 'Impossible de réserver une session dans le passé';
     }
@@ -277,8 +270,7 @@ export default function SessionBooking({
         type: sessionType,
         modality: modality,
         title: title,
-        description: description,
-        creditsToUse: creditsToUse
+        description: description
       };
 
       const response = await fetch('/api/sessions/book', {
@@ -338,10 +330,6 @@ export default function SessionBooking({
             <BookOpen className="w-5 h-5 md:w-6 md:h-6 mr-2 text-blue-600" />
             Réserver une Session
           </CardTitle>
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <CreditCard className="w-4 h-4" />
-            <span>Crédits disponibles: {userCredits}</span>
-          </div>
         </CardHeader>
 
         <CardContent>
@@ -661,24 +649,6 @@ export default function SessionBooking({
                   )}
                 </div>
 
-                <div>
-                  <Label htmlFor="credits" className="text-sm md:text-base">Crédits à utiliser</Label>
-                  <Select value={creditsToUse.toString()} onValueChange={(value) => setCreditsToUse(parseInt(value))}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5].filter(num => num <= userCredits).map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} crédit{num > 1 ? 's' : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Crédits restants après réservation: {userCredits - creditsToUse}
-                  </p>
-                </div>
 
                 <div className="flex justify-between pt-4">
                   <Button variant="outline" onClick={() => setStep(2)}>

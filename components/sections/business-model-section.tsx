@@ -17,11 +17,10 @@ const SUBSCRIPTION_PLANS = {
     name: "ACCÈS PLATEFORME",
     description: "L'essentiel pour commencer votre parcours d'excellence",
     price: 150,
-    credits: 0,
     features: [
       "Accès 24/7 à la plateforme",
       "Suivi personnalisé",
-      "0 crédits/mois",
+      "Coaching à la demande",
       "ARIA (1 matière)"
     ]
   },
@@ -29,11 +28,11 @@ const SUBSCRIPTION_PLANS = {
     name: "HYBRIDE",
     description: "L'équilibre parfait entre autonomie et suivi humain personnalisé",
     price: 450,
-    credits: 4,
+    sessions: 4,
     popular: true,
     features: [
       "Tout de la Plateforme",
-      "4 crédits/mois",
+      "4 séances de coaching/mois",
       "Coach référent",
       "Support prioritaire"
     ]
@@ -42,10 +41,10 @@ const SUBSCRIPTION_PLANS = {
     name: "IMMERSION",
     description: "L'accompagnement premium pour une réussite exceptionnelle",
     price: 750,
-    credits: 8,
+    sessions: 8,
     features: [
       "Tout de l'Hybride",
-      "8 crédits/mois",
+      "8 séances de coaching/mois",
       "Support prioritaire",
       "Bilan trimestriel"
     ]
@@ -285,21 +284,20 @@ export function BusinessModelSection() {
             <CreditCard className="w-4 h-4 mr-2" />
             Modèle Transparent & Flexible
           </Badge>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">
-            Notre Modèle Unique : Abonnement + Crédits
-          </h2>
-          <div className="max-w-5xl mx-auto">
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
-              Nous avons conçu un modèle révolutionnaire qui allie la transparence d'un abonnement
-              à la flexibilité totale d'un système de crédits pour vos prestations humaines.
-            </p>
+            <h2 className="font-heading text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">
+              Notre Modèle Unique : Abonnement + Coaching
+            </h2>
+            <div className="max-w-5xl mx-auto">
+              <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
+                Nous avons conçu un modèle révolutionnaire qui allie la puissance d'une plateforme IA
+                à la flexibilité totale de séances de coaching humain personnalisé.
+              </p>
 
             {/* Infographie explicative */}
             <div className="grid-centered grid-cards-2 max-w-4xl mx-auto mb-16">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
                 className="card-dark"
               >
@@ -309,7 +307,7 @@ export function BusinessModelSection() {
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   Accès complet à la plateforme, ARIA, suivi personnalisé +
-                  un budget mensuel de crédits inclus selon votre formule.
+                  un volume de séances inclus selon votre formule.
                 </p>
               </motion.div>
 
@@ -322,11 +320,11 @@ export function BusinessModelSection() {
               >
                 <div className="flex items-center mb-6">
                   <Zap className="w-8 h-8 text-brand-secondary mr-4" />
-                  <h3 className="font-heading font-bold text-xl text-gray-900">Les Crédits (La Flexibilité)</h3>
+                  <h3 className="font-heading font-bold text-xl text-gray-900">Le Coaching (L'Excellence)</h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  1 crédit = 1h de cours particulier en ligne. Utilisez vos crédits
-                  quand vous en avez besoin, pour les prestations humaines.
+                  Des séances de 60 min avec nos meilleurs coachs. Utilisez vos séances
+                  quand vous en avez besoin, pour un suivi ultra-personnalisé.
                 </p>
               </motion.div>
             </div>
@@ -343,20 +341,19 @@ export function BusinessModelSection() {
         >
           <h3 className="font-heading font-bold text-2xl text-gray-900 mb-6 text-center inline-flex items-center gap-2">
             <Lightbulb className="h-6 w-6 text-brand-secondary" aria-hidden="true" />
-            Règles du Système de Crédits
+            Modalités du Coaching
           </h3>
           <div className="text-gray-700 space-y-4 max-w-4xl mx-auto">
             <p className="text-lg leading-relaxed">
-              <strong>Coûts des Prestations :</strong> Cours en ligne (1 crédit) •
-              Cours en présentiel (1,25 crédit) • Atelier de groupe (1,5 crédit)
+              <strong>Prestations :</strong> Cours en ligne (60 min) •
+              Cours en présentiel (60 min) • Ateliers thématiques de groupe
             </p>
             <p className="text-lg leading-relaxed">
-              <strong>Report :</strong> Les crédits non utilisés sont reportés 1 mois.
-              Notification 7 jours avant expiration.
+              <strong>Flexibilité :</strong> Les séances incluses sont valables durant toute la durée de l'abonnement.
+              Planification simple via votre dashboard.
             </p>
             <p className="text-lg leading-relaxed">
-              <strong>Packs supplémentaires :</strong> Validité 12 mois.
-              Annulation gratuite &gt; 24h (cours) ou 48h (ateliers).
+              <strong>Annulation :</strong> Annulation gratuite &gt; 24h avant le début de la séance.
             </p>
           </div>
         </motion.div>
@@ -417,10 +414,10 @@ export function BusinessModelSection() {
                       </div>
                     </div>
 
-                    {plan.credits > 0 && (
+                    {plan.sessions > 0 && (
                       <div className="mb-4">
                         <Badge variant="default" className="bg-blue-600 text-white font-medium" style={{ fontFamily: 'Inter' }}>
-                          {plan.credits} crédits inclus
+                          {plan.sessions} séances incluses
                         </Badge>
                       </div>
                     )}

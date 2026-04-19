@@ -24,8 +24,8 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
   const phase = getStagePhase(now);
   const daysUntilStage = getDaysUntilStage(now);
   const daysUntilExam = getDaysUntilExam(now);
-  const todaySession = getTodaySession(now);
-  const nextSession = getNextSession(now);
+  const todaySession = getTodaySession(now, 'Mathématiques');
+  const nextSession = getNextSession(now, 'Mathématiques');
   const niveau = store.getNiveau();
 
   const completedCount = store.completedChapters.length;
@@ -116,7 +116,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">Séance du jour</span>
                   <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/30">
-                    {todaySession.duree}h
+                    {todaySession.heureDebut}–{todaySession.heureFin} ({todaySession.duree}h)
                   </span>
                   <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-400 border border-slate-700">
                     {todaySession.format}
@@ -151,7 +151,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Prochaine séance</span>
                 <h3 className="font-bold text-white mt-1">{nextSession.theme}</h3>
-                <p className="text-sm text-slate-400 mt-0.5 capitalize">{formatDateFr(nextSession.date)}</p>
+                <p className="text-sm text-slate-400 mt-0.5 capitalize">{formatDateFr(nextSession.date)} • {nextSession.heureDebut}–{nextSession.heureFin}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {nextSession.chapitresClés.map((chapId: string) => (
                     <span key={chapId} className="rounded-lg bg-slate-800 px-2 py-1 text-[10px] font-medium text-slate-400 border border-slate-700">

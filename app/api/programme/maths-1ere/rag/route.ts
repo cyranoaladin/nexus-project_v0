@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { ragSearchBySubject, buildRAGContext } from '@/lib/rag-client';
+import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { generateEmbedding } from '@/lib/aria';
 import { prisma } from '@/lib/prisma';
 import { Subject } from '@prisma/client';
@@ -81,20 +81,20 @@ export async function POST(req: NextRequest) {
   const { chapId, chapTitre, query } = parsed.data;
   const semanticQuery = buildSemanticQuery(chapTitre, chapId, query);
 
-  // ── Circuit A: ChromaDB via ingestor ────────────────────────────────────────
+  // ── Circuit A: Nexus RAG API (external) ────────────────────────────────────
   try {
-    const hits = await ragSearchBySubject(
-      semanticQuery,
-      'maths',
-      'premiere',
-      5,
-    );
+    const hits = await ragSearch({
+      query: semanticQuery,
+      section: 'maths_premiere',
+      k: 5,
+      score_threshold: 0.5,
+    });
 
     if (hits.length > 0) {
-      // Filter to score > 0.30 (distance < 0.70 in ChromaDB cosine space)
+      // Filter to score > 0.50 as requested
       const relevant = hits.filter((h) => {
         const score = h.score ?? (1 - h.distance);
-        return score >= 0.30;
+        return score >= 0.50;
       });
 
       if (relevant.length > 0) {
@@ -106,13 +106,13 @@ export async function POST(req: NextRequest) {
             metadata: h.metadata,
           })),
           context: buildRAGContext(relevant),
-          source: 'chroma' as const,
+          source: 'chroma' as const, // Legacy key used for UI consistency
           query: semanticQuery,
         });
       }
     }
   } catch (err) {
-    console.warn('[RAG maths-1ere] ChromaDB unavailable, falling back to pgvector:', err);
+    console.warn('[RAG maths-1ere] Nexus RAG API unavailable, falling back to pgvector:', err);
   }
 
   // ── Circuit B: pgvector fallback ────────────────────────────────────────────

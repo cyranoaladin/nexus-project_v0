@@ -219,43 +219,12 @@ export async function POST(req: NextRequest) {
 
       if (conflictingSession) {
         throw ApiError.conflict('Coach already has a session at this time');
-      }
-
-      // 6. Check student credits with enhanced validation
+      }      // 6. [CREDIT SYSTEM REMOVED] - Student record is verified but credits are no longer checked.
       const studentRecord = await tx.student.findFirst({
         where: { userId: validatedData.studentId }
       });
-
       if (!studentRecord) {
         throw ApiError.badRequest('Student record not found');
-      }
-
-      // Calculate current credits from transactions
-      let creditTransactions = await tx.creditTransaction.findMany({
-        where: { studentId: studentRecord.id }
-      });
-
-      // Backward-compatibility: migrate legacy `student.credits` into transactions lazily.
-      if (creditTransactions.length === 0 && studentRecord.credits > 0) {
-        await tx.creditTransaction.create({
-          data: {
-            studentId: studentRecord.id,
-            type: 'MANUAL_ADJUST',
-            amount: studentRecord.credits,
-            description: 'Legacy credits migration',
-          },
-        });
-        creditTransactions = await tx.creditTransaction.findMany({
-          where: { studentId: studentRecord.id }
-        });
-      }
-
-      const currentCredits = creditTransactions.reduce((total: number, transaction: CreditTransaction) => {
-        return total + transaction.amount;
-      }, 0);
-
-      if (currentCredits < validatedData.creditsToUse) {
-        throw ApiError.badRequest(`Insufficient credits. Available: ${currentCredits}, Required: ${validatedData.creditsToUse}`);
       }
 
       // 7. Check if student already has a session at this time
@@ -300,7 +269,7 @@ export async function POST(req: NextRequest) {
           duration: validatedData.duration,
           type: validatedData.type,
           modality: validatedData.modality,
-          creditsUsed: validatedData.creditsToUse,
+          creditsUsed: 0,
           status: 'SCHEDULED'
         },
         include: {
@@ -310,26 +279,7 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // 9. Create credit transaction for usage (idempotent via DB constraint)
-      // Check for existing USAGE transaction to avoid constraint violation
-      const existingUsage = await tx.creditTransaction.findFirst({
-        where: {
-          sessionId: sessionBooking.id,
-          type: 'USAGE'
-        }
-      });
-
-      if (!existingUsage) {
-        await tx.creditTransaction.create({
-          data: {
-            studentId: studentRecord.id,
-            type: 'USAGE',
-            amount: -validatedData.creditsToUse,
-            description: `Session booking: ${validatedData.title} - ${validatedData.subject}`,
-            sessionId: sessionBooking.id
-          }
-        });
-      }
+      // 9. [CREDIT SYSTEM REMOVED] - No USAGE transaction created.
 
       // Return post-commit context for side-effects (notifications, reminders)
       return {

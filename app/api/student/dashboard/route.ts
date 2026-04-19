@@ -33,9 +33,6 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 1
         },
-        creditTransactions: {
-          orderBy: { createdAt: 'desc' }
-        },
         sessions: {
           where: {
             status: { in: ['SCHEDULED', 'COMPLETED', 'CONFIRMED'] }
@@ -74,10 +71,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Calculate available credits
-    const creditBalance = student.creditTransactions.reduce((balance: number, transaction) => {
-      return balance + transaction.amount;
-    }, 0);
 
     // Get next session
     const upcomingSessions = student.sessions.filter((session) =>
@@ -119,16 +112,6 @@ export async function GET(request: NextRequest) {
         email: student.user.email,
         grade: student.grade,
         school: student.school
-      },
-      credits: {
-        balance: creditBalance,
-        transactions: student.creditTransactions.map((t) => ({
-          id: t.id,
-          type: t.type,
-          amount: t.amount,
-          description: t.description,
-          createdAt: t.createdAt
-        }))
       },
       nextSession: nextSession ? {
         id: nextSession.id,

@@ -33,16 +33,15 @@ const SUBJECTS_OPTIONS = [
 ];
 
 const SERVICE_TYPES = [
-  { value: ServiceType.COURS_ONLINE, label: "Cours en ligne", cost: 1, description: "1 crédit" },
-  { value: ServiceType.COURS_PRESENTIEL, label: "Cours en présentiel", cost: 1.25, description: "1,25 crédit" },
-  { value: ServiceType.ATELIER_GROUPE, label: "Atelier de groupe", cost: 1.5, description: "1,5 crédit" }
+  { value: ServiceType.COURS_ONLINE, label: "Cours en ligne" },
+  { value: ServiceType.COURS_PRESENTIEL, label: "Cours en présentiel" },
+  { value: ServiceType.ATELIER_GROUPE, label: "Atelier de groupe" }
 ];
 
 export default function SessionsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableCredits, setAvailableCredits] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,14 +58,6 @@ export default function SessionsPage() {
   const selectedType = watch('type');
   const selectedDuration = watch('duration') || 60;
   
-  // Calculate credit cost based on type and duration
-  const getCreditCost = () => {
-    const baseCost = SERVICE_TYPES.find(t => t.value === selectedType)?.cost || 1;
-    const durationMultiplier = selectedDuration / 60; // 60min = 1 session, 90min = 1.5 sessions, 120min = 2 sessions
-    return baseCost * durationMultiplier;
-  };
-  
-  const selectedCost = getCreditCost();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -76,19 +67,11 @@ export default function SessionsPage() {
       return;
     }
 
-    const fetchStudentData = async () => {
+    const checkAuth = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        const response = await fetch('/api/student/credits');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch student data');
-        }
-        
-        const data = await response.json();
-        setAvailableCredits(data.balance);
+        // Just verify session is valid
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -96,7 +79,7 @@ export default function SessionsPage() {
       }
     };
 
-    fetchStudentData();
+    checkAuth();
   }, [session, status, router]);
 
   const onSubmit = async (data: z.infer<typeof sessionBookingSchema>) => {
@@ -220,12 +203,7 @@ export default function SessionsPage() {
                       <SelectContent>
                         {SERVICE_TYPES.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
-                            <div className="flex justify-between items-center w-full">
-                              <span>{type.label}</span>
-                              <Badge variant="outline" className="ml-2">
-                                {type.description}
-                              </Badge>
-                            </div>
+                            <span>{type.label}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -306,7 +284,7 @@ export default function SessionsPage() {
 
                   <Button
                     type="submit"
-                    disabled={isSubmitting || selectedCost > availableCredits}
+                    disabled={isSubmitting}
                     className="w-full"
                   >
                     {isSubmitting ? (
@@ -328,42 +306,6 @@ export default function SessionsPage() {
 
           {/* Sidebar - Informations */}
           <div className="space-y-6">
-            {/* Solde de crédits */}
-            <Card className="bg-white/5 border border-white/10">
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <CreditCard className="w-5 h-5 mr-2 text-brand-accent" />
-                  Mon Solde
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-brand-accent mb-2">
-                    {availableCredits} crédits
-                  </div>
-                  <p className="text-sm text-neutral-300 mb-4">
-                    Disponibles pour vos sessions
-                  </p>
-                  {selectedCost && (
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                      <p className="text-sm text-neutral-200">
-                        <strong>Coût de cette session :</strong><br />
-                        {selectedCost.toFixed(1)} crédit{selectedCost > 1 ? 's' : ''}
-                      </p>
-                      <p className="text-xs text-neutral-400 mt-1">
-                        {selectedDuration} minutes = {selectedDuration / 60} session{selectedDuration / 60 > 1 ? 's' : ''}
-                      </p>
-                      {selectedCost > availableCredits && (
-                        <p className="inline-flex items-center gap-2 text-rose-200 text-xs mt-2 font-medium">
-                          <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                          Solde insuffisant
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Coachs disponibles */}
             <Card className="bg-white/5 border border-white/10">

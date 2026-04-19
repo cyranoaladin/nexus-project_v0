@@ -10,7 +10,7 @@ interface SeanceDuJourProps {
 }
 
 export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap }) => {
-  const session = getTodaySession();
+  const session = getTodaySession(undefined, 'Mathématiques');
 
   if (!session) return null;
 
@@ -38,7 +38,7 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap }) 
                 Stage Printemps 2026
               </span>
               <span className="text-[10px] text-slate-500 font-bold uppercase">
-                {formatDateFr(session.date)}
+                {formatDateFr(session.date)} • {session.heureDebut}–{session.heureFin}
               </span>
             </div>
             

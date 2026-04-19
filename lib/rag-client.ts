@@ -34,8 +34,12 @@ interface RAGSearchOptions {
   k?: number;
   /** Include full document text (default: true) */
   includeDocuments?: boolean;
-  /** ChromaDB collection name */
+  /** ChromaDB collection name (internal ingestor) */
   collection?: string;
+  /** RAG section (external Nexus RAG API) */
+  section?: string;
+  /** Minimum similarity score threshold */
+  score_threshold?: number;
   /** Optional metadata filters (subject, level, type, domain) */
   filters?: Record<string, unknown>;
 }
@@ -58,8 +62,8 @@ function getIngestorUrl(): string {
   if (process.env.NODE_ENV === 'production') {
     return 'http://ingestor:8001';
   }
-  // Local dev fallback
-  return 'http://localhost:8001';
+  // Fallback to the public Nexus RAG API for Maths 1ère if needed
+  return 'https://rag-api.nexusreussite.academy';
 }
 
 /**
@@ -67,21 +71,39 @@ function getIngestorUrl(): string {
  */
 export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit[]> {
   const baseUrl = getIngestorUrl();
+  const token = process.env.RAG_API_TOKEN;
   const timeout = parseInt(process.env.RAG_SEARCH_TIMEOUT_MS || process.env.RAG_SEARCH_TIMEOUT || '12000', 10);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+  // Adapt payload between internal ingestor and external Nexus RAG API
+  const body: Record<string, any> = {
+    q: options.query,
+    k: options.k ?? 4,
+    include_documents: options.includeDocuments ?? true,
+  };
+
+  if (options.section) {
+    body.section = options.section;
+    if (options.score_threshold) body.score_threshold = options.score_threshold;
+  } else {
+    body.collection = options.collection ?? 'ressources_pedagogiques_terminale';
+    body.filters = options.filters ?? null;
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   try {
     const response = await fetch(`${baseUrl}/search`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        q: options.query,
-        k: options.k ?? 4,
-        include_documents: options.includeDocuments ?? true,
-        collection: options.collection ?? 'ressources_pedagogiques_terminale',
-        filters: options.filters ?? null,
-      }),
+      headers,
+      body: JSON.stringify(body),
       signal: controller.signal,
     });
 

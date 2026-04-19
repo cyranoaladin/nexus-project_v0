@@ -39,7 +39,7 @@ const pillars = [
     features: [
       "**Bilan Stratégique** initial complet et gratuit",
       "Constitution de groupes de travail **homogènes**",
-      "**Flexibilité totale** grâce au système de crédits",
+      "**Flexibilité totale** de planification des séances",
       "Accompagnement **dédié à l'orientation**"
     ]
   },
