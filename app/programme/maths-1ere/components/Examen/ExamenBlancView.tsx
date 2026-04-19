@@ -31,7 +31,7 @@ export const ExamenBlancView: React.FC = () => {
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const totalSeconds = EPREUVE_MATHS_1ERE.duree * 60;
+  const totalSeconds = EPREUVE_MATHS_1ERE.dureeMinutes * 60;
   const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
   const timeUp = elapsedSeconds >= totalSeconds;
 
@@ -174,7 +174,7 @@ export const ExamenBlancView: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {SUJET_BLANC_1.automatismes.map((q, i) => {
+            {SUJET_BLANC_1.automatismes.map((q: any, i: number) => {
               const state = autoStates[q.id] ?? { reponse: '', revealed: false };
               return (
                 <div
@@ -277,7 +277,7 @@ export const ExamenBlancView: React.FC = () => {
             </div>
           </div>
 
-          {SUJET_BLANC_1.exercices.map((ex) => (
+          {SUJET_BLANC_1.exercices.map((ex: any) => (
             <div key={ex.id} className="rounded-2xl border border-slate-700/40 bg-slate-900/40 overflow-hidden">
               <button
                 onClick={() => setExpandedEx(expandedEx === ex.id ? null : ex.id)}
@@ -317,7 +317,7 @@ export const ExamenBlancView: React.FC = () => {
                             <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
                             <span className="text-xs font-bold text-amber-400">Pièges à éviter</span>
                           </div>
-                          {ex.piegesClassiques.map((piege, i) => (
+                          {ex.piegesClassiques.map((piege: string, i: number) => (
                             <div key={i} className="text-xs text-slate-400 flex items-start gap-1.5">
                               <span className="text-amber-500 shrink-0">·</span>
                               {piege}
@@ -328,7 +328,7 @@ export const ExamenBlancView: React.FC = () => {
 
                       {/* Questions */}
                       <div className="space-y-3">
-                        {ex.questions.map((q) => (
+                        {ex.questions.map((q: any) => (
                           <div
                             key={q.numero}
                             className="rounded-xl border border-slate-700/50 bg-slate-900/60 p-4"
@@ -343,7 +343,7 @@ export const ExamenBlancView: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <span className="text-[10px] font-bold text-slate-500">{q.points} pt{q.points > 1 ? 's' : ''}</span>
-                                  {q.competences.map((c) => (
+                                  {q.competences.map((c: string) => (
                                     <span key={c} className="text-[9px] font-bold rounded px-1.5 py-0.5 bg-slate-800 text-slate-500 border border-slate-700 uppercase">
                                       {c}
                                     </span>
@@ -417,7 +417,7 @@ const AccueilExamen: React.FC<{ onStart: () => void }> = ({ onStart }) => (
         Conseils de méthode
       </h3>
       <div className="space-y-2">
-        {EPREUVE_MATHS_1ERE.conseilsGeneraux.map((c, i) => (
+        {EPREUVE_MATHS_1ERE.conseilsGeneraux.map((c: string, i: number) => (
           <div key={i} className="flex items-start gap-2">
             <span className="text-cyan-500 text-sm shrink-0 mt-0.5">·</span>
             <p className="text-xs text-slate-300">{c}</p>
@@ -433,7 +433,7 @@ const AccueilExamen: React.FC<{ onStart: () => void }> = ({ onStart }) => (
         Erreurs fréquentes à éviter
       </h3>
       <div className="space-y-2">
-        {EPREUVE_MATHS_1ERE.erreursFréquentes.map((e, i) => (
+        {EPREUVE_MATHS_1ERE.erreursFréquentes.map((e: string, i: number) => (
           <div key={i} className="flex items-start gap-2">
             <span className="text-amber-500 text-sm shrink-0 mt-0.5">!</span>
             <p className="text-xs text-slate-300">{e}</p>
@@ -505,7 +505,7 @@ const CorrectionView: React.FC<{ onReset: () => void; elapsedSeconds: number }> 
           Automatismes — Correction
         </h3>
         <div className="space-y-3">
-          {SUJET_BLANC_1.automatismes.map((q, i) => (
+          {SUJET_BLANC_1.automatismes.map((q: any, i: number) => (
             <div key={q.id} className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-xs font-black text-slate-400 shrink-0">
@@ -536,14 +536,14 @@ const CorrectionView: React.FC<{ onReset: () => void; elapsedSeconds: number }> 
           Exercices — Correction détaillée
         </h3>
         <div className="space-y-4">
-          {SUJET_BLANC_1.exercices.map((ex) => (
+          {SUJET_BLANC_1.exercices.map((ex: any) => (
             <div key={ex.id} className="rounded-2xl border border-slate-700/40 bg-slate-900/40 overflow-hidden">
               <div className="p-5 border-b border-slate-800">
                 <h4 className="font-bold text-white">{ex.titre}</h4>
                 <p className="text-xs text-slate-400 mt-0.5">{ex.contexte}</p>
               </div>
               <div className="p-5 space-y-3">
-                {ex.questions.map((q) => (
+                {ex.questions.map((q: any) => (
                   <div key={q.numero} className="rounded-xl border border-slate-700/40 bg-slate-900/60 overflow-hidden">
                     <button
                       onClick={() => setExpandedQ(expandedQ === `${ex.id}-${q.numero}` ? null : `${ex.id}-${q.numero}`)}
@@ -574,7 +574,7 @@ const CorrectionView: React.FC<{ onReset: () => void; elapsedSeconds: number }> 
                         >
                           <div className="px-4 pb-4 border-t border-slate-800">
                             <div className="mt-3 space-y-3">
-                              {q.solution.map((step, i) => (
+                              {q.solution.map((step: string, i: number) => (
                                 <div key={i} className="flex items-start gap-3 rounded-lg bg-slate-900/40 p-3 border border-white/5">
                                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-black text-cyan-400 shrink-0 mt-0.5">
                                     {i + 1}

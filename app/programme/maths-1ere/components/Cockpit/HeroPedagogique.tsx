@@ -124,7 +124,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
                 </div>
                 <h3 className="font-bold text-white text-lg">{todaySession.theme}</h3>
                 <div className="mt-2 space-y-1">
-                  {todaySession.objectifs.slice(0, 2).map((obj, i) => (
+                  {todaySession.objectifs.slice(0, 2).map((obj: string, i: number) => (
                     <div key={i} className="flex items-start gap-2 text-sm text-slate-300">
                       <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-cyan-500 shrink-0" />
                       {obj}
@@ -153,7 +153,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
                 <h3 className="font-bold text-white mt-1">{nextSession.theme}</h3>
                 <p className="text-sm text-slate-400 mt-0.5 capitalize">{formatDateFr(nextSession.date)}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {nextSession.chapitresClés.map((chapId) => (
+                  {nextSession.chapitresClés.map((chapId: string) => (
                     <span key={chapId} className="rounded-lg bg-slate-800 px-2 py-1 text-[10px] font-medium text-slate-400 border border-slate-700">
                       {chapId.replace(/-/g, ' ')}
                     </span>

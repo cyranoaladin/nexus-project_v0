@@ -18,9 +18,10 @@ interface RAGHit {
 interface RAGRemediationProps {
   chapId: string;
   chapTitre: string;
+  compact?: boolean;
 }
 
-export const RAGRemediation: React.FC<RAGRemediationProps> = ({ chapId, chapTitre }) => {
+export const RAGRemediation: React.FC<RAGRemediationProps> = ({ chapId, chapTitre, compact }) => {
   const [loading, setLoading] = useState(false);
   const [hits, setHits] = useState<RAGHit[]>([]);
   const [error, setError] = useState<string | null>(null);

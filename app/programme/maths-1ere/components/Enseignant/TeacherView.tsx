@@ -652,7 +652,7 @@ const SeanceDetail: React.FC<{ seance: (typeof STAGE_PRINTEMPS_2026.seances)[0] 
         </div>
       ))}
     </div>
-    {seance.chapitresClés.length > 0 && (
+    {seance.chapitresClés && seance.chapitresClés.length > 0 && (
       <div className="flex flex-wrap gap-1.5">
         <span className="text-[10px] text-slate-500 font-bold uppercase">Chapitres clés :</span>
         {seance.chapitresClés.map((chapId) => (

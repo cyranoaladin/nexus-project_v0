@@ -17,6 +17,8 @@ export interface SeanceStage {
 export const STAGE_PRINTEMPS_2026 = {
   nom: "Stage de Printemps 2026 — Maths & Français",
   periode: "20 Avril au 1er Mai 2026",
+  debut: "20 Avril",
+  fin: "1er Mai",
   heuresMaths: 14,
   heuresFrancais: 16,
   seances: [
@@ -90,25 +92,70 @@ export const STAGE_PRINTEMPS_2026 = {
       objectifs: ["Correction détaillée", "Identification des points de vigilance", "Plan personnalisé"],
       competences: ["AUTO-ÉVALUATION"],
       format: "bilan",
-      chapitresClés: []
     }
-  ] as SeanceStage[]
+  ],
+  promessesNexus: [
+    "Groupes réduits (max 8 élèves)",
+    "Préparation structurée épreuve 2026",
+    "Épreuves blanches en conditions réelles",
+    "Corrections détaillées et personnalisées",
+    "Bilan final individualisé",
+    "Plan de révision post-stage"
+  ]
 };
+
+// Dates de référence
+export const DATE_DEBUT_STAGE = "2026-04-20";
+export const DATE_FIN_STAGE = "2026-05-01";
+export const DATE_EXAMEN_ANTICIPE = "2026-06-15"; // Date indicative Juin 2026
 
 /**
  * Récupère la séance du jour si elle existe
  */
-export function getTodaySession(): SeanceStage | null {
-  const today = new Date().toISOString().split('T')[0];
-  return STAGE_PRINTEMPS_2026.seances.find(s => s.date === today) || null;
+export function getTodaySession(baseDate?: Date): SeanceStage | null {
+  const d = baseDate || new Date();
+  const today = d.toISOString().split('T')[0];
+  const session = STAGE_PRINTEMPS_2026.seances.find(s => s.date === today);
+  return (session as SeanceStage) || null;
 }
 
 /**
  * Récupère la prochaine séance à venir
  */
-export function getNextSession(): SeanceStage | null {
-  const today = new Date().toISOString().split('T')[0];
-  return STAGE_PRINTEMPS_2026.seances.find(s => s.date > today) || null;
+export function getNextSession(baseDate?: Date): SeanceStage | null {
+  const d = baseDate || new Date();
+  const today = d.toISOString().split('T')[0];
+  const session = STAGE_PRINTEMPS_2026.seances.find(s => s.date > today);
+  return (session as SeanceStage) || null;
+}
+
+/**
+ * Détermine la phase actuelle par rapport au stage
+ */
+export function getStagePhase(baseDate?: Date): 'avant' | 'pendant' | 'apres' {
+  const d = baseDate || new Date();
+  const today = d.toISOString().split('T')[0];
+  if (today < DATE_DEBUT_STAGE) return 'avant';
+  if (today > DATE_FIN_STAGE) return 'apres';
+  return 'pendant';
+}
+
+/**
+ * Calcule le nombre de jours avant le stage
+ */
+export function getDaysUntilStage(baseDate?: Date): number {
+  const d = baseDate || new Date();
+  const diff = new Date(DATE_DEBUT_STAGE).getTime() - d.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+/**
+ * Calcule le nombre de jours avant l'examen
+ */
+export function getDaysUntilExam(baseDate?: Date): number {
+  const d = baseDate || new Date();
+  const diff = new Date(DATE_EXAMEN_ANTICIPE).getTime() - d.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
 /**
@@ -118,3 +165,4 @@ export function formatDateFr(dateStr: string): string {
   const date = new Date(dateStr);
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
 }
+
