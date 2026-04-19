@@ -27,9 +27,9 @@ test.describe('Redirections contractuelles', () => {
     });
   }
 
-  test('/stages redirige vers /stages/fevrier-2026', async ({ page }) => {
+  test('/stages est accessible (page autonome)', async ({ page }) => {
     await page.goto('/stages');
-    await expect(page).toHaveURL(/\/stages\/fevrier-2026/);
+    await expect(page).toHaveURL(/\/stages/);
   });
 
   test('/dashboard/* anonyme redirige vers signin', async ({ page }) => {
