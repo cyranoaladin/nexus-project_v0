@@ -56,8 +56,8 @@ export const ChapterCourse: React.FC<ChapterCourseProps> = ({ chap }) => {
               <tbody className="divide-y divide-slate-700/30">
                 {chap.contenu.tableau.map((row, i) => (
                   <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 text-white font-mono text-sm"><MathInline math={row.f} /></td>
-                    <td className="px-6 py-4 text-cyan-400 font-mono text-sm"><MathInline math={row.derivee} /></td>
+                    <td className="px-6 py-4 text-white font-mono text-sm"><MathRichText content={row.f} /></td>
+                    <td className="px-6 py-4 text-cyan-400 font-mono text-sm"><MathRichText content={row.derivee} /></td>
                   </tr>
                 ))}
               </tbody>
