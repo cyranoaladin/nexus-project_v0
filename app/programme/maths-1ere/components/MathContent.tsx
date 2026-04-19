@@ -42,12 +42,18 @@ export const MathBlock: React.FC<MathProps> = ({ math, className }) => {
 export const MathRichText: React.FC<{ content: string; className?: string }> = ({ content, className }) => {
   if (!content) return null;
 
+  // Pre-process common LaTeX escape issues from LLMs
+  const normalizedContent = content
+    .replace(/\\\[/g, '$$$$')
+    .replace(/\\\]/g, '$$$$')
+    .replace(/\\\(/g, '$')
+    .replace(/\\\)/g, '$');
+
   // Split by $$...$$ first (block), then by $...$ (inline)
-  // We use a non-capturing group for the split but keep the delimiters to identify them
-  const parts = content.split(/(\$\$[\s\S]*?\$\$|\$[^$]*?\$)/g);
+  const parts = normalizedContent.split(/(\$\$[\s\S]*?\$\$|\$[^$]*?\$)/g);
 
   return (
-    <div className={className}>
+    <div className={`leading-relaxed ${className}`}>
       {parts.map((part, index) => {
         if (!part) return null;
 
@@ -61,59 +67,31 @@ export const MathRichText: React.FC<{ content: string; className?: string }> = (
           return <MathInline key={index} math={math} />;
         }
 
-        // For the text parts, we handle basic HTML tags
-        // This is still a bit manual but safer than dangerouslySetInnerHTML
-        // and more flexible than the previous version.
-        const subParts = part.split(/(<[^>]+>)/g);
-        
+        // Handle text with basic formatting
         return (
-          <React.Fragment key={index}>
-            {subParts.map((sub, sIdx) => {
+          <span key={index} className="whitespace-pre-wrap">
+            {part.split(/(\*\*.*?\*\*|<br\s*\/?>|<code>.*?<\/code>)/gi).map((sub, sIdx) => {
               if (!sub) return null;
               
-              if (sub.toLowerCase() === '<br>' || sub.toLowerCase() === '<br/>' || sub.toLowerCase() === '<br />') {
+              if (sub.toLowerCase().startsWith('<br')) {
                 return <br key={sIdx} />;
               }
               
-              const markdownBoldMatch = sub.match(/\*\*(.*?)\*\*/g);
-              if (markdownBoldMatch) {
-                // This handles multiple bold parts in the same subpart
-                const parts = sub.split(/(\*\*.*?\*\*)/g);
+              if (sub.startsWith('**') && sub.endsWith('**')) {
+                return <strong key={sIdx} className="text-white font-bold">{sub.slice(2, -2)}</strong>;
+              }
+
+              if (sub.startsWith('<code>') && sub.endsWith('</code>')) {
                 return (
-                  <React.Fragment key={sIdx}>
-                    {parts.map((p, pIdx) => {
-                      if (p.startsWith('**') && p.endsWith('**')) {
-                        return <strong key={pIdx}>{p.slice(2, -2)}</strong>;
-                      }
-                      return p;
-                    })}
-                  </React.Fragment>
+                  <code key={sIdx} className="bg-slate-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[0.9em] border border-white/5">
+                    {sub.slice(6, -7)}
+                  </code>
                 );
-              }
-
-              const strongMatch = sub.match(/<(strong|b)>(.*?)<\/(strong|b)>/i);
-              if (strongMatch) {
-                return <strong key={sIdx}>{strongMatch[2]}</strong>;
-              }
-              
-              const emMatch = sub.match(/<(em|i)>(.*?)<\/(em|i)>/i);
-              if (emMatch) {
-                return <em key={sIdx}>{emMatch[2]}</em>;
-              }
-
-              const codeMatch = sub.match(/<code>(.*?)<\/code>/i);
-              if (codeMatch) {
-                return <code key={sIdx} className="bg-slate-800 px-1 rounded text-cyan-300">{codeMatch[1]}</code>;
-              }
-
-              // If it's another tag we don't handle, we strip it to be safe
-              if (sub.startsWith('<') && sub.endsWith('>')) {
-                return null;
               }
 
               return sub;
             })}
-          </React.Fragment>
+          </span>
         );
       })}
     </div>

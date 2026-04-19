@@ -32,7 +32,7 @@ const HINT_MALUS: Record<HintLevel, number> = {
   3: 0.0,   // -100% XP (solution complète = 0 XP)
 };
 
-interface MathsLabState {
+export interface MathsLabState {
   // ─── Progression ────────────────────────────────────────────────────────
   /** IDs of completed chapters */
   completedChapters: string[];

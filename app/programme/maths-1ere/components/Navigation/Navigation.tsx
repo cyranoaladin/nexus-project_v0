@@ -19,14 +19,15 @@ import { useMathsLabStore } from '../../store';
 import { resolveUiIcon } from '@/lib/ui-icons';
 
 interface NavigationProps {
-  activeTab: 'dashboard' | 'cours' | 'entrainement' | 'formulaire';
-  setActiveTab: (tab: 'dashboard' | 'cours' | 'entrainement' | 'formulaire') => void;
+  activeTab: 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
+  setActiveTab: (tab: 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan') => void;
   activeCat: string;
   setActiveCat: (cat: string) => void;
   activeChap: string;
   setActiveChap: (chap: string) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
+  isTeacher: boolean;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -38,6 +39,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   setActiveChap,
   isSidebarOpen,
   setIsSidebarOpen,
+  isTeacher,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCats, setExpandedCats] = useState<string[]>(['geometrie', 'analyse']); // Defaults
@@ -50,11 +52,15 @@ export const Navigation: React.FC<NavigationProps> = ({
   };
 
   const navItems = [
-    { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+    { id: 'cockpit', label: 'Cockpit Pédagogique', icon: LayoutDashboard },
     { id: 'cours', label: 'Programme & Cours', icon: BookOpen },
-    { id: 'entrainement', label: 'Entraînement', icon: Target },
-    { id: 'formulaire', label: 'Formulaire Interactif', icon: Calculator },
+    { id: 'examen', label: 'Objectif Épreuve', icon: Target },
+    { id: 'bilan', label: 'Mon Plan Final', icon: Calculator },
   ];
+
+  if (isTeacher) {
+    navItems.push({ id: 'enseignant', label: 'Pilotage Enseignant', icon: Command });
+  }
 
   const filteredData = Object.entries(programmeData).filter(([key, cat]) => {
     if (!searchQuery) return true;
