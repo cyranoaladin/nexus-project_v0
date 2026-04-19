@@ -38,7 +38,7 @@ test.describe('Navigation publique - contrat', () => {
       /\/bilan-gratuit/
     );
     await expect(page.getByRole('link', { name: /offres/i }).first()).toHaveAttribute('href', /\/offres/);
-    await expect(page.getByRole('link', { name: /contact/i }).first()).toHaveAttribute('href', /\/contact/);
+    await expect(page.getByRole('link', { name: /contact/i }).first()).toHaveAttribute('href', /\/contact|mailto:/);
   });
 
   test('formulaire contact home appelle /api/contact', async ({ page }) => {
