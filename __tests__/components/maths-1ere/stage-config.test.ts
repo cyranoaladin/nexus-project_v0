@@ -110,17 +110,32 @@ describe('getTodaySession', () => {
     expect(getTodaySession(new Date('2026-05-02'))).toBeNull();
   });
 
-  it('retourne la bonne séance pour le 20 avril', () => {
+  it('retourne la bonne séance pour le 20 avril (Français, journée double-mono)', () => {
     const session = getTodaySession(new Date('2026-04-20'));
     expect(session).not.toBeNull();
     expect(session?.date).toBe('2026-04-20');
+    expect(session?.matiere).toBe('Français');
+  });
+
+  it('retourne la séance Maths du 21 avril (Second Degré)', () => {
+    const session = getTodaySession(new Date('2026-04-21'), 'Mathématiques');
+    expect(session).not.toBeNull();
+    expect(session?.date).toBe('2026-04-21');
     expect(session?.theme).toContain('Second Degré');
   });
 
-  it('retourne la bonne séance pour le 29 avril (épreuve blanche)', () => {
+  it('retourne la bonne séance pour le 29 avril (Maths pratique)', () => {
     const session = getTodaySession(new Date('2026-04-29'));
     expect(session).not.toBeNull();
+    expect(session?.format).toBe('pratique');
+    expect(session?.matiere).toBe('Mathématiques');
+  });
+
+  it('retourne la séance blanche du 1er mai (Maths)', () => {
+    const session = getTodaySession(new Date('2026-05-01'));
+    expect(session).not.toBeNull();
     expect(session?.format).toBe('blanc');
+    expect(session?.matiere).toBe('Mathématiques');
   });
 });
 

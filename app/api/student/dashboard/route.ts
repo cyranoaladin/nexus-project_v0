@@ -53,6 +53,11 @@ export async function GET(request: NextRequest) {
             messages: true
           }
         },
+        creditTransactions: {
+          where: {
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
+          }
+        },
         badges: {
           include: {
             badge: true
@@ -103,6 +108,12 @@ export async function GET(request: NextRequest) {
       return count + messagesToday;
     }, 0);
 
+    // Compute credit balance from non-expired transactions
+    const creditBalance = (student.creditTransactions ?? []).reduce(
+      (sum, tx) => sum + (tx.amount ?? 0),
+      0
+    );
+
     // Format dashboard data
     const dashboardData = {
       student: {
@@ -138,6 +149,9 @@ export async function GET(request: NextRequest) {
           pseudonym: session.coach.pseudonym
         } : null
       })),
+      credits: {
+        balance: creditBalance,
+      },
       ariaStats: {
         messagesToday: ariaMessagesToday,
         totalConversations: student.ariaConversations.length

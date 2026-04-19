@@ -219,12 +219,24 @@ export async function POST(req: NextRequest) {
 
       if (conflictingSession) {
         throw ApiError.conflict('Coach already has a session at this time');
-      }      // 6. [CREDIT SYSTEM REMOVED] - Student record is verified but credits are no longer checked.
+      }      // 6. Validate student record and check credit balance
       const studentRecord = await tx.student.findFirst({
         where: { userId: validatedData.studentId }
       });
       if (!studentRecord) {
         throw ApiError.badRequest('Student record not found');
+      }
+
+      const creditTxs = await tx.creditTransaction.findMany({
+        where: {
+          studentId: studentRecord.id,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+      });
+      const creditBalance = creditTxs.reduce((sum, t) => sum + (t.amount ?? 0), 0);
+      const requiredCredits = validatedData.creditsToUse ?? 1;
+      if (creditBalance < requiredCredits) {
+        throw ApiError.badRequest('Insufficient credits');
       }
 
       // 7. Check if student already has a session at this time
@@ -279,7 +291,21 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // 9. [CREDIT SYSTEM REMOVED] - No USAGE transaction created.
+      // 9. Debit credits (idempotent: skip if USAGE already exists for this session)
+      const existingUsage = await tx.creditTransaction.findFirst({
+        where: { sessionId: sessionBooking.id, type: 'USAGE' },
+      });
+      if (!existingUsage) {
+        await tx.creditTransaction.create({
+          data: {
+            studentId: studentRecord.id,
+            type: 'USAGE',
+            amount: -Math.abs(requiredCredits),
+            description: `Booking: ${validatedData.title}`,
+            sessionId: sessionBooking.id,
+          },
+        });
+      }
 
       // Return post-commit context for side-effects (notifications, reminders)
       return {
