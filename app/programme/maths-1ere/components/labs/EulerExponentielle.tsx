@@ -8,7 +8,8 @@ export default function EulerExponentielle() {
   const [steps, setSteps] = useState(10);
   const [xMax, setXMax] = useState(3);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const store = useMathsLabStore();
+  const markEulerSteps = useMathsLabStore((s) => s.markEulerSteps);
+  const earnBadge = useMathsLabStore((s) => s.earnBadge);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -83,9 +84,9 @@ export default function EulerExponentielle() {
   }, [expanded, draw]);
 
   useEffect(() => {
-    store.markEulerSteps(steps);
-    if (steps >= 50) store.earnBadge('euler-fan');
-  }, [steps, store]);
+    markEulerSteps(steps);
+    if (steps >= 50) earnBadge('euler-fan');
+  }, [steps, markEulerSteps, earnBadge]);
 
   const eulerFinal = (() => {
     const h = xMax / steps;

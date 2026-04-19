@@ -28,9 +28,14 @@ export const MathInline: React.FC<MathProps> = ({ math, className }) => {
 export const MathBlock: React.FC<MathProps> = ({ math, className }) => {
   // Clean up potential double dollars
   const cleanMath = math.replace(/^\$\$+|\$\$+$/g, '');
+  // KaTeX warns about \\ in display mode without an environment.
+  // Wrap in aligned so multi-line formulas render correctly.
+  const finalMath = cleanMath.includes('\\\\')
+    ? `\\begin{aligned}${cleanMath}\\end{aligned}`
+    : cleanMath;
   return (
     <div className={`my-4 overflow-x-auto overflow-y-hidden py-2 ${className}`}>
-      <BlockMath math={cleanMath} />
+      <BlockMath math={finalMath} />
     </div>
   );
 };
