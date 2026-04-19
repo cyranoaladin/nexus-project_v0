@@ -35,9 +35,30 @@ describe('STAGE_PRINTEMPS_2026 — intégrité des données', () => {
       expect(Array.isArray(seance.objectifs)).toBe(true);
       expect(Array.isArray(seance.competences)).toBe(true);
       expect(['cours', 'pratique', 'blanc', 'bilan']).toContain(seance.format);
-      // chapitresClés must always be defined (array)
       expect(Array.isArray(seance.chapitresClés)).toBe(true);
+      expect(['Mathématiques', 'Français']).toContain(seance.matiere);
+      expect(seance.heureDebut).toBeTruthy();
+      expect(seance.heureFin).toBeTruthy();
     }
+  });
+
+  it('contient exactement 15 séances (8 Français + 7 Mathématiques)', () => {
+    const fr = STAGE_PRINTEMPS_2026.seances.filter(s => s.matiere === 'Français');
+    const ma = STAGE_PRINTEMPS_2026.seances.filter(s => s.matiere === 'Mathématiques');
+    expect(fr).toHaveLength(8);
+    expect(ma).toHaveLength(7);
+    expect(STAGE_PRINTEMPS_2026.seances).toHaveLength(15);
+  });
+
+  it('volumes horaires corrects (Français 16h, Maths 14h)', () => {
+    const frH = STAGE_PRINTEMPS_2026.seances
+      .filter(s => s.matiere === 'Français')
+      .reduce((s, v) => s + v.duree, 0);
+    const maH = STAGE_PRINTEMPS_2026.seances
+      .filter(s => s.matiere === 'Mathématiques')
+      .reduce((s, v) => s + v.duree, 0);
+    expect(frH).toBe(16);
+    expect(maH).toBe(14);
   });
 
   it('les séances sont ordonnées chronologiquement', () => {
