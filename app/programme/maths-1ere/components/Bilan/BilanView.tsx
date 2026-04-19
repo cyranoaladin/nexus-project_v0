@@ -91,7 +91,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
 
       {/* Bilan type selector */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {bilanTabs.map((tab) => (
+        {bilanTabs.map((tab: any) => (
           <button
             key={tab.id}
             onClick={() => setActiveBilan(tab.id)}
@@ -201,10 +201,9 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
             onToggle={() => toggleSection('plan')}
           >
             <div className="space-y-3">
-              {[
-                { semaine: 'Semaine 1', objectif: `Consolider ${priorites[0]?.chapTitre ?? 'les priorités identifiées'} + révisions SRS quotidiennes (20 min/jour)` },
+              {[{ semaine: 'Semaine 1', objectif: `Consolider ${priorites[0]?.chapTitre ?? 'les priorités identifiées'} + révisions SRS quotidiennes (20 min/jour)` },
                 { semaine: 'Semaine 2', objectif: `Travailler ${priorites[1]?.chapTitre ?? 'un deuxième chapitre prioritaire'} + mini-épreuve blanche en fin de semaine` },
-              ].map((item, i) => (
+              ].map((item: any, i: number) => (
                 <div key={i} className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-4">
                   <div className="font-bold text-cyan-400 text-xs uppercase tracking-wider mb-1">{item.semaine}</div>
                   <p className="text-sm text-slate-300">{item.objectif}</p>
@@ -217,7 +216,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
                     '10 min — Révisions SRS (plateforme)',
                     '20 min — Chapitre prioritaire ou exercice',
                     '5 min — Automatismes sans calculatrice',
-                  ].map((r, i) => (
+                  ].map((r: string, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
                       <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
                       {r}
@@ -268,7 +267,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
                 <div>
                   <h3 className="font-bold text-white mb-2">Points positifs</h3>
                   <div className="space-y-1">
-                    {forces.map((f) => (
+                    {forces.map((f: any) => (
                       <div key={f.chapId} className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
                         <span>{f.chapTitre} — bien maîtrisé ({f.percent}%)</span>
@@ -290,7 +289,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
               <div>
                 <h3 className="font-bold text-white mb-2">Ce que Nexus va faire</h3>
                 <div className="space-y-1">
-                  {STAGE_PRINTEMPS_2026.promessesNexus.slice(0, 5).map((p, i) => (
+                  {STAGE_PRINTEMPS_2026.promessesNexus.slice(0, 5).map((p: string, i: number) => (
                     <div key={i} className="flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-cyan-500 shrink-0" />
                       <span>{p}</span>
@@ -306,7 +305,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
                     '30 à 45 minutes de travail régulier quotidien (pas de session marathon rare)',
                     'Vérifier que les révisions SRS sont faites chaque soir (plateforme)',
                     'Encourager sans faire à la place — la démarche compte autant que le résultat',
-                  ].map((c, i) => (
+                  ].map((c: string, i: number) => (
                     <div key={i} className="flex items-center gap-2">
                       <span className="text-cyan-500">·</span>
                       <span>{c}</span>

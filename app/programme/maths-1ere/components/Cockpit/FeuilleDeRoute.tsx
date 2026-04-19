@@ -152,7 +152,7 @@ export const FeuilleDeRoute: React.FC<FeuilleDeRouteProps> = ({ onNavigate }) =>
 
                 {/* Etapes list */}
                 <div className={`space-y-2 ${!isCurrentPhase && 'opacity-60'}`}>
-                  {p.etapes.map((etape, i) => (
+                  {p.etapes.map((etape: any, i: number) => (
                     <div key={i} className="flex items-start gap-2.5">
                       {etape.done ? (
                         <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
@@ -208,7 +208,7 @@ export const FeuilleDeRoute: React.FC<FeuilleDeRouteProps> = ({ onNavigate }) =>
           Ce que Nexus s&apos;engage à vous fournir
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {STAGE_PRINTEMPS_2026.promessesNexus.map((promesse, i) => (
+          {STAGE_PRINTEMPS_2026.promessesNexus.map((promesse: string, i: number) => (
             <div key={i} className="flex items-start gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-cyan-500 shrink-0 mt-0.5" />
               <span className="text-xs text-slate-400">{promesse}</span>
