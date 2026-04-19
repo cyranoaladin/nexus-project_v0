@@ -97,8 +97,8 @@ export default function CoachStudentsPage() {
                     <p className="text-xs text-neutral-500">Dernière session : {s.lastSession || 'Aucune'}</p>
                   </div>
                   <div className="text-right">
-                    <span className={`font-medium ${s.creditBalance > 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                      {s.creditBalance} crédits
+                    <span className="text-xs text-neutral-500">
+                      {s.subject}
                     </span>
                   </div>
                 </div>

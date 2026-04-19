@@ -287,10 +287,7 @@ export default function DashboardCoach() {
                         </p>
                         <div className="flex items-center space-x-4 mt-2">
                           <span className="text-xs font-medium text-neutral-200">
-                            {student.isNew ? 'Nouveau élève' : 'Progression: 75%'}
-                          </span>
-                          <span className="text-xs text-neutral-400">
-                            {student.creditBalance.toFixed(1)} crédits restants
+                            {student.isNew ? 'Nouvel élève' : `Dernière session : ${new Date(student.lastSession).toLocaleDateString('fr-FR')}`}
                           </span>
                         </div>
                       </div>
