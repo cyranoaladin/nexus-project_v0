@@ -20,14 +20,12 @@ interface StudentCalendarWrapperProps {
   sessions: SessionData[];
   studentId: string;
   parentId?: string;
-  userCredits: number;
 }
 
 export const StudentCalendarWrapper = memo(function StudentCalendarWrapper({
   sessions,
   studentId,
   parentId,
-  userCredits,
 }: StudentCalendarWrapperProps) {
   const router = useRouter();
 
@@ -55,7 +53,6 @@ export const StudentCalendarWrapper = memo(function StudentCalendarWrapper({
       sessions={transformedSessions}
       studentId={studentId}
       parentId={parentId}
-      userCredits={userCredits}
       onBookingComplete={handleBookingComplete}
     />
   );

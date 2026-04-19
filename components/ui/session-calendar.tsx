@@ -34,7 +34,6 @@ interface SessionCalendarProps {
   sessions: SessionData[];
   studentId: string;
   parentId?: string;
-  userCredits: number;
   className?: string;
   onBookingComplete?: () => void;
 }
@@ -43,7 +42,6 @@ const SessionCalendarInner = memo(function SessionCalendarInner({
   sessions, 
   studentId, 
   parentId, 
-  userCredits, 
   className,
   onBookingComplete 
 }: SessionCalendarProps) {
@@ -294,7 +292,6 @@ const SessionCalendarInner = memo(function SessionCalendarInner({
         <SessionBooking
           studentId={studentId}
           parentId={parentId}
-          userCredits={userCredits}
           onBookingComplete={handleBookingComplete}
         />
       </DialogContent>

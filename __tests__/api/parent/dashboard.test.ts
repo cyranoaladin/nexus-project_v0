@@ -438,7 +438,7 @@ describe('GET /api/parent/dashboard', () => {
       expect(data.children[0].firstName).toBe('Alice');
       expect(data.children[0].lastName).toBe('Smith');
       expect(data.children[0].badges).toHaveLength(1);
-      expect(data.children[0].credits).toBe(50);
+      expect(data.children[0].progress).toBeDefined();
     });
   });
 });

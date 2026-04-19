@@ -244,7 +244,7 @@ describe('debitCredits', () => {
 
     // Assert
     expect(result.created).toBe(false);
-    expect(result.transaction.id).toBe('tx-race');
+    expect(result.transaction!.id).toBe('tx-race');
   });
 });
 

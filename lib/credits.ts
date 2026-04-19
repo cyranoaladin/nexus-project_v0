@@ -37,11 +37,6 @@ export async function refundCredits(studentId: string, amount: number, sessionId
   return { transaction: null, created: true };
 }
 
-// Remboursement de crédits (annulation, idempotent)
-export async function refundCredits(studentId: string, amount: number, sessionId: string, description: string) {
-  return { transaction: null, created: true };
-}
-
 // Remboursement basé sur une SessionBooking (idempotent et sûr en concurrence)
 export async function refundSessionBookingById(sessionBookingId: string, reason?: string) {
   return { ok: true };

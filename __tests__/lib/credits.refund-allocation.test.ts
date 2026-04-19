@@ -38,7 +38,7 @@ describe('refundCredits', () => {
     const result = await refundCredits('stu-1', 2, 'sess-1', 'Refund: cancellation');
 
     expect(result.created).toBe(true);
-    expect(result.transaction.type).toBe('REFUND');
+    expect(result.transaction!.type).toBe('REFUND');
     expect(prisma.creditTransaction.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -64,7 +64,7 @@ describe('refundCredits', () => {
     const result = await refundCredits('stu-1', 2, 'sess-1', 'Refund: cancellation');
 
     expect(result.created).toBe(false);
-    expect(result.transaction.id).toBe('ct-existing');
+    expect(result.transaction!.id).toBe('ct-existing');
     expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
   });
 
@@ -77,7 +77,7 @@ describe('refundCredits', () => {
     const result = await refundCredits('stu-1', 2, 'sess-1', 'Refund');
 
     expect(result.created).toBe(false);
-    expect(result.transaction.id).toBe('ct-race');
+    expect(result.transaction!.id).toBe('ct-race');
   });
 
   it('should throw on non-P2002 errors', async () => {
@@ -183,7 +183,7 @@ describe('refundSessionBookingById', () => {
 
     const result = await refundSessionBookingById('sb-1');
     expect(result.ok).toBe(true);
-    expect((result as any).transaction.type).toBe('REFUND');
+    expect((result as any).transaction!.type).toBe('REFUND');
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
