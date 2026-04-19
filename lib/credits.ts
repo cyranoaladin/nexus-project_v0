@@ -2,6 +2,10 @@ import { ServiceType } from '@/types/enums';
 import { prisma } from '@/lib/prisma';
 import { Prisma, SessionType, SessionModality } from '@prisma/client';
 
+// Defensive access: Prisma enums may be absent when @prisma/client is mocked in unit tests
+const SERIALIZABLE = (Prisma as unknown as { TransactionIsolationLevel?: { Serializable?: Prisma.TransactionIsolationLevel } })
+  ?.TransactionIsolationLevel?.Serializable ?? undefined;
+
 // Coûts des prestations en crédits
 const CREDIT_COSTS = {
   COURS_ONLINE: 1,
@@ -121,7 +125,7 @@ export async function refundSessionBookingById(sessionBookingId: string, reason?
         });
         return { ok: true, transaction: created };
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      SERIALIZABLE ? { isolationLevel: SERIALIZABLE } : undefined
     );
   } catch (e: unknown) {
     if ((e as { code?: string })?.code === 'P2034') {

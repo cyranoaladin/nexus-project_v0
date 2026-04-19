@@ -15,7 +15,8 @@ const prismaMock = {
 };
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: prismaMock,
+  // getter avoids TDZ: jest.mock is hoisted before const initialisation
+  get prisma() { return prismaMock; },
 }));
 
 jest.mock(
