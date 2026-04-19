@@ -17,6 +17,7 @@ const SUBSCRIPTION_PLANS = {
     name: "ACCÈS PLATEFORME",
     description: "L'essentiel pour commencer votre parcours d'excellence",
     price: 150,
+    sessions: 0,
     features: [
       "Accès 24/7 à la plateforme",
       "Suivi personnalisé",

@@ -294,8 +294,8 @@ describe('bookFullSessionSchema', () => {
     expect(bookFullSessionSchema.safeParse({ ...validInput, creditsToUse: 11 }).success).toBe(false);
   });
 
-  it('should reject creditsToUse < 1', () => {
-    expect(bookFullSessionSchema.safeParse({ ...validInput, creditsToUse: 0 }).success).toBe(false);
+  it('should accept creditsToUse: 0', () => {
+    expect(bookFullSessionSchema.safeParse({ ...validInput, creditsToUse: 0 }).success).toBe(true);
   });
 
   it('should reject title > 100 chars', () => {

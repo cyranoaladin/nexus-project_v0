@@ -147,9 +147,9 @@ describe('Session Validation Schemas', () => {
       expect(() => bookFullSessionSchema.parse(longDescription)).toThrow(ZodError);
     });
 
-    it('should reject creditsToUse < 1', () => {
+    it('should accept creditsToUse: 0', () => {
       const zeroCredits = { ...validInput, creditsToUse: 0 };
-      expect(() => bookFullSessionSchema.parse(zeroCredits)).toThrow(ZodError);
+      expect(() => bookFullSessionSchema.parse(zeroCredits)).not.toThrow();
     });
 
     it('should reject creditsToUse > 10', () => {

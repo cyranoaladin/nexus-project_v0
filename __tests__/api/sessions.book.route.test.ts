@@ -268,14 +268,8 @@ describe('POST /api/sessions/book', () => {
     expect(body.sessionId).toBe('session-1');
 
     expect(tx.sessionBooking.create).toHaveBeenCalled();
-    expect(tx.creditTransaction.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          amount: -2,
-          sessionId: 'session-1',
-        }),
-      })
-    );
+    // Credit transaction removed in decoupled model
+    expect(tx.creditTransaction.create).not.toHaveBeenCalled();
     // Side-effects are now post-commit on prisma (not tx)
     expect(prisma.sessionNotification.createMany).toHaveBeenCalled();
     expect(prisma.sessionReminder.createMany).toHaveBeenCalled();
