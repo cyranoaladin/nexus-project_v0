@@ -1,5 +1,6 @@
 import { ServiceType } from '@/types/enums';
-import { SessionType, SessionModality } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { Prisma, SessionType, SessionModality } from '@prisma/client';
 
 // Coûts des prestations en crédits
 const CREDIT_COSTS = {
@@ -22,34 +23,146 @@ export function calculateCreditCost(serviceType: ServiceType): number {
   }
 }
 
-// Vérification du solde de crédits (DÉSACTIVÉ : toujours vrai)
 export async function checkCreditBalance(studentId: string, requiredCredits: number): Promise<boolean> {
-  return true; 
+  const transactions = await prisma.creditTransaction.findMany({
+    where: {
+      studentId,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
+  });
+  const balance = transactions.reduce((sum, tx) => sum + (tx.amount ?? 0), 0);
+  return balance >= requiredCredits;
 }
 
-// Débit des crédits pour une session (DÉSACTIVÉ : no-op)
-export async function debitCredits(studentId: string, amount: number, sessionId: string, description: string) {
-  return { transaction: null, created: true };
+export async function debitCredits(
+  studentId: string,
+  amount: number,
+  sessionId: string,
+  description: string
+): Promise<{ transaction: Prisma.CreditTransactionGetPayload<object> | null; created: boolean }> {
+  const existing = await prisma.creditTransaction.findFirst({
+    where: { sessionId, type: 'USAGE' },
+  });
+  if (existing) return { transaction: existing, created: false };
+
+  try {
+    const created = await prisma.creditTransaction.create({
+      data: { studentId, type: 'USAGE', amount: -Math.abs(amount), description, sessionId },
+    });
+    return { transaction: created, created: true };
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === 'P2002') {
+      const found = await prisma.creditTransaction.findFirst({
+        where: { sessionId, type: 'USAGE' },
+      });
+      if (found) return { transaction: found, created: false };
+    }
+    throw e;
+  }
 }
 
-// Remboursement de crédits (DÉSACTIVÉ : no-op)
-export async function refundCredits(studentId: string, amount: number, sessionId: string, description: string) {
-  return { transaction: null, created: true };
+export async function refundCredits(
+  studentId: string,
+  amount: number,
+  sessionId: string,
+  description: string
+): Promise<{ transaction: Prisma.CreditTransactionGetPayload<object> | null; created: boolean }> {
+  const existing = await prisma.creditTransaction.findFirst({
+    where: { sessionId, type: 'REFUND' },
+  });
+  if (existing) return { transaction: existing, created: false };
+
+  try {
+    const created = await prisma.creditTransaction.create({
+      data: { studentId, type: 'REFUND', amount: Math.abs(amount), description, sessionId },
+    });
+    return { transaction: created, created: true };
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === 'P2002') {
+      const found = await prisma.creditTransaction.findFirst({
+        where: { sessionId, type: 'REFUND' },
+      });
+      if (found) return { transaction: found, created: false };
+    }
+    throw e;
+  }
 }
 
-// Remboursement basé sur une SessionBooking (idempotent et sûr en concurrence)
 export async function refundSessionBookingById(sessionBookingId: string, reason?: string) {
-  return { ok: true };
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        const booking = await tx.sessionBooking.findUnique({
+          where: { id: sessionBookingId },
+          select: { id: true, status: true, creditsUsed: true, studentId: true, title: true },
+        });
+        if (!booking) return { ok: false, reason: 'SESSION_NOT_FOUND' as const };
+        if (booking.status !== 'CANCELLED') return { ok: false, reason: 'NOT_CANCELLED' as const };
+
+        const existingRefund = await tx.creditTransaction.findFirst({
+          where: { sessionId: booking.id, type: 'REFUND' },
+        });
+        if (existingRefund) return { ok: true, alreadyRefunded: true as const };
+
+        const studentEntity = await tx.student.findFirst({
+          where: { userId: booking.studentId },
+          select: { id: true },
+        });
+        if (!studentEntity) return { ok: false, reason: 'STUDENT_NOT_FOUND' as const };
+
+        const created = await tx.creditTransaction.create({
+          data: {
+            studentId: studentEntity.id,
+            type: 'REFUND',
+            amount: Math.abs(booking.creditsUsed ?? 0),
+            description: `Refund: ${reason ?? booking.title ?? 'Session cancelled'}`,
+            sessionId: booking.id,
+          },
+        });
+        return { ok: true, transaction: created };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+    );
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === 'P2034') {
+      const existingRefund = await prisma.creditTransaction.findFirst({
+        where: { sessionId: sessionBookingId, type: 'REFUND' },
+      });
+      if (existingRefund) return { ok: true, alreadyRefunded: true as const };
+    }
+    throw e;
+  }
 }
 
-// Attribution des crédits mensuels
 export async function allocateMonthlyCredits(studentId: string, credits: number) {
-  return null;
+  const expiresAt = new Date();
+  expiresAt.setMonth(expiresAt.getMonth() + 2);
+  return prisma.creditTransaction.create({
+    data: {
+      studentId,
+      type: 'MONTHLY_ALLOCATION',
+      amount: Math.abs(credits),
+      description: `Allocation mensuelle de ${credits} crédits`,
+      expiresAt,
+    },
+  });
 }
 
-// Expiration des crédits reportés
 export async function expireOldCredits() {
-  return;
+  const expired = await prisma.creditTransaction.findMany({
+    where: { type: 'MONTHLY_ALLOCATION', expiresAt: { lt: new Date() } },
+  });
+  if (!expired.length) return;
+  for (const tx of expired) {
+    await prisma.creditTransaction.create({
+      data: {
+        studentId: tx.studentId,
+        type: 'EXPIRATION',
+        amount: -Math.abs(tx.amount),
+        description: `Expiration crédits (allocation ${tx.id})`,
+      },
+    });
+  }
 }
 
 /**
