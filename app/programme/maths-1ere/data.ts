@@ -746,7 +746,7 @@ export const programmeData: Record<string, Categorie> = {
           rappel:
             "Le produit scalaire est un outil pour calculer longueurs et angles. $\\vec{u} \\cdot \\vec{v} = ||\\vec{u}|| \\times ||\\vec{v}|| \\times \\cos(\\vec{u},\\vec{v})$.",
           methode:
-            "$$\\text{Analytique : } \\vec{u}(x;y) \\cdot \\vec{v}(x';y') = xx'+yy' \\\\ \\text{Orthogonalité : } \\vec{u} \\perp \\vec{v} \\iff \\vec{u} \\cdot \\vec{v} = 0 \\\\ \\text{Al-Kashi : } a^2 = b^2+c^2-2bc\\cos(A)$$ symbols and formulas",
+            "$$\\text{Analytique : } \\vec{u}(x;y) \\cdot \\vec{v}(x';y') = xx'+yy' \\\\ \\text{Orthogonalité : } \\vec{u} \\perp \\vec{v} \\iff \\vec{u} \\cdot \\vec{v} = 0 \\\\ \\text{Al-Kashi : } a^2 = b^2+c^2-2bc\\cos(A)$$",
           astuce:
             "Utilisez Al-Kashi pour les triangles quelconques. Si $\\cos(A)=0$, le triangle est rectangle en $A$.",
           exercice: {
