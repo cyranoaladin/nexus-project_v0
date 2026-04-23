@@ -226,11 +226,12 @@ export async function predictSSNForStudent(
   weeklyHours: number = 3,
   methodologyScore?: number
 ): Promise<PredictionResult | null> {
-  // Fetch SSN history via raw query (table may not be in generated client yet)
-  const history = await prisma.$queryRawUnsafe<{ ssn: number; date: Date }[]>(
-    `SELECT "ssn", "date" FROM "progression_history" WHERE "studentId" = $1 ORDER BY "date" ASC`,
-    studentId
-  );
+  // F18 — Fetch SSN history via Prisma client typé
+  const history = await prisma.progressionHistory.findMany({
+    where: { studentId },
+    orderBy: { date: 'asc' },
+    select: { ssn: true, date: true },
+  });
 
   if (history.length === 0) return null;
 
@@ -259,19 +260,19 @@ export async function predictSSNForStudent(
     ssnHistory
   );
 
-  // Persist to projection_history
+  // F18 — Persist to projection_history via Prisma client typé
   const { createId } = await import('@paralleldrive/cuid2');
-  await prisma.$executeRawUnsafe(
-    `INSERT INTO "projection_history" ("id", "studentId", "ssnProjected", "confidenceIndex", "modelVersion", "inputSnapshot", "createdAt")
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    createId(),
-    studentId,
-    ssnProjected,
-    confidence,
-    MODEL_VERSION,
-    JSON.stringify(input),
-    new Date()
-  );
+  await prisma.projectionHistory.create({
+    data: {
+      id: createId(),
+      studentId,
+      ssnProjected,
+      confidenceIndex: confidence,
+      modelVersion: MODEL_VERSION,
+      inputSnapshot: input as unknown as import('@prisma/client').Prisma.InputJsonValue,
+      createdAt: new Date(),
+    },
+  });
 
   return {
     ssnProjected,

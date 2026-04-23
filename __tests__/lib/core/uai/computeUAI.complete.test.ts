@@ -125,7 +125,7 @@ describe('computeUAI', () => {
 
 describe('computeAndPersistUAI', () => {
   it('should return null when fewer than 2 subjects', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([
       { subject: 'MATHS', ssn: 70, id: 'a1' },
     ]);
 
@@ -134,67 +134,70 @@ describe('computeAndPersistUAI', () => {
   });
 
   it('should return null when no assessments found', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([]);
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([]);
 
     const result = await computeAndPersistUAI('student@example.com');
     expect(result).toBeNull();
   });
 
   it('should compute and persist UAI for 2+ subjects', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([
       { subject: 'MATHS', ssn: 70, id: 'a1' },
       { subject: 'NSI', ssn: 60, id: 'a2' },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
 
     const result = await computeAndPersistUAI('student@example.com');
 
     expect(result).not.toBeNull();
     expect(result!.uai).toBe(66);
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(2);
+    expect(prisma.assessment.update).toHaveBeenCalledTimes(2);
   });
 
-  it('should persist UAI on each assessment', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+  it('should persist UAI to assessments via Prisma', async () => {
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([
       { subject: 'MATHS', ssn: 80, id: 'a1' },
       { subject: 'NSI', ssn: 70, id: 'a2' },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
 
     await computeAndPersistUAI('student@example.com');
 
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('UPDATE'),
-      expect.any(Number),
-      'a1'
-    );
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('UPDATE'),
-      expect.any(Number),
-      'a2'
-    );
+    expect(prisma.assessment.update).toHaveBeenCalledTimes(2);
+    expect(prisma.assessment.update).toHaveBeenCalledWith({
+      where: { id: 'a1' },
+      data: { uai: expect.any(Number) },
+    });
+    expect(prisma.assessment.update).toHaveBeenCalledWith({
+      where: { id: 'a2' },
+      data: { uai: expect.any(Number) },
+    });
   });
 
   it('should use custom weights when provided', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([
       { subject: 'MATHS', ssn: 80, id: 'a1' },
       { subject: 'NSI', ssn: 60, id: 'a2' },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
 
     const result = await computeAndPersistUAI('student@example.com', { MATHS: 0.5, NSI: 0.5 });
 
     expect(result!.uai).toBe(70);
   });
 
-  it('should query with correct student email', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([]);
+  it('should query with correct student email via Prisma', async () => {
+    prisma.assessment.findMany = jest.fn().mockResolvedValue([]);
 
     await computeAndPersistUAI('test@example.com');
 
-    expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('studentEmail'),
-      'test@example.com'
-    );
+    expect(prisma.assessment.findMany).toHaveBeenCalledWith({
+      where: {
+        studentEmail: 'test@example.com',
+        ssn: { not: null },
+      },
+      orderBy: [{ subject: 'asc' }, { createdAt: 'desc' }],
+      select: { subject: true, ssn: true, id: true },
+    });
   });
 });

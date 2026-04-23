@@ -6,11 +6,13 @@ import {
   Search, 
   BookOpen, 
   PenSquare, 
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle,
+  Lock
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { type Chapitre, type Categorie } from '../../../data';
-import { type HintLevel } from '../../../store';
+import { type HintLevel, useMathsLabStore } from '../../../store';
 import { MathInline, MathRichText } from '../../MathContent';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
@@ -39,6 +41,7 @@ interface ChapterPracticeProps {
   onRecordDiagnostic: (score: number, total: number) => void;
   onRecordExerciseResult: (chapId: string, score: number) => void;
   onRecordHintUsage: (level: HintLevel) => void;
+  onNavigateToChap?: (chapId: string) => void;
 }
 
 export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
@@ -48,10 +51,18 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
   chapId,
   onRecordDiagnostic,
   onRecordExerciseResult,
-  onRecordHintUsage
+  onRecordHintUsage,
+  onNavigateToChap
 }) => {
   const [hintLevel, setHintLevel] = useState(0);
   const [showSolution, setShowSolution] = useState(false);
+
+  // F39: Check if prerequisites are met
+  const store = useMathsLabStore();
+  const missingPrerequis = chap.prerequis?.filter(
+    (pre) => !store.completedChapters.includes(pre)
+  ) ?? [];
+  const hasMissingPrerequis = missingPrerequis.length > 0;
 
   const handleHintClick = (level: HintLevel) => {
     const newLevel = hintLevel === level ? level - 1 : level;
@@ -63,6 +74,23 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
 
   return (
     <div className="space-y-10">
+      {/* F39: Prerequis Warning */}
+      {hasMissingPrerequis && (
+        <div className="bg-amber-950/30 rounded-2xl p-4 border border-amber-600/30">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-amber-400 mb-1">
+                Prérequis non validés
+              </p>
+              <p className="text-xs text-amber-300/80">
+                Ce chapitre nécessite : {missingPrerequis.join(', ')}. Finalisez ces chapitres d&apos;abord.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Prerequis Diagnostic */}
       {chap.prerequisDiagnostic && (
         <div className="bg-slate-900/40 rounded-2xl p-6 border border-slate-700/30">
@@ -70,6 +98,7 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
             chapId={chapId}
             questions={chap.prerequisDiagnostic}
             onComplete={onRecordDiagnostic}
+            onNavigateToChap={onNavigateToChap}
           />
         </div>
       )}
@@ -238,6 +267,12 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
           />
         )}
         {chapId === 'exponentielle' && <EulerExponentielle />}
+        {chapId === 'geometrie-vectorielle' && (
+          <InteractiveGraph 
+            geogebraId="mKpfXqZQ" 
+            title="Géométrie Vectorielle — Repère et Vecteurs" 
+          />
+        )}
       </section>
     </div>
   );

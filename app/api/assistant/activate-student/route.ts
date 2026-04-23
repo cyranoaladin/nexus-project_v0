@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
     const result = await initiateStudentActivation(
       parsed.data.studentUserId,
       parsed.data.studentEmail,
-      session.user.role
+      session.user.role,
+      session.user.id
     );
 
     if (!result.success) {

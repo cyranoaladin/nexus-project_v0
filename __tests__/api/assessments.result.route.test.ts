@@ -90,13 +90,20 @@ describe('GET /api/assessments/[id]/result', () => {
       status: 'ANALYZED',
       errorCode: null,
       createdAt: new Date('2026-02-15'),
+      ssn: 68.5,
     });
     mockIsCompleted.mockReturnValue(true);
-    prisma.$queryRawUnsafe
-      .mockResolvedValueOnce([{ ssn: 68.5 }]) // SSN query
-      .mockResolvedValueOnce([{ domain: 'analysis', score: 80 }, { domain: 'algebra', score: 60 }]) // domain scores
-      .mockResolvedValueOnce([{ skillTag: 'suites', score: 40 }]) // skill scores
-      .mockResolvedValueOnce([{ ssn: 50 }, { ssn: 60 }, { ssn: 70 }]); // cohort SSNs
+    // F18 — Mock Prisma models
+    prisma.domainScore.findMany.mockResolvedValue([
+      { domain: 'analysis', score: 80 },
+      { domain: 'algebra', score: 60 },
+    ]);
+    prisma.skillScore.findMany.mockResolvedValue([
+      { skillTag: 'suites', score: 40 },
+    ]);
+    prisma.assessment.findMany.mockResolvedValue([
+      { ssn: 50 }, { ssn: 60 }, { ssn: 70 },
+    ]);
 
     const res = await GET(...makeRequest('a1'));
     const body = await res.json();
@@ -126,12 +133,12 @@ describe('GET /api/assessments/[id]/result', () => {
       status: 'SCORE_ONLY',
       errorCode: 'LLM_GENERATION_FAILED',
       createdAt: new Date(),
+      ssn: null,
     });
     mockIsCompleted.mockReturnValue(true);
-    prisma.$queryRawUnsafe
-      .mockResolvedValueOnce([{ ssn: null }])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+    // F18 — Mock Prisma models
+    prisma.domainScore.findMany.mockResolvedValue([]);
+    prisma.skillScore.findMany.mockResolvedValue([]);
 
     const res = await GET(...makeRequest('a1'));
     const body = await res.json();

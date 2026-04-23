@@ -39,6 +39,17 @@ describe('assistant credit-requests', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('F14 — ADMIN can GET credit-requests -> 200', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.creditTransaction.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await GET(makeRequest());
+
+    expect(response.status).toBe(200);
+  });
+
   it('GET returns formatted credit requests', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

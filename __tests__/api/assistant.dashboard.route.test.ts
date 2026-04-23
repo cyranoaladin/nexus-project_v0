@@ -39,6 +39,27 @@ describe('GET /api/assistant/dashboard', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('F14 — ADMIN can GET dashboard -> 200', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.student.count as jest.Mock).mockResolvedValue(0);
+    (prisma.coachProfile.count as jest.Mock).mockResolvedValue(0);
+    (prisma.sessionBooking.count as jest.Mock).mockResolvedValue(0);
+    (prisma.payment.aggregate as jest.Mock).mockResolvedValue({ _sum: { amount: 0 } });
+    (prisma.subscription.aggregate as jest.Mock).mockResolvedValue({ _sum: { monthlyPrice: 0 } });
+    (prisma.user.count as jest.Mock).mockResolvedValue(0);
+    (prisma.payment.count as jest.Mock).mockResolvedValue(0);
+    (prisma.creditTransaction.count as jest.Mock).mockResolvedValue(0);
+    (prisma.subscriptionRequest.count as jest.Mock).mockResolvedValue(0);
+    (prisma.diagnostic.count as jest.Mock).mockResolvedValue(0);
+    (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await GET(makeRequest());
+
+    expect(response.status).toBe(200);
+  });
+
   it('returns dashboard data for assistant', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

@@ -1,5 +1,5 @@
 /**
- * Programme Maths Terminale Progress API — Complete Test Suite
+ * Programme Maths Terminale Progress API — Complete Test Suite (F16/F17 Prisma)
  *
  * Tests: GET & POST /api/programme/maths-terminale/progress
  *
@@ -10,21 +10,25 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(),
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    mathsProgress: {
+      upsert: jest.fn(),
+      findUnique: jest.fn(),
+    },
+  },
 }));
 
 import { GET, POST } from '@/app/api/programme/maths-terminale/progress/route';
 import { auth } from '@/auth';
-import { createClient } from '@supabase/supabase-js';
+import { prisma } from '@/lib/prisma';
 
 const mockAuth = auth as jest.Mock;
-const mockCreateClient = createClient as jest.Mock;
+const mockUpsert = prisma.mathsProgress.upsert as jest.Mock;
+const mockFindUnique = prisma.mathsProgress.findUnique as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 });
 
 const validPayload = {
@@ -57,27 +61,16 @@ describe('GET /api/programme/maths-terminale/progress', () => {
     expect(body.error).toContain('Authentication');
   });
 
-  it('should return local-only when Supabase not configured', async () => {
+  it('should return data from Prisma with level TERMINALE', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-
-    const res = await GET();
-    const body = await res.json();
-
-    expect(res.status).toBe(200);
-    expect(body.ok).toBe(true);
-    expect(body.mode).toBe('local-only');
-  });
-
-  it('should return data from Supabase when configured', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
-
-    const mockSingle = jest.fn().mockResolvedValue({ data: { total_xp: 200 }, error: null });
-    const mockEq = jest.fn().mockReturnValue({ single: mockSingle });
-    const mockSelect = jest.fn().mockReturnValue({ eq: mockEq });
-    const mockFrom = jest.fn().mockReturnValue({ select: mockSelect });
-    mockCreateClient.mockReturnValue({ from: mockFrom } as any);
+    mockFindUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      level: 'TERMINALE',
+      completedChapters: ['ch1'],
+      totalXp: 200,
+      errorTags: { signe: 1 },
+    });
 
     const res = await GET();
     const body = await res.json();
@@ -85,18 +78,16 @@ describe('GET /api/programme/maths-terminale/progress', () => {
     expect(res.status).toBe(200);
     expect(body.ok).toBe(true);
     expect(body.data.total_xp).toBe(200);
+    expect(mockFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId_level: { userId: 'u1', level: 'TERMINALE' } },
+      })
+    );
   });
 
-  it('should return null data when no record found (PGRST116)', async () => {
+  it('should return null data when no record found', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
-
-    const mockSingle = jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'Not found' } });
-    const mockEq = jest.fn().mockReturnValue({ single: mockSingle });
-    const mockSelect = jest.fn().mockReturnValue({ eq: mockEq });
-    const mockFrom = jest.fn().mockReturnValue({ select: mockSelect });
-    mockCreateClient.mockReturnValue({ from: mockFrom } as any);
+    mockFindUnique.mockResolvedValue(null);
 
     const res = await GET();
     const body = await res.json();
@@ -134,25 +125,9 @@ describe('POST /api/programme/maths-terminale/progress', () => {
     expect(body.error).toContain('Invalid');
   });
 
-  it('should return local-only when Supabase not configured', async () => {
+  it('should persist to Prisma with level TERMINALE', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-
-    const res = await POST(makeRequest(validPayload));
-    const body = await res.json();
-
-    expect(res.status).toBe(200);
-    expect(body.ok).toBe(true);
-    expect(body.mode).toBe('local-only');
-  });
-
-  it('should persist to Supabase when configured', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
-
-    const mockUpsert = jest.fn().mockResolvedValue({ error: null });
-    const mockFrom = jest.fn().mockReturnValue({ upsert: mockUpsert });
-    mockCreateClient.mockReturnValue({ from: mockFrom } as any);
+    mockUpsert.mockResolvedValue({ id: 'p1', userId: 'u1', level: 'TERMINALE' });
 
     const res = await POST(makeRequest(validPayload));
     const body = await res.json();
@@ -160,21 +135,20 @@ describe('POST /api/programme/maths-terminale/progress', () => {
     expect(res.status).toBe(200);
     expect(body.ok).toBe(true);
     expect(body.persisted).toBe(true);
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId_level: { userId: 'u1', level: 'TERMINALE' } },
+        create: expect.objectContaining({ userId: 'u1', level: 'TERMINALE' }),
+        update: expect.any(Object),
+      })
+    );
   });
 
-  it('should return 500 on Supabase error', async () => {
+  it('should return 500 on Prisma error', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1' } } as any);
-    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
-
-    const mockUpsert = jest.fn().mockResolvedValue({ error: { message: 'DB error' } });
-    const mockFrom = jest.fn().mockReturnValue({ upsert: mockUpsert });
-    mockCreateClient.mockReturnValue({ from: mockFrom } as any);
+    mockUpsert.mockRejectedValue(new Error('DB error'));
 
     const res = await POST(makeRequest(validPayload));
-    const body = await res.json();
-
     expect(res.status).toBe(500);
-    expect(body.persisted).toBe(false);
   });
 });

@@ -1,3 +1,10 @@
+/**
+ * F53: LEGACY — Cette page est en cours d'extinction
+ * La nouvelle surface canonique est /stages/[stageSlug]/bilan/[reservationId]
+ * Migration: Les réservations avec scoringResult devraient rediriger vers la nouvelle surface
+ * @deprecated Utiliser /stages/[stageSlug]/bilan/[reservationId] avec BilanClient canonique
+ */
+
 import { notFound, redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import type { Metadata } from 'next';
@@ -20,7 +27,19 @@ export default async function BilanPage({ params }: PageProps) {
 
   const reservation = await prisma.stageReservation.findUnique({
     where: { id: reservationId },
+    include: {
+      stage: {
+        select: {
+          slug: true,
+        },
+      },
+    },
   });
+
+  // F53: Migration vers nouvelle surface si stageSlug existe
+  if (reservation?.stage?.slug && reservation.stage.slug !== 'fevrier-2026') {
+    redirect(`/stages/${reservation.stage.slug}/bilan/${reservationId}`);
+  }
 
   if (!reservation) {
     notFound();

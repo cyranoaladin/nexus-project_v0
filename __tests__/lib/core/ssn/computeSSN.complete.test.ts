@@ -189,24 +189,29 @@ describe('computeAndPersistSSN', () => {
     expect(result).toBeNull();
   });
 
-  it('should persist SSN via raw SQL', async () => {
+  it('should persist SSN via Prisma client', async () => {
     prisma.assessment.findUnique.mockResolvedValue({
       subject: 'MATHS',
       globalScore: 70,
       confidenceIndex: 80,
       scoringResult: null,
     });
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
-    prisma.$queryRawUnsafe.mockResolvedValue([{ studentId: null }]);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
+    prisma.assessment.findUnique.mockResolvedValueOnce({
+      subject: 'MATHS',
+      globalScore: 70,
+      confidenceIndex: 80,
+      scoringResult: null,
+      studentId: null,
+    });
 
     const result = await computeAndPersistSSN('assess-1');
 
     expect(result).not.toBeNull();
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('UPDATE'),
-      expect.any(Number),
-      'assess-1'
-    );
+    expect(prisma.assessment.update).toHaveBeenCalledWith({
+      where: { id: 'assess-1' },
+      data: { ssn: expect.any(Number) },
+    });
   });
 
   it('should create progression history when studentId exists', async () => {
@@ -216,20 +221,27 @@ describe('computeAndPersistSSN', () => {
       confidenceIndex: 80,
       scoringResult: null,
     });
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
-    prisma.$queryRawUnsafe.mockResolvedValue([{ studentId: 'stu-1' }]);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
+    prisma.assessment.findUnique.mockResolvedValueOnce({
+      subject: 'MATHS',
+      globalScore: 70,
+      confidenceIndex: 80,
+      scoringResult: null,
+      studentId: 'stu-1',
+    });
+    prisma.progressionHistory.create = jest.fn().mockResolvedValue({});
 
     await computeAndPersistSSN('assess-1');
 
-    // Should have 2 $executeRawUnsafe calls: UPDATE + INSERT
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(2);
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO "progression_history"'),
-      expect.any(String),
-      'stu-1',
-      expect.any(Number),
-      expect.any(Date)
-    );
+    expect(prisma.assessment.update).toHaveBeenCalled();
+    expect(prisma.progressionHistory.create).toHaveBeenCalledWith({
+      data: {
+        id: expect.any(String),
+        studentId: 'stu-1',
+        ssn: expect.any(Number),
+        date: expect.any(Date),
+      },
+    });
   });
 
   it('should not create progression history when no studentId', async () => {
@@ -239,13 +251,19 @@ describe('computeAndPersistSSN', () => {
       confidenceIndex: 80,
       scoringResult: null,
     });
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
-    prisma.$queryRawUnsafe.mockResolvedValue([{ studentId: null }]);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
+    prisma.assessment.findUnique.mockResolvedValueOnce({
+      subject: 'MATHS',
+      globalScore: 70,
+      confidenceIndex: 80,
+      scoringResult: null,
+      studentId: null,
+    });
 
     await computeAndPersistSSN('assess-1');
 
-    // Only 1 $executeRawUnsafe call: UPDATE (no INSERT)
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(1);
+    expect(prisma.assessment.update).toHaveBeenCalled();
+    expect(prisma.progressionHistory?.create).not.toHaveBeenCalled();
   });
 });
 
@@ -262,17 +280,17 @@ describe('recomputeSSNBatch', () => {
     expect(result.cohort.std).toBe(15);
   });
 
-  it('should update all assessments with new SSN', async () => {
+  it('should update all assessments with new SSN via Prisma', async () => {
     prisma.assessment.findMany.mockResolvedValue([
       { id: 'a1', globalScore: 60, confidenceIndex: 70, scoringResult: null },
       { id: 'a2', globalScore: 80, confidenceIndex: 90, scoringResult: null },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
 
     const result = await recomputeSSNBatch('MATHS');
 
     expect(result.updated).toBe(2);
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(2);
+    expect(prisma.assessment.update).toHaveBeenCalledTimes(2);
   });
 
   it('should include cohort stats in result', async () => {

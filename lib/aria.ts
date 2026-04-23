@@ -1,6 +1,7 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { prisma } from './prisma';
+import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
@@ -26,70 +27,16 @@ STYLE :
 
 Tu représentes l'excellence de Nexus Réussite.`;
 
-// Génération d'embedding (New: Phase 2)
-export async function generateEmbedding(text: string): Promise<number[]> {
-  try {
-    // Si pas de clé OpenAI (dev avec Ollama), on retourne un vecteur vide pour éviter le crash
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'ollama') {
-        console.warn("ARIA: Mode Ollama détecté ou clé manquante, recherche vectorielle désactivée.");
-        return []; 
-    }
-
-    const response = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: text.replace(/\n/g, ' '),
-    });
-    return response.data[0].embedding;
-  } catch (error) {
-    console.warn("ARIA: Erreur génération embedding", error);
-    return [];
-  }
-}
-
-// Recherche dans la base de connaissances (RAG Vectoriel + Fallback)
+// Recherche dans la base de connaissances (RAG canonique via ChromaDB)
+// F19+F24+F26: pgvector désactivé — ChromaDB est le seul backend RAG actif
+// Ingestion ChromaDB opérée hors-repo par infra-ingestor-1 (voir docs/RAG_ARCHITECTURE.md)
 async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  try {
-    // 1. Tenter la recherche vectorielle
-    const queryEmbedding = await generateEmbedding(query);
-    
-    if (queryEmbedding.length > 0) {
-        const vectorQuery = `[${queryEmbedding.join(',')}]`;
-        
-        // Requête brute pour pgvector
-        const contents: any[] = await prisma.$queryRaw`
-          SELECT id, title, content, 
-                 1 - (embedding_vector <=> ${vectorQuery}::vector) as similarity
-          FROM "pedagogical_contents"
-          WHERE subject = ${subject}::"Subject"
-          AND 1 - (embedding_vector <=> ${vectorQuery}::vector) > 0.4 
-          ORDER BY embedding_vector <=> ${vectorQuery}::vector ASC
-          LIMIT ${limit};
-        `;
-        
-        if (contents.length > 0) {
-            console.log(`ARIA: ${contents.length} résultats vectoriels trouvés pour "${query}"`);
-            return contents;
-        }
-    }
-  } catch (error) {
-      console.error("ARIA: Échec recherche vectorielle, bascule sur recherche mot-clé.", error);
-  }
-
-  // 2. Fallback: Recherche textuelle simple (si vectoriel échoue ou pas de résultats)
-  console.log(`ARIA: Recherche mot-clé fallback pour "${query}"`);
-  const contents = await prisma.pedagogicalContent.findMany({
-    where: {
-      subject,
-      OR: [
-        { title: { contains: query } }, // removed mode: insensitive as it might not be supported by all adapters or types
-        { content: { contains: query } },
-      ]
-    },
-    take: limit,
-    orderBy: { createdAt: 'desc' }
+  const hits = await ragSearch({
+    query,
+    k: limit,
+    filters: { subject: subject.toLowerCase() },
   });
-
-  return contents.map(c => ({ ...c, similarity: 0 })); // Score 0 pour keyword search
+  return hits;
 }
 
 // Génération de réponse ARIA
@@ -100,20 +47,9 @@ export async function generateAriaResponse(
   conversationHistory: Array<{ role: string; content: string; }> = []
 ): Promise<string> {
   try {
-    // Recherche dans la base de connaissances
-    const knowledgeBase = await searchKnowledgeBase(message, subject);
-
-    // Construction du contexte
-    let context = '';
-    if (knowledgeBase.length > 0) {
-      context = '\n\nCONTEXTE NEXUS RÉUSSITE (Sources vérifiées) :\n';
-      knowledgeBase.forEach((content, index) => {
-        const score = content.similarity > 0 ? `(Pertinence: ${Math.round(content.similarity * 100)}%)` : '';
-        context += `${index + 1}. ${content.title} ${score}\n${content.content}\n\n`;
-      });
-    } else {
-        context = '\n\nNote: Aucune source spécifique trouvée dans la base Nexus. Réponds avec tes connaissances générales de manière prudente.\n';
-    }
+    // Recherche dans la base de connaissances (RAG canonique)
+    const hits = await searchKnowledgeBase(message, subject);
+    const context = buildRAGContext(hits);
 
     // Construction des messages pour OpenAI
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -202,18 +138,9 @@ export async function generateAriaStream(
   conversationHistory: Array<{ role: string; content: string; }> = [],
   onComplete?: (fullResponse: string) => Promise<void>
 ): Promise<ReadableStream> {
-  // Recherche dans la base de connaissances
-  const knowledgeBase = await searchKnowledgeBase(message, subject);
-
-  // Construction du contexte
-  let context = '';
-  if (knowledgeBase.length > 0) {
-    context = '\n\nCONTEXTE NEXUS RÉUSSITE (Sources vérifiées) :\n';
-    knowledgeBase.forEach((content, index) => {
-        const score = content.similarity > 0 ? `(Pertinence: ${Math.round(content.similarity * 100)}%)` : '';
-      context += `${index + 1}. ${content.title} ${score}\n${content.content}\n\n`;
-    });
-  }
+  // Recherche dans la base de connaissances (RAG canonique)
+  const hits = await searchKnowledgeBase(message, subject);
+  const context = buildRAGContext(hits);
 
   // Construction des messages pour OpenAI
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

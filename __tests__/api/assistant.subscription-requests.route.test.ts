@@ -35,6 +35,18 @@ describe('assistant subscription-requests', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('F14 — ADMIN can GET subscription-requests -> 200', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.subscriptionRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.subscriptionRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const response = await GET(makeRequest(undefined, 'http://localhost:3000/api/assistant/subscription-requests?status=PENDING&page=1&limit=20'));
+
+    expect(response.status).toBe(200);
+  });
+
   it('GET returns paginated requests', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

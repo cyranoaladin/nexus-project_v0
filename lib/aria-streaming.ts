@@ -1,6 +1,6 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
-import { prisma } from './prisma';
+import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
@@ -26,19 +26,13 @@ STYLE :
 Tu représentes l'excellence de Nexus Réussite.`;
 
 async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  const contents = await prisma.pedagogicalContent.findMany({
-    where: {
-      subject,
-      OR: [
-        { title: { contains: query } },
-        { content: { contains: query } },
-      ]
-    },
-    take: limit,
-    orderBy: { createdAt: 'desc' }
+  // F26: Use canonical RAG circuit (ChromaDB via ragSearch)
+  const hits = await ragSearch({
+    query,
+    k: limit,
+    filters: { subject: subject.toLowerCase() },
   });
-
-  return contents;
+  return hits;
 }
 
 export async function generateAriaResponseStream(
@@ -47,15 +41,8 @@ export async function generateAriaResponseStream(
   message: string,
   conversationHistory: Array<{ role: string; content: string; }> = []
 ): Promise<ReadableStream> {
-  const knowledgeBase = await searchKnowledgeBase(message, subject);
-
-  let context = '';
-  if (knowledgeBase.length > 0) {
-    context = '\n\nCONTEXTE NEXUS RÉUSSITE :\n';
-    knowledgeBase.forEach((content, index) => {
-      context += `${index + 1}. ${content.title}\n${content.content}\n\n`;
-    });
-  }
+  const hits = await searchKnowledgeBase(message, subject);
+  const context = buildRAGContext(hits);
 
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     {

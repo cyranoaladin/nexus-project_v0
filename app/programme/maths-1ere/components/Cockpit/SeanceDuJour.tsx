@@ -4,15 +4,39 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Calendar, BookOpen, Target, ChevronRight } from 'lucide-react';
 import { getTodaySession, formatDateFr } from '../../config/stage';
+import { programmeData } from '../../data';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;
+}
+
+// F44: Helper to find catKey for a given chapter id
+function findCatKeyForChapter(chapId: string): string | null {
+  for (const [catKey, cat] of Object.entries(programmeData)) {
+    if (cat.chapitres.some((chap) => chap.id === chapId)) {
+      return catKey;
+    }
+  }
+  return null;
 }
 
 export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap }) => {
   const session = getTodaySession(undefined, 'Mathématiques');
 
   if (!session) return null;
+
+  // F44: Navigate with dynamically resolved catKey
+  const handleLaunchSession = () => {
+    if (session.chapitresClés.length > 0) {
+      const chapId = session.chapitresClés[0];
+      const catKey = findCatKeyForChapter(chapId);
+      if (catKey) {
+        onNavigateToChap(catKey, chapId);
+      } else {
+        console.warn(`[F44] Chapter ${chapId} not found in any category`);
+      }
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -82,11 +106,7 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap }) 
 
           <div className="shrink-0 flex flex-col gap-3">
             <button 
-              onClick={() => {
-                if (session.chapitresClés.length > 0) {
-                   onNavigateToChap('algebre', session.chapitresClés[0]);
-                }
-              }}
+              onClick={handleLaunchSession}
               className="group flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-cyan-600/20 hover:brightness-110 transition-all active:scale-95"
             >
               <BookOpen className="h-5 w-5" />

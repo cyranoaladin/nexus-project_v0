@@ -7,18 +7,15 @@ export const dynamic = 'force-dynamic';
  * Body: { chapId: string, chapTitre: string, query?: string }
  *
  * Builds a semantically rich query from chapter context + user query,
- * then searches via ChromaDB (ragSearchBySubject) with premiere+maths filters,
- * falling back to pgvector (lib/aria.ts) if the ingestor is unavailable.
+ * then searches via ChromaDB (ragSearch) with premiere+maths filters.
+ * F26: pgvector fallback removed — ChromaDB is the canonical RAG source.
  *
- * Returns: { hits: RAGHit[], source: 'chroma' | 'pgvector' | 'none' }
+ * Returns: { hits: RAGHit[], source: 'chroma' | 'none' }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { ragSearch, buildRAGContext } from '@/lib/rag-client';
-import { generateEmbedding } from '@/lib/aria';
-import { prisma } from '@/lib/prisma';
-import { Subject } from '@prisma/client';
 import { z } from 'zod';
 
 const bodySchema = z.object({
@@ -112,48 +109,10 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    console.warn('[RAG maths-1ere] Nexus RAG API unavailable, falling back to pgvector:', err);
+    console.warn('[RAG maths-1ere] Nexus RAG API unavailable:', err);
   }
 
-  // ── Circuit B: pgvector fallback ────────────────────────────────────────────
-  try {
-    const embedding = await generateEmbedding(semanticQuery);
-
-    if (embedding.length > 0) {
-      const vectorQuery = `[${embedding.join(',')}]`;
-      const rows = await prisma.$queryRaw<
-        Array<{ id: string; title: string; content: string; similarity: number }>
-      >`
-        SELECT id, title, content,
-               1 - (embedding_vector <=> ${vectorQuery}::vector) AS similarity
-        FROM "pedagogical_contents"
-        WHERE subject = ${Subject.MATHEMATIQUES}::"Subject"
-          AND 1 - (embedding_vector <=> ${vectorQuery}::vector) > 0.35
-        ORDER BY embedding_vector <=> ${vectorQuery}::vector ASC
-        LIMIT 5;
-      `;
-
-      if (rows.length > 0) {
-        return NextResponse.json({
-          hits: rows.map((r) => ({
-            id: r.id,
-            document: r.content,
-            score: Math.round(r.similarity * 100),
-            metadata: { title: r.title, subject: 'maths', level: 'premiere' },
-          })),
-          context: rows.map((r, i) =>
-            `[${i + 1}] ${r.title} (Pertinence: ${Math.round(r.similarity * 100)}%)\n${r.content}`
-          ).join('\n\n'),
-          source: 'pgvector' as const,
-          query: semanticQuery,
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('[RAG maths-1ere] pgvector fallback failed:', err);
-  }
-
-  // ── No results ──────────────────────────────────────────────────────────────
+  // ── No results ─────────────────────────────────────────────────────────────-
   return NextResponse.json({
     hits: [],
     context: '',

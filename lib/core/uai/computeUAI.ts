@@ -117,34 +117,43 @@ export async function computeAndPersistUAI(
   studentEmail: string,
   weights: UAIWeights = DEFAULT_UAI_WEIGHTS
 ): Promise<UAIResult | null> {
-  // Fetch latest SSN per subject for this student
-  const latestAssessments = await prisma.$queryRawUnsafe<
-    { subject: string; ssn: number; id: string }[]
-  >(
-    `SELECT DISTINCT ON ("subject") "subject", "ssn", "id"
-     FROM "assessments"
-     WHERE "studentEmail" = $1 AND "ssn" IS NOT NULL
-     ORDER BY "subject", "createdAt" DESC`,
-    studentEmail
-  );
+  // F18 — Fetch latest SSN per subject for this student via Prisma
+  // Note: DISTINCT ON is PostgreSQL-specific; we use groupBy-like pattern with Prisma
+  const assessments = await prisma.assessment.findMany({
+    where: {
+      studentEmail,
+      ssn: { not: null },
+    },
+    orderBy: [{ subject: 'asc' }, { createdAt: 'desc' }],
+    select: { subject: true, ssn: true, id: true },
+  });
+
+  // Group by subject and take first (latest) for each
+  const seenSubjects = new Set<string>();
+  const latestAssessments = assessments.filter((a) => {
+    if (seenSubjects.has(a.subject)) return false;
+    seenSubjects.add(a.subject);
+    return true;
+  });
 
   if (latestAssessments.length < 2) return null; // Need at least 2 subjects for UAI
 
   const ssnBySubject: Record<string, number> = {};
   for (const a of latestAssessments) {
-    ssnBySubject[a.subject] = a.ssn;
+    if (a.ssn !== null) {
+      ssnBySubject[a.subject] = a.ssn;
+    }
   }
 
   const result = computeUAI(ssnBySubject, weights);
   if (!result) return null;
 
-  // Persist UAI on the most recent assessment for each subject
+  // F18 — Persist UAI on the most recent assessment for each subject via Prisma
   for (const a of latestAssessments) {
-    await prisma.$executeRawUnsafe(
-      `UPDATE "assessments" SET "uai" = $1 WHERE "id" = $2`,
-      result.uai,
-      a.id
-    );
+    await prisma.assessment.update({
+      where: { id: a.id },
+      data: { uai: result.uai },
+    });
   }
 
   return result;

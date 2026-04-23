@@ -80,6 +80,16 @@ export interface MathsLabState {
   newtonBestIterations: number | null;
   printedFiche: boolean;
 
+  // ─── Exam Blanc Persistence (F41) ────────────────────────────────────────
+  /** Persisted exam state */
+  examState: {
+    autoStates: Record<string, { reponse: string; revealed: boolean; selfScore?: 0 | 0.5 | 1 }>;
+    exScores: Record<string, number>;
+    elapsedSeconds: number;
+    isActive: boolean;
+    lastUpdated: string | null;
+  };
+
   // ─── Hydration (remote sync) ──────────────────────────────────────────
   /** Whether the store has been hydrated from remote */
   isHydrated: boolean;
@@ -124,6 +134,10 @@ export interface MathsLabState {
   resetProgress: () => void;
   setHydrationStatus: (status: { isHydrated: boolean; canWriteRemote: boolean; hydrationError: string | null }) => void;
   unlockChapter: (chapId: string) => void;
+
+  // ─── Exam Blanc Actions (F41) ────────────────────────────────────────────
+  saveExamState: (state: { autoStates: Record<string, { reponse: string; revealed: boolean; selfScore?: 0 | 0.5 | 1 }>; exScores: Record<string, number>; elapsedSeconds: number; isActive: boolean }) => void;
+  clearExamState: () => void;
 }
 
 // ─── SRS Types ──────────────────────────────────────────────────────────────
@@ -339,6 +353,13 @@ export const useMathsLabStore = create<MathsLabState>()(
       canWriteRemote: false,
       hydrationError: null,
       srsQueue: {},
+      examState: {
+        autoStates: {},
+        exScores: {},
+        elapsedSeconds: 0,
+        isActive: false,
+        lastUpdated: null,
+      },
 
       // ─── Computed ───────────────────────────────────────────────────────
       getNiveau: () => getNiveau(get().totalXP),
@@ -630,6 +651,31 @@ export const useMathsLabStore = create<MathsLabState>()(
         set((state) => {
           if (state.completedChapters.includes(chapId)) return state;
           return { completedChapters: [...state.completedChapters, chapId] };
+        });
+      },
+
+      // ─── Exam Blanc Actions (F41) ─────────────────────────────────────────
+      saveExamState: (examData) => {
+        set({
+          examState: {
+            autoStates: examData.autoStates,
+            exScores: examData.exScores,
+            elapsedSeconds: examData.elapsedSeconds,
+            isActive: examData.isActive,
+            lastUpdated: new Date().toISOString(),
+          },
+        });
+      },
+
+      clearExamState: () => {
+        set({
+          examState: {
+            autoStates: {},
+            exScores: {},
+            elapsedSeconds: 0,
+            isActive: false,
+            lastUpdated: null,
+          },
         });
       },
 

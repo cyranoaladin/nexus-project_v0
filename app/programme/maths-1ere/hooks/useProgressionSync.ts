@@ -2,15 +2,34 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useMathsLabStore } from '../store';
-import { 
-  loadProgressWithStatus, 
-  saveProgress, 
-  type MathsLabRow 
-} from '../lib/supabase';
 
 const PROGRESS_API_ROUTE = '/api/programme/maths-1ere/progress';
 
-type ProgressPayload = Omit<MathsLabRow, 'id' | 'user_id' | 'updated_at'>;
+// F16/F17 — Progress payload matching API contract (Prisma source of truth)
+interface ProgressPayload {
+  completed_chapters: string[];
+  mastered_chapters: string[];
+  total_xp: number;
+  quiz_score: number;
+  combo_count: number;
+  best_combo: number;
+  streak: number;
+  streak_freezes: number;
+  last_activity_date: string | null;
+  daily_challenge: Record<string, unknown>;
+  exercise_results: Record<string, number[]>;
+  hint_usage: Record<string, number>;
+  badges: string[];
+  srs_queue: Record<string, unknown>;
+  diagnostic_results?: Record<string, unknown>;
+  time_per_chapter?: Record<string, number>;
+  formulaire_viewed?: boolean;
+  grand_oral_seen?: number;
+  lab_archimede_opened?: boolean;
+  euler_max_steps?: number;
+  newton_best_iterations?: number | null;
+  printed_fiche?: boolean;
+}
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
   let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
@@ -21,6 +40,35 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
     return await Promise.race([promise, timeoutPromise]);
   } finally {
     if (timeoutHandle) clearTimeout(timeoutHandle);
+  }
+}
+
+// F16/F17 — Load progress from API route (Prisma source of truth)
+async function loadProgressFromApi(userId: string): Promise<
+  | { status: 'ok'; data: ProgressPayload | null }
+  | { status: 'error'; data: null; error: string }
+> {
+  try {
+    const response = await fetch(PROGRESS_API_ROUTE, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { status: 'error', data: null, error: 'Authentication required' };
+      }
+      return { status: 'error', data: null, error: `HTTP ${response.status}` };
+    }
+
+    const result = await response.json();
+    if (result.ok && result.data) {
+      return { status: 'ok', data: result.data as ProgressPayload };
+    }
+    return { status: 'ok', data: null };
+  } catch (error) {
+    return { status: 'error', data: null, error: String(error) };
   }
 }
 
@@ -102,13 +150,8 @@ export function useProgressionSync(userId: string) {
         return true;
       }
 
-      const viaSupabase = await saveProgress(userId, payload);
-      if (viaSupabase) {
-        pendingPayloadRef.current = null;
-        setSyncError(null);
-        return true;
-      }
-
+      // F16/F17 — API route is the only canonical persistence layer
+      // localStorage (Zustand persist) remains as local cache only
       pendingPayloadRef.current = payload;
       setSyncError('Échec de sauvegarde. La progression sera réessayée automatiquement.');
       return false;
@@ -130,7 +173,7 @@ export function useProgressionSync(userId: string) {
         });
 
         const remoteResult = await withTimeout(
-          loadProgressWithStatus(userId),
+          loadProgressFromApi(userId),
           2500,
           { status: 'error', data: null, error: TIMEOUT_MARKER } as const
         );

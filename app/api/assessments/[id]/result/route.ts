@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { AssessmentStatus } from '@prisma/client';
 import { scoringResultSchema, analysisJsonSchema, safeParse } from '@/lib/assessments/core/schemas';
 import { computePercentile } from '@/lib/core/statistics/normalize';
 import { computeCohortStats } from '@/lib/core/statistics/cohort';
@@ -40,6 +41,7 @@ export async function GET(
         status: true,
         errorCode: true,
         createdAt: true,
+        ssn: true,
       },
     });
 
@@ -64,23 +66,15 @@ export async function GET(
 
     // ─── Learning Graph v2: SSN, domain scores, skill scores ────────────────
 
-    // Fetch SSN via raw query (column may not be in generated client yet)
-    const ssnRows = await prisma.$queryRawUnsafe<{ ssn: number | null }[]>(
-      `SELECT "ssn" FROM "assessments" WHERE "id" = $1`,
-      id
-    );
-    const ssn = ssnRows[0]?.ssn ?? null;
+    // F18 — Fetch SSN via Prisma (already loaded in assessment, but ensure fresh value)
+    const ssn = assessment.ssn ?? null;
 
-    // Fetch domain scores
-    let domainScores: { domain: string; score: number }[] = [];
-    try {
-      domainScores = await prisma.$queryRawUnsafe<{ domain: string; score: number }[]>(
-        `SELECT "domain", "score" FROM "domain_scores" WHERE "assessmentId" = $1 ORDER BY "score" DESC`,
-        id
-      );
-    } catch {
-      // Table may not exist yet in dev — graceful fallback
-    }
+    // F18 — Fetch domain scores via Prisma client typé
+    const domainScores = await prisma.domainScore.findMany({
+      where: { assessmentId: id },
+      orderBy: { score: 'desc' },
+      select: { domain: true, score: true },
+    });
 
     // Backfill canonical domains: ensure all expected domains are present (0 if absent)
     const canonical = getCanonicalDomains(assessment.subject);
@@ -90,35 +84,30 @@ export async function GET(
       score: domainMap.get(domain) ?? 0,
     }));
 
-    // Fetch skill scores
-    let skillScores: { skillTag: string; score: number }[] = [];
-    try {
-      skillScores = await prisma.$queryRawUnsafe<{ skillTag: string; score: number }[]>(
-        `SELECT "skillTag", "score" FROM "skill_scores" WHERE "assessmentId" = $1 ORDER BY "score" ASC`,
-        id
-      );
-    } catch {
-      // Table may not exist yet in dev — graceful fallback
-    }
+    // F18 — Fetch skill scores via Prisma client typé
+    const skillScores = await prisma.skillScore.findMany({
+      where: { assessmentId: id },
+      orderBy: { score: 'asc' },
+      select: { skillTag: true, score: true },
+    });
 
     // ─── Cohort stats (strict: COMPLETED only, same subject) ────────────────
 
     const cohortStats = await computeCohortStats({ type: assessment.subject });
 
-    // Compute cohort percentile if SSN is available
+    // F18 — Compute cohort percentile if SSN is available via Prisma
     let percentile: number | null = null;
     if (ssn !== null) {
-      try {
-        const cohortSSNs = await prisma.$queryRawUnsafe<{ ssn: number }[]>(
-          `SELECT "ssn" FROM "assessments" WHERE "subject" = $1 AND "status" = ANY($2) AND "ssn" IS NOT NULL`,
-          assessment.subject,
-          COMPLETED_STATUSES as unknown as string[]
-        );
-        const distribution = cohortSSNs.map((r) => r.ssn);
-        percentile = computePercentile(ssn, distribution);
-      } catch {
-        // Graceful fallback
-      }
+      const cohortAssessments = await prisma.assessment.findMany({
+        where: {
+          subject: assessment.subject,
+          status: { in: COMPLETED_STATUSES as unknown as AssessmentStatus[] },
+          ssn: { not: null },
+        },
+        select: { ssn: true },
+      });
+      const distribution = cohortAssessments.map((a) => a.ssn!);
+      percentile = computePercentile(ssn, distribution);
     }
 
     // Determine LLM generation status for UI fallback
