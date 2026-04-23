@@ -16,13 +16,23 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testMatch: [
-    '**/__tests__/integration/**/*.test.ts',
-    '**/__tests__/security/**/*.test.ts',
-    '**/*.real.test.ts',
+    '**/__tests__/**/*.test.(js|ts|tsx)',
+    '**/*.test.(js|ts|tsx)',
   ],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/nexus-src/',
+    '<rootDir>/e2e/',
+    '<rootDir>/__tests__/e2e/',
+    '<rootDir>/__tests__/concurrency/',
+    '<rootDir>/__tests__/database/',
+    '<rootDir>/__tests__/db/',
+    '<rootDir>/__tests__/transactions/',
+    // Exclude integration/security real DB tests from unit job
+    '\\.real\\.test\\.ts$',
+    '<rootDir>/__tests__/integration/',
+    '<rootDir>/__tests__/security/',
   ],
 };
 

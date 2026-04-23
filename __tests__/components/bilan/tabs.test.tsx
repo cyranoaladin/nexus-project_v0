@@ -46,22 +46,7 @@ describe('F52: BilanTabs', () => {
     expect(onChange).toHaveBeenCalledWith('parents');
   });
 
-  it('should hide tabs when show props are false', () => {
-    render(
-      <BilanTabs
-        activeAudience="student"
-        onAudienceChange={() => {}}
-        showParents={false}
-        showNexus={false}
-      />
-    );
-
-    expect(screen.getByText('Élève')).toBeInTheDocument();
-    expect(screen.queryByText('Parents')).not.toBeInTheDocument();
-    expect(screen.queryByText('Nexus')).not.toBeInTheDocument();
-  });
-
-  it('should return null when only one tab visible', () => {
+  it('should return null when only one tab visible (hiding others)', () => {
     const { container } = render(
       <BilanTabs
         activeAudience="student"
@@ -73,6 +58,7 @@ describe('F52: BilanTabs', () => {
 
     // Component returns null when only one tab visible
     expect(container.firstChild).toBeNull();
+    expect(screen.queryByText('Élève')).not.toBeInTheDocument();
   });
 
   it('should apply disabled state', () => {

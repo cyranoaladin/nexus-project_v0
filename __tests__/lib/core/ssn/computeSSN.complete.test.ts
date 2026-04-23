@@ -220,15 +220,9 @@ describe('computeAndPersistSSN', () => {
       globalScore: 70,
       confidenceIndex: 80,
       scoringResult: null,
-    });
-    prisma.assessment.update = jest.fn().mockResolvedValue({});
-    prisma.assessment.findUnique.mockResolvedValueOnce({
-      subject: 'MATHS',
-      globalScore: 70,
-      confidenceIndex: 80,
-      scoringResult: null,
       studentId: 'stu-1',
     });
+    prisma.assessment.update = jest.fn().mockResolvedValue({});
     prisma.progressionHistory.create = jest.fn().mockResolvedValue({});
 
     await computeAndPersistSSN('assess-1');
