@@ -34,6 +34,19 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
+    // RBAC: Force coachId if role is COACH
+    const userRole = (authResponse as any).user.role;
+    const userId = (authResponse as any).user.id;
+    let forcedCoachId = null;
+    
+    if (userRole === 'COACH') {
+      const coachProfile = await prisma.coachProfile.findUnique({ where: { userId } });
+      if (!coachProfile) {
+        return NextResponse.json({ success: false, error: 'Profil coach introuvable' }, { status: 403 });
+      }
+      forcedCoachId = coachProfile.id;
+    }
+
     // Build where clause
     const where: Record<string, unknown> = {};
     if (type) where.type = type;
@@ -41,7 +54,13 @@ export async function GET(request: NextRequest) {
     if (subject) where.subject = subject;
     if (studentId) where.studentId = studentId;
     if (stageId) where.stageId = stageId;
-    if (coachId) where.coachId = coachId;
+    
+    if (forcedCoachId) {
+      where.coachId = forcedCoachId;
+    } else if (coachId) {
+      where.coachId = coachId;
+    }
+    
     if (isPublished !== null) where.isPublished = isPublished === 'true';
 
     // Fetch bilans
@@ -97,6 +116,24 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Missing required fields: type, subject, studentEmail, studentName' },
         { status: 400 }
       );
+    }
+
+    // RBAC: Validate coachId if role is COACH
+    const userRole = (authResponse as any).user.role;
+    const userId = (authResponse as any).user.id;
+    
+    if (userRole === 'COACH') {
+      const coachProfile = await prisma.coachProfile.findUnique({ where: { userId } });
+      if (!coachProfile) {
+        return NextResponse.json({ success: false, error: 'Profil coach introuvable' }, { status: 403 });
+      }
+      if (body.coachId && body.coachId !== coachProfile.id) {
+        return NextResponse.json({ success: false, error: 'Interdit de créer un bilan pour un autre coach' }, { status: 403 });
+      }
+      // Force assignment if not provided
+      if (!body.coachId) {
+        body.coachId = coachProfile.id;
+      }
     }
 
     // Create bilan

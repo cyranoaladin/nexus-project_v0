@@ -128,6 +128,8 @@ export async function computeAndPersistUAI(
     select: { subject: true, ssn: true, id: true },
   });
 
+  if (!Array.isArray(assessments) || assessments.length === 0) return null;
+
   // Group by subject and take first (latest) for each
   const seenSubjects = new Set<string>();
   const latestAssessments = assessments.filter((a) => {
