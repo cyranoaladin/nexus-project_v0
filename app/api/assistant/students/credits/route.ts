@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'ASSISTANTE') {
+    if (!session || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'ASSISTANTE') {
+    if (!session || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

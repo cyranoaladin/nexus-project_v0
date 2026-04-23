@@ -16,6 +16,8 @@ ssh "$REMOTE_HOST" "set -e
   git stash pop || true
   echo 'Après : \$(git rev-parse --short HEAD)'
   npm ci
+  npx prisma migrate deploy
+  npx prisma generate
   NODE_OPTIONS='--max-old-space-size=8192' npm run build
   cp -r public .next/standalone/
   cp -r .next/static .next/standalone/.next/

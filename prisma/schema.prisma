@@ -129,6 +129,9 @@ model User {
   // Stage document uploads
   stageDocumentsUploaded StageDocument[] @relation("StageDocumentUploader")
 
+  // Maths progression (Première and Terminale)
+  mathsProgress MathsProgress[]
+
   @@index([role])
   @@map("users")
 }
@@ -193,6 +196,9 @@ model Student {
   stageReservations    StageReservation[]    @relation("StudentStageReservations")
   stageBilans          StageBilan[]          @relation("StudentStageBilans")
 
+  // Bilan canonical (F49/F51)
+  bilans               Bilan[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -229,6 +235,9 @@ model CoachProfile {
   stageSessions    StageSession[]  @relation("CoachStageSessions")
   stageBilans      StageBilan[]    @relation("CoachStageBilans")
   stageAssignments StageCoach[]    @relation("CoachStageAssignments")
+
+  // Bilan canonical (F49/F51)
+  bilans           Bilan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -504,8 +513,7 @@ model PedagogicalContent {
   grade   String? // Niveau scolaire
 
   // Métadonnées pour la recherche vectorielle
-  embedding        Json                    @default("[]") // Legacy: kept for compatibility
-  embedding_vector Unsupported("vector")? // New: pgvector support (1536 dimensions)
+  embedding_vector Unsupported("vector")? // pgvector support (1536 dimensions)
   tags             Json                    @default("[]") // Tags de catégorisation
 
   createdAt DateTime @default(now())
@@ -934,6 +942,9 @@ model Stage {
   bilans       StageBilan[]
   coaches      StageCoach[]
 
+  // Bilan canonical relations (F49/F51)
+  canonicalBilans Bilan[]
+
   @@index([slug])
   @@index([startDate])
   @@map("stages")
@@ -1157,6 +1168,100 @@ model Assessment {
   @@index([ssn])
   @@index([createdAt])
   @@map("assessments")
+}
+
+// ─── Bilan Canonical Model (F49/F51) — Unified report model consolidating Diagnostic, Assessment, StageBilan
+
+enum BilanType {
+  DIAGNOSTIC_PRE_STAGE // Legacy Diagnostic (Pallier 2, formulaire compétences)
+  ASSESSMENT_QCM       // Legacy Assessment (QCM universel multi-matière)
+  STAGE_POST           // Legacy StageBilan (rapport coach fin de stage)
+  CONTINUOUS           // Maths 1ère BilanView (progression temps réel)
+}
+
+enum BilanStatus {
+  PENDING
+  SCORING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+model Bilan {
+  id            String @id @default(cuid())
+  publicShareId String @unique @default(cuid()) // Secure public access token
+
+  // Typologie
+  type    BilanType // Canonical type
+  subject String      // MATHS, NSI, GENERAL, etc.
+
+  // Source identification (for migration traceability)
+  legacyDiagnosticId  String? @unique // FK to legacy Diagnostic (read-only after migration)
+  legacyAssessmentId  String? @unique // FK to legacy Assessment (read-only after migration)
+  legacyStageBilanId  String? @unique // FK to legacy StageBilan (read-only after migration)
+
+  // Source data (union of raw inputs from all sources)
+  sourceData Json? // Union type: Diagnostic.data | Assessment.answers | StageBilan metadata
+
+  // Student linkage (unified across sources)
+  studentId    String?
+  student      Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  studentEmail String
+  studentName  String
+  studentPhone String?
+
+  // Relations (optional based on type)
+  stageId String?
+  stage   Stage?  @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
+
+  // Scores (normalized across all sources)
+  globalScore     Float? // 0-100
+  confidenceIndex Float? // 0-100 (self-awareness)
+  ssn             Float? // Score Standardisé Nexus (z-score 0-100)
+  uai             Float? // Unified Academic Index (multi-discipline)
+  domainScores    Json?  // Array of { domain: string, score: number }
+
+  // Renders (tri-destinataire — common to all bilan types)
+  studentMarkdown String? @db.Text // Élève: bienveillant, tutoiement
+  parentsMarkdown String? @db.Text // Parents: professionnel, vouvoiement
+  nexusMarkdown   String? @db.Text // Nexus: technique, factuel
+
+  // Structured analysis (optional, LLM-generated)
+  analysisJson Json? // { forces, faiblesses, plan, ressources, qualityFlags }
+
+  // Publication lifecycle
+  status      BilanStatus @default(PENDING)
+  progress    Int         @default(0) // 0-100
+  isPublished Boolean     @default(false)
+  publishedAt DateTime?
+
+  // Error tracking
+  errorCode    String? // e.g., "OLLAMA_TIMEOUT", "RAG_UNAVAILABLE"
+  errorDetails String? @db.Text
+  retryCount   Int     @default(0)
+
+  // Versioning
+  sourceVersion String? // e.g., "diagnostic_v1.3", "assessment_v2.1"
+  engineVersion String? // e.g., "llm_qwen2.5:32b", "manual_coach"
+  ragUsed       Boolean @default(false)
+  ragCollections String[] // Collections used for RAG context
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([type, status])
+  @@index([studentId])
+  @@index([studentEmail])
+  @@index([stageId])
+  @@index([publicShareId])
+  @@index([legacyDiagnosticId])
+  @@index([legacyAssessmentId])
+  @@index([createdAt])
+  @@map("bilans")
 }
 
 // ─── Learning Graph v2 ──────────────────────────────────────────────────────
@@ -1460,4 +1565,56 @@ model UserDocument {
   @@index([userId])
   @@index([uploadedById])
   @@map("user_documents")
+}
+
+// ─── Maths Progression (F16/F17) — Unified progress for Première and Terminale
+
+enum MathsLevel {
+  PREMIERE
+  TERMINALE
+}
+
+model MathsProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level     MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
+
+  // Core progression fields
+  completedChapters  String[]  @default([])
+  masteredChapters   String[]  @default([])
+  totalXp            Int       @default(0)
+  quizScore          Int       @default(0)
+  comboCount         Int       @default(0)
+  bestCombo          Int       @default(0)
+  streak             Int       @default(0)
+  streakFreezes      Int       @default(0)
+  lastActivityDate   String?
+  dailyChallenge     Json      @default("{}")
+  exerciseResults    Json      @default("{}")
+  hintUsage          Json      @default("{}")
+  badges             String[]  @default([])
+  srsQueue           Json      @default("{}")
+
+  // Diagnostic and timing (Première-specific, nullable for Terminale)
+  diagnosticResults  Json?
+  timePerChapter     Json?
+  formulaireViewed   Boolean   @default(false)
+  grandOralSeen      Int       @default(0)
+  labArchimedeOpened Boolean   @default(false)
+  eulerMaxSteps      Int       @default(0)
+  newtonBestIterations Int?
+  printedFiche       Boolean   @default(false)
+
+  // Terminale-specific fields (nullable for Première)
+  errorTags          Json?
+  hintPenaltyXp      Int?
+  bacChecklistCompletions Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, level])
+  @@index([userId])
+  @@map("maths_progress")
 }

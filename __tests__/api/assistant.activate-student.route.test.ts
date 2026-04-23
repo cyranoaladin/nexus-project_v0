@@ -85,7 +85,7 @@ describe('POST /api/assistant/activate-student', () => {
     expect(body.success).toBe(true);
     expect(body.activationUrl).toContain('token=abc');
     expect(body.studentName).toBe('Ahmed');
-    expect(mockInitiate).toHaveBeenCalledWith('u1', 'ahmed@test.com', 'ADMIN');
+    expect(mockInitiate).toHaveBeenCalledWith('u1', 'ahmed@test.com', 'ADMIN', 'a1');
   });
 
   it('should activate student for ASSISTANTE', async () => {
@@ -121,5 +121,52 @@ describe('POST /api/assistant/activate-student', () => {
 
     const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
     expect(res.status).toBe(500);
+  });
+
+  describe('F13 — IDOR Parentalité', () => {
+    it('PARENT avec son enfant -> 200', async () => {
+      mockAuth.mockResolvedValue({ user: { id: 'p1', role: 'PARENT' } } as any);
+      mockInitiate.mockResolvedValue({
+        success: true,
+        activationUrl: 'http://localhost:3000/auth/activate?token=abc',
+        studentName: 'Mon Enfant',
+      } as any);
+
+      const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'enfant@test.com' }));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.success).toBe(true);
+      expect(mockInitiate).toHaveBeenCalledWith('u1', 'enfant@test.com', 'PARENT', 'p1');
+    });
+
+    it('PARENT sans lien parental -> 403', async () => {
+      mockAuth.mockResolvedValue({ user: { id: 'p1', role: 'PARENT' } } as any);
+      mockInitiate.mockResolvedValue({
+        success: false,
+        error: 'Vous n\'êtes pas le parent de cet élève',
+      } as any);
+
+      const res = await POST(makeRequest({ studentUserId: 'u-autre', studentEmail: 'autre@test.com' }));
+      const body = await res.json();
+
+      expect(res.status).toBe(400);
+      expect(body.error).toContain('parent');
+    });
+
+    it('ADMIN active n\'importe quel élève -> 200', async () => {
+      mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+      mockInitiate.mockResolvedValue({
+        success: true,
+        activationUrl: 'http://localhost:3000/auth/activate?token=abc',
+        studentName: 'Eleve Admin',
+      } as any);
+
+      const res = await POST(makeRequest({ studentUserId: 'u-random', studentEmail: 'random@test.com' }));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.success).toBe(true);
+    });
   });
 });

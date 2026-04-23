@@ -26,6 +26,8 @@ import { programmeData } from '../../data';
 import { STAGE_PRINTEMPS_2026, getTodaySession, getNextSession, formatDateFr } from '../../config/stage';
 import { EPREUVE_MATHS_1ERE } from '../../config/exam';
 import { RAGRemediation } from '../RAG/RAGRemediation';
+import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
+import { Download } from 'lucide-react';
 
 interface RAGHit {
   id: string;
@@ -100,6 +102,7 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
   const tabs: { id: TeacherTab; label: string; icon: React.ReactNode }[] = [
     { id: 'profil', label: 'Profil Élève', icon: <Users className="h-4 w-4" /> },
     { id: 'groupe', label: 'Pilotage Groupe', icon: <BarChart3 className="h-4 w-4" /> },
+    { id: 'programme', label: 'Programme', icon: <BookOpen className="h-4 w-4" /> },
     { id: 'seance', label: 'Plan de Séance', icon: <Calendar className="h-4 w-4" /> },
     { id: 'remediation', label: 'RAG Augmenté', icon: <Sparkles className="h-4 w-4" /> },
     { id: 'bilan', label: 'Export Bilan', icon: <ClipboardList className="h-4 w-4" /> },
@@ -252,21 +255,24 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
               <div className="space-y-3">
                 <NeedGroupCard
                   title="Groupe A (Expertise)"
-                  students={['Léo', 'Sofia', studentName]}
+                  students={['élève A1', 'élève A2', studentName]}
                   focus="Optimisation de la rédaction et exercices complexes."
                   active={store.totalXP > 1000}
+                  demoMode={true}
                 />
                 <NeedGroupCard
                   title="Groupe B (Renforcement)"
-                  students={['Thomas', 'Amine', 'Léa']}
+                  students={['élève B1', 'élève B2', 'élève B3']}
                   focus="Consolidation des suites et de la dérivation."
                   active={store.totalXP <= 1000 && store.totalXP > 500}
+                  demoMode={true}
                 />
                 <NeedGroupCard
                   title="Groupe C (Fondamentaux)"
-                  students={['Lucas', 'Chloé']}
+                  students={['élève C1', 'élève C2']}
                   focus="Automatismes, calcul mental et bases de l'analyse."
                   active={store.totalXP <= 500}
+                  demoMode={true}
                 />
               </div>
             </div>
@@ -511,13 +517,36 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
                 <h3 className="text-xl font-black text-white">Générateur de Bilan Final</h3>
                 <p className="text-sm text-slate-400">Rapport de progression individualisé — Stage Printemps 2026</p>
               </div>
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-black text-white shadow-lg shadow-violet-600/20 hover:brightness-110 transition-all"
-              >
-                <FileText className="h-5 w-5" />
-                Imprimer le Bilan Officiel
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center gap-3 rounded-2xl border border-slate-600 bg-slate-800 px-6 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-500 transition-all"
+                >
+                  <FileText className="h-5 w-5" />
+                  Imprimer
+                </button>
+                <BilanPDFDownloadButton
+                  data={{
+                    studentName: studentName.toLowerCase().replace(/\s+/g, '-'),
+                    displayName: studentName,
+                    completedChapters: store.completedChapters.length,
+                    totalChapters: allChapitres.length,
+                    coverage: Math.round((store.completedChapters.length / allChapitres.length) * 100),
+                    totalXP: store.totalXP,
+                    streak: store.streak,
+                    dueReviews: dueReviews.length,
+                    niveau: niveau.nom,
+                    date: new Date().toLocaleDateString('fr-FR'),
+                    forces: strongChaps.slice(0, 3).map(s => ({ chapTitre: s.chapTitre, percent: s.percent })),
+                    priorites: weakChaps.slice(0, 3).map(w => ({ chapTitre: w.chapTitre, percent: w.percent })),
+                  }}
+                >
+                  <button className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-black text-white shadow-lg shadow-violet-600/20 hover:brightness-110 transition-all">
+                    <Download className="h-5 w-5" />
+                    Télécharger PDF
+                  </button>
+                </BilanPDFDownloadButton>
+              </div>
             </div>
 
             {/* Preview du Bilan (Style "Papier") */}
@@ -769,7 +798,7 @@ const HeatmapCompetences: React.FC<{ diagResults: any[] }> = ({ diagResults }) =
   );
 };
 
-const NeedGroupCard: React.FC<{ title: string, students: string[], focus: string, active: boolean }> = ({ title, students, focus, active }) => (
+const NeedGroupCard: React.FC<{ title: string, students: string[], focus: string, active: boolean, demoMode?: boolean }> = ({ title, students, focus, active, demoMode }) => (
   <div className={`rounded-xl border p-4 transition-all ${active ? 'border-blue-500/40 bg-blue-500/10' : 'border-slate-800 bg-slate-900/40 opacity-50'}`}>
     <div className="flex items-center justify-between mb-2">
       <h4 className="text-xs font-black text-white">{title}</h4>

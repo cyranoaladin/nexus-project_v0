@@ -73,6 +73,51 @@ export function genProduitScalaire(rng = Math.random): GeneratedExercise {
   };
 }
 
+export function genTrigonometrie(rng = Math.random): GeneratedExercise {
+  const angles = [0, 30, 45, 60, 90, 120, 135, 150, 180];
+  const angleDeg = angles[rndInt(0, angles.length - 1, rng)];
+  const angleRad = angleDeg * Math.PI / 180;
+  const funcs = ['cos', 'sin'] as const;
+  const func = funcs[rndInt(0, 1, rng)];
+  const value = func === 'cos' ? Math.cos(angleRad) : Math.sin(angleRad);
+  // Format exact values
+  const exactValues: Record<string, Record<number, string>> = {
+    cos: { 0: '1', 30: '\\sqrt{3}/2', 45: '\\sqrt{2}/2', 60: '1/2', 90: '0', 120: '-1/2', 135: '-\\sqrt{2}/2', 150: '-\\sqrt{3}/2', 180: '-1' },
+    sin: { 0: '0', 30: '1/2', 45: '\\sqrt{2}/2', 60: '\\sqrt{3}/2', 90: '1', 120: '\\sqrt{3}/2', 135: '\\sqrt{2}/2', 150: '1/2', 180: '0' },
+  };
+  const reponse = exactValues[func][angleDeg] || value.toFixed(2);
+  return {
+    question: `Calculer $${func}(${angleDeg}°)$.`,
+    reponse: `$${reponse}$`,
+    explication: `Valeur remarquable : $${func}(${angleDeg}°) = ${reponse}$.`,
+  };
+}
+
+export function genVariablesAleatoires(rng = Math.random): GeneratedExercise {
+  const values = [1, 2, 3, 4];
+  const probs = [0.2, 0.3, 0.1, 0.4];
+  // Calculate E(X)
+  const esperance = values.reduce((sum, v, i) => sum + v * probs[i], 0);
+  return {
+    question: `Soit $X$ avec loi : $P(X=1)=0.2$, $P(X=2)=0.3$, $P(X=3)=0.1$, $P(X=4)=0.4$. Calculer $E(X)$.`,
+    reponse: esperance,
+    tolerance: 0.01,
+    explication: `$E(X) = 1\\times0.2 + 2\\times0.3 + 3\\times0.1 + 4\\times0.4 = 0.2 + 0.6 + 0.3 + 1.6 = ${esperance}$.`,
+  };
+}
+
+export function genExponentielle(rng = Math.random): GeneratedExercise {
+  const a = rndInt(2, 5, rng);
+  const x = rndInt(-2, 2, rng);
+  const result = Math.pow(a, x);
+  return {
+    question: `Calculer $${a}^{${x}}$.`,
+    reponse: result,
+    tolerance: 0.001,
+    explication: `$${a}^{${x}} = ${result}$.`,
+  };
+}
+
 export const GENERATORS: Record<string, (rng?: () => number) => GeneratedExercise> = {
   'second-degre': genSecondDegre,
   derivation: genDerivee,
@@ -80,6 +125,9 @@ export const GENERATORS: Record<string, (rng?: () => number) => GeneratedExercis
   suites: genSuiteArith,
   'probabilites-cond': genProbaCond,
   'produit-scalaire': genProduitScalaire,
+  trigonometrie: genTrigonometrie,
+  'variables-aleatoires': genVariablesAleatoires,
+  exponentielle: genExponentielle,
 };
 
 export type { GeneratedExercise };

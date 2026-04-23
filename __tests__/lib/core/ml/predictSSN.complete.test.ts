@@ -188,19 +188,19 @@ describe('computePredictionConfidence', () => {
 
 describe('predictSSNForStudent', () => {
   it('should return null when no history exists', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([]);
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([]);
 
     const result = await predictSSNForStudent('stu-1');
     expect(result).toBeNull();
   });
 
   it('should return prediction for student with history', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([
       { ssn: 45, date: new Date('2026-01-01') },
       { ssn: 50, date: new Date('2026-02-01') },
       { ssn: 55, date: new Date('2026-03-01') },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.projectionHistory.create = jest.fn().mockResolvedValue({});
 
     const result = await predictSSNForStudent('stu-1', 4, 70);
 
@@ -212,31 +212,32 @@ describe('predictSSNForStudent', () => {
     expect(result!.modelVersion).toBe('ridge_v1');
   });
 
-  it('should persist projection to projection_history', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+  it('should persist projection to projection_history via Prisma', async () => {
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([
       { ssn: 50, date: new Date('2026-01-01') },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.projectionHistory.create = jest.fn().mockResolvedValue({});
 
     await predictSSNForStudent('stu-1');
 
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO "projection_history"'),
-      expect.any(String),
-      'stu-1',
-      expect.any(Number),
-      expect.any(Number),
-      'ridge_v1',
-      expect.any(String),
-      expect.any(Date)
-    );
+    expect(prisma.projectionHistory.create).toHaveBeenCalledWith({
+      data: {
+        id: expect.any(String),
+        studentId: 'stu-1',
+        ssnProjected: expect.any(Number),
+        confidenceIndex: expect.any(Number),
+        modelVersion: expect.any(String),
+        inputSnapshot: expect.any(Object),
+        createdAt: expect.any(Date),
+      },
+    });
   });
 
   it('should use default weeklyHours=3 when not provided', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([
       { ssn: 50, date: new Date('2026-01-01') },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.projectionHistory.create = jest.fn().mockResolvedValue({});
 
     const result = await predictSSNForStudent('stu-1');
 
@@ -244,10 +245,10 @@ describe('predictSSNForStudent', () => {
   });
 
   it('should use default methodologyScore=50 when not provided', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([
       { ssn: 50, date: new Date('2026-01-01') },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.projectionHistory.create = jest.fn().mockResolvedValue({});
 
     const result = await predictSSNForStudent('stu-1');
 
@@ -255,12 +256,12 @@ describe('predictSSNForStudent', () => {
   });
 
   it('should include confidence breakdown', async () => {
-    prisma.$queryRawUnsafe.mockResolvedValue([
+    prisma.progressionHistory.findMany = jest.fn().mockResolvedValue([
       { ssn: 45, date: new Date('2026-01-01') },
       { ssn: 50, date: new Date('2026-02-01') },
       { ssn: 55, date: new Date('2026-03-01') },
     ]);
-    prisma.$executeRawUnsafe.mockResolvedValue(1);
+    prisma.projectionHistory.create = jest.fn().mockResolvedValue({});
 
     const result = await predictSSNForStudent('stu-1');
 

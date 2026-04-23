@@ -87,3 +87,9 @@ data/stages/*.json
 prod-tree*.txt
 .codex
 get-users-temp.mjs
+
+# Certificats SSL (ne jamais committer)
+nginx/ssl/
+
+# Certificats SSL (ne jamais committer)
+arborescence*.txt

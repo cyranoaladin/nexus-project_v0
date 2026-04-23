@@ -671,6 +671,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 80,
         prerequis: ['derivation'],
+        prerequisDiagnostic: [
+          { question: 'Dérivée de $f(x) = x^2$ en $x=2$ ?', options: ['$2$', '$4$', '$2x$', '$x^2$'], correct: 1, remediation: 'derivation' },
+          { question: 'Valeur de $\cos(0)$ ?', options: ['$0$', '$1$', '$-1$', '$\pi/2$'], correct: 1, remediation: 'trigonometrie' },
+        ],
         competences: ['representer', 'calculer', 'chercher'],
         contenu: {
           rappel:
@@ -858,6 +862,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['produit-scalaire'],
+        prerequisDiagnostic: [
+          { question: 'Produit scalaire de $\vec{u}(2;3)$ et $\vec{v}(1;-1)$ ?', options: ['$-1$', '$5$', '$1$', '$-5$'], correct: 0, remediation: 'produit-scalaire' },
+          { question: 'Si $\vec{u} \\cdot \\vec{v} = 0$, les vecteurs sont :', options: ['Colinéaires', 'Orthogonaux', 'Unitaires', 'Opposés'], correct: 1, remediation: 'produit-scalaire' },
+        ],
         competences: ['calculer', 'raisonner', 'representer'],
         contenu: {
           rappel:
@@ -1080,6 +1088,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 3,
         pointsXP: 60,
         prerequis: ['probabilites-cond'],
+        prerequisDiagnostic: [
+          { question: 'Si $P(A)=0.3$ et $P(B|A)=0.4$, alors $P(A \\cap B)=$ ?', options: ['$0.12$', '$0.7$', '$0.1$', '$1.2$'], correct: 0, remediation: 'probabilites-cond' },
+          { question: 'Loi binomiale : $n=3$, $p=0.5$. $P(X=2)=$ ?', options: ['$0.375$', '$0.5$', '$0.25$', '$0.75$'], correct: 0, remediation: 'probabilites-cond' },
+        ],
         competences: ['modeliser', 'calculer', 'chercher'],
         contenu: {
           rappel:
@@ -1259,6 +1271,10 @@ export const programmeData: Record<string, Categorie> = {
         difficulte: 4,
         pointsXP: 80,
         prerequis: ['variations-courbes', 'algorithmique-python'],
+        prerequisDiagnostic: [
+          { question: 'Dérivée de $f(x)=x^2-2$ en $x=2$ ?', options: ['$2$', '$4$', '$2x$', '$0$'], correct: 1, remediation: 'derivation' },
+          { question: 'Que fait l\'instruction Python `def f(x): return x**2` ?', options: ['Définit une fonction', 'Appelle une fonction', 'Calcule une boucle', 'Crée une liste'], correct: 0, remediation: 'algorithmique-python' },
+        ],
         competences: ['chercher', 'modeliser', 'calculer', 'representer'],
         contenu: {
           rappel:

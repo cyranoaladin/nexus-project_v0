@@ -116,7 +116,8 @@ async function findPendingStageReservation(
 export async function initiateStudentActivation(
   studentUserId: string,
   studentEmail: string,
-  initiatorRole: string
+  initiatorRole: string,
+  initiatorId: string
 ): Promise<ActivationResult> {
   // Validate initiator role
   const allowedRoles = ['ADMIN', 'ASSISTANTE', 'PARENT'];
@@ -140,6 +141,17 @@ export async function initiateStudentActivation(
 
   if (studentUser.activatedAt) {
     return { success: false, error: 'Ce compte élève est déjà activé' };
+  }
+
+  // Vérification parentalité pour PARENT
+  if (initiatorRole === 'PARENT') {
+    const parentProfile = await prisma.parentProfile.findFirst({
+      where: { userId: initiatorId },
+      include: { children: { where: { userId: studentUserId } } },
+    });
+    if (!parentProfile || parentProfile.children.length === 0) {
+      return { success: false, error: 'Vous n\'êtes pas le parent de cet élève' };
+    }
   }
 
   // Check email uniqueness (skip if same as current)

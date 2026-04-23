@@ -18,6 +18,7 @@ import {
 import { EPREUVE_MATHS_1ERE, SUJET_BLANC_1, type ExerciceBloc, type QuestionExercice } from '../../config/exam';
 import { MathRichText } from '../MathContent';
 import { RAGRemediation } from '../RAG/RAGRemediation';
+import { useMathsLabStore } from '../../store';
 
 type ExamMode = 'accueil' | 'automatismes' | 'exercices' | 'correction';
 type AutomatismeState = Record<string, { reponse: string; revealed: boolean; selfScore?: 0 | 0.5 | 1 }>;
@@ -25,14 +26,31 @@ type AutomatismeState = Record<string, { reponse: string; revealed: boolean; sel
 type ExerciceScoreState = Record<string, number>;
 
 export const ExamenBlancView: React.FC = () => {
-  const [mode, setMode] = useState<ExamMode>('accueil');
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [autoStates, setAutoStates] = useState<AutomatismeState>({});
-  const [exScores, setExScores] = useState<ExerciceScoreState>({});
+  // F41: Load persisted exam state from store
+  const store = useMathsLabStore();
+  const persistedExam = store.examState;
+
+  const [mode, setMode] = useState<ExamMode>(persistedExam.isActive ? 'automatismes' : 'accueil');
+  const [elapsedSeconds, setElapsedSeconds] = useState(persistedExam.elapsedSeconds);
+  const [isTimerRunning, setIsTimerRunning] = useState(persistedExam.isActive);
+  const [autoStates, setAutoStates] = useState<AutomatismeState>(persistedExam.autoStates);
+  const [exScores, setExScores] = useState<ExerciceScoreState>(persistedExam.exScores);
   const [expandedEx, setExpandedEx] = useState<string | null>(null);
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // F41: Persist exam state to store on changes
+  useEffect(() => {
+    const isExamActive = mode === 'automatismes' || mode === 'exercices';
+    if (isExamActive) {
+      store.saveExamState({
+        autoStates,
+        exScores,
+        elapsedSeconds,
+        isActive: true,
+      });
+    }
+  }, [autoStates, exScores, elapsedSeconds, mode, store]);
 
   // Computed totals
   const autoTotal = Object.values(autoStates)
@@ -57,18 +75,24 @@ export const ExamenBlancView: React.FC = () => {
   }, [isTimerRunning, timeUp]);
 
   const startExam = useCallback(() => {
+    // F41: Clear any previous exam state
+    store.clearExamState();
     setElapsedSeconds(0);
     setAutoStates({});
+    setExScores({});
     setIsTimerRunning(true);
     setMode('automatismes');
-  }, []);
+  }, [store]);
 
   const resetExam = useCallback(() => {
     setIsTimerRunning(false);
     setElapsedSeconds(0);
     setAutoStates({});
+    setExScores({});
     setMode('accueil');
-  }, []);
+    // F41: Clear persisted exam state
+    store.clearExamState();
+  }, [store]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

@@ -136,8 +136,8 @@ export async function POST(request: NextRequest) {
 
       // Build quality flags for structured analysis
       const qualityFlags = buildQualityFlags({
-        ragAvailable: false, // Will be updated when RAG is populated
-        ragHitCount: 0,
+        ragAvailable: bilans.ragUsed,
+        ragHitCount: 0, // Not persisted — field not in schema
         llmSuccessCount: [bilans.eleve, bilans.parents, bilans.nexus].filter(Boolean).length,
         dataQuality: scoringV2.dataQuality.quality,
         coverageIndex: scoringV2.coverageIndex,
@@ -169,8 +169,9 @@ export async function POST(request: NextRequest) {
             citations: [],
           } satisfies Prisma.JsonObject as unknown as Prisma.JsonObject,
           actionPlan: bilans.nexus,
-          ragUsed: false,
-          ragCollections: [],
+          ragUsed: bilans.ragUsed,
+          ragCollections: bilans.ragCollections,
+          errorCode: bilans.ragError ? 'RAG_UNAVAILABLE' : undefined,
         },
       });
       bilanStatus = DiagnosticStatus.ANALYZED;

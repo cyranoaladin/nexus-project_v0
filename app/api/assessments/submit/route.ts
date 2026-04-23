@@ -21,7 +21,6 @@ import type { StudentAnswer } from '@/lib/assessments/core/types';
 import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
-import { incrementRawSqlFailure } from '@/lib/core/raw-sql-monitor';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
 
 export async function POST(request: NextRequest) {
@@ -142,64 +141,35 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Assessment Submit] Created assessment ${assessment.id}`);
 
-    // Persist assessmentVersion + engineVersion (raw SQL — columns may not be in generated client)
-    try {
-      await prisma.$executeRawUnsafe(
-        `UPDATE "assessments" SET "assessmentVersion" = $1, "engineVersion" = $2 WHERE "id" = $3`,
-        resolvedVersion,
-        'scoring_v2',
-        assessment.id
-      );
-    } catch (versionError) {
-      // ┌─────────────────────────────────────────────────────────────────────┐
-      // │ TODO [TICKET NEX-42]: Remove this try/catch after migrate deploy  │
-      // │ on production. Once 20260217_learning_graph_v2 is applied and     │
-      // │ `npx prisma generate` regenerates the client, switch to typed     │
-      // │ Prisma fields: assessment.update({ assessmentVersion, ... })      │
-      // └─────────────────────────────────────────────────────────────────────┘
-      const failCount = incrementRawSqlFailure();
-      const errMsg = versionError instanceof Error ? versionError.message : 'unknown';
-      if (process.env.NODE_ENV === 'production') {
-        console.error(`[Assessment Submit] PROD: assessmentVersion persistence FAILED (count=${failCount}):`, errMsg);
-      } else {
-        console.warn(`[Assessment Submit] Version persistence skipped (dev):`, errMsg);
-      }
-    }
+    // F18 — Persist assessmentVersion + engineVersion via Prisma client typé
+    await prisma.assessment.update({
+      where: { id: assessment.id },
+      data: {
+        assessmentVersion: resolvedVersion,
+        engineVersion: 'scoring_v2',
+      },
+    });
 
     // ─── Step 5: Persist DomainScore rows from categoryScores ───────────────
 
-    try {
-      const metrics = scoringResult.metrics as unknown as Record<string, unknown>;
-      const categoryScores = (metrics?.categoryScores ?? {}) as Record<string, number | undefined>;
+    const { createId } = await import('@paralleldrive/cuid2');
+    const metrics = scoringResult.metrics as unknown as Record<string, unknown>;
+    const categoryScores = (metrics?.categoryScores ?? {}) as Record<string, number | undefined>;
 
-      // Backfill with canonical domains — guarantees all domains are persisted (0 if absent)
-      const completeDomains = backfillCanonicalDomains(subject, categoryScores);
+    // Backfill with canonical domains — guarantees all domains are persisted (0 if absent)
+    const completeDomains = backfillCanonicalDomains(subject, categoryScores);
 
-      for (const [domain, score] of Object.entries(completeDomains)) {
-        await prisma.$executeRawUnsafe(
-          `INSERT INTO "domain_scores" ("id", "assessmentId", "domain", "score", "createdAt")
-           VALUES (gen_random_uuid()::text, $1, $2, $3, NOW())`,
-          assessment.id,
-          domain,
-          score
-        );
-      }
+    // F18 — Persist via Prisma client typé (bulk create)
+    await prisma.domainScore.createMany({
+      data: Object.entries(completeDomains).map(([domain, score]) => ({
+        id: createId(),
+        assessmentId: assessment.id,
+        domain,
+        score,
+      })),
+    });
 
-      console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id} (${Object.keys(completeDomains).length} canonical domains)`);
-    } catch (domainError) {
-      // ┌─────────────────────────────────────────────────────────────────────┐
-      // │ TODO [TICKET NEX-43]: Remove this try/catch after migrate deploy  │
-      // │ on production. Once domain_scores table is guaranteed by          │
-      // │ 20260217_learning_graph_v2, use typed Prisma create().            │
-      // └─────────────────────────────────────────────────────────────────────┘
-      const failCount = incrementRawSqlFailure();
-      const errMsg = domainError instanceof Error ? domainError.message : 'unknown';
-      if (process.env.NODE_ENV === 'production') {
-        console.error(`[Assessment Submit] PROD: DomainScore persistence FAILED for ${assessment.id} (count=${failCount}):`, errMsg);
-      } else {
-        console.warn(`[Assessment Submit] DomainScore persistence skipped (dev):`, errMsg);
-      }
-    }
+    console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id} (${Object.keys(completeDomains).length} canonical domains)`);
 
     // ─── Step 6: Compute SSN (non-blocking) ───────────────────────────────────
 

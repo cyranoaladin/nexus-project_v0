@@ -35,6 +35,7 @@ export async function GET(
         scoringResult: true,
         status: true,
         createdAt: true,
+        ssn: true,
       },
     });
 
@@ -49,47 +50,35 @@ export async function GET(
       );
     }
 
-    // Fetch SSN via raw query
-    const ssnRows = await prisma.$queryRawUnsafe<{ ssn: number | null }[]>(
-      `SELECT "ssn" FROM "assessments" WHERE "id" = $1`,
-      id
-    );
-    const ssn = ssnRows[0]?.ssn ?? null;
+    // F18 — Fetch SSN from assessment (already loaded)
+    const ssn = assessment.ssn ?? null;
 
-    // Fetch domain scores
-    let domainScores: { domain: string; score: number }[] = [];
-    try {
-      domainScores = await prisma.$queryRawUnsafe<{ domain: string; score: number }[]>(
-        `SELECT "domain", "score" FROM "domain_scores" WHERE "assessmentId" = $1 ORDER BY "score" DESC`,
-        id
-      );
-    } catch {
-      // Graceful fallback
-    }
+    // F18 — Fetch domain scores via Prisma client typé
+    const domainScores = await prisma.domainScore.findMany({
+      where: { assessmentId: id },
+      orderBy: { score: 'desc' },
+      select: { domain: true, score: true },
+    });
 
-    // Fetch skill scores
-    let skillScores: { skillTag: string; score: number }[] = [];
-    try {
-      skillScores = await prisma.$queryRawUnsafe<{ skillTag: string; score: number }[]>(
-        `SELECT "skillTag", "score" FROM "skill_scores" WHERE "assessmentId" = $1 ORDER BY "score" ASC`,
-        id
-      );
-    } catch {
-      // Graceful fallback
-    }
+    // F18 — Fetch skill scores via Prisma client typé
+    const skillScores = await prisma.skillScore.findMany({
+      where: { assessmentId: id },
+      orderBy: { score: 'asc' },
+      select: { skillTag: true, score: true },
+    });
 
-    // Compute percentile
+    // F18 — Compute percentile via Prisma
     let percentile: number | null = null;
     if (ssn !== null) {
-      try {
-        const cohortSSNs = await prisma.$queryRawUnsafe<{ ssn: number }[]>(
-          `SELECT "ssn" FROM "assessments" WHERE "subject" = $1 AND "ssn" IS NOT NULL`,
-          assessment.subject
-        );
-        percentile = computePercentile(ssn, cohortSSNs.map((r) => r.ssn));
-      } catch {
-        // Graceful fallback
-      }
+      const cohortAssessments = await prisma.assessment.findMany({
+        where: {
+          subject: assessment.subject,
+          ssn: { not: null },
+        },
+        select: { ssn: true },
+      });
+      const distribution = cohortAssessments.map((a) => a.ssn!);
+      percentile = computePercentile(ssn, distribution);
     }
 
     // Extract strengths, weaknesses, recommendations from scoringResult

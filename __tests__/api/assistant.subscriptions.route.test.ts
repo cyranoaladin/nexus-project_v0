@@ -34,6 +34,17 @@ describe('assistant subscriptions', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('F14 — ADMIN can GET subscriptions -> 200', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.subscription.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await GET(makeRequest());
+
+    expect(response.status).toBe(200);
+  });
+
   it('GET returns pending and all subscriptions', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

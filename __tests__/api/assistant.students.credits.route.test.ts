@@ -35,6 +35,17 @@ describe('assistant students credits', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('F14 — ADMIN can GET students/credits -> 200', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+
+    const response = await GET(makeRequest(undefined, 'http://localhost:3000/api/assistant/students/credits'));
+
+    expect(response.status).toBe(200);
+  });
+
   it('GET returns student credits when studentId provided', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },

@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
       }
 
       const qualityFlags = buildQualityFlags({
-        ragAvailable: false,
-        ragHitCount: 0,
+        ragAvailable: bilans.ragUsed,
+        ragHitCount: 0, // Not persisted — field not in schema
         llmSuccessCount: [bilans.eleve, bilans.parents, bilans.nexus].filter(Boolean).length,
         dataQuality: scoringV2.dataQuality.quality,
         coverageIndex: scoringV2.coverageIndex,
@@ -147,8 +147,10 @@ export async function POST(request: NextRequest) {
             citations: [],
           },
           actionPlan: bilans.nexus,
-          errorCode: null,
-          errorDetails: null,
+          ragUsed: bilans.ragUsed,
+          ragCollections: bilans.ragCollections,
+          errorCode: bilans.ragError ? 'RAG_UNAVAILABLE' : null,
+          errorDetails: bilans.ragError ? 'RAG search failed — bilan generated without pedagogical context' : null,
         },
       });
 

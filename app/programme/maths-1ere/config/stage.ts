@@ -121,7 +121,7 @@ export const STAGE_PRINTEMPS_2026 = {
       objectifs: ["Terme général d'une suite", "Sens de variation", "Somme de termes"],
       competences: ["MODÉLISER", "CALCULER"],
       format: "cours",
-      chapitresClés: ["suites-numeriques"],
+      chapitresClés: ["suites"],
       journee: "duo"
     },
     {
@@ -134,7 +134,7 @@ export const STAGE_PRINTEMPS_2026 = {
       objectifs: ["Suites définies par récurrence", "Démonstration par récurrence", "Modèles de croissance"],
       competences: ["RAISONNER", "MODÉLISER"],
       format: "pratique",
-      chapitresClés: ["suites-numeriques"],
+      chapitresClés: ["suites"],
       journee: "mono-apres-midi"
     },
     {
@@ -174,7 +174,7 @@ export const STAGE_PRINTEMPS_2026 = {
       objectifs: ["Calcul de dérivées (polynômes, quotients)", "Tableaux de variations", "Extrema locaux"],
       competences: ["CALCULER", "REPRÉSENTER"],
       format: "cours",
-      chapitresClés: ["derivation-variations"],
+      chapitresClés: ["derivation", "variations-courbes"],
       journee: "duo"
     },
     {
@@ -200,7 +200,7 @@ export const STAGE_PRINTEMPS_2026 = {
       objectifs: ["Arbres pondérés", "Formule des probabilités totales", "Formule de Bayes"],
       competences: ["CALCULER", "COMMUNIQUER"],
       format: "cours",
-      chapitresClés: ["probabilites-conditionnelles"],
+      chapitresClés: ["probabilites-cond"],
       journee: "duo"
     },
     {

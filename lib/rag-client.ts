@@ -1,7 +1,14 @@
 /**
- * RAG Client — Connects to the Ingestor API (FastAPI) for semantic search.
+ * RAG Client — Canonical RAG retrieval via ChromaDB (F19).
+ *
+ * Connects to the Ingestor API (FastAPI) for semantic search.
  * Server: infra-ingestor-1 on infra_rag_net (port 8001)
  * Endpoints: POST /search, POST /ingest, GET /health, GET /collections, GET /collections/{name}/stats
+ *
+ * Architecture:
+ * - ChromaDB = canonical RAG backend (nomic-embed-text, 768d)
+ * - pgvector = disabled for RAG product (F26) — see docs/RAG_ARCHITECTURE.md
+ * - Ingestion = out-of-repo (F24) — operated by external FastAPI service
  */
 
 interface RAGSearchHit {

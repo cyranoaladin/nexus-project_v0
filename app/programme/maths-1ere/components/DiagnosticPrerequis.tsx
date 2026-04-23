@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Search } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Search, BookOpen } from 'lucide-react';
 
 interface PrerequisQuestion {
   question: string;
@@ -13,9 +13,10 @@ interface DiagnosticProps {
   chapId: string;
   questions: PrerequisQuestion[];
   onComplete: (score: number, total: number) => void;
+  onNavigateToChap?: (chapId: string) => void;
 }
 
-export default function DiagnosticPrerequis({ chapId, questions, onComplete }: DiagnosticProps) {
+export default function DiagnosticPrerequis({ chapId, questions, onComplete, onNavigateToChap }: DiagnosticProps) {
   const [phase, setPhase] = useState<'intro' | 'quiz' | 'result'>('intro');
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
@@ -24,6 +25,11 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete }: D
   if (dismissed || questions.length === 0) return null;
 
   const score = answers.filter((a, i) => a === questions[i].correct).length;
+
+  // F43: Track which questions were failed for remediation
+  const failedQuestions = answers.map((a, i) => ({ answer: a, question: questions[i] }))
+    .filter(({ answer, question }) => answer !== question.correct);
+  const remediationsNeeded = [...new Set(failedQuestions.map(fq => fq.question.remediation))];
 
   const handleAnswer = (choice: number) => {
     const newAnswers = [...answers, choice];
@@ -68,10 +74,31 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete }: D
   }
 
   return (
-    <div className={`border rounded-2xl p-5 mb-4 ${score >= questions.length * 0.7 ? 'bg-green-500/5 border-green-500/30' : 'bg-slate-500/5 border-slate-500/30'}`}>
-      <div className="flex items-center gap-2 mb-2">{score >= questions.length * 0.7 ? <CheckCircle2 className="h-5 w-5 text-green-400" aria-hidden="true" /> : <AlertTriangle className="h-5 w-5 text-slate-300" aria-hidden="true" />}<h3 className="font-bold text-white text-sm">Diagnostic : {score}/{questions.length}</h3></div>
-      {score >= questions.length * 0.7 ? <p className="text-xs text-green-300">Pré-requis solides. Tu peux avancer.</p> : <p className="text-xs text-slate-300">Quelques prérequis à consolider avant de poursuivre.</p>}
-      <button onClick={() => setDismissed(true)} className="mt-3 text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600" aria-label="Continuer vers le cours">Continuer vers le cours</button>
+    <div className={`border rounded-2xl p-5 mb-4 ${score >= questions.length * 0.7 ? 'bg-green-500/5 border-green-500/30' : 'bg-amber-500/5 border-amber-500/30'}`}>
+      <div className="flex items-center gap-2 mb-2">{score >= questions.length * 0.7 ? <CheckCircle2 className="h-5 w-5 text-green-400" aria-hidden="true" /> : <AlertTriangle className="h-5 w-5 text-amber-400" aria-hidden="true" />}<h3 className="font-bold text-white text-sm">Diagnostic : {score}/{questions.length}</h3></div>
+      {score >= questions.length * 0.7 ? <p className="text-xs text-green-300">Pré-requis solides. Tu peux avancer.</p> : (
+        <>
+          <p className="text-xs text-amber-300 mb-3">Quelques prérequis à consolider avant de poursuivre.</p>
+          {/* F43: Remediation links */}
+          {remediationsNeeded.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <p className="text-xs font-bold text-amber-400">Révisions recommandées :</p>
+              {remediationsNeeded.map((remediationChapId) => (
+                <button
+                  key={remediationChapId}
+                  onClick={() => onNavigateToChap?.(remediationChapId)}
+                  className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-600/30 w-full text-left"
+                  aria-label={`Réviser le chapitre ${remediationChapId}`}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Réviser : {remediationChapId}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      <button onClick={() => setDismissed(true)} className="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600" aria-label="Continuer vers le cours">Continuer vers le cours</button>
     </div>
   );
 }

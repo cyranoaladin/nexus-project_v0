@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -13,12 +13,28 @@ import {
   Target,
   TrendingUp,
   Calendar,
+  Download,
 } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 import { programmeData } from '../../data';
 import { STAGE_PRINTEMPS_2026, getDaysUntilExam } from '../../config/stage';
+import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
+import { BilanTabs } from '@/components/bilan';
 
 type BilanType = 'eleve' | 'famille' | 'nexus';
+
+// F52: Map legacy audience names to canonical
+const audienceMap: Record<BilanType, 'student' | 'parents' | 'nexus'> = {
+  eleve: 'student',
+  famille: 'parents',
+  nexus: 'nexus',
+};
+
+const audienceReverseMap: Record<'student' | 'parents' | 'nexus', BilanType> = {
+  student: 'eleve',
+  parents: 'famille',
+  nexus: 'nexus',
+};
 
 interface BilanViewProps {
   displayName: string;
@@ -51,6 +67,22 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
 
   const forces = diagResults.filter((d) => d.percent >= 75).slice(0, 3);
   const priorites = diagResults.filter((d) => d.percent < 60).slice(0, 3);
+
+  // F48: Prepare data for PDF export
+  const pdfData = useMemo(() => ({
+    studentName: displayName.toLowerCase().replace(/\s+/g, '-'),
+    displayName,
+    completedChapters: completed,
+    totalChapters: total,
+    coverage,
+    totalXP: store.totalXP,
+    streak: store.streak,
+    dueReviews: store.getDueReviews().length,
+    niveau: niveau.nom,
+    date: new Date().toLocaleDateString('fr-FR'),
+    forces: forces.map(f => ({ chapTitre: f.chapTitre, percent: f.percent })),
+    priorites: priorites.map(p => ({ chapTitre: p.chapTitre, percent: p.percent })),
+  }), [displayName, completed, total, coverage, store, niveau.nom, forces, priorites]);
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) =>
@@ -89,26 +121,15 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
         </p>
       </div>
 
-      {/* Bilan type selector */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {bilanTabs.map((tab: any) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveBilan(tab.id)}
-            className={`rounded-2xl border p-4 text-left transition-all ${
-              activeBilan === tab.id
-                ? 'border-cyan-500/30 bg-cyan-500/10 shadow-lg shadow-cyan-500/5'
-                : 'border-slate-700/40 bg-slate-900/30 hover:border-slate-600/50'
-            }`}
-          >
-            <div className={`flex items-center gap-2 mb-2 ${activeBilan === tab.id ? 'text-cyan-400' : 'text-slate-400'}`}>
-              {tab.icon}
-              <span className="font-bold text-sm">{tab.label}</span>
-            </div>
-            <p className="text-xs text-slate-500">{tab.description}</p>
-          </button>
-        ))}
-      </div>
+      {/* F52: Bilan type selector using canonical BilanTabs */}
+      <BilanTabs
+        activeAudience={audienceMap[activeBilan]}
+        onAudienceChange={(audience) => setActiveBilan(audienceReverseMap[audience])}
+        showStudent={true}
+        showParents={true}
+        showNexus={true}
+        disabled={false}
+      />
 
       {/* Bilan Élève */}
       {activeBilan === 'eleve' && (
@@ -227,13 +248,22 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
             </div>
           </BilanSection>
 
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
-          >
-            <Printer className="h-4 w-4" />
-            Imprimer mon bilan
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer
+            </button>
+            {/* F48: PDF Export Button */}
+            <BilanPDFDownloadButton data={pdfData}>
+              <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:brightness-110 transition-all">
+                <Download className="h-4 w-4" />
+                Télécharger PDF
+              </button>
+            </BilanPDFDownloadButton>
+          </div>
         </div>
       )}
 
@@ -322,13 +352,21 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
             </div>
           </div>
 
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
-          >
-            <Printer className="h-4 w-4" />
-            Imprimer / Partager avec la famille
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer
+            </button>
+            <BilanPDFDownloadButton data={pdfData}>
+              <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:brightness-110 transition-all">
+                <Download className="h-4 w-4" />
+                Télécharger PDF
+              </button>
+            </BilanPDFDownloadButton>
+          </div>
         </div>
       )}
 
@@ -375,13 +413,21 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
             </div>
           </div>
 
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
-          >
-            <Printer className="h-4 w-4" />
-            Exporter fiche technique
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-bold text-slate-300 hover:text-white hover:border-slate-600 transition-all"
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer fiche
+            </button>
+            <BilanPDFDownloadButton data={pdfData}>
+              <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:brightness-110 transition-all">
+                <Download className="h-4 w-4" />
+                Exporter PDF
+              </button>
+            </BilanPDFDownloadButton>
+          </div>
         </div>
       )}
     </div>

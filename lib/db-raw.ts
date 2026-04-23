@@ -5,11 +5,12 @@
  * It enforces parameterized queries and rejects any query
  * that appears to contain string interpolation.
  *
- * WHY raw SQL: Prisma client doesn't yet expose columns added
- * by migration 20260217_learning_graph_v2 (assessmentVersion,
- * domain_scores, skill_scores, ssn, uai). Once `npx prisma generate`
- * is re-run after migration, these helpers can be replaced by
- * typed Prisma calls. Tracked: NEX-42, NEX-43.
+ * STATUS (2026-04-21): NEX-42 and NEX-43 are CLOSED. All unjustified raw SQL
+ * usages have been migrated to Prisma client typed queries in LOT 5 step 2.
+ * This helper is kept for justified raw SQL cases:
+ * - invoice_sequences (atomic INSERT ON CONFLICT RETURNING)
+ * - pgvector similarity search (operator <=> not supported by Prisma)
+ * - health check diagnostic (SELECT 1)
  *
  * @module lib/db-raw
  */

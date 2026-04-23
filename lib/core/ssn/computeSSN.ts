@@ -188,30 +188,30 @@ export async function computeAndPersistSSN(
   const result = await computeSSNForAssessment(assessmentId);
   if (!result) return null;
 
-  // Persist SSN on assessment (using raw SQL since new columns may not be in generated client yet)
-  await prisma.$executeRawUnsafe(
-    `UPDATE "assessments" SET "ssn" = $1 WHERE "id" = $2`,
-    result.ssn,
-    assessmentId
-  );
+  // F18 — Persist SSN on assessment via Prisma client typé
+  await prisma.assessment.update({
+    where: { id: assessmentId },
+    data: { ssn: result.ssn },
+  });
 
-  // Get studentId via raw query (column may not be in generated client yet)
-  const studentIdRows = await prisma.$queryRawUnsafe<{ studentId: string | null }[]>(
-    `SELECT "studentId" FROM "assessments" WHERE "id" = $1`,
-    assessmentId
-  );
-  const studentId = studentIdRows[0]?.studentId;
+  // Get studentId via Prisma client typé
+  const assessment = await prisma.assessment.findUnique({
+    where: { id: assessmentId },
+    select: { studentId: true },
+  });
+  const studentId = assessment?.studentId;
 
-  // If linked to a student, record in progression history
+  // If linked to a student, record in progression history via Prisma
   if (studentId) {
     const { createId } = await import('@paralleldrive/cuid2');
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO "progression_history" ("id", "studentId", "ssn", "date") VALUES ($1, $2, $3, $4)`,
-      createId(),
-      studentId,
-      result.ssn,
-      new Date()
-    );
+    await prisma.progressionHistory.create({
+      data: {
+        id: createId(),
+        studentId,
+        ssn: result.ssn,
+        date: new Date(),
+      },
+    });
   }
 
   return result;
@@ -261,11 +261,10 @@ export async function recomputeSSNBatch(type: string): Promise<{
 
     const ssn = normalizeScore(rawComposite, cohortStats.mean, cohortStats.std);
 
-    await prisma.$executeRawUnsafe(
-      `UPDATE "assessments" SET "ssn" = $1 WHERE "id" = $2`,
-      ssn,
-      assessment.id
-    );
+    await prisma.assessment.update({
+      where: { id: assessment.id },
+      data: { ssn },
+    });
 
     updated++;
   }
