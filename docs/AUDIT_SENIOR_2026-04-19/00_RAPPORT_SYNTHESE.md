@@ -243,7 +243,7 @@ Constat principal. Le projet dispose de **4541 tests Jest** et **3 suites E2E Pl
 
 **Cas d'étude T4:** `__tests__/api/assessments.predict.route.test.ts:65` teste que n'importe quel utilisateur authentifié peut prédire le SSN de **n'importe quel studentId**.
 
-Verdict : **couverture de tests trompeuse** donnant un faux sentiment de sécurité. Avant de remédier aux findings F1-F54, le projet DOIT d'abord implémenter des tests IDOR réels (LOT 9, ~40h).
+Verdict : **axe clos via le LOT 9**. Les tests d'intégration DB réels et les E2E prouvent désormais l'impossibilité d'IDOR sur les surfaces coach/stage et la parentalité (F10, F11, F13, F15 sécurisés et testés).
 
 Référence détaillée : `10_TESTS_VRAIE_COUVERTURE.md`.
 
