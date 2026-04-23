@@ -46,7 +46,6 @@ jest.mock('openai', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    pedagogicalContent: { findMany: jest.fn() },
     ariaConversation: {
       findUnique: jest.fn(),
       create: jest.fn(),
@@ -55,8 +54,14 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
-    $queryRaw: jest.fn(),
   },
+}));
+
+jest.mock('@/lib/rag-client', () => ({
+  ragSearch: jest.fn().mockResolvedValue([
+    { id: '1', document: 'KB doc', metadata: { subject: 'maths' }, distance: 0.1 },
+  ]),
+  buildRAGContext: jest.fn().mockReturnValue('\n\n--- CONTEXTE ---\n[1] maths\nKB doc\n--- FIN ---\n'),
 }));
 
 import {
@@ -64,9 +69,9 @@ import {
   generateAriaStream,
   saveAriaConversation,
   recordAriaFeedback,
-  generateEmbedding,
 } from '@/lib/aria';
 import { prisma } from '@/lib/prisma';
+import { ragSearch } from '@/lib/rag-client';
 
 async function readStream(stream: ReadableStream): Promise<string> {
   const reader = stream.getReader();
@@ -83,8 +88,7 @@ async function readStream(stream: ReadableStream): Promise<string> {
 // ─── generateAriaResponse ────────────────────────────────────────────────────
 
 function resetPrismaMocks() {
-  (prisma.pedagogicalContent.findMany as jest.Mock).mockClear();
-  (prisma.pedagogicalContent.findMany as jest.Mock).mockResolvedValue([]);
+  (ragSearch as jest.Mock).mockClear();
   (prisma.ariaConversation.findUnique as jest.Mock).mockClear();
   (prisma.ariaConversation.create as jest.Mock).mockClear();
   (prisma.ariaMessage.create as jest.Mock).mockClear();
@@ -107,8 +111,8 @@ describe('generateAriaResponse', () => {
 
   it('should use knowledge base context when results exist', async () => {
     // Arrange: knowledge base returns content
-    (prisma.pedagogicalContent.findMany as jest.Mock).mockResolvedValue([
-      { title: 'Dérivées', content: 'La dérivée mesure le taux de variation...', similarity: 0 },
+    (ragSearch as jest.Mock).mockResolvedValue([
+      { id: '1', document: 'La dérivée mesure le taux de variation...', metadata: { subject: 'maths' }, distance: 0.1 },
     ]);
 
     // Act
@@ -118,7 +122,7 @@ describe('generateAriaResponse', () => {
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
     // Verify knowledge base was queried
-    expect(prisma.pedagogicalContent.findMany).toHaveBeenCalled();
+    expect(ragSearch).toHaveBeenCalled();
   });
 
   it('should handle conversation history without error', async () => {
@@ -138,7 +142,7 @@ describe('generateAriaResponse', () => {
 
   it('should return user-friendly fallback when no knowledge base results', async () => {
     // Arrange: empty knowledge base
-    (prisma.pedagogicalContent.findMany as jest.Mock).mockResolvedValue([]);
+    (ragSearch as jest.Mock).mockResolvedValue([]);
 
     // Act
     const result = await generateAriaResponse('student-1', 'MATHEMATIQUES' as any, 'Question obscure');
@@ -151,11 +155,11 @@ describe('generateAriaResponse', () => {
   it('should query pedagogicalContent with correct subject', async () => {
     // Act
     await generateAriaResponse('student-1', 'NSI' as any, 'Explique les boucles');
-
+ 
     // Assert
-    expect(prisma.pedagogicalContent.findMany).toHaveBeenCalled();
-    const call = (prisma.pedagogicalContent.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where.subject).toBe('NSI');
+    expect(ragSearch).toHaveBeenCalled();
+    const call = (ragSearch as jest.Mock).mock.calls[0][0];
+    expect(call.filters.subject).toBe('nsi'); // Lowercased in implementation
   });
 });
 
@@ -210,7 +214,7 @@ describe('generateAriaStream', () => {
     await readStream(stream);
 
     // Assert
-    expect(prisma.pedagogicalContent.findMany).toHaveBeenCalled();
+    expect(ragSearch).toHaveBeenCalled();
   });
 });
 
@@ -320,39 +324,5 @@ describe('recordAriaFeedback', () => {
       data: { feedback: false },
     });
     expect(result.feedback).toBe(false);
-  });
-});
-
-// ─── generateEmbedding ──────────────────────────────────────────────────────
-
-describe('generateEmbedding', () => {
-  it('should return empty array when OPENAI_API_KEY is ollama', async () => {
-    // Arrange: env already has OPENAI_API_KEY=ollama or unset in test
-    const originalKey = process.env.OPENAI_API_KEY;
-    process.env.OPENAI_API_KEY = 'ollama';
-
-    // Act
-    const embedding = await generateEmbedding('test text');
-
-    // Assert
-    expect(embedding).toEqual([]);
-
-    // Cleanup
-    process.env.OPENAI_API_KEY = originalKey;
-  });
-
-  it('should return empty array when OPENAI_API_KEY is not set', async () => {
-    // Arrange
-    const originalKey = process.env.OPENAI_API_KEY;
-    delete process.env.OPENAI_API_KEY;
-
-    // Act
-    const embedding = await generateEmbedding('test text');
-
-    // Assert
-    expect(embedding).toEqual([]);
-
-    // Cleanup
-    process.env.OPENAI_API_KEY = originalKey;
   });
 });

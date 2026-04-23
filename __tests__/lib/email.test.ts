@@ -36,10 +36,12 @@ describe('email', () => {
 
   it('handles send error in development without throwing', async () => {
     (process.env as any).NODE_ENV = 'development';
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     transport.sendMail.mockRejectedValueOnce(new Error('smtp down'));
     await expect(
       sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student')
     ).resolves.toBeUndefined();
+    errSpy.mockRestore();
   });
 
   it('throws send error in production', async () => {

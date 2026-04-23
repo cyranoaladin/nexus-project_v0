@@ -23,10 +23,6 @@ jest.mock('openai', () => {
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    $queryRaw: jest.fn(),
-    pedagogicalContent: {
-      findMany: jest.fn()
-    },
     ariaConversation: {
         create: jest.fn().mockResolvedValue({ id: 'conv-1' }),
         findUnique: jest.fn()
@@ -36,6 +32,14 @@ jest.mock('@/lib/prisma', () => ({
     }
   }
 }));
+
+// Mock rag-client
+jest.mock('@/lib/rag-client', () => ({
+  ragSearch: jest.fn(),
+  buildRAGContext: jest.fn().mockReturnValue('Contexte de test'),
+}));
+
+import { ragSearch } from '@/lib/rag-client';
 
 describe('ARIA Intelligence Vector Check', () => {
   const originalEnv = process.env;
@@ -49,37 +53,32 @@ describe('ARIA Intelligence Vector Check', () => {
     process.env = originalEnv;
   });
 
-  it('should use vector search when embedding is successful', async () => {
-    // Dynamic import to pick up env vars if needed, though generateEmbedding checks at runtime
+  it('should use knowledge base when available', async () => {
+    // Dynamic import
     const { generateAriaResponse } = await import('@/lib/aria');
 
-    // Setup mock return for vector search
-    (prisma.$queryRaw as jest.Mock).mockResolvedValue([
-      { id: '1', title: "Taux d'accroissement", content: 'Contenu pertinent', similarity: 0.95 }
+    // Setup mock return for ragSearch
+    (ragSearch as jest.Mock).mockResolvedValue([
+      { id: '1', document: 'Contenu pertinent', metadata: { subject: 'maths' }, distance: 0.1 }
     ]);
 
     const response = await generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente');
 
-    // Verify vector search was called
-    expect(prisma.$queryRaw).toHaveBeenCalled();
+    // Verify ragSearch was called
+    expect(ragSearch).toHaveBeenCalled();
     // Verify response
     expect(response).toContain("Réponse intelligente");
   });
 
-  it('should fallback to keyword search if vector search fails', async () => {
+  it('should still generate response if knowledge base search fails', async () => {
     const { generateAriaResponse } = await import('@/lib/aria');
     
-     // Simulate vector search failure
-    (prisma.$queryRaw as jest.Mock).mockRejectedValue(new Error('pgvector error'));
+     // Simulate ragSearch failure
+    (ragSearch as jest.Mock).mockRejectedValue(new Error('rag error'));
     
-    // Setup fallback return
-    (prisma.pedagogicalContent.findMany as jest.Mock).mockResolvedValue([
-        { id: '2', title: 'Derivee', content: 'Contenu fallback' }
-    ]);
-
     const response = await generateAriaResponse('student-1', Subject.MATHEMATIQUES, 'calculer la pente');
 
-    // Verify fallback was called
-    expect(prisma.pedagogicalContent.findMany).toHaveBeenCalled();
+    // Should return a response even if RAG fails (graceful degradation)
+    expect(response).toBeDefined();
   });
 });

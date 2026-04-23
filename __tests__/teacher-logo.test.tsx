@@ -13,6 +13,25 @@ jest.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
+// Mock de lucide-react pour éviter les erreurs d'import ESM
+jest.mock('lucide-react', () => {
+  const React = require('react');
+  return new Proxy({}, {
+    get: () => (props: any) => React.createElement('svg', props),
+  });
+});
+
+// Mock de @react-pdf/renderer pour éviter les erreurs d'import ESM et de primitives
+jest.mock('@react-pdf/renderer', () => ({
+  PDFDownloadLink: ({ children }: any) => <>{children({ loading: false })}</>,
+  Document: ({ children }: any) => <>{children}</>,
+  Page: ({ children }: any) => <>{children}</>,
+  View: ({ children }: any) => <>{children}</>,
+  Text: ({ children }: any) => <>{children}</>,
+  Image: (props: any) => <img {...props} />,
+  StyleSheet: { create: (s: any) => s },
+}));
+
 // Mock du store zustand
 jest.mock('../app/programme/maths-1ere/store', () => ({
   useMathsLabStore: () => ({

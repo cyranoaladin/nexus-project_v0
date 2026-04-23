@@ -51,7 +51,13 @@ jest.mock('./lib/prisma', () => {
     return new Proxy({}, {
       get(_, method) {
         if (typeof method === 'symbol') return undefined;
-        if (!methodCache[method]) methodCache[method] = jest.fn();
+        if (!methodCache[method]) {
+          methodCache[method] = jest.fn();
+          // F18: Default to empty array for findMany to avoid Array.isArray crashes
+          if (method === 'findMany') {
+            methodCache[method].mockResolvedValue([]);
+          }
+        }
         return methodCache[method];
       }
     });
