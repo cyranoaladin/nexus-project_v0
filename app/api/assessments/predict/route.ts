@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       const hasSession = await prisma.sessionBooking.findFirst({
         where: {
           studentId: studentId,
-          coachId: coachProfile.id,
+          coachId: session.user.id,
         },
       });
       if (!hasSession) {

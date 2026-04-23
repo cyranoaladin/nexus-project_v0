@@ -57,9 +57,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result.success) {
+      const isForbidden = result.error?.includes('parent') || result.error?.includes('non autorisé');
       return NextResponse.json(
         { error: result.error },
-        { status: 400 }
+        { status: isForbidden ? 403 : 400 }
       );
     }
 

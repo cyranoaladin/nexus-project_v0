@@ -233,7 +233,7 @@ export async function predictSSNForStudent(
     select: { ssn: true, date: true },
   });
 
-  if (history.length === 0) return null;
+  if (!Array.isArray(history) || history.length === 0) return null;
 
   const ssnHistory = history.map((h) => h.ssn);
   const currentSSN = ssnHistory[ssnHistory.length - 1];
