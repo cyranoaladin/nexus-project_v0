@@ -5,8 +5,8 @@
 -- Create MathsLevel enum
 CREATE TYPE "MathsLevel" AS ENUM ('PREMIERE', 'TERMINALE');
 
--- Create MathsProgress table
-CREATE TABLE "MathsProgress" (
+-- Create maths_progress table
+CREATE TABLE "maths_progress" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "level" "MathsLevel" NOT NULL,
@@ -38,15 +38,15 @@ CREATE TABLE "MathsProgress" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "MathsProgress_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "maths_progress_pkey" PRIMARY KEY ("id")
 );
 
 -- Create unique index for composite key [userId, level]
-CREATE UNIQUE INDEX "MathsProgress_userId_level_key" ON "MathsProgress"("userId", "level");
+CREATE UNIQUE INDEX "maths_progress_userId_level_key" ON "maths_progress"("userId", "level");
 
 -- Create index on userId for faster lookups
-CREATE INDEX "MathsProgress_userId_idx" ON "MathsProgress"("userId");
+CREATE INDEX "maths_progress_userId_idx" ON "maths_progress"("userId");
 
--- Add foreign key constraint to User table
-ALTER TABLE "MathsProgress" ADD CONSTRAINT "MathsProgress_userId_fkey" 
-    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- Add foreign key constraint to users table
+ALTER TABLE "maths_progress" ADD CONSTRAINT "maths_progress_userId_fkey" 
+    FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
