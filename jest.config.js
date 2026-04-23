@@ -10,8 +10,8 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
   transformIgnorePatterns: [
-    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|framer-motion|geist)/)',
-    '/node_modules/.pnpm/(?!(next-auth|@auth|framer-motion|geist)@)',
+    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)/)',
+    '/node_modules/.pnpm/(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)@)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   collectCoverageFrom: [

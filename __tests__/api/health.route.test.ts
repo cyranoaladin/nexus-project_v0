@@ -21,10 +21,12 @@ describe('health route', () => {
   });
 
   it('returns 503 when DB check fails', async () => {
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (prisma.$queryRaw as jest.Mock).mockRejectedValueOnce(new Error('db down'));
     const res = await GET();
     const json = await (res as any).json();
     expect(res.status).toBe(503);
     expect(json.status).toBe('error');
+    errSpy.mockRestore();
   });
 });

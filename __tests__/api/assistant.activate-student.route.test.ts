@@ -150,7 +150,7 @@ describe('POST /api/assistant/activate-student', () => {
       const res = await POST(makeRequest({ studentUserId: 'u-autre', studentEmail: 'autre@test.com' }));
       const body = await res.json();
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(403);
       expect(body.error).toContain('parent');
     });
 
