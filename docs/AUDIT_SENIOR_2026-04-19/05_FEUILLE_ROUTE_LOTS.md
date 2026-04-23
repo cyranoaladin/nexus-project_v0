@@ -1082,7 +1082,9 @@ Contraintes :
 
 ---
 
-## LOT 9 — Tests : Vraie Couverture (P0/P1)
+## LOT 9 — Tests : Vraie Couverture (P0/P1) **[CLOSED]**
+
+> **STATUS : CLOS le 2026-04-23**
 
 > Réf. AXE 10 — `10_TESTS_VRAIE_COUVERTURE.md`
 > Findings : T1-T10 (10 findings). Effort total estimé : ~40h.
