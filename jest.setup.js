@@ -43,7 +43,7 @@ global.setImmediate = global.setImmediate || ((fn, ...args) => setTimeout(fn, 0,
 // Mock Prisma client — Proxy-based: auto-creates jest.fn() for any model.method access
 // All created jest.fn() instances are stable (same reference per model.method)
 // and properly cleared by jest.clearAllMocks() since they are standard jest.fn()
-jest.mock('./lib/prisma', () => {
+jest.mock('@/lib/prisma', () => {
   const modelCache = {};
   const topLevel = {};
   const createModelProxy = () => {
@@ -59,6 +59,12 @@ jest.mock('./lib/prisma', () => {
           }
         }
         return methodCache[method];
+      },
+      set(_, method, value) {
+        if (typeof method === 'string') {
+          methodCache[method] = value;
+        }
+        return true;
       }
     });
   };

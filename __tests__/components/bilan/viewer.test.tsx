@@ -49,7 +49,8 @@ describe('F52: BilanViewer', () => {
 
   it('should render nexus audience when specified', () => {
     render(<BilanViewer data={mockBilan} audience="nexus" />);
-    expect(screen.getByText('Bilan Pédagogique')).toBeInTheDocument();
+    // "Bilan Pédagogique" appears in header AND as h1 in markdown
+    expect(screen.getAllByText('Bilan Pédagogique').length).toBeGreaterThanOrEqual(1);
   });
 
   it('should display global score when provided', () => {

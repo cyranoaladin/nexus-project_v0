@@ -38,13 +38,14 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[Assessment Test] Error:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('[Assessment Test] Error:', message);
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to access Assessment model',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message,
         hint: 'Make sure to run: npx prisma migrate deploy && npx prisma generate',
       },
       { status: 500 }
