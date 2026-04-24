@@ -24,13 +24,13 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         "default-src 'self'",
         // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need
         // custom Document + middleware per-request nonce — tracked as future improvement.
-        // 'unsafe-eval' is added ONLY in development for React Fast Refresh / HMR.
-        `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://cdn.jsdelivr.net`,
+        // 'unsafe-eval' is required for WebAssembly (used by some client-side libraries).
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net`,
         // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
-        "connect-src 'self' https://api.openai.com wss:",
+        "connect-src 'self' https://api.openai.com wss: data:",
         "frame-src https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
