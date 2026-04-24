@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight } from "lucide-react";
+import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight, Calculator, Zap } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -246,6 +246,41 @@ export default function DashboardEleve() {
                       <Link href={dashboardData.student.grade === 'PREMIERE' ? "/programme/maths-1ere" : "/programme/maths-terminale"} className="w-full sm:w-fit">
                         <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
                           Continuer mon parcours
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Nouveau : Livret STMG Interactif (Gamifié) */}
+            {dashboardData?.student.grade === 'PREMIERE' && (
+              <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group mb-6">
+                <CardContent className="p-0">
+                  <div className="flex flex-col md:flex-row items-stretch">
+                    <div className="md:w-1/3 bg-orange-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-orange-500/20">
+                      <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Calculator className="w-8 h-8 text-orange-300" />
+                      </div>
+                      <h3 className="font-bold text-white tracking-tight">Livret STMG</h3>
+                      <p className="text-[10px] uppercase tracking-widest text-orange-300/70 font-bold mt-1">Objectif Bac 2026</p>
+                    </div>
+                    <div className="flex-1 p-6 flex flex-col justify-center">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-4 h-4 text-orange-400 animate-pulse" />
+                        <span className="text-xs font-semibold text-orange-200">Mode Gamifié — Sauve les meubles !</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-white mb-2">
+                        Révisions Mathématiques Interactives
+                      </h4>
+                      <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                        Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
+                      </p>
+                      <Link href="/outils/livret-stmg" className="w-full sm:w-fit">
+                        <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20">
+                          Ouvrir le Livret
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>

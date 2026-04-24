@@ -3,6 +3,7 @@
 import React from 'react';
 import { programmeData } from '../../data';
 import { useChapterProgress } from '../../hooks/useChapterProgress';
+import { resolveUiIcon } from '@/lib/ui-icons';
 
 // Sections
 import { ChapterHeader } from './sections/ChapterHeader';
@@ -46,9 +47,14 @@ export const ChapterView: React.FC<ChapterViewProps> = ({
   return (
     <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/30 rounded-3xl p-6 md:p-10 relative overflow-hidden transition-all duration-500 shadow-2xl">
       {/* Background Decor */}
-      <div className="absolute top-0 right-0 p-8 opacity-5 text-[200px] select-none pointer-events-none transform translate-x-1/4 -translate-y-1/4 transition-transform duration-700 hover:rotate-12">
-        {cat.icon}
-      </div>
+      {(() => {
+        const ThemeIcon = resolveUiIcon(cat.icon);
+        return (
+          <div className="absolute top-0 right-0 p-8 opacity-5 text-[200px] select-none pointer-events-none transform translate-x-1/4 -translate-y-1/4 transition-transform duration-700 hover:rotate-12">
+            <ThemeIcon className="w-full h-full" />
+          </div>
+        );
+      })()}
 
       <ChapterHeader 
         cat={cat}
