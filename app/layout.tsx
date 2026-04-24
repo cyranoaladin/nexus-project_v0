@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, IBM_Plex_Mono, Fraunces, DM_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
@@ -18,6 +18,16 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ['400', '500', '600'],
   subsets: ["latin"],
   variable: "--font-mono",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -79,7 +89,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased bg-surface-darker text-neutral-100 font-sans selection:bg-brand-accent/30 selection:text-white`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} ${fraunces.variable} ${dmSans.variable} antialiased bg-surface-darker text-neutral-100 font-sans selection:bg-brand-accent/30 selection:text-white`}>
         <a href="#main-content" className="skip-to-content">
           Aller au contenu principal
         </a>

@@ -106,7 +106,32 @@ async function main() {
       credits: 5,
     },
   });
-  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com)');
+
+  // Dedicated STMG Student for testing the new tool
+  const stmgStudentUser = await prisma.user.upsert({
+    where: { email: 'stmg@example.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'stmg@example.com',
+      password: hashedPassword,
+      firstName: 'Sophie',
+      lastName: 'STMG',
+      role: 'ELEVE',
+      activatedAt: new Date(),
+    },
+  });
+  await prisma.student.upsert({
+    where: { userId: stmgStudentUser.id },
+    update: {},
+    create: {
+      userId: stmgStudentUser.id,
+      parentId: demoParentProfile.id,
+      grade: 'PREMIERE', // Will match the dashboard check
+      credits: 5,
+    },
+  });
+
+  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com, stmg@example.com)');
 
   // 2. Coaches (10)
   const subjectsList = Object.values(Subject);

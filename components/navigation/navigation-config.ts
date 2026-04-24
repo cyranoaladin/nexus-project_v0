@@ -39,6 +39,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/eleve/stages',
       icon: 'GraduationCap',
       match: 'prefix'
+    },
+    {
+      label: 'Livret STMG',
+      href: '/outils/livret-stmg',
+      icon: 'Calculator',
+      match: 'prefix'
     }
   ],
   [UserRole.PARENT]: [
