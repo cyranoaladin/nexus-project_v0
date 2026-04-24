@@ -7,14 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 // import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 import { track } from "@/lib/analytics";
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +25,25 @@ export default function SignInPage() {
   const [isResendingActivation, setIsResendingActivation] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+
+  // Security: only allow internal callback URLs to prevent open redirect attacks
+  const getSafeRedirectUrl = (role?: string): string => {
+    const roleRoutes: Record<string, string> = {
+      ADMIN: '/dashboard/admin',
+      ASSISTANTE: '/dashboard/assistante',
+      COACH: '/dashboard/coach',
+      PARENT: '/dashboard/parent',
+      ELEVE: '/dashboard/eleve',
+    };
+    const defaultRoute = roleRoutes[role ?? ''] ?? '/dashboard/parent';
+
+    if (callbackUrl && callbackUrl.startsWith('/')) {
+      return callbackUrl;
+    }
+    return defaultRoute;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +67,7 @@ export default function SignInPage() {
         const session = await getSession();
         const role = (session?.user as { role?: string })?.role;
         track.signinSuccess(role ?? 'unknown');
-        const roleRoutes: Record<string, string> = {
-          ADMIN: '/dashboard/admin',
-          ASSISTANTE: '/dashboard/assistante',
-          COACH: '/dashboard/coach',
-          PARENT: '/dashboard/parent',
-          ELEVE: '/dashboard/eleve',
-        };
-        router.push(roleRoutes[role ?? ''] ?? '/dashboard/parent');
+        router.push(getSafeRedirectUrl(role));
       }
     } catch {
       track.signinError('network_error');
@@ -314,5 +326,17 @@ export default function SignInPage() {
 
       <CorporateFooter />
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   );
 }

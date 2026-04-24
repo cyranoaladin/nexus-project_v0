@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle } from "lucide-react";
+import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -220,6 +220,41 @@ export default function DashboardEleve() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="ELEVE">
+            {/* Parcours de Réussite — Accès direct au programme interactif (PRIORITY) */}
+            {(dashboardData?.student.grade === 'PREMIERE' || dashboardData?.student.grade === 'TERMINALE') && (
+              <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group mb-6">
+                <CardContent className="p-0">
+                  <div className="flex flex-col md:flex-row items-stretch">
+                    <div className="md:w-1/3 bg-indigo-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-indigo-500/20">
+                      <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <BookOpen className="w-8 h-8 text-indigo-300" />
+                      </div>
+                      <h3 className="font-bold text-white tracking-tight">Mon Parcours</h3>
+                      <p className="text-[10px] uppercase tracking-widest text-indigo-300/70 font-bold mt-1">Spécialité Maths</p>
+                    </div>
+                    <div className="flex-1 p-6 flex flex-col justify-center">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-brand-accent animate-pulse" />
+                        <span className="text-xs font-semibold text-indigo-200">Programme Interactif Nexus</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-white mb-2">
+                        Mathématiques — {dashboardData.student.grade === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
+                      </h4>
+                      <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                        Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
+                      </p>
+                      <Link href={dashboardData.student.grade === 'PREMIERE' ? "/programme/maths-1ere" : "/programme/maths-terminale"} className="w-full sm:w-fit">
+                        <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
+                          Continuer mon parcours
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Sessions Récentes */}
             <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>

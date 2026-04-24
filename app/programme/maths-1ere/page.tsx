@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import MathsRevisionClient from './components/MathsRevisionClient';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { UserRole } from '@prisma/client';
+import { UserRole, MathsLevel } from '@prisma/client';
 
 /**
  * Spécialité Maths Première - Interactive Revision Page
@@ -59,7 +59,7 @@ export default async function MathsPremierePage() {
       select: { grade: true },
     });
 
-    if (student?.grade !== 'Première') {
+    if (student?.grade !== MathsLevel.PREMIERE) {
       redirect(getDashboardRedirect(sessionUser.role));
     }
   } else if (!allowedRoles.has(sessionUser.role as UserRole)) {
