@@ -983,7 +983,7 @@ export default function LivretSTMGPage() {
       <AnimatePresence mode="wait">
         {state.currentView === "home" && <HomeView state={state} navigate={navigate} earnedBadges={earnedBadges} />}
         {state.currentView === "module" && <ModuleView state={state} setState={setState} navigate={navigate} addXP={addXP} />}
-        {state.currentView === "qcm" && <QcmChronoView state={state} setState={setState} navigate={navigate} addXP={addXP} />}
+        {state.currentView === "qcm" && <QcmChronoView state={state} navigate={navigate} addXP={addXP} />}
         {state.currentView === "badges" && <BadgesView earnedBadges={earnedBadges} navigate={navigate} />}
       </AnimatePresence>
     </div>
