@@ -15,6 +15,7 @@ import {
   Calendar,
   Download,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useMathsLabStore } from '../../store';
 import { programmeData } from '../../data';
 import { STAGE_PRINTEMPS_2026, getDaysUntilExam } from '../../config/stage';
@@ -44,6 +45,10 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
   const [activeBilan, setActiveBilan] = useState<BilanType>('eleve');
   const [openSections, setOpenSections] = useState<string[]>(['resume']);
   const store = useMathsLabStore();
+  const { data: session } = useSession();
+  const userRole = (session?.user as { role?: string })?.role;
+  const isStudent = userRole === 'ELEVE';
+  const isStaff = ['ADMIN', 'COACH', 'ASSISTANTE'].includes(userRole ?? '');
 
   const allChapitres = Object.entries(programmeData).flatMap(([catKey, cat]) =>
     cat.chapitres.map((chap) => ({ catKey, chap }))
@@ -126,8 +131,8 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName }) => {
         activeAudience={audienceMap[activeBilan]}
         onAudienceChange={(audience) => setActiveBilan(audienceReverseMap[audience])}
         showStudent={true}
-        showParents={true}
-        showNexus={true}
+        showParents={!isStudent}
+        showNexus={isStaff}
         disabled={false}
       />
 
