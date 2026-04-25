@@ -75,8 +75,8 @@ describe('POST /api/programme/maths-1ere/progress', () => {
     expect(body.persisted).toBe(true);
     expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { userId_level: { userId: 'u1', level: 'PREMIERE' } },
-        create: expect.objectContaining({ userId: 'u1', level: 'PREMIERE' }),
+        where: { userId_level_track: { userId: 'u1', level: 'PREMIERE', track: 'EDS_GENERALE' } },
+        create: expect.objectContaining({ userId: 'u1', level: 'PREMIERE', track: 'EDS_GENERALE' }),
         update: expect.any(Object),
       })
     );

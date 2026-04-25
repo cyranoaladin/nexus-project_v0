@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 /**
  * RAG endpoint — Maths Première
  *
- * POST /api/programme/maths-1ere/rag
+ * POST /api/programme/maths-1ere-stmg/rag
  * Body: { chapId: string, chapTitre: string, query?: string }
  *
  * Builds a semantically rich query from chapter context + user query,
@@ -31,24 +31,15 @@ const bodySchema = z.object({
 function buildSemanticQuery(chapTitre: string, chapId: string, userQuery?: string): string {
   // Domain keywords mapped to chapter IDs for query enrichment
   const domainKeywords: Record<string, string> = {
-    'second-degre':          'équation du second degré discriminant racines factorisation trinôme première',
-    'logique-raisonnement':  'logique raisonnement démonstration contraposée absurde quantificateurs première',
-    'suites':                'suites numériques arithmétique géométrique récurrence convergence limite première',
-    'derivation':            'dérivation fonction dérivée tangente extremum variations tableau première',
-    'variations-courbes':    'variations courbes représentation graphique sens croissance décroissance première',
-    'exponentielle':         'fonction exponentielle e^x croissance propriétés dérivée limite première',
-    'fonctions-trigo':       'fonctions trigonométriques cosinus sinus cercle trigonométrique radians première',
-    'produit-scalaire':      'produit scalaire vecteurs orthogonalité norme angle géométrie première',
-    'equations-droites':     'équations droites vecteur directeur normal coordonnées géométrie première',
-    'cercles-trigo':         'cercle trigonométrique angles orientés cosinus sinus valeurs remarquables première',
-    'probabilites-cond':     'probabilités conditionnelles indépendance Bayes arbre issues première',
-    'variables-aleatoires':  'variables aléatoires espérance variance loi binomiale probabilités première',
-    'algorithmique-python':  'algorithmique Python boucles fonctions listes algorithme programmation première',
-    'algo-fibonacci-syracuse': 'suites Fibonacci Syracuse algorithme itératif récursif Python première',
-    'algo-newton-euler':     'méthode Newton Euler résolution numérique équations Python algorithme première',
+    'suites': 'suites arithmétiques géométriques applications financières capitalisation première STMG',
+    'fonctions': 'fonctions second degré inverse coût recette bénéfice lecture graphique première STMG',
+    'evolutions': 'pourcentages taux évolution taux moyen indices base 100 première STMG',
+    'statistiques': 'statistiques deux variables ajustement affine droite de Mayer première STMG',
+    'probabilites': 'probabilités loi binomiale fluctuation arbre pondéré première STMG',
+    'algorithmique-tableur': 'tableur formule référence absolue algorithme seuil gestion première STMG',
   };
 
-  const enrichment = domainKeywords[chapId] ?? `${chapTitre} mathématiques première lycée programme`;
+  const enrichment = domainKeywords[chapId] ?? `${chapTitre} mathématiques première STMG gestion programme`;
   const base = userQuery
     ? `${userQuery} — ${chapTitre} — ${enrichment}`
     : `${chapTitre} cours méthode exercice — ${enrichment}`;
@@ -80,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   // ── Circuit A: Nexus RAG API (external) ────────────────────────────────────
   try {
-    const hits = await ragSearchByTrack('EDS_GENERALE', 'maths', semanticQuery, 'premiere', 5);
+    const hits = await ragSearchByTrack('STMG', 'maths', semanticQuery, 'premiere', 5);
 
     if (hits.length > 0) {
       // Filter to score > 0.50 as requested
@@ -104,7 +95,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    console.warn('[RAG maths-1ere] Nexus RAG API unavailable:', err);
+    console.warn('[RAG maths-1ere-stmg] Nexus RAG API unavailable:', err);
   }
 
   // ── No results ─────────────────────────────────────────────────────────────-

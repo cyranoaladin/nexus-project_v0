@@ -1609,6 +1609,7 @@ model MathsProgress {
   userId String
   user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
+  track  AcademicTrack @default(EDS_GENERALE)
 
   // Core progression fields
   completedChapters String[] @default([])
@@ -1644,7 +1645,8 @@ model MathsProgress {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, level])
+  @@unique([userId, level, track])
   @@index([userId])
+  @@index([track])
   @@map("maths_progress")
 }

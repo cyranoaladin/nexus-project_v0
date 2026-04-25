@@ -3,11 +3,44 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { AcademicTrack, MathsLevel, Subject } from '@prisma/client';
+
+type TrackProgress = {
+  totalXp: number;
+  completedChapters: string[];
+};
+
+const EDS_SKILL_GRAPH_BY_SUBJECT: Partial<Record<Subject, string>> = {
+  [Subject.MATHEMATIQUES]: 'maths_premiere',
+  [Subject.NSI]: 'nsi_premiere',
+  [Subject.PHYSIQUE_CHIMIE]: 'physique_chimie_premiere',
+  [Subject.SVT]: 'svt_premiere',
+  [Subject.FRANCAIS]: 'francais_premiere',
+  [Subject.PHILOSOPHIE]: 'philosophie_premiere',
+  [Subject.HISTOIRE_GEO]: 'histoire_geo_premiere',
+  [Subject.ANGLAIS]: 'anglais_premiere',
+  [Subject.ESPAGNOL]: 'espagnol_premiere',
+  [Subject.SES]: 'ses_premiere',
+};
+
+const STMG_MODULES = [
+  { module: 'MATHS_STMG', label: 'Mathématiques STMG', subject: Subject.MATHEMATIQUES, skillGraphRef: 'maths_premiere_stmg' },
+  { module: 'SGN', label: 'Sciences de gestion et numérique', subject: Subject.SES, skillGraphRef: 'sgn_premiere_stmg' },
+  { module: 'MANAGEMENT', label: 'Management', subject: Subject.SES, skillGraphRef: 'management_premiere_stmg' },
+  { module: 'DROIT_ECO', label: 'Droit-Économie', subject: Subject.SES, skillGraphRef: 'droit_eco_premiere_stmg' },
+] as const;
+
+function normalizeProgress(progress?: TrackProgress | null) {
+  return {
+    totalXp: progress?.totalXp ?? 0,
+    completedChapters: progress?.completedChapters ?? [],
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
     // Get the current session (wrapped: auth() can throw UntrustedHost in standalone)
-    let session: any = null;
+    let session: Awaited<ReturnType<typeof auth>> = null;
     try {
       session = await auth();
     } catch {
@@ -27,7 +60,13 @@ export async function GET(request: NextRequest) {
     const student = await prisma.student.findUnique({
       where: { userId: studentId },
       include: {
-        user: true,
+        user: {
+          include: {
+            mathsProgress: {
+              where: { level: MathsLevel.PREMIERE },
+            },
+          },
+        },
         subscriptions: {
           where: { status: 'ACTIVE' },
           orderBy: { createdAt: 'desc' },
@@ -64,7 +103,11 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { earnedAt: 'desc' },
           take: 5
-        }
+        },
+        bilans: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       }
     });
 
@@ -114,6 +157,31 @@ export async function GET(request: NextRequest) {
       0
     );
 
+    const academicTrack = student.academicTrack ?? AcademicTrack.EDS_GENERALE;
+    const gradeLevel = student.gradeLevel ?? 'PREMIERE';
+    const isStmgTrack =
+      academicTrack === AcademicTrack.STMG ||
+      academicTrack === AcademicTrack.STMG_NON_LYCEEN;
+    const mathsProgress = student.user.mathsProgress ?? [];
+    const progressForTrack = (track: AcademicTrack) => mathsProgress.find((progress) => progress.track === track);
+    const edsProgress = normalizeProgress(progressForTrack(AcademicTrack.EDS_GENERALE));
+    const stmgProgress = normalizeProgress(progressForTrack(AcademicTrack.STMG));
+
+    const trackContent = isStmgTrack
+      ? {
+          stmgModules: STMG_MODULES.map((module) => ({
+            ...module,
+            progress: module.module === 'MATHS_STMG' ? stmgProgress : normalizeProgress(null),
+          })),
+        }
+      : {
+          specialties: (student.specialties ?? []).map((subject) => ({
+            subject,
+            skillGraphRef: EDS_SKILL_GRAPH_BY_SUBJECT[subject] ?? `${String(subject).toLowerCase()}_premiere`,
+            progress: subject === Subject.MATHEMATIQUES ? edsProgress : normalizeProgress(null),
+          })),
+        };
+
     // Format dashboard data
     const dashboardData = {
       student: {
@@ -122,8 +190,23 @@ export async function GET(request: NextRequest) {
         lastName: student.user.lastName,
         email: student.user.email,
         grade: student.grade,
+        gradeLevel,
+        academicTrack,
+        specialties: student.specialties ?? [],
+        stmgPathway: student.stmgPathway ?? null,
         school: student.school
       },
+      cockpit: {
+        seanceDuJour: nextSession ?? null,
+        feuilleDeRoute: [],
+        prochaineSession: nextSession ?? null,
+        alertes: [],
+      },
+      nexusIndex: { value: null, trend: null, history: [] },
+      trackContent,
+      ariaQuota: null,
+      sessionsCount: student.sessions.length,
+      lastBilan: student.bilans?.[0] ?? null,
       nextSession: nextSession ? {
         id: nextSession.id,
         title: nextSession.title,

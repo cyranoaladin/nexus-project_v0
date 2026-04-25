@@ -57,6 +57,8 @@ export type RAGSubject = 'maths' | 'nsi' | 'physique_chimie' | 'francais' | 'svt
 /** Supported levels for filtering */
 export type RAGLevel = 'seconde' | 'premiere' | 'terminale' | 'superieur';
 
+export type RAGAcademicTrack = 'EDS_GENERALE' | 'STMG' | 'STI2D' | 'ST2S' | 'STL' | 'STD2A' | 'STMG_NON_LYCEEN';
+
 /**
  * Get the RAG Ingestor base URL.
  * Priority: env var > Docker service name > localhost fallback
@@ -84,7 +86,7 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   // Adapt payload between internal ingestor and external Nexus RAG API
-  const body: Record<string, any> = {
+  const body: Record<string, unknown> = {
     q: options.query,
     k: options.k ?? 4,
     include_documents: options.includeDocuments ?? true,
@@ -143,6 +145,25 @@ export async function ragSearchBySubject(
   k = 4,
 ): Promise<RAGSearchHit[]> {
   const filters: Record<string, string> = { subject };
+  if (level) filters.level = level;
+  return ragSearch({ query, k, filters });
+}
+
+/**
+ * Search with academic track metadata filters.
+ */
+export async function ragSearchByTrack(
+  track: RAGAcademicTrack,
+  subject: RAGSubject,
+  query: string,
+  level?: RAGLevel,
+  k = 4,
+): Promise<RAGSearchHit[]> {
+  const filters: Record<string, string> = {
+    track,
+    academicTrack: track,
+    subject,
+  };
   if (level) filters.level = level;
   return ragSearch({ query, k, filters });
 }

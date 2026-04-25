@@ -80,7 +80,7 @@ describe('GET /api/programme/maths-terminale/progress', () => {
     expect(body.data.total_xp).toBe(200);
     expect(mockFindUnique).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { userId_level: { userId: 'u1', level: 'TERMINALE' } },
+        where: { userId_level_track: { userId: 'u1', level: 'TERMINALE', track: 'EDS_GENERALE' } },
       })
     );
   });
@@ -137,8 +137,8 @@ describe('POST /api/programme/maths-terminale/progress', () => {
     expect(body.persisted).toBe(true);
     expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { userId_level: { userId: 'u1', level: 'TERMINALE' } },
-        create: expect.objectContaining({ userId: 'u1', level: 'TERMINALE' }),
+        where: { userId_level_track: { userId: 'u1', level: 'TERMINALE', track: 'EDS_GENERALE' } },
+        create: expect.objectContaining({ userId: 'u1', level: 'TERMINALE', track: 'EDS_GENERALE' }),
         update: expect.any(Object),
       })
     );
