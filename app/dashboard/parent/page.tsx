@@ -77,7 +77,7 @@ export default function DashboardParent() {
 
   // Consolidate alerts from all children
   const allAlerts = (dashboardData?.children || []).flatMap(child => 
-    (child.alerts || []).map((msg, i) => ({
+    (child.alerts || []).map((msg: string, i: number) => ({
       id: `${child.id}-${i}`,
       type: 'WARNING' as const,
       message: msg,
