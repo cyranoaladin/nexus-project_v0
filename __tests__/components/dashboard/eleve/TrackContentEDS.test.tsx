@@ -9,7 +9,7 @@ describe('TrackContentEDS', () => {
           {
             subject: 'MATHEMATIQUES',
             skillGraphRef: 'maths_premiere',
-            progress: { totalXp: 120, completedChapters: ['suites'] },
+            progress: { totalXp: 120, completedChapters: ['suites'], masteredChapters: [], totalChaptersInProgram: 10, bestCombo: 0, streak: 0 },
           },
         ]}
       />

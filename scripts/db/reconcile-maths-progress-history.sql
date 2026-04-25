@@ -1,0 +1,19 @@
+-- scripts/db/reconcile-maths-progress-history.sql
+-- ─────────────────────────────────────────────────────────────────────
+-- Statut au 25/04/2026 17h : PAS DE RÉCONCILIATION NÉCESSAIRE
+-- ─────────────────────────────────────────────────────────────────────
+-- L'audit initial du 25/04 14h54 mentionnait des "migrations fantômes"
+-- 20250420190000_add_maths_progress en double dans _prisma_migrations.
+-- Vérification effectuée le 25/04 à 17h : aucune entrée fantôme,
+-- toutes les migrations sont propres.
+--
+-- Migrations présentes en prod au 25/04 17h (toutes OK) :
+--   20260201201612_add_cron_execution_tracking
+--   20260222_add_bilan_gratuit_tracking
+--   20260501000000_add_maths_progress
+--   20260425094000_add_student_track_level_specialties
+--   20260425113000_add_maths_progress_track
+--   20260502000000_ensure_maths_progress_track_column
+--
+-- Ce script existe à titre documentaire. Aucune action requise.
+SELECT 'No reconciliation needed — _prisma_migrations is clean' AS status;
