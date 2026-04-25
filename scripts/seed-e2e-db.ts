@@ -218,7 +218,7 @@ const student = await prisma.user.create({
     data: {
       userId: student.id,
       parentId: parent.parentProfile!.id,
-      grade: 'Terminale',
+      grade: 'Première',
       school: 'Lycée Pilote Ariana',
       credits: 8,
       totalSessions: 24,

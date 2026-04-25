@@ -615,7 +615,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
       (s.status === 'SCHEDULED' || s.status === 'CONFIRMED') &&
       new Date(s.scheduledAt) > now
   );
-  const nextSession = upcomingSessionsRaw[0] ?? null;
+  const nextSession = upcomingSessionsRaw.at(-1) ?? null;
 
   const todaySession = student.sessions.find(
     (s) =>
