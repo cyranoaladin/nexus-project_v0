@@ -66,7 +66,7 @@ export default function DashboardCoach() {
       <header className="bg-surface-card border-b border-white/10 h-16 flex items-center justify-between px-8">
         <div className="flex items-center gap-4">
           <BookOpen className="w-8 h-8 text-brand-accent" />
-          <h1 className="font-bold text-white">Espace Coach — {dashboardData?.coach.pseudonym}</h1>
+          <h1 className="font-bold text-white">Espace Coach — {dashboardData?.coach?.pseudonym ?? '...'}</h1>
         </div>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="bg-white/5 border-white/10">
@@ -97,9 +97,9 @@ export default function DashboardCoach() {
                     <CardTitle className="text-white text-base">Planning du Jour</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {dashboardData?.todaySessions.length > 0 ? (
+                    {(dashboardData?.todaySessions?.length ?? 0) > 0 ? (
                       <div className="space-y-4">
-                        {dashboardData.todaySessions.map((s) => (
+                        {dashboardData?.todaySessions.map((s) => (
                           <div key={s.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
                             <div>
                               <p className="font-bold text-white">{s.studentName}</p>
@@ -124,7 +124,7 @@ export default function DashboardCoach() {
                     <Zap className="w-8 h-8 text-brand-accent mb-4" />
                     <h3 className="text-lg font-bold text-white mb-2">Performance Coach</h3>
                     <p className="text-xs text-neutral-400 mb-4">
-                      Vous avez accompagné {dashboardData?.uniqueStudentsCount} élèves ce mois-ci.
+                      Vous avez accompagné {dashboardData?.uniqueStudentsCount ?? 0} élèves ce mois-ci.
                     </p>
                     <Button variant="outline" className="w-full border-white/10">Statistiques mensuelles</Button>
                   </CardContent>
@@ -135,7 +135,7 @@ export default function DashboardCoach() {
         )}
 
         {activeTab === 'availability' && (
-          <CoachAvailability coachId={session!.user.id} onAvailabilityUpdated={fetchDashboardData} />
+          <CoachAvailability coachId={session?.user?.id ?? ''} onAvailabilityUpdated={fetchDashboardData} />
         )}
       </main>
     </div>
