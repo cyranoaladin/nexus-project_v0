@@ -10,6 +10,13 @@ type TrackProgress = {
   completedChapters: string[];
 };
 
+type StudentDashboardSession = {
+  user?: {
+    id?: string;
+    role?: string;
+  };
+} | null;
+
 const EDS_SKILL_GRAPH_BY_SUBJECT: Partial<Record<Subject, string>> = {
   [Subject.MATHEMATIQUES]: 'maths_premiere',
   [Subject.NSI]: 'nsi_premiere',
@@ -40,9 +47,9 @@ function normalizeProgress(progress?: TrackProgress | null) {
 export async function GET(request: NextRequest) {
   try {
     // Get the current session (wrapped: auth() can throw UntrustedHost in standalone)
-    let session: Awaited<ReturnType<typeof auth>> = null;
+    let session: StudentDashboardSession = null;
     try {
-      session = await auth();
+      session = await auth() as StudentDashboardSession;
     } catch {
       // treat auth infra failure as unauthenticated
     }

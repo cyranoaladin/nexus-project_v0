@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import MathsPremierePage from '@/app/programme/maths-1ere/page';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { MathsLevel } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
 jest.mock('@/app/programme/maths-1ere/components/MathsRevisionClient', () => ({
@@ -34,18 +33,14 @@ describe('MathsPremierePage access control', () => {
     jest.clearAllMocks();
   });
 
-  it('redirects unauthenticated users to signin with callback', async () => {
+  it('redirects unauthenticated users to offers', async () => {
     mockAuth.mockResolvedValue(null);
 
-    await expect(MathsPremierePage()).rejects.toThrow(
-      'NEXT_REDIRECT:/auth/signin?callbackUrl=%2Fprogramme%2Fmaths-1ere'
-    );
-    expect(mockRedirect).toHaveBeenCalledWith(
-      '/auth/signin?callbackUrl=%2Fprogramme%2Fmaths-1ere'
-    );
+    await expect(MathsPremierePage()).rejects.toThrow('NEXT_REDIRECT:/offres');
+    expect(mockRedirect).toHaveBeenCalledWith('/offres');
   });
 
-  it('renders for a Premiere student', async () => {
+  it('redirects a student to the unified dashboard programme route', async () => {
     mockAuth.mockResolvedValue({
       user: {
         id: 'student-1',
@@ -54,29 +49,10 @@ describe('MathsPremierePage access control', () => {
         name: 'Nour Example',
       },
     });
-    mockPrismaStudentFindUnique.mockResolvedValue({ grade: MathsLevel.PREMIERE });
 
-    render(await MathsPremierePage());
-
-    expect(screen.getByTestId('maths-revision-client')).toHaveTextContent('student-1:Nour');
-    expect(mockPrismaStudentFindUnique).toHaveBeenCalledWith({
-      where: { userId: 'student-1' },
-      select: { grade: true },
-    });
-  });
-
-  it('redirects a non-Premiere student to the student dashboard', async () => {
-    mockAuth.mockResolvedValue({
-      user: {
-        id: 'student-2',
-        role: 'ELEVE',
-        firstName: 'Sami',
-      },
-    });
-    mockPrismaStudentFindUnique.mockResolvedValue({ grade: 'Terminale' });
-
-    await expect(MathsPremierePage()).rejects.toThrow('NEXT_REDIRECT:/dashboard/eleve');
-    expect(mockRedirect).toHaveBeenCalledWith('/dashboard/eleve');
+    await expect(MathsPremierePage()).rejects.toThrow('NEXT_REDIRECT:/dashboard/eleve/programme/maths');
+    expect(mockRedirect).toHaveBeenCalledWith('/dashboard/eleve/programme/maths');
+    expect(mockPrismaStudentFindUnique).not.toHaveBeenCalled();
   });
 
   it.each([

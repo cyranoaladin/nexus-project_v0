@@ -39,7 +39,7 @@ describe('STMG diagnostic definitions', () => {
     expect(definition.stage).toBe('pallier2');
     expect(definition.track).toBe(track);
     expect(Object.keys(definition.skills)).toEqual(expect.arrayContaining([...domains]));
-    expect(definition.chapters.length).toBeGreaterThanOrEqual(domains.length);
+    expect((definition.chapters ?? []).length).toBeGreaterThanOrEqual(domains.length);
     expect(Object.keys(definition.scoringPolicy.domainWeights)).toEqual(expect.arrayContaining([...domains]));
   });
 });

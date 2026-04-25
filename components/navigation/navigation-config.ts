@@ -17,34 +17,34 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'exact'
     },
     {
-      label: 'Mes Sessions',
-      href: '/dashboard/eleve/mes-sessions',
+      label: 'Sessions',
+      href: '/dashboard/eleve#sessions',
       icon: 'Calendar',
-      match: 'prefix'
+      match: 'exact'
     },
     {
-      label: 'Réserver Session',
-      href: '/dashboard/eleve/sessions',
+      label: 'Programme',
+      href: '/dashboard/eleve#programme-maths',
       icon: 'Clock',
-      match: 'prefix'
+      match: 'exact'
     },
     {
       label: 'Ressources',
-      href: '/dashboard/eleve/ressources',
+      href: '/dashboard/eleve#resources',
       icon: 'BookOpen',
-      match: 'prefix'
+      match: 'exact'
     },
     {
-      label: 'Mes Stages',
-      href: '/dashboard/eleve/stages',
+      label: 'ARIA',
+      href: '/dashboard/eleve#aria',
+      icon: 'MessageSquare',
+      match: 'exact'
+    },
+    {
+      label: 'Stages',
+      href: '/dashboard/eleve#stages',
       icon: 'GraduationCap',
-      match: 'prefix'
-    },
-    {
-      label: 'Livret STMG',
-      href: '/outils/livret-stmg',
-      icon: 'Calculator',
-      match: 'prefix'
+      match: 'exact'
     }
   ],
   [UserRole.PARENT]: [

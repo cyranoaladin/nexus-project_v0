@@ -9,7 +9,7 @@ type CompiledDomain = {
     skillLabel: string;
     chapterId?: string;
     prerequisite?: boolean;
-    prerequisiteLevel?: 'core' | 'recommended';
+    prerequisiteLevel?: string;
   }>;
 };
 
@@ -29,7 +29,10 @@ function buildSkills(compiled: CompiledPayload): DiagnosticDefinition['skills'] 
       domain: domain.domainId,
       chapterId: skill.chapterId,
       prerequisite: skill.prerequisite,
-      prerequisiteLevel: skill.prerequisiteLevel,
+      prerequisiteLevel:
+        skill.prerequisiteLevel === 'core' || skill.prerequisiteLevel === 'recommended'
+          ? skill.prerequisiteLevel
+          : undefined,
     }));
   }
   return skills;

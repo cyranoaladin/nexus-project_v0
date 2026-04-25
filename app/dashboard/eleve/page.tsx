@@ -12,69 +12,23 @@ import { useEffect, useState } from "react";
 import SessionBooking from "@/components/ui/session-booking";
 import { AriaWidget } from "@/components/ui/aria-widget";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
+import {
+  EleveAria,
+  EleveBilans,
+  EleveCockpit,
+  EleveResources,
+  EleveSessions,
+  EleveStages,
+  TrackContentEDS,
+  TrackContentSTMG,
+  type EleveDashboardData,
+} from "@/components/dashboard/eleve";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
-
-interface DashboardData {
-  student: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    grade: string;
-    school: string;
-  };
-  nextSession: {
-    id: string;
-    title: string;
-    subject: string;
-    scheduledAt: string;
-    duration: number;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  } | null;
-  recentSessions: Array<{
-    id: string;
-    title: string;
-    subject: string;
-    status: string;
-    scheduledAt: string;
-    coach: {
-      firstName: string;
-      lastName: string;
-      pseudonym: string;
-    };
-  }>;
-  ariaStats: {
-    messagesToday: number;
-    totalConversations: number;
-  };
-  badges: Array<{
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    earnedAt: string;
-  }>;
-  achievements?: {
-    earnedBadges: number;
-    recentBadges: Array<{
-      id: string;
-      name: string;
-      description: string;
-      icon: string;
-      color: string;
-      earnedAt: string;
-    }>;
-  };
-}
 
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<EleveDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
@@ -163,6 +117,27 @@ export default function DashboardEleve() {
     );
   }
 
+  const isStmgTrack =
+    dashboardData?.student.academicTrack === 'STMG' ||
+    dashboardData?.student.academicTrack === 'STMG_NON_LYCEEN';
+  const edsSpecialties = dashboardData?.trackContent?.specialties ?? [];
+  const stmgModules = dashboardData?.trackContent?.stmgModules ?? [];
+  const ariaSubjectLinks = dashboardData?.trackContent?.specialties
+    ? dashboardData.trackContent.specialties
+        .filter((item) => Boolean(item.subject))
+        .map((item) => {
+          const value = String(item.subject);
+          return { value, label: value.replaceAll('_', ' '), color: 'text-sky-300' };
+        })
+    : [
+        { value: 'MATHEMATIQUES', label: 'Maths', color: 'text-sky-300' },
+        { value: 'NSI', label: 'NSI', color: 'text-blue-300' },
+        { value: 'FRANCAIS', label: 'Français', color: 'text-blue-200' },
+        { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', color: 'text-emerald-300' },
+        { value: 'PHILOSOPHIE', label: 'Philosophie', color: 'text-rose-300' },
+        { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', color: 'text-slate-200' },
+      ];
+
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
       {/* Header */}
@@ -220,8 +195,37 @@ export default function DashboardEleve() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="ELEVE">
+            {dashboardData && (
+              <>
+                <EleveCockpit
+                  data={dashboardData}
+                  onBookSession={() => setActiveTab('booking')}
+                  onOpenAria={() => openAriaWithSubject()}
+                />
+
+                {isStmgTrack ? (
+                  <TrackContentSTMG modules={stmgModules} />
+                ) : (
+                  <TrackContentEDS specialties={edsSpecialties} />
+                )}
+
+                <EleveSessions
+                  sessions={dashboardData.recentSessions}
+                  onBookSession={() => setActiveTab('booking')}
+                />
+                <EleveResources />
+                <EleveBilans hasLastBilan={Boolean(dashboardData.lastBilan)} />
+                <EleveAria
+                  totalConversations={dashboardData.ariaStats.totalConversations}
+                  messagesToday={dashboardData.ariaStats.messagesToday}
+                  onOpenAria={() => openAriaWithSubject()}
+                />
+                <EleveStages />
+              </>
+            )}
+
             {/* Parcours de Réussite — Accès direct au programme interactif (PRIORITY) */}
-            {(dashboardData?.student.grade === 'PREMIERE' || dashboardData?.student.grade === 'TERMINALE') && (
+            {!isStmgTrack && (dashboardData?.student.grade === 'PREMIERE' || dashboardData?.student.grade === 'TERMINALE') && (
               <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group mb-6">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row items-stretch">
@@ -243,7 +247,7 @@ export default function DashboardEleve() {
                       <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
                         Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
                       </p>
-                      <Link href={dashboardData.student.grade === 'PREMIERE' ? "/programme/maths-1ere" : "/programme/maths-terminale"} className="w-full sm:w-fit">
+                      <Link href={dashboardData.student.grade === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
                         <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
                           Continuer mon parcours
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -256,7 +260,7 @@ export default function DashboardEleve() {
             )}
 
             {/* Nouveau : Livret STMG Interactif (Gamifié) */}
-            {dashboardData?.student.grade === 'PREMIERE' && (
+            {isStmgTrack && dashboardData?.student.grade === 'PREMIERE' && (
               <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group mb-6">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row items-stretch">
@@ -278,7 +282,7 @@ export default function DashboardEleve() {
                       <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
                         Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
                       </p>
-                      <Link href="/outils/livret-stmg" className="w-full sm:w-fit">
+                      <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
                         <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20">
                           Ouvrir le Livret
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -291,6 +295,7 @@ export default function DashboardEleve() {
             )}
 
             {/* Sessions Récentes */}
+
             <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -357,14 +362,7 @@ export default function DashboardEleve() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {[
-                    { value: 'MATHEMATIQUES', label: 'Maths', color: 'text-sky-300' },
-                    { value: 'NSI', label: 'NSI', color: 'text-blue-300' },
-                    { value: 'FRANCAIS', label: 'Français', color: 'text-blue-200' },
-                    { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', color: 'text-emerald-300' },
-                    { value: 'PHILOSOPHIE', label: 'Philosophie', color: 'text-rose-300' },
-                    { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', color: 'text-slate-200' },
-                  ].map((subject) => (
+                  {ariaSubjectLinks.map((subject) => (
                     (() => {
                       const SubjectIcon = resolveSubjectIcon(subject.value);
                       return (

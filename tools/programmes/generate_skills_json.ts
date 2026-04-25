@@ -19,14 +19,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /** Skill definitions from the existing curated data */
-const PROGRAMMES: Record<ProgrammeKey, {
+const PROGRAMMES: Partial<Record<ProgrammeKey, {
   sections: Array<{
     rawTitle: string;
     normalizedTitle: string;
     domainId: string;
     skills: Array<{ id: string; label: string }>;
   }>;
-}> = {
+}>> = {
   maths_premiere: {
     sections: [
       {
@@ -298,6 +298,10 @@ const PROGRAMMES: Record<ProgrammeKey, {
 
 function generateCandidates(key: ProgrammeKey): ProgrammeCandidates {
   const programme = PROGRAMMES[key];
+  if (!programme) {
+    throw new Error(`No curated programme data for ${key}`);
+  }
+
   return {
     programmeKey: key,
     generatedAt: new Date().toISOString(),
