@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Target, Save, Plus } from "lucide-react";
+import { Target, Save, Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface TrajectoryDesignerProps {
@@ -40,6 +40,8 @@ export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProp
       setLoading(false);
     }
   };
+
+  return (
     <Card className="bg-surface-card border-white/10 shadow-premium">
       <CardHeader>
         <CardTitle className="text-white text-base flex items-center gap-2">
@@ -108,4 +110,3 @@ export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProp
   );
 }
 
-import { Loader2 } from "lucide-react";
