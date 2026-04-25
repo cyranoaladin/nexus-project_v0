@@ -1,4 +1,5 @@
 import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
+import type { StoredSurvivalProgress } from '@/lib/survival/progress';
 
 export type EleveTrackProgress = {
   totalXp: number;
@@ -24,6 +25,8 @@ export type EleveDashboardData = {
     academicTrack?: AcademicTrack | string;
     specialties?: Subject[];
     stmgPathway?: StmgPathway | null;
+    survivalMode?: boolean;
+    survivalModeReason?: string | null;
     school: string | null;
   };
   cockpit?: {
@@ -38,6 +41,7 @@ export type EleveDashboardData = {
   };
   sessionsCount?: number;
   lastBilan?: unknown | null;
+  survivalProgress?: StoredSurvivalProgress | null;
   nextSession: {
     id: string;
     title: string;

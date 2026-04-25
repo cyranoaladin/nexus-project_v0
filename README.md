@@ -416,6 +416,12 @@ Assistante confirme réservation → POST /api/stages/[slug]/reservations/[id]/c
 
 > Détail complet dans [NAVIGATION_MAP.md](./NAVIGATION_MAP.md)
 
+### Profils eleve Premiere
+
+- Premiere EDS generale : specialites EDS dans `/dashboard/eleve`, avec Maths/NSI et modules associes.
+- Premiere STMG standard : modules STMG distincts (Maths STMG, SGN, Management, Droit-Eco) dans la meme URL.
+- Premiere STMG Mode Survie : variante activee humainement par `COACH`, `ADMIN` ou `ASSISTANTE` pour les profils en tres grande difficulte. Elle remplace le contenu STMG riche par un parcours tactique Maths : 7 reflexes, 8 phrases magiques, QCM Trainer, regle d'or et suivi des victoires. Guide coach : `docs/SURVIVAL_MODE_GUIDE.md`.
+
 ### Pages Publiques (30 pages)
 
 ```

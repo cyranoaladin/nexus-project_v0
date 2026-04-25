@@ -202,6 +202,10 @@ model Student {
   specialties    Subject[]     @default([])
   stmgPathway    StmgPathway?
   updatedTrackAt DateTime?
+  survivalMode       Boolean   @default(false)
+  survivalModeReason String?
+  survivalModeBy     String?
+  survivalModeAt     DateTime?
   school         String?
   birthDate      DateTime?
 
@@ -220,6 +224,7 @@ model Student {
   subscriptionRequests SubscriptionRequest[]
   sessionReports       SessionReport[]
   trajectories         Trajectory[]
+  survivalProgress     SurvivalProgress?
 
   // Learning Graph v2 relations
   assessments        Assessment[] // Linked assessments (optional FK from Assessment)
@@ -1682,3 +1687,42 @@ model CoachNote {
   @@map("coach_notes")
 }
 
+model SurvivalProgress {
+  id        String  @id @default(cuid())
+  studentId String  @unique
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  startedAt DateTime @default(now())
+  examDate  DateTime
+
+  reflexesState Json
+  phrasesState  Json
+  qcmAttempts   Int  @default(0)
+  qcmCorrect    Int  @default(0)
+  rituals       Json
+
+  notePotentielle Float?
+  updatedAt        DateTime @updatedAt
+
+  attempts SurvivalAttempt[]
+
+  @@index([studentId])
+  @@map("survival_progress")
+}
+
+model SurvivalAttempt {
+  id         String           @id @default(cuid())
+  progressId String
+  progress   SurvivalProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  itemType      String
+  itemId        String
+  correctAnswer String
+  givenAnswer   String
+  isCorrect     Boolean
+  timeSpentSec  Int
+  createdAt     DateTime @default(now())
+
+  @@index([progressId, itemType])
+  @@map("survival_attempts")
+}
