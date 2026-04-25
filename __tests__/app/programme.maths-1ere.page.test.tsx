@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import MathsPremierePage from '@/app/programme/maths-1ere/page';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { MathsLevel } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
 jest.mock('@/app/programme/maths-1ere/components/MathsRevisionClient', () => ({
@@ -53,7 +54,7 @@ describe('MathsPremierePage access control', () => {
         name: 'Nour Example',
       },
     });
-    mockPrismaStudentFindUnique.mockResolvedValue({ grade: 'Première' });
+    mockPrismaStudentFindUnique.mockResolvedValue({ grade: MathsLevel.PREMIERE });
 
     render(await MathsPremierePage());
 
