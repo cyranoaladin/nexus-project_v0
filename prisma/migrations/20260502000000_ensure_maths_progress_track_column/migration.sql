@@ -1,8 +1,8 @@
--- Phase 3: separate maths progression by academic track (EDS / STMG)
--- Guarded: on a fresh DB (CI) the maths_progress table is created by a later
--- migration (20260501000000_add_maths_progress). In that case this migration
--- is a no-op and the column + indexes will be added by
--- 20260502000000_ensure_maths_progress_track_column.
+-- Ensure maths_progress.track column + composite indexes exist after the
+-- table has been created by 20260501000000_add_maths_progress.
+-- This migration is idempotent for environments where the column already
+-- exists (e.g. production where 20260425113000_add_maths_progress_track
+-- was applied successfully out of order).
 
 DO $$
 BEGIN
