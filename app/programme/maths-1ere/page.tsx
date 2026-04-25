@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation';
 import MathsRevisionClient from './components/MathsRevisionClient';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { UserRole, MathsLevel } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 /**
  * Spécialité Maths Première - Interactive Revision Page
@@ -15,8 +14,6 @@ import { UserRole, MathsLevel } from '@prisma/client';
  * Based on B.O. Éducation Nationale 2025-2026 programme.
  */
 export default async function MathsPremierePage() {
-  const callbackUrl = '/programme/maths-1ere';
-
   const session = await auth();
   const sessionUser = session?.user as {
     id?: string;
@@ -26,7 +23,7 @@ export default async function MathsPremierePage() {
   } | undefined;
 
   if (!sessionUser?.id) {
-    redirect(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    redirect('/offres');
   }
 
   const getDashboardRedirect = (role?: UserRole) => {
@@ -54,14 +51,7 @@ export default async function MathsPremierePage() {
   ]);
 
   if (sessionUser.role === UserRole.ELEVE) {
-    const student = await prisma.student.findUnique({
-      where: { userId: sessionUser.id },
-      select: { grade: true },
-    });
-
-    if (student?.grade !== MathsLevel.PREMIERE) {
-      redirect(getDashboardRedirect(sessionUser.role));
-    }
+    redirect('/dashboard/eleve/programme/maths');
   } else if (!allowedRoles.has(sessionUser.role as UserRole)) {
     redirect(getDashboardRedirect(sessionUser.role));
   }
