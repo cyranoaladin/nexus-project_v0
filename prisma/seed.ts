@@ -12,6 +12,7 @@ import {
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createId } from '@paralleldrive/cuid2';
+import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 
 const prisma = new PrismaClient();
 
@@ -212,6 +213,10 @@ async function main() {
       academicTrack: AcademicTrack.EDS_GENERALE,
       specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       stmgPathway: null,
+      survivalMode: false,
+      survivalModeReason: null,
+      survivalModeBy: null,
+      survivalModeAt: null,
       updatedTrackAt: new Date(),
     },
     create: {
@@ -247,6 +252,10 @@ async function main() {
       academicTrack: AcademicTrack.STMG,
       specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
+      survivalMode: false,
+      survivalModeReason: null,
+      survivalModeBy: null,
+      survivalModeAt: null,
       updatedTrackAt: new Date(),
     },
     create: {
@@ -282,6 +291,10 @@ async function main() {
       academicTrack: AcademicTrack.EDS_GENERALE,
       specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       stmgPathway: null,
+      survivalMode: false,
+      survivalModeReason: null,
+      survivalModeBy: null,
+      survivalModeAt: null,
       updatedTrackAt: new Date(),
       credits: 8,
     },
@@ -317,6 +330,10 @@ async function main() {
       academicTrack: AcademicTrack.STMG,
       specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
+      survivalMode: false,
+      survivalModeReason: null,
+      survivalModeBy: null,
+      survivalModeAt: null,
       updatedTrackAt: new Date(),
       credits: 8,
     },
@@ -350,7 +367,98 @@ async function main() {
     title: 'Mathématiques STMG Première',
   });
 
-  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com, test@example.com, eleve.eds@nexus-reussite.com, eleve.stmg@nexus-reussite.com)');
+  const survivalParentUser = await prisma.user.upsert({
+    where: { email: 'parent.stmg.survival@nexus-reussite.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'parent.stmg.survival@nexus-reussite.com',
+      password: hashedPassword,
+      firstName: 'Parent',
+      lastName: 'Survie',
+      role: 'PARENT',
+      activatedAt: new Date(),
+    },
+  });
+  const survivalParentProfile = await prisma.parentProfile.upsert({
+    where: { userId: survivalParentUser.id },
+    update: {},
+    create: { userId: survivalParentUser.id },
+  });
+  const survivalStudentUser = await prisma.user.upsert({
+    where: { email: 'eleve.stmg.survival@nexus-reussite.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'eleve.stmg.survival@nexus-reussite.com',
+      password: hashedPassword,
+      firstName: 'Lina',
+      lastName: 'Survie',
+      role: 'ELEVE',
+      activatedAt: new Date(),
+    },
+  });
+  const survivalStudent = await prisma.student.upsert({
+    where: { userId: survivalStudentUser.id },
+    update: {
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      survivalMode: true,
+      survivalModeReason: 'Profil tres grande difficulte - objectif tactique 8/20',
+      survivalModeBy: survivalParentUser.id,
+      survivalModeAt: new Date('2026-04-25T08:00:00.000Z'),
+      updatedTrackAt: new Date(),
+      credits: 6,
+    },
+    create: {
+      userId: survivalStudentUser.id,
+      parentId: survivalParentProfile.id,
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      survivalMode: true,
+      survivalModeReason: 'Profil tres grande difficulte - objectif tactique 8/20',
+      survivalModeBy: survivalParentUser.id,
+      survivalModeAt: new Date('2026-04-25T08:00:00.000Z'),
+      updatedTrackAt: new Date(),
+      credits: 6,
+    },
+  });
+  const survivalSnapshot = createDefaultSurvivalSnapshot();
+  survivalSnapshot.reflexesState.reflex_1 = 'ACQUIS';
+  survivalSnapshot.reflexesState.reflex_2 = 'ACQUIS';
+  survivalSnapshot.reflexesState.reflex_3 = 'REVOIR';
+  survivalSnapshot.phrasesState.phrase_1 = 3;
+  survivalSnapshot.phrasesState.phrase_2 = 1;
+  survivalSnapshot.qcmAttempts = 6;
+  survivalSnapshot.qcmCorrect = 3;
+
+  await prisma.survivalProgress.upsert({
+    where: { studentId: survivalStudent.id },
+    update: {
+      examDate: new Date('2026-06-08T08:00:00.000Z'),
+      ...toPrismaSurvivalData(survivalSnapshot),
+    },
+    create: {
+      studentId: survivalStudent.id,
+      examDate: new Date('2026-06-08T08:00:00.000Z'),
+      ...toPrismaSurvivalData(survivalSnapshot),
+    },
+  });
+
+  await seedStudentScenario({
+    scenarioKey: 'stmg-survival',
+    studentId: survivalStudent.id,
+    email: survivalStudentUser.email,
+    name: 'Lina Survie',
+    subject: Subject.MATHEMATIQUES,
+    title: 'Mathématiques STMG Mode Survie',
+  });
+
+  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com, test@example.com, eleve.eds@nexus-reussite.com, eleve.stmg@nexus-reussite.com, eleve.stmg.survival@nexus-reussite.com)');
 
   // 2. Coaches (10)
   const subjectsList = Object.values(Subject);

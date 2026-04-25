@@ -52,6 +52,8 @@ export type StudentTrackMetadata = {
   academicTrack: AcademicTrack;
   specialties: Subject[];
   stmgPathway?: StmgPathway;
+  survivalMode?: boolean;
+  survivalModeReason?: string;
 };
 
 type ActivationUserRecord = {
@@ -199,6 +201,10 @@ export async function initiateStudentActivation(
         academicTrack: trackMetadata.academicTrack,
         specialties: trackMetadata.specialties,
         stmgPathway: isStmg ? (trackMetadata.stmgPathway ?? 'INDETERMINE') : null,
+        survivalMode: isStmg ? Boolean(trackMetadata.survivalMode) : false,
+        survivalModeReason: isStmg && trackMetadata.survivalMode ? (trackMetadata.survivalModeReason ?? null) : null,
+        survivalModeBy: isStmg && trackMetadata.survivalMode ? initiatorId : null,
+        survivalModeAt: isStmg && trackMetadata.survivalMode ? new Date() : null,
         updatedTrackAt: new Date(),
       },
     });

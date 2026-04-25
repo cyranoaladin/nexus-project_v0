@@ -9,10 +9,11 @@
  * Run: DATABASE_URL=... npx tsx scripts/seed-e2e-db.ts
  */
 
-import { PrismaClient, UserRole, Subject } from '@prisma/client';
+import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole, Subject } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 import path from 'path';
+import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true });
 
@@ -327,6 +328,45 @@ const student = await prisma.user.create({
     });
   }
 
+  const studentSurvival = await prisma.user.create({
+    data: {
+      email: `student-survival.${timestamp}@test.com`,
+      password: hashedPassword,
+      role: UserRole.ELEVE,
+      firstName: 'Lina',
+      lastName: 'Survie',
+      activatedAt: new Date(),
+    },
+  });
+
+  const survivalStudent = await prisma.student.create({
+    data: {
+      userId: studentSurvival.id,
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      survivalMode: true,
+      survivalModeReason: 'E2E survival mode',
+      survivalModeBy: assistante.id,
+      survivalModeAt: new Date(),
+      school: 'Lycée Pilote Ariana',
+      parentId: parent.parentProfile!.id,
+      credits: 5,
+      totalSessions: 2,
+    },
+  });
+  const survivalSnapshot = createDefaultSurvivalSnapshot();
+  survivalSnapshot.reflexesState.reflex_1 = 'REVOIR';
+  await prisma.survivalProgress.create({
+    data: {
+      studentId: survivalStudent.id,
+      examDate: new Date('2026-06-08T08:00:00.000Z'),
+      ...toPrismaSurvivalData(survivalSnapshot),
+    },
+  });
+
   const coach2 = await prisma.user.create({
     data: {
       email: `coach2.${timestamp}@test.com`,
@@ -515,6 +555,7 @@ const student = await prisma.user.create({
     parent: { email: `parent.${timestamp}@test.com`, password: 'password123' },
     student: { email: studentEmail, password: 'password123' }, // yasmine.dupont@test.com
     student2: { email: `student2.${timestamp}@test.com`, password: 'password123' },
+    studentSurvival: { email: `student-survival.${timestamp}@test.com`, password: 'password123' },
     coach: { email: coachEmail, password: 'password123' }, // helios@test.com
     coach2: { email: `coach2.${timestamp}@test.com`, password: 'password123' },
     assistante: { email: `assistante.${timestamp}@test.com`, password: 'password123' },

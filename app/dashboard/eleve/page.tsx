@@ -24,6 +24,7 @@ import {
   type EleveDashboardData,
 } from "@/components/dashboard/eleve";
 import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
+import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
 
 export default function DashboardEleve() {
@@ -121,6 +122,7 @@ export default function DashboardEleve() {
   const isStmgTrack =
     dashboardData?.student.academicTrack === 'STMG' ||
     dashboardData?.student.academicTrack === 'STMG_NON_LYCEEN';
+  const isSurvivalMode = isStmgTrack && dashboardData?.student.survivalMode === true;
   const edsSpecialties = dashboardData?.trackContent?.specialties ?? [];
   const stmgModules = dashboardData?.trackContent?.stmgModules ?? [];
   const ariaSubjectLinks = dashboardData?.trackContent?.specialties
@@ -204,7 +206,9 @@ export default function DashboardEleve() {
                   onOpenAria={() => openAriaWithSubject()}
                 />
 
-                {isStmgTrack ? (
+                {isSurvivalMode ? (
+                  <SurvivalDashboard progress={dashboardData.survivalProgress} />
+                ) : isStmgTrack ? (
                   <TrackContentSTMG modules={stmgModules} />
                 ) : (
                   <TrackContentEDS specialties={edsSpecialties} />
@@ -214,14 +218,14 @@ export default function DashboardEleve() {
                   sessions={dashboardData.recentSessions}
                   onBookSession={() => setActiveTab('booking')}
                 />
-                <EleveResources />
-                <EleveBilans hasLastBilan={Boolean(dashboardData.lastBilan)} />
+                {!isSurvivalMode && <EleveResources />}
+                {!isSurvivalMode && <EleveBilans hasLastBilan={Boolean(dashboardData.lastBilan)} />}
                 <EleveAria
                   totalConversations={dashboardData.ariaStats.totalConversations}
                   messagesToday={dashboardData.ariaStats.messagesToday}
                   onOpenAria={() => openAriaWithSubject()}
                 />
-                <EleveStages />
+                {!isSurvivalMode && <EleveStages />}
               </>
             )}
 
@@ -261,7 +265,7 @@ export default function DashboardEleve() {
             )}
 
             {/* Nouveau : Livret STMG Interactif (Gamifié) */}
-            {isStmgTrack && dashboardData?.student.grade === 'PREMIERE' && (
+            {isStmgTrack && !isSurvivalMode && dashboardData?.student.grade === 'PREMIERE' && (
               <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group mb-6">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row items-stretch">
@@ -296,10 +300,11 @@ export default function DashboardEleve() {
             )}
 
             {/* Automatismes — Épreuve Anticipée */}
-            <AutomatismesDashboardCard grade={dashboardData?.student.grade || ""} />
+            {!isSurvivalMode && <AutomatismesDashboardCard grade={dashboardData?.student.grade || ""} />}
 
             {/* Sessions Récentes */}
 
+            {!isSurvivalMode && (
             <Card className="bg-surface-card border border-white/10 shadow-premium">
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -350,6 +355,7 @@ export default function DashboardEleve() {
                 )}
               </CardContent>
             </Card>
+            )}
 
             {/* Mes Matières — ARIA contextuel */}
             <Card className="bg-surface-card border border-white/10 shadow-premium">

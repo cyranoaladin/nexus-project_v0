@@ -16,7 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /** Roles available in the credentials file */
-export type CredRole = 'parent' | 'student' | 'student2' | 'coach' | 'coach2' | 'admin' | 'assistante' | 'zenon';
+export type CredRole = 'parent' | 'student' | 'student2' | 'studentSurvival' | 'coach' | 'coach2' | 'admin' | 'assistante' | 'zenon';
 
 export interface Credential {
   email: string;

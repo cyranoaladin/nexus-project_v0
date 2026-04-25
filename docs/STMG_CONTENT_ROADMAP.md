@@ -12,6 +12,7 @@ Statut : structure technique scaffoldée en Phase 2. Les skill graphs, définiti
 ## À enrichir
 
 - Exercices progressifs par compétence, avec corrections détaillées.
+- Mode Survie : Shark doit fournir 30 questions QCM simulées additionnelles, calquées strictement sur les sujets 0 technologiques (`lib/survival/qcm-bank.ts` contient déjà les 24 questions de départ et le placeholder).
 - Fiches méthode RAG par domaine et par chapitre.
 - Supports coach : cas d'organisation, dossiers documentaires, grilles de correction.
 - Barèmes fins par module STMG, à valider pédagogiquement.

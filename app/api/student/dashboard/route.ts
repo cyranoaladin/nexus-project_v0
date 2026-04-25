@@ -115,6 +115,7 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        survivalProgress: true,
       }
     });
 
@@ -201,6 +202,8 @@ export async function GET(request: NextRequest) {
         academicTrack,
         specialties: student.specialties ?? [],
         stmgPathway: student.stmgPathway ?? null,
+        survivalMode: student.survivalMode,
+        survivalModeReason: student.survivalModeReason,
         school: student.school
       },
       cockpit: {
@@ -214,6 +217,7 @@ export async function GET(request: NextRequest) {
       ariaQuota: null,
       sessionsCount: student.sessions.length,
       lastBilan: student.bilans?.[0] ?? null,
+      survivalProgress: student.survivalMode ? student.survivalProgress : null,
       nextSession: nextSession ? {
         id: nextSession.id,
         title: nextSession.title,

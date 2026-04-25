@@ -22,6 +22,9 @@ describe('GET /api/student/dashboard — STMG payload', () => {
       academicTrack: 'STMG',
       specialties: [],
       stmgPathway: 'INDETERMINE',
+      survivalMode: true,
+      survivalModeReason: 'Objectif 8/20',
+      survivalProgress: { id: 'survival-1', qcmAttempts: 2, qcmCorrect: 1 },
       school: 'Lycee',
       user: {
         id: 'user-stmg',
@@ -45,6 +48,8 @@ describe('GET /api/student/dashboard — STMG payload', () => {
 
     expect(response.status).toBe(200);
     expect(body.student.academicTrack).toBe('STMG');
+    expect(body.student.survivalMode).toBe(true);
+    expect(body.survivalProgress).toEqual(expect.objectContaining({ id: 'survival-1' }));
     expect(body.trackContent.specialties).toBeUndefined();
     expect(body.trackContent.stmgModules).toEqual([
       expect.objectContaining({ module: 'MATHS_STMG', skillGraphRef: 'maths_premiere_stmg' }),
