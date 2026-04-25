@@ -43,7 +43,7 @@ docker compose -f docker-compose.prod.yml up -d --build nexus-app
 
 # 6. Healthcheck
 sleep 15
-curl -f http://127.0.0.1:3001/api/health || echo "❌ HEALTH FAILED — rollback"
+if ! curl -fsS http://127.0.0.1:3001/api/health; then echo "❌ HEALTH FAILED — rollback"; exit 1; fi
 ```
 
 ## Rollback (si healthcheck échoue ou erreurs 500 > 1%)
@@ -52,9 +52,8 @@ curl -f http://127.0.0.1:3001/api/health || echo "❌ HEALTH FAILED — rollback
 # 1. Stop app
 docker compose -f docker-compose.prod.yml stop nexus-app
 
-# 2. Rollback DB au snapshot
-docker exec -i nexus-postgres-prod pg_restore -U nexus_admin -d nexus_prod -c \
-  < /backups/pre-merge-survival-XXX.dump
+# 2. Rollback DB au snapshot (restauration dans le conteneur)
+docker exec nexus-postgres-prod bash -c 'pg_restore -U nexus_admin -d nexus_prod -c /backups/pre-merge-survival-XXX.dump'
 
 # 3. Revert au commit précédent
 git reset --hard <commit-before-merge>
