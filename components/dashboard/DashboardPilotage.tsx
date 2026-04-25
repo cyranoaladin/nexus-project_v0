@@ -3,7 +3,7 @@
 import { NexusIndexCard } from './NexusIndexCard';
 import { NextStepCard } from './NextStepCard';
 import { EvolutionCard } from './EvolutionCard';
-import { TrajectoireCard } from './TrajectoireCard';
+import { TrajectoireCard, type TrajectoireDataProp } from './TrajectoireCard';
 import { CoachOverviewCard } from './CoachOverviewCard';
 import { OperationsCard } from './OperationsCard';
 import { CapActuelCard } from './CapActuelCard';
@@ -52,11 +52,17 @@ interface DashboardPilotageProps {
   role: DashboardRole;
   /** Student ID for scoped data (parent multi-children) */
   studentId?: string | null;
+  /**
+   * Pre-fetched trajectory from the dashboard payload (ELEVE SSoT).
+   * When provided, TrajectoireCard renders in data mode (no internal fetch).
+   * When absent, TrajectoireCard fetches /api/student/trajectory as before.
+   */
+  trajectoryData?: TrajectoireDataProp;
   /** Role-specific content rendered below the pilotage zone */
   children?: React.ReactNode;
 }
 
-export function DashboardPilotage({ role, studentId, children }: DashboardPilotageProps) {
+export function DashboardPilotage({ role, studentId, trajectoryData, children }: DashboardPilotageProps) {
   const showStudentPilotage = role === 'ELEVE' || role === 'PARENT';
   const showCoachPilotage = role === 'COACH';
   const showOperationsPilotage = role === 'ASSISTANTE';
@@ -90,7 +96,10 @@ export function DashboardPilotage({ role, studentId, children }: DashboardPilota
             {showStudentPilotage && (
               <>
                 <NexusIndexCard studentId={studentId} />
-                <TrajectoireCard studentId={studentId} role={role} />
+                {trajectoryData !== undefined
+                  ? <TrajectoireCard data={trajectoryData} role={role} />
+                  : <TrajectoireCard studentId={studentId} role={role} />
+                }
               </>
             )}
             {showCoachPilotage && <CoachOverviewCard />}

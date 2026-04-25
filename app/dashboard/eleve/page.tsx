@@ -197,7 +197,7 @@ export default function DashboardEleve() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
-          <DashboardPilotage role="ELEVE">
+          <DashboardPilotage role="ELEVE" trajectoryData={dashboardData?.trajectory}>
             {dashboardData && (
               <>
                 <EleveCockpit
@@ -218,14 +218,24 @@ export default function DashboardEleve() {
                   sessions={dashboardData.recentSessions}
                   onBookSession={() => setActiveTab('booking')}
                 />
-                {!isSurvivalMode && <EleveResources />}
-                {!isSurvivalMode && <EleveBilans hasLastBilan={Boolean(dashboardData.lastBilan)} />}
+                {!isSurvivalMode && <EleveResources resources={dashboardData.resources} />}
+                {!isSurvivalMode && (
+                  <EleveBilans
+                    recentBilans={dashboardData.recentBilans}
+                    lastBilan={dashboardData.lastBilan}
+                  />
+                )}
                 <EleveAria
                   totalConversations={dashboardData.ariaStats.totalConversations}
                   messagesToday={dashboardData.ariaStats.messagesToday}
                   onOpenAria={() => openAriaWithSubject()}
                 />
-                {!isSurvivalMode && <EleveStages />}
+                {!isSurvivalMode && (
+                  <EleveStages
+                    upcomingStages={dashboardData.upcomingStages}
+                    pastStages={dashboardData.pastStages}
+                  />
+                )}
               </>
             )}
 
@@ -300,7 +310,12 @@ export default function DashboardEleve() {
             )}
 
             {/* Automatismes — Épreuve Anticipée */}
-            {!isSurvivalMode && <AutomatismesDashboardCard grade={dashboardData?.student.grade || ""} />}
+            {!isSurvivalMode && (
+              <AutomatismesDashboardCard
+                grade={dashboardData?.student.grade || ""}
+                automatismes={dashboardData?.automatismes}
+              />
+            )}
 
             {/* Sessions Récentes */}
 
