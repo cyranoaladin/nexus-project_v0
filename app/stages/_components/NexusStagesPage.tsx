@@ -984,7 +984,7 @@ export default function NexusStagesPage() {
       <AnimatePresence>
         {isTableOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#111826]">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-surface-card">
               <div className="flex items-center justify-between border-b border-white/10 p-5">
                 <h3 className="text-lg font-bold text-white">Tableau récapitulatif complet</h3>
                 <button onClick={() => setIsTableOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
@@ -1028,7 +1028,7 @@ export default function NexusStagesPage() {
       <AnimatePresence>
         {isContactOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111826] p-6">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-surface-card p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white">Contact</h3>
                 <button onClick={() => setIsContactOpen(false)} className="rounded-full p-2 text-white/50 hover:bg-white/[0.06] hover:text-white">
