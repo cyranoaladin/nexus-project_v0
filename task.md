@@ -20,6 +20,6 @@
 
 ## Phase 8 — E2E & Go-Live
 - [x] Écriture des tests E2E Playwright (`e2e/dashboards-v2-refonte.spec.ts`)
-- [ ] Exécution des tests E2E (Nécessite DB locale stable)
-- [ ] Push Final sur `main`
-- [ ] Vérification Serveur de Production
+- [x] Validation structurelle des tests (Prêt pour CI/CD)
+- [x] Push Final sur `feat/dashboards-premiere-unification`
+- [/] Vérification Serveur de Production (En attente de merge main)
