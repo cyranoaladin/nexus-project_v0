@@ -92,11 +92,14 @@ async function main() {
     data: {
       userId: pwStudent.id,
       parentId: pwParent.parentProfile!.id,
-      grade: 'Terminale',
+      grade: 'Première',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'EDS_GENERALE',
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
       credits: 5,
     },
   });
-  console.log(`  ✓ PW Student: ${pwStudent.email}`);
+  console.log(`  ✓ PW Student (EDS): ${pwStudent.email}`);
 
   const pwCoach = await prisma.user.create({
     data: {
@@ -145,10 +148,14 @@ async function main() {
       userId: pwStudent2.id,
       parentId: pwParent.parentProfile!.id,
       grade: 'Première',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'STMG',
+      stmgPathway: 'INDETERMINE',
+      specialties: [],
       credits: 5,
     },
   });
-  console.log(`  ✓ PW Student2: ${pwStudent2.email}\n`);
+  console.log(`  ✓ PW Student2 (STMG): ${pwStudent2.email}\n`);
 
   // =============================================================================
   // CREATE USERS (original E2E test users)
