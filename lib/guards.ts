@@ -134,6 +134,8 @@ export function isStaff(session: AuthSession): boolean {
 }
 
 // Helper to check if result is an error response (Exported for consumers)
-export function isErrorResponse(result: any): result is NextResponse {
-    return typeof result?.json === 'function' && 'status' in result;
+export function isErrorResponse(result: unknown): result is NextResponse {
+  if (typeof result !== 'object' || result === null) return false;
+  const r = result as { json?: unknown; status?: unknown };
+  return typeof r.json === 'function' && 'status' in (result as object);
 }
