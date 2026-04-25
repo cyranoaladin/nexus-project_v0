@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
-import { CoachAvailability } from "@/components/dashboard/coach/CoachAvailability";
+import CoachAvailability from "@/components/ui/coach-availability";
 import { CohortTable } from "@/components/dashboard/coach/CohortTable";
 import { PriorityAlerts } from "@/components/dashboard/coach/PriorityAlerts";
 
