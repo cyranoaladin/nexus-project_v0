@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
 import { CREDS, type CredRole } from './credentials';
 
-type UserType = 'parent' | 'student' | 'coach' | 'admin' | 'assistante';
+type UserType = 'parent' | 'student' | 'student2' | 'coach' | 'coach2' | 'admin' | 'assistante';
 
 interface LoginOptions {
     navigate?: boolean;
@@ -17,7 +17,9 @@ const CREDENTIALS = CREDS;
 const ROLE_PATHS: Record<UserType, string> = {
     parent: '/dashboard/parent',
     student: '/dashboard/eleve',
+    student2: '/dashboard/eleve',
   coach: '/dashboard/coach',
+  coach2: '/dashboard/coach',
   admin: '/dashboard/admin',
   assistante: '/dashboard/assistante',
 };
