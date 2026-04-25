@@ -1,6 +1,6 @@
 import { PHRASES_MAGIQUES } from '@/lib/survival/phrases';
 import { QCM_BANK } from '@/lib/survival/qcm-bank';
-import { REFLEXES } from '@/lib/survival/reflexes';
+import { REFLEXES } from '@/lib/survival/reflex-data';
 
 describe('survival pedagogical payload', () => {
   it('exposes exactly 7 reflexes with three mini quiz items each', () => {
@@ -12,6 +12,7 @@ describe('survival pedagogical payload', () => {
       expect(reflex.hook).toBeTruthy();
       expect(reflex.magicPhraseId).toMatch(/^phrase_[1-8]$/);
       expect(reflex.miniQuiz).toHaveLength(3);
+      expect(reflex.miniQuiz.every((quiz) => quiz.distractors.length >= 3)).toBe(true);
       expect(reflex.qcmPointsCovered).toBeGreaterThan(0);
     }
   });
@@ -31,5 +32,35 @@ describe('survival pedagogical payload', () => {
       (question) => question.category === 'VERT' && question.reflexId,
     );
     expect(linkedGreenQuestions.length).toBeGreaterThanOrEqual(7);
+  });
+
+  it('pedagogical content uses proper French diacritics', () => {
+    const allText = [
+      ...REFLEXES.flatMap((item) => [
+        item.title,
+        item.hook,
+        item.mentalImage,
+        ...item.whenToUse,
+        ...item.method,
+        ...item.miniQuiz.flatMap((quiz) => [quiz.prompt, quiz.explanation]),
+      ]),
+      ...PHRASES_MAGIQUES.flatMap((phrase) => [phrase.context, phrase.template, phrase.example]),
+    ].join(' ');
+
+    const forbiddenAsciiPatterns = [
+      /\breflexe\b/i,
+      /\bgeometrique\b/i,
+      /\barithmetique\b/i,
+      /\bepreuve\b/i,
+      /\bdecroissant/i,
+      /\bmemoriser\b/i,
+      /\bregle\b/i,
+      /\bverifier\b/i,
+      /\bdifficulte\b/i,
+    ];
+
+    forbiddenAsciiPatterns.forEach((pattern) => {
+      expect(allText).not.toMatch(pattern);
+    });
   });
 });

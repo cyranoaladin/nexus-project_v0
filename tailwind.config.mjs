@@ -12,6 +12,15 @@ const config = {
         // ===== DESIGN SYSTEM COLORS =====
         // Brand colors - Use these for brand identity
         brand: designTokens.colors.brand,
+        eaf: {
+          indigo: designTokens.colors.eaf.indigo,
+          teal: designTokens.colors.eaf.teal,
+          amber: designTokens.colors.eaf.amber,
+          orange: designTokens.colors.eaf.orange,
+          'text-primary': designTokens.colors.eaf.text.primary,
+          'text-secondary': designTokens.colors.eaf.text.secondary,
+          'text-tertiary': designTokens.colors.eaf.text.tertiary,
+        },
 
         // Semantic colors - Use these for functional states
         success: designTokens.colors.semantic.success,
@@ -80,7 +89,12 @@ const config = {
         serif: ['Didot', 'Bodoni MT', 'Noto Serif Display', 'URW Palladio L', 'P052', 'serif'],
         display: ['var(--font-space)', 'Space Grotesk', 'sans-serif'],
         body: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        fraunces: ['var(--font-display)', 'Fraunces', 'serif'],
+        'dm-sans': ['var(--font-body)', 'DM Sans', 'sans-serif'],
         mono: ['var(--font-mono)', 'IBM Plex Mono', 'monospace'],
+      },
+      backgroundImage: {
+        'eaf-hero-gradient': designTokens.colors.eaf.heroGradient,
       },
       fontSize: {
         'hero': 'clamp(2.75rem, 5vw, 4.75rem)',

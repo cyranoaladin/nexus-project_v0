@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PhraseMagiqueCard matches snapshot with copy count 0 1`] = `
+<div>
+  <div
+    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+  >
+    <div
+      class="flex flex-col space-y-1.5 p-4 md:p-6"
+    >
+      <h3
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+      >
+        Montrer qu’une suite est arithmétique
+      </h3>
+    </div>
+    <div
+      class="p-4 md:p-6 pt-0 space-y-3"
+    >
+      <p
+        class="text-sm leading-relaxed text-eaf-text-secondary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = ___ . Cette différence est constante, donc la suite est arithmétique de raison r = ___ .
+      </p>
+      <p
+        class="text-xs text-eaf-text-tertiary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = 50. Cette différence est constante, donc la suite est arithmétique de raison r = 50.
+      </p>
+      <div
+        class="flex items-center justify-between gap-3"
+      >
+        <span
+          class="text-xs text-eaf-orange"
+        >
+          Copiée 
+          0
+           fois
+        </span>
+        <button
+          aria-busy="false"
+          aria-label="Copier la phrase magique"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          tabindex="0"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-copy h-4 w-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="14"
+              rx="2"
+              ry="2"
+              width="14"
+              x="8"
+              y="8"
+            />
+            <path
+              d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`PhraseMagiqueCard matches snapshot with copy count 3 1`] = `
+<div>
+  <div
+    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+  >
+    <div
+      class="flex flex-col space-y-1.5 p-4 md:p-6"
+    >
+      <h3
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+      >
+        Montrer qu’une suite est arithmétique
+      </h3>
+    </div>
+    <div
+      class="p-4 md:p-6 pt-0 space-y-3"
+    >
+      <p
+        class="text-sm leading-relaxed text-eaf-text-secondary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = ___ . Cette différence est constante, donc la suite est arithmétique de raison r = ___ .
+      </p>
+      <p
+        class="text-xs text-eaf-text-tertiary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = 50. Cette différence est constante, donc la suite est arithmétique de raison r = 50.
+      </p>
+      <div
+        class="flex items-center justify-between gap-3"
+      >
+        <span
+          class="text-xs text-eaf-orange"
+        >
+          Copiée 
+          3
+           fois
+        </span>
+        <button
+          aria-busy="false"
+          aria-label="Copier la phrase magique"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          tabindex="0"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-copy h-4 w-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="14"
+              rx="2"
+              ry="2"
+              width="14"
+              x="8"
+              y="8"
+            />
+            <path
+              d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`PhraseMagiqueCard matches snapshot with copy count 10 1`] = `
+<div>
+  <div
+    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+  >
+    <div
+      class="flex flex-col space-y-1.5 p-4 md:p-6"
+    >
+      <h3
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+      >
+        Montrer qu’une suite est arithmétique
+      </h3>
+    </div>
+    <div
+      class="p-4 md:p-6 pt-0 space-y-3"
+    >
+      <p
+        class="text-sm leading-relaxed text-eaf-text-secondary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = ___ . Cette différence est constante, donc la suite est arithmétique de raison r = ___ .
+      </p>
+      <p
+        class="text-xs text-eaf-text-tertiary"
+      >
+        Je calcule la différence entre deux termes consécutifs : u1 - u0 = 50. Cette différence est constante, donc la suite est arithmétique de raison r = 50.
+      </p>
+      <div
+        class="flex items-center justify-between gap-3"
+      >
+        <span
+          class="text-xs text-eaf-orange"
+        >
+          Copiée 
+          10
+           fois
+        </span>
+        <button
+          aria-busy="false"
+          aria-label="Copier la phrase magique"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          tabindex="0"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-copy h-4 w-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="14"
+              rx="2"
+              ry="2"
+              width="14"
+              x="8"
+              y="8"
+            />
+            <path
+              d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

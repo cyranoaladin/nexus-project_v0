@@ -29,6 +29,20 @@ export const designTokens = {
       'accent-dark': '#6F90A8', // Darker slate blue for hover states
     },
 
+    // EAF v2 Colors - Shared dashboard language
+    eaf: {
+      indigo: '#5B6EE1',
+      teal: '#14B8A6',
+      amber: '#F59E0B',
+      orange: '#F97316',
+      text: {
+        primary: '#F8FAFC',
+        secondary: '#CBD5E1',
+        tertiary: '#94A3B8',
+      },
+      heroGradient: 'linear-gradient(135deg, #0d1a35, #111c30, #0f1629)',
+    },
+
     // Semantic Colors - Functional meaning
     semantic: {
       success: '#10B981',    // Green - success states
