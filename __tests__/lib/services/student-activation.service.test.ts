@@ -64,4 +64,45 @@ describe('initiateStudentActivation', () => {
       }),
     });
   });
+
+  it('stores survival mode metadata only for STMG activation', async () => {
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce({
+        id: 'student-user-2',
+        email: 'old2@example.com',
+        role: 'ELEVE',
+        activatedAt: null,
+        firstName: 'Ines',
+        lastName: 'Survie',
+        student: { id: 'student-entity-2' },
+      })
+      .mockResolvedValueOnce(null);
+    (prisma.user.update as jest.Mock).mockResolvedValue({});
+    (prisma.student.update as jest.Mock).mockResolvedValue({});
+
+    const result = await initiateStudentActivation(
+      'student-user-2',
+      'ines@example.com',
+      'ASSISTANTE',
+      'assistant-1',
+      {
+        gradeLevel: 'PREMIERE' as any,
+        academicTrack: 'STMG' as any,
+        specialties: [],
+        survivalMode: true,
+        survivalModeReason: 'Profil tres grande difficulte',
+      },
+    );
+
+    expect(result.success).toBe(true);
+    expect(prisma.student.update).toHaveBeenCalledWith({
+      where: { userId: 'student-user-2' },
+      data: expect.objectContaining({
+        survivalMode: true,
+        survivalModeReason: 'Profil tres grande difficulte',
+        survivalModeBy: 'assistant-1',
+        survivalModeAt: expect.any(Date),
+      }),
+    });
+  });
 });
