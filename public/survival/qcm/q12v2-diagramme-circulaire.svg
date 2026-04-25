@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" role="img" aria-label="Diagramme circulaire avec un quart grisé">
+  <rect width="400" height="280" fill="#f8fafc"/>
+  <circle cx="200" cy="135" r="92" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+  <path d="M200 135V43A92 92 0 0 1 292 135Z" fill="#5b6ee1"/>
+  <path d="M200 135L292 135A92 92 0 0 1 174 224Z" fill="#14b8a6"/>
+  <path d="M200 135L174 224A92 92 0 0 1 200 43Z" fill="#f59e0b"/>
+  <text x="210" y="88" font-size="14" fill="#0f172a">1/4</text><text x="230" y="195" font-size="14" fill="#0f172a">reste</text>
+</svg>

@@ -1,4 +1,4 @@
-import { REFLEXES } from './reflexes';
+import { REFLEXES } from './reflex-data';
 import type { SurvivalProgressSnapshot } from './types';
 
 export function computeNotePotentielle(progress: SurvivalProgressSnapshot): number {
@@ -14,6 +14,10 @@ export function computeNotePotentielle(progress: SurvivalProgressSnapshot): numb
   }
 
   qcmPoints += 0.75;
+  const accuracy = progress.qcmAttempts > 0 ? progress.qcmCorrect / progress.qcmAttempts : 0;
+  if (accuracy >= 0.7 && progress.qcmAttempts >= 10) {
+    qcmPoints += 0.5;
+  }
   qcmPoints = Math.min(qcmPoints, 6);
 
   let exoPoints = 0;
@@ -35,11 +39,14 @@ export function computeNotePotentielle(progress: SurvivalProgressSnapshot): numb
 
 export function computeScoreProjection(progress: SurvivalProgressSnapshot, daysUntilExam: number) {
   const today = computeNotePotentielle(progress);
-  const remainingEffortBonus = daysUntilExam <= 7 ? 1 : 2;
+  const weeksLeft = Math.max(0, Math.floor(daysUntilExam / 7));
+  const unseenReflexes = REFLEXES.filter((reflex) => progress.reflexesState[reflex.id] !== 'ACQUIS').length;
+  const acquirableReflexes = Math.min(unseenReflexes, weeksLeft);
+  const projectedReflexBonus = acquirableReflexes * 0.5;
 
   return {
     today,
-    realistic: Math.min(20, Math.round((today + remainingEffortBonus) * 2) / 2),
-    possible: Math.min(20, Math.max(today, 9)),
+    realistic: Math.min(20, Math.round((today + projectedReflexBonus) * 2) / 2),
+    possible: Math.min(20, Math.max(today + unseenReflexes * 0.5, today)),
   };
 }
