@@ -14,10 +14,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 import { z } from 'zod';
+import { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@/types/enums';
 
 const activateStudentSchema = z.object({
   studentUserId: z.string().min(1, 'ID élève requis'),
   studentEmail: z.string().email('Email invalide'),
+  gradeLevel: z.nativeEnum(GradeLevel),
+  academicTrack: z.nativeEnum(AcademicTrack),
+  specialties: z.array(z.nativeEnum(Subject)).default([]),
+  stmgPathway: z.nativeEnum(StmgPathway).optional(),
+}).superRefine((data, ctx) => {
+  const isStmg = data.academicTrack === AcademicTrack.STMG || data.academicTrack === AcademicTrack.STMG_NON_LYCEEN;
+  if (isStmg && data.specialties.length > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['specialties'],
+      message: 'Les spécialités EDS ne sont pas compatibles avec un parcours STMG',
+    });
+  }
 });
 
 export async function POST(request: NextRequest) {
@@ -53,7 +67,13 @@ export async function POST(request: NextRequest) {
       parsed.data.studentUserId,
       parsed.data.studentEmail,
       session.user.role,
-      session.user.id
+      session.user.id,
+      {
+        gradeLevel: parsed.data.gradeLevel,
+        academicTrack: parsed.data.academicTrack,
+        specialties: parsed.data.specialties,
+        stmgPathway: parsed.data.stmgPathway,
+      }
     );
 
     if (!result.success) {

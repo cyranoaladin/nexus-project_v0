@@ -34,6 +34,12 @@ function makeRequest(body: Record<string, unknown>): NextRequest {
   });
 }
 
+const validTrackMetadata = {
+  gradeLevel: 'PREMIERE',
+  academicTrack: 'EDS_GENERALE',
+  specialties: ['MATHEMATIQUES', 'NSI'],
+};
+
 describe('POST /api/assistant/activate-student', () => {
   it('should return 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as any);
@@ -70,6 +76,15 @@ describe('POST /api/assistant/activate-student', () => {
     expect(res.status).toBe(400);
   });
 
+  it('should require track metadata when activating a student', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ADMIN' } } as any);
+
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
+
+    expect(res.status).toBe(400);
+    expect(mockInitiate).not.toHaveBeenCalled();
+  });
+
   it('should activate student for ADMIN', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
     mockInitiate.mockResolvedValue({
@@ -78,21 +93,36 @@ describe('POST /api/assistant/activate-student', () => {
       studentName: 'Ahmed',
     } as any);
 
-    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'ahmed@test.com' }));
+    const res = await POST(makeRequest({
+      studentUserId: 'u1',
+      studentEmail: 'ahmed@test.com',
+      ...validTrackMetadata,
+    }));
     const body = await res.json();
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.activationUrl).toContain('token=abc');
     expect(body.studentName).toBe('Ahmed');
-    expect(mockInitiate).toHaveBeenCalledWith('u1', 'ahmed@test.com', 'ADMIN', 'a1');
+    expect(mockInitiate).toHaveBeenCalledWith(
+      'u1',
+      'ahmed@test.com',
+      'ADMIN',
+      'a1',
+      {
+        gradeLevel: 'PREMIERE',
+        academicTrack: 'EDS_GENERALE',
+        specialties: ['MATHEMATIQUES', 'NSI'],
+        stmgPathway: undefined,
+      }
+    );
   });
 
   it('should activate student for ASSISTANTE', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ASSISTANTE' } } as any);
     mockInitiate.mockResolvedValue({ success: true, activationUrl: 'url', studentName: 'Test' } as any);
 
-    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
     expect(res.status).toBe(200);
   });
 
@@ -100,7 +130,7 @@ describe('POST /api/assistant/activate-student', () => {
     mockAuth.mockResolvedValue({ user: { id: 'p1', role: 'PARENT' } } as any);
     mockInitiate.mockResolvedValue({ success: true, activationUrl: 'url', studentName: 'Test' } as any);
 
-    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
     expect(res.status).toBe(200);
   });
 
@@ -108,7 +138,7 @@ describe('POST /api/assistant/activate-student', () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
     mockInitiate.mockResolvedValue({ success: false, error: 'Student already activated' } as any);
 
-    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
     const body = await res.json();
 
     expect(res.status).toBe(400);
@@ -119,7 +149,7 @@ describe('POST /api/assistant/activate-student', () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
     mockInitiate.mockRejectedValue(new Error('DB error'));
 
-    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com' }));
+    const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'a@b.com', ...validTrackMetadata }));
     expect(res.status).toBe(500);
   });
 
@@ -132,12 +162,15 @@ describe('POST /api/assistant/activate-student', () => {
         studentName: 'Mon Enfant',
       } as any);
 
-      const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'enfant@test.com' }));
+      const res = await POST(makeRequest({ studentUserId: 'u1', studentEmail: 'enfant@test.com', ...validTrackMetadata }));
       const body = await res.json();
 
       expect(res.status).toBe(200);
       expect(body.success).toBe(true);
-      expect(mockInitiate).toHaveBeenCalledWith('u1', 'enfant@test.com', 'PARENT', 'p1');
+      expect(mockInitiate).toHaveBeenCalledWith('u1', 'enfant@test.com', 'PARENT', 'p1', {
+        ...validTrackMetadata,
+        stmgPathway: undefined,
+      });
     });
 
     it('PARENT sans lien parental -> 403', async () => {
@@ -147,7 +180,7 @@ describe('POST /api/assistant/activate-student', () => {
         error: 'Vous n\'êtes pas le parent de cet élève',
       } as any);
 
-      const res = await POST(makeRequest({ studentUserId: 'u-autre', studentEmail: 'autre@test.com' }));
+      const res = await POST(makeRequest({ studentUserId: 'u-autre', studentEmail: 'autre@test.com', ...validTrackMetadata }));
       const body = await res.json();
 
       expect(res.status).toBe(403);
@@ -162,7 +195,7 @@ describe('POST /api/assistant/activate-student', () => {
         studentName: 'Eleve Admin',
       } as any);
 
-      const res = await POST(makeRequest({ studentUserId: 'u-random', studentEmail: 'random@test.com' }));
+      const res = await POST(makeRequest({ studentUserId: 'u-random', studentEmail: 'random@test.com', ...validTrackMetadata }));
       const body = await res.json();
 
       expect(res.status).toBe(200);

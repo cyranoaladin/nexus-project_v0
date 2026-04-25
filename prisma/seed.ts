@@ -1,4 +1,15 @@
-import { PrismaClient, UserRole, Subject } from '@prisma/client';
+import {
+  AcademicTrack,
+  BilanStatus,
+  BilanType,
+  GradeLevel,
+  PrismaClient,
+  ServiceType,
+  SessionStatus,
+  StmgPathway,
+  Subject,
+  UserRole,
+} from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createId } from '@paralleldrive/cuid2';
 
@@ -84,6 +95,103 @@ async function main() {
     create: { userId: demoParentUser.id },
   });
 
+  async function seedStudentScenario(params: {
+    scenarioKey: string;
+    studentId: string;
+    email: string;
+    name: string;
+    subject: Subject;
+    title: string;
+  }) {
+    const scheduledAt = new Date('2026-04-20T09:00:00.000Z');
+
+    await prisma.session.upsert({
+      where: { id: `seed-session-${params.scenarioKey}` },
+      update: {
+        studentId: params.studentId,
+        subject: params.subject,
+        title: params.title,
+        scheduledAt,
+        status: SessionStatus.COMPLETED,
+      },
+      create: {
+        id: `seed-session-${params.scenarioKey}`,
+        studentId: params.studentId,
+        type: ServiceType.COURS_ONLINE,
+        subject: params.subject,
+        title: params.title,
+        description: 'Session historique seed pour le dashboard refonte.',
+        scheduledAt,
+        duration: 60,
+        creditCost: 1,
+        status: SessionStatus.COMPLETED,
+        report: 'Progression régulière, prochaines étapes à suivre dans le cockpit.',
+        reportedAt: new Date('2026-04-20T10:15:00.000Z'),
+      },
+    });
+
+    await prisma.ariaConversation.upsert({
+      where: { id: `seed-aria-${params.scenarioKey}` },
+      update: {
+        studentId: params.studentId,
+        subject: params.subject,
+        title: `ARIA - ${params.title}`,
+      },
+      create: {
+        id: `seed-aria-${params.scenarioKey}`,
+        studentId: params.studentId,
+        subject: params.subject,
+        title: `ARIA - ${params.title}`,
+        messages: {
+          create: [
+            {
+              role: 'user',
+              content: 'Peux-tu me proposer une remédiation ciblée ?',
+            },
+            {
+              role: 'assistant',
+              content: 'Voici un plan court avec une ressource RAG à consulter et un exercice de reprise.',
+            },
+          ],
+        },
+      },
+    });
+
+    await prisma.bilan.upsert({
+      where: { id: `seed-bilan-${params.scenarioKey}` },
+      update: {
+        studentId: params.studentId,
+        studentEmail: params.email,
+        studentName: params.name,
+        subject: params.subject,
+        status: BilanStatus.COMPLETED,
+        isPublished: true,
+      },
+      create: {
+        id: `seed-bilan-${params.scenarioKey}`,
+        type: BilanType.CONTINUOUS,
+        subject: params.subject,
+        studentId: params.studentId,
+        studentEmail: params.email,
+        studentName: params.name,
+        globalScore: 68,
+        confidenceIndex: 72,
+        ssn: 64,
+        uai: 66,
+        domainScores: [{ domain: params.title, score: 68 }],
+        studentMarkdown: `# Bilan ${params.title}\n\nProgression encourageante.`,
+        parentsMarkdown: `# Bilan ${params.title}\n\nVotre enfant progresse avec régularité.`,
+        nexusMarkdown: `# Bilan ${params.title}\n\nSeed technique pour dashboards.`,
+        status: BilanStatus.COMPLETED,
+        progress: 100,
+        isPublished: true,
+        publishedAt: new Date('2026-04-20T11:00:00.000Z'),
+        sourceVersion: 'seed_dashboard_refonte_v1',
+        engineVersion: 'seed',
+      },
+    });
+  }
+
   const demoStudentUser = await prisma.user.upsert({
     where: { email: 'student@example.com' },
     update: { activatedAt: new Date() },
@@ -98,21 +206,32 @@ async function main() {
   });
   await prisma.student.upsert({
     where: { userId: demoStudentUser.id },
-    update: {},
+    update: {
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
+      stmgPathway: null,
+      updatedTrackAt: new Date(),
+    },
     create: {
       userId: demoStudentUser.id,
       parentId: demoParentProfile.id,
-      grade: 'TERMINALE',
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
+      updatedTrackAt: new Date(),
       credits: 5,
     },
   });
 
-  // Dedicated STMG Student for testing the new tool
+  // Dedicated STMG Student for testing the new dashboards
   const stmgStudentUser = await prisma.user.upsert({
-    where: { email: 'stmg@example.com' },
+    where: { email: 'test@example.com' },
     update: { activatedAt: new Date() },
     create: {
-      email: 'stmg@example.com',
+      email: 'test@example.com',
       password: hashedPassword,
       firstName: 'Sophie',
       lastName: 'STMG',
@@ -122,16 +241,116 @@ async function main() {
   });
   await prisma.student.upsert({
     where: { userId: stmgStudentUser.id },
-    update: {},
+    update: {
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      updatedTrackAt: new Date(),
+    },
     create: {
       userId: stmgStudentUser.id,
       parentId: demoParentProfile.id,
       grade: 'PREMIERE', // Will match the dashboard check
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      updatedTrackAt: new Date(),
       credits: 5,
     },
   });
 
-  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com, stmg@example.com)');
+  const edsDashboardUser = await prisma.user.upsert({
+    where: { email: 'eleve.eds@nexus-reussite.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'eleve.eds@nexus-reussite.com',
+      password: hashedPassword,
+      firstName: 'Nour',
+      lastName: 'EDS',
+      role: 'ELEVE',
+      activatedAt: new Date(),
+    },
+  });
+  const edsDashboardStudent = await prisma.student.upsert({
+    where: { userId: edsDashboardUser.id },
+    update: {
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
+      stmgPathway: null,
+      updatedTrackAt: new Date(),
+      credits: 8,
+    },
+    create: {
+      userId: edsDashboardUser.id,
+      parentId: demoParentProfile.id,
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
+      updatedTrackAt: new Date(),
+      credits: 8,
+    },
+  });
+
+  const stmgDashboardUser = await prisma.user.upsert({
+    where: { email: 'eleve.stmg@nexus-reussite.com' },
+    update: { activatedAt: new Date() },
+    create: {
+      email: 'eleve.stmg@nexus-reussite.com',
+      password: hashedPassword,
+      firstName: 'Ines',
+      lastName: 'STMG',
+      role: 'ELEVE',
+      activatedAt: new Date(),
+    },
+  });
+  const stmgDashboardStudent = await prisma.student.upsert({
+    where: { userId: stmgDashboardUser.id },
+    update: {
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      updatedTrackAt: new Date(),
+      credits: 8,
+    },
+    create: {
+      userId: stmgDashboardUser.id,
+      parentId: demoParentProfile.id,
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.STMG,
+      specialties: [],
+      stmgPathway: StmgPathway.INDETERMINE,
+      updatedTrackAt: new Date(),
+      credits: 8,
+    },
+  });
+
+  await seedStudentScenario({
+    scenarioKey: 'eds-premiere',
+    studentId: edsDashboardStudent.id,
+    email: edsDashboardUser.email,
+    name: 'Nour EDS',
+    subject: Subject.MATHEMATIQUES,
+    title: 'Mathématiques EDS Première',
+  });
+  await seedStudentScenario({
+    scenarioKey: 'stmg-premiere',
+    studentId: stmgDashboardStudent.id,
+    email: stmgDashboardUser.email,
+    name: 'Ines STMG',
+    subject: Subject.MATHEMATIQUES,
+    title: 'Mathématiques STMG Première',
+  });
+
+  console.log('✅ Named demo users seeded (helios, zenon, parent@example.com, student@example.com, test@example.com, eleve.eds@nexus-reussite.com, eleve.stmg@nexus-reussite.com)');
 
   // 2. Coaches (10)
   const subjectsList = Object.values(Subject);
@@ -208,11 +427,22 @@ async function main() {
 
         await prisma.student.upsert({
             where: { userId: studentUser.id },
-            update: {},
+            update: {
+                grade: j === 1 ? 'PREMIERE' : 'TERMINALE',
+                gradeLevel: j === 1 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
+                academicTrack: AcademicTrack.EDS_GENERALE,
+                specialties: j === 1 ? [Subject.MATHEMATIQUES, Subject.NSI] : [Subject.MATHEMATIQUES],
+                stmgPathway: null,
+                updatedTrackAt: new Date(),
+            },
             create: {
                 userId: studentUser.id,
                 parentId: parentProfile.id,
                 grade: j === 1 ? 'PREMIERE' : 'TERMINALE',
+                gradeLevel: j === 1 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
+                academicTrack: AcademicTrack.EDS_GENERALE,
+                specialties: j === 1 ? [Subject.MATHEMATIQUES, Subject.NSI] : [Subject.MATHEMATIQUES],
+                updatedTrackAt: new Date(),
                 credits: 5,
             }
         });

@@ -5,11 +5,12 @@
 
 import { BilanGenerator, generateBilans, generateAndSaveBilans } from '@/lib/bilan/generator';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
+import { BilanType } from '@/lib/bilan/types';
 
 describe('F50: BilanGenerator', () => {
   describe('generate', () => {
     const baseContext: BilanGenerationContext = {
-      type: 'DIAGNOSTIC_PRE_STAGE',
+      type: BilanType.DIAGNOSTIC_PRE_STAGE,
       subject: 'MATHS',
       studentName: 'Jean Dupont',
       studentEmail: 'jean@example.com',
@@ -68,7 +69,7 @@ describe('F50: BilanGenerator', () => {
 
       const context: BilanGenerationContext = {
         bilanId: 'test-bilan-123',
-        type: 'ASSESSMENT_QCM',
+        type: BilanType.ASSESSMENT_QCM,
         subject: 'NSI',
         studentName: 'Marie Curie',
         studentEmail: 'marie@example.com',
@@ -88,7 +89,7 @@ describe('F50: BilanGenerator', () => {
       process.env.LLM_MODE = 'stub';
 
       const context: BilanGenerationContext = {
-        type: 'STAGE_POST',
+        type: BilanType.STAGE_POST,
         subject: 'MATHS',
         studentName: 'Pierre Martin',
         studentEmail: 'pierre@example.com',
@@ -106,7 +107,7 @@ describe('F50: BilanGenerator', () => {
       process.env.LLM_MODE = 'off';
 
       const context: BilanGenerationContext = {
-        type: 'CONTINUOUS',
+        type: BilanType.CONTINUOUS,
         subject: 'MATHS',
         studentName: 'Sophie Bernard',
         studentEmail: 'sophie@example.com',
@@ -130,7 +131,7 @@ describe('F50: BilanGenerator', () => {
       // Should attempt live generation (will fail without Ollama but that's expected)
       // We just verify it doesn't default to stub
       const context: BilanGenerationContext = {
-        type: 'DIAGNOSTIC_PRE_STAGE',
+        type: BilanType.DIAGNOSTIC_PRE_STAGE,
         subject: 'MATHS',
         studentName: 'Test',
         studentEmail: 'test@example.com',
@@ -145,7 +146,7 @@ describe('F50: BilanGenerator', () => {
       process.env.LLM_MODE = 'stub';
 
       const context: BilanGenerationContext = {
-        type: 'DIAGNOSTIC_PRE_STAGE',
+        type: BilanType.DIAGNOSTIC_PRE_STAGE,
         subject: 'MATHS',
         studentName: 'Test',
         studentEmail: 'test@example.com',
@@ -160,7 +161,7 @@ describe('F50: BilanGenerator', () => {
       process.env.LLM_MODE = 'off';
 
       const context: BilanGenerationContext = {
-        type: 'DIAGNOSTIC_PRE_STAGE',
+        type: BilanType.DIAGNOSTIC_PRE_STAGE,
         subject: 'MATHS',
         studentName: 'Test',
         studentEmail: 'test@example.com',

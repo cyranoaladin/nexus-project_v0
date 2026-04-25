@@ -222,6 +222,13 @@ export async function PATCH(request: NextRequest) {
 
     // Validate update data
     const validatedData = updateUserSchema.parse(data);
+    const {
+      gradeLevel,
+      academicTrack,
+      specialties,
+      stmgPathway,
+      ...userUpdateFields
+    } = validatedData;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -242,13 +249,13 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Hash password if provided
-    const updateData: Prisma.UserUpdateInput = validatedData.password
+    const updateData: Prisma.UserUpdateInput = userUpdateFields.password
       ? {
-          ...validatedData,
-          password: await bcrypt.hash(validatedData.password, 12)
+          ...userUpdateFields,
+          password: await bcrypt.hash(userUpdateFields.password, 12)
         }
       : {
-          ...validatedData,
+          ...userUpdateFields,
           password: undefined
         };
 
@@ -267,6 +274,23 @@ export async function PATCH(request: NextRequest) {
         updatedAt: true
       }
     });
+
+    if (
+      updatedUser.role === UserRole.ELEVE &&
+      (gradeLevel || academicTrack || specialties || stmgPathway)
+    ) {
+      const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
+      await prisma.student.update({
+        where: { userId: id },
+        data: {
+          ...(gradeLevel ? { gradeLevel } : {}),
+          ...(academicTrack ? { academicTrack } : {}),
+          ...(specialties ? { specialties } : {}),
+          ...(academicTrack ? { stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null } : {}),
+          updatedTrackAt: new Date(),
+        },
+      });
+    }
 
     return successResponse({
       success: true,

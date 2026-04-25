@@ -18,6 +18,7 @@ import { prisma } from '@/lib/prisma';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
 
 /** Hash an activation token for safe storage */
 function hashToken(token: string): string {
@@ -45,6 +46,13 @@ export interface SetPasswordResult {
   error?: string;
   redirectUrl?: string;
 }
+
+export type StudentTrackMetadata = {
+  gradeLevel: GradeLevel;
+  academicTrack: AcademicTrack;
+  specialties: Subject[];
+  stmgPathway?: StmgPathway;
+};
 
 type ActivationUserRecord = {
   id: string;
@@ -117,7 +125,8 @@ export async function initiateStudentActivation(
   studentUserId: string,
   studentEmail: string,
   initiatorRole: string,
-  initiatorId: string
+  initiatorId: string,
+  trackMetadata?: StudentTrackMetadata
 ): Promise<ActivationResult> {
   // Validate initiator role
   const allowedRoles = ['ADMIN', 'ASSISTANTE', 'PARENT'];
@@ -177,6 +186,23 @@ export async function initiateStudentActivation(
       activationExpiry: expiry,
     },
   });
+
+  if (trackMetadata) {
+    const isStmg =
+      trackMetadata.academicTrack === 'STMG' ||
+      trackMetadata.academicTrack === 'STMG_NON_LYCEEN';
+
+    await prisma.student.update({
+      where: { userId: studentUserId },
+      data: {
+        gradeLevel: trackMetadata.gradeLevel,
+        academicTrack: trackMetadata.academicTrack,
+        specialties: trackMetadata.specialties,
+        stmgPathway: isStmg ? (trackMetadata.stmgPathway ?? 'INDETERMINE') : null,
+        updatedTrackAt: new Date(),
+      },
+    });
+  }
 
   // Build activation URL
   const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';

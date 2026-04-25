@@ -69,7 +69,7 @@ describe('F53: Legacy stage bilan migration', () => {
     const result = await BilanPage({ params });
     
     // Should not have been called with redirection URL
-    const redirectCalls = (redirect as jest.Mock).mock.calls;
+    const redirectCalls = (redirect as unknown as jest.Mock).mock.calls;
     const hasLegacyRedirect = redirectCalls.some(
       call => call[0]?.includes && call[0].includes('fevrier-2026')
     );

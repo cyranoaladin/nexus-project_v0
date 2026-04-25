@@ -108,6 +108,36 @@ describe('createUserSchema', () => {
     const result = createUserSchema.safeParse(validUser);
     expect(result.success).toBe(true);
   });
+
+  it('should preserve valid Premiere EDS student track metadata', () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      role: 'ELEVE',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'EDS_GENERALE',
+      specialties: ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.gradeLevel).toBe('PREMIERE');
+      expect(result.data.academicTrack).toBe('EDS_GENERALE');
+      expect(result.data.specialties).toEqual(['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE']);
+    }
+  });
+
+  it('should reject STMG student metadata with NSI specialty', () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      role: 'ELEVE',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'STMG',
+      stmgPathway: 'INDETERMINE',
+      specialties: ['NSI'],
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
 
 // ─── updateUserSchema ────────────────────────────────────────────────────────
