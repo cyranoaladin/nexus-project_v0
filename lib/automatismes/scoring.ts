@@ -1,6 +1,7 @@
 import { 
   AutomatismeSeries, 
   AutomatismeAttemptResult, 
+  AutomatismeCorrection,
   AutomatismeDomain 
 } from "@/types/automatismes";
 
@@ -30,13 +31,14 @@ export function calculateAutomatismeScore(
 ): AutomatismeAttemptResult {
   let score = 0;
   const numQuestions = series.questions.length;
-  
+
   if (numQuestions === 0) {
     throw new Error("La série ne contient aucune question.");
   }
 
   const domainPerformance: Partial<Record<AutomatismeDomain, { correct: number; total: number; percentage: number }>> = {};
   const sourceReferences: string[] = [];
+  const corrections: AutomatismeCorrection[] = [];
 
   // Initialize domain performance
   series.questions.forEach(q => {
@@ -45,9 +47,11 @@ export function calculateAutomatismeScore(
     }
     const perf = domainPerformance[q.domain]!;
     perf.total += 1;
-    
-    const userAnswer = answers[q.id];
-    if (userAnswer === q.correctChoiceId) {
+
+    const userAnswer = answers[q.id] ?? null;
+    const isCorrect = userAnswer === q.correctChoiceId;
+
+    if (isCorrect) {
       score += 1;
       perf.correct += 1;
     } else {
@@ -56,6 +60,20 @@ export function calculateAutomatismeScore(
         sourceReferences.push(q.sourceReference);
       }
     }
+
+    corrections.push({
+      questionId: q.id,
+      questionNumber: q.questionNumber,
+      userAnswer: userAnswer as AutomatismeCorrection["userAnswer"],
+      correctChoiceId: q.correctChoiceId,
+      isCorrect,
+      feedback: isCorrect ? q.feedbackCorrect : q.feedbackWrong,
+      method: q.method,
+      trap: q.trap,
+      remediation: q.remediation,
+      sourceReference: q.sourceReference,
+      sourceComment: q.sourceComment,
+    });
   });
 
   // Calculate percentages for domains
@@ -81,14 +99,14 @@ export function calculateAutomatismeScore(
   });
 
   let recommendation = "";
-  if (percentage >= 90) {
-    recommendation = "Excellent travail ! Tu maîtrises parfaitement les automatismes de cette série. Continue ainsi pour maintenir ce niveau.";
-  } else if (percentage >= 70) {
-    recommendation = "Très bon résultat. Quelques points de vigilance sur certains domaines, mais l'essentiel est acquis. Travaille tes points faibles pour viser le sans-faute.";
-  } else if (percentage >= 50) {
-    recommendation = "Résultat encourageant mais encore trop fragile. Reprends les méthodes des questions échouées et refais une série similaire.";
+  if (score >= 11) {
+    recommendation = "Très bon niveau. Tu peux passer en mode chronométré ou viser le sans-faute.";
+  } else if (score >= 9) {
+    recommendation = "Bon niveau général. Quelques automatismes doivent être stabilisés pour viser une note élevée.";
+  } else if (score >= 6) {
+    recommendation = "Résultat encourageant, mais la fiabilité reste insuffisante. Travaille les domaines indiqués avant de refaire une simulation.";
   } else {
-    recommendation = "Attention, plusieurs automatismes fondamentaux ne sont pas maîtrisés. Un travail de fond sur les bases du calcul et de l'analyse est nécessaire avant de retenter une simulation.";
+    recommendation = "Plusieurs automatismes fondamentaux restent fragiles. Reprends les corrections, puis refais une simulation de consolidation.";
   }
 
   return {
@@ -103,6 +121,7 @@ export function calculateAutomatismeScore(
     strengths,
     recommendation,
     sourceReferences,
+    corrections,
     answers // Pass the raw answers back
   };
 }
