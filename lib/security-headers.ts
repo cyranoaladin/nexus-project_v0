@@ -19,7 +19,6 @@ import { NextResponse } from 'next/server';
  */
 export function applySecurityHeaders(response: NextResponse): NextResponse {
     // Content Security Policy — application-level (authoritative)
-    const isDev = process.env.NODE_ENV === 'development';
     const csp = [
         "default-src 'self'",
         // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need

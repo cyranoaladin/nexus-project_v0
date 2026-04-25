@@ -1095,10 +1095,10 @@ function HomeView({ state, navigate, earnedBadges }: { state: State, navigate: a
 }
 
 function ModuleView({ state, setState, navigate, addXP }: { state: State, setState: any, navigate: any, addXP: any }) {
-  const module = MODULES.find(m => m.id === state.currentModule) || MODULES[0];
+  const currentModule = MODULES.find(m => m.id === state.currentModule) || MODULES[0];
   const [tab, setTab] = useState("method");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const exercise = module.exercises[currentIndex];
+  const exercise = currentModule.exercises[currentIndex];
   
   const isMastered = state.mastered.includes(exercise.id);
   const currentAnswer = state.answers[exercise.id] || "";
@@ -1125,9 +1125,9 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
         : prev.perfectExercises;
 
       const newCompletedModules = [...prev.completedModules];
-      const allInModuleMastered = module.exercises.every(e => newMastered.includes(e.id));
-      if (allInModuleMastered && !newCompletedModules.includes(module.id)) {
-        newCompletedModules.push(module.id);
+      const allInModuleMastered = currentModule.exercises.every(e => newMastered.includes(e.id));
+      if (allInModuleMastered && !newCompletedModules.includes(currentModule.id)) {
+        newCompletedModules.push(currentModule.id);
       }
 
       return {
@@ -1156,13 +1156,13 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
         </Button>
         <div className="flex items-center gap-4">
           <Badge className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 px-3 py-1">
-            {module.title}
+            {currentModule.title}
           </Badge>
           <div className="flex gap-1">
-            {module.exercises.map((_, i) => (
+            {currentModule.exercises.map((_, i) => (
               <div 
                 key={i} 
-                className={`h-1.5 w-6 rounded-full transition-colors ${i === currentIndex ? 'bg-indigo-500' : state.mastered.includes(module.exercises[i].id) ? 'bg-teal-500' : 'bg-slate-800'}`}
+                className={`h-1.5 w-6 rounded-full transition-colors ${i === currentIndex ? 'bg-indigo-500' : state.mastered.includes(currentModule.exercises[i].id) ? 'bg-teal-500' : 'bg-slate-800'}`}
               />
             ))}
           </div>
@@ -1173,8 +1173,8 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
         {/* Left: Content/Method */}
         <div className="lg:col-span-1 space-y-6">
           <Panel className="p-0 overflow-hidden border-none shadow-2xl">
-            <div className={`h-24 bg-gradient-to-r ${module.hero} p-6 flex items-end`}>
-              <h3 className="text-2xl font-bold text-white drop-shadow-md">{module.emoji} {module.title}</h3>
+            <div className={`h-24 bg-gradient-to-r ${currentModule.hero} p-6 flex items-end`}>
+              <h3 className="text-2xl font-bold text-white drop-shadow-md">{currentModule.emoji} {currentModule.title}</h3>
             </div>
             <Tabs value={tab} onValueChange={setTab} className="p-6">
               <TabsList className="grid grid-cols-2 bg-slate-800/50 p-1 mb-6">
@@ -1184,10 +1184,10 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
               <TabsContent value="method" className="space-y-4">
                 <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4">
                   <h4 className="text-indigo-400 font-bold text-sm mb-3 flex items-center gap-2"><Target size={16} /> Objectif</h4>
-                  <p className="text-slate-300 text-sm italic">"{module.objective}"</p>
+                  <p className="text-slate-300 text-sm italic">"{currentModule.objective}"</p>
                 </div>
                 <div className="space-y-3">
-                  {module.method.map((step, i) => (
+                  {currentModule.method.map((step, i) => (
                     <div key={i} className="flex gap-3 text-sm text-slate-400">
                       <span className="w-5 h-5 bg-slate-800 text-slate-500 rounded-full flex items-center justify-center text-xs flex-shrink-0">{i+1}</span>
                       <span>{step}</span>
@@ -1197,10 +1197,10 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
               </TabsContent>
               <TabsContent value="memory" className="space-y-6">
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-6 text-orange-200 font-medium text-center">
-                  "{module.memoryRule}"
+                  "{currentModule.memoryRule}"
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                  {module.flashcards.map((fc, i) => (
+                  {currentModule.flashcards.map((fc, i) => (
                     <div key={i} className="bg-slate-800/30 p-3 rounded-lg text-sm text-slate-300 border border-slate-700/50 flex items-center gap-3">
                       <Zap size={14} className="text-yellow-500" /> {fc}
                     </div>
@@ -1215,8 +1215,8 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
             <textarea 
               placeholder="Tes propres astuces pour ce chapitre..."
               className="w-full h-32 bg-slate-800/50 border-slate-700 text-slate-300 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
-              value={state.notes[module.id] || ""}
-              onChange={e => setState((p: State) => ({ ...p, notes: { ...p.notes, [module.id]: e.target.value } }))}
+              value={state.notes[currentModule.id] || ""}
+              onChange={e => setState((p: State) => ({ ...p, notes: { ...p.notes, [currentModule.id]: e.target.value } }))}
             />
           </Panel>
         </div>
@@ -1227,7 +1227,7 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
             <Panel className="p-8 min-h-[400px] flex flex-col">
               <div className="flex-1 space-y-8">
                 <div className="flex justify-between items-start">
-                  <div className="text-slate-500 text-sm font-bold uppercase tracking-widest">Exercice {currentIndex + 1} sur {module.exercises.length}</div>
+                  <div className="text-slate-500 text-sm font-bold uppercase tracking-widest">Exercice {currentIndex + 1} sur {currentModule.exercises.length}</div>
                   {isMastered && <Badge className="bg-teal-500 text-white font-bold">Maîtrisé</Badge>}
                 </div>
                 
@@ -1342,7 +1342,7 @@ function ModuleView({ state, setState, navigate, addXP }: { state: State, setSta
                   <ChevronLeft /> Précédent
                 </Button>
                 <Button 
-                  disabled={currentIndex === module.exercises.length - 1} 
+                  disabled={currentIndex === currentModule.exercises.length - 1}
                   onClick={() => { setCurrentIndex(i => i + 1); setState((p: State) => ({ ...p, feedback: { ...p.feedback, [exercise.id]: null } })); }}
                   className="bg-slate-800 text-white"
                 >
