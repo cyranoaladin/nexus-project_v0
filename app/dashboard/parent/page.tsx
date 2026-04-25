@@ -1,5 +1,20 @@
-import { ChildCard } from "@/components/dashboard/parent/ChildCard"
-import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolidated"
+"use client";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { Loader2, Users, CreditCard, LogOut, TrendingUp, AlertCircle } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+import { ChildCard } from "@/components/dashboard/parent/ChildCard";
+import { AlertsConsolidated } from "@/components/dashboard/parent/AlertsConsolidated";
+import AddChildDialog from "./add-child-dialog";
+
+interface ParentDashboardData {
+  children: any[];
+}
 
 export default function DashboardParent() {
   const { data: session, status } = useSession()
