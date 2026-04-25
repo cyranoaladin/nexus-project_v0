@@ -348,7 +348,7 @@ const student = await prisma.user.create({
       specialties: [],
       stmgPathway: StmgPathway.INDETERMINE,
       survivalMode: true,
-      survivalModeReason: 'E2E survival mode',
+      survivalModeReason: 'E2E Mode Survie',
       survivalModeBy: assistante.id,
       survivalModeAt: new Date(),
       school: 'Lycée Pilote Ariana',

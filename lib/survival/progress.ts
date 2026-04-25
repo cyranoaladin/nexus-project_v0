@@ -1,4 +1,4 @@
-import { REFLEXES } from './reflexes';
+import { REFLEXES } from './reflex-data';
 import { PHRASES_MAGIQUES } from './phrases';
 import { computeNotePotentielle } from './score-simulator';
 import type { SurvivalProgressSnapshot, SurvivalState } from './types';

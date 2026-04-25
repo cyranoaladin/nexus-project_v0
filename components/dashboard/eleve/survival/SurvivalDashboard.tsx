@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { REFLEXES, getReflex } from '@/lib/survival/reflexes';
+import { REFLEXES, getReflex } from '@/lib/survival/reflex-data';
 import { DEFAULT_EXAM_DATE, snapshotFromStoredProgress, type StoredSurvivalProgress } from '@/lib/survival/progress';
 import { chooseDailyRitual } from '@/lib/survival/ritual-engine';
 import { computeNotePotentielle } from '@/lib/survival/score-simulator';
@@ -30,11 +30,12 @@ export function SurvivalDashboard({ progress }: SurvivalDashboardProps) {
   return (
     <section className="space-y-6" aria-label="Mode Survie STMG">
       <SurvivalHeroBanner examDate={examDate} noteToday={computeNotePotentielle(snapshot)} />
+      <GoldenRuleBanner />
       <SurvivalDailyRitual ritual={ritual} onStart={(targetId) => targetId.startsWith('reflex_') && setActiveReflexId(targetId)} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(220px,0.85fr)_minmax(0,1.5fr)_minmax(260px,0.9fr)]">
         <ReflexesCoffreList progress={snapshot} onOpenReflex={setActiveReflexId} />
-        <section aria-label="Zone d entrainement" className="space-y-4">
+        <section aria-label="Zone d’entraînement" className="space-y-4">
           <ReflexPracticeWorkspace reflex={activeReflex} />
           <QcmTrainerWorkspace />
         </section>
@@ -44,7 +45,7 @@ export function SurvivalDashboard({ progress }: SurvivalDashboardProps) {
       <div className="grid gap-4 lg:grid-cols-3">
         <VictoriesTracker progress={snapshot} />
         <ScoreSimulator progress={snapshot} examDate={examDate} />
-        <GoldenRuleBanner />
+        <GoldenRuleBanner compact />
       </div>
     </section>
   );

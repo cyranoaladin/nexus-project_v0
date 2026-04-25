@@ -1,4 +1,4 @@
-import { REFLEXES } from './reflexes';
+import { REFLEXES } from './reflex-data';
 import { PHRASES_MAGIQUES } from './phrases';
 import type { SurvivalProgressSnapshot, SurvivalRitual } from './types';
 
@@ -22,7 +22,7 @@ export function chooseDailyRitual(
       id: `ritual_${firstUnseen.id}`,
       kind: 'REFLEX',
       targetId: firstUnseen.id,
-      title: `Aujourd'hui : ${firstUnseen.title}`,
+      title: `Aujourd’hui : ${firstUnseen.title}`,
       durationMinutes: 8,
       description: 'Une seule fiche, trois questions, puis on ferme.',
     };
@@ -34,9 +34,9 @@ export function chooseDailyRitual(
       id: `ritual_review_${review.id}`,
       kind: 'REVIEW',
       targetId: review.id,
-      title: `Aujourd'hui : revoir ${review.title}`,
+      title: `Aujourd’hui : revoir ${review.title}`,
       durationMinutes: 5,
-      description: 'On reprend calmement un reflexe deja vu.',
+      description: 'On reprend calmement une fiche déjà vue.',
     };
   }
 
@@ -46,9 +46,9 @@ export function chooseDailyRitual(
       id: 'ritual_qcm_6',
       kind: 'QCM',
       targetId: 'qcm_trainer',
-      title: "Aujourd'hui : 6 questions QCM Trainer",
+      title: "Aujourd’hui : 6 questions QCM Trainer",
       durationMinutes: 10,
-      description: 'Mode avec aide autorise. L objectif est de remplir.',
+      description: 'Mode avec aide autorisé. L’objectif est de remplir.',
     };
   }
 
@@ -57,7 +57,7 @@ export function chooseDailyRitual(
       id: 'ritual_exam_sujet0',
       kind: 'EXAM',
       targetId: 'sujet_0',
-      title: "Aujourd'hui : un sujet 0 entier en mode epreuve",
+      title: "Aujourd’hui : un sujet 0 entier en mode épreuve",
       durationMinutes: 60,
       description: 'Sans calculatrice. On remplit 100 % du QCM.',
     };
@@ -68,9 +68,9 @@ export function chooseDailyRitual(
     id: `ritual_phrase_${phrase.id}`,
     kind: 'PHRASE',
     targetId: phrase.id,
-    title: `Aujourd'hui : copier 3 fois la phrase magique ${phrase.id.replace('phrase_', 'N°')}`,
+    title: `Aujourd’hui : copier 3 fois la phrase magique ${phrase.id.replace('phrase_', 'N°')}`,
     durationMinutes: 3,
-    description: 'Objectif : etre capable de la recopier le jour J.',
+    description: 'Objectif : être capable de la recopier le jour J.',
   };
 }
 
@@ -78,7 +78,7 @@ export const TWO_MINUTE_FALLBACK: SurvivalRitual = {
   id: 'ritual_golden_rule',
   kind: 'GOLDEN_RULE',
   targetId: 'golden_rule',
-  title: "Lis la regle d'or et ferme l'app",
+  title: "Lis la règle d’or et ferme l’app",
   durationMinutes: 2,
-  description: 'Le jour J, tu remplis tout le QCM, meme au hasard.',
+  description: 'Le jour J, tu remplis tout le QCM, même au hasard.',
 };
