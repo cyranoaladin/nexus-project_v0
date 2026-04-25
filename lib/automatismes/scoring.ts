@@ -64,7 +64,9 @@ export function calculateAutomatismeScore(
     corrections.push({
       questionId: q.id,
       questionNumber: q.questionNumber,
-      userAnswer: userAnswer as AutomatismeCorrection["userAnswer"],
+      userAnswer: (userAnswer === 'A' || userAnswer === 'B' || userAnswer === 'C' || userAnswer === 'D'
+        ? userAnswer
+        : null) as AutomatismeCorrection["userAnswer"],
       correctChoiceId: q.correctChoiceId,
       isCorrect,
       feedback: isCorrect ? q.feedbackCorrect : q.feedbackWrong,
