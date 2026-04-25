@@ -1,0 +1,223 @@
+{
+  "programmeKey": "sgn_premiere_stmg",
+  "generatedAt": "2026-04-25T08:03:36.821Z",
+  "schemaVersion": "v1.0",
+  "sections": [
+    {
+      "rawTitle": "De l'individu à l'organisation",
+      "normalizedTitle": "De l'individu à l'organisation",
+      "domainId": "organisation_information",
+      "candidates": [
+        {
+          "rawLabel": "Identifier finalités, parties prenantes et ressources d'une organisation",
+          "normalizedLabel": "Identifier finalités, parties prenantes et ressources d'une organisation",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — De l'individu à l'organisation — Identifier finalités, parties prenantes et ressources d'une organisation"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Distinguer donnée, information et connaissance dans une situation de gestion",
+          "normalizedLabel": "Distinguer donnée, information et connaissance dans une situation de gestion",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — De l'individu à l'organisation — Distinguer donnée, information et connaissance dans une situation de gestion"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "L'individu acteur dans l'organisation",
+      "normalizedTitle": "L'individu acteur dans l'organisation",
+      "domainId": "individu_acteur",
+      "candidates": [
+        {
+          "rawLabel": "Analyser rôle, statut, identité numérique et interactions d'un acteur",
+          "normalizedLabel": "Analyser rôle, statut, identité numérique et interactions d'un acteur",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — L'individu acteur dans l'organisation — Analyser rôle, statut, identité numérique et interactions d'un acteur"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Choisir un mode de communication adapté au contexte organisationnel",
+          "normalizedLabel": "Choisir un mode de communication adapté au contexte organisationnel",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — L'individu acteur dans l'organisation — Choisir un mode de communication adapté au contexte organisationnel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Activité, processus et coordination",
+      "normalizedTitle": "Activité, processus et coordination",
+      "domainId": "activite_processus",
+      "candidates": [
+        {
+          "rawLabel": "Décrire un processus de gestion avec acteurs, tâches et flux",
+          "normalizedLabel": "Décrire un processus de gestion avec acteurs, tâches et flux",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Activité, processus et coordination — Décrire un processus de gestion avec acteurs, tâches et flux"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Repérer les mécanismes de coordination et de contrôle",
+          "normalizedLabel": "Repérer les mécanismes de coordination et de contrôle",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Activité, processus et coordination — Repérer les mécanismes de coordination et de contrôle"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Gestion et création de valeur",
+      "normalizedTitle": "Gestion et création de valeur",
+      "domainId": "gestion_creation_valeur",
+      "candidates": [
+        {
+          "rawLabel": "Relier activité, coût, marge et valeur perçue par le client",
+          "normalizedLabel": "Relier activité, coût, marge et valeur perçue par le client",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Gestion et création de valeur — Relier activité, coût, marge et valeur perçue par le client"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Interpréter un indicateur simple de performance de gestion",
+          "normalizedLabel": "Interpréter un indicateur simple de performance de gestion",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Gestion et création de valeur — Interpréter un indicateur simple de performance de gestion"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Temps, risque et décision",
+      "normalizedTitle": "Temps, risque et décision",
+      "domainId": "temps_risque",
+      "candidates": [
+        {
+          "rawLabel": "Identifier un risque opérationnel et proposer une mesure de prévention",
+          "normalizedLabel": "Identifier un risque opérationnel et proposer une mesure de prévention",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Temps, risque et décision — Identifier un risque opérationnel et proposer une mesure de prévention"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Justifier une décision à partir d'informations fiables et datées",
+          "normalizedLabel": "Justifier une décision à partir d'informations fiables et datées",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Temps, risque et décision — Justifier une décision à partir d'informations fiables et datées"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Information et intelligence collective",
+      "normalizedTitle": "Information et intelligence collective",
+      "domainId": "information_collective",
+      "candidates": [
+        {
+          "rawLabel": "Organiser le partage d'information et la traçabilité",
+          "normalizedLabel": "Organiser le partage d'information et la traçabilité",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Information et intelligence collective — Organiser le partage d'information et la traçabilité"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Évaluer l'intérêt d'un outil collaboratif pour un collectif de travail",
+          "normalizedLabel": "Évaluer l'intérêt d'un outil collaboratif pour un collectif de travail",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Information et intelligence collective — Évaluer l'intérêt d'un outil collaboratif pour un collectif de travail"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Numérique et transformation des organisations",
+      "normalizedTitle": "Numérique et transformation des organisations",
+      "domainId": "numerique_coordination",
+      "candidates": [
+        {
+          "rawLabel": "Décrire le rôle d'un système d'information dans la coordination",
+          "normalizedLabel": "Décrire le rôle d'un système d'information dans la coordination",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Numérique et transformation des organisations — Décrire le rôle d'un système d'information dans la coordination"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Repérer les enjeux de sécurité, confidentialité et conformité des données",
+          "normalizedLabel": "Repérer les enjeux de sécurité, confidentialité et conformité des données",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Numérique et transformation des organisations — Repérer les enjeux de sécurité, confidentialité et conformité des données"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Données, traitement et décision",
+      "normalizedTitle": "Données, traitement et décision",
+      "domainId": "donnees_decision",
+      "candidates": [
+        {
+          "rawLabel": "Structurer des données simples pour répondre à une question de gestion",
+          "normalizedLabel": "Structurer des données simples pour répondre à une question de gestion",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Données, traitement et décision — Structurer des données simples pour répondre à une question de gestion"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Choisir une visualisation adaptée à une décision",
+          "normalizedLabel": "Choisir une visualisation adaptée à une décision",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Données, traitement et décision — Choisir une visualisation adaptée à une décision"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

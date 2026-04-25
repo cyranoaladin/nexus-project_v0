@@ -10,6 +10,10 @@ import { MATHS_PREMIERE_P2 } from './maths-premiere-p2';
 import { MATHS_TERMINALE_P2 } from './maths-terminale-p2';
 import { NSI_PREMIERE_P2 } from './nsi-premiere-p2';
 import { NSI_TERMINALE_P2 } from './nsi-terminale-p2';
+import { MATHS_PREMIERE_STMG_P2 } from './maths-premiere-stmg-p2';
+import { SGN_PREMIERE_STMG_P2 } from './sgn-premiere-stmg-p2';
+import { MANAGEMENT_PREMIERE_STMG_P2 } from './management-premiere-stmg-p2';
+import { DROIT_ECO_PREMIERE_STMG_P2 } from './droit-eco-premiere-stmg-p2';
 
 /** All registered diagnostic definitions, keyed by definitionKey */
 const DEFINITIONS: Record<string, DiagnosticDefinition> = {
@@ -17,6 +21,10 @@ const DEFINITIONS: Record<string, DiagnosticDefinition> = {
   'maths-terminale-p2': MATHS_TERMINALE_P2,
   'nsi-premiere-p2': NSI_PREMIERE_P2,
   'nsi-terminale-p2': NSI_TERMINALE_P2,
+  'maths-premiere-stmg-p2': MATHS_PREMIERE_STMG_P2,
+  'sgn-premiere-stmg-p2': SGN_PREMIERE_STMG_P2,
+  'management-premiere-stmg-p2': MANAGEMENT_PREMIERE_STMG_P2,
+  'droit-eco-premiere-stmg-p2': DROIT_ECO_PREMIERE_STMG_P2,
   // Legacy aliases
   'eds_maths_1ere': MATHS_PREMIERE_P2,
   'eds_maths_tle': MATHS_TERMINALE_P2,

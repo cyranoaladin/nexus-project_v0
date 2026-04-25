@@ -1,0 +1,365 @@
+{
+  "id": "maths-premiere-stmg-p2",
+  "label": "Diagnostic Pré-Stage Maths — Première STMG",
+  "discipline": "maths",
+  "level": "premiere",
+  "track": "stmg",
+  "schemaVersion": "v1.0",
+  "generatedAt": "2026-04-25T08:03:36.791Z",
+  "domains": [
+    {
+      "domainId": "suites_finance",
+      "domainLabel": "Suites et applications financières",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_SUITES_ARITH",
+          "skillLabel": "Modéliser une évolution linéaire par une suite arithmétique",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "suites",
+            "gestion"
+          ],
+          "chapterId": "CH_STMG_MATH_SUITES",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
+        },
+        {
+          "skillId": "STMG_MATH_SUITES_GEO",
+          "skillLabel": "Modéliser une évolution à taux constant par une suite géométrique",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "suites",
+            "taux"
+          ],
+          "chapterId": "CH_STMG_MATH_SUITES"
+        },
+        {
+          "skillId": "STMG_MATH_CAPITALISATION",
+          "skillLabel": "Interpréter capitalisation, mensualité et évolution d'un capital",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "finance"
+          ],
+          "chapterId": "CH_STMG_MATH_SUITES"
+        }
+      ]
+    },
+    {
+      "domainId": "fonctions",
+      "domainLabel": "Fonctions utiles en gestion",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_FONC_LECTURE",
+          "skillLabel": "Lire variations, extremums et signes sur une courbe",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "fonctions"
+          ],
+          "chapterId": "CH_STMG_MATH_FONCTIONS",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
+        },
+        {
+          "skillId": "STMG_MATH_FONC_SECOND_DEGRE",
+          "skillLabel": "Exploiter une fonction polynomiale du second degré dans un contexte économique",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "second-degre"
+          ],
+          "chapterId": "CH_STMG_MATH_FONCTIONS"
+        },
+        {
+          "skillId": "STMG_MATH_FONC_INVERSE",
+          "skillLabel": "Utiliser la fonction inverse pour interpréter une relation non linéaire",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "fonction-inverse"
+          ],
+          "chapterId": "CH_STMG_MATH_FONCTIONS"
+        }
+      ]
+    },
+    {
+      "domainId": "evolutions_indices",
+      "domainLabel": "Pourcentages, évolutions et indices",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_TAUX_GLOBAL",
+          "skillLabel": "Calculer un taux global et un taux réciproque",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "pourcentages"
+          ],
+          "chapterId": "CH_STMG_MATH_EVOLUTIONS",
+          "prerequisite": true,
+          "prerequisiteLevel": "core"
+        },
+        {
+          "skillId": "STMG_MATH_TAUX_MOYEN",
+          "skillLabel": "Déterminer un taux moyen sur plusieurs périodes",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "taux"
+          ],
+          "chapterId": "CH_STMG_MATH_EVOLUTIONS"
+        },
+        {
+          "skillId": "STMG_MATH_INDICES",
+          "skillLabel": "Construire et interpréter un indice base 100",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "indices"
+          ],
+          "chapterId": "CH_STMG_MATH_EVOLUTIONS"
+        }
+      ]
+    },
+    {
+      "domainId": "stats_2var",
+      "domainLabel": "Statistiques à deux variables",
+      "weight": 0.18,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_NUAGE",
+          "skillLabel": "Représenter et lire un nuage de points",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "statistiques"
+          ],
+          "chapterId": "CH_STMG_MATH_STATS"
+        },
+        {
+          "skillId": "STMG_MATH_AJUSTEMENT",
+          "skillLabel": "Utiliser un ajustement affine pour prévoir une valeur",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "ajustement"
+          ],
+          "chapterId": "CH_STMG_MATH_STATS"
+        },
+        {
+          "skillId": "STMG_MATH_MAYER",
+          "skillLabel": "Déterminer une droite de Mayer et discuter sa pertinence",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "mayer"
+          ],
+          "chapterId": "CH_STMG_MATH_STATS"
+        }
+      ]
+    },
+    {
+      "domainId": "probabilites",
+      "domainLabel": "Probabilités et loi binomiale",
+      "weight": 0.16,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_PROBA_CONDITIONNELLE",
+          "skillLabel": "Lire un arbre pondéré et calculer une probabilité conditionnelle",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "probabilites"
+          ],
+          "chapterId": "CH_STMG_MATH_PROBAS"
+        },
+        {
+          "skillId": "STMG_MATH_BINOMIALE",
+          "skillLabel": "Reconnaître une situation de loi binomiale et calculer une probabilité",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "binomiale"
+          ],
+          "chapterId": "CH_STMG_MATH_PROBAS"
+        },
+        {
+          "skillId": "STMG_MATH_FLUCTUATION",
+          "skillLabel": "Interpréter un intervalle de fluctuation dans une décision",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "fluctuation"
+          ],
+          "chapterId": "CH_STMG_MATH_PROBAS"
+        }
+      ]
+    },
+    {
+      "domainId": "algo_tableur",
+      "domainLabel": "Algorithmique appliquée et tableur",
+      "weight": 0.12,
+      "skills": [
+        {
+          "skillId": "STMG_MATH_TABLEUR_FORMULES",
+          "skillLabel": "Construire une formule tableur avec adressage relatif ou absolu",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "tableur"
+          ],
+          "chapterId": "CH_STMG_MATH_ALGO"
+        },
+        {
+          "skillId": "STMG_MATH_ALGO_SEUIL",
+          "skillLabel": "Écrire un algorithme de seuil pour une suite ou un indicateur",
+          "tags": [
+            "programme",
+            "premiere",
+            "stmg",
+            "maths",
+            "algorithmique"
+          ],
+          "chapterId": "CH_STMG_MATH_ALGO"
+        }
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "chapterId": "CH_STMG_MATH_SUITES",
+      "chapterLabel": "Suites et finance",
+      "description": "Suites arithmétiques et géométriques appliquées aux évolutions de gestion.",
+      "domainId": "suites_finance",
+      "skills": [
+        "STMG_MATH_SUITES_ARITH",
+        "STMG_MATH_SUITES_GEO",
+        "STMG_MATH_CAPITALISATION"
+      ],
+      "ragTopics": [
+        "suites",
+        "taux_constant",
+        "capitalisation",
+        "gestion"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MATH_FONCTIONS",
+      "chapterLabel": "Fonctions en contexte économique",
+      "description": "Lecture graphique, second degré, fonction inverse et interprétation économique.",
+      "domainId": "fonctions",
+      "skills": [
+        "STMG_MATH_FONC_LECTURE",
+        "STMG_MATH_FONC_SECOND_DEGRE",
+        "STMG_MATH_FONC_INVERSE"
+      ],
+      "ragTopics": [
+        "fonctions",
+        "second_degre",
+        "cout",
+        "recette",
+        "benefice"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MATH_EVOLUTIONS",
+      "chapterLabel": "Évolutions et indices",
+      "description": "Pourcentages, coefficients multiplicateurs, taux moyen, indices base 100.",
+      "domainId": "evolutions_indices",
+      "skills": [
+        "STMG_MATH_TAUX_GLOBAL",
+        "STMG_MATH_TAUX_MOYEN",
+        "STMG_MATH_INDICES"
+      ],
+      "ragTopics": [
+        "pourcentages",
+        "taux_evolution",
+        "indices"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MATH_STATS",
+      "chapterLabel": "Statistiques à deux variables",
+      "description": "Nuage de points, ajustement affine, droite de Mayer, prévision.",
+      "domainId": "stats_2var",
+      "skills": [
+        "STMG_MATH_NUAGE",
+        "STMG_MATH_AJUSTEMENT",
+        "STMG_MATH_MAYER"
+      ],
+      "ragTopics": [
+        "statistiques",
+        "ajustement_affine",
+        "droite_mayer"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MATH_PROBAS",
+      "chapterLabel": "Probabilités et décision",
+      "description": "Probabilités conditionnelles, loi binomiale et fluctuation.",
+      "domainId": "probabilites",
+      "skills": [
+        "STMG_MATH_PROBA_CONDITIONNELLE",
+        "STMG_MATH_BINOMIALE",
+        "STMG_MATH_FLUCTUATION"
+      ],
+      "ragTopics": [
+        "probabilites",
+        "loi_binomiale",
+        "fluctuation"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MATH_ALGO",
+      "chapterLabel": "Algorithmique et tableur",
+      "description": "Formules tableur, automatisation simple et algorithmes de seuil.",
+      "domainId": "algo_tableur",
+      "skills": [
+        "STMG_MATH_TABLEUR_FORMULES",
+        "STMG_MATH_ALGO_SEUIL"
+      ],
+      "ragTopics": [
+        "tableur",
+        "algorithme",
+        "seuil"
+      ]
+    }
+  ]
+}

@@ -142,6 +142,16 @@ export class MathsScorer extends BaseScorer<MathsMetrics> {
       'probabilités': 'probabilites',
       'probabilites': 'probabilites',
       'probabilitésetstatistiques': 'probabilites',
+      'suitesetfinance': 'algebre',
+      'pourcentages,évolutionsetindices': 'algebre',
+      'pourcentages,evolutionsetindices': 'algebre',
+      'fonctionsutilesengestion': 'analyse',
+      'statistiquesàdeuxvariables': 'probabilites',
+      'statistiquesadeuxvariables': 'probabilites',
+      'probabilitésetloibinomiale': 'probabilites',
+      'probabilitesetloibinomiale': 'probabilites',
+      'algorithmiqueappliquéeettableur': 'algebre',
+      'algorithmiqueappliqueeettableur': 'algebre',
     };
 
     return mapping[normalized] || null;

@@ -1,0 +1,63 @@
+programmeKey: droit_eco_premiere_stmg
+definitionKey: droit-eco-premiere-stmg-p2
+schemaVersion: v1.0
+label: "Diagnostic Pré-Stage Droit-Économie — Première STMG"
+discipline: droit_eco
+level: premiere
+track: stmg
+
+domains:
+  - domainId: droit_sources_personnes
+    domainLabel: "Droit : sources, personnes et preuve"
+    weight: 0.25
+    skills:
+      - skillId: STMG_DE_SOURCES_DROIT
+        label: "Hiérarchiser les sources du droit et identifier la règle applicable"
+        tags: ["stmg", "droit", "sources"]
+        chapterId: CH_STMG_DE_DROIT_SOURCES
+      - skillId: STMG_DE_PERSONNES
+        label: "Distinguer personne physique, personne morale, capacité et patrimoine"
+        tags: ["stmg", "droit", "personnes"]
+        chapterId: CH_STMG_DE_DROIT_SOURCES
+  - domainId: droit_contrat_responsabilite
+    domainLabel: "Droit : contrat et responsabilité"
+    weight: 0.25
+    skills:
+      - skillId: STMG_DE_CONTRAT
+        label: "Identifier les conditions de validité d'un contrat"
+        tags: ["stmg", "droit", "contrat"]
+        chapterId: CH_STMG_DE_CONTRAT_RESP
+      - skillId: STMG_DE_RESPONSABILITE
+        label: "Qualifier une situation de responsabilité civile"
+        tags: ["stmg", "droit", "responsabilite"]
+        chapterId: CH_STMG_DE_CONTRAT_RESP
+  - domainId: eco_marche_prix
+    domainLabel: "Économie : marché, prix et agents"
+    weight: 0.25
+    skills:
+      - skillId: STMG_DE_AGENTS
+        label: "Identifier les agents économiques et leurs fonctions principales"
+        tags: ["stmg", "economie", "agents"]
+        chapterId: CH_STMG_DE_MARCHE
+      - skillId: STMG_DE_MARCHE_PRIX
+        label: "Expliquer la formation d'un prix par l'offre, la demande et la concurrence"
+        tags: ["stmg", "economie", "marche"]
+        chapterId: CH_STMG_DE_MARCHE
+  - domainId: eco_financement_regulation
+    domainLabel: "Économie : financement et régulation"
+    weight: 0.25
+    skills:
+      - skillId: STMG_DE_FINANCEMENT
+        label: "Distinguer financement interne, externe, direct et indirect"
+        tags: ["stmg", "economie", "financement"]
+        chapterId: CH_STMG_DE_REGULATION
+      - skillId: STMG_DE_REGULATION
+        label: "Analyser une intervention publique de régulation économique"
+        tags: ["stmg", "economie", "regulation"]
+        chapterId: CH_STMG_DE_REGULATION
+
+chapters:
+  - { chapterId: CH_STMG_DE_DROIT_SOURCES, chapterLabel: "Sources du droit et personnes", description: "Sources, preuve, personnalité juridique, capacité et patrimoine.", domainId: droit_sources_personnes, skills: [STMG_DE_SOURCES_DROIT, STMG_DE_PERSONNES], ragTopics: [sources_droit, personnes] }
+  - { chapterId: CH_STMG_DE_CONTRAT_RESP, chapterLabel: "Contrat et responsabilité", description: "Validité du contrat, obligations, dommage et responsabilité civile.", domainId: droit_contrat_responsabilite, skills: [STMG_DE_CONTRAT, STMG_DE_RESPONSABILITE], ragTopics: [contrat, responsabilite] }
+  - { chapterId: CH_STMG_DE_MARCHE, chapterLabel: "Marché et prix", description: "Agents économiques, offre, demande, concurrence et formation des prix.", domainId: eco_marche_prix, skills: [STMG_DE_AGENTS, STMG_DE_MARCHE_PRIX], ragTopics: [agents_economiques, marche, prix] }
+  - { chapterId: CH_STMG_DE_REGULATION, chapterLabel: "Financement et régulation", description: "Financement de l'économie et rôle régulateur des pouvoirs publics.", domainId: eco_financement_regulation, skills: [STMG_DE_FINANCEMENT, STMG_DE_REGULATION], ragTopics: [financement, regulation] }

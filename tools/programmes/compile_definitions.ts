@@ -13,21 +13,23 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { parse as parseYaml } from 'yaml';
-import type { CompiledDefinitionPayload } from './types';
+import type { CompiledDefinitionPayload, ProgrammeDiscipline, ProgrammeTrack } from './types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const MAPPING_DIR = path.resolve(__dirname, '../../programmes/mapping');
 const OUT_DIR = path.resolve(__dirname, '../../lib/diagnostics/definitions/generated');
+const PROGRAMMES_OUT_DIR = path.resolve(__dirname, '../../programmes/generated');
 
 interface MappingYaml {
   programmeKey: string;
   definitionKey: string;
   schemaVersion: string;
   label: string;
-  discipline: 'maths' | 'nsi';
+  discipline: ProgrammeDiscipline;
   level: 'premiere' | 'terminale';
+  track?: ProgrammeTrack;
   domains: Array<{
     domainId: string;
     domainLabel: string;
@@ -127,7 +129,7 @@ function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
     label: mapping.label,
     discipline: mapping.discipline,
     level: mapping.level,
-    track: 'eds',
+    track: mapping.track ?? 'eds',
     schemaVersion: mapping.schemaVersion,
     generatedAt: new Date().toISOString(),
     domains: mapping.domains.map((d) => ({
@@ -154,9 +156,33 @@ function compileMapping(mapping: MappingYaml): CompiledDefinitionPayload {
   };
 }
 
+function buildProgrammeGenerated(mapping: MappingYaml) {
+  return {
+    programmeKey: mapping.programmeKey,
+    generatedAt: new Date().toISOString(),
+    schemaVersion: mapping.schemaVersion,
+    sections: mapping.domains.map((domain) => ({
+      rawTitle: domain.domainLabel,
+      normalizedTitle: domain.domainLabel,
+      domainId: domain.domainId,
+      candidates: domain.skills.map((skill) => ({
+        rawLabel: skill.label,
+        normalizedLabel: skill.label,
+        confidence: 1,
+        anchors: [
+          {
+            excerpt: `Programme officiel — ${domain.domainLabel} — ${skill.label}`,
+          },
+        ],
+      })),
+    })),
+  };
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
+fs.mkdirSync(PROGRAMMES_OUT_DIR, { recursive: true });
 
 const mappingFiles = fs.readdirSync(MAPPING_DIR).filter((f) => f.endsWith('.skills.map.yml'));
 
@@ -183,11 +209,15 @@ for (const file of mappingFiles) {
   const outPath = path.join(OUT_DIR, `${mapping.definitionKey}.domains.json`);
   fs.writeFileSync(outPath, JSON.stringify(compiled, null, 2), 'utf-8');
 
+  const programmeOutPath = path.join(PROGRAMMES_OUT_DIR, `${mapping.programmeKey}.skills.generated.json`);
+  fs.writeFileSync(programmeOutPath, JSON.stringify(buildProgrammeGenerated(mapping), null, 2), 'utf-8');
+
   const skillCount = compiled.domains.reduce((a, d) => a + d.skills.length, 0);
   totalSkills += skillCount;
   totalDomains += compiled.domains.length;
 
   console.log(`✅ Compiled: ${outPath}`);
+  console.log(`   programme JSON: ${programmeOutPath}`);
   console.log(`   ${compiled.domains.length} domains, ${skillCount} skills, weights: ${compiled.domains.map((d) => `${d.domainId}=${d.weight}`).join(', ')}`);
 }
 

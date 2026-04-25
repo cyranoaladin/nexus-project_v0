@@ -1,0 +1,115 @@
+programmeKey: sgn_premiere_stmg
+definitionKey: sgn-premiere-stmg-p2
+schemaVersion: v1.0
+label: "Diagnostic Pré-Stage SGN — Première STMG"
+discipline: sgn
+level: premiere
+track: stmg
+
+domains:
+  - domainId: organisation_information
+    domainLabel: "De l'individu à l'organisation"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_ORG_FINALITES
+        label: "Identifier finalités, parties prenantes et ressources d'une organisation"
+        tags: ["stmg", "sgn", "organisation"]
+        chapterId: CH_STMG_SGN_ORG
+      - skillId: STMG_SGN_ORG_INFORMATION
+        label: "Distinguer donnée, information et connaissance dans une situation de gestion"
+        tags: ["stmg", "sgn", "information"]
+        chapterId: CH_STMG_SGN_ORG
+  - domainId: individu_acteur
+    domainLabel: "L'individu acteur dans l'organisation"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_ACTEUR_IDENTITE
+        label: "Analyser rôle, statut, identité numérique et interactions d'un acteur"
+        tags: ["stmg", "sgn", "acteur"]
+        chapterId: CH_STMG_SGN_ACTEUR
+      - skillId: STMG_SGN_ACTEUR_COMMUNICATION
+        label: "Choisir un mode de communication adapté au contexte organisationnel"
+        tags: ["stmg", "sgn", "communication"]
+        chapterId: CH_STMG_SGN_ACTEUR
+  - domainId: activite_processus
+    domainLabel: "Activité, processus et coordination"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_PROCESSUS
+        label: "Décrire un processus de gestion avec acteurs, tâches et flux"
+        tags: ["stmg", "sgn", "processus"]
+        chapterId: CH_STMG_SGN_PROCESSUS
+      - skillId: STMG_SGN_COORDINATION
+        label: "Repérer les mécanismes de coordination et de contrôle"
+        tags: ["stmg", "sgn", "coordination"]
+        chapterId: CH_STMG_SGN_PROCESSUS
+  - domainId: gestion_creation_valeur
+    domainLabel: "Gestion et création de valeur"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_VALEUR_CLIENT
+        label: "Relier activité, coût, marge et valeur perçue par le client"
+        tags: ["stmg", "sgn", "valeur"]
+        chapterId: CH_STMG_SGN_VALEUR
+      - skillId: STMG_SGN_INDICATEURS
+        label: "Interpréter un indicateur simple de performance de gestion"
+        tags: ["stmg", "sgn", "indicateurs"]
+        chapterId: CH_STMG_SGN_VALEUR
+  - domainId: temps_risque
+    domainLabel: "Temps, risque et décision"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_RISQUE
+        label: "Identifier un risque opérationnel et proposer une mesure de prévention"
+        tags: ["stmg", "sgn", "risque"]
+        chapterId: CH_STMG_SGN_RISQUE
+      - skillId: STMG_SGN_DECISION
+        label: "Justifier une décision à partir d'informations fiables et datées"
+        tags: ["stmg", "sgn", "decision"]
+        chapterId: CH_STMG_SGN_RISQUE
+  - domainId: information_collective
+    domainLabel: "Information et intelligence collective"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_PARTAGE
+        label: "Organiser le partage d'information et la traçabilité"
+        tags: ["stmg", "sgn", "partage"]
+        chapterId: CH_STMG_SGN_INFORMATION
+      - skillId: STMG_SGN_COLLABORATION
+        label: "Évaluer l'intérêt d'un outil collaboratif pour un collectif de travail"
+        tags: ["stmg", "sgn", "collaboration"]
+        chapterId: CH_STMG_SGN_INFORMATION
+  - domainId: numerique_coordination
+    domainLabel: "Numérique et transformation des organisations"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_SI
+        label: "Décrire le rôle d'un système d'information dans la coordination"
+        tags: ["stmg", "sgn", "systeme-information"]
+        chapterId: CH_STMG_SGN_NUMERIQUE
+      - skillId: STMG_SGN_SECURITE
+        label: "Repérer les enjeux de sécurité, confidentialité et conformité des données"
+        tags: ["stmg", "sgn", "securite"]
+        chapterId: CH_STMG_SGN_NUMERIQUE
+  - domainId: donnees_decision
+    domainLabel: "Données, traitement et décision"
+    weight: 0.125
+    skills:
+      - skillId: STMG_SGN_DONNEES
+        label: "Structurer des données simples pour répondre à une question de gestion"
+        tags: ["stmg", "sgn", "donnees"]
+        chapterId: CH_STMG_SGN_DONNEES
+      - skillId: STMG_SGN_VISUALISATION
+        label: "Choisir une visualisation adaptée à une décision"
+        tags: ["stmg", "sgn", "visualisation"]
+        chapterId: CH_STMG_SGN_DONNEES
+
+chapters:
+  - { chapterId: CH_STMG_SGN_ORG, chapterLabel: "Organisation et information", description: "Finalités, parties prenantes, données et information.", domainId: organisation_information, skills: [STMG_SGN_ORG_FINALITES, STMG_SGN_ORG_INFORMATION], ragTopics: [organisation, information] }
+  - { chapterId: CH_STMG_SGN_ACTEUR, chapterLabel: "Individu acteur", description: "Rôles, statuts, communication et identité numérique.", domainId: individu_acteur, skills: [STMG_SGN_ACTEUR_IDENTITE, STMG_SGN_ACTEUR_COMMUNICATION], ragTopics: [acteur, communication] }
+  - { chapterId: CH_STMG_SGN_PROCESSUS, chapterLabel: "Processus et coordination", description: "Flux, tâches, contrôle et coordination.", domainId: activite_processus, skills: [STMG_SGN_PROCESSUS, STMG_SGN_COORDINATION], ragTopics: [processus, coordination] }
+  - { chapterId: CH_STMG_SGN_VALEUR, chapterLabel: "Création de valeur", description: "Coûts, marge, valeur perçue et indicateurs.", domainId: gestion_creation_valeur, skills: [STMG_SGN_VALEUR_CLIENT, STMG_SGN_INDICATEURS], ragTopics: [valeur, indicateurs] }
+  - { chapterId: CH_STMG_SGN_RISQUE, chapterLabel: "Risque et décision", description: "Risque, prévention, temporalité et décision.", domainId: temps_risque, skills: [STMG_SGN_RISQUE, STMG_SGN_DECISION], ragTopics: [risque, decision] }
+  - { chapterId: CH_STMG_SGN_INFORMATION, chapterLabel: "Information collective", description: "Partage, traçabilité et outils collaboratifs.", domainId: information_collective, skills: [STMG_SGN_PARTAGE, STMG_SGN_COLLABORATION], ragTopics: [collaboration, tracabilite] }
+  - { chapterId: CH_STMG_SGN_NUMERIQUE, chapterLabel: "Système d'information", description: "SI, coordination, sécurité et conformité.", domainId: numerique_coordination, skills: [STMG_SGN_SI, STMG_SGN_SECURITE], ragTopics: [systeme_information, securite] }
+  - { chapterId: CH_STMG_SGN_DONNEES, chapterLabel: "Données et décision", description: "Structuration, traitement et visualisation.", domainId: donnees_decision, skills: [STMG_SGN_DONNEES, STMG_SGN_VISUALISATION], ragTopics: [donnees, visualisation] }

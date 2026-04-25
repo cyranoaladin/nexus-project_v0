@@ -199,7 +199,7 @@ export interface DiagnosticDefinition {
   /** Display name */
   label: string;
   /** Subject track */
-  track: 'maths' | 'nsi' | 'physique';
+  track: 'maths' | 'nsi' | 'physique' | 'maths-stmg' | 'sgn-stmg' | 'management-stmg' | 'droit-eco-stmg';
   /** School level */
   level: 'premiere' | 'terminale';
   /** Stage type */
