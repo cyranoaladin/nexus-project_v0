@@ -100,4 +100,80 @@ describe("calculateAutomatismeScore", () => {
     const result = calculateAutomatismeScore({}, series, 600); // 600s / 10 = 60s
     expect(result.averageTimePerQuestion).toBe(60);
   });
+
+  it("should return detailed corrections for every question", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map((q, i) => [q.id, i < 6 ? "A" : "B"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+
+    expect(result.corrections).toHaveLength(12);
+    result.corrections.forEach((c, i) => {
+      expect(c.questionId).toBe(`q${i + 1}`);
+      expect(c.questionNumber).toBe(i + 1);
+      expect(c.correctChoiceId).toBe("A");
+      expect(c.isCorrect).toBe(i < 6);
+      expect(c.feedback).toBe(i < 6 ? "OK" : "KO");
+      expect(c.method).toBe("meth");
+      expect(c.trap).toBe("trap");
+      expect(c.remediation).toBe("rem");
+      expect(c.sourceReference).toBe(`ref-${i + 1}`);
+      expect(c.sourceComment).toBe("comm");
+    });
+  });
+
+  it("should treat missing answers as wrong", () => {
+    const series = createMockSeries(12);
+    // Only answer first 4 questions
+    const answers = Object.fromEntries(series.questions.slice(0, 4).map(q => [q.id, "A"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+
+    expect(result.score).toBe(4);
+    expect(result.totalQuestions).toBe(12);
+    expect(result.percentage).toBe(33);
+    result.corrections.forEach((c, i) => {
+      if (i >= 4) {
+        expect(c.userAnswer).toBeNull();
+        expect(c.isCorrect).toBe(false);
+      }
+    });
+  });
+
+  it("recommendation for score >= 11 should indicate excellent level", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map(q => [q.id, "A"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+    expect(result.score).toBe(12);
+    expect(result.recommendation).toContain("Très bon niveau");
+  });
+
+  it("recommendation for score 9-10 should indicate good level", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map((q, i) => [q.id, i < 9 ? "A" : "B"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+    expect(result.score).toBe(9);
+    expect(result.recommendation).toContain("Bon niveau général");
+  });
+
+  it("recommendation for score 6-8 should indicate encouraging but insufficient", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map((q, i) => [q.id, i < 7 ? "A" : "B"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+    expect(result.score).toBe(7);
+    expect(result.recommendation).toContain("fiabilité reste insuffisante");
+  });
+
+  it("recommendation for score < 6 should indicate fragile fundamentals", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map((q, i) => [q.id, i < 3 ? "A" : "B"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+    expect(result.score).toBe(3);
+    expect(result.recommendation).toContain("restent fragiles");
+  });
+
+  it("should never expose correct answers in sourceReferences when all correct", () => {
+    const series = createMockSeries(12);
+    const answers = Object.fromEntries(series.questions.map(q => [q.id, "A"]));
+    const result = calculateAutomatismeScore(answers, series, 600);
+    expect(result.sourceReferences).toHaveLength(0);
+  });
 });
