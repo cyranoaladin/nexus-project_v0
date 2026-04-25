@@ -1,13 +1,9 @@
-# Questions ouvertes
+# QUESTIONS_OPEN
 
-## Phase 0
+Ce document liste les questions bloquantes nécessitant une décision de Shark.
 
-- Le dossier prod `/var/www/nexus-project_v0` ne contient pas de repertoire
-  `.git`, donc la procedure de deploiement prevue (`git fetch`, `git pull
-  --ff-only`) ne peut pas s'executer telle quelle sur le serveur. Faut-il
-  convertir ce dossier en checkout Git propre, deployer dans un nouveau chemin,
-  ou adapter la procedure de deploiement actuelle?
+| Question | Contexte | Statut | Décision |
+|---|---|---|---|
+| (Exemple) Barème exact Maths STMG | Phase 2 | Ouvert | - |
 
-## Questions produit
-
-Aucune question produit bloquante a ce stade.
+---

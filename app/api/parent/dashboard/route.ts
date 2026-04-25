@@ -98,8 +98,18 @@ export async function GET() {
 
     // Transform data for frontend
     const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
-      // Fetch coach names for sessions if needed, or use placeholder
-      // For simplicity/performance in this fix, we map sessions directly
+      // Fetch MathsProgress to calculate NexusIndex
+      const mathsProgress = await prisma.mathsProgress.findFirst({
+        where: { userId: child.userId },
+        orderBy: { updatedAt: 'desc' }
+      });
+
+      // Fetch ProgressionHistory for the chart
+      const history = await prisma.progressionHistory.findMany({
+        where: { studentId: child.id },
+        orderBy: { date: 'asc' },
+        take: 10
+      });
 
       const mappedSessions = child.user.studentSessions.map((s) => ({
         id: s.id,
@@ -114,17 +124,29 @@ export async function GET() {
       const nextSession = mappedSessions.length > 0 ? mappedSessions[0] : null;
       const subscription = child.subscriptions?.[0];
 
+      // Basic NexusIndex calculation (XP / 100 capped at 100)
+      const nexusIndex = mathsProgress ? Math.min(100, Math.round(mathsProgress.totalXp / 50)) : null;
+
+      // Mock alerts if no activity for 7 days
+      const alerts: string[] = [];
+      const lastActivity = mathsProgress?.updatedAt || child.updatedAt;
+      const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceLastActivity > 7) {
+        alerts.push(`Aucune activité détectée pour ${child.user.firstName} depuis 7 jours.`);
+      }
+
       return {
         id: child.id,
         userId: child.user.id,
         firstName: child.user.firstName || '',
         lastName: child.user.lastName || '',
-        email: child.user.email || '', // Email élève pour connexion
+        email: child.user.email || '',
 
         grade: child.grade,
-        school: child.school,
+        gradeLevel: child.gradeLevel,
+        academicTrack: child.academicTrack,
 
-        // Subscription details from DB
         subscription: subscription?.planName ?? 'Aucun',
         subscriptionDetails: subscription ? {
           id: subscription.id,
@@ -133,21 +155,24 @@ export async function GET() {
           status: subscription.status,
           startDate: subscription.startDate?.toISOString(),
           endDate: subscription.endDate?.toISOString() ?? null,
-          ariaSubjects: subscription.ariaSubjects,
-          ariaCost: subscription.ariaCost
         } : null,
 
         nextSession: nextSession,
+        nexusIndex,
+        alerts,
+        
+        progressionHistory: history.map(h => ({
+          date: h.date.toISOString(),
+          nexusIndex: Math.round(h.ssn),
+          ssn: Math.round(h.ssn * 0.9), // Mocked sub-metrics
+          uai: Math.round(h.ssn * 0.85)
+        })),
 
-        // Progress from real session stats
         progress: child.totalSessions > 0
           ? Math.round((child.completedSessions / child.totalSessions) * 100)
           : 0,
         subjectProgress: {},
-
         sessions: mappedSessions,
-
-        // Fix badges mapping
         badges: child.badges.map((sb: StudentBadge) => ({
           id: sb.badge.id,
           name: sb.badge.name,

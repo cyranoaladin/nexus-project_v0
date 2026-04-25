@@ -35,16 +35,16 @@ function getScoreMessage(score: number): string {
 }
 
 const LEVEL_CONFIG = {
-  excellent: { label: 'Excellent', color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/30' },
-  bon: { label: 'Bon', color: 'text-blue-400', bg: 'bg-blue-500/10', ring: 'ring-blue-500/30' },
-  en_progression: { label: 'En progression', color: 'text-blue-300', bg: 'bg-blue-500/10', ring: 'ring-blue-500/30' },
-  a_renforcer: { label: 'À renforcer', color: 'text-slate-300', bg: 'bg-slate-500/10', ring: 'ring-slate-500/30' },
-  debutant: { label: 'Débutant', color: 'text-neutral-400', bg: 'bg-neutral-500/10', ring: 'ring-neutral-500/30' },
+  excellent: { label: 'Excellent', color: 'text-success', bg: 'bg-success/10', ring: 'ring-success/30' },
+  bon: { label: 'Bon', color: 'text-brand-primary', bg: 'bg-brand-primary/10', ring: 'ring-brand-primary/30' },
+  en_progression: { label: 'En progression', color: 'text-brand-accent', bg: 'bg-brand-accent/10', ring: 'ring-brand-accent/30' },
+  a_renforcer: { label: 'À renforcer', color: 'text-neutral-300', bg: 'bg-neutral-800', ring: 'ring-neutral-700' },
+  debutant: { label: 'Débutant', color: 'text-neutral-400', bg: 'bg-neutral-900', ring: 'ring-neutral-800' },
 } as const;
 
 const TREND_CONFIG = {
-  up: { icon: TrendingUp, label: 'En progression', color: 'text-emerald-400' },
-  down: { icon: TrendingDown, label: 'À surveiller', color: 'text-slate-300' },
+  up: { icon: TrendingUp, label: 'En progression', color: 'text-success' },
+  down: { icon: TrendingDown, label: 'À surveiller', color: 'text-neutral-300' },
   stable: { icon: Minus, label: 'Stable', color: 'text-neutral-400' },
 } as const;
 
