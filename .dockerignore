@@ -10,8 +10,10 @@ test-results
 .venv
 .test-temp
 
-# Keep production env only for build-time parity.
+# Environment files
+.env
 .env.local
+.env.production
 .env.e2e
 .env.e2e.local
 .env.e2e.example
