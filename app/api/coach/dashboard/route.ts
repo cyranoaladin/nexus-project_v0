@@ -148,6 +148,15 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Define studentUserIds for lookups
+    const studentUserIds = recentBookings.map(rb => rb.studentId);
+
+    // Fetch student profile entities for credits and track info
+    const studentEntities = await prisma.student.findMany({
+      where: { userId: { in: studentUserIds } }
+    });
+    const creditMap = new Map(studentEntities.map(se => [se.userId, se]));
+
     // Fetch MathsProgress for all students in one query
     const studentMathsProgress = await prisma.mathsProgress.findMany({
       where: { userId: { in: studentUserIds } },
