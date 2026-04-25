@@ -231,7 +231,7 @@ export default function AssistantePlanningPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={() => setSelected(null)}>
           <div
-            className="w-full max-w-md rounded-t-[32px] border border-white/10 bg-[#0d1117] p-6 sm:rounded-[32px]"
+            className="w-full max-w-md rounded-t-[32px] border border-white/10 bg-surface-dark p-6 sm:rounded-[32px]"
             onClick={e => e.stopPropagation()}
           >
             <div className="mb-4 flex items-start justify-between">

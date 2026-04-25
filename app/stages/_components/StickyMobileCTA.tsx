@@ -26,7 +26,7 @@ export default function StickyMobileCTA({ onReserve }: StickyMobileCTAProps) {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0f172acc] backdrop-blur-xl md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-midnight-900/80 backdrop-blur-xl md:hidden"
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
     >
       <div className="mx-auto flex max-w-7xl gap-2 px-4 pt-3">
