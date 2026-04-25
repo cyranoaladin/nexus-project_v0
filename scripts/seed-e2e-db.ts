@@ -221,7 +221,10 @@ const student = await prisma.user.create({
       grade: 'Terminale',
       school: 'Lycée Pilote Ariana',
       credits: 8,
-      totalSessions: 24
+      totalSessions: 24,
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
+      specialties: [Subject.MATHEMATIQUES, Subject.NSI, Subject.PHYSIQUE_CHIMIE],
     }
   });
 
