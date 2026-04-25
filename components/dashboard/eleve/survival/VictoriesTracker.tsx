@@ -1,5 +1,5 @@
 import type { SurvivalProgressSnapshot } from '@/lib/survival/types';
-import { REFLEXES } from '@/lib/survival/reflexes';
+import { REFLEXES } from '@/lib/survival/reflex-data';
 
 type VictoriesTrackerProps = {
   progress: SurvivalProgressSnapshot;
@@ -10,16 +10,16 @@ export function VictoriesTracker({ progress }: VictoriesTrackerProps) {
   const phrasesReady = Object.values(progress.phrasesState).filter((count) => count >= 3).length;
 
   return (
-    <section className="rounded-lg border border-white/10 bg-surface-card p-4" aria-labelledby="survival-victories-title">
-      <h2 id="survival-victories-title" className="text-lg font-semibold text-white">Mes victoires</h2>
+    <section className="rounded-lg border border-eaf-indigo/20 bg-eaf-hero-gradient p-4" aria-labelledby="survival-victories-title">
+      <h2 id="survival-victories-title" className="font-fraunces text-lg font-semibold text-eaf-text-primary">Mes victoires</h2>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-success/30 bg-success/10 p-3">
-          <p className="text-sm text-neutral-200">Reflexes acquis</p>
-          <p className="mt-1 text-2xl font-semibold text-white">{acquired} / 7</p>
+        <div className="rounded-lg border border-eaf-teal/30 bg-eaf-teal/10 p-3">
+          <p className="text-sm text-eaf-text-secondary">Réflexes acquis</p>
+          <p className="mt-1 font-fraunces text-2xl font-semibold text-eaf-text-primary">{acquired} / 7</p>
         </div>
-        <div className="rounded-lg border border-brand-accent/30 bg-brand-accent/10 p-3">
-          <p className="text-sm text-neutral-200">Phrases pretes</p>
-          <p className="mt-1 text-2xl font-semibold text-white">{phrasesReady} / 8</p>
+        <div className="rounded-lg border border-eaf-indigo/30 bg-eaf-indigo/10 p-3">
+          <p className="text-sm text-eaf-text-secondary">Phrases prêtes</p>
+          <p className="mt-1 font-fraunces text-2xl font-semibold text-eaf-text-primary">{phrasesReady} / 8</p>
         </div>
       </div>
     </section>

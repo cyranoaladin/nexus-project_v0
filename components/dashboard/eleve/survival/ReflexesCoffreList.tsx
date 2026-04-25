@@ -1,4 +1,4 @@
-import { REFLEXES } from '@/lib/survival/reflexes';
+import { REFLEXES } from '@/lib/survival/reflex-data';
 import type { SurvivalProgressSnapshot } from '@/lib/survival/types';
 import { ReflexCard } from './ReflexCard';
 
@@ -9,12 +9,12 @@ type ReflexesCoffreListProps = {
 
 export function ReflexesCoffreList({ progress, onOpenReflex }: ReflexesCoffreListProps) {
   return (
-    <section aria-labelledby="survival-reflexes-title" className="space-y-4">
+    <section aria-labelledby="survival-fiches-title" className="space-y-4">
       <div>
-        <h2 id="survival-reflexes-title" className="text-xl font-semibold text-white">
-          Coffre des 7 reflexes
+        <h2 id="survival-fiches-title" className="font-fraunces text-xl font-semibold text-eaf-text-primary">
+          Coffre des 7 réflexes
         </h2>
-        <p className="text-sm text-neutral-400">Une carte. Trois questions. Un point a grappiller.</p>
+        <p className="text-sm text-eaf-text-tertiary">Une carte. Trois questions. Un point à grappiller.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         {REFLEXES.map((reflex) => (

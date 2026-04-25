@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" role="img" aria-label="Deux courbes avec deux zones">
+  <rect width="400" height="280" fill="#f8fafc"/>
+  <path d="M40 140H360M200 30V245" stroke="#334155" stroke-width="1.5"/>
+  <g stroke="#cbd5e1" stroke-width="1"><path d="M80 30V245M120 30V245M160 30V245M240 30V245M280 30V245M320 30V245"/><path d="M40 70H360M40 110H360M40 180H360M40 220H360"/></g>
+  <path d="M42 195 C90 80 145 58 200 132 S300 210 358 70" fill="none" stroke="#5b6ee1" stroke-width="4"/>
+  <path d="M42 90 C95 205 150 215 200 142 S305 50 358 195" fill="none" stroke="#f97316" stroke-width="4"/>
+  <text x="334" y="75" font-size="14" fill="#5b6ee1">C</text><text x="334" y="205" font-size="14" fill="#f97316">C’</text>
+  <text x="86" y="158" font-size="12" fill="#334155">[-2;-1]</text><text x="244" y="158" font-size="12" fill="#334155">[1;2]</text>
+</svg>

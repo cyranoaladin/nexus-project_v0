@@ -11,19 +11,19 @@ export function ScoreSimulator({ progress, examDate }: ScoreSimulatorProps) {
   const projection = computeScoreProjection(progress, daysLeft);
 
   return (
-    <section className="rounded-lg border border-white/10 bg-surface-card p-4" aria-label="Simulation de score">
+    <section className="rounded-lg border border-eaf-indigo/20 bg-eaf-hero-gradient p-4" aria-label="Simulation de score">
       <div className="space-y-3 text-sm">
         <div className="flex justify-between gap-4">
-          <span className="text-neutral-300">Note potentielle aujourd'hui</span>
-          <strong className="text-white">{projection.today} / 20</strong>
+          <span className="text-eaf-text-secondary">Note potentielle aujourd’hui</span>
+          <strong className="text-eaf-text-primary">{projection.today} / 20</strong>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-neutral-300">Note realiste dans {daysLeft} j</span>
-          <strong className="text-white">{projection.realistic} / 20</strong>
+          <span className="text-eaf-text-secondary">Note réaliste dans {daysLeft} j</span>
+          <strong className="text-eaf-text-primary">{projection.realistic} / 20</strong>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-neutral-300">Note possible avec effort restant</span>
-          <strong className="text-white">{projection.possible} / 20</strong>
+          <span className="text-eaf-text-secondary">Note possible avec effort restant</span>
+          <strong className="text-eaf-text-primary">{projection.possible} / 20</strong>
         </div>
       </div>
     </section>

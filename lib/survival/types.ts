@@ -4,6 +4,7 @@ export type ReflexMiniQuiz = {
   id: string;
   prompt: string;
   answer: string;
+  distractors: string[];
   explanation: string;
 };
 
