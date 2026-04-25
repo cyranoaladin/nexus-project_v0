@@ -1,0 +1,115 @@
+{
+  "programmeKey": "droit_eco_premiere_stmg",
+  "generatedAt": "2026-04-25T08:03:36.765Z",
+  "schemaVersion": "v1.0",
+  "sections": [
+    {
+      "rawTitle": "Droit : sources, personnes et preuve",
+      "normalizedTitle": "Droit : sources, personnes et preuve",
+      "domainId": "droit_sources_personnes",
+      "candidates": [
+        {
+          "rawLabel": "Hiérarchiser les sources du droit et identifier la règle applicable",
+          "normalizedLabel": "Hiérarchiser les sources du droit et identifier la règle applicable",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Droit : sources, personnes et preuve — Hiérarchiser les sources du droit et identifier la règle applicable"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Distinguer personne physique, personne morale, capacité et patrimoine",
+          "normalizedLabel": "Distinguer personne physique, personne morale, capacité et patrimoine",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Droit : sources, personnes et preuve — Distinguer personne physique, personne morale, capacité et patrimoine"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Droit : contrat et responsabilité",
+      "normalizedTitle": "Droit : contrat et responsabilité",
+      "domainId": "droit_contrat_responsabilite",
+      "candidates": [
+        {
+          "rawLabel": "Identifier les conditions de validité d'un contrat",
+          "normalizedLabel": "Identifier les conditions de validité d'un contrat",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Droit : contrat et responsabilité — Identifier les conditions de validité d'un contrat"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Qualifier une situation de responsabilité civile",
+          "normalizedLabel": "Qualifier une situation de responsabilité civile",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Droit : contrat et responsabilité — Qualifier une situation de responsabilité civile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Économie : marché, prix et agents",
+      "normalizedTitle": "Économie : marché, prix et agents",
+      "domainId": "eco_marche_prix",
+      "candidates": [
+        {
+          "rawLabel": "Identifier les agents économiques et leurs fonctions principales",
+          "normalizedLabel": "Identifier les agents économiques et leurs fonctions principales",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Économie : marché, prix et agents — Identifier les agents économiques et leurs fonctions principales"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Expliquer la formation d'un prix par l'offre, la demande et la concurrence",
+          "normalizedLabel": "Expliquer la formation d'un prix par l'offre, la demande et la concurrence",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Économie : marché, prix et agents — Expliquer la formation d'un prix par l'offre, la demande et la concurrence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Économie : financement et régulation",
+      "normalizedTitle": "Économie : financement et régulation",
+      "domainId": "eco_financement_regulation",
+      "candidates": [
+        {
+          "rawLabel": "Distinguer financement interne, externe, direct et indirect",
+          "normalizedLabel": "Distinguer financement interne, externe, direct et indirect",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Économie : financement et régulation — Distinguer financement interne, externe, direct et indirect"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Analyser une intervention publique de régulation économique",
+          "normalizedLabel": "Analyser une intervention publique de régulation économique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Économie : financement et régulation — Analyser une intervention publique de régulation économique"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

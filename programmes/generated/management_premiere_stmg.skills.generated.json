@@ -1,0 +1,115 @@
+{
+  "programmeKey": "management_premiere_stmg",
+  "generatedAt": "2026-04-25T08:03:36.769Z",
+  "schemaVersion": "v1.0",
+  "sections": [
+    {
+      "rawTitle": "Organisation et action collective",
+      "normalizedTitle": "Organisation et action collective",
+      "domainId": "organisation_action_collective",
+      "candidates": [
+        {
+          "rawLabel": "Caractériser une organisation par finalité, statut, ressources et champ d'action",
+          "normalizedLabel": "Caractériser une organisation par finalité, statut, ressources et champ d'action",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Organisation et action collective — Caractériser une organisation par finalité, statut, ressources et champ d'action"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Identifier les acteurs et leurs intérêts dans une action collective",
+          "normalizedLabel": "Identifier les acteurs et leurs intérêts dans une action collective",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Organisation et action collective — Identifier les acteurs et leurs intérêts dans une action collective"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Objectifs et pilotage",
+      "normalizedTitle": "Objectifs et pilotage",
+      "domainId": "management_strategique",
+      "candidates": [
+        {
+          "rawLabel": "Distinguer objectif stratégique, objectif opérationnel et indicateur",
+          "normalizedLabel": "Distinguer objectif stratégique, objectif opérationnel et indicateur",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Objectifs et pilotage — Distinguer objectif stratégique, objectif opérationnel et indicateur"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Analyser une décision de management et ses contraintes",
+          "normalizedLabel": "Analyser une décision de management et ses contraintes",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Objectifs et pilotage — Analyser une décision de management et ses contraintes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Choix organisationnels",
+      "normalizedTitle": "Choix organisationnels",
+      "domainId": "choix_organisationnels",
+      "candidates": [
+        {
+          "rawLabel": "Comparer des modes de coordination et de division du travail",
+          "normalizedLabel": "Comparer des modes de coordination et de division du travail",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Choix organisationnels — Comparer des modes de coordination et de division du travail"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Expliquer comment une organisation mobilise ses ressources humaines",
+          "normalizedLabel": "Expliquer comment une organisation mobilise ses ressources humaines",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Choix organisationnels — Expliquer comment une organisation mobilise ses ressources humaines"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Performance et parties prenantes",
+      "normalizedTitle": "Performance et parties prenantes",
+      "domainId": "performance_parties_prenantes",
+      "candidates": [
+        {
+          "rawLabel": "Évaluer une performance avec des critères économiques, sociaux et environnementaux",
+          "normalizedLabel": "Évaluer une performance avec des critères économiques, sociaux et environnementaux",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Performance et parties prenantes — Évaluer une performance avec des critères économiques, sociaux et environnementaux"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Repérer les tensions entre parties prenantes et objectifs de l'organisation",
+          "normalizedLabel": "Repérer les tensions entre parties prenantes et objectifs de l'organisation",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Performance et parties prenantes — Repérer les tensions entre parties prenantes et objectifs de l'organisation"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

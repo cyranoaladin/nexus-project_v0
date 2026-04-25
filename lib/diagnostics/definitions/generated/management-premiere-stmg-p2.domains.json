@@ -1,0 +1,177 @@
+{
+  "id": "management-premiere-stmg-p2",
+  "label": "Diagnostic Pré-Stage Management — Première STMG",
+  "discipline": "management",
+  "level": "premiere",
+  "track": "stmg",
+  "schemaVersion": "v1.0",
+  "generatedAt": "2026-04-25T08:03:36.769Z",
+  "domains": [
+    {
+      "domainId": "organisation_action_collective",
+      "domainLabel": "Organisation et action collective",
+      "weight": 0.25,
+      "skills": [
+        {
+          "skillId": "STMG_MGMT_ORG_CARACTERISER",
+          "skillLabel": "Caractériser une organisation par finalité, statut, ressources et champ d'action",
+          "tags": [
+            "stmg",
+            "management",
+            "organisation"
+          ],
+          "chapterId": "CH_STMG_MGMT_ORG"
+        },
+        {
+          "skillId": "STMG_MGMT_ACTEURS",
+          "skillLabel": "Identifier les acteurs et leurs intérêts dans une action collective",
+          "tags": [
+            "stmg",
+            "management",
+            "acteurs"
+          ],
+          "chapterId": "CH_STMG_MGMT_ORG"
+        }
+      ]
+    },
+    {
+      "domainId": "management_strategique",
+      "domainLabel": "Objectifs et pilotage",
+      "weight": 0.25,
+      "skills": [
+        {
+          "skillId": "STMG_MGMT_OBJECTIFS",
+          "skillLabel": "Distinguer objectif stratégique, objectif opérationnel et indicateur",
+          "tags": [
+            "stmg",
+            "management",
+            "objectifs"
+          ],
+          "chapterId": "CH_STMG_MGMT_PILOTAGE"
+        },
+        {
+          "skillId": "STMG_MGMT_DECISION",
+          "skillLabel": "Analyser une décision de management et ses contraintes",
+          "tags": [
+            "stmg",
+            "management",
+            "decision"
+          ],
+          "chapterId": "CH_STMG_MGMT_PILOTAGE"
+        }
+      ]
+    },
+    {
+      "domainId": "choix_organisationnels",
+      "domainLabel": "Choix organisationnels",
+      "weight": 0.25,
+      "skills": [
+        {
+          "skillId": "STMG_MGMT_COORDINATION",
+          "skillLabel": "Comparer des modes de coordination et de division du travail",
+          "tags": [
+            "stmg",
+            "management",
+            "coordination"
+          ],
+          "chapterId": "CH_STMG_MGMT_CHOIX"
+        },
+        {
+          "skillId": "STMG_MGMT_MOBILISATION",
+          "skillLabel": "Expliquer comment une organisation mobilise ses ressources humaines",
+          "tags": [
+            "stmg",
+            "management",
+            "ressources-humaines"
+          ],
+          "chapterId": "CH_STMG_MGMT_CHOIX"
+        }
+      ]
+    },
+    {
+      "domainId": "performance_parties_prenantes",
+      "domainLabel": "Performance et parties prenantes",
+      "weight": 0.25,
+      "skills": [
+        {
+          "skillId": "STMG_MGMT_PERFORMANCE",
+          "skillLabel": "Évaluer une performance avec des critères économiques, sociaux et environnementaux",
+          "tags": [
+            "stmg",
+            "management",
+            "performance"
+          ],
+          "chapterId": "CH_STMG_MGMT_PERFORMANCE"
+        },
+        {
+          "skillId": "STMG_MGMT_PARTIES_PRENANTES",
+          "skillLabel": "Repérer les tensions entre parties prenantes et objectifs de l'organisation",
+          "tags": [
+            "stmg",
+            "management",
+            "parties-prenantes"
+          ],
+          "chapterId": "CH_STMG_MGMT_PERFORMANCE"
+        }
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "chapterId": "CH_STMG_MGMT_ORG",
+      "chapterLabel": "Caractériser une organisation",
+      "description": "Finalités, statut, ressources, acteurs et action collective.",
+      "domainId": "organisation_action_collective",
+      "skills": [
+        "STMG_MGMT_ORG_CARACTERISER",
+        "STMG_MGMT_ACTEURS"
+      ],
+      "ragTopics": [
+        "organisation",
+        "action_collective"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MGMT_PILOTAGE",
+      "chapterLabel": "Objectifs et décision",
+      "description": "Objectifs, indicateurs, contraintes et décisions de management.",
+      "domainId": "management_strategique",
+      "skills": [
+        "STMG_MGMT_OBJECTIFS",
+        "STMG_MGMT_DECISION"
+      ],
+      "ragTopics": [
+        "objectifs",
+        "decision"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MGMT_CHOIX",
+      "chapterLabel": "Choix organisationnels",
+      "description": "Coordination, division du travail et mobilisation des ressources.",
+      "domainId": "choix_organisationnels",
+      "skills": [
+        "STMG_MGMT_COORDINATION",
+        "STMG_MGMT_MOBILISATION"
+      ],
+      "ragTopics": [
+        "coordination",
+        "ressources_humaines"
+      ]
+    },
+    {
+      "chapterId": "CH_STMG_MGMT_PERFORMANCE",
+      "chapterLabel": "Performance",
+      "description": "Critères de performance et équilibre entre parties prenantes.",
+      "domainId": "performance_parties_prenantes",
+      "skills": [
+        "STMG_MGMT_PERFORMANCE",
+        "STMG_MGMT_PARTIES_PRENANTES"
+      ],
+      "ragTopics": [
+        "performance",
+        "parties_prenantes"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+  "programmeKey": "maths_premiere_stmg",
+  "generatedAt": "2026-04-25T08:03:36.792Z",
+  "schemaVersion": "v1.0",
+  "sections": [
+    {
+      "rawTitle": "Suites et applications financières",
+      "normalizedTitle": "Suites et applications financières",
+      "domainId": "suites_finance",
+      "candidates": [
+        {
+          "rawLabel": "Modéliser une évolution linéaire par une suite arithmétique",
+          "normalizedLabel": "Modéliser une évolution linéaire par une suite arithmétique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Suites et applications financières — Modéliser une évolution linéaire par une suite arithmétique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Modéliser une évolution à taux constant par une suite géométrique",
+          "normalizedLabel": "Modéliser une évolution à taux constant par une suite géométrique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Suites et applications financières — Modéliser une évolution à taux constant par une suite géométrique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Interpréter capitalisation, mensualité et évolution d'un capital",
+          "normalizedLabel": "Interpréter capitalisation, mensualité et évolution d'un capital",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Suites et applications financières — Interpréter capitalisation, mensualité et évolution d'un capital"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Fonctions utiles en gestion",
+      "normalizedTitle": "Fonctions utiles en gestion",
+      "domainId": "fonctions",
+      "candidates": [
+        {
+          "rawLabel": "Lire variations, extremums et signes sur une courbe",
+          "normalizedLabel": "Lire variations, extremums et signes sur une courbe",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Fonctions utiles en gestion — Lire variations, extremums et signes sur une courbe"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Exploiter une fonction polynomiale du second degré dans un contexte économique",
+          "normalizedLabel": "Exploiter une fonction polynomiale du second degré dans un contexte économique",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Fonctions utiles en gestion — Exploiter une fonction polynomiale du second degré dans un contexte économique"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Utiliser la fonction inverse pour interpréter une relation non linéaire",
+          "normalizedLabel": "Utiliser la fonction inverse pour interpréter une relation non linéaire",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Fonctions utiles en gestion — Utiliser la fonction inverse pour interpréter une relation non linéaire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Pourcentages, évolutions et indices",
+      "normalizedTitle": "Pourcentages, évolutions et indices",
+      "domainId": "evolutions_indices",
+      "candidates": [
+        {
+          "rawLabel": "Calculer un taux global et un taux réciproque",
+          "normalizedLabel": "Calculer un taux global et un taux réciproque",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Pourcentages, évolutions et indices — Calculer un taux global et un taux réciproque"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Déterminer un taux moyen sur plusieurs périodes",
+          "normalizedLabel": "Déterminer un taux moyen sur plusieurs périodes",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Pourcentages, évolutions et indices — Déterminer un taux moyen sur plusieurs périodes"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Construire et interpréter un indice base 100",
+          "normalizedLabel": "Construire et interpréter un indice base 100",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Pourcentages, évolutions et indices — Construire et interpréter un indice base 100"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Statistiques à deux variables",
+      "normalizedTitle": "Statistiques à deux variables",
+      "domainId": "stats_2var",
+      "candidates": [
+        {
+          "rawLabel": "Représenter et lire un nuage de points",
+          "normalizedLabel": "Représenter et lire un nuage de points",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Statistiques à deux variables — Représenter et lire un nuage de points"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Utiliser un ajustement affine pour prévoir une valeur",
+          "normalizedLabel": "Utiliser un ajustement affine pour prévoir une valeur",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Statistiques à deux variables — Utiliser un ajustement affine pour prévoir une valeur"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Déterminer une droite de Mayer et discuter sa pertinence",
+          "normalizedLabel": "Déterminer une droite de Mayer et discuter sa pertinence",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Statistiques à deux variables — Déterminer une droite de Mayer et discuter sa pertinence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Probabilités et loi binomiale",
+      "normalizedTitle": "Probabilités et loi binomiale",
+      "domainId": "probabilites",
+      "candidates": [
+        {
+          "rawLabel": "Lire un arbre pondéré et calculer une probabilité conditionnelle",
+          "normalizedLabel": "Lire un arbre pondéré et calculer une probabilité conditionnelle",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et loi binomiale — Lire un arbre pondéré et calculer une probabilité conditionnelle"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Reconnaître une situation de loi binomiale et calculer une probabilité",
+          "normalizedLabel": "Reconnaître une situation de loi binomiale et calculer une probabilité",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et loi binomiale — Reconnaître une situation de loi binomiale et calculer une probabilité"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Interpréter un intervalle de fluctuation dans une décision",
+          "normalizedLabel": "Interpréter un intervalle de fluctuation dans une décision",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Probabilités et loi binomiale — Interpréter un intervalle de fluctuation dans une décision"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rawTitle": "Algorithmique appliquée et tableur",
+      "normalizedTitle": "Algorithmique appliquée et tableur",
+      "domainId": "algo_tableur",
+      "candidates": [
+        {
+          "rawLabel": "Construire une formule tableur avec adressage relatif ou absolu",
+          "normalizedLabel": "Construire une formule tableur avec adressage relatif ou absolu",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique appliquée et tableur — Construire une formule tableur avec adressage relatif ou absolu"
+            }
+          ]
+        },
+        {
+          "rawLabel": "Écrire un algorithme de seuil pour une suite ou un indicateur",
+          "normalizedLabel": "Écrire un algorithme de seuil pour une suite ou un indicateur",
+          "confidence": 1,
+          "anchors": [
+            {
+              "excerpt": "Programme officiel — Algorithmique appliquée et tableur — Écrire un algorithme de seuil pour une suite ou un indicateur"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

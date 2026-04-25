@@ -23,7 +23,20 @@ export type ProgrammeKey =
   | 'maths_premiere'
   | 'maths_terminale'
   | 'nsi_premiere'
-  | 'nsi_terminale';
+  | 'nsi_terminale'
+  | 'maths_premiere_stmg'
+  | 'sgn_premiere_stmg'
+  | 'management_premiere_stmg'
+  | 'droit_eco_premiere_stmg';
+
+export type ProgrammeDiscipline =
+  | 'maths'
+  | 'nsi'
+  | 'sgn'
+  | 'management'
+  | 'droit_eco';
+
+export type ProgrammeTrack = 'eds' | 'stmg';
 
 /** Segmented programme with candidate skills per section */
 export interface ProgrammeCandidates {
@@ -42,9 +55,9 @@ export interface ProgrammeCandidates {
 export interface CompiledDefinitionPayload {
   id: string;
   label: string;
-  discipline: 'maths' | 'nsi';
+  discipline: ProgrammeDiscipline;
   level: 'premiere' | 'terminale';
-  track: 'eds';
+  track: ProgrammeTrack;
   schemaVersion: string;
   generatedAt: string;
   domains: Array<{
