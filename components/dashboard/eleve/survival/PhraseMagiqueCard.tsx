@@ -21,16 +21,16 @@ export function PhraseMagiqueCard({ phrase, copiedCount }: PhraseMagiqueCardProp
   }
 
   return (
-    <Card className="border-white/10 bg-surface-card">
+    <Card className="border-eaf-indigo/20 bg-eaf-hero-gradient">
       <CardHeader>
-        <CardTitle className="text-sm text-white">{phrase.context}</CardTitle>
+        <CardTitle className="font-fraunces text-sm text-eaf-text-primary">{phrase.context}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm leading-relaxed text-neutral-200">{phrase.template}</p>
-        <p className="text-xs text-neutral-400">{phrase.example}</p>
+        <p className="text-sm leading-relaxed text-eaf-text-secondary">{phrase.template}</p>
+        <p className="text-xs text-eaf-text-tertiary">{phrase.example}</p>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-xs text-brand-accent">Copiee {count} fois</span>
-          <Button type="button" className="min-h-11 min-w-11 bg-brand-accent text-white" onClick={copyPhrase} aria-label="Copier la phrase magique">
+          <span className="text-xs text-eaf-orange">Copiée {count} fois</span>
+          <Button type="button" className="min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary" onClick={copyPhrase} aria-label="Copier la phrase magique">
             <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>

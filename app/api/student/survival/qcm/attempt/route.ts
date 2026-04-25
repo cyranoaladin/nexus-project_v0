@@ -3,36 +3,25 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { getReflex } from '@/lib/survival/reflex-data';
 import { DEFAULT_EXAM_DATE, snapshotFromStoredProgress, toPrismaSurvivalData } from '@/lib/survival/progress';
+import { QCM_BANK } from '@/lib/survival/qcm-bank';
 
-export async function POST(
-  request: Request,
-  context: { params: Promise<{ reflexId: string }> },
-) {
+export async function POST(request: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'ELEVE') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { reflexId } = await context.params;
-    const reflex = getReflex(reflexId);
-    if (!reflex) {
-      return NextResponse.json({ error: 'Unknown reflex' }, { status: 404 });
-    }
-
     const payload = await request.json().catch(() => null) as {
       itemId?: string;
       givenAnswer?: string;
-      correctAnswer?: string;
-      isCorrect?: boolean;
-      reflexState?: 'ACQUIS' | 'REVOIR';
       timeSpentSec?: number;
     } | null;
 
-    if (!payload?.itemId || typeof payload.givenAnswer !== 'string' || typeof payload.correctAnswer !== 'string') {
-      return NextResponse.json({ error: 'Invalid attempt payload' }, { status: 400 });
+    const question = QCM_BANK.find((item) => item.id === payload?.itemId);
+    if (!question || typeof payload?.givenAnswer !== 'string') {
+      return NextResponse.json({ error: 'Invalid QCM attempt payload' }, { status: 400 });
     }
 
     const student = await prisma.student.findUnique({
@@ -42,8 +31,10 @@ export async function POST(
     if (!student) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     if (!student.survivalMode) return NextResponse.json({ error: 'Survival mode disabled' }, { status: 403 });
 
+    const isCorrect = payload.givenAnswer === question.correctAnswer;
     const snapshot = snapshotFromStoredProgress(student.survivalProgress);
-    snapshot.reflexesState[reflex.id] = payload.reflexState ?? (payload.isCorrect ? 'ACQUIS' : 'REVOIR');
+    snapshot.qcmAttempts += 1;
+    if (isCorrect) snapshot.qcmCorrect += 1;
 
     const progress = await prisma.survivalProgress.upsert({
       where: { studentId: student.id },
@@ -58,18 +49,18 @@ export async function POST(
     await prisma.survivalAttempt.create({
       data: {
         progressId: progress.id,
-        itemType: 'REFLEX_QUIZ',
-        itemId: payload.itemId,
-        correctAnswer: payload.correctAnswer,
+        itemType: 'QCM',
+        itemId: question.id,
+        correctAnswer: question.correctAnswer,
         givenAnswer: payload.givenAnswer,
-        isCorrect: Boolean(payload.isCorrect),
+        isCorrect,
         timeSpentSec: Math.max(0, Math.floor(payload.timeSpentSec ?? 0)),
       },
     });
 
-    return NextResponse.json({ progress, snapshot });
+    return NextResponse.json({ progress, snapshot, isCorrect });
   } catch (error) {
-    console.error('[Student Survival Attempt API] POST error:', error);
+    console.error('[Student Survival QCM Attempt API] POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

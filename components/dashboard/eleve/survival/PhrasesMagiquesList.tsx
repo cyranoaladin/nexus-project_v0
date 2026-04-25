@@ -10,10 +10,10 @@ export function PhrasesMagiquesList({ progress }: PhrasesMagiquesListProps) {
   return (
     <section aria-labelledby="survival-phrases-title" className="space-y-4">
       <div>
-        <h2 id="survival-phrases-title" className="text-xl font-semibold text-white">
+        <h2 id="survival-phrases-title" className="font-fraunces text-xl font-semibold text-eaf-text-primary">
           8 phrases magiques
         </h2>
-        <p className="text-sm text-neutral-400">A recopier telles quelles, avec les trous a completer.</p>
+        <p className="text-sm text-eaf-text-tertiary">À recopier telles quelles, avec les trous à compléter.</p>
       </div>
       <div className="grid gap-3">
         {PHRASES_MAGIQUES.map((phrase) => (

@@ -7,23 +7,23 @@ type ReflexLessonProps = {
 
 export function ReflexLesson({ reflex }: ReflexLessonProps) {
   return (
-    <Card className="border-white/10 bg-surface-card">
+    <Card className="border-eaf-indigo/20 bg-eaf-hero-gradient">
       <CardHeader>
-        <CardTitle className="text-lg text-white">{reflex.title}</CardTitle>
+        <CardTitle className="font-fraunces text-lg text-eaf-text-primary">{reflex.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="rounded-lg border border-brand-accent/20 bg-brand-accent/10 p-3 text-sm text-white">{reflex.hook}</p>
+        <p className="rounded-lg border border-eaf-indigo/30 bg-eaf-indigo/10 p-3 text-sm text-eaf-text-primary">{reflex.hook}</p>
         <div>
-          <h3 className="text-sm font-semibold text-neutral-200">Quand tu le vois</h3>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-300">
+          <h3 className="font-fraunces text-sm font-semibold text-eaf-text-primary">Quand tu le vois</h3>
+          <ul className="mt-2 space-y-1 text-sm text-eaf-text-secondary">
             {reflex.whenToUse.map((item) => (
               <li key={item}>- {item}</li>
             ))}
           </ul>
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-neutral-200">Action</h3>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-300">
+          <h3 className="font-fraunces text-sm font-semibold text-eaf-text-primary">Action</h3>
+          <ul className="mt-2 space-y-1 text-sm text-eaf-text-secondary">
             {reflex.method.map((item) => (
               <li key={item}>- {item}</li>
             ))}
