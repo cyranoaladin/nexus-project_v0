@@ -1,4 +1,5 @@
 import { REFLEXES } from './reflex-data';
+import { PHRASES_MAGIQUES } from './phrases';
 import type { SurvivalProgressSnapshot } from './types';
 
 export function computeNotePotentielle(progress: SurvivalProgressSnapshot): number {
@@ -25,7 +26,10 @@ export function computeNotePotentielle(progress: SurvivalProgressSnapshot): numb
   if (progress.reflexesState.reflex_4 === 'ACQUIS') exoPoints += 1;
   if (progress.reflexesState.reflex_7 === 'ACQUIS') exoPoints += 1.5;
 
-  const phrasesAcquired = Object.values(progress.phrasesState).filter((count) => count >= 3).length;
+  const VALID_PHRASE_IDS = new Set<string>(PHRASES_MAGIQUES.map((p) => p.id));
+  const phrasesAcquired = Object.entries(progress.phrasesState)
+    .filter(([id, count]) => VALID_PHRASE_IDS.has(id) && count >= 3)
+    .length;
   exoPoints += phrasesAcquired * 0.25;
   exoPoints = Math.min(exoPoints, 14);
 
