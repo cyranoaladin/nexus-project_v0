@@ -50,8 +50,8 @@ export const ChapterView: React.FC<ChapterViewProps> = ({
       {(() => {
         const ThemeIcon = resolveUiIcon(cat.icon);
         return (
-          <div className="absolute top-0 right-0 p-8 opacity-5 text-[200px] select-none pointer-events-none transform translate-x-1/4 -translate-y-1/4 transition-transform duration-700 hover:rotate-12">
-            <ThemeIcon className="w-full h-full" />
+          <div className="absolute top-0 right-0 p-8 opacity-5 select-none pointer-events-none transform translate-x-1/4 -translate-y-1/4 transition-transform duration-700 hover:rotate-12">
+            <ThemeIcon className="w-48 h-48" aria-hidden="true" />
           </div>
         );
       })()}

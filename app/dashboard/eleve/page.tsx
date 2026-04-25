@@ -23,6 +23,7 @@ import {
   TrackContentSTMG,
   type EleveDashboardData,
 } from "@/components/dashboard/eleve";
+import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
 
 export default function DashboardEleve() {
@@ -293,6 +294,9 @@ export default function DashboardEleve() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Automatismes — Épreuve Anticipée */}
+            <AutomatismesDashboardCard grade={dashboardData?.student.grade || ""} />
 
             {/* Sessions Récentes */}
 

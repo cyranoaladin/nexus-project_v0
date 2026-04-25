@@ -148,31 +148,49 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Batch fetch credit balances for all student IDs in one query
-    const studentUserIds = recentBookings.map(rb => rb.studentId);
-    const studentEntities = await prisma.student.findMany({
+    // Fetch MathsProgress for all students in one query
+    const studentMathsProgress = await prisma.mathsProgress.findMany({
       where: { userId: { in: studentUserIds } },
-      include: { creditTransactions: { select: { amount: true } } }
+      select: { userId: true, totalXp: true, updatedAt: true }
     });
-    const creditMap = new Map(
-      studentEntities.map(se => [
-        se.userId,
-        { id: se.id, grade: se.grade, balance: se.creditTransactions.reduce((t, tr) => t + tr.amount, 0) }
-      ])
-    );
+    const mathsMap = new Map(studentMathsProgress.map(mp => [mp.userId, mp]));
 
     const students = recentBookings.map(rb => {
       const entity = creditMap.get(rb.studentId);
+      const mProgress = mathsMap.get(rb.studentId);
+      const nexusIndex = mProgress ? Math.min(100, Math.round(mProgress.totalXp / 50)) : null;
+
+      // Status logic
+      let status: 'STABLE' | 'WARNING' | 'CRITICAL' = 'STABLE';
+      if (nexusIndex && nexusIndex < 30) status = 'CRITICAL';
+      else if (nexusIndex && nexusIndex < 50) status = 'WARNING';
+      
+      const lastActivity = mProgress?.updatedAt || rb.scheduledDate;
+      const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysSinceLastActivity > 10) status = 'CRITICAL';
+
       return {
         id: entity?.id ?? rb.studentId,
         name: `${rb.student?.firstName ?? ''} ${rb.student?.lastName ?? ''}`.trim(),
         grade: entity?.grade ?? rb.student?.student?.grade ?? null,
+        gradeLevel: studentEntities.find(se => se.userId === rb.studentId)?.gradeLevel || 'PREMIERE',
+        academicTrack: studentEntities.find(se => se.userId === rb.studentId)?.academicTrack || 'EDS_GENERALE',
         subject: rb.subject,
         lastSession: rb.scheduledDate,
         creditBalance: entity?.balance ?? 0,
+        nexusIndex,
+        status,
         isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       };
     });
+
+    const alerts = students.filter(s => s.status !== 'STABLE').map(s => ({
+      id: `alert-${s.id}`,
+      studentName: s.name,
+      message: s.status === 'CRITICAL' ? 'Retard critique ou score faible.' : 'Baisse d\'activité détectée.',
+      type: s.status === 'CRITICAL' ? 'STAGNATION' : 'ABSENCE',
+      priority: s.status === 'CRITICAL' ? 'HIGH' : 'MEDIUM'
+    }));
 
     const dashboardData = {
       coach: {
@@ -192,6 +210,7 @@ export async function GET(request: NextRequest) {
       },
       weekSessions,
       students,
+      alerts,
       uniqueStudentsCount: uniqueStudentBookings.length
     };
 

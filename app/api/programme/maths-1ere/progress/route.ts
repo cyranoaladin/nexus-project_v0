@@ -72,18 +72,25 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Detect student track
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+      select: { academicTrack: true },
+    });
+    const track = student?.academicTrack || AcademicTrack.EDS_GENERALE;
+
     await prisma.mathsProgress.upsert({
       where: {
         userId_level_track: {
           userId: user.id,
           level: MathsLevel.PREMIERE,
-          track: AcademicTrack.EDS_GENERALE,
+          track: track,
         },
       },
       create: {
         userId: user.id,
         level: MathsLevel.PREMIERE,
-        track: AcademicTrack.EDS_GENERALE,
+        track: track,
         completedChapters: payload.completed_chapters,
         masteredChapters: payload.mastered_chapters,
         totalXp: payload.total_xp,
@@ -152,12 +159,19 @@ export async function GET() {
   }
 
   try {
+    // Detect student track
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+      select: { academicTrack: true },
+    });
+    const track = student?.academicTrack || AcademicTrack.EDS_GENERALE;
+
     const progress = await prisma.mathsProgress.findUnique({
       where: {
         userId_level_track: {
           userId: user.id,
           level: MathsLevel.PREMIERE,
-          track: AcademicTrack.EDS_GENERALE,
+          track: track,
         },
       },
     });

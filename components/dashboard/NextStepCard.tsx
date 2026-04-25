@@ -38,9 +38,9 @@ import type { NextStep, StepPriority } from '@/lib/next-step-engine';
  */
 
 const PRIORITY_STYLES: Record<StepPriority, { border: string; accent: string; icon: LucideIcon }> = {
-  critical: { border: 'border-slate-500/40', accent: 'text-slate-300', icon: AlertTriangle },
-  high: { border: 'border-blue-500/30', accent: 'text-blue-300', icon: Zap },
-  medium: { border: 'border-brand-primary/30', accent: 'text-brand-primary', icon: Info },
+  critical: { border: 'border-error/40', accent: 'text-error', icon: AlertTriangle },
+  high: { border: 'border-brand-primary/30', accent: 'text-brand-primary', icon: Zap },
+  medium: { border: 'border-brand-accent/30', accent: 'text-brand-accent', icon: Info },
   low: { border: 'border-neutral-700', accent: 'text-neutral-400', icon: ChevronRight },
 };
 
