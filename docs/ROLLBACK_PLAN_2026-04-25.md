@@ -63,6 +63,23 @@ git reset --hard <commit-before-merge>
 docker compose -f docker-compose.prod.yml up -d --build nexus-app
 ```
 
+## Étape 7 — Nettoyage post-healthcheck OK (sur le serveur)
+
+```bash
+# Archiver le patch manuel (déjà absorbé dans la PR — tous hunks classés "absorbés")
+cp deploy-patch.patch /root/backups/deploy-patch-2026-04-24-absorbed-via-PR.patch
+rm -f deploy-patch.patch
+
+# Vérifier qu'il ne reste aucun fichier untracked inattendu
+git status -sb
+```
+
+> Ce patch avait été appliqué manuellement le 24/04 pour les colonnes `track`, `gradeLevel`,
+> `academicTrack`, `specialties`, `stmgPathway`. Tous les 5 hunks sont absorbés par les
+> migrations formelles de la PR — voir `docs/AUDIT_PROD_PATCH_2026-04-25.md`.
+
+---
+
 ## Critères de déclenchement du rollback
 
 - Healthcheck KO pendant > 60s après déploiement
