@@ -163,8 +163,8 @@ export default function MathsTerminaleClient({
   }, [chapters, focusBacMode]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#060b1a] via-[#0b1227] to-[#0a1020] text-white">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#060b1a]/90 backdrop-blur px-4 py-3">
+    <div className="min-h-screen bg-gradient-to-b from-surface-darker via-midnight-900 to-surface-dark text-white">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-surface-darker/90 backdrop-blur px-4 py-3">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <div>
             <p className="text-xs text-cyan-300">Nexus Réussite · Programme</p>
