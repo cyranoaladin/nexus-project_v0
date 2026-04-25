@@ -10,7 +10,7 @@ describe('TrackContentSTMG', () => {
             module: 'MATHS_STMG',
             label: 'Mathématiques STMG',
             skillGraphRef: 'maths_premiere_stmg',
-            progress: { totalXp: 80, completedChapters: ['pourcentages'] },
+            progress: { totalXp: 80, completedChapters: ['pourcentages'], masteredChapters: [], totalChaptersInProgram: 8, bestCombo: 0, streak: 0 },
           },
         ]}
       />

@@ -9,28 +9,80 @@ import type { DashboardRole } from './DashboardPilotage';
 /**
  * TrajectoireCard — Votre trajectoire.
  *
+ * Dual API:
+ * - data mode: receives pre-fetched trajectory (from dashboard payload — preferred for ELEVE)
+ * - fetch mode: fetches /api/student/trajectory on mount (for coach/parent views)
+ *
  * Micro-copy: "Objectif défini et jalons intermédiaires."
- * Connected to /api/student/trajectory.
- * Renders TrajectoireTimeline when data is present, placeholder otherwise.
  */
 
-interface TrajectoireCardProps {
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+/** Shape of pre-fetched trajectory from the dashboard payload */
+export type TrajectoireDataProp = {
+  id: string | null;
+  title: string | null;
+  progress: number;
+  daysRemaining: number;
+  milestones: Array<{
+    id: string;
+    title: string;
+    targetDate: string;
+    completed: boolean;
+    completedAt: string | null;
+  }>;
+};
+
+type TrajectoireCardPropsWithData = {
+  /** Pre-fetched trajectory — skips internal fetch */
+  data: TrajectoireDataProp;
+  studentId?: never;
+  role?: DashboardRole;
+};
+
+type TrajectoireCardPropsWithFetch = {
+  data?: never;
   /** Student ID for scoped fetch */
   studentId?: string | null;
   /** Role for conditional CTAs in timeline */
   role?: DashboardRole;
+};
+
+type TrajectoireCardProps = TrajectoireCardPropsWithData | TrajectoireCardPropsWithFetch;
+
+// ─── Helper ───────────────────────────────────────────────────────────────────
+
+function dataPropToTimeline(data: TrajectoireDataProp): TimelineTrajectory | null {
+  if (!data.id || !data.title) return null;
+  return {
+    id: data.id,
+    title: data.title,
+    progress: data.progress,
+    daysRemaining: data.daysRemaining,
+    milestones: data.milestones,
+  };
 }
 
-export function TrajectoireCard({ studentId, role = 'ELEVE' }: TrajectoireCardProps) {
-  const [trajectory, setTrajectory] = useState<TimelineTrajectory | null>(null);
-  const [loading, setLoading] = useState(true);
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export function TrajectoireCard(props: TrajectoireCardProps) {
+  const role = props.role ?? 'ELEVE';
+  const isDataMode = 'data' in props && props.data !== undefined;
+
+  const [trajectory, setTrajectory] = useState<TimelineTrajectory | null>(
+    isDataMode ? dataPropToTimeline(props.data!) : null
+  );
+  const [loading, setLoading] = useState(!isDataMode);
 
   useEffect(() => {
+    // Data mode — no fetch needed
+    if (isDataMode) return;
+
     let cancelled = false;
 
     async function fetchTrajectory() {
       try {
-        const params = studentId ? `?studentId=${studentId}` : '';
+        const params = props.studentId ? `?studentId=${props.studentId}` : '';
         const res = await fetch(`/api/student/trajectory${params}`);
         if (!res.ok) {
           if (!cancelled) setTrajectory(null);
@@ -59,7 +111,10 @@ export function TrajectoireCard({ studentId, role = 'ELEVE' }: TrajectoireCardPr
 
     fetchTrajectory();
     return () => { cancelled = true; };
-  }, [studentId]);
+  }, [isDataMode, props.studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // In data mode, loading is false from the start
+  const isLoading = isDataMode ? false : loading;
 
   return (
     <div className="rounded-xl border border-neutral-800 bg-surface-card p-6 relative overflow-hidden">
@@ -75,7 +130,7 @@ export function TrajectoireCard({ studentId, role = 'ELEVE' }: TrajectoireCardPr
           Objectif défini et jalons intermédiaires.
         </p>
 
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-2 animate-pulse">
             <div className="h-1 rounded bg-neutral-800" />
             <div className="h-3 w-32 rounded bg-neutral-800" />
