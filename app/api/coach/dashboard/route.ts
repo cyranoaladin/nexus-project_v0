@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
         academicTrack: studentEntities.find(se => se.userId === rb.studentId)?.academicTrack || 'EDS_GENERALE',
         subject: rb.subject,
         lastSession: rb.scheduledDate,
-        creditBalance: entity?.balance ?? 0,
+        creditBalance: entity?.credits ?? 0,
         nexusIndex,
         status,
         isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
