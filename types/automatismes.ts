@@ -61,6 +61,22 @@ export type SafeAutomatismeSeries = Omit<AutomatismeSeries, "questions"> & {
   questions: SafeAutomatismeQuestion[];
 };
 
+export type AutomatismeChoiceId = "A" | "B" | "C" | "D";
+
+export type AutomatismeCorrection = {
+  questionId: string;
+  questionNumber: number;
+  userAnswer: AutomatismeChoiceId | null;
+  correctChoiceId: AutomatismeChoiceId;
+  isCorrect: boolean;
+  feedback: string;
+  method: string;
+  trap: string;
+  remediation: string;
+  sourceReference: string;
+  sourceComment: string;
+};
+
 export type AutomatismeAttemptResult = {
   score: number;
   totalQuestions: number;
@@ -73,5 +89,6 @@ export type AutomatismeAttemptResult = {
   strengths: string[];
   recommendation: string;
   sourceReferences: string[];
+  corrections: AutomatismeCorrection[];
   answers: Record<string, string>;
 };
