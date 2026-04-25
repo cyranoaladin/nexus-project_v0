@@ -1,27 +1,54 @@
-import { CohortTable } from "@/components/dashboard/coach/CohortTable"
-import { PriorityAlerts } from "@/components/dashboard/coach/PriorityAlerts"
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { Loader2, BookOpen, Users, Zap } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
+import { CoachAvailability } from "@/components/dashboard/coach/CoachAvailability";
+import { CohortTable } from "@/components/dashboard/coach/CohortTable";
+import { PriorityAlerts } from "@/components/dashboard/coach/PriorityAlerts";
+
+interface TodaySession {
+  id: string;
+  studentName: string;
+  subject: string;
+  time: string;
+}
+
+interface CoachDashboardData {
+  coach: { pseudonym: string };
+  students: any[];
+  alerts: any[];
+  uniqueStudentsCount: number;
+  todaySessions: TodaySession[];
+}
 
 export default function DashboardCoach() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [dashboardData, setDashboardData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard')
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [dashboardData, setDashboardData] = useState<CoachDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [_error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard');
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/coach/dashboard')
-      if (!response.ok) throw new Error('Failed to fetch')
-      const data = await response.json()
-      setDashboardData(data)
+      setLoading(true);
+      const response = await fetch('/api/coach/dashboard');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setDashboardData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
+      setError(err instanceof Error ? err.message : 'Error');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (status === "loading") return
@@ -72,7 +99,7 @@ export default function DashboardCoach() {
                   <CardContent>
                     {dashboardData?.todaySessions.length > 0 ? (
                       <div className="space-y-4">
-                        {dashboardData.todaySessions.map((s: any) => (
+                        {dashboardData.todaySessions.map((s) => (
                           <div key={s.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
                             <div>
                               <p className="font-bold text-white">{s.studentName}</p>
