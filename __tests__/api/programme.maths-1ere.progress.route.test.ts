@@ -12,6 +12,9 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: {
+      findUnique: jest.fn().mockResolvedValue({ academicTrack: 'EDS_GENERALE' }),
+    },
     mathsProgress: {
       upsert: jest.fn(),
       findUnique: jest.fn(),
