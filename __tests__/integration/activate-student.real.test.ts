@@ -27,6 +27,12 @@ function makePostRequest(body: Record<string, unknown>): NextRequest {
   });
 }
 
+const validTrackMetadata = {
+  gradeLevel: 'PREMIERE',
+  academicTrack: 'EDS_GENERALE',
+  specialties: ['MATHEMATIQUES'],
+};
+
 describe('IDOR BDD Réelle — Activate Student', () => {
   let parent1: any;
   let parent2: any;
@@ -82,6 +88,7 @@ describe('IDOR BDD Réelle — Activate Student', () => {
     const res = await POST(makePostRequest({
       studentUserId: student1.userId,
       studentEmail: 'activate-real-new-email@test.com',
+      ...validTrackMetadata,
     }));
 
     expect(res.status).toBe(200);
@@ -95,6 +102,7 @@ describe('IDOR BDD Réelle — Activate Student', () => {
     const res = await POST(makePostRequest({
       studentUserId: student1.userId,
       studentEmail: 'activate-real-new-email2@test.com',
+      ...validTrackMetadata,
     }));
 
     expect(res.status).toBe(403);

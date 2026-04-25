@@ -36,6 +36,31 @@ export enum Subject {
   SES = 'SES'
 }
 
+export enum GradeLevel {
+  SECONDE = 'SECONDE',
+  PREMIERE = 'PREMIERE',
+  TERMINALE = 'TERMINALE',
+  POSTBAC = 'POSTBAC'
+}
+
+export enum AcademicTrack {
+  EDS_GENERALE = 'EDS_GENERALE',
+  STMG = 'STMG',
+  STI2D = 'STI2D',
+  ST2S = 'ST2S',
+  STL = 'STL',
+  STD2A = 'STD2A',
+  STMG_NON_LYCEEN = 'STMG_NON_LYCEEN'
+}
+
+export enum StmgPathway {
+  RHC = 'RHC',
+  MERCATIQUE = 'MERCATIQUE',
+  GF = 'GF',
+  SIG = 'SIG',
+  INDETERMINE = 'INDETERMINE'
+}
+
 export enum SessionStatus {
   SCHEDULED = 'SCHEDULED',
   CONFIRMED = 'CONFIRMED',

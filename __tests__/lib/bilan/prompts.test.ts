@@ -5,10 +5,11 @@
 
 import { buildPromptForAudience } from '@/lib/bilan/prompts';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
+import { BilanType } from '@/lib/bilan/types';
 
 describe('F50: buildPromptForAudience', () => {
   const baseContext: BilanGenerationContext = {
-    type: 'DIAGNOSTIC_PRE_STAGE',
+    type: BilanType.DIAGNOSTIC_PRE_STAGE,
     subject: 'MATHS',
     studentName: 'Jean Dupont',
     studentEmail: 'jean@example.com',
@@ -68,7 +69,7 @@ describe('F50: buildPromptForAudience', () => {
 
   it('should handle missing optional fields gracefully', () => {
     const minimalContext: BilanGenerationContext = {
-      type: 'ASSESSMENT_QCM',
+      type: BilanType.ASSESSMENT_QCM,
       subject: 'NSI',
       studentName: 'Marie Curie',
       studentEmail: 'marie@example.com',

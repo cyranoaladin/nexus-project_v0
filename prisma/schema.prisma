@@ -50,6 +50,31 @@ enum Subject {
   SES
 }
 
+enum GradeLevel {
+  SECONDE
+  PREMIERE
+  TERMINALE
+  POSTBAC
+}
+
+enum AcademicTrack {
+  EDS_GENERALE
+  STMG
+  STI2D
+  ST2S
+  STL
+  STD2A
+  STMG_NON_LYCEEN
+}
+
+enum StmgPathway {
+  RHC
+  MERCATIQUE
+  GF
+  SIG
+  INDETERMINE
+}
+
 // Énumération des statuts de session
 enum SessionStatus {
   SCHEDULED
@@ -89,8 +114,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Activation (Modèle B: assistante/parent déclenche l'activation élève)
-  activatedAt     DateTime? // null = compte non activé (élève en attente)
-  activationToken String?   // token hashé pour activation par email
+  activatedAt      DateTime? // null = compte non activé (élève en attente)
+  activationToken  String? // token hashé pour activation par email
   activationExpiry DateTime? // expiration du token d'activation
 
   // Relations spécifiques selon le rôle
@@ -102,9 +127,9 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
-  
+
   // Documents
-  documents        UserDocument[] @relation("UserDocuments")
+  documents         UserDocument[] @relation("UserDocuments")
   uploadedDocuments UserDocument[] @relation("DocumentUploader")
 
   // Coach specific relations
@@ -167,9 +192,14 @@ model Student {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
-  grade     String? // Classe
-  school    String?
-  birthDate DateTime?
+  grade          String? // Classe legacy, conservée pour compatibilité
+  gradeLevel     GradeLevel    @default(PREMIERE)
+  academicTrack  AcademicTrack @default(EDS_GENERALE)
+  specialties    Subject[]     @default([])
+  stmgPathway    StmgPathway?
+  updatedTrackAt DateTime?
+  school         String?
+  birthDate      DateTime?
 
   // Crédits et sessions
   credits           Int @default(0)
@@ -188,16 +218,16 @@ model Student {
   trajectories         Trajectory[]
 
   // Learning Graph v2 relations
-  assessments          Assessment[]          // Linked assessments (optional FK from Assessment)
-  progressionHistory   ProgressionHistory[]  // SSN history over time
-  projectionHistory    ProjectionHistory[]   // ML predictions history
+  assessments        Assessment[] // Linked assessments (optional FK from Assessment)
+  progressionHistory ProgressionHistory[] // SSN history over time
+  projectionHistory  ProjectionHistory[] // ML predictions history
 
   // Stage relations
-  stageReservations    StageReservation[]    @relation("StudentStageReservations")
-  stageBilans          StageBilan[]          @relation("StudentStageBilans")
+  stageReservations StageReservation[] @relation("StudentStageReservations")
+  stageBilans       StageBilan[]       @relation("StudentStageBilans")
 
   // Bilan canonical (F49/F51)
-  bilans               Bilan[]
+  bilans Bilan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -232,12 +262,12 @@ model CoachProfile {
   sessionReports SessionReport[]
 
   // Stage relations
-  stageSessions    StageSession[]  @relation("CoachStageSessions")
-  stageBilans      StageBilan[]    @relation("CoachStageBilans")
-  stageAssignments StageCoach[]    @relation("CoachStageAssignments")
+  stageSessions    StageSession[] @relation("CoachStageSessions")
+  stageBilans      StageBilan[]   @relation("CoachStageBilans")
+  stageAssignments StageCoach[]   @relation("CoachStageAssignments")
 
   // Bilan canonical (F49/F51)
-  bilans           Bilan[]
+  bilans Bilan[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -263,7 +293,7 @@ model Subscription {
 
   // Add-ons ARIA
   ariaSubjects Json @default("[]") // Array des matières ARIA activées
-  ariaCost     Int    @default(0) // Coût mensuel des add-ons ARIA
+  ariaCost     Int  @default(0) // Coût mensuel des add-ons ARIA
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -430,7 +460,7 @@ model StudentReport {
 
 // Modèle Paiement
 model Payment {
-  id     String @id @default(cuid())
+  id     String  @id @default(cuid())
   userId String? // Optional to allow keeping payment record if user is deleted
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull) // Preserve history
 
@@ -449,10 +479,10 @@ model Payment {
   metadata   Json? // Données supplémentaires
 
   // Acceptation CGV (preuve d'acceptation avant paiement)
-  termsVersion String?   // ex: "CGV v1.0 – 2026-03-01"
-  termsAcceptedAt DateTime? // timestamp de l'acceptation
-  termsAcceptedIp String?   // IP du client au moment de l'acceptation
-  immediateExecution Boolean @default(false) // renonciation rétractation accès immédiat
+  termsVersion       String? // ex: "CGV v1.0 – 2026-03-01"
+  termsAcceptedAt    DateTime? // timestamp de l'acceptation
+  termsAcceptedIp    String? // IP du client au moment de l'acceptation
+  immediateExecution Boolean   @default(false) // renonciation rétractation accès immédiat
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -472,7 +502,7 @@ model ClicToPayTransaction {
   amount        Float
   currency      String   @default("TND")
   status        String   @default("PENDING") // PENDING, SUCCESS, FAILED
-  bankReference String?  // Numéro d'autorisation renvoyé par la banque
+  bankReference String? // Numéro d'autorisation renvoyé par la banque
   paymentId     String?  @unique
   payment       Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
   userId        String
@@ -514,7 +544,7 @@ model PedagogicalContent {
 
   // Métadonnées pour la recherche vectorielle
   embedding_vector Unsupported("vector")? // pgvector support (1536 dimensions)
-  tags             Json                    @default("[]") // Tags de catégorisation
+  tags             Json                   @default("[]") // Tags de catégorisation
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -844,10 +874,10 @@ model Diagnostic {
   type String // "PALLIER2_MATHS", "DIAGNOSTIC_PRE_STAGE_MATHS", etc.
 
   // Definition engine metadata
-  definitionKey     String?  // e.g. "maths-premiere-p2", "nsi-terminale-p2"
-  definitionVersion String?  // e.g. "v1.3"
-  promptVersion     String?  // e.g. "v1.0" — tracks prompt template version
-  modelUsed         String?  // e.g. "llama3.2:latest" — LLM model used for generation
+  definitionKey     String? // e.g. "maths-premiere-p2", "nsi-terminale-p2"
+  definitionVersion String? // e.g. "v1.3"
+  promptVersion     String? // e.g. "v1.0" — tracks prompt template version
+  modelUsed         String? // e.g. "llama3.2:latest" — LLM model used for generation
   ragUsed           Boolean  @default(false) // Whether RAG context was available
   ragCollections    String[] // Collections used for RAG search
 
@@ -877,15 +907,15 @@ model Diagnostic {
   actionPlan     String? // Plan d'action personnalisé (legacy)
 
   // Structured analysis (V2 — exploitable)
-  analysisJson     Json?    // Structured JSON: forces, faiblesses, plan, ressources, qualityFlags
-  studentMarkdown  String?  // Rendered bilan for student audience
-  parentsMarkdown  String?  // Rendered bilan for parents audience
-  nexusMarkdown    String?  // Rendered bilan for Nexus team audience
+  analysisJson    Json? // Structured JSON: forces, faiblesses, plan, ressources, qualityFlags
+  studentMarkdown String? // Rendered bilan for student audience
+  parentsMarkdown String? // Rendered bilan for parents audience
+  nexusMarkdown   String? // Rendered bilan for Nexus team audience
 
   // Error tracking
-  errorCode    String?  // e.g. "OLLAMA_TIMEOUT", "RAG_UNAVAILABLE", "VALIDATION_ERROR"
-  errorDetails String?  // Detailed error message (not exposed publicly)
-  retryCount   Int      @default(0)
+  errorCode    String? // e.g. "OLLAMA_TIMEOUT", "RAG_UNAVAILABLE", "VALIDATION_ERROR"
+  errorDetails String? // Detailed error message (not exposed publicly)
+  retryCount   Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -952,9 +982,9 @@ model Stage {
 
 // ─── Stage Session — a scheduled slot in a stage ─────────────────────────────
 model StageSession {
-  id          String       @id @default(cuid())
+  id          String        @id @default(cuid())
   stageId     String
-  stage       Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stage       Stage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
   title       String
   subject     Subject
   startAt     DateTime
@@ -962,11 +992,11 @@ model StageSession {
   location    String?
   coachId     String?
   coach       CoachProfile? @relation("CoachStageSessions", fields: [coachId], references: [id], onDelete: SetNull)
-  description String?      @db.Text
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  description String?       @db.Text
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  documents   StageDocument[]
+  documents StageDocument[]
 
   @@index([stageId])
   @@index([startAt])
@@ -1001,8 +1031,8 @@ model StageDocument {
   fileUrl        String
   fileType       String
   fileSize       Int?
-  isPublic       Boolean  @default(false)
-  createdAt      DateTime @default(now())
+  isPublic       Boolean       @default(false)
+  createdAt      DateTime      @default(now())
 
   @@index([stageId])
   @@index([stageSessionId])
@@ -1027,10 +1057,10 @@ model StageBilan {
   areasForGrowth String[]
   nextSteps      String?      @db.Text
   pdfUrl         String?
-  isPublished    Boolean  @default(false)
+  isPublished    Boolean      @default(false)
   publishedAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@unique([stageId, studentId])
   @@index([stageId])
@@ -1040,16 +1070,16 @@ model StageBilan {
 
 // Stage Reservation — Persists stage registration leads
 model StageReservation {
-  id            String   @id @default(cuid())
+  id            String  @id @default(cuid())
   parentName    String
-  studentName   String?  // Optional: if form distinguishes parent/student
+  studentName   String? // Optional: if form distinguishes parent/student
   email         String
   phone         String
   classe        String
   academyId     String
   academyTitle  String
   price         Float
-  paymentMethod String?  // "card" | "transfer" | "bank_transfer" | null
+  paymentMethod String? // "card" | "transfer" | "bank_transfer" | null
 
   // Pipeline status
   status String @default("PENDING") // PENDING, PENDING_BANK_TRANSFER, CONFIRMED, CANCELLED, PAID
@@ -1061,19 +1091,19 @@ model StageReservation {
   telegramSent Boolean @default(false)
 
   // ── New fields (nullable for backward compat) ──────────────────────────────
-  stageId   String?
-  stage     Stage?  @relation("StageReservations", fields: [stageId], references: [id], onDelete: SetNull)
-  studentId String?
-  student   Student? @relation("StudentStageReservations", fields: [studentId], references: [id], onDelete: SetNull)
+  stageId                  String?
+  stage                    Stage?                  @relation("StageReservations", fields: [stageId], references: [id], onDelete: SetNull)
+  studentId                String?
+  student                  Student?                @relation("StudentStageReservations", fields: [studentId], references: [id], onDelete: SetNull)
   // Rich status mirroring new enum (kept alongside legacy String status for compat)
-  richStatus         StageReservationStatus?
-  paymentStatus      PaymentStatus?
-  paymentRef         String?
-  notes              String?                  @db.Text
-  activationToken    String?                  @unique
+  richStatus               StageReservationStatus?
+  paymentStatus            PaymentStatus?
+  paymentRef               String?
+  notes                    String?                 @db.Text
+  activationToken          String?                 @unique
   activationTokenExpiresAt DateTime?
-  confirmedAt        DateTime?
-  cancelledAt        DateTime?
+  confirmedAt              DateTime?
+  cancelledAt              DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1096,71 +1126,71 @@ enum AssessmentStatus {
 }
 
 model Assessment {
-  id            String           @id @default(cuid())
-  publicShareId String           @unique @default(cuid()) // Secure public access token
-  
+  id            String @id @default(cuid())
+  publicShareId String @unique @default(cuid()) // Secure public access token
+
   // Subject and Grade
   subject String // MATHS, NSI, etc.
   grade   String // PREMIERE, TERMINALE
-  
+
   // Student Information (studentEmail kept for backward compat + anonymous assessments)
   studentEmail    String
   studentName     String
   studentPhone    String?
   studentMetadata Json? // Additional student data
-  
+
   // Optional FK to Student (linked post-registration, null for anonymous assessments)
   studentId String?
   student   Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
-  
+
   // Assessment Data
   answers     Json // Record<questionId, optionId>
   duration    Int? // Duration in milliseconds
   startedAt   DateTime?
   completedAt DateTime?
-  
+
   // Scoring Results
-  scoringResult   Json?  // Full ScoringResult from ScoringFactory (contains all metrics)
+  scoringResult   Json? // Full ScoringResult from ScoringFactory (contains all metrics)
   globalScore     Float? // Raw score (0-100) = (totalPoints / maxPoints) * 100 — denormalized for SQL indexing
   confidenceIndex Float? // Student self-awareness index (0-100) — denormalized for SQL indexing
-  
+
   // Score Standardisé Nexus (SSN) — normalized by cohort (z-score projection 0-100)
   ssn Float? // null until cohort normalization is computed
-  
+
   // Unified Academic Index (multi-discipline composite, null if single-discipline)
   uai Float?
-  
+
   // Analysis Results
-  analysisJson     Json? // Structured analysis (forces, faiblesses, plan)
-  studentMarkdown  String? // Rendered bilan for student
-  parentsMarkdown  String? // Rendered bilan for parents
-  nexusMarkdown    String? // Rendered bilan for Nexus team
-  
+  analysisJson    Json? // Structured analysis (forces, faiblesses, plan)
+  studentMarkdown String? // Rendered bilan for student
+  parentsMarkdown String? // Rendered bilan for parents
+  nexusMarkdown   String? // Rendered bilan for Nexus team
+
   // Status and Pipeline
   status   AssessmentStatus @default(PENDING)
   progress Int              @default(0) // 0-100
-  
+
   // Error Tracking
   errorCode    String?
   errorDetails String?
   retryCount   Int     @default(0)
-  
+
   // Versioning — track which question bank and scoring engine were used
   assessmentVersion String? // e.g. "maths_terminale_spe_v1", "general_v1"
   engineVersion     String? // e.g. "scorer_v2.1", "generic_v1"
-  
+
   // Metadata
   userAgent String?
   ipAddress String?
-  
+
   // Learning Graph v2 relations
   domainScores DomainScore[]
   skillScores  SkillScore[]
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([subject, grade])
   @@index([studentEmail])
   @@index([studentId])
@@ -1174,9 +1204,9 @@ model Assessment {
 
 enum BilanType {
   DIAGNOSTIC_PRE_STAGE // Legacy Diagnostic (Pallier 2, formulaire compétences)
-  ASSESSMENT_QCM       // Legacy Assessment (QCM universel multi-matière)
-  STAGE_POST           // Legacy StageBilan (rapport coach fin de stage)
-  CONTINUOUS           // Maths 1ère BilanView (progression temps réel)
+  ASSESSMENT_QCM // Legacy Assessment (QCM universel multi-matière)
+  STAGE_POST // Legacy StageBilan (rapport coach fin de stage)
+  CONTINUOUS // Maths 1ère BilanView (progression temps réel)
 }
 
 enum BilanStatus {
@@ -1193,12 +1223,12 @@ model Bilan {
 
   // Typologie
   type    BilanType // Canonical type
-  subject String      // MATHS, NSI, GENERAL, etc.
+  subject String // MATHS, NSI, GENERAL, etc.
 
   // Source identification (for migration traceability)
-  legacyDiagnosticId  String? @unique // FK to legacy Diagnostic (read-only after migration)
-  legacyAssessmentId  String? @unique // FK to legacy Assessment (read-only after migration)
-  legacyStageBilanId  String? @unique // FK to legacy StageBilan (read-only after migration)
+  legacyDiagnosticId String? @unique // FK to legacy Diagnostic (read-only after migration)
+  legacyAssessmentId String? @unique // FK to legacy Assessment (read-only after migration)
+  legacyStageBilanId String? @unique // FK to legacy StageBilan (read-only after migration)
 
   // Source data (union of raw inputs from all sources)
   sourceData Json? // Union type: Diagnostic.data | Assessment.answers | StageBilan metadata
@@ -1212,7 +1242,7 @@ model Bilan {
 
   // Relations (optional based on type)
   stageId String?
-  stage   Stage?  @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  stage   Stage?        @relation(fields: [stageId], references: [id], onDelete: SetNull)
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
 
@@ -1221,7 +1251,7 @@ model Bilan {
   confidenceIndex Float? // 0-100 (self-awareness)
   ssn             Float? // Score Standardisé Nexus (z-score 0-100)
   uai             Float? // Unified Academic Index (multi-discipline)
-  domainScores    Json?  // Array of { domain: string, score: number }
+  domainScores    Json? // Array of { domain: string, score: number }
 
   // Renders (tri-destinataire — common to all bilan types)
   studentMarkdown String? @db.Text // Élève: bienveillant, tutoiement
@@ -1243,9 +1273,9 @@ model Bilan {
   retryCount   Int     @default(0)
 
   // Versioning
-  sourceVersion String? // e.g., "diagnostic_v1.3", "assessment_v2.1"
-  engineVersion String? // e.g., "llm_qwen2.5:32b", "manual_coach"
-  ragUsed       Boolean @default(false)
+  sourceVersion  String? // e.g., "diagnostic_v1.3", "assessment_v2.1"
+  engineVersion  String? // e.g., "llm_qwen2.5:32b", "manual_coach"
+  ragUsed        Boolean  @default(false)
   ragCollections String[] // Collections used for RAG context
 
   // Timestamps
@@ -1273,7 +1303,7 @@ model DomainScore {
   assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   domain String // e.g. "analysis", "algebra", "prob_stats", "geometry"
-  score  Float  // 0-100
+  score  Float // 0-100
 
   createdAt DateTime @default(now())
 
@@ -1289,7 +1319,7 @@ model SkillScore {
   assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   skillTag String // e.g. "limite_polynome", "suite_arithmetique", "module_complexe"
-  score    Float  // 0-100
+  score    Float // 0-100
 
   createdAt DateTime @default(now())
 
@@ -1300,11 +1330,11 @@ model SkillScore {
 
 // ProgressionHistory — SSN snapshots over time for longitudinal tracking
 model ProgressionHistory {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  ssn  Float    // SSN value at this point in time (0-100)
+  ssn  Float // SSN value at this point in time (0-100)
   date DateTime @default(now())
 
   @@index([studentId, date])
@@ -1313,14 +1343,14 @@ model ProgressionHistory {
 
 // ProjectionHistory — ML prediction snapshots for prospective analysis
 model ProjectionHistory {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  ssnProjected    Float   // Predicted SSN at horizon (0-100)
-  confidenceIndex Float   // Prediction confidence (0-100)
-  modelVersion    String  // e.g. "ridge_v1", "ridge_v2"
-  inputSnapshot   Json?   // Snapshot of input features used for prediction
+  ssnProjected    Float // Predicted SSN at horizon (0-100)
+  confidenceIndex Float // Prediction confidence (0-100)
+  modelVersion    String // e.g. "ridge_v1", "ridge_v2"
+  inputSnapshot   Json? // Snapshot of input features used for prediction
 
   createdAt DateTime @default(now())
 
@@ -1361,7 +1391,7 @@ model Invoice {
   status InvoiceStatus @default(DRAFT)
 
   // Dates
-  issuedAt DateTime @default(now())
+  issuedAt DateTime  @default(now())
   dueAt    DateTime? // Échéance (optionnel)
 
   // Customer
@@ -1371,9 +1401,9 @@ model Invoice {
   customerId      String? // Identifiant fiscal client (si pro)
 
   // Issuer (snapshot at invoice time)
-  issuerName    String @default("M&M Academy")
-  issuerAddress String @default("Résidence Narjess 2, Bloc D, Appt 12, Raoued 2056, Ariana, Tunisie")
-  issuerMF      String @default("1XXXXXX/X/A/M/000") // Matricule fiscal
+  issuerName    String  @default("M&M Academy")
+  issuerAddress String  @default("Résidence Narjess 2, Bloc D, Appt 12, Raoued 2056, Ariana, Tunisie")
+  issuerMF      String  @default("1XXXXXX/X/A/M/000") // Matricule fiscal
   issuerRNE     String? // Registre national des entreprises
 
   // Amounts in millimes (1 TND = 1000 millimes) — integer arithmetic only
@@ -1390,8 +1420,8 @@ model Invoice {
   paymentMethod    InvoicePaymentMethod?
   paymentDetails   Json? // { reference, receivedAt, notes }
   paidAt           DateTime? // When payment was received
-  paidAmount       Int?      // Amount paid in millimes (should == total)
-  paymentReference String?   // Bank transfer ref, cheque number, etc.
+  paidAmount       Int? // Amount paid in millimes (should == total)
+  paymentReference String? // Bank transfer ref, cheque number, etc.
 
   // Cancellation
   cancelReason String? // Why the invoice was cancelled
@@ -1431,12 +1461,12 @@ model InvoiceItem {
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   // Content
-  label       String  // e.g. "Stage Intensif Maths — Palier 2"
+  label       String // e.g. "Stage Intensif Maths — Palier 2"
   description String? // Optional detail (clamp max 3 lines)
   productCode String? // Entitlement product code (e.g. STAGE_MATHS_P1, PREMIUM_LITE)
   qty         Int     @default(1)
-  unitPrice   Int     // in millimes (1 TND = 1000)
-  total       Int     // qty × unitPrice, in millimes
+  unitPrice   Int // in millimes (1 TND = 1000)
+  total       Int // qty × unitPrice, in millimes
 
   // Ordering
   sortOrder Int @default(0)
@@ -1505,14 +1535,14 @@ model Entitlement {
   id              String            @id @default(cuid())
   userId          String
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productCode     String            // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
-  label           String            // Human-readable label (snapshot from invoice item)
+  productCode     String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
+  label           String // Human-readable label (snapshot from invoice item)
   status          EntitlementStatus @default(ACTIVE)
   startsAt        DateTime          @default(now())
-  endsAt          DateTime?         // null = permanent until revoked
+  endsAt          DateTime? // null = permanent until revoked
   sourceInvoiceId String?
   sourceInvoice   Invoice?          @relation(fields: [sourceInvoiceId], references: [id], onDelete: SetNull)
-  metadata        Json?             // { qty, credits, subject, level, ... }
+  metadata        Json? // { qty, credits, subject, level, ... }
   suspendedAt     DateTime?
   suspendReason   String?
   revokedAt       DateTime?
@@ -1543,24 +1573,24 @@ model InvoiceAccessToken {
 // ─── Document Management (Souveraineté des Données) ──────────────────────────
 
 model UserDocument {
-  id           String   @id @default(cuid())
+  id           String @id @default(cuid())
   title        String
   originalName String
   mimeType     String
   sizeBytes    Int
-  
+
   // Chemin physique sécurisé (Hors dossier public)
   // Ex: /app/storage/documents/cl9...xyz.pdf
-  localPath    String   @unique
+  localPath String @unique
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // Relations
-  userId       String
-  user         User     @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
 
   uploadedById String?
-  uploadedBy   User?    @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  uploadedBy   User?   @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([uploadedById])
@@ -1575,40 +1605,40 @@ enum MathsLevel {
 }
 
 model MathsProgress {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  level     MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
+  id     String     @id @default(cuid())
+  userId String
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
 
   // Core progression fields
-  completedChapters  String[]  @default([])
-  masteredChapters   String[]  @default([])
-  totalXp            Int       @default(0)
-  quizScore          Int       @default(0)
-  comboCount         Int       @default(0)
-  bestCombo          Int       @default(0)
-  streak             Int       @default(0)
-  streakFreezes      Int       @default(0)
-  lastActivityDate   String?
-  dailyChallenge     Json      @default("{}")
-  exerciseResults    Json      @default("{}")
-  hintUsage          Json      @default("{}")
-  badges             String[]  @default([])
-  srsQueue           Json      @default("{}")
+  completedChapters String[] @default([])
+  masteredChapters  String[] @default([])
+  totalXp           Int      @default(0)
+  quizScore         Int      @default(0)
+  comboCount        Int      @default(0)
+  bestCombo         Int      @default(0)
+  streak            Int      @default(0)
+  streakFreezes     Int      @default(0)
+  lastActivityDate  String?
+  dailyChallenge    Json     @default("{}")
+  exerciseResults   Json     @default("{}")
+  hintUsage         Json     @default("{}")
+  badges            String[] @default([])
+  srsQueue          Json     @default("{}")
 
   // Diagnostic and timing (Première-specific, nullable for Terminale)
-  diagnosticResults  Json?
-  timePerChapter     Json?
-  formulaireViewed   Boolean   @default(false)
-  grandOralSeen      Int       @default(0)
-  labArchimedeOpened Boolean   @default(false)
-  eulerMaxSteps      Int       @default(0)
+  diagnosticResults    Json?
+  timePerChapter       Json?
+  formulaireViewed     Boolean @default(false)
+  grandOralSeen        Int     @default(0)
+  labArchimedeOpened   Boolean @default(false)
+  eulerMaxSteps        Int     @default(0)
   newtonBestIterations Int?
-  printedFiche       Boolean   @default(false)
+  printedFiche         Boolean @default(false)
 
   // Terminale-specific fields (nullable for Première)
-  errorTags          Json?
-  hintPenaltyXp      Int?
+  errorTags               Json?
+  hintPenaltyXp           Int?
   bacChecklistCompletions Int?
 
   createdAt DateTime @default(now())

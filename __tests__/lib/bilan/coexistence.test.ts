@@ -6,6 +6,7 @@
 
 import { BilanGenerator as CanonicalGenerator } from '@/lib/bilan/generator';
 import { generateBilans as LegacyGenerateBilans } from '@/lib/bilan-generator';
+import { BilanType } from '@/lib/bilan/types';
 
 describe('F50: Canonical/Legacy Coexistence', () => {
   it('should import both generators without conflicts', () => {
@@ -37,7 +38,7 @@ describe('F50: Canonical/Legacy Coexistence', () => {
 
     // Test canonical generator in stub mode
     const canonicalResult = await CanonicalGenerator.generate({
-      type: 'DIAGNOSTIC_PRE_STAGE',
+      type: BilanType.DIAGNOSTIC_PRE_STAGE,
       subject: 'MATHS',
       studentName: 'Test Student',
       studentEmail: 'test@example.com',
