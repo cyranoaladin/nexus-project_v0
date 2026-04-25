@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { MathsLevel } from '@prisma/client';
+import { AcademicTrack, MathsLevel } from '@prisma/client';
 
 interface ProgressPayload {
   completed_chapters: string[];
@@ -74,14 +74,16 @@ export async function POST(request: Request) {
   try {
     await prisma.mathsProgress.upsert({
       where: {
-        userId_level: {
+        userId_level_track: {
           userId: user.id,
           level: MathsLevel.PREMIERE,
+          track: AcademicTrack.EDS_GENERALE,
         },
       },
       create: {
         userId: user.id,
         level: MathsLevel.PREMIERE,
+        track: AcademicTrack.EDS_GENERALE,
         completedChapters: payload.completed_chapters,
         masteredChapters: payload.mastered_chapters,
         totalXp: payload.total_xp,
@@ -152,9 +154,10 @@ export async function GET() {
   try {
     const progress = await prisma.mathsProgress.findUnique({
       where: {
-        userId_level: {
+        userId_level_track: {
           userId: user.id,
           level: MathsLevel.PREMIERE,
+          track: AcademicTrack.EDS_GENERALE,
         },
       },
     });

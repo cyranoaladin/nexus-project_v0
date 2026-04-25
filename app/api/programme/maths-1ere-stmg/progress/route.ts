@@ -18,9 +18,14 @@ interface ProgressPayload {
   hint_usage: Record<string, number>;
   badges: string[];
   srs_queue: Record<string, unknown>;
-  error_tags?: Record<string, number>;
-  hint_penalty_xp?: number;
-  bac_checklist_completions?: number;
+  diagnostic_results?: Record<string, unknown>;
+  time_per_chapter?: Record<string, number>;
+  formulaire_viewed?: boolean;
+  grand_oral_seen?: number;
+  lab_archimede_opened?: boolean;
+  euler_max_steps?: number;
+  newton_best_iterations?: number | null;
+  printed_fiche?: boolean;
 }
 
 function parsePayload(raw: unknown): ProgressPayload | null {
@@ -40,15 +45,12 @@ function parsePayload(raw: unknown): ProgressPayload | null {
   if (!input.hint_usage || typeof input.hint_usage !== 'object') return null;
   if (!Array.isArray(input.badges)) return null;
   if (!input.srs_queue || typeof input.srs_queue !== 'object') return null;
-  if (input.error_tags && typeof input.error_tags !== 'object') return null;
-  if (input.hint_penalty_xp !== undefined && typeof input.hint_penalty_xp !== 'number') return null;
-  if (input.bac_checklist_completions !== undefined && typeof input.bac_checklist_completions !== 'number') return null;
   return input as ProgressPayload;
 }
 
 /**
- * POST /api/programme/maths-terminale/progress
- * Save Terminale progress to Prisma (F16/F17 — source of truth migration)
+ * POST /api/programme/maths-1ere-stmg/progress
+ * Save Première STMG progress to Prisma (F16/F17 — source of truth migration)
  */
 export async function POST(request: Request) {
   const session = await auth();
@@ -57,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
 
-  let body: unknown;
+  let body: unknown = null;
   try {
     body = await request.json();
   } catch {
@@ -74,14 +76,14 @@ export async function POST(request: Request) {
       where: {
         userId_level_track: {
           userId: user.id,
-          level: MathsLevel.TERMINALE,
-          track: AcademicTrack.EDS_GENERALE,
+          level: MathsLevel.PREMIERE,
+          track: AcademicTrack.STMG,
         },
       },
       create: {
         userId: user.id,
-        level: MathsLevel.TERMINALE,
-        track: AcademicTrack.EDS_GENERALE,
+        level: MathsLevel.PREMIERE,
+        track: AcademicTrack.STMG,
         completedChapters: payload.completed_chapters,
         masteredChapters: payload.mastered_chapters,
         totalXp: payload.total_xp,
@@ -96,9 +98,14 @@ export async function POST(request: Request) {
         hintUsage: payload.hint_usage as unknown as import('@prisma/client').Prisma.InputJsonValue,
         badges: payload.badges,
         srsQueue: payload.srs_queue as unknown as import('@prisma/client').Prisma.InputJsonValue,
-        errorTags: payload.error_tags as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
-        hintPenaltyXp: payload.hint_penalty_xp ?? null,
-        bacChecklistCompletions: payload.bac_checklist_completions ?? null,
+        diagnosticResults: payload.diagnostic_results as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
+        timePerChapter: payload.time_per_chapter as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
+        formulaireViewed: payload.formulaire_viewed ?? false,
+        grandOralSeen: payload.grand_oral_seen ?? 0,
+        labArchimedeOpened: payload.lab_archimede_opened ?? false,
+        eulerMaxSteps: payload.euler_max_steps ?? 0,
+        newtonBestIterations: payload.newton_best_iterations ?? null,
+        printedFiche: payload.printed_fiche ?? false,
       },
       update: {
         completedChapters: payload.completed_chapters,
@@ -115,22 +122,27 @@ export async function POST(request: Request) {
         hintUsage: payload.hint_usage as unknown as import('@prisma/client').Prisma.InputJsonValue,
         badges: payload.badges,
         srsQueue: payload.srs_queue as unknown as import('@prisma/client').Prisma.InputJsonValue,
-        errorTags: payload.error_tags as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
-        hintPenaltyXp: payload.hint_penalty_xp ?? null,
-        bacChecklistCompletions: payload.bac_checklist_completions ?? null,
+        diagnosticResults: payload.diagnostic_results as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
+        timePerChapter: payload.time_per_chapter as unknown as import('@prisma/client').Prisma.InputJsonValue ?? null,
+        formulaireViewed: payload.formulaire_viewed ?? false,
+        grandOralSeen: payload.grand_oral_seen ?? 0,
+        labArchimedeOpened: payload.lab_archimede_opened ?? false,
+        eulerMaxSteps: payload.euler_max_steps ?? 0,
+        newtonBestIterations: payload.newton_best_iterations ?? null,
+        printedFiche: payload.printed_fiche ?? false,
       },
     });
 
     return NextResponse.json({ ok: true, persisted: true }, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to persist Terminale progress:', error);
+    console.error('[API] Failed to persist Première STMG progress:', error);
     return NextResponse.json({ error: 'Failed to persist progress' }, { status: 500 });
   }
 }
 
 /**
- * GET /api/programme/maths-terminale/progress
- * Retrieve Terminale progress from Prisma (F16/F17 — source of truth migration)
+ * GET /api/programme/maths-1ere-stmg/progress
+ * Retrieve Première STMG progress from Prisma (F16/F17 — source of truth migration)
  */
 export async function GET() {
   const session = await auth();
@@ -144,8 +156,8 @@ export async function GET() {
       where: {
         userId_level_track: {
           userId: user.id,
-          level: MathsLevel.TERMINALE,
-          track: AcademicTrack.EDS_GENERALE,
+          level: MathsLevel.PREMIERE,
+          track: AcademicTrack.STMG,
         },
       },
     });
@@ -172,15 +184,20 @@ export async function GET() {
         hint_usage: progress.hintUsage,
         badges: progress.badges,
         srs_queue: progress.srsQueue,
-        error_tags: progress.errorTags,
-        hint_penalty_xp: progress.hintPenaltyXp,
-        bac_checklist_completions: progress.bacChecklistCompletions,
+        diagnostic_results: progress.diagnosticResults,
+        time_per_chapter: progress.timePerChapter,
+        formulaire_viewed: progress.formulaireViewed,
+        grand_oral_seen: progress.grandOralSeen,
+        lab_archimede_opened: progress.labArchimedeOpened,
+        euler_max_steps: progress.eulerMaxSteps,
+        newton_best_iterations: progress.newtonBestIterations,
+        printed_fiche: progress.printedFiche,
       },
     };
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to load Terminale progress:', error);
+    console.error('[API] Failed to load Première STMG progress:', error);
     return NextResponse.json({ error: 'Failed to load progress' }, { status: 500 });
   }
 }

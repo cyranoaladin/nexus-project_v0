@@ -10,6 +10,7 @@
 import {
   ragSearch,
   ragSearchBySubject,
+  ragSearchByTrack,
   ragHealthCheck,
   ragCollectionStats,
   buildRAGContext,
@@ -143,6 +144,26 @@ describe('ragSearchBySubject', () => {
 
     const body = JSON.parse(mockFetch.mock.calls[0][1].body);
     expect(body.k).toBe(10);
+  });
+});
+
+describe('ragSearchByTrack', () => {
+  it('passes academic track, subject and level filters', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ hits: [] }),
+    });
+
+    await ragSearchByTrack('STMG', 'maths', 'suites financières', 'premiere', 6);
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.k).toBe(6);
+    expect(body.filters).toEqual({
+      track: 'STMG',
+      academicTrack: 'STMG',
+      subject: 'maths',
+      level: 'premiere',
+    });
   });
 });
 
