@@ -390,3 +390,40 @@ describe('buildAlertes', () => {
     expect(result.cockpit.alertes.length).toBeLessThanOrEqual(3);
   });
 });
+
+// ─── nextSession ordering ─────────────────────────────────────────────────────
+
+describe('nextSession', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns the soonest upcoming session, not the farthest', async () => {
+    const now = Date.now();
+    const soon  = new Date(now + 1  * 24 * 60 * 60 * 1000); // J+1
+    const mid   = new Date(now + 7  * 24 * 60 * 60 * 1000); // J+7
+    const far   = new Date(now + 30 * 24 * 60 * 60 * 1000); // J+30
+
+    const makeSession = (id: string, scheduledAt: Date) => ({
+      id,
+      title: `Session ${id}`,
+      subject: 'MATHEMATIQUES',
+      status: 'SCHEDULED',
+      scheduledAt,
+      duration: 60,
+      coach: null,
+    });
+
+    // Prisma orderBy: { scheduledAt: 'desc' } → far first, soon last
+    setupMocks({
+      creditTransactions: [{ amount: 5, expiresAt: null }],
+      sessions: [makeSession('far', far), makeSession('mid', mid), makeSession('soon', soon)],
+    });
+
+    const result = await buildStudentDashboardPayload('user-1');
+
+    expect(result.nextSession).not.toBeNull();
+    expect(result.nextSession!.id).toBe('soon');
+    expect(result.nextSession!.scheduledAt).toBe(soon.toISOString());
+  });
+});

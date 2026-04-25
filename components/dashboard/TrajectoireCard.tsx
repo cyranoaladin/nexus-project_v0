@@ -68,15 +68,17 @@ function dataPropToTimeline(data: TrajectoireDataProp): TimelineTrajectory | nul
 export function TrajectoireCard(props: TrajectoireCardProps) {
   const role = props.role ?? 'ELEVE';
   const isDataMode = 'data' in props && props.data !== undefined;
+  const dataProp = isDataMode ? (props as TrajectoireCardPropsWithData).data : undefined;
 
-  const [trajectory, setTrajectory] = useState<TimelineTrajectory | null>(
-    isDataMode ? dataPropToTimeline(props.data!) : null
-  );
+  const [trajectory, setTrajectory] = useState<TimelineTrajectory | null>(null);
   const [loading, setLoading] = useState(!isDataMode);
 
   useEffect(() => {
-    // Data mode — no fetch needed
-    if (isDataMode) return;
+    // Data mode — derive from dataProp on every change, no stale state risk
+    if (isDataMode) {
+      setTrajectory(dataPropToTimeline(dataProp!));
+      return;
+    }
 
     let cancelled = false;
 
@@ -111,7 +113,8 @@ export function TrajectoireCard(props: TrajectoireCardProps) {
 
     fetchTrajectory();
     return () => { cancelled = true; };
-  }, [isDataMode, props.studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDataMode, props.studentId, dataProp]);
 
   // In data mode, loading is false from the start
   const isLoading = isDataMode ? false : loading;
