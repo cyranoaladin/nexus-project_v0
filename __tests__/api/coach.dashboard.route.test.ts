@@ -12,6 +12,7 @@ jest.mock('@/lib/prisma', () => ({
     sessionBooking: { findMany: jest.fn() },
     user: { findUnique: jest.fn() },
     student: { findFirst: jest.fn(), findMany: jest.fn() },
+    mathsProgress: { findMany: jest.fn().mockResolvedValue([]) },
   },
 }));
 

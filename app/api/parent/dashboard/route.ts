@@ -98,18 +98,28 @@ export async function GET() {
 
     // Transform data for frontend
     const childrenData = await Promise.all(parentProfile.children.map(async (child) => {
-      // Fetch MathsProgress to calculate NexusIndex
-      const mathsProgress = await prisma.mathsProgress.findFirst({
-        where: { userId: child.userId },
-        orderBy: { updatedAt: 'desc' }
-      });
+      // Fetch MathsProgress to calculate NexusIndex (tolerant if model missing)
+      let mathsProgress: { totalXp: number; updatedAt: Date } | null = null;
+      try {
+        mathsProgress = await prisma.mathsProgress.findFirst?.({
+          where: { userId: child.userId },
+          orderBy: { updatedAt: 'desc' }
+        }) ?? null;
+      } catch {
+        mathsProgress = null;
+      }
 
-      // Fetch ProgressionHistory for the chart
-      const history = await prisma.progressionHistory.findMany({
-        where: { studentId: child.id },
-        orderBy: { date: 'asc' },
-        take: 10
-      });
+      // Fetch ProgressionHistory for the chart (tolerant if model missing)
+      let history: Array<{ date: Date; ssn: number }> = [];
+      try {
+        history = (await prisma.progressionHistory.findMany?.({
+          where: { studentId: child.id },
+          orderBy: { date: 'asc' },
+          take: 10
+        })) ?? [];
+      } catch {
+        history = [];
+      }
 
       const mappedSessions = child.user.studentSessions.map((s) => ({
         id: s.id,
@@ -129,7 +139,7 @@ export async function GET() {
 
       // Mock alerts if no activity for 7 days
       const alerts: string[] = [];
-      const lastActivity = mathsProgress?.updatedAt || child.updatedAt;
+      const lastActivity = mathsProgress?.updatedAt ?? (child as { updatedAt?: Date }).updatedAt ?? new Date(0);
       const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
       
       if (daysSinceLastActivity > 7) {
