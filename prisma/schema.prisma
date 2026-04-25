@@ -157,6 +157,10 @@ model User {
   // Maths progression (Première and Terminale)
   mathsProgress MathsProgress[]
 
+  // Coach private notes
+  coachNotesAuthored CoachNote[] @relation("CoachNoteAuthor")
+  coachNotesAbout    CoachNote[] @relation("CoachNoteSubject")
+
   @@index([role])
   @@map("users")
 }
@@ -1650,3 +1654,31 @@ model MathsProgress {
   @@index([track])
   @@map("maths_progress")
 }
+
+// Phase 6 — Coach private notes about a student.
+// RBAC: only the authoring coach can read/update/delete; admins may read.
+// Foreign keys reference User (consistent with SessionBooking) so RBAC checks
+// can join directly with SessionBooking(coachId, studentId).
+model CoachNote {
+  id String @id @default(cuid())
+
+  // Subject of the note (the student, by User.id)
+  studentId String
+  student   User   @relation("CoachNoteSubject", fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Author of the note (the coach, by User.id)
+  coachId String
+  coach   User    @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
+
+  body   String  @db.Text
+  pinned Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([coachId])
+  @@index([studentId, pinned])
+  @@map("coach_notes")
+}
+
