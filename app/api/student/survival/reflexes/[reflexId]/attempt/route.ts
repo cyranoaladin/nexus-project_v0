@@ -25,13 +25,10 @@ export async function POST(
     const payload = await request.json().catch(() => null) as {
       itemId?: string;
       givenAnswer?: string;
-      correctAnswer?: string;
-      isCorrect?: boolean;
-      reflexState?: 'ACQUIS' | 'REVOIR';
       timeSpentSec?: number;
     } | null;
 
-    if (!payload?.itemId || typeof payload.givenAnswer !== 'string' || typeof payload.correctAnswer !== 'string') {
+    if (!payload?.itemId || typeof payload.givenAnswer !== 'string') {
       return NextResponse.json({ error: 'Invalid attempt payload' }, { status: 400 });
     }
 
@@ -42,8 +39,14 @@ export async function POST(
     if (!student) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     if (!student.survivalMode) return NextResponse.json({ error: 'Survival mode disabled' }, { status: 403 });
 
+    const quizItem = reflex.miniQuiz.find((q) => q.id === payload.itemId);
+    if (!quizItem) {
+      return NextResponse.json({ error: 'Unknown quiz item' }, { status: 400 });
+    }
+    const isCorrectServer = payload.givenAnswer === quizItem.answer;
+
     const snapshot = snapshotFromStoredProgress(student.survivalProgress);
-    snapshot.reflexesState[reflex.id] = payload.reflexState ?? (payload.isCorrect ? 'ACQUIS' : 'REVOIR');
+    snapshot.reflexesState[reflex.id] = isCorrectServer ? 'ACQUIS' : 'REVOIR';
 
     const progress = await prisma.survivalProgress.upsert({
       where: { studentId: student.id },
@@ -60,9 +63,9 @@ export async function POST(
         progressId: progress.id,
         itemType: 'REFLEX_QUIZ',
         itemId: payload.itemId,
-        correctAnswer: payload.correctAnswer,
+        correctAnswer: quizItem.answer,
         givenAnswer: payload.givenAnswer,
-        isCorrect: Boolean(payload.isCorrect),
+        isCorrect: isCorrectServer,
         timeSpentSec: Math.max(0, Math.floor(payload.timeSpentSec ?? 0)),
       },
     });
