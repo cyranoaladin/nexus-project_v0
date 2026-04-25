@@ -5,7 +5,11 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const baseURL = process.env.CI
   ? (process.env.NEXTAUTH_URL ?? 'http://localhost:3000')
-  : 'http://localhost:3000';
+  : (process.env.BASE_URL ?? 'http://localhost:3000');
+
+const e2eDatabaseUrl =
+  process.env.E2E_DATABASE_URL ??
+  'postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public';
 
 export default defineConfig({
   testDir: './e2e',
@@ -40,7 +44,14 @@ export default defineConfig({
     ? {}
     : {
         webServer: {
-          command: 'HOSTNAME=127.0.0.1 PORT=3000 NEXTAUTH_URL=http://localhost:3000 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public npm run dev',
+          command: 'npm run dev',
+          env: {
+            HOSTNAME: '127.0.0.1',
+            PORT: '3000',
+            NEXTAUTH_URL: 'http://localhost:3000',
+            DATABASE_URL: e2eDatabaseUrl,
+            TEST_DATABASE_URL: e2eDatabaseUrl,
+          },
           url: baseURL,
           reuseExistingServer: true,
           timeout: 120_000,
