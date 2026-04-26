@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 
 export function CorporateNavbar() {
   const pathname = usePathname();
+  const isHomePage = pathname === '/';
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
@@ -174,9 +175,13 @@ export function CorporateNavbar() {
     <>
       {/* Fixed Header */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-          ? 'bg-surface-darker/90 backdrop-blur-md border-b border-white/5'
-          : 'bg-surface-darker/80 backdrop-blur-sm'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isHomePage
+          ? isScrolled
+            ? 'bg-white/94 backdrop-blur-md border-b border-slate-200/80 shadow-sm'
+            : 'bg-white/82 backdrop-blur-md border-b border-white/40'
+          : isScrolled
+            ? 'bg-surface-darker/90 backdrop-blur-md border-b border-white/5'
+            : 'bg-surface-darker/80 backdrop-blur-sm'
           }`}
       >
         <div className="flex items-center justify-between px-6 lg:px-12 py-4">
@@ -187,7 +192,7 @@ export function CorporateNavbar() {
               alt="Nexus Réussite"
               width={180}
               height={65}
-              className="h-10 w-auto md:h-12 brightness-0 invert"
+              className="h-10 w-auto md:h-12"
               priority
             />
           </Link>
@@ -216,8 +221,12 @@ export function CorporateNavbar() {
                     }}
                     className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
                       isGroupActive || isOpenGroup
-                        ? "text-white border-brand-accent/50 bg-white/10"
-                        : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
+                        ? isHomePage
+                          ? "border-[#0f3d73]/30 bg-[#eff6ff] text-[#0f3d73]"
+                          : "text-white border-brand-accent/50 bg-white/10"
+                        : isHomePage
+                          ? "border-slate-200/80 text-slate-700 hover:border-[#0f3d73]/30 hover:bg-white hover:text-[#0f3d73]"
+                          : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
                     }`}
                     aria-expanded={isOpenGroup}
                     aria-haspopup="menu"
@@ -280,8 +289,12 @@ export function CorporateNavbar() {
                 onClick={() => setIsConnexionOpen((prev) => !prev)}
                 className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
                   isConnexionOpen
-                    ? "text-white border-brand-accent/50 bg-white/10"
-                    : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
+                    ? isHomePage
+                      ? "border-[#0f3d73]/30 bg-[#eff6ff] text-[#0f3d73]"
+                      : "text-white border-brand-accent/50 bg-white/10"
+                    : isHomePage
+                      ? "border-slate-200/80 text-slate-700 hover:border-[#0f3d73]/30 hover:bg-white hover:text-[#0f3d73]"
+                      : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
                 }`}
                 aria-expanded={isConnexionOpen}
                 aria-haspopup="menu"
@@ -351,13 +364,17 @@ export function CorporateNavbar() {
             {/* Menu Button - Mobile */}
             <button
               onClick={() => setIsOpen(true)}
-              className="md:hidden flex items-center gap-2 text-white hover:text-brand-accent
-                         transition-colors duration-300 group"
+              className={`md:hidden flex items-center gap-2 transition-colors duration-300 group ${
+                isHomePage ? 'text-[#0f3d73] hover:text-[#9f1239]' : 'text-white hover:text-brand-accent'
+              }
+                         `}
               aria-label="Ouvrir le menu"
               aria-expanded={isOpen}
               aria-controls="primary-menu"
             >
-              <span className="font-mono text-xs uppercase tracking-[0.14em] text-neutral-300 group-hover:tracking-[0.2em] transition-all">Menu</span>
+              <span className={`font-mono text-xs uppercase tracking-[0.14em] group-hover:tracking-[0.2em] transition-all ${
+                isHomePage ? 'text-slate-700' : 'text-neutral-300'
+              }`}>Menu</span>
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
