@@ -39,10 +39,34 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
 
-    // Validate enum parameters
-    const gradeLevel = parseEnumParam(searchParams.get('gradeLevel'), GradeLevel);
-    const academicTrack = parseEnumParam(searchParams.get('academicTrack'), AcademicTrack);
-    const stmgPathway = parseEnumParam(searchParams.get('stmgPathway'), StmgPathway);
+    // Validate enum parameters - return 400 if explicitly provided but invalid
+    const gradeLevelRaw = searchParams.get('gradeLevel');
+    const academicTrackRaw = searchParams.get('academicTrack');
+    const stmgPathwayRaw = searchParams.get('stmgPathway');
+
+    const gradeLevel = parseEnumParam(gradeLevelRaw, GradeLevel);
+    const academicTrack = parseEnumParam(academicTrackRaw, AcademicTrack);
+    const stmgPathway = parseEnumParam(stmgPathwayRaw, StmgPathway);
+
+    // Check for invalid enum values (param provided but not valid)
+    if (gradeLevelRaw && gradeLevel === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `gradeLevel invalide: ${gradeLevelRaw}` },
+        { status: 400 }
+      );
+    }
+    if (academicTrackRaw && academicTrack === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `academicTrack invalide: ${academicTrackRaw}` },
+        { status: 400 }
+      );
+    }
+    if (stmgPathwayRaw && stmgPathway === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `stmgPathway invalide: ${stmgPathwayRaw}` },
+        { status: 400 }
+      );
+    }
 
     const hasCoach = searchParams.get('hasCoach') || 'all';
     const { page, limit, skip } = parsePagination(searchParams);
