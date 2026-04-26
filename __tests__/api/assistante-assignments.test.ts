@@ -6,7 +6,13 @@
  * GET /api/assistante/coaches
  */
 
-jest.mock('@/auth', () => ({ auth: jest.fn() }));
+jest.mock('@/lib/guards', () => ({
+  requireRole: jest.fn(),
+  requireAnyRole: jest.fn(),
+  isErrorResponse: jest.fn((result): result is any => {
+    return result && typeof result === 'object' && 'json' in result && typeof result.json === 'function';
+  }),
+}));
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
@@ -21,11 +27,11 @@ import { GET as getAssignments, POST as postAssignments } from '@/app/api/assist
 import { GET as getAssignmentDetail, PATCH as patchAssignment } from '@/app/api/assistante/assignments/[id]/route';
 import { GET as getStudents } from '@/app/api/assistante/students/route';
 import { GET as getCoaches } from '@/app/api/assistante/coaches/route';
-import { auth } from '@/auth';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { AssignmentStatus, AssignmentType, Subject } from '@prisma/client';
 
-const mockAuth = auth as jest.Mock;
+const mockRequireAnyRole = requireAnyRole as unknown as jest.Mock;
 
 function makeRequest(body?: any): Request {
   return new Request('http://localhost/', {
@@ -45,35 +51,39 @@ describe('API Assistante Assignments', () => {
 
   describe('Auth / RBAC', () => {
     it('1. Non connecté => 401', async () => {
-      mockAuth.mockResolvedValue(null);
+      const errorResponse = { json: () => ({ error: 'Unauthorized' }), status: 401 };
+      mockRequireAnyRole.mockResolvedValue(errorResponse);
 
       const res = await getStudents(new Request('http://localhost/'));
       expect(res.status).toBe(401);
     });
 
     it('2. Rôle ELEVE => 403', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
+      const errorResponse = { json: () => ({ error: 'Forbidden' }), status: 403 };
+      mockRequireAnyRole.mockResolvedValue(errorResponse);
 
       const res = await getStudents(new Request('http://localhost/'));
       expect(res.status).toBe(403);
     });
 
     it('2. Rôle COACH => 403', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'user-1', role: 'COACH' } });
+      const errorResponse = { json: () => ({ error: 'Forbidden' }), status: 403 };
+      mockRequireAnyRole.mockResolvedValue(errorResponse);
 
       const res = await getStudents(new Request('http://localhost/'));
       expect(res.status).toBe(403);
     });
 
     it('2. Rôle PARENT => 403', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'user-1', role: 'PARENT' } });
+      const errorResponse = { json: () => ({ error: 'Forbidden' }), status: 403 };
+      mockRequireAnyRole.mockResolvedValue(errorResponse);
 
       const res = await getStudents(new Request('http://localhost/'));
       expect(res.status).toBe(403);
     });
 
     it('3. Rôle ASSISTANTE => autorisé', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.student.count as jest.Mock).mockResolvedValue(0);
 
@@ -82,7 +92,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('4. Rôle ADMIN => autorisé', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.student.count as jest.Mock).mockResolvedValue(0);
 
@@ -93,7 +103,7 @@ describe('API Assistante Assignments', () => {
 
   describe('POST /api/assistante/assignments', () => {
     it('5. POST assignment avec payload valide => crée CoachStudentAssignment', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
       (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
@@ -121,7 +131,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('6. POST avec studentIds vide => 400', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
 
       const res = await postAssignments(makeRequest({
         coachId: 'coach-1',
@@ -132,7 +142,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('7. POST avec coachId invalide => 400', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await postAssignments(makeRequest({
@@ -146,7 +156,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('8. POST avec studentId invalide => 400', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
 
@@ -161,7 +171,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('9. POST doublon actif exact => erreur claire', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
       (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
       (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([{ id: 'existing-1', studentId: 'student-1' }] as any);
@@ -180,7 +190,7 @@ describe('API Assistante Assignments', () => {
 
   describe('PATCH /api/assistante/assignments/[id]', () => {
     it('10. PATCH status ENDED => termine l\'assignation sans hard delete', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({ id: 'assignment-1' } as any);
       (prisma.coachStudentAssignment.update as jest.Mock).mockResolvedValue({
         id: 'assignment-1',
@@ -199,7 +209,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('11. PATCH status SUSPENDED => suspend l\'assignation sans hard delete', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({ id: 'assignment-1' } as any);
       (prisma.coachStudentAssignment.update as jest.Mock).mockResolvedValue({
         id: 'assignment-1',
@@ -217,7 +227,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('returns 404 when assignment does not exist', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await patchAssignment(
@@ -231,7 +241,7 @@ describe('API Assistante Assignments', () => {
 
   describe('GET /api/assistante/students', () => {
     it('returns paginated students list', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.student.count as jest.Mock).mockResolvedValue(0);
 
@@ -244,7 +254,7 @@ describe('API Assistante Assignments', () => {
     });
 
     it('filters by hasCoach=true', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.student.count as jest.Mock).mockResolvedValue(0);
 
@@ -256,7 +266,7 @@ describe('API Assistante Assignments', () => {
 
   describe('GET /api/assistante/coaches', () => {
     it('returns coaches list with stats', async () => {
-      mockAuth.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findMany as jest.Mock).mockResolvedValue([
         {
           id: 'coach-1',
