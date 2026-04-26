@@ -81,6 +81,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ', resource: 'STUDENT' },
     { action: 'CREATE', resource: 'STUDENT' },
     { action: 'UPDATE', resource: 'STUDENT' },
+    { action: 'READ', resource: 'COACH_ASSIGNMENT' },
     { action: 'ASSIGN', resource: 'COACH_ASSIGNMENT' },
     { action: 'UNASSIGN', resource: 'COACH_ASSIGNMENT' },
     { action: 'READ', resource: 'DOCUMENT' },

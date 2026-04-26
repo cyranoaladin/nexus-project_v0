@@ -122,13 +122,13 @@ describe('RBAC / CoachStudentAccess', () => {
   });
 
   describe('assertCoachCanAccessStudent', () => {
-    it('throws ACCESS_DENIED when not assigned', async () => {
+    it('throws CoachNotAssignedError when not assigned', async () => {
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
       (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
       await expect(
         assertCoachCanAccessStudent({ coachUserId: 'user-1', studentId: 'student-1' })
-      ).rejects.toThrow('ACCESS_DENIED');
+      ).rejects.toThrow("Vous n'êtes pas assigné à cet élève");
     });
 
     it('does not throw when assigned', async () => {

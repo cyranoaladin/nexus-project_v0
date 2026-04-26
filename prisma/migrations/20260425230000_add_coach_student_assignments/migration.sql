@@ -7,29 +7,29 @@
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'assignmenttype') THEN
-    CREATE TYPE "assignmenttype" AS ENUM ('PRIMARY', 'SECONDARY', 'STAGE', 'TEMPORARY');
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'AssignmentType') THEN
+    CREATE TYPE "AssignmentType" AS ENUM ('PRIMARY', 'SECONDARY', 'STAGE', 'TEMPORARY');
   END IF;
 END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'assignmentstatus') THEN
-    CREATE TYPE "assignmentstatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'ENDED');
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'AssignmentStatus') THEN
+    CREATE TYPE "AssignmentStatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'ENDED');
   END IF;
 END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'documenttype') THEN
-    CREATE TYPE "documenttype" AS ENUM ('COURS', 'EXERCICE', 'BILAN', 'CORRECTION', 'PLANNING', 'ANNEXE', 'AUTRE');
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DocumentType') THEN
+    CREATE TYPE "DocumentType" AS ENUM ('COURS', 'EXERCICE', 'BILAN', 'CORRECTION', 'PLANNING', 'ANNEXE', 'AUTRE');
   END IF;
 END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'documentvisibilityscope') THEN
-    CREATE TYPE "documentvisibilityscope" AS ENUM ('STUDENT_ONLY', 'STUDENT_AND_PARENT', 'STUDENT_AND_COACH', 'STUDENT_PARENT_COACH', 'ADMIN_ONLY');
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DocumentVisibilityScope') THEN
+    CREATE TYPE "DocumentVisibilityScope" AS ENUM ('STUDENT_ONLY', 'STUDENT_AND_PARENT', 'STUDENT_AND_COACH', 'STUDENT_PARENT_COACH', 'ADMIN_ONLY');
   END IF;
 END $$;
 
@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS "coach_student_assignments" (
     "coachId"        TEXT NOT NULL,
     "studentId"      TEXT NOT NULL,
     "assignedById"   TEXT,
-    "assignmentType" "assignmenttype" NOT NULL DEFAULT 'PRIMARY',
-    "status"         "assignmentstatus" NOT NULL DEFAULT 'ACTIVE',
-    "subjects"       TEXT[] NOT NULL DEFAULT '{}',
+    "assignmentType" "AssignmentType" NOT NULL DEFAULT 'PRIMARY',
+    "status"         "AssignmentStatus" NOT NULL DEFAULT 'ACTIVE',
+    "subjects"       "Subject"[] NOT NULL DEFAULT ARRAY[]::"Subject"[],
     "notes"          TEXT,
     "startsAt"       TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "endsAt"         TIMESTAMP(3),
@@ -63,6 +63,12 @@ CREATE INDEX IF NOT EXISTS "coach_student_assignments_studentId_status_idx"
 
 CREATE INDEX IF NOT EXISTS "coach_student_assignments_assignedById_idx"
     ON "coach_student_assignments" ("assignedById");
+
+-- Partial unique index to prevent duplicate active assignments
+-- A coach can only have one active assignment of each type for a given student
+CREATE UNIQUE INDEX IF NOT EXISTS "coach_student_assignments_active_unique"
+    ON "coach_student_assignments" ("coachId", "studentId", "assignmentType")
+    WHERE "status" = 'ACTIVE';
 
 -- Foreign keys for CoachStudentAssignment
 DO $$
@@ -104,17 +110,17 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'user_documents' AND column_name = 'documentType') THEN
-    ALTER TABLE "user_documents" ADD COLUMN "documentType" "documenttype" NOT NULL DEFAULT 'AUTRE';
+    ALTER TABLE "user_documents" ADD COLUMN "documentType" "DocumentType" NOT NULL DEFAULT 'AUTRE';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'user_documents' AND column_name = 'visibilityScope') THEN
-    ALTER TABLE "user_documents" ADD COLUMN "visibilityScope" "documentvisibilityscope" NOT NULL DEFAULT 'STUDENT_ONLY';
+    ALTER TABLE "user_documents" ADD COLUMN "visibilityScope" "DocumentVisibilityScope" NOT NULL DEFAULT 'STUDENT_ONLY';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'user_documents' AND column_name = 'subject') THEN
-    ALTER TABLE "user_documents" ADD COLUMN "subject" "subject";
+    ALTER TABLE "user_documents" ADD COLUMN "subject" "Subject";
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
@@ -130,7 +136,8 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'user_documents' AND column_name = 'updatedAt') THEN
     ALTER TABLE "user_documents" ADD COLUMN "updatedAt" TIMESTAMP(3);
-    UPDATE "user_documents" SET "updatedAt" = "createdAt" WHERE "updatedAt" IS NULL;
+    UPDATE "user_documents" SET "updatedAt" = COALESCE("updatedAt", "createdAt", CURRENT_TIMESTAMP) WHERE "updatedAt" IS NULL;
+    ALTER TABLE "user_documents" ALTER COLUMN "updatedAt" SET NOT NULL;
   END IF;
 END $$;
 

@@ -1,5 +1,28 @@
 import { prisma } from '@/lib/prisma';
-import { AssignmentStatus } from '@prisma/client';
+import { AssignmentStatus, Prisma } from '@prisma/client';
+
+/**
+ * Error class for coach-student access denial
+ * Allows routes to distinguish between "not assigned" (403) and other errors (500)
+ */
+export class CoachNotAssignedError extends Error {
+  constructor(message = "Vous n'êtes pas assigné à cet élève") {
+    super(message);
+    this.name = 'CoachNotAssignedError';
+  }
+}
+
+/**
+ * Build the where clause for active assignments
+ * Centralizes the logic: ACTIVE status + started + not ended
+ */
+export function activeAssignmentWhere(now: Date = new Date()): Prisma.CoachStudentAssignmentWhereInput {
+  return {
+    status: AssignmentStatus.ACTIVE,
+    startsAt: { lte: now },
+    OR: [{ endsAt: null }, { endsAt: { gte: now } }],
+  };
+}
 
 /**
  * Get CoachProfile for a given user ID
@@ -32,13 +55,12 @@ export async function isCoachAssignedToStudent({
   const coachProfile = await getCoachProfileForUser(coachUserId);
   if (!coachProfile) return false;
 
+  const now = new Date();
   const assignment = await prisma.coachStudentAssignment.findFirst({
     where: {
       coachId: coachProfile.id,
       studentId,
-      status: AssignmentStatus.ACTIVE,
-      startsAt: { lte: new Date() },
-      OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }],
+      ...activeAssignmentWhere(now),
     },
     select: { id: true },
   });
@@ -61,7 +83,7 @@ export async function assertCoachCanAccessStudent({
 }): Promise<void> {
   const hasAccess = await isCoachAssignedToStudent({ coachUserId, studentId });
   if (!hasAccess) {
-    throw new Error('ACCESS_DENIED: Vous n\'êtes pas assigné à cet élève');
+    throw new CoachNotAssignedError();
   }
 }
 
@@ -82,12 +104,11 @@ export async function getAssignedStudentsForCoach({
   const coachProfile = await getCoachProfileForUser(coachUserId);
   if (!coachProfile) return [];
 
+  const now = new Date();
   const assignments = await prisma.coachStudentAssignment.findMany({
     where: {
       coachId: coachProfile.id,
-      status: AssignmentStatus.ACTIVE,
-      startsAt: { lte: new Date() },
-      OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }],
+      ...activeAssignmentWhere(now),
     },
     include: {
       student: {

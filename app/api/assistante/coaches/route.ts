@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
+import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
+import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
 
 /**
  * GET /api/assistante/coaches
@@ -10,10 +12,10 @@ import { prisma } from '@/lib/prisma';
  * Requires: ASSISTANTE or ADMIN role
  * Query params:
  *   - search: string (search by name, pseudonym, or email)
- *   - subject: Subject enum (filter by specialty)
  *   - availableOnline: 'true' | 'false'
  *   - page: number (default: 1)
  *   - limit: number (default: 20, max: 100)
+ * Note: subject filter not yet implemented (CoachProfile.subjects is Json)
  */
 export async function GET(request: Request) {
   try {
@@ -33,9 +35,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const availableOnline = searchParams.get('availableOnline');
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = parsePagination(searchParams);
 
     // Build where clause
     const where: any = {};
@@ -56,6 +56,7 @@ export async function GET(request: Request) {
     }
 
     // Fetch coaches with pagination
+    const now = new Date();
     const [coaches, total] = await Promise.all([
       prisma.coachProfile.findMany({
         where,
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
             },
           },
           studentAssignments: {
-            where: { status: 'ACTIVE' },
+            where: activeAssignmentWhere(now),
             include: {
               student: {
                 select: {
@@ -95,6 +96,8 @@ export async function GET(request: Request) {
     ]);
 
     // Transform data for response
+    // Note: activeStudents uses studentAssignments.length (already filtered by activeAssignmentWhere)
+    // instead of _count which would include historical assignments
     const formattedCoaches = coaches.map((coach) => ({
       id: coach.id,
       userId: coach.userId,
@@ -108,7 +111,7 @@ export async function GET(request: Request) {
       availableOnline: coach.availableOnline,
       availableInPerson: coach.availableInPerson,
       stats: {
-        activeStudents: coach._count.studentAssignments,
+        activeStudents: coach.studentAssignments.length,
         totalSessions: coach._count.sessions,
       },
       activeAssignments: coach.studentAssignments.map((assignment) => ({
@@ -123,12 +126,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: createPaginationMeta(page, limit, total),
       coaches: formattedCoaches,
     });
   } catch (error) {

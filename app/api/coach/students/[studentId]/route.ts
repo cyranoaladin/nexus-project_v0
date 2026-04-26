@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
-import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
+import { assertCoachCanAccessStudent, CoachNotAssignedError, activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
 
@@ -31,20 +31,38 @@ export async function GET(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Ownership check - throws if not assigned
+    // 1. Check student exists first (404 if not)
+    const studentExists = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { id: true },
+    });
+
+    if (!studentExists) {
+      return NextResponse.json(
+        { error: 'Not Found', message: 'Élève non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // 2. Ownership check - throws CoachNotAssignedError if not assigned
     try {
       await assertCoachCanAccessStudent({
         coachUserId: session.user.id,
         studentId,
       });
-    } catch (accessError) {
-      return NextResponse.json(
-        { error: 'Forbidden', message: 'Vous n\'êtes pas assigné à cet élève' },
-        { status: 403 }
-      );
+    } catch (error) {
+      if (error instanceof CoachNotAssignedError) {
+        return NextResponse.json(
+          { error: 'Forbidden', message: error.message },
+          { status: 403 }
+        );
+      }
+      // Re-throw other errors to be caught by outer catch (500)
+      throw error;
     }
 
-    // Fetch detailed student data
+    // 3. Fetch detailed student data
+    const now = new Date();
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       include: {
@@ -70,7 +88,7 @@ export async function GET(request: Request, { params }: RouteParams) {
           },
         },
         coachAssignments: {
-          where: { status: 'ACTIVE' },
+          where: activeAssignmentWhere(now),
           include: {
             coach: {
               include: {

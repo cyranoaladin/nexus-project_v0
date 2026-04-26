@@ -2,13 +2,21 @@ import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
 import { prisma } from '@/lib/prisma';
-import { AssignmentType, AssignmentStatus, Subject } from '@prisma/client';
+import { AssignmentType, AssignmentStatus, Subject, Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
+
+// Validation schema for query parameters
+const statusQuerySchema = z.nativeEnum(AssignmentStatus).optional().default(AssignmentStatus.ACTIVE);
 
 // Validation schema for creating assignments
+// Deduplicates studentIds automatically
 const createAssignmentSchema = z.object({
   coachId: z.string().min(1, 'Coach ID requis'),
-  studentIds: z.array(z.string().min(1)).min(1, 'Au moins un élève requis'),
+  studentIds: z.array(z.string().min(1))
+    .min(1, 'Au moins un élève requis')
+    .transform((ids) => Array.from(new Set(ids)))
+    .refine((ids) => ids.length > 0, 'Au moins un élève unique requis'),
   assignmentType: z.nativeEnum(AssignmentType).default(AssignmentType.PRIMARY),
   subjects: z.array(z.nativeEnum(Subject)).optional().default([]),
   startsAt: z.string().datetime().optional(),
@@ -38,10 +46,18 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const coachId = searchParams.get('coachId');
     const studentId = searchParams.get('studentId');
-    const status = (searchParams.get('status') as AssignmentStatus) || AssignmentStatus.ACTIVE;
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const skip = (page - 1) * limit;
+
+    // Validate status parameter with Zod
+    const statusResult = statusQuerySchema.safeParse(searchParams.get('status'));
+    if (!statusResult.success) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: 'Statut invalide' },
+        { status: 400 }
+      );
+    }
+    const status = statusResult.data;
+
+    const { page, limit, skip } = parsePagination(searchParams);
 
     const where: any = {};
     if (coachId) where.coachId = coachId;
@@ -90,12 +106,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: createPaginationMeta(page, limit, total),
       assignments,
     });
   } catch (error) {
@@ -158,12 +169,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check for existing active assignments (prevent duplicates)
+    // Check for existing active assignments using active window (prevent duplicates)
+    const now = new Date();
+    const { activeAssignmentWhere } = await import('@/lib/rbac/coach-student-access');
     const existingAssignments = await prisma.coachStudentAssignment.findMany({
       where: {
         coachId: validated.coachId,
         studentId: { in: validated.studentIds },
-        status: AssignmentStatus.ACTIVE,
+        ...activeAssignmentWhere(now),
       },
     });
 
@@ -225,10 +238,23 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
+    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation Error', message: error.errors },
         { status: 400 }
+      );
+    }
+
+    // Handle Prisma unique constraint violation (P2002)
+    // This can happen due to the partial unique index on active assignments
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return NextResponse.json(
+        {
+          error: 'Conflict',
+          message: 'Une assignation active existe déjà pour cette combinaison coach/élève/type',
+        },
+        { status: 409 }
       );
     }
 
