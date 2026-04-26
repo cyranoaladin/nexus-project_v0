@@ -11,44 +11,41 @@ import HomepageTestimonials from '@/components/sections/homepage/HomepageTestimo
 import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
 
 export const metadata: Metadata = {
-  title: 'Nexus Réussite — Stages Printemps 2026 & Préparation EAF | Tunis',
+  title: 'Nexus Réussite — Académie premium d’accompagnement scolaire | Tunis',
   description:
-    'Stages intensifs Première & Terminale (Maths, Français, NSI, Grand Oral) et plateforme IA de préparation au Bac de Français. 6 élèves max, enseignants agrégés. Du 18 avril au 2 mai 2026.',
+    "Cours hebdomadaires, stages intensifs, packs par objectif, préparation EAF, mathématiques, NSI, Grand Oral, plateforme numérique et suivi personnalisé toute l’année.",
   keywords:
-    'nexus réussite, stage bac tunis, préparation EAF, bac français 2026, stage maths terminale, NSI épreuve pratique, grand oral, AEFE tunis',
+    'nexus réussite, accompagnement scolaire, cours hebdomadaires, stages intensifs, préparation EAF, mathématiques première terminale, NSI, grand oral, Mutuelleville',
   openGraph: {
-    title: 'Nexus Réussite — Stages & Plateforme EAF',
+    title: 'Nexus Réussite — Académie premium d’accompagnement scolaire',
     description:
-      'Deux solutions pour viser la mention : stages intensifs + plateforme IA anti-copie.',
+      "Une académie qui accompagne les élèves toute l’année avec cours, stages, packs ciblés, plateforme numérique et suivi personnalisé.",
     type: 'website',
     url: 'https://nexusreussite.academy',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexus Réussite — Stages & Plateforme EAF',
+    title: 'Nexus Réussite — Académie premium d’accompagnement scolaire',
     description:
-      'Deux solutions pour viser la mention : stages intensifs + plateforme IA anti-copie.',
+      "Cours, stages, packs objectif, préparation EAF, mathématiques, NSI, Grand Oral et suivi individualisé.",
   },
 };
 
 export default function HomePage() {
   return (
-    <div className="relative bg-surface-darker min-h-screen font-sans selection:bg-brand-primary/30 selection:text-white">
+    <div className="relative min-h-screen bg-[#f7fbff] font-sans text-slate-950 selection:bg-[#dbeafe] selection:text-[#0f2f57]">
       {/* Grain Overlay */}
-      <div className="grain-overlay fixed inset-0 pointer-events-none opacity-[0.04] z-[9999] mix-blend-overlay"
+      <div className="grain-overlay fixed inset-0 pointer-events-none opacity-[0.025] z-[9999] mix-blend-multiply"
         style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")" }}
       />
-
-      {/* Vignette */}
-      <div className="vignette fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_50%,rgba(0,0,0,0.4)_100%)]" />
 
       {/* Toast notifications */}
       <Toaster
         position="top-right"
         richColors
-        theme="dark"
+        theme="light"
         toastOptions={{
-          className: 'bg-surface-card border-white/10 text-white',
+          className: 'bg-white border-slate-200 text-slate-950',
         }}
       />
 
@@ -58,10 +55,10 @@ export default function HomePage() {
       {/* SEO fallback for crawlers that don't execute JS */}
       <noscript>
         <div className="sr-only">
-          <h1>Nexus Réussite, le déclic vers ta réussite !</h1>
-          <p>Deux solutions complémentaires pour viser la mention : les Stages Printemps 2026 et la Plateforme EAF Nexus Réussite.</p>
+          <h1>Nexus Réussite, académie premium d’accompagnement scolaire à Tunis.</h1>
+          <p>Nexus Réussite accompagne les élèves toute l’année vers la réussite, avec des cours, des stages, des packs ciblés, une plateforme numérique et un suivi personnalisé.</p>
           <a href="/stages">Découvrir les Stages Printemps</a>
-          <a href="https://eaf.nexusreussite.academy">Essayer la plateforme EAF gratuitement</a>
+          <a href="https://eaf.nexusreussite.academy">Accéder à la plateforme numérique EAF</a>
         </div>
       </noscript>
 
