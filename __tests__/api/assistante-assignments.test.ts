@@ -278,8 +278,12 @@ describe('API Assistante Assignments', () => {
           subjects: [],
           availableOnline: true,
           availableInPerson: true,
-          studentAssignments: [],
-          _count: { studentAssignments: 2, sessions: 10 },
+          // activeStudents is now calculated from studentAssignments.length (filtered by active window)
+          studentAssignments: [
+            { id: 'assignment-1', student: { id: 's1', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } },
+            { id: 'assignment-2', student: { id: 's2', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } },
+          ],
+          _count: { studentAssignments: 5, sessions: 10 }, // _count includes historical assignments
           createdAt: new Date(),
         },
       ] as any);
@@ -290,6 +294,7 @@ describe('API Assistante Assignments', () => {
 
       expect(res.status).toBe(200);
       expect(body.coaches).toHaveLength(1);
+      // activeStudents reflects only currently active assignments (filtered by activeAssignmentWhere)
       expect(body.coaches[0].stats.activeStudents).toBe(2);
     });
   });

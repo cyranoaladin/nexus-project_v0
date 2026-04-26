@@ -29,6 +29,16 @@ export async function GET(request: Request, { params }: RouteParams) {
     const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
+    const session = sessionOrError;
+
+    // RBAC check: READ permission on COACH_ASSIGNMENT
+    if (!can(session.user.role, 'READ', 'COACH_ASSIGNMENT')) {
+      return NextResponse.json(
+        { error: 'Forbidden', message: 'Permission insuffisante' },
+        { status: 403 }
+      );
+    }
+
     const assignment = await prisma.coachStudentAssignment.findUnique({
       where: { id },
       include: {
@@ -125,10 +135,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     if (validated.status !== undefined) {
       updateData.status = validated.status;
-      // If ending the assignment, set endsAt to now
-      if (validated.status === AssignmentStatus.ENDED && !validated.endsAt) {
-        updateData.endsAt = new Date();
-      }
     }
 
     if (validated.subjects !== undefined) {
@@ -139,7 +145,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updateData.notes = validated.notes;
     }
 
-    if (validated.endsAt !== undefined) {
+    // Handle endsAt with priority rule: if status is ENDED, endsAt must be set
+    if (validated.status === AssignmentStatus.ENDED) {
+      // Force endsAt to now when ending, even if client sends null
+      updateData.endsAt = validated.endsAt
+        ? new Date(validated.endsAt)
+        : new Date();
+    } else if (validated.endsAt !== undefined) {
       updateData.endsAt = validated.endsAt ? new Date(validated.endsAt) : null;
     }
 
