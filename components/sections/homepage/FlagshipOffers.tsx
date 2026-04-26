@@ -1,218 +1,307 @@
 import CTAButton from "@/components/sections/homepage/CTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
-import { BookOpen, CalendarRange, Check, Lightbulb, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 import {
   COMPARISON_ROWS,
   EAF_EXAM_DATE,
   EAF_URL,
+  METHOD_STEPS,
+  OBJECTIVES,
+  OFFER_FAMILIES,
+  PRICING_PLANS,
+  SPECIALTIES,
   STAGES_URL,
-  STAGE_START_DATE,
 } from "@/components/sections/homepage/content";
+import { resolveUiIcon } from "@/lib/ui-icons";
+import { cn } from "@/lib/utils";
 
-const stageFeatures = [
-  "Maths, Français, NSI, Grand Oral",
-  "6 élèves max — enseignants agrégés & certifiés",
-  "Épreuves blanches + bilan individualisé inclus",
-  "À partir de 550 TND (25 TND/h — 38% moins cher que le marché)",
-];
-
-const stagePills = [
-  "Première (EAF + Maths)",
-  "Terminale Maths",
-  "Terminale NSI",
-  "Grand Oral",
-];
-
-const eafFeatures = [
-  "Simulation orale notée /2 /8 /2 /8 au barème officiel",
-  "Correction écrite en 3 min — feedback critérié",
-  "Sources certifiées : BO 2026, Eduscol, rapports de jury",
-  "Freemium illimité — 0 TND pour commencer, sans carte bancaire",
-];
-
-const eafPills = [
-  "Première (système français)",
-  "Réseau AEFE",
-  "Candidats libres",
-  "Parents (suivi)",
-];
-
-function OfferCard({
-  theme,
-  children,
+function SectionIntro({
+  eyebrow,
+  title,
+  description,
 }: {
-  theme: "stage" | "eaf";
-  children: React.ReactNode;
+  eyebrow: string;
+  title: string;
+  description: string;
 }) {
-  const themeClasses =
-    theme === "stage"
-      ? "border-nexus-green/20 bg-nexus-green/[0.03] shadow-[0_20px_60px_rgba(16,185,129,0.08)]"
-      : "border-nexus-purple/20 bg-nexus-purple/[0.03] shadow-[0_20px_60px_rgba(167,139,250,0.08)]";
-
   return (
-    <article
-      className={`flex h-full flex-col rounded-[28px] border p-7 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2xl ${themeClasses}`}
-    >
-      {children}
-    </article>
+    <div className="max-w-3xl">
+      <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#0f3d73]">
+        {eyebrow}
+      </p>
+      <h2 className="mt-4 font-display text-h2 font-bold text-[#0f2f57]">
+        {title}
+      </h2>
+      <p className="mt-4 max-w-2xl text-base leading-8 text-slate-700">
+        {description}
+      </p>
+    </div>
   );
 }
 
 export default function FlagshipOffers() {
   return (
-    <section id="offres" className="bg-nexus-bg-alt px-6 py-20 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/45">
-            En ce moment chez Nexus Réussite
-          </p>
-          <h2 className="mt-4 font-display text-h2 font-bold text-white">
-            En ce moment chez Nexus Réussite
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-8 text-white/55">
-            Deux solutions conçues pour les épreuves de mai et juin 2026. Complémentaires ou indépendantes.
-          </p>
-        </div>
+    <section id="offres" className="bg-white px-6 py-20 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-7xl space-y-20">
+        <div>
+          <SectionIntro
+            eyebrow="Notre méthode"
+            title="Une académie premium pour progresser avec un cadre clair."
+            description="Nexus Réussite accompagne les élèves toute l'année : diagnostic, cours réguliers, stages intensifs, packs ciblés, plateforme numérique et suivi individualisé."
+          />
 
-        <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-2">
-          <OfferCard theme="stage">
-            <div className="flex items-start justify-between gap-4">
-              <span className="rounded-full bg-nexus-green/12 px-3 py-1 text-xs font-mono uppercase tracking-[0.16em] text-nexus-green">
-                <span className="inline-flex items-center gap-2">
-                  <CalendarRange className="h-3.5 w-3.5" aria-hidden="true" />
-                  Stages
-                </span>
-              </span>
-              <CountdownChip targetDate={STAGE_START_DATE} label="avant le début" tone="stage" />
-            </div>
-
-            <h3 className="mt-6 font-display text-3xl font-bold text-white">
-              <span className="inline-flex items-center gap-3">
-                <CalendarRange className="h-8 w-8 text-nexus-green" aria-hidden="true" />
-                Stages de Printemps 2026
-              </span>
-            </h3>
-            <p className="mt-2 font-mono text-sm uppercase tracking-[0.14em] text-white/45">
-              18 Avril — 02 Mai • Première & Terminale
-            </p>
-            <p className="mt-5 text-lg text-white/80">
-              La dernière ligne droite vers la mention. On ne révise plus, on valide.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-sm text-white/70">
-              {stageFeatures.map((feature) => (
-                <li key={feature} className="flex gap-3">
-                  <Check className="mt-0.5 h-4 w-4 text-nexus-green" aria-hidden="true" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {stagePills.map((pill) => (
-                <span
-                  key={pill}
-                  className="rounded-full bg-nexus-green/8 px-3 py-1 text-xs text-nexus-green"
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {METHOD_STEPS.map((step) => {
+              const StepIcon = resolveUiIcon(step.icon);
+              return (
+                <article
+                  key={step.title}
+                  className="rounded-[24px] border border-slate-200 bg-[#f8fbff] p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  {pill}
-                </span>
-              ))}
-            </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0f3d73] text-white">
+                    <StepIcon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-5 font-display text-xl font-bold text-slate-950">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">
+                    {step.description}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
 
-            <div className="mt-auto pt-8">
-              <CTAButton href={STAGES_URL} variant="stage" fullWidth>
-                Découvrir les Stages et Réserver →
-              </CTAButton>
-              <p className="mt-3 text-sm text-white/45">
-                Places limitées à 6 par groupe. Consultation gratuite sur WhatsApp.
-              </p>
-            </div>
-          </OfferCard>
-
-          <OfferCard theme="eaf">
-            <div className="flex items-start justify-between gap-4">
-              <span className="rounded-full bg-nexus-purple/12 px-3 py-1 text-xs font-mono uppercase tracking-[0.16em] text-nexus-purple">
-                <span className="inline-flex items-center gap-2">
+          <div className="mt-8 rounded-[28px] border border-[#0f3d73]/10 bg-[#eff6ff] p-6 sm:p-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-mono uppercase tracking-[0.14em] text-[#0f3d73]">
                   <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                  Plateforme EAF
+                  Plateforme numérique
                 </span>
-              </span>
-              <CountdownChip targetDate={EAF_EXAM_DATE} label="avant l'épreuve EAF" tone="eaf" />
+                <h3 className="mt-4 font-display text-2xl font-bold text-[#0f2f57] sm:text-3xl">
+                  Un outil fort pour l'EAF, intégré à l'accompagnement Nexus.
+                </h3>
+                <p className="mt-4 text-base leading-8 text-slate-700">
+                  L'EAF signifie Épreuves anticipées de français. La plateforme aide les élèves de Première à préparer l'écrit et l'oral en autonomie, avec quiz adaptatifs, entraînements guidés et tableau de bord de progression.
+                </p>
+              </div>
+              <CountdownChip targetDate={EAF_EXAM_DATE} label="avant l'EAF" tone="eaf" />
             </div>
 
-            <h3 className="mt-6 font-display text-3xl font-bold text-white">
-              <span className="inline-flex items-center gap-3">
-                <Sparkles className="h-8 w-8 text-nexus-purple" aria-hidden="true" />
-                Nexus Réussite — Préparation EAF
-              </span>
-            </h3>
-            <p className="mt-2 font-mono text-sm uppercase tracking-[0.14em] text-white/45">
-              Bac de Français 2026 • Oral + Écrit + Langue
-            </p>
-            <p className="mt-5 text-lg text-white/80">
-              L'IA qui t'entraîne sans jamais rédiger à ta place. Anti-copie par design.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-sm text-white/70">
-              {eafFeatures.map((feature) => (
-                <li key={feature} className="flex gap-3">
-                  <Check className="mt-0.5 h-4 w-4 text-nexus-purple" aria-hidden="true" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {eafPills.map((pill) => (
-                <span
-                  key={pill}
-                  className="rounded-full bg-nexus-purple/8 px-3 py-1 text-xs text-nexus-purple"
-                >
-                  {pill}
-                </span>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {SPECIALTIES.slice(0, 6).map((benefit) => (
+                <div key={benefit} className="flex gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 shadow-sm">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0f3d73]" aria-hidden="true" />
+                  <span>{benefit}</span>
+                </div>
               ))}
             </div>
+          </div>
+        </div>
 
-            <div className="mt-auto pt-8">
-              <CTAButton href={EAF_URL} variant="eaf" fullWidth>
-                Commencer gratuitement — 3 min →
-              </CTAButton>
-              <p className="mt-3 text-sm text-white/45">
-                Pas de carte bancaire. Freemium illimité en temps.
+        <div>
+          <SectionIntro
+            eyebrow="Nos objectifs"
+            title="Chaque formule sert un objectif scolaire concret."
+            description="La bonne offre dépend rarement d'une seule matière : elle dépend du niveau, du calendrier, de la confiance et du degré d'autonomie de l'élève."
+          />
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {OBJECTIVES.map((objective) => (
+              <article key={objective} className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+                <Sparkles className="h-5 w-5 text-[#0f3d73]" aria-hidden="true" />
+                <h3 className="mt-4 font-display text-lg font-bold text-slate-950">{objective}</h3>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <SectionIntro
+            eyebrow="Nos accompagnements"
+            title="Cours, stages, plateforme et packs : une offre complète, pas une seule porte d'entrée."
+            description="Les familles peuvent commencer par un suivi annuel, un stage de vacances, un pack objectif ou la plateforme EAF selon l'urgence et l'ambition."
+          />
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
+            {OFFER_FAMILIES.map((offer) => {
+              const OfferIcon = resolveUiIcon(offer.icon);
+              return (
+                <article key={offer.title} className="flex h-full flex-col rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eff6ff] text-[#0f3d73]">
+                    <OfferIcon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-5 font-display text-2xl font-bold text-[#0f2f57]">{offer.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">{offer.description}</p>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {offer.bullets.map((bullet) => (
+                      <span key={bullet} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        {bullet}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-auto pt-6">
+                    <CTAButton href={offer.href} variant={offer.href === STAGES_URL ? "stage" : "eaf-outline"}>
+                      {offer.cta}
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </CTAButton>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <SectionIntro
+            eyebrow="Pourquoi Nexus Réussite"
+            title="Un cadre plus lisible qu'une succession de cours isolés."
+            description="L'académie articule l'humain, le présentiel, les outils numériques et le suivi pour éviter les révisions dispersées."
+          />
+
+          <div className="mt-10 overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+            <div className="grid bg-[#0f3d73] text-sm font-semibold text-white md:grid-cols-[0.8fr_1fr_1fr]">
+              <div className="hidden px-5 py-4 md:block">Critère</div>
+              <div className="px-5 py-4">Préparation non structurée</div>
+              <div className="px-5 py-4">Avec Nexus Réussite</div>
+            </div>
+            {COMPARISON_ROWS.map((row) => (
+              <div
+                key={row.label}
+                className="grid border-t border-slate-200 text-sm md:grid-cols-[0.8fr_1fr_1fr]"
+              >
+                <div className="bg-slate-50 px-5 py-4 font-mono text-xs uppercase tracking-[0.12em] text-slate-500">
+                  {row.label}
+                </div>
+                <div className="px-5 py-4 text-slate-600">{row.classique}</div>
+                <div className="px-5 py-4 font-medium text-[#0f2f57]">{row.nexus}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <SectionIntro
+            eyebrow="Offres et packs"
+            title="Choisir une formule selon le rythme et l'objectif."
+            description="La homepage oriente d'abord vers le bon type d'accompagnement, puis vers l'offre précise : suivi annuel, pack objectif, stage ou plateforme."
+          />
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {PRICING_PLANS.map((plan) => (
+              <article
+                key={plan.name}
+                className={cn(
+                  "flex h-full flex-col rounded-[24px] border p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+                  plan.highlighted
+                    ? "border-[#0f3d73] bg-[#0f3d73] text-white"
+                    : "border-slate-200 bg-white text-slate-950"
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-2xl font-bold">{plan.name}</h3>
+                    <p className={cn("mt-2 text-sm leading-6", plan.highlighted ? "text-blue-100" : "text-slate-600")}>
+                      {plan.tagline}
+                    </p>
+                  </div>
+                      {plan.highlighted && (
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#0f3d73]">
+                      Annuel
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-6">
+                  <p className="font-display text-3xl font-bold">{plan.price}</p>
+                  <p className={cn("mt-1 text-sm", plan.highlighted ? "text-blue-100" : "text-slate-500")}>
+                    {plan.cadence}
+                  </p>
+                </div>
+
+                <p className={cn("mt-5 text-sm leading-7", plan.highlighted ? "text-blue-50" : "text-slate-700")}>
+                  {plan.description}
+                </p>
+
+                <ul className="mt-6 space-y-3 text-sm">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-3">
+                      <Check
+                        className={cn("mt-0.5 h-4 w-4 shrink-0", plan.highlighted ? "text-blue-100" : "text-[#0f3d73]")}
+                        aria-hidden="true"
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-auto pt-7">
+                  <CTAButton
+                    href={plan.href}
+                    variant={plan.highlighted ? "eaf-outline" : "eaf"}
+                    fullWidth
+                    className={plan.highlighted ? "border-white bg-white text-[#0f3d73] hover:bg-blue-50" : undefined}
+                  >
+                    {plan.cta}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </CTAButton>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-[#b91c1c]/15 bg-[#fff7f7] p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#9f1239]">
+                Présentiel en complément
               </p>
+              <h2 className="mt-4 font-display text-h2 font-bold text-[#0f2f57]">
+                Un ancrage local à Mutuelleville, avec une plateforme en appui.
+              </h2>
+              <p className="mt-4 text-base leading-8 text-slate-700">
+                Le présentiel rassure les familles : diagnostic, cours, stages, petits groupes et échanges directs. La plateforme numérique complète ce cadre pour l'entraînement autonome, notamment en EAF.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <CTAButton href={STAGES_URL} variant="stage">
+                  Voir les stages
+                </CTAButton>
+                <CTAButton href={EAF_URL} variant="eaf-outline">
+                  Continuer sur la plateforme
+                </CTAButton>
+              </div>
             </div>
-          </OfferCard>
-        </div>
 
-        <div className="mt-8 rounded-[24px] border border-white/8 bg-white/[0.015] p-5 hidden lg:block">
-          <table className="w-full table-fixed border-separate border-spacing-y-2 text-left text-sm text-white/70">
-            <thead>
-              <tr className="text-xs uppercase tracking-[0.16em] text-white/35">
-                <th className="pb-3"> </th>
-                <th className="pb-3">Stages Printemps</th>
-                <th className="pb-3">Plateforme EAF</th>
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARISON_ROWS.map((row) => (
-                <tr key={row.label} className="border-t border-white/5">
-                  <td className="py-2 font-mono text-xs uppercase tracking-[0.12em] text-white/40">
-                    {row.label}
-                  </td>
-                  <td className="py-2 text-white/78">{row.stages}</td>
-                  <td className="py-2 text-white/78">{row.eaf}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <div className="rounded-3xl border border-[#b91c1c]/12 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 text-[#9f1239]">
+                <MapPin className="h-5 w-5" aria-hidden="true" />
+                <p className="font-display text-xl font-bold">Mutuelleville</p>
+              </div>
+              <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
+                <li className="flex gap-3">
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
+                  Petit groupe et cadre de travail.
+                </li>
+                <li className="flex gap-3">
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
+                  Cours hebdomadaires, stages intensifs et packs ciblés.
+                </li>
+                <li className="flex gap-3">
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
+                  Plateforme EAF associée pour écrit, oral, quiz et progression.
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-
-        <p className="mt-5 text-sm text-white/60">
-          <span className="inline-flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-nexus-amber" aria-hidden="true" />
-            Les deux se complètent parfaitement : le stage pour la structure et l'intensif, la plateforme pour l'entraînement quotidien.
-          </span>
-        </p>
       </div>
     </section>
   );

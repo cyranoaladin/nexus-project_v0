@@ -10,101 +10,75 @@ import {
 } from "@/components/sections/homepage/content";
 import { cn } from "@/lib/utils";
 
-type Level = "premiere" | "terminale" | null;
-type Choice =
-  | "francais"
-  | "maths"
-  | "les-deux"
-  | "nsi"
-  | null;
+type Need = "suivi" | "stage" | "eaf" | "objectif" | null;
 
 type Recommendation = {
   title: string;
-  price: string;
+  eyebrow: string;
   benefit: string;
   href: string;
   cta: string;
   variant: "stage" | "eaf";
   complement?: string;
-  description?: string;
 };
 
 const choiceButtonBase =
-  "rounded-full border px-5 py-3 text-sm font-medium transition-all duration-200";
+  "cursor-pointer rounded-full border px-5 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f3d73] focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
-const activeChoiceClass = "border-nexus-green bg-nexus-green/10 text-white";
+const activeChoiceClass = "border-[#0f3d73] bg-[#0f3d73] text-white";
 const idleChoiceClass =
-  "border-white/10 bg-white/4 text-white/70 hover:border-nexus-green/50 hover:text-white";
+  "border-slate-200 bg-white text-slate-700 hover:border-[#0f3d73]/35 hover:bg-[#eff6ff] hover:text-[#0f2f57]";
 
-function getRecommendation(level: Level, choice: Choice): Recommendation | null {
-  if (level === "premiere" && choice === "francais") {
+function getRecommendation(need: Need): Recommendation | null {
+  if (need === "suivi") {
     return {
-      title: "Plateforme EAF",
-      price: "Gratuit pour commencer",
-      benefit: "Simulation orale, correction écrite et entraînement quotidien immédiat.",
-      href: EAF_URL,
-      cta: "Commencer gratuitement",
-      variant: "eaf",
-      complement: "Complément conseillé : Stage Français 1ère (550 TND).",
-    };
-  }
-
-  if (level === "premiere" && choice === "maths") {
-    return {
-      title: "Stage Maths 1ère",
-      price: "550 TND",
-      benefit: "Consolider les automatismes et préparer les épreuves anticipées avec méthode.",
-      href: STAGES_URL,
-      cta: "Découvrir les Stages Printemps",
-      variant: "stage",
-    };
-  }
-
-  if (level === "premiere" && choice === "les-deux") {
-    return {
-      title: "Pack Doublé Anticipé",
-      price: "950 TND",
-      benefit: "Le meilleur combo pour sécuriser Français + Maths avant les épreuves.",
-      href: STAGES_URL,
-      cta: "Découvrir les Stages Printemps",
-      variant: "stage",
-      complement: "Complément conseillé : Plateforme EAF pour l'entraînement quotidien.",
-    };
-  }
-
-  if (level === "terminale" && choice === "maths") {
-    return {
-      title: "Stage Maths Terminale",
-      price: "690 TND",
-      benefit: "Structurer la stratégie de points et consolider les chapitres à fort coefficient.",
-      href: STAGES_URL,
-      cta: "Découvrir les Stages Printemps",
-      variant: "stage",
-      complement: "Option recommandée : Grand Oral en add-on à 250 TND.",
-    };
-  }
-
-  if (level === "terminale" && choice === "nsi") {
-    return {
-      title: "Pack Full Stack NSI",
-      price: "990 TND",
-      benefit: "Pack complet pratique + écrit + oral pour sécuriser la séquence NSI la plus risquée.",
-      href: STAGES_URL,
-      cta: "Découvrir les Stages Printemps",
-      variant: "stage",
-      complement: "Grand Oral inclus.",
-    };
-  }
-
-  if (level === "terminale" && choice === "les-deux") {
-    return {
-      title: "Programme sur mesure",
-      price: "Sur diagnostic",
-      benefit: "On construit le bon mix Maths + NSI selon les échéances, le niveau et le budget.",
+      title: "Cours hebdomadaires & suivi personnalisé",
+      eyebrow: "Pour progresser toute l'année.",
+      benefit:
+        "Installez un rythme régulier avec des objectifs clairs, un suivi parent et un accompagnement ajusté au niveau de l'élève.",
       href: WHATSAPP_URL,
-      cta: "Contacter sur WhatsApp",
+      cta: "Demander un diagnostic",
+      variant: "eaf",
+      complement: "Recommandé si le besoin dépasse une échéance ponctuelle.",
+    };
+  }
+
+  if (need === "stage") {
+    return {
+      title: "Stages intensifs de vacances",
+      eyebrow: "Pour accélérer sur une période courte.",
+      benefit:
+        "Un cadre resserré pour consolider, préparer une épreuve ou reprendre confiance avant la reprise.",
+      href: STAGES_URL,
+      cta: "Voir les stages",
       variant: "stage",
-      description: "Contact direct recommandé pour un programme personnalisé.",
+      complement: "Les stages complètent le suivi annuel ou un pack objectif.",
+    };
+  }
+
+  if (need === "eaf") {
+    return {
+      title: "Plateforme EAF & préparation Bac de français",
+      eyebrow: "Écrit, oral, autonomie et progression.",
+      benefit:
+        "EAF signifie Épreuves anticipées de français : l'élève travaille l'écrit et l'oral avec quiz adaptatifs, entraînements guidés et tableau de bord.",
+      href: EAF_URL,
+      cta: "Accéder à la plateforme",
+      variant: "eaf",
+      complement: "Freemium disponible pour démarrer sans friction.",
+    };
+  }
+
+  if (need === "objectif") {
+    return {
+      title: "Pack objectif",
+      eyebrow: "Mention, remise à niveau ou excellence.",
+      benefit:
+        "Construisez un parcours ciblé autour d'un objectif : mathématiques, NSI, Grand Oral, EAF ou stratégie de mention.",
+      href: WHATSAPP_URL,
+      cta: "Construire mon pack",
+      variant: "eaf",
+      complement: "Contact direct conseillé pour cadrer le niveau, l'objectif et le calendrier.",
     };
   }
 
@@ -112,162 +86,81 @@ function getRecommendation(level: Level, choice: Choice): Recommendation | null 
 }
 
 export default function DecisionHelper() {
-  const [level, setLevel] = useState<Level>(null);
-  const [choice, setChoice] = useState<Choice>(null);
-
-  const recommendation = useMemo(() => getRecommendation(level, choice), [choice, level]);
-
-  const resetChoice = () => setChoice(null);
-  const showRecommendation = Boolean(level && choice && recommendation);
+  const [need, setNeed] = useState<Need>(null);
+  const recommendation = useMemo(() => getRecommendation(need), [need]);
 
   return (
-    <section className="bg-nexus-bg px-6 py-20 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-5xl rounded-[28px] border border-white/8 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
+    <section className="bg-white px-6 py-20 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-5xl rounded-[28px] border border-slate-200 bg-[#f8fbff] p-6 shadow-sm sm:p-8 lg:p-10">
         <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/45">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#0f3d73]">
             Aide au choix
           </p>
-          <h2 className="mt-4 font-display text-h2 font-bold text-white">
-            Quelle solution pour votre enfant ?
+          <h2 className="mt-4 font-display text-h2 font-bold text-[#0f2f57]">
+            Quelle formule Nexus Réussite correspond à votre enfant ?
           </h2>
-          <p className="mt-4 text-base leading-8 text-white/58">
-            Répondez en 10 secondes pour savoir par où commencer.
+          <p className="mt-4 text-base leading-8 text-slate-700">
+            En 10 secondes, identifiez le bon point d'entrée : cours hebdomadaires, stage intensif, plateforme EAF ou pack ciblé.
           </p>
         </div>
 
-        <div className="mt-8 rounded-[24px] border border-white/8 bg-nexus-bg-alt/70 p-5 sm:p-6">
-          {!level && (
-            <div className="space-y-5 opacity-100 transition-all duration-200">
-              <p className="text-sm font-medium text-white/72">Votre enfant est en :</p>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  className={cn(choiceButtonBase, idleChoiceClass)}
-                  onClick={() => setLevel("premiere")}
-                >
-                  Première
-                </button>
-                <button
-                  type="button"
-                  className={cn(choiceButtonBase, idleChoiceClass)}
-                  onClick={() => setLevel("terminale")}
-                >
-                  Terminale
-                </button>
-              </div>
-            </div>
-          )}
-
-          {level === "premiere" && !choice && (
-            <div className="space-y-5 opacity-100 transition-all duration-200">
-              <button type="button" onClick={() => setLevel(null)} className="text-sm text-white/45 hover:text-white" aria-label="Retour">
-                ← Retour
-              </button>
-              <p className="text-sm font-medium text-white/72">Son besoin principal :</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                {[
-                  { id: "francais", label: "Bac de Français (écrit + oral)" },
-                  { id: "maths", label: "Maths" },
-                  { id: "les-deux", label: "Les deux" },
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setChoice(option.id as Choice)}
-                    className={cn(
-                      choiceButtonBase,
-                      choice === option.id ? activeChoiceClass : idleChoiceClass
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {level === "terminale" && !choice && (
-            <div className="space-y-5 opacity-100 transition-all duration-200">
-              <button type="button" onClick={() => setLevel(null)} className="text-sm text-white/45 hover:text-white" aria-label="Retour">
-                ← Retour
-              </button>
-              <p className="text-sm font-medium text-white/72">Sa spécialité :</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                {[
-                  { id: "maths", label: "Maths" },
-                  { id: "nsi", label: "NSI" },
-                  { id: "les-deux", label: "Les deux" },
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setChoice(option.id as Choice)}
-                    className={cn(
-                      choiceButtonBase,
-                      choice === option.id ? activeChoiceClass : idleChoiceClass
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {showRecommendation && recommendation && (
-            <div className="space-y-5 opacity-100 transition-all duration-200">
+        <div className="mt-8 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
+          <p className="text-sm font-medium text-slate-700">Votre priorité aujourd'hui :</p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {[
+              { id: "suivi", label: "Suivi toute l'année" },
+              { id: "stage", label: "Stage de vacances" },
+              { id: "eaf", label: "Préparation EAF" },
+              { id: "objectif", label: "Pack objectif" },
+            ].map((option) => (
               <button
+                key={option.id}
                 type="button"
-                onClick={resetChoice}
-                className="text-sm text-white/45 hover:text-white"
-                aria-label="Retour"
+                onClick={() => setNeed(option.id as Need)}
+                className={cn(
+                  choiceButtonBase,
+                  need === option.id ? activeChoiceClass : idleChoiceClass
+                )}
               >
-                ← Retour
+                {option.label}
               </button>
+            ))}
+          </div>
 
-              <div className="rounded-[22px] border border-white/8 bg-white/[0.03] p-6">
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-white/45">
-                  Recommandation personnalisée
-                </p>
-                <h3
-                  className={cn(
-                    "mt-3 font-display text-3xl font-bold",
-                    recommendation.variant === "eaf" ? "text-nexus-purple" : "text-nexus-green"
-                  )}
+          {recommendation && (
+            <div className="mt-6 rounded-[22px] border border-[#0f3d73]/12 bg-[#eff6ff] p-6">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#0f3d73]">
+                {recommendation.eyebrow}
+              </p>
+              <h3 className="mt-3 font-display text-3xl font-bold text-[#0f2f57]">
+                {recommendation.title}
+              </h3>
+              <p className="mt-4 text-base leading-7 text-slate-700">{recommendation.benefit}</p>
+              {recommendation.complement && (
+                <p className="mt-3 text-sm text-slate-600">{recommendation.complement}</p>
+              )}
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <CTAButton
+                  href={recommendation.href}
+                  variant={recommendation.variant === "eaf" ? "eaf" : "stage"}
                 >
-                  {recommendation.title}
-                </h3>
-                <p className="mt-2 font-mono text-sm uppercase tracking-[0.12em] text-white/45">
-                  {recommendation.price}
-                </p>
-                <p className="mt-4 text-base leading-7 text-white/70">{recommendation.benefit}</p>
-                {recommendation.complement && (
-                  <p className="mt-3 text-sm text-white/50">{recommendation.complement}</p>
-                )}
-                {recommendation.description && (
-                  <p className="mt-3 text-sm text-white/50">{recommendation.description}</p>
-                )}
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <CTAButton
-                    href={recommendation.href}
-                    variant={recommendation.variant === "eaf" ? "eaf" : "stage"}
-                  >
-                    {recommendation.cta}
-                  </CTAButton>
-                  <CTAButton href={WHATSAPP_URL} variant="stage-outline">
-                    <span className="inline-flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                      Consultation gratuite
-                    </span>
-                  </CTAButton>
-                </div>
-
-                <a href="/stages#tarifs" className="mt-5 inline-flex items-center gap-2 text-sm text-white/55 hover:text-white">
-                  Voir toutes les formules
+                  {recommendation.cta}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
+                </CTAButton>
+                <CTAButton href={WHATSAPP_URL} variant="eaf-outline">
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  Demander conseil
+                </CTAButton>
               </div>
+
+              <a
+                href={STAGES_URL}
+                className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#9f1239] underline-offset-4 transition hover:text-[#7f1d1d] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f3d73] focus-visible:ring-offset-2 focus-visible:ring-offset-[#eff6ff]"
+              >
+                Voir les stages intensifs
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
             </div>
           )}
         </div>
