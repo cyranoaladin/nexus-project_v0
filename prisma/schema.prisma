@@ -1743,6 +1743,9 @@ model CoachNote {
 
 // Coach-Student Assignment — Core model for coach-student pedagogical relationship
 // This is the source of truth for "which students can a coach access"
+/// Active duplicate protection is enforced by a partial unique index
+/// in migration 20260425230000_add_coach_student_assignments:
+/// coachId + studentId + assignmentType WHERE status = 'ACTIVE'
 model CoachStudentAssignment {
   id             String           @id @default(cuid())
 

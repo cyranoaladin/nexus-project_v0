@@ -18,7 +18,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     coachProfile: { findUnique: jest.fn(), findMany: jest.fn(), count: jest.fn() },
     student: { findMany: jest.fn(), findUnique: jest.fn(), count: jest.fn() },
-    coachStudentAssignment: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    coachStudentAssignment: { findMany: jest.fn(), findFirst: jest.fn(), findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
     $transaction: jest.fn(),
   },
 }));
@@ -29,7 +29,7 @@ import { GET as getStudents } from '@/app/api/assistante/students/route';
 import { GET as getCoaches } from '@/app/api/assistante/coaches/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { AssignmentStatus, AssignmentType, Subject } from '@prisma/client';
+import { AssignmentStatus, AssignmentType, Subject, Prisma } from '@prisma/client';
 
 const mockRequireAnyRole = requireAnyRole as unknown as jest.Mock;
 
@@ -186,6 +186,66 @@ describe('API Assistante Assignments', () => {
       expect(res.status).toBe(409);
       expect(body.error).toBe('Conflict');
     });
+
+    it('POST avec P2002 database conflict => 409', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
+      // Simulate P2002 unique constraint violation from partial index
+      // Create a mock PrismaClientKnownRequestError-like object
+      const prismaError = Object.assign(
+        new Error('Unique constraint failed on the fields: (`coachId`,`studentId`,`assignmentType`)'),
+        {
+          code: 'P2002',
+          clientVersion: '6.19.2',
+          meta: { target: ['coachId', 'studentId', 'assignmentType'] },
+        }
+      );
+      // Make it quack like a PrismaClientKnownRequestError for instanceof check
+      Object.setPrototypeOf(prismaError, Prisma.PrismaClientKnownRequestError.prototype);
+      (prisma.$transaction as jest.Mock).mockRejectedValue(prismaError);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
+        assignmentType: AssignmentType.PRIMARY,
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(409);
+      expect(body.error).toBe('Conflict');
+    });
+
+    it('POST déduplique studentIds automatiquement', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
+      // Mock only one student found even if duplicates in request
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.$transaction as jest.Mock).mockImplementation(async (ops: any) => {
+        return ops.map((op: any) => op);
+      });
+      (prisma.coachStudentAssignment.create as jest.Mock).mockResolvedValue({
+        id: 'assignment-1',
+        coachId: 'coach-1',
+        studentId: 'student-1',
+        assignmentType: AssignmentType.PRIMARY,
+        status: AssignmentStatus.ACTIVE,
+      } as any);
+
+      // Send duplicate studentIds - should be deduplicated
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1', 'student-1', 'student-1'],
+        assignmentType: AssignmentType.PRIMARY,
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(201);
+      // Should only create one assignment despite duplicates in request
+      expect(body.assignments).toHaveLength(1);
+    });
   });
 
   describe('PATCH /api/assistante/assignments/[id]', () => {
@@ -237,6 +297,30 @@ describe('API Assistante Assignments', () => {
 
       expect(res.status).toBe(404);
     });
+
+    it('PATCH status ENDED sans endsAt => force endsAt à current date', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findUnique as jest.Mock).mockResolvedValue({ id: 'assignment-1' } as any);
+      const mockUpdate = jest.fn().mockResolvedValue({
+        id: 'assignment-1',
+        status: AssignmentStatus.ENDED,
+        endsAt: new Date(),
+      } as any);
+      (prisma.coachStudentAssignment.update as jest.Mock) = mockUpdate;
+
+      // Envoi sans endsAt
+      const res = await patchAssignment(
+        makeRequest({ status: AssignmentStatus.ENDED }),
+        makeDetailContext('assignment-1')
+      );
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.assignment.status).toBe(AssignmentStatus.ENDED);
+      // Vérifier que update a été appelé avec endsAt défini
+      const updateCall = mockUpdate.mock.calls[0];
+      expect(updateCall[0].data.endsAt).toBeDefined();
+    });
   });
 
   describe('GET /api/assistante/students', () => {
@@ -262,6 +346,54 @@ describe('API Assistante Assignments', () => {
 
       expect(res.status).toBe(200);
     });
+
+    it('rejects invalid gradeLevel enum with 400', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await getStudents(new Request('http://localhost/?gradeLevel=INVALID'));
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects invalid academicTrack enum with 400', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await getStudents(new Request('http://localhost/?academicTrack=INVALID'));
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects invalid stmgPathway enum with 400', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await getStudents(new Request('http://localhost/?stmgPathway=INVALID'));
+
+      expect(res.status).toBe(400);
+    });
+
+    it('clamps page to minimum 1 when negative', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.student.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await getStudents(new Request('http://localhost/?page=-1'));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.pagination.page).toBe(1);
+    });
+
+    it('clamps limit to maximum 100', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.student.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await getStudents(new Request('http://localhost/?limit=1000'));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.pagination.limit).toBeLessThanOrEqual(100);
+    });
   });
 
   describe('GET /api/assistante/coaches', () => {
@@ -278,8 +410,12 @@ describe('API Assistante Assignments', () => {
           subjects: [],
           availableOnline: true,
           availableInPerson: true,
-          studentAssignments: [],
-          _count: { studentAssignments: 2, sessions: 10 },
+          // activeStudents is now calculated from studentAssignments.length (filtered by active window)
+          studentAssignments: [
+            { id: 'assignment-1', student: { id: 's1', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } },
+            { id: 'assignment-2', student: { id: 's2', gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } },
+          ],
+          _count: { studentAssignments: 5, sessions: 10 }, // _count includes historical assignments
           createdAt: new Date(),
         },
       ] as any);
@@ -290,7 +426,30 @@ describe('API Assistante Assignments', () => {
 
       expect(res.status).toBe(200);
       expect(body.coaches).toHaveLength(1);
+      // activeStudents reflects only currently active assignments (filtered by activeAssignmentWhere)
       expect(body.coaches[0].stats.activeStudents).toBe(2);
+    });
+  });
+
+  describe('GET /api/assistante/assignments', () => {
+    it('rejects invalid status query param with 400', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+
+      const res = await getAssignments(new Request('http://localhost/?status=INVALID'));
+
+      expect(res.status).toBe(400);
+    });
+
+    it('accepts valid status query param', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.coachStudentAssignment.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await getAssignments(new Request('http://localhost/?status=ACTIVE'));
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(body.success).toBe(true);
     });
   });
 });
