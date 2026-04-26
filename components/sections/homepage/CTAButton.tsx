@@ -11,13 +11,13 @@ type CTAButtonProps = {
 
 const variantClasses: Record<NonNullable<CTAButtonProps["variant"]>, string> = {
   stage:
-    "bg-gradient-to-r from-nexus-green to-nexus-green-dark text-white border border-nexus-green/60 hover:shadow-lg hover:shadow-nexus-green/20",
+    "border border-[#b91c1c]/20 bg-white text-[#9f1239] shadow-sm hover:border-[#b91c1c]/35 hover:bg-[#fff1f2]",
   "stage-outline":
-    "border border-nexus-green/50 text-nexus-green bg-transparent hover:bg-nexus-green/10",
+    "border border-[#b91c1c]/25 bg-transparent text-[#9f1239] hover:bg-[#fff1f2]",
   eaf:
-    "bg-gradient-to-r from-nexus-purple to-nexus-purple-dark text-white border border-nexus-purple/60 hover:shadow-lg hover:shadow-nexus-purple/20",
+    "border border-[#0f3d73] bg-[#0f3d73] text-white shadow-sm hover:bg-[#0b2f59]",
   "eaf-outline":
-    "border border-nexus-purple/50 text-nexus-purple bg-transparent hover:bg-nexus-purple/10",
+    "border border-[#0f3d73]/30 bg-white text-[#0f3d73] shadow-sm hover:bg-[#eff6ff]",
 };
 
 export default function CTAButton({
@@ -28,7 +28,7 @@ export default function CTAButton({
   fullWidth = false,
 }: CTAButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-display font-bold tracking-tight transition-all duration-200 hover:-translate-y-0.5",
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-display font-bold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f3d73] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
     fullWidth && "w-full",
     variantClasses[variant],
     className
