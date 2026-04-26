@@ -20,6 +20,9 @@ import { UserRole } from '@prisma/client';
 export type Resource =
   | 'USER'
   | 'STUDENT'
+  | 'COACH_ASSIGNMENT'
+  | 'DOCUMENT'
+  | 'DOCUMENT_ASSIGNMENT'
   | 'BILAN'
   | 'SESSION'
   | 'RESERVATION'
@@ -40,7 +43,9 @@ export type Action =
   | 'DELETE'
   | 'MANAGE'
   | 'VALIDATE'
-  | 'EXPORT';
+  | 'EXPORT'
+  | 'ASSIGN'
+  | 'UNASSIGN';
 
 /** A single permission entry */
 export interface Permission {
@@ -58,6 +63,9 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   [UserRole.ADMIN]: [
     { action: 'MANAGE', resource: 'USER' },
     { action: 'MANAGE', resource: 'STUDENT' },
+    { action: 'MANAGE', resource: 'COACH_ASSIGNMENT' },
+    { action: 'MANAGE', resource: 'DOCUMENT' },
+    { action: 'MANAGE', resource: 'DOCUMENT_ASSIGNMENT' },
     { action: 'MANAGE', resource: 'BILAN' },
     { action: 'MANAGE', resource: 'SESSION' },
     { action: 'MANAGE', resource: 'RESERVATION' },
@@ -71,7 +79,13 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   [UserRole.ASSISTANTE]: [
     { action: 'READ', resource: 'USER' },
     { action: 'READ', resource: 'STUDENT' },
+    { action: 'CREATE', resource: 'STUDENT' },
     { action: 'UPDATE', resource: 'STUDENT' },
+    { action: 'ASSIGN', resource: 'COACH_ASSIGNMENT' },
+    { action: 'UNASSIGN', resource: 'COACH_ASSIGNMENT' },
+    { action: 'READ', resource: 'DOCUMENT' },
+    { action: 'CREATE', resource: 'DOCUMENT' },
+    { action: 'ASSIGN', resource: 'DOCUMENT_ASSIGNMENT' },
     { action: 'VALIDATE', resource: 'BILAN' },
     { action: 'READ', resource: 'BILAN' },
     { action: 'UPDATE', resource: 'SESSION' },
@@ -85,7 +99,10 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   ],
   [UserRole.COACH]: [
     { action: 'READ', resource: 'USER' },
-    { action: 'READ', resource: 'STUDENT' },
+    { action: 'READ_OWN', resource: 'STUDENT' }, // Only assigned students
+    { action: 'READ', resource: 'DOCUMENT' },
+    { action: 'CREATE', resource: 'DOCUMENT' },
+    { action: 'ASSIGN', resource: 'DOCUMENT_ASSIGNMENT' },
     { action: 'READ', resource: 'BILAN' },
     { action: 'UPDATE', resource: 'SESSION' },
     { action: 'READ', resource: 'SESSION' },
@@ -97,6 +114,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   [UserRole.PARENT]: [
     { action: 'READ_SELF', resource: 'USER' },
     { action: 'READ_OWN', resource: 'STUDENT' },
+    { action: 'READ', resource: 'DOCUMENT' },
     { action: 'CREATE', resource: 'BILAN' },
     { action: 'READ_OWN', resource: 'BILAN' },
     { action: 'READ_OWN', resource: 'SESSION' },
@@ -108,6 +126,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
   [UserRole.ELEVE]: [
     { action: 'READ_SELF', resource: 'USER' },
     { action: 'READ_SELF', resource: 'STUDENT' },
+    { action: 'READ', resource: 'DOCUMENT' },
     { action: 'READ', resource: 'BILAN' },
     { action: 'READ_OWN', resource: 'SESSION' },
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
