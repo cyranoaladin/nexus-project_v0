@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
+import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { GradeLevel, AcademicTrack, StmgPathway } from '@prisma/client';
+import { parsePagination, parseEnumParam, createPaginationMeta } from '@/lib/api/pagination';
 
 /**
  * GET /api/assistante/students
@@ -33,16 +35,41 @@ export async function GET(request: Request) {
       );
     }
 
-    // Parse query parameters
+    // Parse query parameters with validation
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
-    const gradeLevel = searchParams.get('gradeLevel') as GradeLevel | null;
-    const academicTrack = searchParams.get('academicTrack') as AcademicTrack | null;
-    const stmgPathway = searchParams.get('stmgPathway') as StmgPathway | null;
+
+    // Validate enum parameters - return 400 if explicitly provided but invalid
+    const gradeLevelRaw = searchParams.get('gradeLevel');
+    const academicTrackRaw = searchParams.get('academicTrack');
+    const stmgPathwayRaw = searchParams.get('stmgPathway');
+
+    const gradeLevel = parseEnumParam(gradeLevelRaw, GradeLevel);
+    const academicTrack = parseEnumParam(academicTrackRaw, AcademicTrack);
+    const stmgPathway = parseEnumParam(stmgPathwayRaw, StmgPathway);
+
+    // Check for invalid enum values (param provided but not valid)
+    if (gradeLevelRaw && gradeLevel === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `gradeLevel invalide: ${gradeLevelRaw}` },
+        { status: 400 }
+      );
+    }
+    if (academicTrackRaw && academicTrack === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `academicTrack invalide: ${academicTrackRaw}` },
+        { status: 400 }
+      );
+    }
+    if (stmgPathwayRaw && stmgPathway === null) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: `stmgPathway invalide: ${stmgPathwayRaw}` },
+        { status: 400 }
+      );
+    }
+
     const hasCoach = searchParams.get('hasCoach') || 'all';
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = parsePagination(searchParams);
 
     // Build where clause
     const where: any = {};
@@ -59,13 +86,15 @@ export async function GET(request: Request) {
       where.stmgPathway = stmgPathway;
     }
 
+    // Apply active assignment window for hasCoach filter
+    const now = new Date();
     if (hasCoach === 'true') {
       where.coachAssignments = {
-        some: { status: 'ACTIVE' },
+        some: activeAssignmentWhere(now),
       };
     } else if (hasCoach === 'false') {
       where.coachAssignments = {
-        none: { status: 'ACTIVE' },
+        none: activeAssignmentWhere(now),
       };
     }
 
@@ -106,7 +135,7 @@ export async function GET(request: Request) {
             },
           },
           coachAssignments: {
-            where: { status: 'ACTIVE' },
+            where: activeAssignmentWhere(now),
             include: {
               coach: {
                 include: {
@@ -137,12 +166,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: createPaginationMeta(page, limit, total),
       students,
     });
   } catch (error) {
