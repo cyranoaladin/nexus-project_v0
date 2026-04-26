@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Clock3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CountdownChipProps = {
@@ -34,23 +35,24 @@ export default function CountdownChip({
   const toneClasses = useMemo(() => {
     switch (tone) {
       case "urgent":
-        return "border-nexus-red/35 bg-nexus-red/10 text-nexus-red";
+        return "border-[#b91c1c]/30 bg-[#fff1f2] text-[#9f1239]";
       case "eaf":
-        return "border-nexus-purple/35 bg-nexus-purple/10 text-nexus-purple";
+        return "border-[#0f3d73]/25 bg-[#eff6ff] text-[#0f3d73]";
       case "stage":
       default:
-        return "border-nexus-green/35 bg-nexus-green/10 text-nexus-green";
+        return "border-[#b91c1c]/25 bg-white text-[#9f1239]";
     }
   }, [tone]);
 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-mono font-medium uppercase tracking-[0.12em]",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-mono font-medium uppercase tracking-[0.12em]",
         toneClasses
       )}
     >
-      ⏱ J-{days} {label}
+      <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+      J-{days} {label}
     </span>
   );
 }
