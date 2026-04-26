@@ -1,3 +1,4 @@
+import Image from "next/image";
 import CTAButton from "@/components/sections/homepage/CTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
 import {
@@ -56,26 +57,47 @@ export default function FlagshipOffers() {
             description="Nexus Réussite accompagne les élèves toute l'année : diagnostic, cours réguliers, stages intensifs, packs ciblés, plateforme numérique et suivi individualisé."
           />
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {METHOD_STEPS.map((step) => {
-              const StepIcon = resolveUiIcon(step.icon);
-              return (
-                <article
-                  key={step.title}
-                  className="rounded-[24px] border border-slate-200 bg-[#f8fbff] p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0f3d73] text-white">
-                    <StepIcon className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <h3 className="mt-5 font-display text-xl font-bold text-slate-950">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-700">
-                    {step.description}
-                  </p>
-                </article>
-              );
-            })}
+          <div className="mt-10 grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-stretch">
+            <div className="relative min-h-[320px] overflow-hidden rounded-[28px] border border-slate-200 bg-slate-100 shadow-sm">
+              <Image
+                src="/images/classroom.jpg"
+                alt="Salle de cours lumineuse pour l'accompagnement scolaire Nexus Réussite"
+                fill
+                sizes="(min-width: 1024px) 44vw, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f2f57]/70 via-transparent to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-white/92 p-4 shadow-lg backdrop-blur">
+                <p className="font-display text-xl font-bold text-[#0f2f57]">Un cadre lisible pour progresser</p>
+                <p className="mt-1 text-sm leading-6 text-slate-700">Cours, stages, packs et suivi réunis dans une même trajectoire.</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {METHOD_STEPS.map((step) => {
+                const StepIcon = resolveUiIcon(step.icon);
+                return (
+                  <article
+                    key={step.title}
+                    className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="flex gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eff6ff] text-[#0f3d73]">
+                        <StepIcon className="h-5 w-5" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-xl font-bold text-slate-950">
+                          {step.title}
+                        </h3>
+                        <p className="mt-2 text-sm leading-7 text-slate-700">
+                          {step.description}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
 
           <div className="mt-8 rounded-[28px] border border-[#0f3d73]/10 bg-[#eff6ff] p-6 sm:p-8">
@@ -134,11 +156,11 @@ export default function FlagshipOffers() {
             {OFFER_FAMILIES.map((offer) => {
               const OfferIcon = resolveUiIcon(offer.icon);
               return (
-                <article key={offer.title} className="flex h-full flex-col rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <article key={offer.title} className="flex h-full flex-col rounded-[22px] border border-slate-200 bg-[#fbfdff] p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eff6ff] text-[#0f3d73]">
                     <OfferIcon className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <h3 className="mt-5 font-display text-2xl font-bold text-[#0f2f57]">{offer.title}</h3>
+                  <h3 className="mt-5 font-display text-xl font-bold text-[#0f2f57]">{offer.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-slate-700">{offer.description}</p>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {offer.bullets.map((bullet) => (
@@ -258,9 +280,9 @@ export default function FlagshipOffers() {
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-[#b91c1c]/15 bg-[#fff7f7] p-6 sm:p-8 lg:p-10">
+        <div className="overflow-hidden rounded-[28px] border border-[#b91c1c]/15 bg-[#fff7f7]">
           <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
-            <div>
+            <div className="p-6 sm:p-8 lg:p-10">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#9f1239]">
                 Présentiel en complément
               </p>
@@ -280,25 +302,26 @@ export default function FlagshipOffers() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-[#b91c1c]/12 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-[#9f1239]">
-                <MapPin className="h-5 w-5" aria-hidden="true" />
-                <p className="font-display text-xl font-bold">Mutuelleville</p>
+            <div className="relative min-h-[360px] overflow-hidden bg-slate-100 lg:h-full">
+              <Image
+                src="/images/salle_travail.webp"
+                alt="Espace de travail Nexus Réussite à Mutuelleville"
+                fill
+                sizes="(min-width: 1024px) 38vw, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f2f57]/70 via-[#0f2f57]/5 to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-white/20 bg-white/92 p-5 shadow-xl backdrop-blur">
+                <div className="flex items-center gap-3 text-[#9f1239]">
+                  <MapPin className="h-5 w-5" aria-hidden="true" />
+                  <p className="font-display text-xl font-bold">Mutuelleville</p>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-700">
+                  <li>Petit groupe et cadre de travail.</li>
+                  <li>Cours hebdomadaires, stages et packs ciblés.</li>
+                  <li>Plateforme EAF associée pour l'entraînement.</li>
+                </ul>
               </div>
-              <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
-                <li className="flex gap-3">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
-                  Petit groupe et cadre de travail.
-                </li>
-                <li className="flex gap-3">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
-                  Cours hebdomadaires, stages intensifs et packs ciblés.
-                </li>
-                <li className="flex gap-3">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#9f1239]" aria-hidden="true" />
-                  Plateforme EAF associée pour écrit, oral, quiz et progression.
-                </li>
-              </ul>
             </div>
           </div>
         </div>
