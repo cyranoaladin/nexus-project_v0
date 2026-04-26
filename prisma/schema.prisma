@@ -75,6 +75,39 @@ enum StmgPathway {
   INDETERMINE
 }
 
+// Enums pour les assignations coach-élève
+enum AssignmentType {
+  PRIMARY    // Coach référent principal
+  SECONDARY  // Spécialiste (maths, français...)
+  STAGE      // Assignation stage uniquement
+  TEMPORARY  // Remplacement temporaire
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  SUSPENDED
+  ENDED
+}
+
+// Enums pour les documents
+enum DocumentType {
+  COURS
+  EXERCICE
+  BILAN
+  CORRECTION
+  PLANNING
+  ANNEXE
+  AUTRE
+}
+
+enum DocumentVisibilityScope {
+  STUDENT_ONLY
+  STUDENT_AND_PARENT
+  STUDENT_AND_COACH
+  STUDENT_PARENT_COACH
+  ADMIN_ONLY
+}
+
 // Énumération des statuts de session
 enum SessionStatus {
   SCHEDULED
@@ -161,6 +194,9 @@ model User {
   coachNotesAuthored CoachNote[] @relation("CoachNoteAuthor")
   coachNotesAbout    CoachNote[] @relation("CoachNoteSubject")
 
+  // Coach-student assignments created by this user (assistant/admin)
+  coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
+
   @@index([role])
   @@map("users")
 }
@@ -238,6 +274,9 @@ model Student {
   // Bilan canonical (F49/F51)
   bilans Bilan[]
 
+  // Coach assignments (who can access this student)
+  coachAssignments CoachStudentAssignment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -277,6 +316,9 @@ model CoachProfile {
 
   // Bilan canonical (F49/F51)
   bilans Bilan[]
+
+  // Coach-student assignments (source of truth for "my students")
+  studentAssignments CoachStudentAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1592,7 +1634,15 @@ model UserDocument {
   // Ex: /app/storage/documents/cl9...xyz.pdf
   localPath String @unique
 
+  // Document metadata (Phase A+B enhancement)
+  documentType    DocumentType            @default(AUTRE)
+  visibilityScope DocumentVisibilityScope @default(STUDENT_ONLY)
+  subject         Subject?
+  description     String?
+  expiresAt       DateTime?
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   userId String
@@ -1603,6 +1653,10 @@ model UserDocument {
 
   @@index([userId])
   @@index([uploadedById])
+  @@index([documentType])
+  @@index([visibilityScope])
+  @@index([subject])
+  @@index([expiresAt])
   @@map("user_documents")
 }
 
@@ -1685,6 +1739,38 @@ model CoachNote {
   @@index([coachId])
   @@index([studentId, pinned])
   @@map("coach_notes")
+}
+
+// Coach-Student Assignment — Core model for coach-student pedagogical relationship
+// This is the source of truth for "which students can a coach access"
+model CoachStudentAssignment {
+  id             String           @id @default(cuid())
+
+  coachId        String
+  coach          CoachProfile     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  studentId      String
+  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  assignedById   String?
+  assignedBy     User?            @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  assignmentType AssignmentType   @default(PRIMARY)
+  status         AssignmentStatus @default(ACTIVE)
+
+  subjects       Subject[]        @default([])
+  notes          String?
+
+  startsAt       DateTime         @default(now())
+  endsAt         DateTime?
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([coachId, status])
+  @@index([studentId, status])
+  @@index([assignedById])
+  @@map("coach_student_assignments")
 }
 
 model SurvivalProgress {
