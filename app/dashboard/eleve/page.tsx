@@ -26,6 +26,7 @@ import {
 import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
 import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
+import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
 
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
@@ -308,6 +309,15 @@ export default function DashboardEleve() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Bilan Diagnostic Maths Terminale — TERMINALE EDS MATHEMATIQUES only */}
+            {!isStmgTrack &&
+              !isSurvivalMode &&
+              dashboardData?.student.gradeLevel === 'TERMINALE' &&
+              dashboardData?.student.academicTrack === 'EDS_GENERALE' &&
+              dashboardData?.student.specialties?.includes('MATHEMATIQUES') && (
+                <BilanDiagMathsTerminale />
+              )}
 
             {/* Automatismes — Épreuve Anticipée */}
             {!isSurvivalMode && (
