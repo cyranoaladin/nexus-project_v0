@@ -67,9 +67,8 @@ const documentTypeIcons: Record<DocumentType, React.ReactNode> = {
   [DocumentType.AUTRE]: <FileText className="h-4 w-4" />,
 };
 
-const subjectLabels: Record<Subject, string> = {
-  [Subject.NON_SPECIFIE]: 'Non spécifié',
-  [Subject.MATHS]: 'Mathématiques',
+const subjectLabels: Partial<Record<Subject, string>> = {
+  [Subject.MATHEMATIQUES]: 'Mathématiques',
   [Subject.PHYSIQUE_CHIMIE]: 'Physique-Chimie',
   [Subject.SVT]: 'SVT',
   [Subject.HISTOIRE_GEO]: 'Histoire-Géo',
@@ -77,12 +76,8 @@ const subjectLabels: Record<Subject, string> = {
   [Subject.PHILOSOPHIE]: 'Philosophie',
   [Subject.ANGLAIS]: 'Anglais',
   [Subject.ESPAGNOL]: 'Espagnol',
-  [Subject.ALLEMAND]: 'Allemand',
-  [Subject.ITALIEN]: 'Italien',
   [Subject.SES]: 'SES',
   [Subject.NSI]: 'NSI',
-  [Subject.ARTS]: 'Arts',
-  [Subject.EPS]: 'EPS',
 };
 
 export default function EleveDocumentsPage() {
@@ -96,14 +91,14 @@ export default function EleveDocumentsPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
-    } else if (status === 'authenticated' && session?.user?.role !== 'STUDENT') {
+    } else if (status === 'authenticated' && session?.user?.role !== 'ELEVE') {
       router.push('/dashboard');
     }
   }, [status, session, router]);
 
   // Fetch documents
   useEffect(() => {
-    if (status !== 'authenticated' || session?.user?.role !== 'STUDENT') return;
+    if (status !== 'authenticated' || session?.user?.role !== 'ELEVE') return;
 
     const fetchDocuments = async () => {
       try {
@@ -199,7 +194,7 @@ export default function EleveDocumentsPage() {
                           {documentTypeLabels[doc.documentType]}
                         </Badge>
                         {doc.subject && (
-                          <Badge variant="secondary">
+                          <Badge variant="outline">
                             {subjectLabels[doc.subject]}
                           </Badge>
                         )}
