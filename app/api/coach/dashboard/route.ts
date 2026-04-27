@@ -192,14 +192,46 @@ export async function GET(request: NextRequest) {
         isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       };
     });
+    // Fetch pending bilans for these students
+    const pendingBilans = await prisma.bilan.findMany({
+      where: {
+        studentId: { in: students.map(s => s.id) },
+        status: 'SCORING',
+        type: 'DIAGNOSTIC_PRE_STAGE'
+      },
+      select: { studentId: true }
+    });
+    const pendingBilanStudentIds = new Set(pendingBilans.map(b => b.studentId));
 
-    const alerts = students.filter(s => s.status !== 'STABLE').map(s => ({
-      id: `alert-${s.id}`,
-      studentName: s.name,
-      message: s.status === 'CRITICAL' ? 'Retard critique ou score faible.' : 'Baisse d\'activité détectée.',
-      type: s.status === 'CRITICAL' ? 'STAGNATION' : 'ABSENCE',
-      priority: s.status === 'CRITICAL' ? 'HIGH' : 'MEDIUM'
+    // Update students with pendingBilan flag
+    const studentsWithBilanFlag = students.map(s => ({
+      ...s,
+      hasPendingBilan: pendingBilanStudentIds.has(s.id)
     }));
+
+    const alerts = studentsWithBilanFlag.filter(s => s.status !== 'STABLE' || s.hasPendingBilan).map(s => {
+
+      if (s.hasPendingBilan) {
+
+        return {
+          id: `bilan-${s.id}`,
+          studentName: s.name,
+          studentId: s.id,
+          message: 'Bilan diagnostic Maths Terminale à corriger.',
+          type: 'BILAN_PENDING',
+          priority: 'HIGH'
+        };
+      }
+      return {
+        id: `alert-${s.id}`,
+        studentName: s.name,
+        studentId: s.id,
+        message: s.status === 'CRITICAL' ? 'Retard critique ou score faible.' : 'Baisse d\'activité détectée.',
+        type: s.status === 'CRITICAL' ? 'STAGNATION' : 'ABSENCE',
+        priority: s.status === 'CRITICAL' ? 'HIGH' : 'MEDIUM'
+      };
+    });
+
 
     const dashboardData = {
       coach: {
@@ -218,8 +250,9 @@ export async function GET(request: NextRequest) {
         upcomingSessions
       },
       weekSessions,
-      students,
+      students: studentsWithBilanFlag,
       alerts,
+
       uniqueStudentsCount: uniqueStudentBookings.length
     };
 

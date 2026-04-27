@@ -19,6 +19,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         
         const email = credentials.email as string;
         const password = credentials.password as string;
+        
+        console.log(`[AUTH] Attempt for email: ${email}`);
 
         const user = await prisma.user.findUnique({
           where: { email },
@@ -28,15 +30,26 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }
         });
 
-        if (!user || !user.password) return null;
+        if (!user) {
+          console.log(`[AUTH] User not found: ${email}`);
+          return null;
+        }
+
+        if (!user.password) {
+          console.log(`[AUTH] User has no password set: ${email}`);
+          return null;
+        }
 
         // Block unactivated students
         if (user.role === UserRole.ELEVE && !user.activatedAt) {
+           console.log(`[AUTH] Student account not activated: ${email}`);
            throw new Error("Compte élève non activé. Veuillez contacter l'administration.");
         }
 
         const passwordsMatch = await bcrypt.compare(password, user.password);
+        
         if (passwordsMatch) {
+            console.log(`[AUTH] Success for: ${email} (${user.role})`);
             // Return user object safe for JWT
             return {
                 id: user.id,
@@ -46,6 +59,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 lastName: user.lastName ?? undefined,
             };
         }
+        
+        console.log(`[AUTH] Password mismatch for: ${email}`);
         return null;
       },
     }),

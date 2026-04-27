@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DOMAINS, QUESTIONS_OPEN, ERROR_TYPES } from '@/lib/diagnostic/maths-terminale/data';
 import {
-  computeDiagnostics, aggregateTeacherErrors, generateAdvancedPath, generateRecommendations
+  computeDiagnostics, aggregateTeacherErrors, generateAdvancedPath, generateRecommendations, generatePostStagePlan
 } from '@/lib/diagnostic/maths-terminale/scoring';
+import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
 import type {
-  DiagnosticResult, ChapterResult, TeacherGrade, OpenAnswer, PedagogicalStatus
+  DiagnosticResult, ChapterResult, TeacherGrade, OpenAnswer, PedagogicalStatus, SessionPlan, WeekPlan
 } from '@/lib/diagnostic/maths-terminale/types';
+
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
@@ -336,16 +338,18 @@ function ChapterResultsTable({ chapterResults }: { chapterResults: ChapterResult
 
 interface BilanDiagMathsTerminaleCoachProps {
   studentId: string;
+  studentName: string;
 }
 
-export function BilanDiagMathsTerminaleCoach({ studentId }: BilanDiagMathsTerminaleCoachProps) {
+export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDiagMathsTerminaleCoachProps) {
+
   const [loading, setLoading] = useState(true);
   const [bilan, setBilan] = useState<any | null>(null);
   const [teacherGrades, setTeacherGrades] = useState<Record<string, TeacherGrade>>({});
   const [evaluatedData, setEvaluatedData] = useState<DiagnosticResult | null>(null);
   const [openAnswers, setOpenAnswers] = useState<Record<string, OpenAnswer>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [view, setView] = useState<'summary' | 'grade'>('summary');
+  const [view, setView] = useState<'summary' | 'grade' | 'roadmap'>('summary');
 
   useEffect(() => {
     async function load() {
@@ -431,6 +435,14 @@ export function BilanDiagMathsTerminaleCoach({ studentId }: BilanDiagMathsTermin
             }`}
           >
             Synthèse
+          </button>
+          <button
+            onClick={() => setView('roadmap')}
+            className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+              view === 'roadmap' ? 'bg-brand-accent/20 text-brand-accent border-brand-accent/30' : 'text-neutral-500 border-white/10 hover:bg-white/5'
+            }`}
+          >
+            Parcours
           </button>
           <button
             onClick={() => setView('grade')}
@@ -556,6 +568,16 @@ export function BilanDiagMathsTerminaleCoach({ studentId }: BilanDiagMathsTermin
           submitting={submitting}
         />
       )}
+
+      {view === 'roadmap' && (
+        <DiagnosticRoadmap
+          evaluatedData={evaluatedData}
+          sessions={generateAdvancedPath(chapterResults)}
+          postStagePlan={generatePostStagePlan(evaluatedData, teacherGrades)}
+          studentName={studentName}
+        />
+      )}
+
     </div>
   );
 }

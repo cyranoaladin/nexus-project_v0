@@ -116,7 +116,7 @@ function SignInForm() {
       <main className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <div
-            className="text-center mb-8 animate-[fadeInUp_0.6s_ease-out_both]"
+            className="text-center mb-8"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
               <LogIn className="w-8 h-8 text-brand-accent" aria-hidden="true" />
@@ -131,7 +131,7 @@ function SignInForm() {
           </div>
 
           <div
-            className="animate-[fadeInUp_0.6s_ease-out_0.2s_both]"
+            className="mb-8"
           >
             <Card
               className="border border-white/10 shadow-lg bg-surface-card"
@@ -212,7 +212,7 @@ function SignInForm() {
 
                   {error && (
                     <div
-                      className="bg-error/10 border border-error/20 rounded-lg p-4 animate-[fadeInUp_0.3s_ease-out_both]"
+                      className="bg-error/10 border border-error/20 rounded-lg p-4"
                       role="alert"
                     >
                       <p className="text-error text-sm font-medium">{error}</p>
