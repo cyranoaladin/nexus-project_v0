@@ -319,8 +319,8 @@ export default function DashboardEleve() {
                 <BilanDiagMathsTerminale />
               )}
 
-            {/* Automatismes — Épreuve Anticipée */}
-            {!isSurvivalMode && (
+            {/* Automatismes — Épreuve Anticipée (EDS Première uniquement, pas STMG) */}
+            {!isSurvivalMode && !isStmgTrack && (
               <AutomatismesDashboardCard
                 grade={dashboardData?.student.grade || ""}
                 automatismes={dashboardData?.automatismes}
