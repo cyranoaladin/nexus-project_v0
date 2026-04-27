@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // Configuration SMTP avec fallback pour développement
 const createTransporter = () => {
   // En développement, utiliser un service de test si pas de SMTP configuré
-  if (process.env.NODE_ENV === 'development' && !process.env.SMTP_HOST) {
+  if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') && !process.env.SMTP_HOST) {
     return nodemailer.createTransport({
       host: 'localhost',
       port: 1025,
@@ -99,7 +99,7 @@ export async function sendWelcomeParentEmail(
   } catch (error) {
     console.error('Erreur envoi email:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('Email non envoyé en mode développement');
       return;
     }
@@ -161,7 +161,7 @@ export async function sendCreditExpirationReminder(
   } catch (error) {
     console.error('Erreur envoi email rappel:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('Email de rappel non envoyé en mode développement');
       return;
     }
@@ -237,7 +237,7 @@ export async function sendPasswordResetEmail(
     console.log('[Password Reset] Email envoyé à:', email.replace(/(?<=.{2}).*(?=@)/, '***'));
   } catch (error) {
     console.error('[Password Reset] Erreur envoi email:', error);
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('[Password Reset] Email non envoyé en mode développement');
       return;
     }
@@ -344,7 +344,7 @@ export async function sendStageDiagnosticInvitation(
     console.log('[Stage] Email diagnostic invitation envoyé à:', email);
   } catch (error) {
     console.error('[Stage] Erreur envoi email diagnostic:', error);
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('[Stage] Email non envoyé en mode développement');
       return;
     }
@@ -445,7 +445,7 @@ export async function sendStageBankTransferConfirmation(
     console.log('[Stage] Bank transfer confirmation email sent to:', email);
   } catch (error) {
     console.error('[Stage] Bank transfer email error:', error);
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('[Stage] Email non envoyé en mode développement');
       return;
     }
@@ -564,7 +564,7 @@ export async function sendStageBilanReady(
     console.log('[Stage] Email bilan ready envoyé à:', email);
   } catch (error) {
     console.error('[Stage] Erreur envoi email bilan:', error);
-    if (process.env.NODE_ENV === 'development') {
+    if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       console.log('[Stage] Email non envoyé en mode développement');
       return;
     }

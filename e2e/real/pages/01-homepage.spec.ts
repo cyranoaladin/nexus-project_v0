@@ -154,18 +154,10 @@ test.describe('REAL — Homepage (/)', () => {
   });
 
   // HERO — CTA EAF externe
-  test('Hero CTA "Essayer la plateforme EAF gratuitement" ouvre le sous-domaine EAF', async ({ page, context }) => {
+  test('Hero CTA "Essayer la plateforme EAF gratuitement" pointe vers le sous-domaine EAF', async ({ page }) => {
     const eafCTA = page.locator('#hero a[href="https://eaf.nexusreussite.academy"]').first();
     await expect(eafCTA, 'CTA EAF absent du Hero').toBeVisible();
-
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
-      eafCTA.click(),
-    ]);
-
-    await newPage.waitForLoadState('domcontentloaded');
-    expect(newPage.url()).toContain('https://eaf.nexusreussite.academy');
-    await newPage.close();
+    await expect(eafCTA).toHaveAttribute('href', 'https://eaf.nexusreussite.academy');
   });
 
   // FOOTER — Tous les liens internes

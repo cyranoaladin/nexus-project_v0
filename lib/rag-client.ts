@@ -117,7 +117,9 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
     });
 
     if (!response.ok) {
-      console.error(`RAG search failed: ${response.status} ${response.statusText}`);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(`RAG search failed: ${response.status} ${response.statusText}`);
+      }
       return [];
     }
 
