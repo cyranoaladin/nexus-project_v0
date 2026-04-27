@@ -1741,6 +1741,20 @@ model CoachNote {
   @@map("coach_notes")
 }
 
+// Enums pour les assignations coach-élève
+enum AssignmentType {
+  PRIMARY
+  SECONDARY
+  STAGE
+  TEMPORARY
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  SUSPENDED
+  ENDED
+}
+
 // Coach-Student Assignment — Core model for coach-student pedagogical relationship
 // This is the source of truth for "which students can a coach access"
 /// Active duplicate protection is enforced by a partial unique index
