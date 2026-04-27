@@ -34,6 +34,21 @@ const makeData = (overrides: Partial<EleveDashboardData> = {}): EleveDashboardDa
   automatismes: null,
   survivalProgress: null,
   credits: { balance: 3, nonExpiredCount: 3, nextExpiryAt: null },
+  hub: {
+    byCategory: {
+      OFFICIAL_PROGRAM: [],
+      OFFICIAL_AUTOMATISMES: [],
+      OFFICIAL_SUJET: [],
+      COACH_RESOURCE: [],
+      USER_DOCUMENT: [],
+      RAG_REFERENCE: [],
+      INVOICE: [],
+      RECEIPT: [],
+      STAGE_BILAN: [],
+    },
+    totalCount: 0,
+    recentlyAddedCount: 0,
+  },
   ...overrides,
 });
 
