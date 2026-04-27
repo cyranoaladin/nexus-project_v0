@@ -67,8 +67,7 @@ const documentTypeIcons: Record<DocumentType, React.ReactNode> = {
 };
 
 const subjectLabels: Partial<Record<Subject, string>> = {
-  [Subject.NON_SPECIFIE]: 'Non spécifié',
-  [Subject.MATHS]: 'Mathématiques',
+  [Subject.MATHEMATIQUES]: 'Mathématiques',
   [Subject.PHYSIQUE_CHIMIE]: 'Physique-Chimie',
   [Subject.SVT]: 'SVT',
   [Subject.HISTOIRE_GEO]: 'Histoire-Géo',
@@ -76,12 +75,8 @@ const subjectLabels: Partial<Record<Subject, string>> = {
   [Subject.PHILOSOPHIE]: 'Philosophie',
   [Subject.ANGLAIS]: 'Anglais',
   [Subject.ESPAGNOL]: 'Espagnol',
-  [Subject.ALLEMAND]: 'Allemand',
-  [Subject.ITALIEN]: 'Italien',
   [Subject.SES]: 'SES',
   [Subject.NSI]: 'NSI',
-  [Subject.ARTS]: 'Arts',
-  [Subject.EPS]: 'EPS',
 };
 
 export default function StudentDocuments({ studentId, studentName }: StudentDocumentsProps) {
@@ -194,7 +189,7 @@ export default function StudentDocuments({ studentId, studentName }: StudentDocu
                         {documentTypeLabels[doc.documentType]}
                       </Badge>
                       {doc.subject && subjectLabels[doc.subject] && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                           {subjectLabels[doc.subject]}
                         </Badge>
                       )}

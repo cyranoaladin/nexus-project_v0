@@ -163,8 +163,8 @@ export default function StudentDocumentsManager({
                     <SelectValue placeholder="Non spécifié" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={Subject.NON_SPECIFIE}>Non spécifié</SelectItem>
-                    <SelectItem value={Subject.MATHS}>Mathématiques</SelectItem>
+                    <SelectItem value="">Non spécifié</SelectItem>
+                    <SelectItem value={Subject.MATHEMATIQUES}>Mathématiques</SelectItem>
                     <SelectItem value={Subject.PHYSIQUE_CHIMIE}>Physique-Chimie</SelectItem>
                     <SelectItem value={Subject.SVT}>SVT</SelectItem>
                     <SelectItem value={Subject.HISTOIRE_GEO}>Histoire-Géo</SelectItem>
