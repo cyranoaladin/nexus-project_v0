@@ -7,6 +7,9 @@ jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: { findUnique: jest.fn() },
+    coachProfile: { findUnique: jest.fn() },
+    coachStudentAssignment: { findFirst: jest.fn() },
     sessionBooking: { findFirst: jest.fn() },
     coachNote: { findMany: jest.fn(), create: jest.fn() },
   },
@@ -32,6 +35,10 @@ function jsonReq(body: unknown): Request {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Default: no coach profile → skip assignment check → sessionBooking fallback
+  (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 });
 
 describe('GET /api/coach/students/[studentId]/notes', () => {

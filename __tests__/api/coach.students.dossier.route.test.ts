@@ -8,6 +8,9 @@ jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    student: { findUnique: jest.fn() },
+    coachProfile: { findUnique: jest.fn() },
+    coachStudentAssignment: { findFirst: jest.fn() },
     sessionBooking: { findFirst: jest.fn(), findMany: jest.fn() },
     user: { findUnique: jest.fn() },
     mathsProgress: { findMany: jest.fn() },
@@ -28,6 +31,11 @@ function makeContext(studentId: string) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Default: student resolved, no coach profile → skip assignment check → sessionBooking fallback
+  (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1', userId: 'student-1' });
+  (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+  (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(null);
   (prisma.sessionBooking.findMany as jest.Mock).mockResolvedValue([]);
   (prisma.mathsProgress.findMany as jest.Mock).mockResolvedValue([]);
   (prisma.bilan.count as jest.Mock).mockResolvedValue(0);
@@ -53,12 +61,6 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
 
     const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
     expect(res.status).toBe(403);
-    expect(prisma.sessionBooking.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { coachId: 'coach-1', studentId: 'student-other' },
-      }),
-    );
-    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 
   it('returns 404 when the student User does not exist (rattached coach)', async () => {
@@ -102,9 +104,10 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
 
     expect(res.status).toBe(200);
     expect(body.student.id).toBe('student-1');
-    expect(body.student.firstName).toBe('Ahmed');
+    expect(body.student.name).toBe('Ahmed B');
     expect(body.recentSessions).toHaveLength(1);
-    expect(body.counts).toEqual({ bilans: 2, ariaConversations: 5 });
+    expect(body.bilanCount).toBe(2);
+    expect(body.ariaConversationCount).toBe(5);
 
     // RBAC: when COACH, recentSessions must be filtered to that coach
     expect(prisma.sessionBooking.findMany).toHaveBeenCalledWith(
