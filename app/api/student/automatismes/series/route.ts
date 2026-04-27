@@ -1,10 +1,31 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 
 export async function GET() {
   try {
-    // We return only metadata for the list
-    const seriesList = PREMIERE_EDS_SIMULATIONS.map(series => ({
+    const session = await auth();
+    const userId = (session?.user as { id?: string } | undefined)?.id;
+
+    if (userId) {
+      const student = await prisma.student.findUnique({
+        where: { userId },
+        select: { academicTrack: true },
+      });
+      if (
+        student?.academicTrack === "STMG" ||
+        student?.academicTrack === "STMG_NON_LYCEEN"
+      ) {
+        return NextResponse.json({
+          series: [],
+          message:
+            "Les automatismes EDS ne font pas partie du parcours STMG. Accédez à vos modules depuis votre tableau de bord.",
+        });
+      }
+    }
+
+    const seriesList = PREMIERE_EDS_SIMULATIONS.map((series) => ({
       id: series.id,
       title: series.title,
       subtitle: series.subtitle,
