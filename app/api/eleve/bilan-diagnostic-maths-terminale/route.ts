@@ -25,6 +25,7 @@ export async function GET() {
         gradeLevel: true,
         academicTrack: true,
         specialties: true,
+        user: { select: { firstName: true, lastName: true, email: true } }
       },
     });
 
@@ -60,7 +61,9 @@ export async function GET() {
       return NextResponse.json({ bilan: null });
     }
 
-    return NextResponse.json({ bilan });
+    const studentName = student.user ? [student.user.firstName, student.user.lastName].filter(Boolean).join(' ') || student.user.email : 'Élève';
+
+    return NextResponse.json({ bilan, studentName });
   } catch (error) {
     console.error('[API ELEVE Bilan Diagnostic Maths Terminale GET]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -154,7 +157,7 @@ export async function POST(request: Request) {
           sourceData: sourceData as any,
           globalScore: evaluatedData.qcmPercentage, // provisional QCM score until teacher grades
           domainScores: domainScoresArr as any,
-          status: step === 'results' ? 'COMPLETED' : 'SCORING',
+          status: step === 'results' ? 'SCORING' : 'PENDING',
           progress: step === 'results' ? 100 : 50,
           updatedAt: new Date(),
         },
@@ -171,7 +174,7 @@ export async function POST(request: Request) {
           globalScore: evaluatedData.qcmPercentage,
           domainScores: domainScoresArr as any,
           sourceVersion: BILAN_SOURCE_VERSION,
-          status: step === 'results' ? 'COMPLETED' : 'SCORING',
+          status: step === 'results' ? 'SCORING' : 'PENDING',
           progress: step === 'results' ? 100 : 50,
         },
       });

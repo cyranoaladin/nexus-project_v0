@@ -1,0 +1,1117 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1777280095294,
+  "step": "results",
+  "profile": {
+    "firstName": "Zakaria",
+    "lastName": "AMAIMIA",
+    "targetGrade": "14"
+  },
+  "progress": {
+    "C1": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C2": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C3": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C4": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C5": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C6": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C7": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C8": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C9": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C10": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C11": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C12": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C13": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C14": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C15": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C16": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C17": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C18": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C19": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C20": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C21": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C22": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C23": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C24": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C25": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C26": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C27": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C28": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C29": {
+      "declared": 4,
+      "confidence": 3
+    },
+    "C30": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C31": {
+      "declared": 3,
+      "confidence": 3
+    },
+    "C32": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C33": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C34": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C35": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C36": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C37": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C38": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C39": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C40": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C41": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C42": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C43": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C44": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C45": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C46": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C47": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C48": {
+      "declared": 5,
+      "confidence": 3
+    },
+    "C49": {
+      "declared": 2,
+      "confidence": 3
+    },
+    "C50": {
+      "declared": 0,
+      "confidence": 3
+    },
+    "C51": {
+      "declared": 1,
+      "confidence": 3
+    },
+    "C52": {
+      "declared": 2,
+      "confidence": 3
+    }
+  },
+  "qcmAnswers": {
+    "Q1": 2,
+    "Q2": 2,
+    "Q3": 2,
+    "Q4": 1,
+    "Q5": 1,
+    "Q6": 1,
+    "Q8": 2,
+    "Q9": 1,
+    "Q10": 0,
+    "Q11": 1,
+    "Q12": 3,
+    "Q13": 2,
+    "Q14": 1,
+    "Q15": 2,
+    "Q16": 1,
+    "Q17": 1,
+    "Q18": 2,
+    "Q19": 1,
+    "Q20": 2,
+    "Q21": -1,
+    "Q22": 1,
+    "Q23": 3,
+    "Q24": 1,
+    "Q26": 2,
+    "Q25": 1,
+    "Q27": 2,
+    "Q28": 1,
+    "Q29": 1,
+    "Q30": 3,
+    "Q31": 1,
+    "Q32": 1,
+    "Q33": 1,
+    "Q34": 1,
+    "Q35": 0,
+    "Q36": 1,
+    "Q37": 0,
+    "Q38": 3,
+    "Q39": -1,
+    "Q40": 2,
+    "Q41": 0,
+    "Q42": 0,
+    "Q43": 1,
+    "Q44": 0,
+    "Q45": 1,
+    "Q46": -1,
+    "Q47": 0,
+    "Q48": 3
+  },
+  "openAnswers": {
+    "O1": {
+      "text": "Je remplace le n par le u0 pour résoudre le u1 puis la meme pour le u2 \n\nInitialisation + héridité \n\nUn+1 - Un\n\nJe sais pas calculer la limite",
+      "status": "Je sais commencer mais je bloque"
+    },
+    "O2": {
+      "text": "dérivé par u*v \n\napres avoir calculer la dérivé voir quand elle s'annule puis mettre les valeurs trouvé avec les signes et les variations\n\nCalculer la limite en + l'infini de chaque termes et voir si c'est une FI (et après j'ai oublié",
+      "status": "Je sais commencer mais je bloque"
+    },
+    "O3": {
+      "text": "Dire les paramètres de X (succès + répétitions)\n\nGrace à la calculatrice\n\nE(x)= somme des Xi*Pi / V(x) J'ai oublié",
+      "status": "Je sais commencer mais je bloque"
+    },
+    "O4": {
+      "text": "Xb-Xa  Yb-Ya\n\nXa*Xb+Ya*Yb et voir si c'est égal à 0\n\nremplacer par la formule xa+ yb + cz + C = 0\n1*1 + 0*(-2) + 2*3 + c =0\n",
+      "status": "Je sais faire"
+    },
+    "O5": {
+      "text": "Je dérive chaque élément de la fraction et je calcule qd c'est = 0 puis je dresse le tableau de variation en 0;+l'infini avec les resultats que j'ai trouvé et je met les variations selon les négation ou non\n\nTVI\n\nj'ai oublié (pour l\"ncadrement",
+      "status": "Je sais commencer mais je bloque"
+    },
+    "O6": {
+      "text": "Je dérive une fois puis je re-dérive h\n\nje vois qd la dérive seconde est supérieur à 0 ((convexe) ou inférieur à 0 (CONCAVE) Puis je dresse le tableau avec les intervalles que j'ai trouvé\n\nje trouve qd la fonction h(x) change de variation et je determine le sommet de celle-ci",
+      "status": "Je sais faire"
+    },
+    "O7": {
+      "text": "1.Je calcule les primitives puis je vois elle est de quel forme et après je remplace dans l'intégrale\n\n2.u'*u \n\n3.u'*u = ln(u) apres je remplace avec l'intégrale ",
+      "status": "Je sais faire"
+    },
+    "O8": {
+      "text": "While n>100\n      u=u\n      n=1.2u+5",
+      "status": "Je sais faire"
+    }
+  },
+  "teacherGrades": {},
+  "isTeacherGraded": false,
+  "evaluatedData": {
+    "profile": {
+      "firstName": "Zakaria",
+      "lastName": "AMAIMIA",
+      "targetGrade": "14"
+    },
+    "chapterResults": [
+      {
+        "chapterId": "C1",
+        "domainId": "D1",
+        "title": "Suites et limites de suites",
+        "domainTitle": "Analyse",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C2",
+        "domainId": "D1",
+        "title": "Raisonnement par récurrence",
+        "domainTitle": "Analyse",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C3",
+        "domainId": "D1",
+        "title": "Limites de fonctions",
+        "domainTitle": "Analyse",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 50,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Fragile",
+        "priorityScore": 12,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C4",
+        "domainId": "D1",
+        "title": "Compléments de dérivation",
+        "domainTitle": "Analyse",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C5",
+        "domainId": "D1",
+        "title": "Fonctions composées",
+        "domainTitle": "Analyse",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C6",
+        "domainId": "D1",
+        "title": "Convexité et dérivée seconde",
+        "domainTitle": "Analyse",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 20,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C7",
+        "domainId": "D1",
+        "title": "Continuité et TVI",
+        "domainTitle": "Analyse",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C8",
+        "domainId": "D1",
+        "title": "Fonction logarithme népérien",
+        "domainTitle": "Analyse",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 66.66666666666666,
+        "isEvaluated": true,
+        "pedagogicalStatus": "À consolider",
+        "priorityScore": 8,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C9",
+        "domainId": "D1",
+        "title": "Fonctions sinus et cosinus",
+        "domainTitle": "Analyse",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 1.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C10",
+        "domainId": "D1",
+        "title": "Primitives",
+        "domainTitle": "Analyse",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 50,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Fragile",
+        "priorityScore": 15,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C11",
+        "domainId": "D1",
+        "title": "Équations différentielles",
+        "domainTitle": "Analyse",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C12",
+        "domainId": "D1",
+        "title": "Calcul intégral",
+        "domainTitle": "Analyse",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C13",
+        "domainId": "D1",
+        "title": "Intégration par parties",
+        "domainTitle": "Analyse",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 20,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C14",
+        "domainId": "D1",
+        "title": "Valeur moyenne d’une fonction",
+        "domainTitle": "Analyse",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 14.399999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C15",
+        "domainId": "D2",
+        "title": "Combinatoire et dénombrement",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C16",
+        "domainId": "D2",
+        "title": "Vecteurs de l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C17",
+        "domainId": "D2",
+        "title": "Droites et plans de l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C18",
+        "domainId": "D2",
+        "title": "Bases et repères de l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 8.25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C19",
+        "domainId": "D2",
+        "title": "Produit scalaire dans l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C20",
+        "domainId": "D2",
+        "title": "Orthogonalité dans l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C21",
+        "domainId": "D2",
+        "title": "Vecteur normal à un plan",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C22",
+        "domainId": "D2",
+        "title": "Représentation paramétrique d’une droite",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C23",
+        "domainId": "D2",
+        "title": "Équation cartésienne d’un plan",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C24",
+        "domainId": "D2",
+        "title": "Projeté orthogonal",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 20,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C25",
+        "domainId": "D2",
+        "title": "Distance d’un point",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 1.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C26",
+        "domainId": "D2",
+        "title": "Positions relatives dans l’espace",
+        "domainTitle": "Algèbre et géométrie",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 20,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C27",
+        "domainId": "D3",
+        "title": "Succession d’épreuves indépendantes",
+        "domainTitle": "Probabilités",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 11,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C28",
+        "domainId": "D3",
+        "title": "Épreuve et schéma de Bernoulli",
+        "domainTitle": "Probabilités",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 13.750000000000002,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C29",
+        "domainId": "D3",
+        "title": "Loi binomiale",
+        "domainTitle": "Probabilités",
+        "declared": 4,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C30",
+        "domainId": "D3",
+        "title": "Probabilités conditionnelles et arbres",
+        "domainTitle": "Probabilités",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C31",
+        "domainId": "D3",
+        "title": "Variables aléatoires",
+        "domainTitle": "Probabilités",
+        "declared": 3,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 11,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C32",
+        "domainId": "D3",
+        "title": "Espérance, variance, écart-type",
+        "domainTitle": "Probabilités",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C33",
+        "domainId": "D3",
+        "title": "Somme de variables aléatoires",
+        "domainTitle": "Probabilités",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 8.25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C34",
+        "domainId": "D3",
+        "title": "Échantillon, moyenne d’échantillon",
+        "domainTitle": "Probabilités",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 5.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C35",
+        "domainId": "D3",
+        "title": "Inégalité de Bienaymé-Tchebychev",
+        "domainTitle": "Probabilités",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 15,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C36",
+        "domainId": "D3",
+        "title": "Loi des grands nombres",
+        "domainTitle": "Probabilités",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 5.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C37",
+        "domainId": "D4",
+        "title": "Variables et affectation",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 10.799999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C38",
+        "domainId": "D4",
+        "title": "Boucles while et for",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C39",
+        "domainId": "D4",
+        "title": "Fonctions Python",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 11,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C40",
+        "domainId": "D4",
+        "title": "Listes et compréhension",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 8.25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C41",
+        "domainId": "D4",
+        "title": "Algorithmes de seuil",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2.5,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C42",
+        "domainId": "D4",
+        "title": "Dichotomie",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 20,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C43",
+        "domainId": "D4",
+        "title": "Méthode d’Euler",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 7.199999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C44",
+        "domainId": "D4",
+        "title": "Simulation probabiliste",
+        "domainTitle": "Algorithmique et programmation",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 10.799999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C45",
+        "domainId": "D5",
+        "title": "Proposition mathématique",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 7.199999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C46",
+        "domainId": "D5",
+        "title": "Implication, réciproque, contraposée",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 10.799999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C47",
+        "domainId": "D5",
+        "title": "Quantificateurs",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 8.25,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C48",
+        "domainId": "D5",
+        "title": "Négation",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 5,
+        "confidence": 3,
+        "percentage": 0,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Lacune critique",
+        "priorityScore": 12,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C49",
+        "domainId": "D5",
+        "title": "Contre-exemple",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": 100,
+        "isEvaluated": true,
+        "pedagogicalStatus": "Point fort",
+        "priorityScore": 2,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C50",
+        "domainId": "D5",
+        "title": "Raisonnement par disjonction de cas",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 0,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Non encore vu",
+        "priorityScore": 14.399999999999999,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C51",
+        "domainId": "D5",
+        "title": "Raisonnement par l’absurde",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 1,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 11,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      },
+      {
+        "chapterId": "C52",
+        "domainId": "D5",
+        "title": "Rédaction mathématique",
+        "domainTitle": "Logique et raisonnement",
+        "declared": 2,
+        "confidence": 3,
+        "percentage": null,
+        "isEvaluated": false,
+        "pedagogicalStatus": "Déclaré vu mais non évalué",
+        "priorityScore": 13.750000000000002,
+        "isIllusion": false,
+        "lacksConfidence": false,
+        "declaredNotSeenButSucceeded": false
+      }
+    ],
+    "domainScores": {
+      "D1": 67,
+      "D2": 69,
+      "D3": 80,
+      "D4": 67,
+      "D5": 33
+    },
+    "qcmRawScore": 32,
+    "qcmMaxScore": 48,
+    "qcmPercentage": 67,
+    "qcmDontKnowCount": 3,
+    "qcmUnansweredCount": 1,
+    "openRawScore": 0,
+    "openMaxScore": 52,
+    "openPercentage": null,
+    "globalRawScore": 32,
+    "globalMaxScore": 100,
+    "globalPercentage": 67,
+    "isProvisional": true,
+    "calculatedProfile": {
+      "label": "Élève en cours d’évaluation",
+      "desc": "Profil provisoire basé uniquement sur le QCM."
+    }
+  }
+}

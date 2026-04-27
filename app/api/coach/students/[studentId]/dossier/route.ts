@@ -34,16 +34,35 @@ export async function GET(
       return NextResponse.json({ error: 'studentId required' }, { status: 400 });
     }
 
+    // studentId from URL is a Student entity ID, resolve the userId
+    const studentEntity = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { id: true, userId: true },
+    });
+
+    // Fallback: try treating studentId as a userId (legacy compatibility)
+    const resolvedStudentEntity = studentEntity ?? await prisma.student.findUnique({
+      where: { userId: studentId },
+      select: { id: true, userId: true },
+    });
+
+    if (!resolvedStudentEntity) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
+
+    const studentEntityId = resolvedStudentEntity.id;
+    const studentUserId = resolvedStudentEntity.userId;
+
     if (role === 'COACH') {
-      const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
+      const allowed = await isCoachRattachedToStudent(session.user.id, studentUserId);
       if (!allowed) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }
 
-    // Fetch student (User + Student profile, optional)
+    // Fetch student (User + Student profile)
     const studentUser = await prisma.user.findUnique({
-      where: { id: studentId },
+      where: { id: studentUserId },
       select: {
         id: true,
         firstName: true,
@@ -75,7 +94,7 @@ export async function GET(
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentSessions = await prisma.sessionBooking.findMany({
       where: {
-        studentId,
+        studentId: studentUserId,
         ...(role === 'COACH' ? { coachId: session.user.id } : {}),
         scheduledDate: { gte: thirtyDaysAgo },
       },
@@ -103,7 +122,7 @@ export async function GET(
     }> = [];
     try {
       const rows = await prisma.mathsProgress.findMany({
-        where: { userId: studentId },
+        where: { userId: studentUserId },
         select: { level: true, track: true, totalXp: true, updatedAt: true },
       });
       mathsProgress = rows.map((r) => ({
@@ -119,7 +138,7 @@ export async function GET(
     // Counts (cheap aggregates) — bilans + ARIA conversations
     let bilansCount = 0;
     try {
-      bilansCount = (await prisma.bilan?.count?.({ where: { studentId } })) ?? 0;
+      bilansCount = (await prisma.bilan?.count?.({ where: { studentId: studentEntityId } })) ?? 0;
     } catch {
       bilansCount = 0;
     }
@@ -128,7 +147,7 @@ export async function GET(
     try {
       ariaConversationsCount =
         (await prisma.ariaConversation?.count?.({
-          where: { student: { userId: studentId } },
+          where: { student: { userId: studentUserId } },
         })) ?? 0;
     } catch {
       ariaConversationsCount = 0;
@@ -137,17 +156,29 @@ export async function GET(
     return NextResponse.json({
       student: {
         id: studentUser.id,
-        firstName: studentUser.firstName ?? '',
-        lastName: studentUser.lastName ?? '',
+        name: `${studentUser.firstName ?? ''} ${studentUser.lastName ?? ''}`.trim(),
         email: studentUser.email,
-        profile: studentUser.student,
+        gradeLevel: studentUser.student?.gradeLevel ?? null,
+        academicTrack: studentUser.student?.academicTrack ?? null,
+        specialties: studentUser.student?.specialties ?? [],
+        stmgPathway: studentUser.student?.stmgPathway ?? null,
+        nexusIndex: null, // computed from mathsProgress if available
+        status: 'STABLE',
       },
-      recentSessions,
-      mathsProgress,
-      counts: {
-        bilans: bilansCount,
-        ariaConversations: ariaConversationsCount,
-      },
+      progressionHistory: [],
+      recentSessions: recentSessions.map((s) => ({
+        id: s.id,
+        date: s.scheduledDate.toISOString(),
+        subject: String(s.subject),
+        notes: null,
+        rapportUrl: null,
+      })),
+      pedagogicalAlerts: [],
+      verbatims: [],
+      ragSources: [],
+      notes: [],
+      bilanCount: bilansCount,
+      ariaConversationCount: ariaConversationsCount,
     });
   } catch (error) {
     console.error('[Coach Dossier API] Error:', error);
