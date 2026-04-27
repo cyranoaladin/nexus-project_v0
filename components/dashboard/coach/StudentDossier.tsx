@@ -11,6 +11,7 @@ import {
 import { CoachNotesPanel, type CoachNote } from "./CoachNotesPanel";
 import { AriaVerbatimsPanel, type AriaVerbatim } from "./AriaVerbatimsPanel";
 import { RagConsultedSources, type RagSource } from "./RagConsultedSources";
+import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
 
 export interface DossierStudent {
   id: string;
@@ -157,6 +158,13 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
               </p>
             </CardContent>
           </Card>
+
+          {/* Bilan Diagnostic Maths Terminale — visible uniquement pour les élèves TERMINALE EDS MATHEMATIQUES */}
+          {student.gradeLevel === 'TERMINALE' &&
+            student.academicTrack === 'EDS_GENERALE' &&
+            student.specialties?.includes('MATHEMATIQUES') && (
+              <BilanDiagMathsTerminaleCoach studentId={student.id} />
+            )}
 
           {/* Optional children (TrajectoryDesigner, etc.) */}
           {children}
