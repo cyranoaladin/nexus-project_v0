@@ -184,5 +184,11 @@ volumes:
 # Networks
 # =============================================================================
 networks:
+  # nexus-network resolves to the pre-existing external network
+  # created by the nexus-project_v0 stack (where nexus-postgres-prod lives).
+  # Using `external: true` + explicit `name` guarantees that this Compose
+  # never creates a new bridge network — it always joins the existing one.
+  # This makes app ↔ DB connectivity automatic after any restart.
   nexus-network:
-    driver: bridge
+    external: true
+    name: nexus-project_v0_nexus-network
