@@ -32,11 +32,12 @@ export async function GET(request: Request, { params }: RouteParams) {
     const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    // Verify student exists
+    // Verify student exists with userId for UserDocument lookup
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       select: { 
         id: true,
+        userId: true,
         user: {
           select: {
             firstName: true,
@@ -55,7 +56,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     const documents = await prisma.userDocument.findMany({
-      where: { studentId },
+      where: { userId: student.userId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -88,10 +89,10 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     const session = sessionOrError;
 
-    // Verify student exists
+    // Verify student exists with userId
     const student = await prisma.student.findUnique({
       where: { id: studentId },
-      select: { id: true },
+      select: { id: true, userId: true },
     });
 
     if (!student) {
@@ -112,16 +113,21 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Build data ensuring localPath is always provided (required by Prisma schema)
+    const localPath = validated.localPath || validated.url || `/app/storage/documents/${student.userId}/${Date.now()}-${validated.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    
     const document = await prisma.userDocument.create({
       data: {
-        studentId,
+        userId: student.userId,
         uploadedById: session.user.id,
         documentType: validated.documentType,
-        subject: validated.subject,
+        subject: validated.subject ?? null,
         title: validated.title,
-        description: validated.description,
-        url: validated.url,
-        localPath: validated.localPath,
+        description: validated.description ?? null,
+        localPath,
+        originalName: validated.title,
+        mimeType: 'application/octet-stream',
+        sizeBytes: 0,
         visibilityScope: validated.visibilityScope,
       },
     });
