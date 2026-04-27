@@ -264,11 +264,49 @@ Test Playwright headless réalisé le 2026-04-27 :
   docker network rm nexus_nexus-network  # seulement si aucun container ne l'utilise
   ```
 - Variables recommandées manquantes (non bloquantes — dégradation gracieuse) :
-  - `OLLAMA_URL`, `RAG_INGESTOR_URL`, `RAG_API_TOKEN`, `CLICTOPAY_API_KEY`, `TELEGRAM_BOT_TOKEN`
+
+  | Variable | Fonction | Impact en absence |
+  |---|---|---|
+  | `OLLAMA_URL` | URL service LLM Ollama local | Les appels ARIA/IA locaux retournent un fallback ; à vérifier qu'aucune route `/api/aria/**` ne renvoie 500 sans cette var |
+  | `RAG_INGESTOR_URL` | URL ingestor du pipeline RAG | L'ingestion documentaire vers le RAG est désactivée ; les recherches sémantiques peuvent tomber sur un index vide |
+  | `RAG_API_TOKEN` | Bearer token pour `https://rag-api.nexusreussite.academy` | Idem ci-dessus ; vérifier que l'absence de token ne produit pas de log d'erreur répété |
+  | `CLICTOPAY_API_KEY` | Clé Banque Zitouna ClicToPay | Aucun paiement ne peut être initié ; UI paiement doit masquer le bouton ou afficher un état "indisponible" |
+  | `TELEGRAM_BOT_TOKEN` | Token bot notifications Telegram | Les notifications Telegram sont silencieusement ignorées ; à auditer dans `lib/notifications/**` |
+
+  **Action P2** : vérifier pour chacune que son absence produit une dégradation gracieuse
+  (log `warn` + fallback) et **non** une erreur silencieuse ou un 500.
+
+- **Jeu de comptes de recette à préparer** (P2) :
+  - Élève Première EDS
+  - Élève Première STMG (actuellement : `student46-1@nexus.local`)
+  - Élève Terminale
+  - Coach (assigné à l'un des élèves)
+  - Assistante
+  - Admin
 
 ---
 
-## 10. État final des validations
+## 10. Décision de clôture
+
+```text
+Décision de clôture :
+- Aucun P0 restant.
+- Production reproductible.
+- GO LIVE élèves validé.
+- GO LIVE STMG validé en authentifié (Playwright, compte student46-1).
+- GO LIVE EDS validé techniquement (routes, build, absence de 500).
+- GO LIVE assistante validé techniquement (build/routes).
+- GO LIVE coach validé statiquement (handlers + tests Jest).
+- E2E coach → ressource → élève classé P1, faute d'assignation réelle en production.
+  Checklist + spec Playwright squelette prêts pour exécution dès premier assignment :
+    - docs/qa/COACH_RESOURCE_STUDENT_E2E_CHECKLIST.md
+    - e2e/real/coach-resource-student.spec.ts (skippé sans RUN_COACH_RESOURCE_E2E=1)
+- Pas de réouverture de chantier P0 tant qu'un incident réel n'est pas observé.
+```
+
+---
+
+## 11. État final des validations
 
 | Vérification | État |
 |---|---|
