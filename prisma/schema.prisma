@@ -1741,20 +1741,6 @@ model CoachNote {
   @@map("coach_notes")
 }
 
-// Enums pour les assignations coach-élève
-enum AssignmentType {
-  PRIMARY
-  SECONDARY
-  STAGE
-  TEMPORARY
-}
-
-enum AssignmentStatus {
-  ACTIVE
-  SUSPENDED
-  ENDED
-}
-
 // Coach-Student Assignment — Core model for coach-student pedagogical relationship
 // This is the source of truth for "which students can a coach access"
 /// Active duplicate protection is enforced by a partial unique index
@@ -1830,52 +1816,3 @@ model SurvivalAttempt {
   @@map("survival_attempts")
 }
 
-// Enums pour les documents
-enum DocumentType {
-  COURS
-  EXERCICE
-  BILAN
-  CORRECTION
-  PLANNING
-  ANNEXE
-  AUTRE
-}
-
-enum DocumentVisibilityScope {
-  STUDENT_ONLY
-  STUDENT_AND_PARENT
-  STUDENT_AND_COACH
-  STUDENT_PARENT_COACH
-  ADMIN_ONLY
-}
-
-// UserDocument — Document metadata for student files
-model UserDocument {
-  id                String                @id @default(cuid())
-  studentId         String
-  student           Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  uploadedById      String
-  uploadedBy        User                  @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
-  
-  documentType      DocumentType
-  subject           Subject?
-  
-  title             String                @db.VarChar(200)
-  description       String?               @db.VarChar(1000)
-  
-  // File location (at least one required)
-  url               String?               @db.VarChar(500)
-  localPath         String?               @db.VarChar(500)
-  
-  visibilityScope   DocumentVisibilityScope @default(STUDENT_AND_COACH)
-  
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  
-  @@index([studentId, documentType])
-  @@index([studentId, subject])
-  @@index([uploadedById])
-  @@index([createdAt])
-  @@map("user_documents")
-}
