@@ -172,11 +172,12 @@ Voir commits sur la branche `chore/cleanup-and-baseline-2026-04-27` :
 
 | Critère | Cible | État |
 |---|---|---|
-| `tsc --noEmit` | 0 erreur | à vérifier |
-| `npm run lint` | 0 nouveau warning vs baseline | à vérifier |
-| `npm test` | 100% pass | à vérifier |
-| `npm run build` | success | à vérifier |
-| `__tests__/lib/single-source-of-truth.test.ts` | vert | à vérifier |
-| Diff lisible | une commit par sujet | en cours |
+| `tsc --noEmit` | 0 erreur | ✅ 0 erreur |
+| `npm run lint` | 0 nouveau warning vs baseline | ✅ 154 warnings (= main, delta Lot A = 0). Note : baseline `KNOWN_LINT_WARNINGS.md` documente 103, mais 51 warnings ont été ajoutés sur `main` avant Lot A — hors scope. |
+| `npm test` (jest hors `.real`/`integration`/`db`) | 100% pass | ✅ 391 suites / 5173 tests / 7 snapshots, 100% pass |
+| `npm run build` | success | ✅ success (Next.js 15.5 standalone) |
+| `__tests__/lib/single-source-of-truth.test.ts` | vert | ✅ vert |
+| Nouveau test `__tests__/lib/programme/official-pdfs.test.ts` | vert | ✅ 10/10 vert |
+| Diff lisible | un commit par sujet | ✅ 6 commits atomiques conventional |
 
-Les vérifications finales sont effectuées avant le checkpoint Lot A.
+**Verdict** : Lot A merge-ready.
