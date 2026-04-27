@@ -6,7 +6,9 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Loader2, AlertCircle } from "lucide-react";
+import { Users, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
+
 
 interface Student {
   id: string;
@@ -16,6 +18,7 @@ interface Student {
   lastSession: string;
   creditBalance: number;
   isNew: boolean;
+  hasPendingBilan?: boolean;
 }
 
 export default function CoachStudentsPage() {
@@ -85,23 +88,38 @@ export default function CoachStudentsPage() {
           {students.length > 0 ? (
             <div className="space-y-3">
               {students.map((s) => (
-                <div key={s.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                  <div>
+                <Link
+                  key={s.id}
+                  href={`/dashboard/coach/eleve/${s.id}`}
+                  className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer group"
+                >
+                  <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-white">{s.name}</h4>
+                      <h4 className="font-medium text-white group-hover:text-brand-accent transition-colors">
+                        {s.name}
+                      </h4>
                       {s.isNew && (
-                        <Badge className="text-xs bg-brand-accent/15 text-brand-accent border border-brand-accent/20">Nouveau</Badge>
+                        <Badge className="text-[10px] bg-brand-accent/15 text-brand-accent border border-brand-accent/20">
+                          Nouveau
+                        </Badge>
+                      )}
+                      {s.hasPendingBilan && (
+                        <Badge className="text-[10px] bg-rose-500/15 text-rose-400 border border-rose-500/20 animate-pulse">
+                          À corriger
+                        </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-neutral-400">{s.grade} · {s.subject}</p>
-                    <p className="text-xs text-neutral-500">Dernière session : {s.lastSession || 'Aucune'}</p>
+                    <p className="text-sm text-neutral-400">
+                      {s.grade} · {s.subject}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Dernière session : {s.lastSession ? new Date(s.lastSession).toLocaleDateString('fr-FR') : 'Aucune'}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-neutral-500">
-                      {s.subject}
-                    </span>
+                    <ArrowRight className="w-4 h-4 text-neutral-600 group-hover:text-brand-accent group-hover:translate-x-1 transition-all" />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

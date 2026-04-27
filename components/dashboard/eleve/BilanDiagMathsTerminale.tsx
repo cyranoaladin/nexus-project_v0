@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DOMAINS, CHAPTERS, QUESTIONS_QCM, QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
 import { computeDiagnostics, generateAdvancedPath, generatePostStagePlan } from '@/lib/diagnostic/maths-terminale/scoring';
+import { DiagnosticRoadmap } from '../shared/DiagnosticRoadmap';
 import type {
-  ChapterProgress, OpenAnswer, DiagnosticResult, ChapterResult, PedagogicalStatus
+  ChapterProgress, OpenAnswer, DiagnosticResult, ChapterResult, PedagogicalStatus, TeacherGrade
 } from '@/lib/diagnostic/maths-terminale/types';
+
 
 // ─── Math Renderer (simple inline/block display until KaTeX is installed) ────
 
@@ -519,7 +521,7 @@ function OpenStep({
 
 // ─── Results Step ─────────────────────────────────────────────────────────────
 
-function ResultsStep({ evaluatedData }: { evaluatedData: DiagnosticResult }) {
+function ResultsStep({ evaluatedData, teacherGrades, studentName }: { evaluatedData: DiagnosticResult, teacherGrades: Record<string, TeacherGrade>, studentName: string }) {
   const {
     globalRawScore, globalMaxScore, globalPercentage,
     qcmRawScore, qcmMaxScore, qcmPercentage,
@@ -655,38 +657,50 @@ function ResultsStep({ evaluatedData }: { evaluatedData: DiagnosticResult }) {
         )}
       </div>
 
-      {/* Path sessions (first 3) */}
-      <div>
-        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-blue-400" /> Parcours Intensif généré (16h — 8 séances)
-        </h3>
-        <div className="space-y-3">
-          {path.slice(0, 3).map(session => (
-            <Card key={session.num} className="bg-surface-card border-white/10">
-              <CardContent className="p-4 flex gap-4">
-                <div className="w-12 h-12 bg-blue-500/20 text-blue-300 rounded-lg flex flex-col items-center justify-center font-bold text-xs shrink-0">
-                  S{session.num}
-                </div>
-                <div className="flex-grow min-w-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <div className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">{session.type}</div>
-                      <h4 className="font-bold text-sm text-white">{session.title}</h4>
-                    </div>
-                    <span className="text-[10px] font-mono bg-white/10 text-neutral-400 px-2 py-0.5 rounded">{session.duration}</span>
-                  </div>
-                  <p className="text-xs text-neutral-400">{session.objectives.join(' • ')}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          {path.length > 3 && (
-            <p className="text-xs text-neutral-500 text-center">
-              + {path.length - 3} séances supplémentaires disponibles dans ton espace coach
-            </p>
-          )}
+      {/* Roadmap if COMPLETED */}
+      {!isProvisional && (
+        <div className="pt-8 border-t border-white/10">
+          <DiagnosticRoadmap
+            evaluatedData={evaluatedData}
+            sessions={generateAdvancedPath(chapterResults)}
+            postStagePlan={generatePostStagePlan(evaluatedData, teacherGrades)}
+            studentName={studentName}
+          />
         </div>
-      </div>
+      )}
+
+      {/* Path sessions (first 3) if Provisional */}
+      {isProvisional && (
+        <div>
+          <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-blue-400" /> Parcours Intensif (Aperçu)
+          </h3>
+          <div className="space-y-3">
+            {path.slice(0, 3).map(session => (
+              <Card key={session.num} className="bg-surface-card border-white/10">
+                <CardContent className="p-4 flex gap-4">
+                  <div className="w-12 h-12 bg-blue-500/20 text-blue-300 rounded-lg flex flex-col items-center justify-center font-bold text-xs shrink-0">
+                    S{session.num}
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">{session.type}</div>
+                        <h4 className="font-bold text-sm text-white">{session.title}</h4>
+                      </div>
+                      <span className="text-[10px] font-mono bg-white/10 text-neutral-400 px-2 py-0.5 rounded">{session.duration}</span>
+                    </div>
+                    <p className="text-xs text-neutral-400">{session.objectives.join(' • ')}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <p className="text-xs text-neutral-500 text-center">
+              Le parcours complet sera disponible dès que ton coach aura validé ta correction.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -710,7 +724,9 @@ export function BilanDiagMathsTerminale() {
   const [progress, setProgress] = useState<Record<string, ChapterProgress>>({});
   const [qcmAnswers, setQcmAnswers] = useState<Record<string, number>>({});
   const [openAnswers, setOpenAnswers] = useState<Record<string, OpenAnswer>>({});
+  const [teacherGrades, setTeacherGrades] = useState<Record<string, TeacherGrade>>({});
   const [evaluatedData, setEvaluatedData] = useState<DiagnosticResult | null>(null);
+  const [studentName, setStudentName] = useState('Élève');
   const [saving, setSaving] = useState(false);
   const [bilanId, setBilanId] = useState<string | null>(null);
 
@@ -729,7 +745,9 @@ export function BilanDiagMathsTerminale() {
         if (src?.progress) setProgress(src.progress);
         if (src?.qcmAnswers) setQcmAnswers(src.qcmAnswers);
         if (src?.openAnswers) setOpenAnswers(src.openAnswers);
+        if (src?.teacherGrades) setTeacherGrades(src.teacherGrades);
         if (src?.evaluatedData) setEvaluatedData(src.evaluatedData);
+        if (data.studentName) setStudentName(data.studentName);
 
         // Resume at the step saved, or show results if completed
         const savedStep = src?.step;
@@ -855,7 +873,7 @@ export function BilanDiagMathsTerminale() {
           />
         )}
         {step === 'results' && evaluatedData && (
-          <ResultsStep evaluatedData={evaluatedData} />
+          <ResultsStep evaluatedData={evaluatedData} teacherGrades={teacherGrades} studentName={studentName} />
         )}
       </CardContent>
     </Card>

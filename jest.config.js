@@ -38,6 +38,9 @@ const customJestConfig = {
     '<rootDir>/__tests__/database/',
     '<rootDir>/__tests__/db/',
     '<rootDir>/__tests__/transactions/',
+    '<rootDir>/__tests__/integration/',
+    '<rootDir>/__tests__/security/',
+    '\\.real\\.test\\.(js|ts|tsx)$',
   ],
 };
 

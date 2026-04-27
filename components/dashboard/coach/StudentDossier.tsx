@@ -163,8 +163,9 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
           {student.gradeLevel === 'TERMINALE' &&
             student.academicTrack === 'EDS_GENERALE' &&
             student.specialties?.includes('MATHEMATIQUES') && (
-              <BilanDiagMathsTerminaleCoach studentId={student.id} />
+              <BilanDiagMathsTerminaleCoach studentId={student.id} studentName={student.name} />
             )}
+
 
           {/* Optional children (TrajectoryDesigner, etc.) */}
           {children}

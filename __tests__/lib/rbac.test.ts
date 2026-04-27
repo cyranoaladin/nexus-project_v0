@@ -342,10 +342,10 @@ describe('can() — Resource/Action Permission Matrix', () => {
 });
 
 describe('getPermissions()', () => {
-  it('ADMIN should have permissions on all 11 resources', () => {
+  it('ADMIN should have permissions on all resources', () => {
     const perms = getPermissions(UserRole.ADMIN);
     const resources = new Set(perms.map(p => p.resource));
-    expect(resources.size).toBe(11);
+    expect(resources.size).toBe(14);
   });
 
   it('ELEVE should have the fewest permissions', () => {
@@ -355,8 +355,8 @@ describe('getPermissions()', () => {
   });
 
   it('every permission should have valid action and resource', () => {
-    const validActions: Action[] = ['READ', 'READ_SELF', 'READ_OWN', 'CREATE', 'UPDATE', 'DELETE', 'MANAGE', 'VALIDATE', 'EXPORT'];
-    const validResources: Resource[] = ['USER', 'STUDENT', 'BILAN', 'SESSION', 'RESERVATION', 'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT'];
+    const validActions: Action[] = ['READ', 'READ_SELF', 'READ_OWN', 'CREATE', 'UPDATE', 'DELETE', 'MANAGE', 'VALIDATE', 'EXPORT', 'ASSIGN', 'UNASSIGN'];
+    const validResources: Resource[] = ['USER', 'STUDENT', 'COACH_ASSIGNMENT', 'DOCUMENT', 'DOCUMENT_ASSIGNMENT', 'BILAN', 'SESSION', 'RESERVATION', 'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT'];
 
     for (const role of Object.values(UserRole)) {
       for (const perm of getPermissions(role)) {
