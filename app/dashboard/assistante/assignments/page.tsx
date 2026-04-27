@@ -347,9 +347,9 @@ export default function AssistanteAssignmentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">Toutes filières</SelectItem>
-                <SelectItem value={AcademicTrack.GENERAL}>Générale</SelectItem>
+                <SelectItem value={AcademicTrack.EDS_GENERALE}>Générale</SelectItem>
                 <SelectItem value={AcademicTrack.STMG}>STMG</SelectItem>
-                <SelectItem value={AcademicTrack.TECHNOLOGIQUE}>Technologique</SelectItem>
+                <SelectItem value={AcademicTrack.STI2D}>Technologique</SelectItem>
               </SelectContent>
             </Select>
             <Select value={coachStatusFilter} onValueChange={setCoachStatusFilter}>
@@ -407,7 +407,7 @@ export default function AssistanteAssignmentsPage() {
                       }
                     </TableCell>
                     <TableCell>
-                      <Badge variant={student.hasActiveCoach ? 'default' : 'secondary'}>
+                      <Badge variant={student.hasActiveCoach ? 'default' : 'outline'}>
                         {student.hasActiveCoach ? 'Avec coach' : 'Sans coach'}
                       </Badge>
                     </TableCell>
@@ -458,7 +458,7 @@ export default function AssistanteAssignmentsPage() {
                     </TableCell>
                     <TableCell>
                       <Button
-                        variant="destructive"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEndAssignment(assignment.id)}
                         disabled={isEnding === assignment.id}
