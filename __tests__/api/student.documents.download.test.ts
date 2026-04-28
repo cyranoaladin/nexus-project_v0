@@ -124,4 +124,76 @@ describe('GET /api/student/documents/[id]/download', () => {
 
     expect(response.headers.get('Content-Type')).toBe('application/octet-stream');
   });
+
+  describe('Coach resource ownership (Lot C)', () => {
+    it('allows student to download self-uploaded document', async () => {
+      const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
+      const tmpFile = path.join(tmpDir, 'self-uploaded.pdf');
+      await writeFile(tmpFile, Buffer.from('%PDF-1.4 self uploaded'));
+
+      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
+        id: 'doc-self',
+        originalName: 'my-upload.pdf',
+        mimeType: 'application/pdf',
+        localPath: tmpFile,
+        userId: 'user-eleve-1',  // recipient is the student
+        uploadedById: 'user-eleve-1',  // uploader is also the student
+      });
+
+      const response = await GET({} as any, makeParams('doc-self'));
+
+      await unlink(tmpFile).catch(() => null);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('allows student to download coach-uploaded resource', async () => {
+      const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
+      const tmpFile = path.join(tmpDir, 'coach-resource.pdf');
+      await writeFile(tmpFile, Buffer.from('%PDF-1.4 coach uploaded'));
+
+      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
+        id: 'doc-coach',
+        originalName: 'coach-resource.pdf',
+        mimeType: 'application/pdf',
+        localPath: tmpFile,
+        userId: 'user-eleve-1',  // recipient is the student (ownership check)
+        uploadedById: 'coach-user-123',  // uploader is the coach
+        uploadedBy: { role: 'COACH' },
+      });
+
+      const response = await GET({} as any, makeParams('doc-coach'));
+
+      await unlink(tmpFile).catch(() => null);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('denies access when student tries to download another student document', async () => {
+      // Document belongs to a different student
+      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
+
+      const response = await GET({} as any, makeParams('doc-other-student'));
+      const body = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(body.error).toBe('Not found');
+    });
+
+    it('verifies ownership is enforced via userId not uploadedById', async () => {
+      // Even if uploader matches current user, if recipient doesn't match → denied
+      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
+
+      await GET({} as any, makeParams('doc-not-recipient'));
+
+      // The query should filter by userId (recipient), not uploadedById
+      expect(prisma.userDocument.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'user-eleve-1',  // Must be the recipient
+          }),
+        })
+      );
+    });
+  });
 });
