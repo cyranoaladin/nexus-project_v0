@@ -49,7 +49,7 @@ services:
     restart: "no"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
-    command: ["npx", "prisma", "migrate", "deploy"]
+    command: ["./node_modules/.bin/prisma", "migrate", "deploy"]
     depends_on:
       postgres:
         condition: service_healthy
