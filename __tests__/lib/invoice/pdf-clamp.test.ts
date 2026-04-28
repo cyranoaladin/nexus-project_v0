@@ -19,7 +19,7 @@ import {
   appendInvoiceEvent,
   createInvoiceEvent,
 } from '@/lib/invoice/types';
-import { InvoiceOverflowError } from '@/lib/invoice/pdf';
+import { InvoiceOverflowError, renderInvoicePDF } from '@/lib/invoice/pdf';
 import type { InvoiceData, InvoiceItemData, InvoiceEvent } from '@/lib/invoice/types';
 
 // ─── Helpers (re-implement clampText for testing since it's not exported) ────
@@ -165,6 +165,54 @@ describe('InvoiceOverflowError', () => {
     expect(err).toBeInstanceOf(Error);
     expect(err.name).toBe('InvoiceOverflowError');
     expect(err.message).toBe('test');
+  });
+});
+
+describe('Invoice PDF payment details', () => {
+  it('renders long mixed-payment references without overflowing the page guard', async () => {
+    const longReference = 'Référence longue '.repeat(12).trim();
+    const data = makeInvoiceData({
+      issuer: {
+        name: 'M&M ACADEMY (NEXUS RÉUSSITE)',
+        address: 'Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 – Tunis',
+        mf: '1948837 N/A/M/000',
+        phone: '+216 99 19 28 29',
+        email: 'contact@nexusreussite.academy',
+        web: 'nexusreussite.academy',
+        slogan: 'Viser. Atteindre. Dépasser.',
+      },
+      items: [
+        {
+          label: 'Duo Première — Français + Maths',
+          description: 'Français : 16h · Mathématiques : 14h',
+          qty: 1,
+          unitPrice: 1_149_000,
+          total: 1_149_000,
+        },
+        {
+          label: 'Accès plateforme EAF — Masterium offert',
+          description: 'Accès Masterium offert à titre commercial, non facturé.',
+          qty: 1,
+          unitPrice: 0,
+          total: 0,
+        },
+      ],
+      subtotal: 1_149_000,
+      discountTotal: 50_000,
+      taxTotal: 62_208,
+      total: 1_099_000,
+      taxRegime: 'TVA_INCLUSE',
+      paymentMethod: null,
+      paymentDetails: {
+        notes: [
+          `Paiements mixtes : Virement bancaire : 500,000 TND (${longReference}) | Chèque : 400,000 TND (${longReference}) | Espèces : 199,000 TND (${longReference})`,
+          'Net payé : 1 099,000 TND',
+          'Reste à payer : 0,000 TND',
+        ].join('\n'),
+      },
+    });
+
+    await expect(renderInvoicePDF(data)).resolves.toBeInstanceOf(Buffer);
   });
 });
 

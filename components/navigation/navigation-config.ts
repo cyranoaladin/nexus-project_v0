@@ -149,6 +149,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Facturation',
+      href: '/dashboard/assistante/facturation',
+      icon: 'Receipt',
+      match: 'prefix'
+    },
+    {
       label: 'Demandes abonnements',
       href: '/dashboard/assistante/subscription-requests',
       icon: 'ClipboardList',

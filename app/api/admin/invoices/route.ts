@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'node:path';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import type { InvoiceItem, Prisma } from '@prisma/client';
@@ -25,10 +26,15 @@ import type { CreateInvoiceRequest, InvoiceData, TaxRegime } from '@/lib/invoice
 // ─── Default issuer (can be overridden per request) ─────────────────────────
 
 const DEFAULT_ISSUER = {
-  name: 'M&M Academy (Nexus Réussite)',
-  address: 'Résidence Narjess 2, Bloc D, Appt 12, Raoued 2056, Ariana, Tunisie',
-  mf: '1XXXXXX/X/A/M/000',
+  name: 'M&M ACADEMY (NEXUS RÉUSSITE)',
+  address: 'Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 – Tunis',
+  mf: '1948837 N/A/M/000',
   rne: null as string | null,
+  phone: '+216 99 19 28 29',
+  email: 'contact@nexusreussite.academy',
+  web: 'nexusreussite.academy',
+  slogan: 'Viser. Atteindre. Dépasser.',
+  logoPath: path.join(process.cwd(), 'public', 'images', 'logo_slogan_nexus.png'),
 };
 
 // ─── POST: Create Invoice ───────────────────────────────────────────────────
@@ -79,13 +85,22 @@ export async function POST(request: NextRequest) {
 
     const subtotal = computedItems.reduce((sum, item) => sum + item.total, 0);
     const discountTotal = body.discountTotal ?? 0;
-    const taxTotal = 0; // TVA non applicable by default
-    const total = subtotal - discountTotal + taxTotal; // pure int arithmetic
-
     const taxRegime: TaxRegime = body.taxRegime ?? 'TVA_NON_APPLICABLE';
+    const totalBeforeTaxDisplay = subtotal - discountTotal;
+    const taxTotal = taxRegime === 'TVA_INCLUSE'
+      ? totalBeforeTaxDisplay - Math.round(totalBeforeTaxDisplay / 1.06)
+      : 0;
+    const total = totalBeforeTaxDisplay; // TVA incluse: final TTC is already included in line prices.
 
     // Generate atomic invoice number
-    const invoiceNumber = await generateInvoiceNumber();
+    const requestedNumber = body.number?.trim();
+    if (requestedNumber) {
+      const existing = await prisma.invoice.findUnique({ where: { number: requestedNumber } });
+      if (existing) {
+        return NextResponse.json({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
+      }
+    }
+    const invoiceNumber = requestedNumber || await generateInvoiceNumber();
 
     // Merge issuer
     const issuer = {
@@ -98,7 +113,7 @@ export async function POST(request: NextRequest) {
       data: {
         number: invoiceNumber,
         status: 'DRAFT',
-        issuedAt: new Date(),
+        issuedAt: body.issuedAt ? new Date(body.issuedAt) : new Date(),
         dueAt: body.dueAt ? new Date(body.dueAt) : null,
         customerName: body.customer.name,
         customerEmail: body.customer.email ?? null,
@@ -136,6 +151,11 @@ export async function POST(request: NextRequest) {
         address: invoice.issuerAddress,
         mf: invoice.issuerMF,
         rne: invoice.issuerRNE,
+        phone: issuer.phone,
+        email: issuer.email,
+        web: issuer.web,
+        slogan: issuer.slogan,
+        logoPath: issuer.logoPath,
       },
       customer: {
         name: invoice.customerName,
@@ -157,7 +177,7 @@ export async function POST(request: NextRequest) {
       total: invoice.total,
       taxRegime: invoice.taxRegime as TaxRegime,
       paymentMethod: body.paymentMethod ?? null,
-      paymentDetails: null,
+      paymentDetails: body.paymentDetails ?? (invoice.notes ? { notes: invoice.notes } : null),
     };
 
     // Generate PDF

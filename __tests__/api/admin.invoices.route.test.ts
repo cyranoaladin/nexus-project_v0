@@ -25,9 +25,11 @@ jest.mock('@/lib/invoice', () => ({
 
 import { GET, POST } from '@/app/api/admin/invoices/route';
 import { auth } from '@/auth';
+import { renderInvoicePDF } from '@/lib/invoice';
 import { NextRequest } from 'next/server';
 
 const mockAuth = auth as jest.Mock;
+const mockRenderInvoicePDF = renderInvoicePDF as jest.Mock;
 
 let prisma: any;
 
@@ -208,5 +210,83 @@ describe('POST /api/admin/invoices', () => {
     expect(res.status).toBe(201);
     expect(body.number).toBe('NXS-2026-0001');
     expect(body.pdfUrl).toBeTruthy();
+  });
+
+  it('should allow ASSISTANTE to create invoices through the existing admin invoice API', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'assistante-1', role: 'ASSISTANTE' } } as any);
+    prisma.invoice.create.mockResolvedValue({
+      id: 'inv-assistante-1',
+      number: 'NXS-2026-0001',
+      issuedAt: new Date(),
+      dueAt: null,
+      issuerName: 'M&M Academy',
+      issuerAddress: 'Tunis',
+      issuerMF: '1XXX',
+      issuerRNE: null,
+      customerName: 'Parent Responsable',
+      customerEmail: null,
+      customerAddress: null,
+      customerId: null,
+      currency: 'TND',
+      subtotal: 1_149_000,
+      discountTotal: 50_000,
+      taxTotal: 62_208,
+      total: 1_099_000,
+      taxRegime: 'TVA_INCLUSE',
+      events: [],
+      items: [
+        {
+          label: 'Duo Première — Français + Maths',
+          qty: 1,
+          unitPrice: 1_149_000,
+          total: 1_149_000,
+          description: null,
+          sortOrder: 0,
+        },
+      ],
+    });
+    prisma.invoice.update.mockResolvedValue({});
+
+    const res = await POST(makePostRequest({
+      customer: { name: 'Parent Responsable' },
+      items: [{ label: 'Duo Première — Français + Maths', qty: 1, unitPrice: 1_149_000 }],
+      discountTotal: 50_000,
+      taxRegime: 'TVA_INCLUSE',
+      paymentMethod: null,
+      paymentDetails: {
+        notes: [
+          'Paiements mixtes : Virement bancaire : 500,000 TND (VIR-001) | Chèque : 400,000 TND (CHQ-002) | Espèces : 199,000 TND (Espèces bureau)',
+          'Net payé : 1 099,000 TND',
+          'Reste à payer : 0,000 TND',
+        ].join('\n'),
+      },
+      notes: 'Paiements mixtes : Virement bancaire : 500,000 TND (VIR-001)',
+    }));
+
+    expect(res.status).toBe(201);
+    expect(prisma.invoice.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdByUserId: 'assistante-1',
+          discountTotal: 50_000,
+          taxTotal: 62_208,
+          taxRegime: 'TVA_INCLUSE',
+          paymentMethod: null,
+          notes: 'Paiements mixtes : Virement bancaire : 500,000 TND (VIR-001)',
+        }),
+      })
+    );
+    expect(mockRenderInvoicePDF).toHaveBeenCalledWith(
+      expect.objectContaining({
+        total: 1_099_000,
+        discountTotal: 50_000,
+        taxTotal: 62_208,
+        taxRegime: 'TVA_INCLUSE',
+        paymentMethod: null,
+        paymentDetails: expect.objectContaining({
+          notes: expect.stringContaining('Chèque : 400,000 TND (CHQ-002)'),
+        }),
+      })
+    );
   });
 });

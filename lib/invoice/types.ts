@@ -102,6 +102,14 @@ export interface IssuerData {
   mf: string;
   /** Registre national des entreprises (optional) */
   rne?: string | null;
+  /** Phone number (optional) */
+  phone?: string | null;
+  /** Contact email (optional) */
+  email?: string | null;
+  /** Public website (optional) */
+  web?: string | null;
+  /** Brand slogan (optional) */
+  slogan?: string | null;
   /** Absolute path to logo image (optional — fallback to text if absent or missing) */
   logoPath?: string | null;
   /** Absolute path to stamp/cachet image (optional — rendered near totals) */
@@ -178,6 +186,10 @@ export interface InvoiceData {
 // ─── API Request / Response ─────────────────────────────────────────────────
 
 export interface CreateInvoiceRequest {
+  /** Optional manual invoice number. If omitted, the server sequence is used. */
+  number?: string;
+  /** Optional issue date (ISO). If omitted, the current server date is used. */
+  issuedAt?: string;
   /** Customer info */
   customer: CustomerData;
   /** Line items (total will be computed server-side in millimes) */
@@ -194,6 +206,8 @@ export interface CreateInvoiceRequest {
   taxRegime?: TaxRegime;
   /** Payment method */
   paymentMethod?: InvoicePaymentMethodType | null;
+  /** Payment details printed on the generated PDF */
+  paymentDetails?: PaymentDetailsData | null;
   /** Due date (ISO string) */
   dueAt?: string | null;
   /** Internal notes */
