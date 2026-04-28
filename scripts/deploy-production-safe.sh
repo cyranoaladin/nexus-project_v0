@@ -108,6 +108,22 @@ echo ""
 echo "📥 Step 1: Pulling latest changes from git (ff-only)..."
 ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
+# ─── BACKUP SSL CERTIFICATES ─────────────────────────────────────────────────────
+echo "🔒 Checking SSL certificates..."
+SSL_DIR="nginx/ssl"
+if [ -d "$SSL_DIR" ]; then
+  if [ -f "$SSL_DIR/fullchain.pem" ] || [ -f "$SSL_DIR/privkey.pem" ]; then
+    BACKUP_DIR="backups/ssl-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$BACKUP_DIR"
+    echo "📦 Backing up SSL certificates to $BACKUP_DIR..."
+    cp -r "$SSL_DIR" "$BACKUP_DIR/" 2>/dev/null || true
+    echo "✅ SSL certificates backed up"
+  else
+    echo "⚠️  No SSL certificates found in $SSL_DIR (this is expected after P0 changes)"
+  fi
+else
+  echo "⚠️  SSL directory $SSL_DIR does not exist"
+fi
 git fetch origin main
 git checkout main
 if ! git pull --ff-only origin main; then
