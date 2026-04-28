@@ -283,6 +283,14 @@ describe('buildStudentDashboardPayload', () => {
             externalUrl: '/dashboard/eleve/programme/maths',
           }),
           expect.objectContaining({
+            title: 'Banque QCM Maths STMG — 30 questions',
+            externalUrl: '/dashboard/eleve/programme/maths#qcm',
+          }),
+          expect.objectContaining({
+            title: 'Skill graph Maths STMG — 17 compétences',
+            externalUrl: '/dashboard/eleve/programme/maths#programme',
+          }),
+          expect.objectContaining({
             title: 'Sciences de gestion et numérique',
             externalUrl: '/dashboard/eleve/programme/sgn',
           }),
@@ -300,7 +308,8 @@ describe('buildStudentDashboardPayload', () => {
           }),
         ])
       );
-      expect(result.hub.totalCount).toBeGreaterThanOrEqual(5);
+      expect(result.hub.byCategory.INTERACTIVE_PROGRAM).toHaveLength(7);
+      expect(result.hub.totalCount).toBeGreaterThanOrEqual(7);
     });
   });
 
