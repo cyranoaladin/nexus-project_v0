@@ -242,6 +242,37 @@ const pdfUrl = `/api/student/resources/official/${pdf.slug}`;
 // <a href={pdfUrl} download={pdf.filename}>{pdf.title}</a>
 ```
 
+## 7.5 Hub Ressources UI (Lot D)
+
+### Composant `EleveHubRessources`
+
+**Objectif**: Afficher les ressources du Hub Pédagogique par catégorie, incluant les PDFs officiels avec liens vers l'endpoint Lot C.
+
+**Données source**: `dashboardData.hub` (construit par `buildHub` Lot B).
+
+**Catégories affichées** (ordre prioritaire) :
+1. OFFICIAL_PROGRAM — Programmes officiels MEN
+2. OFFICIAL_AUTOMATISMES — Automatismes EAM (EDS Première)
+3. OFFICIAL_SUJET — Sujets d'examen et exemples
+4. COACH_RESOURCE — Documents uploadés par coach
+5. USER_DOCUMENT — Documents personnels de l'élève
+6. RAG_REFERENCE — Références ARIA (TODO post-go-live)
+7. STAGE_BILAN — Bilans post-stage
+8. INVOICE — Factures
+9. RECEIPT — Reçus de paiement
+
+**Fonctionnalités** :
+- Badges visuels : OFFICIEL (indigo), COACH (brand-accent), PERSONNEL (gris), NOUVEAU (vert)
+- Compteur par catégorie
+- Empty state si aucune ressource
+- Liens de download directs vers endpoints Lot C (officiels) ou existants (documents, factures)
+- Support des liens externes (ex: bilans stage)
+
+**Intégration** :
+- Remplace l'ancien `EleveResources` dans `app/dashboard/eleve/page.tsx`
+- Utilise `dashboardData.hub.byCategory[category]`
+- Filtre par `isSurvivalMode` (non affiché en mode survie STMG)
+
 ## 8. Tests
 
 | Fichier | Assertions | Couverture |
