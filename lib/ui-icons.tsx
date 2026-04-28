@@ -179,6 +179,7 @@ const LEGACY_GLYPH_MAP: Record<string, UiIconKey> = {
 const SUBJECT_ICON_MAP: Record<string, UiIconKey> = {
   MATHEMATIQUES: "sigma",
   MATHS: "sigma",
+  MATHS_STMG: "calculator",
   NSI: "code",
   FRANCAIS: "book",
   PHYSIQUE_CHIMIE: "science",
@@ -188,6 +189,9 @@ const SUBJECT_ICON_MAP: Record<string, UiIconKey> = {
   ANGLAIS: "languages",
   ESPAGNOL: "languages",
   SES: "barChart",
+  SGN: "barChart",
+  MANAGEMENT: "teaching",
+  DROIT_ECO: "teaching",
 };
 
 export function resolveUiIcon(icon?: string | null): LucideIcon {

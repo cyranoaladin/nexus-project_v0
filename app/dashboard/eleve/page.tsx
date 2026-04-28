@@ -22,6 +22,9 @@ import {
   EleveStages,
   TrackContentEDS,
   TrackContentSTMG,
+  buildAriaSubjectLinks,
+  shouldShowEdsParcours,
+  shouldShowStmgLivret,
   type EleveDashboardData,
 } from "@/components/dashboard/eleve";
 import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
@@ -127,21 +130,12 @@ export default function DashboardEleve() {
   const isSurvivalMode = isStmgTrack && dashboardData?.student.survivalMode === true;
   const edsSpecialties = dashboardData?.trackContent?.specialties ?? [];
   const stmgModules = dashboardData?.trackContent?.stmgModules ?? [];
-  const ariaSubjectLinks = dashboardData?.trackContent?.specialties
-    ? dashboardData.trackContent.specialties
-        .filter((item) => Boolean(item.subject))
-        .map((item) => {
-          const value = String(item.subject);
-          return { value, label: value.replaceAll('_', ' '), color: 'text-sky-300' };
-        })
-    : [
-        { value: 'MATHEMATIQUES', label: 'Maths', color: 'text-sky-300' },
-        { value: 'NSI', label: 'NSI', color: 'text-blue-300' },
-        { value: 'FRANCAIS', label: 'Français', color: 'text-blue-200' },
-        { value: 'PHYSIQUE_CHIMIE', label: 'Physique-Chimie', color: 'text-emerald-300' },
-        { value: 'PHILOSOPHIE', label: 'Philosophie', color: 'text-rose-300' },
-        { value: 'HISTOIRE_GEO', label: 'Histoire-Géo', color: 'text-slate-200' },
-      ];
+  const studentGradeLevel = dashboardData?.student.gradeLevel;
+  const ariaSubjectLinks = buildAriaSubjectLinks({
+    isStmgTrack,
+    specialties: edsSpecialties,
+    stmgModules,
+  });
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
@@ -242,7 +236,11 @@ export default function DashboardEleve() {
             )}
 
             {/* Parcours de Réussite — Accès direct au programme interactif (PRIORITY) */}
-            {!isStmgTrack && (dashboardData?.student.grade === 'PREMIERE' || dashboardData?.student.grade === 'TERMINALE') && (
+            {shouldShowEdsParcours({
+              isStmgTrack,
+              grade: dashboardData?.student.grade,
+              gradeLevel: studentGradeLevel,
+            }) && (
               <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group mb-6">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row items-stretch">
@@ -259,12 +257,12 @@ export default function DashboardEleve() {
                         <span className="text-xs font-semibold text-indigo-200">Programme Interactif Nexus</span>
                       </div>
                       <h4 className="text-lg font-bold text-white mb-2">
-                        Mathématiques — {dashboardData.student.grade === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
+                        Mathématiques — {studentGradeLevel === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
                       </h4>
                       <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
                         Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
                       </p>
-                      <Link href={dashboardData.student.grade === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
+                      <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
                         <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
                           Continuer mon parcours
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -277,7 +275,12 @@ export default function DashboardEleve() {
             )}
 
             {/* Nouveau : Livret STMG Interactif (Gamifié) */}
-            {isStmgTrack && !isSurvivalMode && dashboardData?.student.grade === 'PREMIERE' && (
+            {shouldShowStmgLivret({
+              isStmgTrack,
+              isSurvivalMode,
+              grade: dashboardData?.student.grade,
+              gradeLevel: studentGradeLevel,
+            }) && (
               <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group mb-6">
                 <CardContent className="p-0">
                   <div className="flex flex-col md:flex-row items-stretch">

@@ -8,4 +8,5 @@ export * from './EleveStages';
 export * from './EleveTrajectory';
 export * from './TrackContentEDS';
 export * from './TrackContentSTMG';
+export * from './dashboard-view-model';
 export * from './types';

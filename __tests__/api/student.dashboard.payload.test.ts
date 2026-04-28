@@ -41,6 +41,7 @@ jest.mock('@/lib/next-step-engine', () => ({
 
 function makeStudent(overrides: Partial<{
   academicTrack: string;
+  grade: string;
   gradeLevel: string;
   survivalMode: boolean;
   stmgPathway: string | null;
@@ -49,7 +50,7 @@ function makeStudent(overrides: Partial<{
   return {
     id: 'student-1',
     userId: 'user-1',
-    grade: overrides.gradeLevel ?? 'PREMIERE',
+    grade: overrides.grade ?? overrides.gradeLevel ?? 'PREMIERE',
     gradeLevel: overrides.gradeLevel ?? 'PREMIERE',
     academicTrack: overrides.academicTrack ?? 'EDS_GENERALE',
     specialties: overrides.specialties ?? ['MATHEMATIQUES'],
@@ -260,6 +261,46 @@ describe('buildStudentDashboardPayload', () => {
       const result = await buildStudentDashboardPayload('user-1');
 
       expect(result.survivalProgress).toBeNull();
+    });
+
+    it('adds interactive programme resources when legacy grade is empty', async () => {
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue(
+        makeStudent({
+          academicTrack: 'STMG',
+          grade: '',
+          gradeLevel: 'PREMIERE',
+          survivalMode: false,
+          specialties: [],
+        })
+      );
+
+      const result = await buildStudentDashboardPayload('user-1');
+
+      expect(result.hub.byCategory.INTERACTIVE_PROGRAM).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Mathématiques STMG — livret interactif',
+            externalUrl: '/dashboard/eleve/programme/maths',
+          }),
+          expect.objectContaining({
+            title: 'Sciences de gestion et numérique',
+            externalUrl: '/dashboard/eleve/programme/sgn',
+          }),
+          expect.objectContaining({
+            title: 'Management',
+            externalUrl: '/dashboard/eleve/programme/management',
+          }),
+          expect.objectContaining({
+            title: 'Droit-Économie',
+            externalUrl: '/dashboard/eleve/programme/droit_eco',
+          }),
+          expect.objectContaining({
+            title: 'Français EAF',
+            externalUrl: 'https://eaf.nexusreussite.academy',
+          }),
+        ])
+      );
+      expect(result.hub.totalCount).toBeGreaterThanOrEqual(5);
     });
   });
 
