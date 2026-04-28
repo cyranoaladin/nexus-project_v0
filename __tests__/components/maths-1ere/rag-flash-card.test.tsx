@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { RAGFlashCard } from '@/app/programme/maths-1ere/components/RAG/RAGFlashCard';
+import { RAGFlashCard } from '@/components/programme/shared/RAG/RAGFlashCard';
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -27,14 +27,12 @@ jest.mock('@/app/programme/maths-1ere/store', () => ({
 }));
 
 // Mock programmeData
-jest.mock('@/app/programme/maths-1ere/data', () => ({
-  programmeData: {
-    algebre: {
-      titre: 'Algèbre',
-      chapitres: [{ id: 'second-degre', titre: 'Second Degré' }],
-    },
+const mockProgrammeData = {
+  algebre: {
+    titre: 'Algèbre',
+    chapitres: [{ id: 'second-degre', titre: 'Second Degré' }],
   },
-}));
+};
 
 // Mock MathContent
 jest.mock('@/components/programme/shared/MathContent', () => ({
@@ -71,7 +69,7 @@ describe('RAGFlashCard', () => {
       }),
     });
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -95,7 +93,7 @@ describe('RAGFlashCard', () => {
       json: async () => ({ hits: [] }),
     });
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -120,7 +118,7 @@ describe('RAGFlashCard', () => {
       }),
     });
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     // Eventually shows content via MathRichText
     await waitFor(() => {
@@ -135,7 +133,7 @@ describe('RAGFlashCard', () => {
   it("affiche un message d'erreur si le RAG est indisponible", async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => {
       expect(screen.getByText(/temporairement indisponible/i)).toBeInTheDocument();
@@ -148,7 +146,7 @@ describe('RAGFlashCard', () => {
       json: async () => ({ hits: [] }),
     });
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => {
       expect(screen.getByText(/aucune ressource/i)).toBeInTheDocument();
@@ -163,7 +161,7 @@ describe('RAGFlashCard', () => {
       json: async () => ({ hits: [] }),
     });
 
-    render(<RAGFlashCard onShowMore={onShowMore} />);
+    render(<RAGFlashCard onShowMore={onShowMore} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => screen.getByText(/voir d'autres conseils/i));
     fireEvent.click(screen.getByText(/voir d'autres conseils/i));
@@ -176,7 +174,7 @@ describe('RAGFlashCard', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ hits: [] }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ hits: [] }) });
 
-    render(<RAGFlashCard onShowMore={jest.fn()} />);
+    render(<RAGFlashCard onShowMore={jest.fn()} store={mockStore} programmeData={mockProgrammeData} />);
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
 
