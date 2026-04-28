@@ -11,7 +11,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { AcademicTrack, GradeLevel, MathsLevel, UserRole } from '@prisma/client';
+import { AcademicTrack, GradeLevel, MathsLevel, Subject, UserRole } from '@prisma/client';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
@@ -61,6 +61,7 @@ const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
 function emptyHub(): EleveHub {
   return {
     byCategory: {
+      INTERACTIVE_PROGRAM: [],
       OFFICIAL_PROGRAM: [],
       OFFICIAL_AUTOMATISMES: [],
       OFFICIAL_SUJET: [],
@@ -74,6 +75,84 @@ function emptyHub(): EleveHub {
     totalCount: 0,
     recentlyAddedCount: 0,
   };
+}
+
+function addInteractiveProgramResources(
+  hub: EleveHub,
+  input: { level: GradeLevel; track: AcademicTrack }
+) {
+  const isStmg =
+    input.track === AcademicTrack.STMG ||
+    input.track === AcademicTrack.STMG_NON_LYCEEN;
+
+  if (!isStmg || input.level !== GradeLevel.PREMIERE) {
+    return;
+  }
+
+  const resources: EleveHubResource[] = [
+    {
+      id: 'interactive:maths-stmg',
+      category: 'INTERACTIVE_PROGRAM',
+      title: 'Mathématiques STMG — livret interactif',
+      subtitle: 'Parcours gamifié, automatismes et QCM chrono',
+      level: input.level,
+      track: input.track,
+      subject: Subject.MATHEMATIQUES,
+      type: 'LINK',
+      externalUrl: '/dashboard/eleve/programme/maths',
+      badge: 'INTERACTIF',
+    },
+    {
+      id: 'interactive:sgn-stmg',
+      category: 'INTERACTIVE_PROGRAM',
+      title: 'Sciences de gestion et numérique',
+      subtitle: 'Interface interactive du programme STMG',
+      level: input.level,
+      track: input.track,
+      subject: Subject.SES,
+      type: 'LINK',
+      externalUrl: '/dashboard/eleve/programme/sgn',
+      badge: 'INTERACTIF',
+    },
+    {
+      id: 'interactive:management-stmg',
+      category: 'INTERACTIVE_PROGRAM',
+      title: 'Management',
+      subtitle: 'Interface interactive du programme STMG',
+      level: input.level,
+      track: input.track,
+      subject: Subject.SES,
+      type: 'LINK',
+      externalUrl: '/dashboard/eleve/programme/management',
+      badge: 'INTERACTIF',
+    },
+    {
+      id: 'interactive:droit-eco-stmg',
+      category: 'INTERACTIVE_PROGRAM',
+      title: 'Droit-Économie',
+      subtitle: 'Interface interactive du programme STMG',
+      level: input.level,
+      track: input.track,
+      subject: Subject.SES,
+      type: 'LINK',
+      externalUrl: '/dashboard/eleve/programme/droit_eco',
+      badge: 'INTERACTIF',
+    },
+    {
+      id: 'interactive:eaf',
+      category: 'INTERACTIVE_PROGRAM',
+      title: 'Français EAF',
+      subtitle: 'Accès à Nexus EAF',
+      level: input.level,
+      track: input.track,
+      subject: Subject.FRANCAIS,
+      type: 'LINK',
+      externalUrl: 'https://eaf.nexusreussite.academy',
+      badge: 'INTERACTIF',
+    },
+  ];
+
+  hub.byCategory.INTERACTIVE_PROGRAM.push(...resources);
 }
 
 /**
@@ -167,6 +246,9 @@ export function buildHub(input: {
       badge: 'OFFICIEL',
     });
   }
+
+  // ── Existing interactive programme interfaces ───────────────────────────
+  addInteractiveProgramResources(hub, { level: input.level, track: input.track });
 
   // ── User documents → COACH_RESOURCE or USER_DOCUMENT ────────────────────
   for (const doc of input.userDocs) {

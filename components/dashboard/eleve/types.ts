@@ -25,6 +25,7 @@ export type EleveTrackItem = {
 // ─── Hub Ressources ─────────────────────────────────────────────────────────────
 
 export type EleveHubResourceCategory =
+  | 'INTERACTIVE_PROGRAM'
   | 'OFFICIAL_PROGRAM'
   | 'OFFICIAL_AUTOMATISMES'
   | 'OFFICIAL_SUJET'
@@ -35,7 +36,7 @@ export type EleveHubResourceCategory =
   | 'RECEIPT'
   | 'STAGE_BILAN';
 
-export type EleveHubResourceBadge = 'OFFICIEL' | 'COACH' | 'PERSONNEL' | 'NOUVEAU';
+export type EleveHubResourceBadge = 'OFFICIEL' | 'COACH' | 'PERSONNEL' | 'NOUVEAU' | 'INTERACTIF';
 
 export type EleveHubResource = {
   id: string;
