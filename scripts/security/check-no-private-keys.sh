@@ -15,20 +15,24 @@ if git ls-files | grep -E "(privkey\.pem|\.key$)" > /dev/null 2>&1; then
   exit 1
 fi
 
-# Check 2: Track private key content (except in docs/)
-if git grep -n "BEGIN .*PRIVATE KEY" -- . ':!docs/**' > /dev/null 2>&1; then
+# Check 2: Track private key content (except in docs/ and this script)
+if git grep -n "BEGIN .*PRIVATE KEY" -- . ':!docs/**' ':!scripts/security/check-no-private-keys.sh' > /dev/null 2>&1; then
   echo "❌ FAIL: Private key content found in files:"
-  git grep -n "BEGIN .*PRIVATE KEY" -- . ':!docs/**'
+  git grep -n "BEGIN .*PRIVATE KEY" -- . ':!docs/**' ':!scripts/security/check-no-private-keys.sh'
   exit 1
 fi
 
 # Check 3: nginx/ssl should only contain .gitkeep
 SSL_FILES=$(git ls-files nginx/ssl/ 2>/dev/null || echo "")
 if [ -n "$SSL_FILES" ]; then
-  echo "❌ FAIL: Unexpected files in nginx/ssl/:"
-  echo "$SSL_FILES"
-  echo "Expected: only nginx/ssl/.gitkeep or nothing"
-  exit 1
+  # Allow .gitkeep but reject everything else
+  SSL_NON_GITKEEP=$(echo "$SSL_FILES" | grep -v "\.gitkeep$" || true)
+  if [ -n "$SSL_NON_GITKEEP" ]; then
+    echo "❌ FAIL: Unexpected files in nginx/ssl/:"
+    echo "$SSL_NON_GITKEEP"
+    echo "Expected: only nginx/ssl/.gitkeep or nothing"
+    exit 1
+  fi
 fi
 
 echo "✅ PASS: No private keys tracked in repository"
