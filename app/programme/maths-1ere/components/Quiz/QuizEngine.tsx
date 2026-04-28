@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 import { quizData, type QuizQuestion } from '../../data';
-import { MathRichText } from '../MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 
 interface QuizEngineProps {
   onSwitchTab: (tab: 'dashboard' | 'cours' | 'entrainement' | 'formulaire') => void;

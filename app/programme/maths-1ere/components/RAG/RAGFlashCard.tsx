@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, Loader2, AlertCircle, BookOpen } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 import { programmeData } from '../../data';
-import { MathRichText } from '../MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 
 interface RAGHit {
   id: string;

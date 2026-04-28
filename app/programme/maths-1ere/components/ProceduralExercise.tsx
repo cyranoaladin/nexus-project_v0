@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle2, Sigma, XCircle } from 'lucide-react';
 import { GENERATORS } from '../lib/exercise-generator';
 import { areEquivalentAnswers } from '../lib/math-engine';
 import { useMathsLabStore } from '../store';
-import { MathRichText } from './MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 
 export default function ProceduralExercise({ chapId }: { chapId: string }) {
   const generator = GENERATORS[chapId] ?? GENERATORS['second-degre'];
