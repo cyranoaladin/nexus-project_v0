@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { RAGRemediation } from '@/app/programme/maths-1ere/components/RAG/RAGRemediation';
+import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
