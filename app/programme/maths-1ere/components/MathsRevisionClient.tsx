@@ -6,8 +6,8 @@ import { Menu } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { useProgressionSync } from '../hooks/useProgressionSync';
 import { useChapterProgress } from '../hooks/useChapterProgress';
-import { programmeData } from '../data';
-import { STAGE_PRINTEMPS_2026, getDaysUntilExam } from '../config/stage';
+import { programmeData, badgeDefinitions } from '../data';
+import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession, getDaysUntilStage, getDaysUntilExam, getNextSession } from '../config/stage';
 
 // Layout & Views
 import { Navigation } from '@/components/programme/shared/Navigation/Navigation';
@@ -130,6 +130,18 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
                   displayName={displayName}
                   onSwitchTab={setActiveTab}
                   onNavigateToChap={handleNavigateToChap}
+                  store={store}
+                  programmeData={programmeData}
+                  badgeDefinitions={badgeDefinitions}
+                  stageConfig={{
+                    STAGE_PRINTEMPS_2026,
+                    getStagePhase,
+                    formatDateFr,
+                    getTodaySession,
+                    getDaysUntilStage,
+                    getDaysUntilExam,
+                    getNextSession
+                  }}
                 />
               )}
 
