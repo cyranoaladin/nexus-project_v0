@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { useProgressionSync } from '../hooks/useProgressionSync';
+import { programmeData } from '../data';
 
 // Layout & Views
-import { Navigation } from './Navigation/Navigation';
+import { Navigation } from '@/components/programme/shared/Navigation/Navigation';
 import { CockpitView } from './Cockpit/CockpitView';
 import { ChapterView } from './Course/ChapterView';
 import { ExamenBlancView } from './Examen/ExamenBlancView';
@@ -88,6 +89,12 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         isTeacher={isTeacher}
+        store={{
+          completedChapters: store.completedChapters,
+          getNiveau: () => store.getNiveau(),
+          totalXP: store.totalXP,
+        }}
+        programmeData={programmeData}
       />
 
       <main
