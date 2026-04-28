@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { useProgressionSync } from '../hooks/useProgressionSync';
+import { useChapterProgress } from '../hooks/useChapterProgress';
 import { programmeData } from '../data';
 import { STAGE_PRINTEMPS_2026, getDaysUntilExam } from '../config/stage';
 
@@ -14,7 +15,7 @@ import { CockpitView } from './Cockpit/CockpitView';
 import { ChapterView } from './Course/ChapterView';
 import { ExamenBlancView } from './Examen/ExamenBlancView';
 import { TeacherView } from './Enseignant/TeacherView';
-import { BilanView } from './Bilan/BilanView';
+import { BilanView } from '@/components/programme/shared/Bilan/BilanView';
 import { TopBar } from '@/components/programme/shared/layout/TopBar';
 import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
 import { Toaster, toast } from 'sonner';
@@ -43,6 +44,11 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
 
   const { isHydrating, syncError } = useProgressionSync(user.id);
   const store = useMathsLabStore();
+
+  // Get current chapter data for ChapterView
+  const currentCat = programmeData[activeCat];
+  const currentChap = currentCat?.chapitres.find((c: any) => c.id === activeChap);
+  const chapterProgress = useChapterProgress(activeChap, currentChap?.pointsXP || 0);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -133,6 +139,8 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
                   chapId={activeChap}
                   focusMode={focusMode}
                   onToggleFocus={() => setFocusMode(!focusMode)}
+                  programmeData={programmeData}
+                  chapterProgress={chapterProgress}
                 />
               )}
 
