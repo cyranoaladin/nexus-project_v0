@@ -16,6 +16,7 @@ import {
   EleveAria,
   EleveBilans,
   EleveCockpit,
+  EleveHubRessources,
   EleveResources,
   EleveSessions,
   EleveStages,
@@ -219,7 +220,7 @@ export default function DashboardEleve() {
                   sessions={dashboardData.recentSessions}
                   onBookSession={() => setActiveTab('booking')}
                 />
-                {!isSurvivalMode && <EleveResources resources={dashboardData.resources} />}
+                {!isSurvivalMode && <EleveHubRessources hub={dashboardData.hub} />}
                 {!isSurvivalMode && (
                   <EleveBilans
                     recentBilans={dashboardData.recentBilans}
