@@ -252,7 +252,7 @@ describe('POST /api/admin/invoices', () => {
       items: [{ label: 'Duo Première — Français + Maths', qty: 1, unitPrice: 1_149_000 }],
       discountTotal: 50_000,
       taxRegime: 'TVA_INCLUSE',
-      paymentMethod: 'BANK_TRANSFER',
+      paymentMethod: null,
       paymentDetails: {
         notes: [
           'Paiements mixtes : Virement bancaire : 500,000 TND (VIR-001) | Chèque : 400,000 TND (CHQ-002) | Espèces : 199,000 TND (Espèces bureau)',
@@ -271,7 +271,7 @@ describe('POST /api/admin/invoices', () => {
           discountTotal: 50_000,
           taxTotal: 62_208,
           taxRegime: 'TVA_INCLUSE',
-          paymentMethod: 'BANK_TRANSFER',
+          paymentMethod: null,
           notes: 'Paiements mixtes : Virement bancaire : 500,000 TND (VIR-001)',
         }),
       })
@@ -282,7 +282,7 @@ describe('POST /api/admin/invoices', () => {
         discountTotal: 50_000,
         taxTotal: 62_208,
         taxRegime: 'TVA_INCLUSE',
-        paymentMethod: 'BANK_TRANSFER',
+        paymentMethod: null,
         paymentDetails: expect.objectContaining({
           notes: expect.stringContaining('Chèque : 400,000 TND (CHQ-002)'),
         }),

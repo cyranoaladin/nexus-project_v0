@@ -154,6 +154,8 @@ export function buildPaymentSummary(payments: NexusMixedPayment[]): string[] {
 export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): NexusCreateInvoiceRequest {
   const totals = calculateNexusInvoiceTotals(input);
   const paymentSummary = buildPaymentSummary(input.payments);
+  const nonZeroPayments = input.payments.filter((payment) => payment.amount > 0);
+  const distinctPaymentMethods = new Set(nonZeroPayments.map((payment) => payment.method));
   const taxRegime: TaxRegime = 'TVA_INCLUSE';
   const mainDescription = [
     input.packageSubtitle,
@@ -202,7 +204,7 @@ export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): Nexus
     items,
     discountTotal: totals.adjustmentTtc,
     taxRegime,
-    paymentMethod: input.payments.find((payment) => payment.amount > 0)?.method ?? null,
+    paymentMethod: distinctPaymentMethods.size === 1 ? nonZeroPayments[0]?.method ?? null : null,
     paymentDetails: paymentDetailsNotes ? { notes: paymentDetailsNotes } : null,
     notes,
     issuer: {

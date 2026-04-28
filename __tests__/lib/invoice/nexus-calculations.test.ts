@@ -92,7 +92,7 @@ describe('nexus invoice calculations', () => {
 
     expect(request.discountTotal).toBe(50_000);
     expect(request.taxRegime).toBe('TVA_INCLUSE');
-    expect(request.paymentMethod).toBe('BANK_TRANSFER');
+    expect(request.paymentMethod).toBeNull();
     expect(request.paymentDetails?.notes).toContain('Virement bancaire : 500,000 TND (VIR-001)');
     expect(request.paymentDetails?.notes).toContain('Chèque : 400,000 TND (CHQ-002 Banque BIAT)');
     expect(request.paymentDetails?.notes).toContain('Espèces : 199,000 TND (Espèces bureau)');
@@ -115,5 +115,32 @@ describe('nexus invoice calculations', () => {
         }),
       ])
     );
+  });
+
+  it('keeps the payment method only when a single non-zero method is used', () => {
+    const duo = NEXUS_INVOICE_PACKAGES.find((pack) => pack.id === 'duo-premiere')!;
+
+    const request = buildNexusInvoiceRequest({
+      customerName: 'Parent Responsable',
+      customerInfo: 'Client particulier',
+      invoiceDate: '2026-04-28',
+      packageLabel: duo.label,
+      packageSubtitle: duo.subtitle,
+      frenchHours: duo.frenchHours,
+      mathHours: duo.mathHours,
+      priceTtc: duo.priceTtc,
+      normalPriceTtc: duo.normalPriceTtc,
+      adjustmentTtc: 0,
+      adjustmentLabel: 'Ajustement séance non suivie',
+      payments: [
+        { method: 'CHEQUE', amount: tndToMillimes(400), reference: 'CHQ-001' },
+        { method: 'CHEQUE', amount: tndToMillimes(749), reference: 'CHQ-002' },
+      ],
+      masteriumMonths: 1,
+      masteriumMonthlyValue: tndToMillimes(129),
+      notes: '',
+    });
+
+    expect(request.paymentMethod).toBe('CHEQUE');
   });
 });

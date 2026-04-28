@@ -159,8 +159,8 @@ function validateFitsOnePage(data: InvoiceData): void {
     return acc + 20 + (descLines * 10);
   }, 0);
   const totalsHeight = 100;
-  const paymentNotesLines = data.paymentDetails?.notes ? data.paymentDetails.notes.split('\n').length : 0;
-  const paymentHeight = 60 + Math.min(paymentNotesLines, 4) * 10;
+  const paymentNotes = data.paymentDetails?.notes ? clampText(data.paymentDetails.notes, 4, 95) : '';
+  const paymentHeight = 60 + Math.ceil(paymentNotes.length / 70) * 10;
   const footerHeight = 90;
 
   const totalEstimate = headerHeight + customerBlockHeight + tableHeaderHeight +
@@ -418,7 +418,11 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       y += 14;
 
       doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.textSecondary)
-        .text(`Mode de paiement : ${getPaymentMethodLabel(data.paymentMethod)}`, PAGE.marginLeft, y);
+        .text(
+          `Mode de paiement : ${data.paymentDetails?.notes?.includes('Paiements mixtes') ? 'Paiements mixtes' : getPaymentMethodLabel(data.paymentMethod)}`,
+          PAGE.marginLeft,
+          y
+        );
       y += 12;
 
       if (data.dueAt) {
@@ -429,9 +433,12 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       y += 12;
 
       if (data.paymentDetails?.notes) {
-        doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.textSecondary)
-          .text(data.paymentDetails.notes, PAGE.marginLeft, y, { width: CONTENT_WIDTH * 0.6 });
-        y += Math.min(data.paymentDetails.notes.split('\n').length, 4) * 10 + 4;
+        const paymentNotesText = clampText(data.paymentDetails.notes, 4, 95);
+        doc.font(FONTS.regular).fontSize(7);
+        const paymentNotesHeight = doc.heightOfString(paymentNotesText, { width: CONTENT_WIDTH * 0.6 });
+        doc.fillColor(COLORS.textSecondary)
+          .text(paymentNotesText, PAGE.marginLeft, y, { width: CONTENT_WIDTH * 0.6 });
+        y += paymentNotesHeight + 6;
       }
 
       // Tax regime mention
@@ -456,7 +463,7 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
 
       // ─── Footer ─────────────────────────────────────────────────────
       // Separator
-      const footerY = PAGE.height - PAGE.marginBottom - 40;
+      const footerY = PAGE.height - PAGE.marginBottom - 55;
       doc.moveTo(PAGE.marginLeft, footerY).lineTo(PAGE.width - PAGE.marginRight, footerY)
         .strokeColor(COLORS.border).lineWidth(0.5).stroke();
 

@@ -45,12 +45,6 @@ type PaymentFormRow = NexusMixedPayment;
 
 const EMPTY_PAYMENT: PaymentFormRow = { method: 'BANK_TRANSFER', amount: 0, reference: '' };
 
-function numberToFrenchTnd(amount: number): string {
-  const value = Math.round(millimesToTnd(amount));
-  if (value === 0) return 'Zéro dinar tunisien';
-  return `${value.toLocaleString('fr-FR')} dinars tunisiens`;
-}
-
 export function NexusInvoiceGenerator() {
   const [packageId, setPackageId] = useState<NexusInvoicePackageId>('duo-premiere');
   const selected = NEXUS_INVOICE_PACKAGES.find((pack) => pack.id === packageId) ?? NEXUS_INVOICE_PACKAGES[0];
@@ -411,7 +405,7 @@ export function NexusInvoiceGenerator() {
             </section>
 
             <section className="mt-8 rounded-xl bg-white p-5" style={{ border: `1px solid ${BRAND.border}` }}>
-              <p className="text-sm"><b>Arrêté la présente facture à la somme de :</b> {numberToFrenchTnd(totals.netTtc)}.</p>
+              <p className="text-sm"><b>Montant total TTC :</b> {formatTnd(totals.netTtc)}.</p>
               <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Accès Masterium offert à titre commercial, non facturé.</p>
             </section>
 

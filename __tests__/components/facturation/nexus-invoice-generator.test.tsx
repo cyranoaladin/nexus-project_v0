@@ -22,6 +22,8 @@ describe('NexusInvoiceGenerator', () => {
       screen.getAllByText(/Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082/).length
     ).toBeGreaterThan(0);
     expect(screen.getByText(/contact@nexusreussite\.academy/)).toBeInTheDocument();
+    expect(screen.getByText(/Montant total TTC/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Arrêté la présente facture/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/sans tampon/i)).not.toBeInTheDocument();
   });
 });
