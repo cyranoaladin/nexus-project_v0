@@ -10,6 +10,7 @@ type EleveHubRessourcesProps = {
 };
 
 const CATEGORY_LABELS: Record<EleveHubResourceCategory, string> = {
+  INTERACTIVE_PROGRAM: 'Interfaces interactives',
   OFFICIAL_PROGRAM: 'Programme Officiel',
   OFFICIAL_AUTOMATISMES: 'Automatismes EAM',
   OFFICIAL_SUJET: 'Sujets & Exemples',
@@ -22,6 +23,7 @@ const CATEGORY_LABELS: Record<EleveHubResourceCategory, string> = {
 };
 
 const CATEGORY_ICONS: Record<EleveHubResourceCategory, React.ElementType> = {
+  INTERACTIVE_PROGRAM: BookOpen,
   OFFICIAL_PROGRAM: BookOpen,
   OFFICIAL_AUTOMATISMES: BadgeCheck,
   OFFICIAL_SUJET: FileText,
@@ -38,6 +40,7 @@ const BADGE_STYLES: Record<EleveHubResourceBadge, string> = {
   COACH: 'bg-brand-accent/20 text-brand-accent border-brand-accent/30',
   PERSONNEL: 'bg-white/5 text-neutral-300 border-white/10',
   NOUVEAU: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+  INTERACTIF: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
 };
 
 function formatBytes(bytes: number): string {
@@ -48,15 +51,16 @@ function formatBytes(bytes: number): string {
 
 function getCategoryOrder(category: EleveHubResourceCategory): number {
   const order: Record<EleveHubResourceCategory, number> = {
-    OFFICIAL_PROGRAM: 0,
-    OFFICIAL_AUTOMATISMES: 1,
-    OFFICIAL_SUJET: 2,
-    COACH_RESOURCE: 3,
-    USER_DOCUMENT: 4,
-    RAG_REFERENCE: 5,
-    STAGE_BILAN: 6,
-    INVOICE: 7,
-    RECEIPT: 8,
+    INTERACTIVE_PROGRAM: 0,
+    OFFICIAL_PROGRAM: 1,
+    OFFICIAL_AUTOMATISMES: 2,
+    OFFICIAL_SUJET: 3,
+    COACH_RESOURCE: 4,
+    USER_DOCUMENT: 5,
+    RAG_REFERENCE: 6,
+    STAGE_BILAN: 7,
+    INVOICE: 8,
+    RECEIPT: 9,
   };
   return order[category] ?? 999;
 }
@@ -132,6 +136,7 @@ export function EleveHubRessources({ hub }: EleveHubRessourcesProps) {
                                   {resource.badge === 'COACH' && 'COACH'}
                                   {resource.badge === 'PERSONNEL' && 'PERSONNEL'}
                                   {resource.badge === 'NOUVEAU' && 'NOUVEAU'}
+                                  {resource.badge === 'INTERACTIF' && 'INTERACTIF'}
                                 </Badge>
                               )}
                               <Download
@@ -152,8 +157,11 @@ export function EleveHubRessources({ hub }: EleveHubRessourcesProps) {
                                 </p>
                                 <p className="text-xs text-neutral-500">{resource.subtitle}</p>
                               </div>
-                              <Badge className="text-xs bg-blue-500/20 text-blue-300 border-blue-500/30">
-                                LIEN
+                              <Badge
+                                className={resource.badge ? BADGE_STYLES[resource.badge] : 'text-xs bg-blue-500/20 text-blue-300 border-blue-500/30'}
+                                variant="outline"
+                              >
+                                {resource.badge ?? 'LIEN'}
                               </Badge>
                             </a>
                           ) : null}
