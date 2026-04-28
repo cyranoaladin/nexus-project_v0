@@ -51,7 +51,18 @@ if [ "$CONFIRM_PRODUCTION_DEPLOY" != "yes" ]; then
   echo ""
   echo "To deploy to production, run:"
   echo "  CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh"
+  echo ""
+  echo "To dry-run (check logic without deploying), run:"
+  echo "  DRY_RUN=yes CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh"
   exit 1
+fi
+
+# Check for dry-run mode
+DRY_RUN_MODE=${DRY_RUN:-no}
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN MODE: No actual deployment will be performed"
+  print_warning "Only logic checks will be executed"
+  echo ""
 fi
 
 echo "🚀 SAFE DEPLOYMENT to ${DOMAIN}..."
@@ -106,7 +117,12 @@ fi
 # Step 1: SSH into server and pull latest changes (ff-only)
 echo ""
 echo "📥 Step 1: Pulling latest changes from git (ff-only)..."
-ssh ${SERVER} << EOF
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping git pull"
+  print_success "Git pull would be executed (ff-only)"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 # ─── BACKUP SSL CERTIFICATES ─────────────────────────────────────────────────────
 echo "🔒 Checking SSL certificates..."
@@ -131,69 +147,106 @@ if ! git pull --ff-only origin main; then
   exit 1
 fi
 EOF
-print_success "Git pull completed (ff-only)"
+  print_success "Git pull completed (ff-only)"
+fi
 
 # Step 2: Build nexus-app container only
 echo ""
-echo "🔨 Step 2: Building nexus-app container (no postgres restart)..."
-ssh ${SERVER} << EOF
+echo "🔨 Step 2: Building nexus-app container only..."
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping build"
+  print_success "Build would execute (nexus-app only, no postgres restart)"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 docker compose -f ${COMPOSE_FILE} build nexus-app
 EOF
-print_success "nexus-app container built"
+  print_success "nexus-app container built"
+fi
 
 # Step 3: Restart nexus-app only (no down, no volumes)
 echo ""
 echo "🔄 Step 3: Restarting nexus-app (no postgres restart)..."
-ssh ${SERVER} << EOF
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping restart"
+  print_success "Restart would execute (up -d --no-deps nexus-app, no down, no volumes)"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app
 EOF
-print_success "nexus-app restarted"
+  print_success "nexus-app restarted"
+fi
 
 # Step 4: Wait for nexus-app to be healthy
 echo ""
 echo "⏳ Step 4: Waiting for nexus-app to be healthy..."
-ssh ${SERVER} << EOF
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping health check wait"
+  print_success "Health check would execute (120s timeout)"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 timeout 120 bash -c 'until docker compose -f ${COMPOSE_FILE} ps nexus-app | grep -q healthy; do sleep 2; done'
 EOF
-print_success "nexus-app is healthy"
+  print_success "nexus-app is healthy"
+fi
 
 # Step 5: Verify deployment
 echo ""
 echo "🔍 Step 5: Verifying deployment..."
-ssh ${SERVER} << EOF
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping verification"
+  print_success "Docker ps would be shown"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 docker compose -f ${COMPOSE_FILE} ps
 EOF
+fi
 
 # Step 6: Health check
 echo ""
 echo "🏥 Step 6: Health check..."
-HEALTH_CHECK=$(ssh ${SERVER} "curl -s http://localhost:3001/api/health" || echo "failed")
-if [[ $HEALTH_CHECK == *"ok"* ]]; then
-  print_success "Health check passed"
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping health check"
+  print_success "Health check would execute (curl /api/health)"
 else
-  print_error "Health check failed: $HEALTH_CHECK"
-  echo ""
-  echo "ROLLBACK INSTRUCTIONS:"
-  echo "  ssh ${SERVER}"
-  echo "  cd ${PROJECT_DIR}"
-  echo "  git log --oneline -3"
-  echo "  git checkout PREVIOUS_COMMIT_HASH"
-  echo "  docker compose -f ${COMPOSE_FILE} build nexus-app"
-  echo "  docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app"
-  exit 1
+  HEALTH_CHECK=$(ssh ${SERVER} "curl -s http://localhost:3001/api/health" || echo "failed")
+  if [[ $HEALTH_CHECK == *"ok"* ]]; then
+    print_success "Health check passed"
+  else
+    print_error "Health check failed: $HEALTH_CHECK"
+    echo ""
+    echo "ROLLBACK INSTRUCTIONS:"
+    echo "  ssh ${SERVER}"
+    echo "  cd ${PROJECT_DIR}"
+    echo "  git log --oneline -3"
+    echo "  git checkout PREVIOUS_COMMIT_HASH"
+    echo "  docker compose -f ${COMPOSE_FILE} build nexus-app"
+    echo "  docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app"
+    exit 1
+  fi
 fi
 
 # Step 7: Show recent logs
 echo ""
 echo "📋 Step 7: Recent application logs (last 20 lines)..."
-ssh ${SERVER} << EOF
+
+if [ "$DRY_RUN_MODE" = "yes" ]; then
+  print_warning "DRY-RUN: Skipping logs"
+  print_success "Logs would be shown (last 20 lines)"
+else
+  ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 docker compose -f ${COMPOSE_FILE} logs --tail=20 nexus-app
 EOF
+fi
 
 echo ""
 print_success "SAFE DEPLOYMENT completed successfully!"
