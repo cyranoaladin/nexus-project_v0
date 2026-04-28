@@ -11,7 +11,7 @@
 | Composant | Imports problématiques (extraits) | Catégorie de dépendance | Stratégie principale | Stratégies secondaires | Note |
 |-----------|----------------------|------------------------|-------------------------|------------------------|------|
 | ExerciseEngine | `from '../data' (Exercice, ExerciceQCM, etc.)`, `from '../lib/math-engine' (areEquivalentAnswers)` | DATA_SPECIFIC + LIB_SPECIFIC | PROP_INJECTION | EXTRACT_AS_TYPE_ONLY | Priorité PROP_INJECTION sur areEquivalentAnswers |
-| ProceduralExercise | `from '../lib/exercise-generator' (GENERATORS)`, `from '../lib/math-engine' (areEquivalentAnswers)`, `from '../store' (useMathsLabStore)` | LIB_SPECIFIC + STORE_SPECIFIC | PROP_INJECTION | STORE_FACTORY | Priorité PROP_INJECTION sur GENERATORS |
+| ProceduralExercise | `from '../lib/exercise-generator' (GENERATORS)`, `from '../lib/math-engine' (areEquivalentAnswers)`, `from '../store' (useMathsLabStore)` | LIB_SPECIFIC + STORE_SPECIFIC + DATA_SPECIFIC | STORE_FACTORY | PROP_INJECTION | Stratégie combinée STORE_FACTORY + PROP_INJECTION (Vague 5) |
 | Quiz/QuizEngine | `from '../../store' (useMathsLabStore)`, `from '../../data' (quizData, QuizQuestion)` | STORE_SPECIFIC + DATA_SPECIFIC | STORE_FACTORY | PROP_INJECTION + EXTRACT_AS_TYPE_ONLY | Combinaison 3 stratégies |
 | RAG/RAGFlashCard | `from '../../store' (useMathsLabStore)`, `from '../../data' (programmeData)` | STORE_SPECIFIC + DATA_SPECIFIC | STORE_FACTORY | PROP_INJECTION | Priorité STORE_FACTORY sur useMathsLabStore |
 | RAGRemediation | Aucun import spécifique maths-1ere | N/A | DIRECT_MOVE | N/A | Composant générique RAG - extraction directe (vérifié : aucun import maths-1ere) |
@@ -41,9 +41,9 @@ Chaque composant compté une seule fois, sur sa stratégie dominante.
 - **KEEP_SPECIFIC** : 0 (aucun composant)
 - **DIRECT_MOVE** : 4 (RAGSources, layout/TopBar, layout/LoadingScreen, RAGRemediation)
 - **PROP_INJECTION** : 5 (ExerciseEngine, Cockpit/FeuilleDeRoute, Cockpit/SeanceDuJour, Course/sections/ChapterFooter, Course/sections/ChapterPractice)
-- **STORE_FACTORY** : 8 (Quiz/QuizEngine, RAG/RAGFlashCard, Cockpit/CockpitView, Cockpit/HeroPedagogique, Cockpit/SyntheseEleve, Dashboard/DashboardView, Bilan/BilanView, Navigation/Navigation)
+- **STORE_FACTORY** : 9 (Quiz/QuizEngine, RAG/RAGFlashCard, Cockpit/CockpitView, Cockpit/HeroPedagogique, Cockpit/SyntheseEleve, Dashboard/DashboardView, Bilan/BilanView, Navigation/Navigation, ProceduralExercise)
 - **HOOK_INJECTION** : 1 (Course/ChapterView)
-- **EXTRACT_AS_TYPE_ONLY** : 3 (Course/sections/ChapterCourse, Course/sections/ChapterHeader, ProceduralExercise)
+- **EXTRACT_AS_TYPE_ONLY** : 2 (Course/sections/ChapterCourse, Course/sections/ChapterHeader)
 
 **Total : 21 composants**
 
