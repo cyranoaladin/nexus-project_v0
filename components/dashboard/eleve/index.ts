@@ -1,6 +1,7 @@
 export * from './EleveAria';
 export * from './EleveBilans';
 export * from './EleveCockpit';
+export * from './EleveHubRessources';
 export * from './EleveResources';
 export * from './EleveSessions';
 export * from './EleveStages';
