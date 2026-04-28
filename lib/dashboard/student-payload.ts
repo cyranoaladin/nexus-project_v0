@@ -11,10 +11,11 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { AcademicTrack, GradeLevel, MathsLevel } from '@prisma/client';
+import { AcademicTrack, GradeLevel, MathsLevel, UserRole } from '@prisma/client';
 import { getActiveTrajectory, parseMilestones } from '@/lib/trajectory';
 import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
+import { listOfficialPdfsForProfile } from '@/lib/programme/official-pdfs';
 import type {
   EleveDashboardData,
   EleveBilan,
@@ -26,6 +27,9 @@ import type {
   EleveFeuilleDeRouteItem,
   EleveAlert,
   EleveAutomatismesProgress,
+  EleveHub,
+  EleveHubResourceCategory,
+  EleveHubResource,
 } from '@/components/dashboard/eleve/types';
 
 // ─── Subject normaliser ───────────────────────────────────────────────────────
@@ -48,6 +52,207 @@ const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
   SGN: 'Sciences de gestion et numérique',
   MIXTE: 'Multi-matières',
 };
+
+// ─── Hub Ressources Pédagogiques builder (Lot B) ─────────────────────────────
+
+/**
+ * Empty Hub skeleton — every category present with [] to simplify UI rendering.
+ */
+function emptyHub(): EleveHub {
+  return {
+    byCategory: {
+      OFFICIAL_PROGRAM: [],
+      OFFICIAL_AUTOMATISMES: [],
+      OFFICIAL_SUJET: [],
+      COACH_RESOURCE: [],
+      USER_DOCUMENT: [],
+      RAG_REFERENCE: [],
+      INVOICE: [],
+      RECEIPT: [],
+      STAGE_BILAN: [],
+    },
+    totalCount: 0,
+    recentlyAddedCount: 0,
+  };
+}
+
+/**
+ * Decide UserDocument category based on uploader role:
+ *   - uploadedBy.role === COACH and uploadedById !== userId → COACH_RESOURCE
+ *   - otherwise (no uploader, system, admin, parent, self) → USER_DOCUMENT
+ */
+function userDocCategory(
+  doc: { uploadedById: string | null; uploadedBy: { id: string; role: UserRole; firstName: string | null; lastName: string | null } | null },
+  studentUserId: string,
+): EleveHubResourceCategory {
+  if (
+    doc.uploadedBy &&
+    doc.uploadedBy.role === UserRole.COACH &&
+    doc.uploadedById !== studentUserId
+  ) {
+    return 'COACH_RESOURCE';
+  }
+  return 'USER_DOCUMENT';
+}
+
+/**
+ * Build the Hub Ressources Pédagogiques aggregator.
+ *
+ * Aggregation sources:
+ *   - OFFICIAL_PROGRAM | OFFICIAL_AUTOMATISMES | OFFICIAL_SUJET → static mapping
+ *     filtered by (level × track) via lib/programme/official-pdfs.
+ *   - COACH_RESOURCE | USER_DOCUMENT → derived from already-fetched userDocs (Q5).
+ *   - RAG_REFERENCE → currently empty (TODO: requires schema extension to track
+ *     consulted RAG sources per ARIA conversation; out-of-scope for Lot B).
+ *   - INVOICE | RECEIPT → derived from userInvoices (Q10).
+ *   - STAGE_BILAN → derived from already-computed stageItems (no extra query).
+ *
+ * Note: this builder does NOT issue any Prisma query of its own. It consumes
+ * data already fetched by the main payload builder (Q5, Q10, derived stages).
+ */
+export function buildHub(input: {
+  level: GradeLevel;
+  track: AcademicTrack;
+  studentUserId: string;
+  userDocs: ReadonlyArray<{
+    id: string;
+    title: string;
+    originalName: string;
+    mimeType: string;
+    sizeBytes: number;
+    createdAt: Date;
+    documentType: string;
+    visibilityScope: string;
+    subject: string | null;
+    description: string | null;
+    uploadedById: string | null;
+    uploadedBy: { id: string; role: UserRole; firstName: string | null; lastName: string | null } | null;
+  }>;
+  invoices: ReadonlyArray<{
+    id: string;
+    number: string;
+    status: string;
+    issuedAt: Date;
+    paidAt: Date | null;
+    total: number;
+    currency: string;
+    pdfUrl: string | null;
+  }>;
+  stageItems: ReadonlyArray<EleveStageItem>;
+}): EleveHub {
+  const hub = emptyHub();
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+  // ── Official PDFs (static, gated by level × track) ──────────────────────
+  for (const pdf of listOfficialPdfsForProfile(input.level, input.track)) {
+    const category: EleveHubResourceCategory =
+      pdf.category === 'PROGRAM'
+        ? 'OFFICIAL_PROGRAM'
+        : pdf.category === 'AUTOMATISMES'
+          ? 'OFFICIAL_AUTOMATISMES'
+          : 'OFFICIAL_SUJET'; // PROGRAM | AUTOMATISMES | SUJET | EXEMPLE all map to one of three official buckets
+    const bucket: EleveHubResourceCategory =
+      pdf.category === 'EXEMPLE' ? 'OFFICIAL_SUJET' : category;
+    hub.byCategory[bucket].push({
+      id: `official:${pdf.slug}`,
+      category: bucket,
+      title: pdf.title,
+      subtitle: pdf.description,
+      level: pdf.level,
+      track: pdf.track === 'BOTH' || pdf.track === 'ALL' ? input.track : pdf.track,
+      type: 'PDF',
+      sizeBytes: pdf.sizeBytes,
+      uploadedAt: pdf.publishedAt,
+      downloadUrl: `/api/student/resources/official/${pdf.slug}`,
+      badge: 'OFFICIEL',
+    });
+  }
+
+  // ── User documents → COACH_RESOURCE or USER_DOCUMENT ────────────────────
+  for (const doc of input.userDocs) {
+    const cat = userDocCategory(doc, input.studentUserId);
+    const isPdf = doc.mimeType === 'application/pdf';
+    const isMd = doc.mimeType === 'text/markdown' || doc.mimeType === 'text/x-markdown';
+    const mediaType: EleveHubResource['type'] = isPdf
+      ? 'PDF'
+      : isMd
+        ? 'MARKDOWN'
+        : doc.mimeType.startsWith('text/')
+          ? 'MARKDOWN'
+          : 'PDF';
+
+    const isRecent = doc.createdAt.getTime() >= sevenDaysAgo;
+    const uploaderName =
+      cat === 'COACH_RESOURCE' && doc.uploadedBy
+        ? `${doc.uploadedBy.firstName ?? ''} ${doc.uploadedBy.lastName ?? ''}`.trim() || undefined
+        : undefined;
+
+    hub.byCategory[cat].push({
+      id: `userdoc:${doc.id}`,
+      category: cat,
+      title: doc.title,
+      subtitle: doc.description ?? undefined,
+      subject: (doc.subject ?? undefined) as EleveHubResource['subject'],
+      type: mediaType,
+      uploadedAt: doc.createdAt.toISOString(),
+      sizeBytes: doc.sizeBytes,
+      downloadUrl: `/api/student/documents/${doc.id}/download`,
+      uploaderRole: doc.uploadedBy?.role,
+      uploaderName,
+      badge: cat === 'COACH_RESOURCE' ? 'COACH' : isRecent ? 'NOUVEAU' : 'PERSONNEL',
+    });
+  }
+
+  // ── Invoices ─────────────────────────────────────────────────────────────
+  for (const inv of input.invoices) {
+    const isReceipt = inv.status === 'PAID' && inv.paidAt !== null;
+    const cat: EleveHubResourceCategory = isReceipt ? 'RECEIPT' : 'INVOICE';
+    hub.byCategory[cat].push({
+      id: `invoice:${inv.id}`,
+      category: cat,
+      title: isReceipt
+        ? `Reçu de paiement n°${inv.number}`
+        : `Facture n°${inv.number}`,
+      subtitle: `${(inv.total / 1000).toFixed(2)} ${inv.currency}`,
+      type: inv.pdfUrl ? 'PDF' : 'LINK',
+      uploadedAt: inv.issuedAt.toISOString(),
+      downloadUrl: inv.pdfUrl ?? undefined,
+      externalUrl: inv.pdfUrl ? undefined : `/dashboard/eleve/factures/${inv.id}`,
+    });
+  }
+
+  // ── Stage bilans (derived from already-computed stageItems) ─────────────
+  for (const stage of input.stageItems) {
+    if (stage.hasBilan && stage.bilanUrl) {
+      hub.byCategory.STAGE_BILAN.push({
+        id: `stage-bilan:${stage.reservationId}`,
+        category: 'STAGE_BILAN',
+        title: `Bilan post-stage — ${stage.title}`,
+        subtitle: `Stage du ${new Date(stage.startDate).toLocaleDateString('fr-FR')}`,
+        type: 'LINK',
+        uploadedAt: stage.endDate,
+        externalUrl: stage.bilanUrl,
+      });
+    }
+  }
+
+  // ── RAG_REFERENCE ──────────────────────────────────────────────────────
+  // TODO (post Lot B): surface RAG sources consulted during ARIA conversations.
+  //   Requires either a schema extension (AriaConversation.referencesUsed) or a
+  //   denormalised view from the RAG ingestor. Out-of-scope for Lot B.
+
+  // ── Tally totals ────────────────────────────────────────────────────────
+  for (const list of Object.values(hub.byCategory)) {
+    hub.totalCount += list.length;
+    for (const r of list) {
+      if (r.uploadedAt && new Date(r.uploadedAt).getTime() >= sevenDaysAgo) {
+        hub.recentlyAddedCount += 1;
+      }
+    }
+  }
+
+  return hub;
+}
 
 function normaliseBilanSubject(rawSubject: string): EleveBilanSubject {
   const normalised = SUBJECT_TO_BILAN_SUBJECT[rawSubject.toUpperCase()];
@@ -492,7 +697,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     academicTrack === AcademicTrack.STMG ||
     academicTrack === AcademicTrack.STMG_NON_LYCEEN;
 
-  // ── Q2–Q8: Parallel independent queries ──────────────────────────────────
+  // ── Q2–Q8 + Q10: Parallel independent queries ──────────────────────────────────
   const [
     mathsProgressForTrack,
     recentBilansRaw,
@@ -501,6 +706,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     userEntitlements,
     trajectoryData,
     nextStepResult,
+    userInvoices,
   ] = await Promise.all([
     // Q2: MathsProgress for this student's track
     prisma.mathsProgress.findFirst({
@@ -569,6 +775,19 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
         mimeType: true,
         sizeBytes: true,
         createdAt: true,
+        documentType: true,
+        visibilityScope: true,
+        subject: true,
+        description: true,
+        uploadedById: true,
+        uploadedBy: {
+          select: {
+            id: true,
+            role: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     }),
 
@@ -580,6 +799,24 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
     // Q8: Next step engine
     getNextStep(userId).catch(() => null),
+
+    // Q10: Invoices addressed to this student (beneficiaryUserId)
+    // Used by the Hub to surface INVOICE / RECEIPT entries
+    prisma.invoice.findMany({
+      where: { beneficiaryUserId: userId },
+      orderBy: { issuedAt: 'desc' },
+      take: 10,
+      select: {
+        id: true,
+        number: true,
+        status: true,
+        issuedAt: true,
+        paidAt: true,
+        total: true,
+        currency: true,
+        pdfUrl: true,
+      },
+    }),
   ]);
 
   // Q9: Stage bilans lookup (only if reservations exist)
@@ -804,6 +1041,16 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     credits.balance
   );
 
+  // ── Build Hub Ressources Pédagogiques ───────────────────────────────────────
+  const hub = buildHub({
+    level: gradeLevel,
+    track: academicTrack,
+    studentUserId: student.id,
+    userDocs,
+    invoices: userInvoices,
+    stageItems,
+  });
+
   // ── Assemble final payload ─────────────────────────────────────────────
   return {
     student: {
@@ -834,6 +1081,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     upcomingStages,
     pastStages,
     resources,
+    hub,
     ariaStats: {
       messagesToday: ariaMessagesToday,
       totalConversations: student.ariaConversations.length,
