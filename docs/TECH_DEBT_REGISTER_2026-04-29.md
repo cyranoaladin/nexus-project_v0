@@ -91,12 +91,24 @@ recommendations: [], // TODO: Extract from analysisJson
 **Action planned:** Post-go-live, add modal
 
 ### 11. ARIA rights check (components/ui/aria-chat.tsx:51)
-```
 // TODO: Vérifier les droits ARIA de l'élève
-```
-**Classification:** Avant go-live complet
-**Justification:** ARIA rights check is important for security and UX
-**Action planned:** Before go-live complete, implement rights check
+
+**Classification: P1 (UX improvement, NOT security)**
+
+**Context:** Client-side check to prevent students without ARIA access from attempting to send messages.
+
+**Security assessment:** API already enforces ARIA rights server-side:
+- Role check: `session.user.role !== 'ELEVE'` returns 401 (app/api/aria/chat/route.ts:35-52)
+- Feature guard: `requireFeatureApi(ariaFeature)` checks entitlement (line 57-60)
+- Subscription check: Verifies active subscription with ariaSubjects (line 82-100)
+
+**Risk:** No security risk - API blocks unauthorized access. This is purely UX improvement to avoid 403 errors.
+
+**Justification:** Better UX to check client-side before sending request, but not blocking for security.
+
+**Action planned:** Before go-live complete, implement client-side check to improve UX.
+
+**Remediation plan:** Call `/api/aria/entitlement` or similar endpoint to check ARIA access before enabling chat interface.
 
 ### 12. NSI questions migration (lib/assessments/questions/nsi/**/*.ts)
 ```
