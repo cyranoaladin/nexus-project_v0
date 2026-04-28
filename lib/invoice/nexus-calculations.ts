@@ -181,6 +181,7 @@ export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): Nexus
     total: 0,
   });
 
+  // TODO: Normalize mixed payments into a dedicated table when the invoice schema evolves.
   const paymentDetailsNotes = [
     paymentSummary.length > 0 ? `Paiements mixtes : ${paymentSummary.join(' | ')}` : null,
     `Net payé : ${formatTnd(totals.paid)}`,
