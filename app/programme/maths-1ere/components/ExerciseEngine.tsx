@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, PenSquare, XCircle } from 'lucide-react';
 import type { Exercice, ExerciceQCM, ExerciceNumerique, ExerciceOrdonnancement } from '../data';
 import { areEquivalentAnswers } from '../lib/math-engine';
-import { MathRichText, MathInline } from './MathContent';
+import { MathRichText, MathInline } from '@/components/programme/shared/MathContent';
 
 // ─── QCM Exercise ───────────────────────────────────────────────────────────
 

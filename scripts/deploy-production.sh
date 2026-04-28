@@ -84,7 +84,7 @@ EOF
 # Step 6: Health check
 echo ""
 echo "🏥 Step 6: Health check..."
-HEALTH_CHECK=$(ssh ${SERVER} "curl -s http://localhost/api/health" || echo "failed")
+HEALTH_CHECK=$(ssh ${SERVER} "curl -s http://localhost:3001/api/health" || echo "failed")
 if [[ $HEALTH_CHECK == *"ok"* ]]; then
     print_success "Health check passed"
 else

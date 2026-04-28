@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AutomatismeSeries, SafeAutomatismeSeries, AutomatismeAttemptResult } from "@/types/automatismes";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MathRichText } from "@/app/programme/maths-1ere/components/MathContent";
+import { MathRichText } from "@/components/programme/shared/MathContent";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {

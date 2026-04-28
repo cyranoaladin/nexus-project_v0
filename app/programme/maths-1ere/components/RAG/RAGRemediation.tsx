@@ -12,7 +12,7 @@ import {
   ChevronUp,
   Database,
 } from 'lucide-react';
-import { MathRichText } from '../MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 
 interface RAGHit {
   id: string;

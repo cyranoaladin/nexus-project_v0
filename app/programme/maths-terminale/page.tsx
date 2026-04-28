@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole, MathsLevel } from '@prisma/client';
-import { MathJaxProvider } from '../maths-1ere/components/MathJaxProvider';
+import { MathJaxProvider } from '@/components/programme/shared/MathJaxProvider';
 import MathsTerminaleClient from './components/MathsTerminaleClient';
 
 export default async function MathsTerminalePage() {

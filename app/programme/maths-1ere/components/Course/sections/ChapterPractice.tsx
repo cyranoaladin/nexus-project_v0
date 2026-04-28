@@ -13,7 +13,7 @@ import {
 import dynamic from 'next/dynamic';
 import { type Chapitre, type Categorie } from '../../../data';
 import { type HintLevel, useMathsLabStore } from '../../../store';
-import { MathInline, MathRichText } from '../../MathContent';
+import { MathInline, MathRichText } from '@/components/programme/shared/MathContent';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
 import ExerciseEngine from '../../ExerciseEngine';

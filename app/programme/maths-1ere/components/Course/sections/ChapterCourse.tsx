@@ -9,7 +9,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { type Chapitre } from '../../../data';
-import { MathInline, MathBlock, MathRichText } from '../../MathContent';
+import { MathInline, MathBlock, MathRichText } from '@/components/programme/shared/MathContent';
 
 interface ChapterCourseProps {
   chap: Chapitre;

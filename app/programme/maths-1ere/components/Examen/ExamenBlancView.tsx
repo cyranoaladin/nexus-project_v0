@@ -16,7 +16,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { EPREUVE_MATHS_1ERE, SUJET_BLANC_1, type ExerciceBloc, type QuestionExercice } from '../../config/exam';
-import { MathRichText } from '../MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 import { RAGRemediation } from '../RAG/RAGRemediation';
 import { useMathsLabStore } from '../../store';
 

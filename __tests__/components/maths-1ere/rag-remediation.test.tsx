@@ -17,7 +17,7 @@ import { RAGRemediation } from '@/app/programme/maths-1ere/components/RAG/RAGRem
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
-jest.mock('@/app/programme/maths-1ere/components/MathContent', () => ({
+jest.mock('@/components/programme/shared/MathContent', () => ({
   MathRichText: ({ content }: { content: string }) => (
     <div data-testid="math-rich-text">{content}</div>
   ),
