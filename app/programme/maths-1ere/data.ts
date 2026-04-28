@@ -3,127 +3,34 @@
  * Based on B.O. Éducation Nationale 2025-2026
  *
  * Nexus Maths Lab V2 — "Learning Lab" immersif
+ *
+ * Types extracted to shared (Lot E Vague 2):
+ * - Exercise types, CoupDePouce, ChapitreContenu, CompetenceBO, Chapitre, Categorie, QuizQuestion
+ * - NiveauEleve, DailyChallenge, BadgeDefinition, ExerciceData, TableauRow, CasRow
+ * See: components/programme/shared/types/programme.ts
  */
 
-// ─── Exercise Types ─────────────────────────────────────────────────────────
-
-export type ExerciceType = 'qcm' | 'numerique' | 'ordonnancement';
-
-export interface ExerciceQCM {
-  type: 'qcm';
-  question: string;
-  options: string[];
-  correct: number;
-  explication: string;
-}
-
-export interface ExerciceNumerique {
-  type: 'numerique';
-  question: string;
-  reponse: number | string;
-  tolerance?: number;
-  unite?: string;
-  explication: string;
-}
-
-export interface ExerciceOrdonnancement {
-  type: 'ordonnancement';
-  question: string;
-  etapesDesordre: string[];
-  ordreCorrect: number[];
-  explication: string;
-}
-
-export type Exercice = ExerciceQCM | ExerciceNumerique | ExerciceOrdonnancement;
-
-// ─── Hint System (Coup de Pouce) ────────────────────────────────────────────
-
-export interface CoupDePouce {
-  indice: string;
-  debutRaisonnement: string;
-  correctionDetaillee: string[];
-}
-
-// ─── Legacy compat aliases ──────────────────────────────────────────────────
-
-export interface ExerciceData {
-  question: string;
-  reponse: string;
-  etapes: string[];
-}
-
-export interface TableauRow {
-  f: string;
-  derivee: string;
-}
-
-export interface CasRow {
-  delta: string;
-  solution: string;
-}
-
-// ─── Chapter Content ────────────────────────────────────────────────────────
-
-export interface ChapitreContenu {
-  rappel: string;
-  methode: string;
-  tableau?: TableauRow[];
-  cas?: CasRow[];
-  astuce: string;
-  exercice: ExerciceData;
-  erreursClassiques?: string[];
-  methodologieBac?: string;
-  coupDePouce?: CoupDePouce;
-  geogebraId?: string;
-}
-
-/** B.O. competences (CdC §1.2) */
-export type CompetenceBO = 'chercher' | 'modeliser' | 'representer' | 'raisonner' | 'calculer' | 'communiquer';
-
-export interface Chapitre {
-  id: string;
-  titre: string;
-  niveau: 'essentiel' | 'maitrise' | 'approfondissement';
-  difficulte: 1 | 2 | 3 | 4 | 5;
-  pointsXP: number;
-  prerequis?: string[];
-  /** B.O. competences worked in this chapter */
-  competences?: CompetenceBO[];
-  contenu: ChapitreContenu;
-  exercices?: Exercice[];
-  prerequisDiagnostic?: {
-    question: string;
-    options: string[];
-    correct: number;
-    remediation: string;
-  }[];
-  ressourcesExt?: { label: string; url: string }[];
-}
-
-export interface Categorie {
-  titre: string;
-  icon: string;
-  couleur: string;
-  chapitres: Chapitre[];
-}
-
-export interface QuizQuestion {
-  id: number;
-  question: string;
-  options: string[];
-  correct: number;
-  explication: string;
-  categorie: string;
-  difficulte?: 1 | 2 | 3;
-}
+import type {
+  ExerciceType,
+  ExerciceQCM,
+  ExerciceNumerique,
+  ExerciceOrdonnancement,
+  Exercice,
+  CoupDePouce,
+  ChapitreContenu,
+  CompetenceBO,
+  Chapitre,
+  Categorie,
+  QuizQuestion,
+  NiveauEleve,
+  DailyChallenge,
+  BadgeDefinition,
+  ExerciceData,
+  TableauRow,
+  CasRow
+} from '@/components/programme/shared/types/programme';
 
 // ─── XP & Gamification ──────────────────────────────────────────────────────
-
-export interface NiveauEleve {
-  nom: string;
-  xpMin: number;
-  badge: string;
-}
 
 export const niveaux: NiveauEleve[] = [
   { nom: 'Novice', xpMin: 0, badge: 'sprout' },
@@ -149,14 +56,6 @@ export function getNextNiveau(xp: number): NiveauEleve | null {
 }
 
 // ─── Daily Challenge Pool ────────────────────────────────────────────────────
-
-export interface DailyChallenge {
-  id: string;
-  question: string;
-  reponse: string;
-  categorie: string;
-  xp: number;
-}
 
 export const dailyChallenges: DailyChallenge[] = [
   // Dérivation
@@ -1670,14 +1569,6 @@ export const quizData: QuizQuestion[] = [
 
 // ─── Badge Definitions ──────────────────────────────────────────────────────
 
-export interface BadgeDefinition {
-  id: string;
-  nom: string;
-  description: string;
-  icon: string;
-  condition: string;
-}
-
 export const badgeDefinitions: BadgeDefinition[] = [
   { id: 'stakhanoviste', nom: 'Stakhanoviste', description: '7 jours de suite', icon: 'medal', condition: 'streak >= 7' },
   { id: 'sherlock', nom: 'Sherlock', description: 'Résoudre un exercice difficile sans indice', icon: 'brain', condition: 'hard_no_hint' },
@@ -1701,3 +1592,24 @@ export const badgeDefinitions: BadgeDefinition[] = [
   { id: 'imprimeur', nom: 'Imprimeur', description: 'Imprimer une fiche de cours', icon: 'printer', condition: 'printed_fiche' },
   { id: 'diagnostic-ace', nom: 'Diagnostic Ace', description: 'Obtenir 100% à 3 diagnostics de prérequis', icon: 'syringe', condition: 'diagnostic_perfect_3' },
 ];
+
+// Re-exports from shared (Lot E Vague 2)
+export type {
+  ExerciceType,
+  ExerciceQCM,
+  ExerciceNumerique,
+  ExerciceOrdonnancement,
+  Exercice,
+  CoupDePouce,
+  ChapitreContenu,
+  CompetenceBO,
+  Chapitre,
+  Categorie,
+  QuizQuestion,
+  NiveauEleve,
+  DailyChallenge,
+  BadgeDefinition,
+  ExerciceData,
+  TableauRow,
+  CasRow
+} from '@/components/programme/shared/types/programme';

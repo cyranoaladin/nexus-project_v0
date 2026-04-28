@@ -14,7 +14,7 @@
 | ProceduralExercise | `from '../lib/exercise-generator' (GENERATORS)`, `from '../lib/math-engine' (areEquivalentAnswers)`, `from '../store' (useMathsLabStore)` | LIB_SPECIFIC + STORE_SPECIFIC | PROP_INJECTION | STORE_FACTORY | Priorité PROP_INJECTION sur GENERATORS |
 | Quiz/QuizEngine | `from '../../store' (useMathsLabStore)`, `from '../../data' (quizData, QuizQuestion)` | STORE_SPECIFIC + DATA_SPECIFIC | STORE_FACTORY | PROP_INJECTION + EXTRACT_AS_TYPE_ONLY | Combinaison 3 stratégies |
 | RAG/RAGFlashCard | `from '../../store' (useMathsLabStore)`, `from '../../data' (programmeData)` | STORE_SPECIFIC + DATA_SPECIFIC | STORE_FACTORY | PROP_INJECTION | Priorité STORE_FACTORY sur useMathsLabStore |
-| RAGRemediation | Aucun import spécifique maths-1ere | N/A | KEEP_SPECIFIC (à vérifier) | N/A | Déjà utilise MathContent shared - à vérifier imports |
+| RAGRemediation | Aucun import spécifique maths-1ere | N/A | DIRECT_MOVE | N/A | Composant générique RAG - extraction directe (vérifié : aucun import maths-1ere) |
 | RAGSources | Aucun import spécifique maths-1ere | N/A | DIRECT_MOVE | N/A | Composant générique RAG - extraction directe |
 | Course/ChapterView | `from '../../data' (programmeData)`, `from '../../hooks/useChapterProgress'` | DATA_SPECIFIC + HOOK_SPECIFIC | HOOK_INJECTION | PROP_INJECTION | Priorité HOOK_INJECTION sur useChapterProgress |
 | Course/sections/ChapterCourse | `from '../../../data' (type Chapitre)` | DATA_SPECIFIC | EXTRACT_AS_TYPE_ONLY | N/A | Type pur uniquement |
@@ -38,10 +38,10 @@
 
 Chaque composant compté une seule fois, sur sa stratégie dominante.
 
-- **KEEP_SPECIFIC** : 1 (RAGRemediation - à vérifier)
-- **DIRECT_MOVE** : 3 (RAGSources, layout/TopBar, layout/LoadingScreen)
+- **KEEP_SPECIFIC** : 0 (aucun composant)
+- **DIRECT_MOVE** : 4 (RAGSources, layout/TopBar, layout/LoadingScreen, RAGRemediation)
 - **PROP_INJECTION** : 5 (ExerciseEngine, Cockpit/FeuilleDeRoute, Cockpit/SeanceDuJour, Course/sections/ChapterFooter, Course/sections/ChapterPractice)
-- **STORE_FACTORY** : 6 (Quiz/QuizEngine, RAG/RAGFlashCard, Cockpit/CockpitView, Cockpit/HeroPedagogique, Cockpit/SyntheseEleve, Dashboard/DashboardView, Bilan/BilanView, Navigation/Navigation)
+- **STORE_FACTORY** : 8 (Quiz/QuizEngine, RAG/RAGFlashCard, Cockpit/CockpitView, Cockpit/HeroPedagogique, Cockpit/SyntheseEleve, Dashboard/DashboardView, Bilan/BilanView, Navigation/Navigation)
 - **HOOK_INJECTION** : 1 (Course/ChapterView)
 - **EXTRACT_AS_TYPE_ONLY** : 3 (Course/sections/ChapterCourse, Course/sections/ChapterHeader, ProceduralExercise)
 

@@ -9,6 +9,11 @@ import {
   badgeDefinitions,
   type NiveauEleve,
 } from './data';
+import type {
+  HintLevel,
+  SRSQuality,
+  SRSItem
+} from '@/components/programme/shared/types/programme';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -20,9 +25,6 @@ interface DailyChallengeState {
   /** Whether today's challenge was completed */
   completedToday: boolean;
 }
-
-/** Hint level used: 0=none, 1=indice(-10%), 2=début(-30%), 3=correction(-100%) */
-export type HintLevel = 0 | 1 | 2 | 3;
 
 /** XP malus multipliers per hint level (CdC §3.2) */
 const HINT_MALUS: Record<HintLevel, number> = {
@@ -141,19 +143,7 @@ export interface MathsLabState {
 }
 
 // ─── SRS Types ──────────────────────────────────────────────────────────────
-
-export type SRSQuality = 0 | 1 | 2 | 3 | 4 | 5;
-
-interface SRSItem {
-  /** ISO date of next scheduled review */
-  nextReview: string;
-  /** Current interval in days */
-  interval: number;
-  /** SM-2 ease factor (default 2.5) */
-  easeFactor: number;
-  /** Number of consecutive correct reviews */
-  repetitions: number;
-}
+// HintLevel, SRSQuality, SRSItem extracted to shared (Lot E Vague 2)
 
 /**
  * SM-2 algorithm for spaced repetition.
@@ -716,3 +706,6 @@ export const useMathsLabStore = create<MathsLabState>()(
     }
   )
 );
+
+// Re-exports from shared (Lot E Vague 2)
+export type { HintLevel, SRSQuality, SRSItem } from '@/components/programme/shared/types/programme';
