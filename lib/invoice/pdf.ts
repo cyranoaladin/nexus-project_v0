@@ -119,6 +119,7 @@ function getPaymentMethodLabel(method: string | null | undefined): string {
     CASH: 'Espèces',
     BANK_TRANSFER: 'Virement bancaire',
     CLICTOPAY: 'ClicToPay',
+    CHEQUE: 'Chèque',
     CHECK: 'Chèque',
     OTHER: 'Autre',
   };
@@ -158,8 +159,9 @@ function validateFitsOnePage(data: InvoiceData): void {
     return acc + 20 + (descLines * 10);
   }, 0);
   const totalsHeight = 100;
-  const paymentHeight = 60;
-  const footerHeight = 80;
+  const paymentNotes = data.paymentDetails?.notes ? clampText(data.paymentDetails.notes, 4, 95) : '';
+  const paymentHeight = 60 + Math.ceil(paymentNotes.length / 70) * 10;
+  const footerHeight = 90;
 
   const totalEstimate = headerHeight + customerBlockHeight + tableHeaderHeight +
     itemRowHeight + totalsHeight + paymentHeight + footerHeight +
@@ -390,7 +392,7 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       // Tax
       if (data.taxTotal > 0) {
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.textSecondary)
-          .text('TVA', totalsX, y);
+          .text(data.taxRegime === 'TVA_INCLUSE' ? 'TVA 6 %' : 'TVA', totalsX, y);
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.text)
           .text(formatCurrency(data.taxTotal, data.currency), totalsX + 80, y, { width: 100, align: 'right' });
         y += 16;
@@ -416,7 +418,11 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       y += 14;
 
       doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.textSecondary)
-        .text(`Mode de paiement : ${getPaymentMethodLabel(data.paymentMethod)}`, PAGE.marginLeft, y);
+        .text(
+          `Mode de paiement : ${data.paymentDetails?.notes?.includes('Paiements mixtes') ? 'Paiements mixtes' : getPaymentMethodLabel(data.paymentMethod)}`,
+          PAGE.marginLeft,
+          y
+        );
       y += 12;
 
       if (data.dueAt) {
@@ -425,6 +431,15 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
         doc.text('Facture payable à réception.', PAGE.marginLeft, y);
       }
       y += 12;
+
+      if (data.paymentDetails?.notes) {
+        const paymentNotesText = clampText(data.paymentDetails.notes, 4, 95);
+        doc.font(FONTS.regular).fontSize(7);
+        const paymentNotesHeight = doc.heightOfString(paymentNotesText, { width: CONTENT_WIDTH * 0.6 });
+        doc.fillColor(COLORS.textSecondary)
+          .text(paymentNotesText, PAGE.marginLeft, y, { width: CONTENT_WIDTH * 0.6 });
+        y += paymentNotesHeight + 6;
+      }
 
       // Tax regime mention
       doc.font(FONTS.oblique).fontSize(7).fillColor(COLORS.textMuted)
@@ -448,20 +463,34 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
 
       // ─── Footer ─────────────────────────────────────────────────────
       // Separator
-      const footerY = PAGE.height - PAGE.marginBottom - 40;
+      const footerY = PAGE.height - PAGE.marginBottom - 55;
       doc.moveTo(PAGE.marginLeft, footerY).lineTo(PAGE.width - PAGE.marginRight, footerY)
         .strokeColor(COLORS.border).lineWidth(0.5).stroke();
 
       // Footer text
+      const contactLine = [
+        data.issuer.phone ? `Tél : ${data.issuer.phone}` : null,
+        data.issuer.email ? `Email : ${data.issuer.email}` : null,
+        data.issuer.web ? `Web : ${data.issuer.web}` : null,
+      ].filter(Boolean).join(' | ');
+
+      if (data.issuer.slogan) {
+        doc.font(FONTS.bold).fontSize(8).fillColor(COLORS.brand)
+          .text(data.issuer.slogan, PAGE.marginLeft, footerY + 7, { width: CONTENT_WIDTH, align: 'center' });
+      }
+
       doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.textMuted)
         .text(
           `${data.issuer.name} — ${data.issuer.address}`,
-          PAGE.marginLeft, footerY + 8,
+          PAGE.marginLeft, footerY + 19,
           { width: CONTENT_WIDTH, align: 'center' }
         );
+      if (contactLine) {
+        doc.text(contactLine, PAGE.marginLeft, footerY + 29, { width: CONTENT_WIDTH, align: 'center' });
+      }
       doc.text(
         `MF : ${data.issuer.mf}${data.issuer.rne ? ` — RNE : ${data.issuer.rne}` : ''}`,
-        PAGE.marginLeft, footerY + 20,
+        PAGE.marginLeft, footerY + 39,
         { width: CONTENT_WIDTH, align: 'center' }
       );
 
