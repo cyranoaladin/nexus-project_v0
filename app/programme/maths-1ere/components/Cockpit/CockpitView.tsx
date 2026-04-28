@@ -11,7 +11,7 @@ import { HeroPedagogique } from './HeroPedagogique';
 import { SyntheseEleve } from './SyntheseEleve';
 import { FeuilleDeRoute } from '@/components/programme/shared/Cockpit/FeuilleDeRoute';
 import { SeanceDuJour } from '@/components/programme/shared/Cockpit/SeanceDuJour';
-import { RAGFlashCard } from '../RAG/RAGFlashCard';
+import { RAGFlashCard } from '@/components/programme/shared/RAG/RAGFlashCard';
 
 type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -52,7 +52,11 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
 
         <div className="space-y-6">
           {/* Bloc RAG — Rappel Flash dynamique */}
-          <RAGFlashCard onShowMore={() => onSwitchTab('cours')} />
+          <RAGFlashCard 
+            onShowMore={() => onSwitchTab('cours')}
+            store={{ getDueReviews: () => store.getDueReviews(), diagnosticResults: store.diagnosticResults }}
+            programmeData={programmeData}
+          />
 
           {/* SRS — Révisions en retard */}
           {dueReviews.length > 0 && (
