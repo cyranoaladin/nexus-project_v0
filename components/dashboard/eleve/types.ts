@@ -22,6 +22,45 @@ export type EleveTrackItem = {
   lastDiagnosticAt?: string;
 };
 
+// ─── Hub Ressources ─────────────────────────────────────────────────────────────
+
+export type EleveHubResourceCategory =
+  | 'OFFICIAL_PROGRAM'
+  | 'OFFICIAL_AUTOMATISMES'
+  | 'OFFICIAL_SUJET'
+  | 'COACH_RESOURCE'
+  | 'USER_DOCUMENT'
+  | 'RAG_REFERENCE'
+  | 'INVOICE'
+  | 'RECEIPT'
+  | 'STAGE_BILAN';
+
+export type EleveHubResourceBadge = 'OFFICIEL' | 'COACH' | 'PERSONNEL' | 'NOUVEAU';
+
+export type EleveHubResource = {
+  id: string;
+  category: EleveHubResourceCategory;
+  title: string;
+  subtitle?: string;
+  level?: string;
+  track?: string;
+  subject?: Subject;
+  type: 'PDF' | 'MARKDOWN' | 'LINK';
+  downloadUrl?: string;
+  externalUrl?: string;
+  uploadedAt?: string;
+  sizeBytes?: number;
+  uploaderRole?: string;
+  uploaderName?: string;
+  badge?: EleveHubResourceBadge;
+};
+
+export type EleveHub = {
+  byCategory: Record<EleveHubResourceCategory, EleveHubResource[]>;
+  totalCount: number;
+  recentlyAddedCount: number;
+};
+
 // ─── Resources ────────────────────────────────────────────────────────────────
 
 export type EleveResourceType =
@@ -248,6 +287,8 @@ export type EleveDashboardData = {
   pastStages: EleveStageItem[];
 
   resources: EleveResource[];
+
+  hub: EleveHub;
 
   ariaStats: {
     messagesToday: number;
