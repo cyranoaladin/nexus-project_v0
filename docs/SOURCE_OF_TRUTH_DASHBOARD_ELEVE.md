@@ -1,7 +1,7 @@
 # Source de vérité — Dashboard Élève
 
-> Branche : `feat/dashboards-premiere-finalization`
-> Dernière mise à jour : 2026-04-25
+> Branche : `feat/dashboards-premiere-finalization` puis `feat/hub-ressources-types-builder` (Lot B)
+> Dernière mise à jour : 2026-04-27 (Lot B — Hub Ressources)
 
 ## 1. Endpoint unique
 
@@ -26,14 +26,15 @@ Fichier : `lib/dashboard/student-payload.ts`
 | 2 | `prisma.mathsProgress.findFirst` | parallel | non |
 | 3 | `prisma.bilan.findMany` (bilans récents, WHERE studentMarkdown IS NOT NULL) | parallel | non |
 | 4 | `prisma.stageReservation.findMany` | parallel | non |
-| 5 | `prisma.userDocument.findMany` | parallel | non |
+| 5 | `prisma.userDocument.findMany` (Lot B : `take: 20`, inclut `uploadedBy.role/firstName/lastName/documentType/visibilityScope/subject/description`) | parallel | non |
 | 6 | `prisma.entitlement.findMany` (via `getUserEntitlements`) | parallel | non |
 | 7 | `prisma.trajectory.findFirst` (via `getActiveTrajectory`) | parallel | non |
 | 8a | `prisma.user.findUnique` (via `getNextStep`) | parallel | non |
 | 8b | `prisma.sessionBooking.findFirst` (via `computeEleveStep` dans `getNextStep`) | parallel (séquentiel dans getNextStep) | non |
 | 9 | `prisma.bilan.findMany` (bilans de stage, WHERE type=STAGE_POST) | séquentiel | oui — seulement si des réservations de stage existent |
+| 10 | `prisma.invoice.findMany` (Lot B : `WHERE beneficiaryUserId = userId`, `take: 10`) | parallel | non |
 
-**Total : 9 sans stages, 10 avec stages.** ✅ (budget ≤ 12)
+**Total : 10 sans stages, 11 avec stages.** ✅ (budget ≤ 12)
 
 > **Note importante (évitée)** : `getNextStep(userId)` était appelé deux fois — une fois dans `Promise.all` et une fois dans `buildFeuilleDeRoute`. Ce doublon a été supprimé : le résultat de `getNextStep` est maintenant passé en paramètre à `buildFeuilleDeRoute` (commit du 2026-04-25).
 
@@ -52,11 +53,11 @@ p95 estimé : **< 50ms en local** → cible < 400ms en prod largement tenue.
 
 Fichier : `components/dashboard/eleve/types.ts`
 
-17 clés racine :
+18 clés racine (Lot B ajoute `hub`) :
 ```
 student, cockpit, trackContent, sessionsCount, nextSession, recentSessions,
 lastBilan, recentBilans, upcomingStages, pastStages, resources, ariaStats,
-badges, trajectory, automatismes, survivalProgress, credits
+badges, trajectory, automatismes, survivalProgress, credits, hub
 ```
 
 ### Règles de gating par profil
@@ -98,6 +99,44 @@ trajectoire active afin d'alimenter `TrajectoireCard` en mode data (SSoT) :
 
 `DashboardPilotage` reçoit `trajectoryData` en prop et le transmet à `TrajectoireCard data={...}`,
 éliminant le fetch interne `/api/student/trajectory` pour les élèves.
+
+### Hub Ressources Pédagogiques (Lot B)
+
+Le champ `hub: EleveHub` agrège **toutes** les ressources accessibles à un élève
+dans une structure unique. Format :
+
+```ts
+type EleveHub = {
+  byCategory: Record<EleveHubResourceCategory, EleveHubResource[]>;
+  totalCount: number;
+  recentlyAddedCount: number; // créées dans les 7 derniers jours
+};
+```
+
+Les 9 catégories (toutes présentes au moins en `[]`) :
+
+| Catégorie | Source | Gating EDS Première | Gating STMG Première | Gating Terminale EDS |
+|---|---|---|---|---|
+| `OFFICIAL_PROGRAM` | mapping statique `lib/programme/official-pdfs.ts` | ✅ programme officiel Maths Première générale | TODO (PDF MEN STMG manquant) | TODO (PDF MEN Terminale manquant) |
+| `OFFICIAL_AUTOMATISMES` | mapping statique | ✅ annexe BO EAM 2025-2026 | ❌ masqué (pas d'EAM STMG) | ❌ masqué (pas d'EAM Terminale) |
+| `OFFICIAL_SUJET` | mapping statique | ✅ 2 sujets spé + déclic 1S + QCM 2025 (4 entrées) | TODO | TODO |
+| `COACH_RESOURCE` | `userDocs` (Q5) où `uploadedBy.role === COACH` et `uploadedById !== userId` | tous | tous | tous |
+| `USER_DOCUMENT` | `userDocs` (Q5) restants (self / system / admin) | tous | tous | tous |
+| `RAG_REFERENCE` | (TODO post-Lot B — schéma à étendre `AriaConversation.referencesUsed`) | toujours `[]` Lot B | `[]` Lot B | `[]` Lot B |
+| `INVOICE` | `userInvoices` (Q10) où `status !== PAID` | tous | tous | tous |
+| `RECEIPT` | `userInvoices` (Q10) où `status === PAID && paidAt !== null` | tous | tous | tous |
+| `STAGE_BILAN` | `stageItems` calculés (Q9 conditionnel) où `hasBilan && bilanUrl` | tous | tous | tous |
+
+**Aucune query Prisma supplémentaire** n'est consommée par le builder Hub : il
+réutilise les données déjà fetchées par le builder principal (Q5, Q10, stages dérivés).
+
+**Servir les PDFs officiels** : route à créer en Lot C
+`GET /api/student/resources/official/[slug]/route.ts` avec whitelist via
+`getRegisteredSlugs()` du mapping.
+
+**Tests** : `__tests__/lib/dashboard/build-hub.test.ts` (21 cas couvrant les 9
+catégories, les 3 profils EDS/STMG/Terminale, les classifications COACH vs USER,
+INVOICE vs RECEIPT, badges, comptages).
 
 ### Automatismes — bootstrap MathsProgress (Cas A)
 
@@ -148,6 +187,8 @@ console.error('[documents/download] file read failed', { id: params.id, err });
 |---------|-----------|------------|
 | `__tests__/api/student.dashboard.permissions.test.ts` | 8 | Auth (401/403/200/500), headers, ownership horizontal |
 | `__tests__/api/student.dashboard.payload.test.ts` | 26 | Profils EDS/STMG Première/Terminale, credits, bilans, resources, trajectory |
-| `__tests__/lib/dashboard/student-payload.builders.test.ts` | 21 | Builders internes (toBilan, toResource, toStageItem, toTrajectoryMilestone, toAutomatismesProgress, computeCredits, buildAlertes) |
+| `__tests__/lib/dashboard/student-payload.builders.test.ts` | 22 | Builders internes (toBilan, toResource, toStageItem, toTrajectoryMilestone, toAutomatismesProgress, computeCredits, buildAlertes, mock invoice) |
+| `__tests__/lib/dashboard/build-hub.test.ts` (Lot B) | 21 | Hub Ressources : 9 catégories, 3 profils, COACH vs USER classification, INVOICE vs RECEIPT, badges, comptages |
+| `__tests__/lib/programme/official-pdfs.test.ts` (Lot A+B) | 14 | Mapping officiel : shape contract, kebab-case, gating EDS/STMG/Terminale, path-traversal rejection |
 | `__tests__/api/student.documents.download.test.ts` | 6 | Auth, 404, ownership, streaming avec fichiers réels, 500, mime fallback |
-| **Total** | **61** | |
+| **Total** | **97** | |

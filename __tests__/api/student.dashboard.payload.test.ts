@@ -20,6 +20,7 @@ jest.mock('@/lib/prisma', () => ({
     bilan: { findMany: jest.fn() },
     stageReservation: { findMany: jest.fn() },
     userDocument: { findMany: jest.fn() },
+    invoice: { findMany: jest.fn() },
   },
 }));
 
@@ -94,6 +95,7 @@ function setupDefaultMocks() {
   (prisma.bilan.findMany as jest.Mock).mockResolvedValue([]);
   (prisma.stageReservation.findMany as jest.Mock).mockResolvedValue([]);
   (prisma.userDocument.findMany as jest.Mock).mockResolvedValue([]);
+  (prisma.invoice.findMany as jest.Mock).mockResolvedValue([]);
   (getUserEntitlements as jest.Mock).mockResolvedValue([]);
   (getActiveTrajectory as jest.Mock).mockResolvedValue(null);
   (parseMilestones as jest.Mock).mockReturnValue([]);
