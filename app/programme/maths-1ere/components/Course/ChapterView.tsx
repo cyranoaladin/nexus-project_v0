@@ -6,10 +6,11 @@ import { useChapterProgress } from '../../hooks/useChapterProgress';
 import { resolveUiIcon } from '@/lib/ui-icons';
 
 // Sections
-import { ChapterHeader } from './sections/ChapterHeader';
-import { ChapterCourse } from './sections/ChapterCourse';
+import { ChapterHeader } from '@/components/programme/shared/Course/sections/ChapterHeader';
+import { ChapterCourse } from '@/components/programme/shared/Course/sections/ChapterCourse';
 import { ChapterPractice } from './sections/ChapterPractice';
-import { ChapterFooter } from './sections/ChapterFooter';
+import { ChapterFooter } from '@/components/programme/shared/Course/sections/ChapterFooter';
+import RAGSources from '../RAGSources';
 
 interface ChapterViewProps {
   catKey: string;
@@ -79,10 +80,11 @@ export const ChapterView: React.FC<ChapterViewProps> = ({
           onRecordHintUsage={recordHintUsage}
         />
 
-        <ChapterFooter 
+        <ChapterFooter
           chapId={chapId}
           chap={chap}
           onRecordSRSReview={recordSRSReview}
+          RAGSourcesComponent={RAGSources}
         />
       </div>
     </div>
