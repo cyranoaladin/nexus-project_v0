@@ -25,7 +25,7 @@ import { useMathsLabStore } from '../../store';
 import { programmeData } from '../../data';
 import { STAGE_PRINTEMPS_2026, getTodaySession, getNextSession, formatDateFr } from '../../config/stage';
 import { EPREUVE_MATHS_1ERE } from '../../config/exam';
-import { RAGRemediation } from '../RAG/RAGRemediation';
+import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
 import { Download } from 'lucide-react';
 
