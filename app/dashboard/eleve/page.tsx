@@ -93,6 +93,23 @@ export default function DashboardEleve() {
     fetchDashboardData();
   }, [session, status, router]);
 
+  useEffect(() => {
+    if (!dashboardData) return;
+
+    const scrollToHash = () => {
+      const id = window.location.hash.slice(1);
+      if (!id) return;
+
+      window.requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ block: 'start' });
+      });
+    };
+
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, [dashboardData]);
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
