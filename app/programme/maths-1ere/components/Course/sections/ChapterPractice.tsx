@@ -15,10 +15,11 @@ import { type Chapitre, type Categorie } from '@/components/programme/shared/typ
 import { type HintLevel, useMathsLabStore } from '../../../store';
 import { MathInline, MathRichText } from '@/components/programme/shared/MathContent';
 import { areEquivalentAnswers } from '../../../lib/math-engine';
+import { GENERATORS } from '../../../lib/exercise-generator';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
 import ExerciseEngine from '@/components/programme/shared/ExerciseEngine';
-import ProceduralExercise from '../../ProceduralExercise';
+import ProceduralExercise from '@/components/programme/shared/ProceduralExercise';
 
 // Dynamic imports for labs
 const ToileAraignee = dynamic(() => import('../../labs/ToileAraignee'), { ssr: false });
@@ -225,7 +226,16 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
             />
           )}
           
-          <ProceduralExercise chapId={chapId} />
+          <ProceduralExercise
+            chapId={chapId}
+            store={{
+              incrementCombo: () => store.incrementCombo(),
+              resetCombo: () => store.resetCombo(),
+              addXP: (xp: number) => store.addXP(xp),
+            }}
+            generators={GENERATORS}
+            areEquivalentAnswers={areEquivalentAnswers}
+          />
         </section>
       )}
 
