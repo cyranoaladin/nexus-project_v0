@@ -119,6 +119,7 @@ function getPaymentMethodLabel(method: string | null | undefined): string {
     CASH: 'Espèces',
     BANK_TRANSFER: 'Virement bancaire',
     CLICTOPAY: 'ClicToPay',
+    CHEQUE: 'Chèque',
     CHECK: 'Chèque',
     OTHER: 'Autre',
   };
@@ -158,8 +159,9 @@ function validateFitsOnePage(data: InvoiceData): void {
     return acc + 20 + (descLines * 10);
   }, 0);
   const totalsHeight = 100;
-  const paymentHeight = 60;
-  const footerHeight = 80;
+  const paymentNotesLines = data.paymentDetails?.notes ? data.paymentDetails.notes.split('\n').length : 0;
+  const paymentHeight = 60 + Math.min(paymentNotesLines, 4) * 10;
+  const footerHeight = 90;
 
   const totalEstimate = headerHeight + customerBlockHeight + tableHeaderHeight +
     itemRowHeight + totalsHeight + paymentHeight + footerHeight +
@@ -390,7 +392,7 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       // Tax
       if (data.taxTotal > 0) {
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.textSecondary)
-          .text('TVA', totalsX, y);
+          .text(data.taxRegime === 'TVA_INCLUSE' ? 'TVA 6 %' : 'TVA', totalsX, y);
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.text)
           .text(formatCurrency(data.taxTotal, data.currency), totalsX + 80, y, { width: 100, align: 'right' });
         y += 16;
@@ -426,6 +428,12 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
       }
       y += 12;
 
+      if (data.paymentDetails?.notes) {
+        doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.textSecondary)
+          .text(data.paymentDetails.notes, PAGE.marginLeft, y, { width: CONTENT_WIDTH * 0.6 });
+        y += Math.min(data.paymentDetails.notes.split('\n').length, 4) * 10 + 4;
+      }
+
       // Tax regime mention
       doc.font(FONTS.oblique).fontSize(7).fillColor(COLORS.textMuted)
         .text(getTaxRegimeLabel(data.taxRegime), PAGE.marginLeft, y);
@@ -453,15 +461,29 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
         .strokeColor(COLORS.border).lineWidth(0.5).stroke();
 
       // Footer text
+      const contactLine = [
+        data.issuer.phone ? `Tél : ${data.issuer.phone}` : null,
+        data.issuer.email ? `Email : ${data.issuer.email}` : null,
+        data.issuer.web ? `Web : ${data.issuer.web}` : null,
+      ].filter(Boolean).join(' | ');
+
+      if (data.issuer.slogan) {
+        doc.font(FONTS.bold).fontSize(8).fillColor(COLORS.brand)
+          .text(data.issuer.slogan, PAGE.marginLeft, footerY + 7, { width: CONTENT_WIDTH, align: 'center' });
+      }
+
       doc.font(FONTS.regular).fontSize(7).fillColor(COLORS.textMuted)
         .text(
           `${data.issuer.name} — ${data.issuer.address}`,
-          PAGE.marginLeft, footerY + 8,
+          PAGE.marginLeft, footerY + 19,
           { width: CONTENT_WIDTH, align: 'center' }
         );
+      if (contactLine) {
+        doc.text(contactLine, PAGE.marginLeft, footerY + 29, { width: CONTENT_WIDTH, align: 'center' });
+      }
       doc.text(
         `MF : ${data.issuer.mf}${data.issuer.rne ? ` — RNE : ${data.issuer.rne}` : ''}`,
-        PAGE.marginLeft, footerY + 20,
+        PAGE.marginLeft, footerY + 39,
         { width: CONTENT_WIDTH, align: 'center' }
       );
 
