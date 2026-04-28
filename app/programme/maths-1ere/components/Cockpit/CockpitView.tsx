@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 import { RefreshCw, BookOpen, Snowflake, Medal } from 'lucide-react';
 import { useMathsLabStore, type MathsLabState } from '../../store';
 import { programmeData, badgeDefinitions } from '../../data';
-import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr } from '../../config/stage';
+import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession } from '../../config/stage';
 import { resolveUiIcon } from '@/lib/ui-icons';
 import { HeroPedagogique } from './HeroPedagogique';
 import { SyntheseEleve } from './SyntheseEleve';
 import { FeuilleDeRoute } from '@/components/programme/shared/Cockpit/FeuilleDeRoute';
-import { SeanceDuJour } from './SeanceDuJour';
+import { SeanceDuJour } from '@/components/programme/shared/Cockpit/SeanceDuJour';
 import { RAGFlashCard } from '../RAG/RAGFlashCard';
 
 type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
@@ -34,7 +34,11 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
       />
 
       {/* Séance du jour interactive */}
-      <SeanceDuJour onNavigateToChap={onNavigateToChap} />
+      <SeanceDuJour 
+        onNavigateToChap={onNavigateToChap}
+        stageConfig={{ getTodaySession, formatDateFr }}
+        programmeData={programmeData}
+      />
 
       {/* Priorités Épreuve 2026 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
