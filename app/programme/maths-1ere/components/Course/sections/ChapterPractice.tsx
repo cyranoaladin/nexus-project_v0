@@ -11,12 +11,13 @@ import {
   Lock
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { type Chapitre, type Categorie } from '../../../data';
+import { type Chapitre, type Categorie } from '@/components/programme/shared/types/programme';
 import { type HintLevel, useMathsLabStore } from '../../../store';
 import { MathInline, MathRichText } from '@/components/programme/shared/MathContent';
+import { areEquivalentAnswers } from '../../../lib/math-engine';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
-import ExerciseEngine from '../../ExerciseEngine';
+import ExerciseEngine from '@/components/programme/shared/ExerciseEngine';
 import ProceduralExercise from '../../ProceduralExercise';
 
 // Dynamic imports for labs
@@ -219,7 +220,8 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
             <ExerciseEngine 
               exercices={chap.exercices} 
               chapId={chapId} 
-              onExerciseCorrect={onRecordExerciseResult} 
+              onExerciseCorrect={onRecordExerciseResult}
+              areEquivalentAnswers={areEquivalentAnswers}
             />
           )}
           
