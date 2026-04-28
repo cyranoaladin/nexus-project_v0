@@ -13,8 +13,8 @@ import { ChapterView } from './Course/ChapterView';
 import { ExamenBlancView } from './Examen/ExamenBlancView';
 import { TeacherView } from './Enseignant/TeacherView';
 import { BilanView } from './Bilan/BilanView';
-import { TopBar } from './layout/TopBar';
-import { LoadingScreen } from './layout/LoadingScreen';
+import { TopBar } from '@/components/programme/shared/layout/TopBar';
+import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
 import { Toaster, toast } from 'sonner';
 
 export type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
