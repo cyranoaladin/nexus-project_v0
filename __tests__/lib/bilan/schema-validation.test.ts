@@ -128,10 +128,11 @@ describe('F49/F51: Prisma Schema Structure', () => {
   });
 
   describe('Prisma schema validates', () => {
-    it('should pass prisma validate', () => {
-      // Skip if DATABASE_URL is not set (e.g., in CI or test environment without .env.test)
+    it('should pass prisma validate when DATABASE_URL is available', () => {
+      // Prisma validate requires a real database connection
+      // Skip in test environment without DATABASE_URL, but validate schema structure separately
       if (!process.env.DATABASE_URL) {
-        console.warn('Skipping prisma validate in test environment (DATABASE_URL not set)');
+        console.warn('Skipping prisma validate (requires DB connection). Schema structure validated by other tests in this file.');
         return;
       }
       try {
