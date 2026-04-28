@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { RefreshCw, BookOpen, Snowflake, Medal } from 'lucide-react';
 import { useMathsLabStore, type MathsLabState } from '../../store';
 import { programmeData, badgeDefinitions } from '../../data';
-import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession } from '../../config/stage';
+import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession, getDaysUntilStage, getDaysUntilExam, getNextSession } from '../../config/stage';
 import { resolveUiIcon } from '@/lib/ui-icons';
-import { HeroPedagogique } from './HeroPedagogique';
+import { HeroPedagogique } from '@/components/programme/shared/Cockpit/HeroPedagogique';
 import { SyntheseEleve } from './SyntheseEleve';
 import { FeuilleDeRoute } from '@/components/programme/shared/Cockpit/FeuilleDeRoute';
 import { SeanceDuJour } from '@/components/programme/shared/Cockpit/SeanceDuJour';
@@ -31,6 +31,20 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
       <HeroPedagogique
         displayName={displayName}
         onNavigate={(tab) => onSwitchTab(tab as ActiveTab)}
+        store={{
+          getNiveau: () => store.getNiveau(),
+          completedChapters: store.completedChapters,
+          getDueReviews: () => store.getDueReviews(),
+          totalXP: store.totalXP,
+        }}
+        stageConfig={{
+          getStagePhase,
+          getDaysUntilStage,
+          getDaysUntilExam,
+          getTodaySession,
+          getNextSession,
+          formatDateFr,
+        }}
       />
 
       {/* Séance du jour interactive */}
