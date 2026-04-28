@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Printer } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { resolveUiIcon } from '@/lib/ui-icons';
-import { MathInline } from './MathContent';
+import { MathInline } from '@/components/programme/shared/MathContent';
 
 type FormulaSection = { 
   id: string; 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MathRichText } from '../app/programme/maths-1ere/components/MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 import '@testing-library/jest-dom';
 
 describe('Rendu Mathématique LaTeX', () => {
