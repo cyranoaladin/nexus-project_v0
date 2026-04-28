@@ -70,7 +70,7 @@ export function EleveHubRessources({ hub }: EleveHubRessourcesProps) {
   const sortedCategories = categories.sort((a, b) => getCategoryOrder(a) - getCategoryOrder(b));
 
   return (
-    <section id="hub-resources" aria-labelledby="hub-resources-title">
+    <section id="resources" aria-labelledby="hub-resources-title">
       <Card className="border-white/10 bg-surface-card">
         <CardHeader>
           <CardTitle id="hub-resources-title" className="flex items-center gap-2 text-white">

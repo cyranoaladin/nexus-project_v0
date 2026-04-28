@@ -286,7 +286,7 @@ async function computeEleveStep(user: EleveUser): Promise<NextStep | null> {
   return {
     type: 'EXPLORE_RESOURCES',
     message: 'Découvrez vos ressources pédagogiques',
-    link: '/dashboard/eleve',
+    link: '/dashboard/eleve#resources',
     priority: 'low',
     icon: 'BookOpen',
   };

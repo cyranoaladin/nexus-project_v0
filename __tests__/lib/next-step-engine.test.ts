@@ -295,6 +295,7 @@ describe('Next Step Engine', () => {
       const step = await getNextStep('eleve-1');
       expect(step?.type).toBe('EXPLORE_RESOURCES');
       expect(step?.priority).toBe('low');
+      expect(step?.link).toBe('/dashboard/eleve#resources');
     });
   });
 
