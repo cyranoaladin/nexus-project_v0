@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { useProgressionSync } from '../hooks/useProgressionSync';
 import { programmeData } from '../data';
+import { STAGE_PRINTEMPS_2026, getDaysUntilExam } from '../config/stage';
 
 // Layout & Views
 import { Navigation } from '@/components/programme/shared/Navigation/Navigation';
@@ -152,7 +153,23 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
               )}
 
               {activeTab === 'bilan' && (
-                <BilanView displayName={displayName} />
+                <BilanView
+                  displayName={displayName}
+                  store={{
+                    getNiveau: () => store.getNiveau(),
+                    completedChapters: store.completedChapters,
+                    totalXP: store.totalXP,
+                    streak: store.streak,
+                    getDueReviews: () => store.getDueReviews(),
+                    diagnosticResults: store.diagnosticResults,
+                  }}
+                  programmeData={programmeData}
+                  stageConfig={{
+                    STAGE_PRINTEMPS_2026,
+                    getDaysUntilExam,
+                  }}
+                  userRole={user.role ?? undefined}
+                />
               )}
             </motion.div>
           </AnimatePresence>
