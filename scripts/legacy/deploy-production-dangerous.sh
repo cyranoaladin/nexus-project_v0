@@ -1,7 +1,29 @@
 #!/bin/bash
 
-# Automated Deployment Script for Nexus Réussite Production
-# Deploys to nexusreussite.academy via SSH
+# ⚠️ DANGEROUS DEPLOYMENT SCRIPT - DO NOT USE ⚠️
+# This script contains `docker compose down --volumes --remove-orphans`
+# which DELETES ALL DOCKER VOLUMES including the database.
+#
+# This script was moved to legacy/ on 2026-04-29 as part of P0 hardening.
+# Use scripts/deploy-production-safe.sh instead.
+#
+# INCIDENT: P0-3 - Destructive deployment script
+# ACTION: Moved to legacy/ and documented as dangerous
+# SAFE ALTERNATIVE: scripts/deploy-production-safe.sh
+#
+# IF YOU MUST USE THIS SCRIPT (NOT RECOMMENDED):
+# 1. Take a full DB backup first
+# 2. Confirm you understand volumes will be deleted
+# 3. Set CONFIRM_DANGEROUS_DEPLOY=yes environment variable
+#
+# DO NOT USE IN PRODUCTION WITHOUT EXPLICIT APPROVAL
+
+if [ "$CONFIRM_DANGEROUS_DEPLOY" != "yes" ]; then
+  echo "❌ ERROR: This script is dangerous and will delete Docker volumes."
+  echo "❌ ERROR: Set CONFIRM_DANGEROUS_DEPLOY=yes to proceed (not recommended)."
+  echo "❌ ERROR: Use scripts/deploy-production-safe.sh instead."
+  exit 1
+fi
 
 set -e  # Exit on error
 

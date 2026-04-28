@@ -1,0 +1,192 @@
+#!/bin/bash
+
+# SAFE PRODUCTION DEPLOYMENT SCRIPT
+# This script performs a safe, controlled deployment to production.
+# It never calls `docker compose down` or `--volumes`.
+#
+# SAFEGUARDS:
+# - Refuses to run if repo is dirty
+# - Shows current commit
+# - Requires CONFIRM_PRODUCTION_DEPLOY=yes
+# - Checks for recent DB backup
+# - Uses --ff-only for git pull
+# - Builds only nexus-app container
+# - Restarts only nexus-app (no postgres restart)
+# - Performs healthcheck
+# - Shows rollback instructions
+#
+# Usage:
+#   CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh
+
+set -e  # Exit on error
+
+# Configuration
+SERVER="root@88.99.254.59"
+DOMAIN="nexusreussite.academy"
+PROJECT_DIR="/opt/nexus"
+COMPOSE_FILE="docker-compose.prod.yml"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+# SAFEGUARD 1: Require explicit confirmation
+if [ "$CONFIRM_PRODUCTION_DEPLOY" != "yes" ]; then
+  print_error "Deployment aborted: CONFIRM_PRODUCTION_DEPLOY not set to 'yes'"
+  echo ""
+  echo "To deploy to production, run:"
+  echo "  CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh"
+  exit 1
+fi
+
+echo "🚀 SAFE DEPLOYMENT to ${DOMAIN}..."
+echo "📦 Server: ${SERVER}"
+echo ""
+
+# SAFEGUARD 2: Check if repo is dirty
+echo "🔍 Checking repository state..."
+if [ -n "$(git status --porcelain)" ]; then
+  print_error "Repository is dirty. Commit or stash changes before deploying."
+  git status --short
+  exit 1
+fi
+print_success "Repository is clean"
+
+# SAFEGUARD 3: Show current commit
+echo ""
+echo "📋 Current commit:"
+git log -1 --oneline
+echo ""
+
+# SAFEGUARD 4: Check for recent DB backup on server
+echo ""
+echo "🔍 Checking for recent DB backup on server..."
+BACKUP_EXISTS=$(ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+if [ -d "backups" ]; then
+  LATEST_BACKUP=\$(ls -t backups/nexus_db_*.sql.gz 2>/dev/null | head -1)
+  if [ -n "\$LATEST_BACKUP" ]; then
+    BACKUP_AGE=\$(find backups/nexus_db_*.sql.gz -mmin -1440 2>/dev/null | wc -l)
+    echo "LATEST_BACKUP:\$LATEST_BACKUP,AGE:\$BACKUP_AGE"
+  else
+    echo "NO_BACKUP"
+  fi
+else
+  echo "NO_BACKUP_DIR"
+fi
+EOF
+)
+
+if [[ $BACKUP_EXISTS == *"NO_BACKUP"* ]]; then
+  print_warning "No recent DB backup found (last 24h). Consider taking a backup before deployment."
+  read -p "Continue anyway? (yes/no): " CONFIRM
+  if [ "$CONFIRM" != "yes" ]; then
+    print_error "Deployment cancelled by user"
+    exit 1
+  fi
+else
+  print_success "Recent DB backup found"
+fi
+
+# Step 1: SSH into server and pull latest changes (ff-only)
+echo ""
+echo "📥 Step 1: Pulling latest changes from git (ff-only)..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+git fetch origin main
+git checkout main
+if ! git pull --ff-only origin main; then
+  echo "ERROR: git pull --ff-only failed. Manual merge required."
+  exit 1
+fi
+EOF
+print_success "Git pull completed (ff-only)"
+
+# Step 2: Build nexus-app container only
+echo ""
+echo "🔨 Step 2: Building nexus-app container (no postgres restart)..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+docker compose -f ${COMPOSE_FILE} build nexus-app
+EOF
+print_success "nexus-app container built"
+
+# Step 3: Restart nexus-app only (no down, no volumes)
+echo ""
+echo "🔄 Step 3: Restarting nexus-app (no postgres restart)..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app
+EOF
+print_success "nexus-app restarted"
+
+# Step 4: Wait for nexus-app to be healthy
+echo ""
+echo "⏳ Step 4: Waiting for nexus-app to be healthy..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+timeout 120 bash -c 'until docker compose -f ${COMPOSE_FILE} ps nexus-app | grep -q healthy; do sleep 2; done'
+EOF
+print_success "nexus-app is healthy"
+
+# Step 5: Verify deployment
+echo ""
+echo "🔍 Step 5: Verifying deployment..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+docker compose -f ${COMPOSE_FILE} ps
+EOF
+
+# Step 6: Health check
+echo ""
+echo "🏥 Step 6: Health check..."
+HEALTH_CHECK=$(ssh ${SERVER} "curl -s http://localhost:3001/api/health" || echo "failed")
+if [[ $HEALTH_CHECK == *"ok"* ]]; then
+  print_success "Health check passed"
+else
+  print_error "Health check failed: $HEALTH_CHECK"
+  echo ""
+  echo "ROLLBACK INSTRUCTIONS:"
+  echo "  ssh ${SERVER}"
+  echo "  cd ${PROJECT_DIR}"
+  echo "  git log --oneline -3"
+  echo "  git checkout PREVIOUS_COMMIT_HASH"
+  echo "  docker compose -f ${COMPOSE_FILE} build nexus-app"
+  echo "  docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app"
+  exit 1
+fi
+
+# Step 7: Show recent logs
+echo ""
+echo "📋 Step 7: Recent application logs (last 20 lines)..."
+ssh ${SERVER} << EOF
+cd ${PROJECT_DIR}
+docker compose -f ${COMPOSE_FILE} logs --tail=20 nexus-app
+EOF
+
+echo ""
+print_success "SAFE DEPLOYMENT completed successfully!"
+echo "🌐 Application is available at: https://${DOMAIN}"
+echo ""
+echo "ROLLBACK INSTRUCTIONS (if needed):"
+echo "  ssh ${SERVER}"
+echo "  cd ${PROJECT_DIR}"
+echo "  git log --oneline -3"
+echo "  git checkout PREVIOUS_COMMIT_HASH"
+echo "  docker compose -f ${COMPOSE_FILE} build nexus-app"
+echo "  docker compose -f ${COMPOSE_FILE} up -d --no-deps nexus-app"

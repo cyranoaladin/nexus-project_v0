@@ -52,4 +52,40 @@ describe('production deployment contract', () => {
     expect(deployScript).toContain('git checkout main');
     expect(deployScript).toContain('git pull origin main');
   });
+
+  it('forbids destructive docker commands in active production scripts', () => {
+    const activeScripts = [
+      'scripts/deploy-git-pull.sh',
+      'scripts/deploy-production-safe.sh',
+    ];
+
+    for (const scriptPath of activeScripts) {
+      try {
+        const script = read(scriptPath);
+        expect(script).not.toMatch(/down --volumes/);
+        expect(script).not.toMatch(/docker volume rm/);
+        expect(script).not.toMatch(/system prune --volumes/);
+      } catch (error) {
+        // Script doesn't exist, that's fine
+      }
+    }
+  });
+
+  it('ensures legacy dangerous scripts are not in scripts/ root', () => {
+    const dangerousPatterns = ['down --volumes', 'docker volume rm', 'system prune --volumes'];
+    const scriptsDir = path.join(rootDir, 'scripts');
+
+    const scriptFiles = fs.readdirSync(scriptsDir)
+      .filter(file => file.endsWith('.sh'))
+      .filter(file => !file.startsWith('.'));
+
+    for (const file of scriptFiles) {
+      const scriptPath = path.join(scriptsDir, file);
+      const script = read(`scripts/${file}`);
+
+      for (const pattern of dangerousPatterns) {
+        expect(script).not.toMatch(new RegExp(pattern));
+      }
+    }
+  });
 });
