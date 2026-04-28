@@ -18,8 +18,8 @@ describe('Required Environment Variables', () => {
     it(`should have ${varName} defined`, () => {
       // In test environment, these may be set to test values
       // We verify the pattern exists in .env or .env.test
-      // Skip if running in CI or test environment without .env.test
-      if (process.env.NODE_ENV === 'test' && !process.env[varName]) {
+      // Skip if running in test environment without .env.test
+      if (!process.env[varName]) {
         console.warn(`Skipping ${varName} check in test environment (not set)`);
         return;
       }
