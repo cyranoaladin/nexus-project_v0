@@ -5,10 +5,11 @@ import { motion } from 'framer-motion';
 import { RefreshCw, BookOpen, Snowflake, Medal } from 'lucide-react';
 import { useMathsLabStore, type MathsLabState } from '../../store';
 import { programmeData, badgeDefinitions } from '../../data';
+import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr } from '../../config/stage';
 import { resolveUiIcon } from '@/lib/ui-icons';
 import { HeroPedagogique } from './HeroPedagogique';
 import { SyntheseEleve } from './SyntheseEleve';
-import { FeuilleDeRoute } from './FeuilleDeRoute';
+import { FeuilleDeRoute } from '@/components/programme/shared/Cockpit/FeuilleDeRoute';
 import { SeanceDuJour } from './SeanceDuJour';
 import { RAGFlashCard } from '../RAG/RAGFlashCard';
 
@@ -39,7 +40,10 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <SyntheseEleve onNavigateToChap={onNavigateToChap} />
-          <FeuilleDeRoute onNavigate={(tab) => onSwitchTab(tab as ActiveTab)} />
+          <FeuilleDeRoute 
+            onNavigate={(tab) => onSwitchTab(tab as ActiveTab)} 
+            stageConfig={{ STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr }}
+          />
         </div>
 
         <div className="space-y-6">
