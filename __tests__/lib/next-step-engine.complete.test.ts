@@ -173,6 +173,7 @@ describe('getNextStep — ELEVE', () => {
     const step = await getNextStep('u1');
     expect(step!.type).toBe('EXPLORE_RESOURCES');
     expect(step!.priority).toBe('low');
+    expect(step!.link).toBe('/dashboard/eleve#resources');
   });
 });
 
