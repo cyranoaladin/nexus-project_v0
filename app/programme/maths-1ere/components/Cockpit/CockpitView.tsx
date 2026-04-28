@@ -8,7 +8,7 @@ import { programmeData, badgeDefinitions } from '../../data';
 import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession, getDaysUntilStage, getDaysUntilExam, getNextSession } from '../../config/stage';
 import { resolveUiIcon } from '@/lib/ui-icons';
 import { HeroPedagogique } from '@/components/programme/shared/Cockpit/HeroPedagogique';
-import { SyntheseEleve } from './SyntheseEleve';
+import { SyntheseEleve } from '@/components/programme/shared/Cockpit/SyntheseEleve';
 import { FeuilleDeRoute } from '@/components/programme/shared/Cockpit/FeuilleDeRoute';
 import { SeanceDuJour } from '@/components/programme/shared/Cockpit/SeanceDuJour';
 import { RAGFlashCard } from '@/components/programme/shared/RAG/RAGFlashCard';
@@ -57,7 +57,17 @@ export const CockpitView: React.FC<CockpitViewProps> = ({ displayName, onSwitchT
       {/* Priorités Épreuve 2026 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <SyntheseEleve onNavigateToChap={onNavigateToChap} />
+          <SyntheseEleve
+            onNavigateToChap={onNavigateToChap}
+            store={{
+              completedChapters: store.completedChapters,
+              diagnosticResults: store.diagnosticResults,
+              getDueReviews: () => store.getDueReviews(),
+              totalXP: store.totalXP,
+              streak: store.streak,
+            }}
+            programmeData={programmeData}
+          />
           <FeuilleDeRoute 
             onNavigate={(tab) => onSwitchTab(tab as ActiveTab)} 
             stageConfig={{ STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr }}
