@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MathRichText } from '@/app/programme/maths-1ere/components/MathContent';
+import { MathRichText } from '@/components/programme/shared/MathContent';
 
 // Mock react-katex to avoid requiring KaTeX in Jest environment
 jest.mock('react-katex', () => ({

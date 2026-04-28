@@ -16,8 +16,8 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { EPREUVE_MATHS_1ERE, SUJET_BLANC_1, type ExerciceBloc, type QuestionExercice } from '../../config/exam';
-import { MathRichText } from '../MathContent';
-import { RAGRemediation } from '../RAG/RAGRemediation';
+import { MathRichText } from '@/components/programme/shared/MathContent';
+import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 import { useMathsLabStore } from '../../store';
 
 type ExamMode = 'accueil' | 'automatismes' | 'exercices' | 'correction';

@@ -24,7 +24,7 @@ import {
   HelpCircle,
   MessageSquare
 } from "lucide-react";
-import { MathRichText } from "@/app/programme/maths-1ere/components/MathContent";
+import { MathRichText } from "@/components/programme/shared/MathContent";
 import { cn } from "@/lib/utils";
 
 interface AutomatismesResultsProps {

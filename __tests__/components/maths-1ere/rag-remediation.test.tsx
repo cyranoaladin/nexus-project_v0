@@ -13,11 +13,11 @@
 
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { RAGRemediation } from '@/app/programme/maths-1ere/components/RAG/RAGRemediation';
+import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
-jest.mock('@/app/programme/maths-1ere/components/MathContent', () => ({
+jest.mock('@/components/programme/shared/MathContent', () => ({
   MathRichText: ({ content }: { content: string }) => (
     <div data-testid="math-rich-text">{content}</div>
   ),

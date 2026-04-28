@@ -5,16 +5,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { useMathsLabStore } from '../store';
 import { useProgressionSync } from '../hooks/useProgressionSync';
+import { useChapterProgress } from '../hooks/useChapterProgress';
+import { programmeData, badgeDefinitions } from '../data';
+import { STAGE_PRINTEMPS_2026, getStagePhase, formatDateFr, getTodaySession, getDaysUntilStage, getDaysUntilExam, getNextSession } from '../config/stage';
 
 // Layout & Views
-import { Navigation } from './Navigation/Navigation';
+import { Navigation } from '@/components/programme/shared/Navigation/Navigation';
 import { CockpitView } from './Cockpit/CockpitView';
 import { ChapterView } from './Course/ChapterView';
 import { ExamenBlancView } from './Examen/ExamenBlancView';
 import { TeacherView } from './Enseignant/TeacherView';
-import { BilanView } from './Bilan/BilanView';
-import { TopBar } from './layout/TopBar';
-import { LoadingScreen } from './layout/LoadingScreen';
+import { BilanView } from '@/components/programme/shared/Bilan/BilanView';
+import { TopBar } from '@/components/programme/shared/layout/TopBar';
+import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
 import { Toaster, toast } from 'sonner';
 
 export type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
@@ -41,6 +44,11 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
 
   const { isHydrating, syncError } = useProgressionSync(user.id);
   const store = useMathsLabStore();
+
+  // Get current chapter data for ChapterView
+  const currentCat = programmeData[activeCat];
+  const currentChap = currentCat?.chapitres.find((c: any) => c.id === activeChap);
+  const chapterProgress = useChapterProgress(activeChap, currentChap?.pointsXP || 0);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -88,6 +96,12 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         isTeacher={isTeacher}
+        store={{
+          completedChapters: store.completedChapters,
+          getNiveau: () => store.getNiveau(),
+          totalXP: store.totalXP,
+        }}
+        programmeData={programmeData}
       />
 
       <main
@@ -116,6 +130,18 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
                   displayName={displayName}
                   onSwitchTab={setActiveTab}
                   onNavigateToChap={handleNavigateToChap}
+                  store={store}
+                  programmeData={programmeData}
+                  badgeDefinitions={badgeDefinitions}
+                  stageConfig={{
+                    STAGE_PRINTEMPS_2026,
+                    getStagePhase,
+                    formatDateFr,
+                    getTodaySession,
+                    getDaysUntilStage,
+                    getDaysUntilExam,
+                    getNextSession
+                  }}
                 />
               )}
 
@@ -125,6 +151,8 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
                   chapId={activeChap}
                   focusMode={focusMode}
                   onToggleFocus={() => setFocusMode(!focusMode)}
+                  programmeData={programmeData}
+                  chapterProgress={chapterProgress}
                 />
               )}
 
@@ -145,7 +173,23 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
               )}
 
               {activeTab === 'bilan' && (
-                <BilanView displayName={displayName} />
+                <BilanView
+                  displayName={displayName}
+                  store={{
+                    getNiveau: () => store.getNiveau(),
+                    completedChapters: store.completedChapters,
+                    totalXP: store.totalXP,
+                    streak: store.streak,
+                    getDueReviews: () => store.getDueReviews(),
+                    diagnosticResults: store.diagnosticResults,
+                  }}
+                  programmeData={programmeData}
+                  stageConfig={{
+                    STAGE_PRINTEMPS_2026,
+                    getDaysUntilExam,
+                  }}
+                  userRole={user.role ?? undefined}
+                />
               )}
             </motion.div>
           </AnimatePresence>
