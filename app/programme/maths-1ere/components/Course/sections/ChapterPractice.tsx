@@ -11,13 +11,15 @@ import {
   Lock
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { type Chapitre, type Categorie } from '../../../data';
+import { type Chapitre, type Categorie } from '@/components/programme/shared/types/programme';
 import { type HintLevel, useMathsLabStore } from '../../../store';
-import { MathInline, MathRichText } from '../../MathContent';
+import { MathInline, MathRichText } from '@/components/programme/shared/MathContent';
+import { areEquivalentAnswers } from '../../../lib/math-engine';
+import { GENERATORS } from '../../../lib/exercise-generator';
 import DiagnosticPrerequis from '../../DiagnosticPrerequis';
 import InteractiveGraph from '../../InteractiveGraph';
-import ExerciseEngine from '../../ExerciseEngine';
-import ProceduralExercise from '../../ProceduralExercise';
+import ExerciseEngine from '@/components/programme/shared/ExerciseEngine';
+import ProceduralExercise from '@/components/programme/shared/ProceduralExercise';
 
 // Dynamic imports for labs
 const ToileAraignee = dynamic(() => import('../../labs/ToileAraignee'), { ssr: false });
@@ -219,11 +221,21 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
             <ExerciseEngine 
               exercices={chap.exercices} 
               chapId={chapId} 
-              onExerciseCorrect={onRecordExerciseResult} 
+              onExerciseCorrect={onRecordExerciseResult}
+              areEquivalentAnswers={areEquivalentAnswers}
             />
           )}
           
-          <ProceduralExercise chapId={chapId} />
+          <ProceduralExercise
+            chapId={chapId}
+            store={{
+              incrementCombo: () => store.incrementCombo(),
+              resetCombo: () => store.resetCombo(),
+              addXP: (xp: number) => store.addXP(xp),
+            }}
+            generators={GENERATORS}
+            areEquivalentAnswers={areEquivalentAnswers}
+          />
         </section>
       )}
 

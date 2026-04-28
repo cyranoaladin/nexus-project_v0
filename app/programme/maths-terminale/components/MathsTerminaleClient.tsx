@@ -15,8 +15,8 @@ import {
   type Exercice,
 } from '../data';
 import { useMathsTerminaleStore } from '../store';
-import { useMathJax } from '../../maths-1ere/components/MathJaxProvider';
-import MathInput from '../../maths-1ere/components/MathInput';
+import { useMathJax } from '@/components/programme/shared/MathJaxProvider';
+import MathInput from '@/components/programme/shared/MathInput';
 
 const PythonIDE = dynamic(() => import('../../maths-1ere/components/PythonIDE'), { ssr: false });
 const TangenteGlissante = dynamic(() => import('../../maths-1ere/components/labs/TangenteGlissante'), { ssr: false });
