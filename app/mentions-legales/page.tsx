@@ -23,14 +23,16 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">1. Éditeur du Site</h2>
               <p>
-                Le site <strong className="text-white">nexusreussite.academy</strong> (ci-après « la Plateforme ») est édité par :
+                Le site est édité par la société <strong className="text-white">STE M&amp;M ACADEMY SUARL</strong>,
+                immatriculée au Registre National des Entreprises (RNE) et sous le Matricule Fiscal{' '}
+                <strong className="text-white">1948837 N/A/M/000</strong>.
               </p>
               <ul className="mt-4 space-y-2">
-                <li><strong className="text-white">Dénomination sociale :</strong> M&amp;M ACADEMY SUARL</li>
-                <li><strong className="text-white">Enseigne / marque commerciale :</strong> Nexus Réussite</li>
+                <li><strong className="text-white">Raison sociale :</strong> STE M&amp;M ACADEMY SUARL</li>
+                <li><strong className="text-white">Nom commercial :</strong> Nexus Réussite</li>
                 <li><strong className="text-white">Forme juridique :</strong> Société Unipersonnelle à Responsabilité Limitée (SUARL)</li>
-                <li><strong className="text-white">Identifiant unique :</strong> 1948837N</li>
-                <li><strong className="text-white">Siège social :</strong> Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis, Tunisie</li>
+                <li><strong className="text-white">Matricule fiscal :</strong> 1948837 N/A/M/000</li>
+                <li><strong className="text-white">Siège social :</strong> Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis</li>
                 <li><strong className="text-white">Téléphone :</strong> +216 99 19 28 29</li>
                 <li><strong className="text-white">Email de contact :</strong>{' '}
                   <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent underline">contact@nexusreussite.academy</a>
@@ -42,8 +44,8 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">2. Représentation légale &amp; Direction de la publication</h2>
               <ul className="space-y-2">
-                <li><strong className="text-white">Représentante légale / Gérante :</strong> Mme Molka MEZZEZ</li>
-                <li><strong className="text-white">Directrice de la publication :</strong> Mme Molka MEZZEZ</li>
+                <li><strong className="text-white">Représentante légale :</strong> Mme Molka Mezzez Ben Rhouma</li>
+                <li><strong className="text-white">Responsable de la publication :</strong> Mme Molka Mezzez Ben Rhouma</li>
               </ul>
             </section>
 
@@ -61,19 +63,12 @@ export default function MentionsLegalesPage() {
             {/* 4. Hébergement */}
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">4. Hébergement</h2>
-              <p className="mb-4">La Plateforme est hébergée par les prestataires suivants :</p>
+              <p className="mb-4">La Plateforme est hébergée par :</p>
 
               <div className="pl-4 border-l-4 border-cyan-500 mb-4 space-y-1">
                 <h3 className="font-bold text-lg text-white">Hostinger International Ltd</h3>
                 <p>61 Lordou Vironos Street, 6023 Larnaca, Chypre</p>
                 <p>Site : <a href="https://www.hostinger.fr" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">www.hostinger.fr</a></p>
-              </div>
-
-              <div className="pl-4 border-l-4 border-cyan-500 space-y-1">
-                <h3 className="font-bold text-lg text-white">Hetzner Online GmbH (serveur dédié / infrastructure applicative)</h3>
-                <p>Industriestr. 25, 91710 Gunzenhausen, Allemagne</p>
-                <p>Registre : AG Ansbach, HRB 6089</p>
-                <p>Site : <a href="https://www.hetzner.com/legal/legal-notice" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">www.hetzner.com</a></p>
               </div>
             </section>
 
@@ -81,7 +76,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">5. Activité</h2>
               <p>
-                M&amp;M ACADEMY SUARL, sous l&apos;enseigne <strong className="text-white">Nexus Réussite</strong>, fournit des services de soutien à l&apos;enseignement comprenant :
+                STE M&amp;M ACADEMY SUARL, sous l&apos;enseigne <strong className="text-white">Nexus Réussite</strong>, fournit des services de soutien à l&apos;enseignement comprenant :
               </p>
               <ul className="mt-3 list-disc pl-5 space-y-1">
                 <li>Accompagnement scolaire personnalisé (tutorat en ligne et/ou en présentiel)</li>
@@ -108,7 +103,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">7. Données personnelles &amp; Protection de la vie privée</h2>
               <p className="mb-3">
-                M&amp;M ACADEMY SUARL collecte et traite des données personnelles (nom, email, téléphone, données scolaires) exclusivement
+                STE M&amp;M ACADEMY SUARL collecte et traite des données personnelles (nom, email, téléphone, données scolaires) exclusivement
                 pour les finalités suivantes :
               </p>
               <ul className="list-disc pl-5 space-y-1 mb-4">
@@ -146,7 +141,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">9. Limitation de responsabilité</h2>
               <p className="mb-3">
-                M&amp;M ACADEMY SUARL s&apos;engage à assurer la disponibilité de la Plateforme dans le cadre d&apos;une <strong className="text-white">obligation de moyens</strong>.
+                STE M&amp;M ACADEMY SUARL s&apos;engage à assurer la disponibilité de la Plateforme dans le cadre d&apos;une <strong className="text-white">obligation de moyens</strong>.
               </p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Des interruptions temporaires (maintenance, mise à jour) pourront survenir sans engager la responsabilité de l&apos;éditeur.</li>
@@ -168,7 +163,7 @@ export default function MentionsLegalesPage() {
 
             {/* Date */}
             <div className="pt-6 border-t border-white/10 text-sm text-neutral-400">
-              <p>Dernière mise à jour : 1er mars 2026</p>
+              <p>Dernière mise à jour : 29 avril 2026</p>
             </div>
           </div>
         </div>

@@ -32,7 +32,7 @@ export default function ConditionsGeneralesPage() {
               <p className="mb-3">
                 Les présentes Conditions Générales régissent l&apos;utilisation de la plateforme{' '}
                 <strong className="text-white">nexusreussite.academy</strong> (ci-après « la Plateforme ») éditée par{' '}
-                <strong className="text-white">M&amp;M ACADEMY SUARL</strong>, société de droit tunisien, identifiant unique 1948837N,
+                <strong className="text-white">STE M&amp;M ACADEMY SUARL</strong>, société de droit tunisien, matricule fiscal 1948837 N/A/M/000,
                 dont le siège social est situé Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis, Tunisie,
                 exploitant la marque commerciale <strong className="text-white">Nexus Réussite</strong>.
               </p>
@@ -179,7 +179,7 @@ export default function ConditionsGeneralesPage() {
             <section>
               <h3 className="text-xl font-bold mb-3 text-white">1. Identité du Vendeur</h3>
               <ul className="space-y-1">
-                <li><strong className="text-white">Vendeur :</strong> M&amp;M ACADEMY SUARL — Identifiant unique 1948837N</li>
+                <li><strong className="text-white">Vendeur :</strong> STE M&amp;M ACADEMY SUARL — Matricule fiscal 1948837 N/A/M/000</li>
                 <li><strong className="text-white">Enseigne :</strong> Nexus Réussite</li>
                 <li><strong className="text-white">Siège social :</strong> Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis, Tunisie</li>
                 <li><strong className="text-white">Email :</strong>{' '}
@@ -238,6 +238,10 @@ export default function ConditionsGeneralesPage() {
               </ul>
 
               <h4 className="font-semibold text-white mt-4 mb-2">5.2 Sécurité des transactions</h4>
+              <p className="mb-3">
+                Les transactions par carte bancaire sont sécurisées par la solution <strong className="text-white">ClickToPay</strong> de la Banque Zitouna.
+                Le contrat est soumis au <strong className="text-white">droit tunisien</strong>.
+              </p>
               <ul className="list-disc pl-5 space-y-1 mb-3">
                 <li>Les paiements par carte sont sécurisés par <strong className="text-white">CVV2</strong> et <strong className="text-white">3D Secure</strong>.</li>
                 <li>Le <strong className="text-white">cryptogramme visuel (CVV/CVC) n&apos;est jamais stocké</strong> par le Vendeur — ni en base de données, ni dans les journaux techniques.</li>
