@@ -61,7 +61,7 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [timerActive, timeLeft]);
+  }, [timerActive, timeLeft, handleFinishQuiz]);
 
   const handleStartQuiz = useCallback(() => {
     let pool = [...quizData];
@@ -83,7 +83,7 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
       setTimeLeft(20 * 60); // 20 mins for exam
       setTimerActive(true);
     }
-  }, [themeFilter, questionCount, isExam]);
+  }, [quizData, themeFilter, questionCount, isExam]);
 
   const handleAnswer = (optionIndex: number) => {
     if (answers[index] !== undefined) return;

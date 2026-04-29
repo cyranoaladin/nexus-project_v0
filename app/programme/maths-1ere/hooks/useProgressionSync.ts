@@ -156,7 +156,7 @@ export function useProgressionSync(userId: string) {
       setSyncError('Échec de sauvegarde. La progression sera réessayée automatiquement.');
       return false;
     },
-    [userId]
+    []
   );
 
   // Initial Hydration
