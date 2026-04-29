@@ -157,9 +157,13 @@ export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): Nexus
   const nonZeroPayments = input.payments.filter((payment) => payment.amount > 0);
   const distinctPaymentMethods = new Set(nonZeroPayments.map((payment) => payment.method));
   const taxRegime: TaxRegime = 'TVA_INCLUSE';
+  const packageDiscountInfo = totals.packageDiscount > 0
+    ? `Prix forfaitaire incluant une remise commerciale de ${formatTnd(totals.packageDiscount)} par rapport au tarif normal (${formatTnd(totals.normalPriceTtc)}).`
+    : null;
   const mainDescription = [
     input.packageSubtitle,
     `Français : ${input.frenchHours || 0}h · Mathématiques : ${input.mathHours || 0}h`,
+    packageDiscountInfo,
   ].join('\n');
 
   const items: NexusCreateInvoiceRequest['items'] = [

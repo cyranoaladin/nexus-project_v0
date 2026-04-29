@@ -334,21 +334,17 @@ export function NexusInvoiceGenerator() {
                         <p className="font-bold" style={{ color: BRAND.navy }}>{designation}</p>
                         <p className="mt-1" style={{ color: BRAND.textSoft }}>{subtitle}</p>
                         <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Français : {frenchHours || 0}h · Mathématiques : {mathHours || 0}h · Total : {(frenchHours || 0) + (mathHours || 0)}h</p>
+                        {totals.packageDiscount > 0 && (
+                          <p className="mt-1 text-xs" style={{ color: BRAND.redSoft }}>
+                            Prix forfaitaire incluant une remise commerciale de {formatTnd(totals.packageDiscount)} par rapport au tarif normal ({formatTnd(totals.normalPriceTtc)}).
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-4 text-center">1</td>
                       <td className="px-4 py-4 text-right">{formatTnd(Math.round(priceTtc / 1.06))}</td>
                       <td className="px-4 py-4 text-right">{formatTnd(priceTtc - Math.round(priceTtc / 1.06))}</td>
                       <td className="px-4 py-4 text-right font-semibold">{formatTnd(priceTtc)}</td>
                     </tr>
-                    {totals.packageDiscount > 0 && (
-                      <tr style={{ borderBottom: `1px solid ${BRAND.border}` }}>
-                        <td className="px-4 py-3">Remise forfaitaire intégrée</td>
-                        <td className="px-4 py-3 text-center">1</td>
-                        <td className="px-4 py-3 text-right">- {formatTnd(Math.round(totals.packageDiscount / 1.06))}</td>
-                        <td className="px-4 py-3 text-right">- {formatTnd(totals.packageDiscount - Math.round(totals.packageDiscount / 1.06))}</td>
-                        <td className="px-4 py-3 text-right font-semibold">- {formatTnd(totals.packageDiscount)}</td>
-                      </tr>
-                    )}
                     {totals.adjustmentTtc > 0 && (
                       <tr style={{ borderBottom: `1px solid ${BRAND.border}` }}>
                         <td className="px-4 py-3">{adjustmentLabel}</td>
