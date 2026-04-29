@@ -87,7 +87,7 @@ echo ""
 # SAFEGUARD 4: Check for recent DB backup on server (enforces 24h cutoff)
 echo ""
 echo "🔍 Checking for recent DB backup on server (last 24h)..."
-BACKUP_EXISTS=$(ssh ${SERVER} -o LogLevel=ERROR << 'EOF'
+BACKUP_EXISTS=$(ssh ${SERVER} -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 2>/dev/null << 'EOF'
 cd ${PROJECT_DIR}
 if [ -d "backups" ]; then
   LATEST_BACKUP=$(ls -t backups/nexus_db_*.sql.gz 2>/dev/null | head -1)
