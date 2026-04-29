@@ -255,10 +255,15 @@ export default function ConditionsGeneralesPage() {
               </p>
 
               <h4 className="font-semibold text-white mt-4 mb-2">5.4 Virement bancaire</h4>
-              <p>
+              <p className="mb-3">
                 En cas de paiement par virement, le Client déclare son virement sur la Plateforme.
                 Le service est activé après <strong className="text-white">vérification et validation</strong> du virement par l&apos;équipe administrative (délai indicatif : 24 à 48 heures ouvrées).
               </p>
+              <ul className="space-y-1">
+                <li><strong className="text-white">Banque :</strong> Banque Zitouna</li>
+                <li><strong className="text-white">Titulaire :</strong> STE M&amp;M ACADEMY SUARL</li>
+                <li><strong className="text-white">RIB :</strong> 25 079 000 0001569084 04</li>
+              </ul>
             </section>
 
             {/* CGV 6 */}
