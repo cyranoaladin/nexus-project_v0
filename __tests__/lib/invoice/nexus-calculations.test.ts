@@ -115,6 +115,10 @@ describe('nexus invoice calculations', () => {
         }),
       ])
     );
+    expect(request.items[0].description).toContain(
+      'Prix forfaitaire incluant une remise commerciale de 39,000 TND par rapport au tarif normal.'
+    );
+    expect(request.discountTotal).toBe(50_000);
   });
 
   it('keeps the payment method only when a single non-zero method is used', () => {
