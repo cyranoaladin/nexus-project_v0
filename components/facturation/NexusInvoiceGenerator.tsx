@@ -333,12 +333,12 @@ export function NexusInvoiceGenerator() {
                       <td className="px-4 py-4">
                         <p className="font-bold" style={{ color: BRAND.navy }}>{designation}</p>
                         <p className="mt-1" style={{ color: BRAND.textSoft }}>{subtitle}</p>
-                        <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Français : {frenchHours || 0}h · Mathématiques : {mathHours || 0}h · Total : {(frenchHours || 0) + (mathHours || 0)}h</p>
                         {totals.packageDiscount > 0 && (
-                          <p className="mt-1 text-xs" style={{ color: BRAND.redSoft }}>
-                            Prix forfaitaire incluant une remise commerciale de {formatTnd(totals.packageDiscount)} par rapport au tarif normal ({formatTnd(totals.normalPriceTtc)}).
+                          <p className="mt-1 text-xs" style={{ color: BRAND.textSoft }}>
+                            Prix forfaitaire incluant une remise commerciale de {formatTnd(totals.packageDiscount)} par rapport au tarif normal.
                           </p>
                         )}
+                        <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Français : {frenchHours || 0}h · Mathématiques : {mathHours || 0}h · Total : {(frenchHours || 0) + (mathHours || 0)}h</p>
                       </td>
                       <td className="px-4 py-4 text-center">1</td>
                       <td className="px-4 py-4 text-right">{formatTnd(Math.round(priceTtc / 1.06))}</td>

@@ -93,7 +93,6 @@ describe('nexus invoice calculations', () => {
     expect(request.discountTotal).toBe(50_000);
     expect(request.taxRegime).toBe('TVA_INCLUSE');
     expect(request.paymentMethod).toBeNull();
-    expect(request.items[0].description).toContain('Prix forfaitaire incluant une remise commerciale de 39,000 TND');
     expect(request.paymentDetails?.notes).toContain('Virement bancaire : 500,000 TND (VIR-001)');
     expect(request.paymentDetails?.notes).toContain('Chèque : 400,000 TND (CHQ-002 Banque BIAT)');
     expect(request.paymentDetails?.notes).toContain('Espèces : 199,000 TND (Espèces bureau)');
@@ -116,6 +115,10 @@ describe('nexus invoice calculations', () => {
         }),
       ])
     );
+    expect(request.items[0].description).toContain(
+      'Prix forfaitaire incluant une remise commerciale de 39,000 TND par rapport au tarif normal.'
+    );
+    expect(request.discountTotal).toBe(50_000);
   });
 
   it('keeps the payment method only when a single non-zero method is used', () => {
