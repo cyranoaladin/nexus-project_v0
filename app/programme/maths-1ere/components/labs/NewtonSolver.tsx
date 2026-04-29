@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { CheckCircle2, ChevronDown, ChevronUp, Target } from 'lucide-react';
 import { useMathsLabStore } from '../../store';
 
@@ -17,14 +17,17 @@ export default function NewtonSolver() {
   const store = useMathsLabStore();
   const preset = PRESETS[presetIdx];
 
-  const iterations: number[] = [preset.x0];
-  for (let i = 0; i < 8; i++) {
-    const xn = iterations[iterations.length - 1];
-    const fxn = preset.fn(xn);
-    const dfxn = preset.dfn(xn);
-    if (Math.abs(dfxn) < 1e-10) break;
-    iterations.push(xn - fxn / dfxn);
-  }
+  const iterations = useMemo(() => {
+    const result: number[] = [preset.x0];
+    for (let i = 0; i < 8; i++) {
+      const xn = result[result.length - 1];
+      const fxn = preset.fn(xn);
+      const dfxn = preset.dfn(xn);
+      if (Math.abs(dfxn) < 1e-10) break;
+      result.push(xn - fxn / dfxn);
+    }
+    return result;
+  }, [preset]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -148,7 +151,7 @@ export default function NewtonSolver() {
             <input type="range" min={1} max={Math.max(1, iterations.length - 1)} value={iteration} onChange={(e) => setIteration(+e.target.value)} className="w-full h-1.5 bg-slate-700 rounded accent-green-500" />
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            {iterations.slice(0, iteration + 1).map((x, i) => (
+            {iterations.slice(0, iteration + 1).map((x: number, i: number) => (
               <span key={i} className="bg-slate-800 px-2 py-1 rounded text-slate-200 font-mono">$x_{i}$ = {x.toFixed(8)}</span>
             ))}
           </div>

@@ -41,8 +41,11 @@ if [[ -z "$STAGED_FILES" ]]; then
   exit 0
 fi
 
+# Filtrer les fichiers supprimés (ne vérifier que les fichiers ajoutés/modifiés)
+STAGED_ADDED_MODIFIED=$(git diff --cached --name-only --diff-filter=AM 2>/dev/null || true)
+
 for pattern in "${BLOCKED_PATTERNS[@]}"; do
-  MATCHES=$(echo "$STAGED_FILES" | grep -E "$pattern" || true)
+  MATCHES=$(echo "$STAGED_ADDED_MODIFIED" | grep -E "$pattern" || true)
   if [[ -n "$MATCHES" ]]; then
     echo -e "${RED}[BLOCKED]${NC} Fichier(s) sensible(s) détecté(s) :"
     echo "$MATCHES" | while read -r f; do
@@ -63,12 +66,12 @@ SECRET_PATTERNS=(
   "NexusReussite[0-9]{4}@"
 )
 
-for f in $STAGED_FILES; do
+for f in $STAGED_ADDED_MODIFIED; do
   if [[ ! -f "$f" ]]; then
     continue
   fi
-  # Ne pas inspecter les fichiers binaires ou les .example
-  if [[ "$f" == *".example" || "$f" == *".sample" ]]; then
+  # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
+  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)

@@ -109,9 +109,10 @@ test.describe('REAL — Homepage (/)', () => {
   test('Navbar dropdown Essentiel → lien Contact navigue vers /contact', async ({ page }) => {
     const essentielBtn = page.locator('button').filter({ hasText: /essentiel/i }).first();
     await essentielBtn.hover();
-    await page.waitForTimeout(600);
 
+    // Wait for dropdown menu to appear and contact link to be visible
     const contactLink = page.locator('[role="menu"] a[href="/contact"]');
+    await contactLink.waitFor({ state: 'visible', timeout: 5000 });
     await expect(contactLink, 'Lien Contact absent du dropdown').toBeVisible();
     await contactLink.click();
     await page.waitForURL('**/contact**', { timeout: 10000 });
