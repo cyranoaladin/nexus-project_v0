@@ -47,22 +47,6 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
   const current = questions[index];
   const isExam = mode === 'exam';
 
-  // Timer logic
-  useEffect(() => {
-    if (!timerActive || timeLeft <= 0) return;
-    const id = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setTimerActive(false);
-          handleFinishQuiz();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [timerActive, timeLeft, handleFinishQuiz]);
-
   const handleStartQuiz = useCallback(() => {
     let pool = [...quizData];
     if (!isExam && themeFilter !== 'all') {
@@ -112,6 +96,22 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
     store.addQuizScore(xpGain);
     setPhase('result');
   }, [score, isExam, store]);
+
+  // Timer logic
+  useEffect(() => {
+    if (!timerActive || timeLeft <= 0) return;
+    const id = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setTimerActive(false);
+          handleFinishQuiz();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerActive, timeLeft, handleFinishQuiz]);
 
   const formatTimer = (seconds: number) => {
     const m = Math.floor(seconds / 60);
