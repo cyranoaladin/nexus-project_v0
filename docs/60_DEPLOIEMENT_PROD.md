@@ -1,5 +1,41 @@
 # Déploiement Production
 
+## ⚠️ IMPORTANT - Script de déploiement
+
+### Script DESTRUCTEUR déplacé
+Le script `scripts/deploy-production.sh` contenait `docker compose down --volumes --remove-orphans` qui supprime tous les volumes Docker (y compris la base de données).
+
+**Action P0-3 (2026-04-29):**
+- Script déplacé vers `scripts/legacy/deploy-production-dangerous.sh`
+- Ajouté garde-fou: requiert `CONFIRM_DANGEROUS_DEPLOY=yes`
+- **NE PAS UTILISER EN PRODUCTION**
+
+### Script SAFE
+Utiliser `scripts/deploy-production-safe.sh` à la place.
+
+**Safeguards:**
+- Refuse de s'exécuter si le repo est sale
+- Affiche le commit courant
+- Requiert `CONFIRM_PRODUCTION_DEPLOY=yes`
+- Vérifie qu'un backup DB récent existe
+- Utilise `git pull --ff-only` (pas de merge forcé)
+- Build uniquement `nexus-app` (pas de postgres restart)
+- **JAMAIS** `docker compose down`
+- **JAMAIS** `--volumes`
+- Healthcheck automatique
+- Instructions de rollback
+
+**Usage:**
+```bash
+CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh
+```
+
+### Contrat de sécurité
+Test contractuel: `__tests__/config/deploy-contract.test.ts`
+- Vérifie l'absence de `down --volumes` dans les scripts actifs
+- Vérifie l'absence de `docker volume rm` dans les scripts actifs
+- Vérifie l'absence de `system prune --volumes` dans les scripts actifs
+
 ## Pré-requis environnement
 Variables critiques:
 - `DATABASE_URL`
