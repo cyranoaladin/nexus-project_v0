@@ -107,7 +107,7 @@ if [[ $BACKUP_EXISTS == *"NO_BACKUP"* ]]; then
   print_error "No recent DB backup found (last 24h). Deployment aborted."
   echo "To deploy without recent backup, take a backup first or use ALLOW_STALE_BACKUP=yes"
   exit 1
-elif [[ $BACKUP_EXISTS == *"AGE:0"* ]]; then
+elif [[ $BACKUP_EXISTS == *"AGE:"* ]] && [[ $BACKUP_EXISTS != *"AGE:0"* ]]; then
   print_success "Recent DB backup found (within last 24h)"
 else
   print_error "No DB backup within last 24h. Deployment aborted."
