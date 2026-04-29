@@ -25,8 +25,8 @@ fi
 # Check 3: nginx/ssl should only contain .gitkeep
 SSL_FILES=$(git ls-files nginx/ssl/ 2>/dev/null || echo "")
 if [ -n "$SSL_FILES" ]; then
-  # Allow .gitkeep but reject everything else
-  SSL_NON_GITKEEP=$(echo "$SSL_FILES" | grep -v "\.gitkeep$" || true)
+  # Allow only .gitkeep, reject everything else
+  SSL_NON_GITKEEP=$(echo "$SSL_FILES" | grep -v "^nginx/ssl/\.gitkeep$" || true)
   if [ -n "$SSL_NON_GITKEEP" ]; then
     echo "❌ FAIL: Unexpected files in nginx/ssl/:"
     echo "$SSL_NON_GITKEEP"

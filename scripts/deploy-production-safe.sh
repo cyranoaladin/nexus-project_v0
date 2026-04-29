@@ -84,9 +84,9 @@ echo "📋 Current commit:"
 git log -1 --oneline
 echo ""
 
-# SAFEGUARD 4: Check for recent DB backup on server
+# SAFEGUARD 4: Check for recent DB backup on server (enforces 24h cutoff)
 echo ""
-echo "🔍 Checking for recent DB backup on server..."
+echo "🔍 Checking for recent DB backup on server (last 24h)..."
 BACKUP_EXISTS=$(ssh ${SERVER} << EOF
 cd ${PROJECT_DIR}
 if [ -d "backups" ]; then
@@ -104,14 +104,15 @@ EOF
 )
 
 if [[ $BACKUP_EXISTS == *"NO_BACKUP"* ]]; then
-  print_warning "No recent DB backup found (last 24h). Consider taking a backup before deployment."
-  read -p "Continue anyway? (yes/no): " CONFIRM
-  if [ "$CONFIRM" != "yes" ]; then
-    print_error "Deployment cancelled by user"
-    exit 1
-  fi
+  print_error "No recent DB backup found (last 24h). Deployment aborted."
+  echo "To deploy without recent backup, take a backup first or use ALLOW_STALE_BACKUP=yes"
+  exit 1
+elif [[ $BACKUP_EXISTS == *"AGE:0"* ]]; then
+  print_success "Recent DB backup found (within last 24h)"
 else
-  print_success "Recent DB backup found"
+  print_error "No DB backup within last 24h. Deployment aborted."
+  echo "To deploy without recent backup, take a backup first or use ALLOW_STALE_BACKUP=yes"
+  exit 1
 fi
 
 # Step 1: SSH into server and pull latest changes (ff-only)
@@ -132,7 +133,10 @@ if [ -d "$SSL_DIR" ]; then
     BACKUP_DIR="backups/ssl-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$BACKUP_DIR"
     echo "📦 Backing up SSL certificates to $BACKUP_DIR..."
-    cp -r "$SSL_DIR" "$BACKUP_DIR/" 2>/dev/null || true
+    if ! cp -r "$SSL_DIR" "$BACKUP_DIR/"; then
+      echo "❌ ERROR: SSL backup failed. Aborting deploy."
+      exit 1
+    fi
     echo "✅ SSL certificates backed up"
   else
     echo "⚠️  No SSL certificates found in $SSL_DIR (this is expected after P0 changes)"

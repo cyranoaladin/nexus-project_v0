@@ -147,13 +147,14 @@ git checkout <previous-commit-hash>
 docker exec -i nexus-postgres-prod psql -U postgres nexus_prod < backups/<timestamp>/db.sql
 
 # Restore storage/public (if needed)
-tar -xzf backups/<timestamp>/storage.tar.gz -C /
+tar -xzf backups/<timestamp>/storage.tar.gz -C /opt/nexus
 
 # Restore SSL certificates (if needed)
 cp -r backups/<timestamp>/ssl/* nginx/ssl/
 
-# Restart nexus-app
-docker compose -f docker-compose.prod.yml restart nexus-app
+# Rebuild and restart nexus-app (must rebuild to apply previous commit)
+docker compose -f docker-compose.prod.yml build nexus-app
+docker compose -f docker-compose.prod.yml up -d nexus-app
 
 # Verify
 docker logs nexus-app-prod --tail 50

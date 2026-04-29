@@ -124,7 +124,7 @@
 
 **Lint exit 0 avec warnings documentés. Non zéro-warning. Go-live premium 100% conditionné à la correction des P1 et à une décision explicite sur les P2.**
 
-**P0 warnings:** 0 (aucun warning touchant auth, rbac, payments, invoice, documents, prisma, middleware, api)
+**P0 warnings:** 0 (aucun warning touchant auth, rbac, payments, invoice, documents, prisma, middleware, api, dashboard, student-payload, aria, rag)
 
 **P1 warnings:** ~10 (react-hooks/exhaustive-deps dans QuizEngine, ExerciseEngine)
 - Non critique pour la sécurité
