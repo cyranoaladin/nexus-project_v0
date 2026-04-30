@@ -36,7 +36,7 @@ async function main() {
 
   for (const student of students) {
     try {
-      const gTrack = normalizeStudentLevelAndTrack(student.grade);
+      const gTrack = normalizeStudentLevelAndTrack(student.grade, student.academicTrack);
       
       if (!gTrack) {
         console.warn(`⚠️  Could not normalize grade "${student.grade}" for student ${student.user.email} (ID: ${student.id}). Skipping.`);
