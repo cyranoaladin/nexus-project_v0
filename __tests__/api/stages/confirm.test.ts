@@ -125,6 +125,10 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
     prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.findFirst.mockResolvedValue({
+      id: 'admin-id',
+      parentProfile: { id: 'parent-admin-id' }
+    });
     prisma.user.create.mockResolvedValue({
       id: 'user-created',
       email: 'eleve@example.com',
@@ -138,6 +142,11 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
         data: expect.objectContaining({
           email: 'eleve@example.com',
           role: 'ELEVE',
+          student: expect.objectContaining({
+            create: expect.objectContaining({
+              parentId: 'parent-admin-id'
+            })
+          })
         }),
       })
     );

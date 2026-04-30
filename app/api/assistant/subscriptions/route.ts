@@ -71,9 +71,9 @@ export async function GET(request: NextRequest) {
         school: sub.student.school
       },
       parent: {
-        firstName: sub.student.parent?.user.firstName || 'Inconnu',
-        lastName: sub.student.parent?.user.lastName || 'Inconnu',
-        email: sub.student.parent?.user.email || 'Inconnu'
+        firstName: sub.student.parent.user.firstName,
+        lastName: sub.student.parent.user.lastName,
+        email: sub.student.parent.user.email
       }
     }));
 
@@ -93,8 +93,8 @@ export async function GET(request: NextRequest) {
         grade: sub.student.grade
       },
       parent: {
-        firstName: sub.student.parent?.user.firstName || 'Inconnu',
-        lastName: sub.student.parent?.user.lastName || 'Inconnu'
+        firstName: sub.student.parent.user.firstName,
+        lastName: sub.student.parent.user.lastName
       }
     }));
 
