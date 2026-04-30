@@ -31,6 +31,7 @@ import { AutomatismesDashboardCard } from "@/components/automatismes/Automatisme
 import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
 import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
+import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
 
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
@@ -339,6 +340,11 @@ export default function DashboardEleve() {
               dashboardData?.student.specialties?.includes('MATHEMATIQUES') && (
                 <BilanDiagMathsTerminale />
               )}
+
+            {/* Questionnaire EAF — Stage de printemps (Première uniquement) */}
+            {!isSurvivalMode && studentGradeLevel === 'PREMIERE' && (
+              <EafStageQuestionnaireCard />
+            )}
 
             {/* Automatismes — Épreuve Anticipée (EDS Première uniquement, pas STMG) */}
             {!isSurvivalMode && !isStmgTrack && (
