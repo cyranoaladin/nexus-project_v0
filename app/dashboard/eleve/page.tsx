@@ -342,7 +342,7 @@ export default function DashboardEleve() {
               )}
 
             {/* Questionnaire EAF — Stage de printemps (Première uniquement) */}
-            {!isSurvivalMode && studentGradeLevel === 'PREMIERE' && (
+            {studentGradeLevel === 'PREMIERE' && (
               <EafStageQuestionnaireCard />
             )}
 
