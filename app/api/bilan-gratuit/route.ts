@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
+import { GradeLevel } from '@prisma/client';
 import { bilanGratuitSchema } from '@/lib/validations';
+import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
@@ -63,6 +65,16 @@ export async function POST(request: NextRequest) {
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(validatedData.parentPassword, 12);
 
+    // Normaliser le niveau scolaire AVANT la transaction
+    const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
+    
+    if (!gTrack) {
+      return NextResponse.json(
+        { error: `Niveau scolaire non reconnu : ${validatedData.studentGrade}` },
+        { status: 400 }
+      );
+    }
+
     // Transaction pour créer parent et élève
     const result = await prisma.$transaction(async (tx) => {
       // Créer le compte parent
@@ -100,12 +112,13 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Créer l'entité Student liée au parent (source de vérité unique)
       const student = await tx.student.create({
         data: {
           parentId: parentProfile.id,
           userId: studentUser.id,
           grade: validatedData.studentGrade,
+          gradeLevel: gTrack.level,
+          academicTrack: gTrack.track,
           school: validatedData.studentSchool,
           birthDate: validatedData.studentBirthDate ? new Date(validatedData.studentBirthDate) : null
         }

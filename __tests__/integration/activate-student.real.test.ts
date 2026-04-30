@@ -67,7 +67,12 @@ describe('IDOR BDD Réelle — Activate Student', () => {
       data: { userId: uP2.id },
     });
     student1 = await prisma.student.create({
-      data: { userId: uS1.id, parentId: parent1.id }, // Lien Parent 1 <-> Student 1
+      data: { 
+        userId: uS1.id, 
+        parentId: parent1.id,
+        gradeLevel: 'PREMIERE',
+        academicTrack: 'EDS_GENERALE'
+      }, // Lien Parent 1 <-> Student 1
     });
   });
 

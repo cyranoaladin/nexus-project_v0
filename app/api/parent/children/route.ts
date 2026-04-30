@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
+import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 // bcrypt inutilisé ici
 
 export async function GET(_request: NextRequest) {
@@ -157,6 +158,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Normaliser le niveau scolaire
+    const gTrack = normalizeStudentLevelAndTrack(grade);
+    if (!gTrack) {
+      return NextResponse.json(
+        { error: `Niveau scolaire non reconnu : ${grade}` },
+        { status: 400 }
+      );
+    }
+
     // Create child in transaction
     const result = await prisma.$transaction(async (tx) => {
       // Create user with parent's password
@@ -175,6 +185,8 @@ export async function POST(request: NextRequest) {
         data: {
           userId: user.id,
           parentId: parentProfile.id,
+          gradeLevel: gTrack.level,
+          academicTrack: gTrack.track,
           grade,
           school: school || ''
         },
