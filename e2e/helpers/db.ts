@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, GradeLevel, AcademicTrack } from '@prisma/client';
 import { CREDS } from './credentials';
 import { Page } from '@playwright/test';
 import { loginAsUser } from './auth';
@@ -503,7 +503,7 @@ export async function createScheduledSession(studentEmail: string, coachEmail: s
   }
 
   const parentUser = await client.user.findFirst({
-    where: { parentProfile: { id: studentUser.student.parentId } },
+    where: { parentProfile: { id: studentUser.student.parentId! } },
   });
 
   const now = new Date();
@@ -652,6 +652,8 @@ export async function loginAsParentWithTwoChildren(page: Page): Promise<void> {
         userId: user.id,
         parentId: parent.parentProfile.id,
         grade: i === 0 ? 'Première' : 'Terminale',
+        gradeLevel: i === 0 ? GradeLevel.PREMIERE : GradeLevel.TERMINALE,
+        academicTrack: AcademicTrack.EDS_GENERALE,
         credits: i === 0 ? 2 : 6,
       },
     });

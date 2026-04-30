@@ -308,7 +308,9 @@ const student = await prisma.user.create({
   await prisma.student.create({
     data: {
       userId: student2.id,
-      grade: 'Première',
+      grade: 'PREMIERE',
+      gradeLevel: GradeLevel.PREMIERE,
+      academicTrack: AcademicTrack.EDS_GENERALE,
       school: 'Lycée Pilote Ariana',
       parentId: parent.parentProfile!.id,
       credits: 5,

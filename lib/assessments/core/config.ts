@@ -89,8 +89,12 @@ export const SUBJECT_LABELS: Record<Subject, string> = {
  * Human-readable labels for grades
  */
 export const GRADE_LABELS: Record<Grade, string> = {
+  [Grade.TROISIEME]: 'Troisième',
+  [Grade.SECONDE]: 'Seconde',
   [Grade.PREMIERE]: 'Première',
   [Grade.TERMINALE]: 'Terminale',
+  [Grade.POSTBAC]: 'Post-Bac',
+  [Grade.AUTRE]: 'Autre',
 };
 
 /**

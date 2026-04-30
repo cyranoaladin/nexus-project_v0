@@ -10,7 +10,7 @@ import { successResponse, handleApiError, ApiError, HttpStatus } from '@/lib/api
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
 import type { Prisma } from '@prisma/client';
-import { UserRole } from '@/types/enums';
+import { UserRole, GradeLevel, AcademicTrack, StmgPathway } from '@/types/enums';
 
 /**
  * GET /api/admin/users - List users with filters and pagination
@@ -163,6 +163,18 @@ export async function POST(request: NextRequest) {
               subjects: JSON.stringify([])
             }
           }
+        } : {}),
+        // Create student profile if role is ELEVE
+        ...(data.role === 'ELEVE' && data.gradeLevel ? {
+          student: {
+            create: {
+              gradeLevel: data.gradeLevel as GradeLevel,
+              academicTrack: data.academicTrack || (data.gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
+              specialties: data.specialties || [],
+              stmgPathway: data.stmgPathway || null,
+              grade: data.gradeLevel.toString() // Sync legacy grade
+            }
+          }
         } : {})
       },
       select: {
@@ -280,13 +292,24 @@ export async function PATCH(request: NextRequest) {
       (gradeLevel || academicTrack || specialties || stmgPathway)
     ) {
       const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
-      await prisma.student.update({
+      const studentData = {
+        ...(gradeLevel ? { gradeLevel, grade: gradeLevel.toString() } : {}), // Keep grade in sync
+        ...(academicTrack ? { academicTrack } : {}),
+        ...(specialties ? { specialties } : {}),
+        ...(academicTrack ? { stmgPathway: (isStmg ? (stmgPathway ?? 'INDETERMINE') : null) as StmgPathway | null } : {}),
+        updatedTrackAt: new Date(),
+      };
+
+      await prisma.student.upsert({
         where: { userId: id },
-        data: {
-          ...(gradeLevel ? { gradeLevel } : {}),
-          ...(academicTrack ? { academicTrack } : {}),
-          ...(specialties ? { specialties } : {}),
-          ...(academicTrack ? { stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null } : {}),
+        update: studentData,
+        create: {
+          userId: id,
+          gradeLevel: (gradeLevel || GradeLevel.AUTRE) as GradeLevel, // Ensure a value for new profiles
+          academicTrack: academicTrack || (gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
+          specialties: specialties || [],
+          stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+          grade: (gradeLevel || GradeLevel.AUTRE).toString(),
           updatedTrackAt: new Date(),
         },
       });

@@ -37,13 +37,16 @@ export enum Subject {
 }
 
 export enum GradeLevel {
+  TROISIEME = 'TROISIEME',
   SECONDE = 'SECONDE',
   PREMIERE = 'PREMIERE',
   TERMINALE = 'TERMINALE',
-  POSTBAC = 'POSTBAC'
+  POSTBAC = 'POSTBAC',
+  AUTRE = 'AUTRE'
 }
 
 export enum AcademicTrack {
+  COLLEGE = 'COLLEGE',
   EDS_GENERALE = 'EDS_GENERALE',
   STMG = 'STMG',
   STI2D = 'STI2D',
