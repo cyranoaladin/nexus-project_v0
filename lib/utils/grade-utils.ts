@@ -81,11 +81,17 @@ export function getDefaultTrackForLevel(level: GradeLevel): AcademicTrack {
 /**
  * Normalise à la fois le niveau et la filière depuis une chaîne brute.
  */
-export function normalizeStudentLevelAndTrack(input: string | null | undefined): { level: GradeLevel; track: AcademicTrack } | null {
+export function normalizeStudentLevelAndTrack(
+  input: string | null | undefined,
+  currentTrack?: AcademicTrack | null
+): { level: GradeLevel; track: AcademicTrack } | null {
   const level = normalizeGradeLevel(input);
   if (!level) return null;
 
-  let track = getDefaultTrackForLevel(level);
+  // Si on a déjà un track valide (STMG, etc.), on le garde par défaut
+  let track = currentTrack && currentTrack !== AcademicTrack.EDS_GENERALE 
+    ? currentTrack 
+    : getDefaultTrackForLevel(level);
 
   if (input) {
     const normalized = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
