@@ -15,8 +15,7 @@ DROP TYPE "public"."InvoicePaymentMethod_old";
 COMMIT;
 
 -- AlterTable
-ALTER TABLE "students" ALTER COLUMN "gradeLevel" DROP DEFAULT,
-ALTER COLUMN "parentId" DROP NOT NULL;
+ALTER TABLE "students" ALTER COLUMN "gradeLevel" DROP DEFAULT;
 
 -- DropTable
 DROP TABLE IF EXISTS "student_profiles";

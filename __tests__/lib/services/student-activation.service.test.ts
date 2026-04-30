@@ -2,6 +2,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       update: jest.fn(),
     },
     parentProfile: {
@@ -9,6 +10,7 @@ jest.mock('@/lib/prisma', () => ({
     },
     student: {
       update: jest.fn(),
+      upsert: jest.fn(),
     },
     stageReservation: {
       findFirst: jest.fn(),
@@ -34,11 +36,11 @@ describe('initiateStudentActivation', () => {
         activatedAt: null,
         firstName: 'Nour',
         lastName: 'STMG',
-        student: { id: 'student-entity-1' },
+        student: { id: 'student-entity-1', parentId: 'parent-id-1' },
       })
       .mockResolvedValueOnce(null);
     (prisma.user.update as jest.Mock).mockResolvedValue({});
-    (prisma.student.update as jest.Mock).mockResolvedValue({});
+    (prisma.student.upsert as jest.Mock).mockResolvedValue({});
 
     const result = await (initiateStudentActivation as any)(
       'student-user-1',
@@ -53,15 +55,18 @@ describe('initiateStudentActivation', () => {
     );
 
     expect(result.success).toBe(true);
-    expect(prisma.student.update).toHaveBeenCalledWith({
+    expect(prisma.student.upsert).toHaveBeenCalledWith({
       where: { userId: 'student-user-1' },
-      data: expect.objectContaining({
+      update: expect.objectContaining({
         gradeLevel: 'PREMIERE',
         academicTrack: 'STMG',
         specialties: [],
         stmgPathway: 'INDETERMINE',
         updatedTrackAt: expect.any(Date),
       }),
+      create: expect.objectContaining({
+        parentId: 'parent-id-1'
+      })
     });
   });
 
@@ -74,11 +79,11 @@ describe('initiateStudentActivation', () => {
         activatedAt: null,
         firstName: 'Ines',
         lastName: 'Survie',
-        student: { id: 'student-entity-2' },
+        student: { id: 'student-entity-2', parentId: 'parent-id-2' },
       })
       .mockResolvedValueOnce(null);
     (prisma.user.update as jest.Mock).mockResolvedValue({});
-    (prisma.student.update as jest.Mock).mockResolvedValue({});
+    (prisma.student.upsert as jest.Mock).mockResolvedValue({});
 
     const result = await initiateStudentActivation(
       'student-user-2',
@@ -95,14 +100,17 @@ describe('initiateStudentActivation', () => {
     );
 
     expect(result.success).toBe(true);
-    expect(prisma.student.update).toHaveBeenCalledWith({
+    expect(prisma.student.upsert).toHaveBeenCalledWith({
       where: { userId: 'student-user-2' },
-      data: expect.objectContaining({
+      update: expect.objectContaining({
         survivalMode: true,
         survivalModeReason: 'Profil tres grande difficulte',
         survivalModeBy: 'assistant-1',
         survivalModeAt: expect.any(Date),
       }),
+      create: expect.objectContaining({
+        parentId: 'parent-id-2'
+      })
     });
   });
 });
