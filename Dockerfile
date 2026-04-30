@@ -55,6 +55,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# [FIX P0] Copy pdfkit font assets to standalone build for PDF generation
+# pdfkit expects Helvetica.afm and other font files to be available at runtime
+COPY --from=builder /app/node_modules/pdfkit/js/data ./node_modules/pdfkit/js/data
+
 # [LA CORRECTION QUE VOUS ATTENDIEZ]
 # On copie le client Prisma généré ET le dossier prisma contenant le schéma.
 # Ces deux éléments sont nécessaires au runtime pour que Prisma fonctionne.

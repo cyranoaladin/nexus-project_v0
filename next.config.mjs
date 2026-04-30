@@ -20,6 +20,7 @@ const nextConfig = {
     'pino-pretty',
     'thread-stream',
     'pino-abstract-transport',
+    'pdfkit',
   ],
 
 
