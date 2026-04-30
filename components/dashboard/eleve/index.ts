@@ -1,4 +1,5 @@
 export * from './EleveAria';
+export * from './EafStageQuestionnaireCard';
 export * from './EleveBilans';
 export * from './EleveCockpit';
 export * from './EleveHubRessources';
