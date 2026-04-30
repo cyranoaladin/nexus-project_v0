@@ -17,7 +17,7 @@ les actions d'urgence effectuées, et les correctifs de pérennisation appliqué
 | Branch | `main` |
 | Origin | `github.com:cyranoaladin/nexus-project_v0` |
 | URL prod | `https://nexusreussite.academy` |
-| Serveur | `<PROD_SSH_TARGET>` |
+| Serveur | `88.99.254.59` |
 | Répertoire prod | `/opt/nexus` |
 
 ---

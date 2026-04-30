@@ -21,7 +21,7 @@ This deployment plan outlines the non-destructive deployment of P0 security hard
 ## Pre-Deployment Checklist
 
 ### Infrastructure
-- [ ] Verify production server access: root@<PROD_SSH_TARGET>
+- [ ] Verify production server access: root@88.99.254.59
 - [ ] Verify SSH key authentication works
 - [ ] Verify Docker Compose is installed
 - [ ] Verify nexus-app and nexus-postgres containers are healthy
