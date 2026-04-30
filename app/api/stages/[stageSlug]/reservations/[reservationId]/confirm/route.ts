@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic';
 
+import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 import { requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/email/mailer';
@@ -81,7 +83,7 @@ export async function POST(
         
         // Let's find the "System Parent" or create one if not found.
         parentUser = await prisma.user.findFirst({
-          where: { email: 'admin@nexus-reussite.com' }, // Use admin as fallback parent for orphaned registrations
+          where: { email: SYSTEM_PARENT_EMAIL }, // Use dedicated tech parent for orphaned registrations
           include: { parentProfile: true }
         });
       }

@@ -19,6 +19,7 @@ import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
+import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 
 /** Hash an activation token for safe storage */
 function hashToken(token: string): string {
@@ -205,7 +206,7 @@ export async function initiateStudentActivation(
     if (!parentId) {
       // Fallback to admin parent if still missing (edge case for orphaned students being activated by admin)
       const adminParent = await prisma.user.findFirst({
-        where: { email: 'admin@nexus-reussite.com' },
+        where: { email: SYSTEM_PARENT_EMAIL },
         include: { parentProfile: true }
       });
       parentId = adminParent?.parentProfile?.id;

@@ -118,3 +118,6 @@ export const CREDIT_COSTS = {
   COURS_PRESENTIEL: 1.25,
   ATELIER_GROUPE: 1.5
 } as const
+
+// Emails techniques
+export const SYSTEM_PARENT_EMAIL = "parent-technique@nexusreussite.academy";
