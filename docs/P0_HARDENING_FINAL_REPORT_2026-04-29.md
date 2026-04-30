@@ -49,11 +49,11 @@ All P1/P2/P3 issues identified by cubic-dev-ai have been fixed:
 **Concrete Proofs:**
 ```bash
 # Let's Encrypt certificates exist and are properly configured
-ssh root@<PROD_SSH_TARGET> "ls -la /etc/letsencrypt/live/nexusreussite.academy/"
+ssh root@88.99.254.59 "ls -la /etc/letsencrypt/live/nexusreussite.academy/"
 # Output: fullchain.pem, privkey.pem, chain.pem, cert.pem (symlinks to archive)
 
 # Archive permissions corrected to 600 for privkey
-ssh root@<PROD_SSH_TARGET> "stat -c '%a %U:%G %n' /etc/letsencrypt/archive/nexusreussite.academy/privkey2.pem"
+ssh root@88.99.254.59 "stat -c '%a %U:%G %n' /etc/letsencrypt/archive/nexusreussite.academy/privkey2.pem"
 # Output: 600 root:root (was 777, now secure)
 ```
 

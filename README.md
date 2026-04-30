@@ -4,7 +4,7 @@
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 
-**Production** : `https://nexusreussite.academy` · **Serveur** : Hetzner Dedicated (<PROD_SSH_TARGET>)
+**Production** : `https://nexusreussite.academy` · **Serveur** : Hetzner Dedicated (88.99.254.59)
 
 ---
 
@@ -855,7 +855,7 @@ npx playwright test --project=chromium  # E2E Chromium only
 ### Infrastructure Production
 
 ```
-Serveur: <PROD_SSH_TARGET> (Hetzner Dedicated, i7-8700 12 cores, 62GB RAM)
+Serveur: 88.99.254.59 (Hetzner Dedicated, i7-8700 12 cores, 62GB RAM)
 Domaine: https://nexusreussite.academy
 SSL: Let's Encrypt (auto-renew)
 Reverse Proxy: Nginx → 127.0.0.1:3001
