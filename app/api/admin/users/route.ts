@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
+import { SYSTEM_PARENT_EMAIL } from '@/lib/constants';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
 import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
@@ -309,7 +310,7 @@ export async function PATCH(request: NextRequest) {
       }
       if (!parentId) {
         const adminParent = await prisma.user.findFirst({
-          where: { email: 'admin@nexus-reussite.com' },
+          where: { email: SYSTEM_PARENT_EMAIL },
           include: { parentProfile: true }
         });
         parentId = adminParent?.parentProfile?.id;
